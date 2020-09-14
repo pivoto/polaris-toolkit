@@ -1,0 +1,51 @@
+root = true
+
+[*]
+#indent_style = space
+#indent_size = 4
+indent_style = tab
+tab_width = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[{*.yml,*.yaml}]
+indent_style = space
+indent_size = 2
+
+[{*.md,*.markdown,*.mkd}]
+indent_style = space
+indent_size = 2
+
+[*.java]
+indent_style = tab
+tab_width = 4
+
+[{*.css,*.js}]
+indent_style = tab
+tab_width = 2
+
+[{*.xml,*.tld}]
+indent_style = tab
+tab_width = 2
+
+[{*.html,*.htm}]
+indent_style = tab
+tab_width = 2
+
+[{*.jsp,*.jspf,*.tag}]
+indent_style = tab
+tab_width = 2
+
+[{*.sql}]
+indent_style = tab
+tab_width = 2
+
+[{*.ftl}]
+indent_style = tab
+tab_width = 2
+
+[{*.json,*.txt}]
+indent_style = tab
+tab_width = 2
