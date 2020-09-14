@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<code xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://polaris.pivoto.cn/schema/code" xsi:schemaLocation="http://polaris.pivoto.cn/schema/code code.xsd" >
+	<!--
+	属性优先级: 表属性 > 模板属性 > 组属性 > 全局属性
+	-->
+	<!-- outdir: 配置生成代码的位置 -->
+	<outdir>./</outdir>
+	<!-- 需忽略的表名前缀，多个间逗号分隔 -->
+	<table-prefix>_,t_,tbl_</table-prefix>
+	<!-- 需忽略的表名后缀，多个间逗号分隔 -->
+	<table-suffix>_,_bak,_tmp</table-suffix>
+	<!-- 需忽略的列名前缀，多个间逗号分隔 -->
+	<column-prefix>_</column-prefix>
+	<!-- 需忽略的列名后缀，多个间逗号分隔 -->
+	<column-suffix>_</column-suffix>
+	<!-- region 全局属性配置 -->
+	<property>
+		<entry key="author" value="Qt"/>
+		<entry key="useGeneratedKeys" value="true"/>
+		<entry key="srcDir" value="src/main/java"/>
+		<entry key="webDir" value="src/main/resources/META-INF/resources"/>
+		<entry key="entityPackage" value="entity"/>
+		<entry key="mapperPackage" value="mapper"/>
+		<entry key="servicePackage" value="service"/>
+		<entry key="implPackage" value="impl"/>
+		<entry key="controllerPackage" value="controller"/>
+	</property>
+	<!-- endregion 全局属性配置 -->
+
+	<!-- 可配置多个组以使用不同的配置 -->
+	<groups>
+		<!-- region 代码生成配置组 -->
+		<group>
+			<!-- 组扩展属性配置-->
+			<property></property>
+			<templates>
+				<template>
+					<property></property>
+					<path>/vm/example.txt.vm</path>
+					<dirname>${env.srcDir}/</dirname>
+					<filename>${table.javaClassName}.example.txt</filename>
+				</template>
+				<template>
+					<property></property>
+					<path>/vm/entity.java.vm</path>
+					<dirname>${env.srcDir}/${table.javaPackageDir}/${env.entityPackage}</dirname>
+					<filename>${table.javaClassName}Entity.java</filename>
+				</template>
+				<template>
+					<property></property>
+					<path>/vm/mapper.java.vm</path>
+					<dirname>${env.srcDir}/${table.javaPackageDir}/${env.mapperPackage}</dirname>
+					<filename>${table.javaClassName}Mapper.java</filename>
+				</template>
+				<template>
+					<property></property>
+					<path>/vm/mapper.xml.vm</path>
+					<dirname>${env.srcDir}/${table.javaPackageDir}/${env.mapperPackage}</dirname>
+					<filename>${table.javaClassName}Mapper.xml</filename>
+				</template>
+				<template>
+					<property></property>
+					<path>/vm/service.java.vm</path>
+					<dirname>${env.srcDir}/${table.javaPackageDir}/${env.servicePackage}</dirname>
+					<filename>I${table.javaClassName}Service.java</filename>
+				</template>
+				<template>
+					<property></property>
+					<path>/vm/service-impl.java.vm</path>
+					<dirname>${env.srcDir}/${table.javaPackageDir}/${env.servicePackage}/${env.implPackage}</dirname>
+					<filename>${table.javaClassName}ServiceImpl.java</filename>
+				</template>
+			</templates>
+
+			<!--
+				tables: 配置待生成代码的表
+				table.catalog: 数据库名, oracle下不需要, mysql下使用
+				table.schema: 数据库用户, 大小写敏感, oracle下需要大写
+				table.name: 表名, 大小写敏感, oracle下需要大写
+				table.package: java包名, 如 com.yucheng.cmis.模块名.子模块名
+				table.property.moduleDir: 模块目录路径, sql文件、jsp文件等的目录名
+				table.property.moduleId: 模块Java服务接口声明的模块ID, 通常与包名类似, 如 com.yucheng.cmis.模块名.子模块名
+				table.property.moduleName: 模块Java服务接口声明的模块名称
+			 -->
+			<tables>
+				<table catalog="" schema="BASESV" name="BS_USER" package="io.polaris.app">
+					<property></property>
+				</table>
+				<table catalog="" schema="BASESV" name="BS_USER" package="io.polaris.app">
+					<property></property>
+				</table>
+			</tables>
+
+		</group>
+		<group>
+			<property></property>
+		</group>
+		<!-- endregion 代码生成配置组 -->
+	</groups>
+</code>

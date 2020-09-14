@@ -1,0 +1,254 @@
+#parse("/vm/include.vm")
+###include("vm/include.vm")
+#if(${table.javaPackageName})
+	#set($pkgPrefix="${table.javaPackageName}.")
+#else
+	#set($pkgPrefix="")
+#end
+package ${pkgPrefix}${opPackage};
+
+import java.sql.Connection;
+import java.util.*;
+
+import com.yucheng.cmis.plat.CmisFactory;
+import com.ecc.emp.core.Context;
+import com.ecc.emp.core.EMPException;
+import com.yucheng.cmis.base.CMISException;
+import com.yucheng.cmis.pub.CMISFactory;
+import com.yucheng.cmis.dao.util.PageInfo;
+import com.yucheng.cmis.operation.CMISOperation;
+import com.yucheng.cmis.pub.CMISFactory;
+import com.yucheng.cmis.pub.exception.AsynException;
+import com.yucheng.cmis.util.EUIUtil;
+import lombok.extern.slf4j.Slf4j;
+
+#set($componentClass="${table.javaClassName}${componentSuffix}")
+#set($msiClass="${table.javaClassName}${msiSuffix}")
+import ${pkgPrefix}${env.entityPackage}.${table.javaClassName};
+import ${pkgPrefix}${componentPackage}.${componentClass};
+import ${pkgPrefix}${msiPackage}.${msiClass};
+
+
+/**
+ * $!{table.name} $!{table.comment}
+ * <br>
+ * 控制层增删改查操作类
+ *
+ * @author $!{author}
+ * @version ${current.date}
+ */
+@Slf4j
+public class ${table.javaClassName}${opSuffix} extends CMISOperation{
+
+	private boolean isQuickSearch(Context context) {
+		String searchType = null;
+		try {
+			// 页面查询类别，前台参数键名为"searchType"，参数值为"quickquery"表示搜索框快速查询
+			searchType = (String) context.getDataValue(EUIUtil.RequestParamSearchType);
+		} catch (Exception e) {
+		}
+		return EUIUtil.SearchType_Quick.equals(searchType);
+	}
+
+	/**
+	 * <h3>列表数据查询</h3>
+	 * <p>
+	 * 前端查询条件支持：精确、模糊、in三种类型
+	 * <p>
+	 * 通过EUIUtil.assembleSearchParamerter方法从Context中自动封装, 需要指定对应的查询模式。
+	 * 自动生成的代码默认前端：以equals.开头的查询字段使用精确查询, 以like.开头的查询字段使用模糊查询, 以in.开头的查询字段使用in查询
+	 * <p>
+	 * 前端排序，如果使用前端remote=true查询方式，在sql文件中不要添加排序，否则在解析SQL时会报错
+	 * <p>
+	 *
+	 * @param context EMP上下文
+	 * @return String
+	 * @throws EMPException
+	 */
+	public String query${table.javaClassName}List(Context context) throws EMPException {
+		Connection connection = null;
+		try {
+			connection = this.getConnection(context);
+
+			// 定义查询参数map
+			Map paramMap = new HashMap();
+			// 解析页面排序字段
+			EUIUtil.assembleOrderParamerter(context, paramMap);
+			// 解析页面查询条件到参数map中
+			// 取前端精确查询条件
+			EUIUtil.assembleSearchParamerter(context, "equals", EUIUtil.QueryParamMatchType_Equal, paramMap);
+			// 取前端模糊查询条件
+			EUIUtil.assembleSearchParamerter(context, "like", EUIUtil.QueryParamMatchType_Like, paramMap);
+			// 取查询关键字为in的查询条件,这里没有用到，注释
+			// EUIUtil.assembleSearchParamerter(context, "in", EUIUtil.QueryParamMatchType_Array, paramMap);
+
+			// 声明分页信息，默认读取10条记录
+			PageInfo pageInfo = EUIUtil.assemblePageInfo(context, 10);
+
+			//通过组件服务实例化业务组件
+			${componentClass} comp = CmisFactory.getComponent(${componentClass}.COMPONENT_ID, ${componentClass}.class);
+
+			//查询结果列表
+			List<${table.javaClassName}> list = null;
+			if (isQuickSearch(context)) {
+				//快捷查询
+				list = comp.query${table.javaClassName}ListQuick(pageInfo, paramMap, connection);
+			} else {
+				//高级查询
+				list = comp.query${table.javaClassName}List(pageInfo, paramMap, connection);
+			}
+			//将查询结构放入Context中以便前端获查询结结
+			EUIUtil.putTableData2Context(context, list, pageInfo);
+
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new AsynException(e);
+		} finally {
+			if (connection != null) {
+				this.releaseConnection(context, connection);
+			}
+		}
+		return "0";
+	}
+
+
+	/**
+	 * 新增记录
+	 *
+	 * @param context EMP上下文
+	 * @return String
+	 * @throws EMPException
+	 */
+	public String add${table.javaClassName}(Context context) throws EMPException {
+		Connection connection = null;
+		try {
+			connection = this.getConnection(context);
+			${table.javaClassName} domain = new ${table.javaClassName}();
+			// 从Context中获需要新增的domain
+			EUIUtil.getPojoFromContext(context, domain);
+			// 通过组件服务实例化业务组件
+			${componentClass} comp = CmisFactory.getComponent(${componentClass}.COMPONENT_ID, ${componentClass}.class);
+			// 新增数据
+			boolean result = comp.add${table.javaClassName}(domain, connection);
+			// 将处理结果放入Context中以便前端获取
+			if (result) {
+				context.addDataField("flag", "success");
+			} else {
+				context.addDataField("flag", "failed");
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new AsynException(e);
+		} finally {
+			if (connection != null) {
+				this.releaseConnection(context, connection);
+			}
+		}
+		return "0";
+	}
+
+
+	/**
+	 * 更新记录
+	 *
+	 * @param context EMP上下文
+	 * @return String
+	 * @throws EMPException
+	 */
+	public String update${table.javaClassName}(Context context) throws EMPException {
+		Connection connection = null;
+		try {
+			connection = this.getConnection(context);
+			${table.javaClassName} domain = new ${table.javaClassName}();
+			//从Context中获需要修改的domain
+			EUIUtil.getPojoFromContext(context, domain);
+			//通过组件服务实例化业务组件
+			${componentClass} comp = CmisFactory.getComponent(${componentClass}.COMPONENT_ID, ${componentClass}.class);
+			//更新数据
+			boolean result = comp.update${table.javaClassName}(domain, connection);
+			//将处理结果放入Context中以便前端获取
+			if (result) {
+				context.addDataField("flag", "success");
+			} else {
+				context.addDataField("flag", "failed");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new AsynException(e);
+		} finally {
+			if (connection != null) {
+				this.releaseConnection(context, connection);
+			}
+		}
+		return "0";
+	}
+
+
+	/**
+	 * 查询详情记录
+	 *
+	 * @param context EMP上下文
+	 * @return String
+	 * @throws EMPException
+	 */
+	public String query${table.javaClassName}Detail(Context context) throws EMPException {
+		Connection connection = null;
+		try {
+			connection = this.getConnection(context);
+			${table.javaClassName} domain = new ${table.javaClassName}();
+			//从Context中获需要修改的domain
+			EUIUtil.getPojoFromContext(context, domain);
+			//通过组件服务实例化业务组件
+			${componentClass} comp = CmisFactory.getComponent(${componentClass}.COMPONENT_ID, ${componentClass}.class);
+			//查询数据
+			${table.javaClassName} result = comp.query${table.javaClassName}Detail(domain, connection);
+			//将查询结果放入Context中以便前端获取
+			EUIUtil.putData2Context(context, result, "${table.javaClassName}");
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new AsynException(e);
+		} finally {
+			if (connection != null) {
+				this.releaseConnection(context, connection);
+			}
+		}
+		return "0";
+	}
+
+
+	/**
+	 * 删除记录
+	 *
+	 * @param context EMP上下文
+	 * @return String
+	 * @throws EMPException
+	 */
+	public String remove${table.javaClassName}(Context context) throws EMPException {
+		Connection connection = null;
+		try {
+			connection = this.getConnection(context);
+			${table.javaClassName} domain = new ${table.javaClassName}();
+			//从Context中获需要修改的domain
+			EUIUtil.getPojoFromContext(context, domain);
+			//通过组件服务实例化业务组件
+			${componentClass} comp = CmisFactory.getComponent(${componentClass}.COMPONENT_ID, ${componentClass}.class);
+			//删除数据
+			boolean result = comp.remove${table.javaClassName}(domain, connection);
+			//将处理结果放入Context中以便前端获取
+			if (result) {
+				context.addDataField("flag", "success");
+			} else {
+				context.addDataField("flag", "failed");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new AsynException(e);
+		} finally {
+			if (connection != null) {
+				this.releaseConnection(context, connection);
+			}
+		}
+		return "0";
+	}
+
+}

@@ -1,0 +1,37 @@
+<tables>
+  <catalog>
+    <schema name="BASESV">
+      <table name="BS_USER" comment="BS_USER">
+        <column name="USER_ID" comment="用户ID" primary="true" nullable="false" columnSize="8" decimalDigits="0" generated="false" autoincrement="false" jdbcType="DECIMAL" javaType="java.lang.Long"/>
+        <column name="USER_LOGIN_NAME" comment="用户登录名称" primary="false" nullable="false" columnSize="30" decimalDigits="0" generated="false" autoincrement="false" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <column name="USER_LOGIN_PWD" comment="用户登录密码" primary="false" nullable="true" columnSize="40" decimalDigits="0" generated="false" autoincrement="false" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <column name="USER_REAL_NAME" comment="用户实际姓名" primary="false" nullable="false" columnSize="30" decimalDigits="0" generated="false" autoincrement="false" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <column name="USER_ID_TYP" comment="用户证件类型" primary="false" nullable="true" columnSize="10" decimalDigits="0" generated="false" autoincrement="false" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <column name="USER_ID_NO" comment="用户证件号码" primary="false" nullable="true" columnSize="25" decimalDigits="0" generated="false" autoincrement="false" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <column name="USER_TEL" comment="用户手机号码（注册客户）" primary="false" nullable="true" columnSize="12" decimalDigits="0" generated="false" autoincrement="false" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <column name="USER_EMAIL" comment="用户邮箱" primary="false" nullable="true" columnSize="50" decimalDigits="0" generated="false" autoincrement="false" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <column name="USER_BCH" comment="用户所属机构" primary="false" nullable="false" columnSize="14" decimalDigits="0" generated="false" autoincrement="false" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <column name="USER_INSTU" comment="用户所属法人机构" primary="false" nullable="false" columnSize="10" decimalDigits="0" generated="false" autoincrement="false" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <column name="USER_STS" comment="用户状态：A-生效，I-失效" primary="false" nullable="false" columnSize="1" decimalDigits="0" generated="false" autoincrement="false" jdbcType="CHAR" javaType="java.lang.String"/>
+        <column name="USER_TYPE" comment="用户类型：1-内部，2-外部，3-后台" primary="false" nullable="false" columnSize="1" decimalDigits="0" generated="false" autoincrement="false" jdbcType="CHAR" javaType="java.lang.String"/>
+        <column name="REST_IND" comment="用户是否休假" primary="false" nullable="true" columnSize="1" decimalDigits="0" generated="false" autoincrement="false" jdbcType="CHAR" javaType="java.lang.String"/>
+        <column name="PASS_MODIFY_DT" comment="用户登录密码修改日期" primary="false" nullable="true" columnSize="10" decimalDigits="0" generated="false" autoincrement="false" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <column name="SPECIAL_ROLE" comment="特定角色" primary="false" nullable="true" columnSize="20" decimalDigits="0" generated="false" autoincrement="false" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <column name="IS_ONLINE" comment="用户是否在线：Y-在线，N-离线" primary="false" nullable="true" columnSize="1" decimalDigits="0" generated="false" autoincrement="false" jdbcType="CHAR" javaType="java.lang.String"/>
+        <column name="OFFLINE_DURATION" comment="离线时长（天）" primary="false" nullable="true" columnSize="4" decimalDigits="0" generated="false" autoincrement="false" jdbcType="DECIMAL" javaType="java.lang.Long"/>
+        <column name="IS_LOCK" comment="用户是否锁定：Y-锁定，N-正常" primary="false" nullable="false" columnSize="1" decimalDigits="0" generated="false" autoincrement="false" jdbcType="CHAR" javaType="java.lang.String"/>
+        <column name="LAST_LOGIN_TIME" comment="用户最后登录时间" primary="false" nullable="true" columnSize="20" decimalDigits="0" generated="false" autoincrement="false" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <column name="LOGIN_FAIL_COUNT" comment="连续登录失败次数" primary="false" nullable="true" columnSize="2" decimalDigits="0" generated="false" autoincrement="false" jdbcType="DECIMAL" javaType="java.lang.Long"/>
+        <column name="CUST_ID" comment="客户中心ID" primary="false" nullable="true" columnSize="30" decimalDigits="0" generated="false" autoincrement="false" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <column name="USER_REMARK" comment="备注" primary="false" nullable="true" columnSize="100" decimalDigits="0" generated="false" autoincrement="false" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <column name="CRT_USER" comment="创建用户" primary="false" nullable="true" columnSize="8" decimalDigits="0" generated="false" autoincrement="false" jdbcType="DECIMAL" javaType="java.lang.Long"/>
+        <column name="CRT_DT" comment="创建时间" primary="false" nullable="true" columnSize="19" decimalDigits="0" generated="false" autoincrement="false" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <column name="LAST_CHG_USER" comment="最后更新用户" primary="false" nullable="true" columnSize="8" decimalDigits="0" generated="false" autoincrement="false" jdbcType="DECIMAL" javaType="java.lang.Long"/>
+        <column name="LAST_CHG_DT" comment="最后更新时间" primary="false" nullable="true" columnSize="19" decimalDigits="0" generated="false" autoincrement="false" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <column name="USER_BUSI_BCH" comment="对外业务机构" primary="false" nullable="true" columnSize="10" decimalDigits="0" generated="false" autoincrement="false" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <column name="USER_ICON" comment="用户头像" primary="false" nullable="true" columnSize="2000" decimalDigits="0" generated="false" autoincrement="false" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <column name="MAIN_URL" comment="首页地址" primary="false" nullable="true" columnSize="254" decimalDigits="0" generated="false" autoincrement="false" jdbcType="VARCHAR" javaType="java.lang.String"/>
+      </table>
+    </schema>
+  </catalog>
+</tables>

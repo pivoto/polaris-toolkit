@@ -1,0 +1,33 @@
+#parse("/booster/include.vm")
+###include("booster/include.vm")
+package ${pkgPrefix}${servicePackage|"service"};
+
+import io.booster.core.base.annotation.BaseComponent;
+import io.booster.core.base.service.*;
+import io.booster.system.entity.*;
+import io.booster.system.service.*;
+import io.booster.modules.entity.*;
+import io.booster.modules.service.*;
+
+import ${pkgPrefix}${entityPackage|"entity"}.${table.javaClassName};
+import ${pkgPrefix}${mapperPackage|"mapper"}.${table.javaClassName}Mapper;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.apache.ibatis.annotations.Param;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+
+
+#javaAuthor()
+@Service
+@Slf4j
+public class ${table.javaClassName}Service extends ${baseService|'BaseCrudService'}<${table.javaClassName}, ${table.pkColumns[0].javaType}>{
+
+	@BaseComponent
+	@Autowired
+	private ${table.javaClassName}Mapper ${table.javaVariableName}Mapper;
+
+}

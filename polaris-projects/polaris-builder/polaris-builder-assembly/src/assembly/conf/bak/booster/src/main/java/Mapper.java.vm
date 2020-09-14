@@ -1,0 +1,19 @@
+#parse("/booster/include.vm")
+###include("booster/include.vm")
+package ${pkgPrefix}${mapperPackage|"mapper"};
+
+import io.booster.core.base.mybatis.annotation.AfterEntityScanner;
+import io.booster.core.base.mybatis.lang.VelocityLangDriver;
+import io.booster.core.base.mybatis.mapping.BaseMapper;
+import org.apache.ibatis.annotations.*;
+import org.springframework.stereotype.Repository;
+
+import ${pkgPrefix}${entityPackage|"entity"}.${table.javaClassName};
+
+#javaAuthor()
+@Repository
+@Mapper
+@AfterEntityScanner
+public interface ${table.javaClassName}Mapper extends ${baseMapper|'BaseMapper'}<${table.javaClassName}, ${table.pkColumns[0].javaType}>{
+
+}

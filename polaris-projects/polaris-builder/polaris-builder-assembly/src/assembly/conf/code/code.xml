@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<code xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://polaris.pivoto.cn/schema/code" xsi:schemaLocation="http://polaris.pivoto.cn/schema/code code.xsd" >
+	<outdir>/tmp/code/</outdir>
+	<property>
+		<entry key="author" value="Qt"/>
+		<entry key="useGeneratedKeys" value="true"/>
+		<entry key="srcDir" value="src/main/java"/>
+		<entry key="webDir" value="src/main/resources/META-INF/resources"/>
+		<entry key="entityPackage" value="entity"/>
+		<entry key="mapperPackage" value="mapper"/>
+		<entry key="servicePackage" value="service"/>
+		<entry key="implPackage" value="impl"/>
+		<entry key="controllerPackage" value="controller"/>
+	</property>
+	<mappings>
+		<mapping jdbcType="VARCHAR" javaType="java.lang.String" />
+	</mappings>
+
+	<groups>
+		<group>
+			<property></property>
+			<templates>
+				<template>
+					<property></property>
+					<path>/vm/example.txt.vm</path>
+					<dirname>/</dirname>
+					<filename>${table.javaClassName}.example.txt</filename>
+				</template>
+				<template>
+					<property></property>
+					<path>/vm/java/Entity.java.vm</path>
+					<dirname>${env.srcDir}/${table.javaPackageDir}/${env.entityPackage}</dirname>
+					<filename>${table.javaClassName}Entity.java</filename>
+				</template>
+				<template>
+					<property></property>
+					<path>/vm/java/Mapper.java.vm</path>
+					<dirname>${env.srcDir}/${table.javaPackageDir}/${env.mapperPackage}</dirname>
+					<filename>${table.javaClassName}Mapper.java</filename>
+				</template>
+				<template>
+					<property></property>
+					<path>/vm/resources/Mapper.xml.vm</path>
+					<dirname>${env.srcDir}/${table.javaPackageDir}/${env.mapperPackage}</dirname>
+					<filename>${table.javaClassName}Mapper.xml</filename>
+				</template>
+				<template>
+					<property></property>
+					<path>/vm/java/Service.java.vm</path>
+					<dirname>${env.srcDir}/${table.javaPackageDir}/${env.servicePackage}</dirname>
+					<filename>${table.javaClassName}Service.java</filename>
+				</template>
+				<template>
+					<property></property>
+					<path>/vm/java/Controller.java.vm</path>
+					<dirname>${env.srcDir}/${table.javaPackageDir}/${env.controllerPackage}</dirname>
+					<filename>${table.javaClassName}Controller.java</filename>
+				</template>
+			</templates>
+
+			<tables>
+				<table catalog="" schema="BASESV" name="BS_USER" package="io.polaris.app" >
+					<property></property>
+				</table>
+				<table catalog="" schema="BASESV" name="BS_USER" package="io.polaris.app" >
+					<property></property>
+				</table>
+			</tables>
+		</group>
+		<group>
+			<property></property>
+		</group>
+	</groups>
+</code>

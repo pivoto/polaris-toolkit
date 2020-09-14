@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<env>
+	<!-- outdir: 配置生成代码的位置 -->
+	<outdir>D:\data\code</outdir>
+	<!-- property: 全局属性配置 -->
+	<property>
+		<!-- author: JavaDoc 注释中的作者名 -->
+		<entry key="author" value="Qt"/>
+		<entry key="useGeneratedKeys" value="true"/>
+		<entry key="srcDir" value="src/main/java"/>
+		<entry key="resourceDir" value="src/main/config"/>
+		<entry key="webDir" value="WebContent"/>
+		<entry key="entityPackage" value="domain"/>
+		<entry key="componentPackage" value="component"/>
+		<entry key="componentSuffix" value="Component"/>
+		<entry key="msiPackage" value="msi"/>
+		<entry key="msiSuffix" value="ServiceInterface"/>
+		<entry key="msiImplPackage" value="impl"/>
+		<entry key="msiImplSuffix" value="ServiceImpl"/>
+		<entry key="opPackage" value="op"/>
+		<entry key="opSuffix" value="CrudOp"/>
+
+		<entry key="componentBaseDir" value="com/yucheng/cmis/config"/>
+		<entry key="sqlBaseDir" value="sql"/>
+		<entry key="actionBaseDir" value="WEB-INF/mvcs/CMISMvc/actions"/>
+		<entry key="jspBaseDir" value="WEB-INF/mvcs/CMISMvc"/>
+
+	</property>
+
+	<groups>
+		<group>
+			<property></property>
+			<templates>
+				<!-- region example -->
+				<template>
+					<property></property>
+					<path>/vm/example.txt.vm</path>
+					<outdir></outdir>
+					<filename>${table.javaClassName}.example.txt</filename>
+				</template>
+				<!-- endregion -->
+
+				<!-- region java -->
+				<template>
+					<path>/vm/java/domain.java.vm</path>
+					<outdir>${env.srcDir}/${table.javaPackageDir}/${env.entityPackage}</outdir>
+					<filename>${table.javaClassName}.java</filename>
+				</template>
+				<template>
+					<path>/vm/java/component.java.vm</path>
+					<outdir>${env.srcDir}/${table.javaPackageDir}/${componentPackage}</outdir>
+					<filename>${table.javaClassName}${componentSuffix}.java</filename>
+				</template>
+				<template>
+					<path>/vm/java/msi.java.vm</path>
+					<outdir>${env.srcDir}/${table.javaPackageDir}/${msiPackage}</outdir>
+					<filename>${table.javaClassName}${msiSuffix}.java</filename>
+				</template>
+				<template>
+					<path>/vm/java/msiImpl.java.vm</path>
+					<outdir>${env.srcDir}/${table.javaPackageDir}/${msiPackage}/${msiImplPackage}</outdir>
+					<filename>${table.javaClassName}${msiImplSuffix}.java</filename>
+				</template>
+				<template>
+					<path>/vm/java/op.java.vm</path>
+					<outdir>${env.srcDir}/${table.javaPackageDir}/${opPackage}</outdir>
+					<filename>${table.javaClassName}${opSuffix}.java</filename>
+				</template>
+				<!-- endregion -->
+
+				<!-- region config -->
+				<template>
+					<path>/vm/config/action.xml.vm</path>
+					<outdir>${env.webDir}/${actionBaseDir}/${moduleDir}</outdir>
+					<filename>${table.javaClassName}.xml</filename>
+				</template>
+				<template>
+					<path>/vm/config/component.xml.vm</path>
+					<outdir>${resourceDir}/${componentBaseDir}/${moduleDir}</outdir>
+					<filename>${table.javaClassName}.xml</filename>
+				</template>
+				<template>
+					<path>/vm/config/sql.xml.vm</path>
+					<outdir>${resourceDir}/${sqlBaseDir}/${moduleDir}</outdir>
+					<filename>${table.javaClassName}.sql.xml</filename>
+				</template>
+
+				<!-- endregion -->
+
+				<!-- region jsp -->
+				<template>
+					<path>/vm/jsp/add.jsp.vm</path>
+					<outdir>${env.webDir}/${jspBaseDir}/${moduleDir}/${table.javaClassName.toLowerCase()}</outdir>
+					<filename>add${table.javaClassName}.jsp</filename>
+				</template>
+				<template>
+					<path>/vm/jsp/list.jsp.vm</path>
+					<outdir>${env.webDir}/${jspBaseDir}/${moduleDir}/${table.javaClassName.toLowerCase()}</outdir>
+					<filename>list${table.javaClassName}.jsp</filename>
+				</template>
+				<template>
+					<path>/vm/jsp/listPop.jsp.vm</path>
+					<outdir>${env.webDir}/${jspBaseDir}/${moduleDir}/${table.javaClassName.toLowerCase()}</outdir>
+					<filename>list${table.javaClassName}Pop.jsp</filename>
+				</template>
+				<template>
+					<path>/vm/jsp/modify.jsp.vm</path>
+					<outdir>${env.webDir}/${jspBaseDir}/${moduleDir}/${table.javaClassName.toLowerCase()}</outdir>
+					<filename>modify${table.javaClassName}.jsp</filename>
+				</template>
+				<!-- endregion -->
+
+			</templates>
+
+			<!--
+				tables: 配置待生成代码的表
+				table.catalog: 数据库名, oracle下不需要, mysql下使用
+				table.schema: 数据库用户, 大小写敏感, oracle下需要大写
+				table.name: 表名, 大小写敏感, oracle下需要大写
+				table.package: java包名, 如 com.yucheng.cmis.模块名.子模块名
+				table.property.moduleDir: 模块目录路径, sql文件、jsp文件等的目录名
+				table.property.moduleId: 模块Java服务接口声明的模块ID, 通常与包名类似, 如 com.yucheng.cmis.模块名.子模块名
+				table.property.moduleName: 模块Java服务接口声明的模块名称
+			 -->
+			<tables>
+				<table catalog="" schema="" name="SYS_USER" package="com.yucheng.cmis.calc" >
+					<property>
+						<entry key="moduleDir" value="sys"/>
+						<entry key="moduleId" value="com.yucheng.cmis.sys"/>
+						<entry key="moduleName" value="系统用户"/>
+					</property>
+				</table>
+
+			</tables>
+
+		</group>
+	</groups>
+
+</env>

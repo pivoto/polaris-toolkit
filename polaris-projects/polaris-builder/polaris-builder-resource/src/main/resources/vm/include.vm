@@ -1,0 +1,130 @@
+#set($dollar='$')
+#set($empty='')
+#set($tab='	')
+#set($lf='
+')
+## date/time
+#set($now=$!{class.inspect('java.util.Date').getType().newInstance()})
+#set($javaUtilLocaleClass=$!{class.inspect('java.util.Locale').getType()})
+#set($dateLocal=$!{javaUtilLocaleClass.getField('ENGLISH').get(${NULL})})
+#set($dateFormatClass=$!{class.inspect('java.text.SimpleDateFormat').getType()})
+#set($dateFormatConstructor=$!{dateFormatClass.getConstructor(${class.inspect('java.lang.String').getType()},$javaUtilLocaleClass)})
+#set($dateFormat=${dateFormatConstructor.newInstance('MMM dd, yyyy',$dateLocal)})
+#set($yearFormat=${dateFormatConstructor.newInstance('yyyy',$dateLocal)})
+#set($timeFormat=${dateFormatConstructor.newInstance('HH:mm:ss',$dateLocal)})
+#set($current={
+	'year':$yearFormat.format($now),
+	'date':$dateFormat.format($now),
+	'time':$timeFormat.format($now)
+})
+## default
+#if(not ${env.author})
+	#set($env.author="Qt")
+#end
+#if(not ${env.srcDir})
+	#set($env.srcDir="src/main/java")
+#end
+#if(not ${env.resourceDir})
+	#set($env.resourceDir="src/main/resources")
+#end
+#if(not ${env.mapperDir})
+	#set($env.mapperDir="mapper")
+#end
+#if(not ${env.webDir})
+	#set($env.webDir="src/main/resources/META-INF/resources")
+#end
+#if(not ${env.basePackage})
+	#set($env.basePackage="base")
+#end
+#if(not ${env.facadePackage})
+	#set($env.facadePackage="facade")
+#end
+#if(not ${env.modelPackage})
+	#set($env.modelPackage="model")
+#end
+#if(not ${env.entityPackage})
+	#set($env.entityPackage="entity")
+#end
+#if(not ${env.mapperPackage})
+	#set($env.mapperPackage="mapper")
+#end
+#if(not ${env.servicePackage})
+	#set($env.servicePackage="service")
+#end
+#if(not ${env.implPackage})
+	#set($env.implPackage="impl")
+#end
+#if(not ${env.controllerPackage})
+	#set($env.controllerPackage="controller")
+#end
+#if(not ${env.rpcPackage})
+	#set($env.rpcPackage="rpc")
+#end
+#if(not ${env.entityClassSuffix})
+	#set($env.entityClassSuffix="Entity")
+#end
+#if(not ${env.mapperClassSuffix})
+	#set($env.mapperClassSuffix="Mapper")
+#end
+#if(not ${env.serviceClassSuffix})
+	#set($env.serviceClassSuffix="Service")
+#end
+#if(not ${env.controllerClassSuffix})
+	#set($env.controllerClassSuffix="Controller")
+#end
+#if(not ${env.rpcClassSuffix})
+	#set($env.rpcClassSuffix="Rpc")
+#end
+#if(not ${env.rpcDmlInputClassSuffix})
+	#set($env.rpcDmlInputClassSuffix="DmlInput")
+#end
+#if(not ${env.rpcGetInputClassSuffix})
+	#set($env.rpcGetInputClassSuffix="GetInput")
+#end
+#if(not ${env.rpcGetOutputClassSuffix})
+	#set($env.rpcGetOutputClassSuffix="GetOutput")
+#end
+#if(not ${env.rpcListInputClassSuffix})
+	#set($env.rpcListInputClassSuffix="ListInput")
+#end
+#if(not ${env.rpcListOutputClassSuffix})
+	#set($env.rpcListOutputClassSuffix="ListOutput")
+#end
+## base package
+#if(${table.javaPackageName})
+	#if(${env.basePackage})
+		#set($pkgPrefix="${table.javaPackageName}.${env.basePackage.replace('/','.')}.")
+	#else
+		#set($pkgPrefix="${table.javaPackageName}.")
+	#end
+	#if(${env.facadePackage})
+		#set($pkgPrefixFacade="${table.javaPackageName}.${env.facadePackage.replace('/','.')}.")
+	#else
+		#set($pkgPrefixFacade="${table.javaPackageName}.")
+	#end
+#else
+	#if(${env.basePackage})
+		#set($pkgPrefix="${env.basePackage.replace('/','.')}.")
+	#else
+		#set($pkgPrefix='')
+	#end
+	#if(${env.facadePackage})
+		#set($pkgPrefixFacade="${env.facadePackage.replace('/','.')}.")
+	#else
+		#set($pkgPrefixFacade='')
+	#end
+#end
+## author
+#macro(javaAuthor)
+/**
+* $!{table.name} $!{table.comment}
+* @author $!{env.author}
+* @since ${current.date}
+*/
+#end
+#macro(javaImports)
+import lombok.*;
+import lombok.experimental.*;
+import lombok.extern.slf4j.*;
+import java.math.*;
+#end

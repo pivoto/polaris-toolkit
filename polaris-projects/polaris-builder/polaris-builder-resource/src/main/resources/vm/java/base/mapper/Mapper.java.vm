@@ -1,0 +1,40 @@
+#parse("/vm/include.vm")
+package ${pkgPrefix}${env.mapperPackage.replace('/','.')};
+
+import io.polaris.mybatis.mapper.*;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.session.RowBounds;
+import org.springframework.stereotype.Repository;
+
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};;
+
+/**
+ * ${table.name}
+ * $!{table.comment}
+ * @author $!{env.author}
+## * @since ${current.date}
+ */
+@Mapper
+public interface ${table.javaClassName}${env.mapperClassSuffix} extends
+	EntityInsertMapper<${table.javaClassName}${env.entityClassSuffix}>,
+	EntityDeleteByIdMapper<${table.javaClassName}${env.entityClassSuffix}>,
+	EntityDeleteByAnyMapper<${table.javaClassName}${env.entityClassSuffix}>,
+	EntityUpdateByIdMapper<${table.javaClassName}${env.entityClassSuffix}>,
+	EntityUpdateByAnyMapper<${table.javaClassName}${env.entityClassSuffix}>,
+	EntityCountMapper<${table.javaClassName}${env.entityClassSuffix}>,
+	EntitySelectMapper<${table.javaClassName}${env.entityClassSuffix}>,
+	EntitySelectListMapper<${table.javaClassName}${env.entityClassSuffix}>,
+	EntitySelectCursorMapper<${table.javaClassName}${env.entityClassSuffix}>,
+	InsertStatementMapper,
+	DeleteStatementMapper,
+	UpdateStatementMapper,
+	MergeStatementMapper,
+	SelectStatementMapper<${table.javaClassName}${env.entityClassSuffix}>,
+	SelectStatementCursorMapper<${table.javaClassName}${env.entityClassSuffix}> {
+
+}
+

@@ -1,0 +1,25 @@
+#parse("/vm/include.vm")
+package ${pkgPrefixFacade}${env.modelPackage.replace('/','.')};
+
+import java.io.Serializable;
+import lombok.*;
+import lombok.experimental.Accessors;
+#foreach($name in $table.columnJavaTypes)
+import $name;
+#end
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
+import io.polaris.bf.core.context.domain.ExchangeDto;
+import io.swagger.v3.oas.annotations.media.Schema;
+
+/**
+ * $!{table.name}
+ * $!{table.comment}
+ * @author $!{env.author}
+## * @since ${current.date}
+ */
+@Data
+public class ${table.javaClassName}${env.rpcGetOutputClassSuffix} extends ExchangeDto{
+
+	private ${table.javaClassName}${env.entityClassSuffix} entity;
+
+}

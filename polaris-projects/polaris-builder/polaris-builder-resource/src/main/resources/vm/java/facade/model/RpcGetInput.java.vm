@@ -1,0 +1,41 @@
+#parse("/vm/include.vm")
+package ${pkgPrefixFacade}${env.modelPackage.replace('/','.')};
+
+import java.io.Serializable;
+import lombok.*;
+import lombok.experimental.Accessors;
+#foreach($name in $table.columnJavaTypes)
+import $name;
+#end
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
+import io.polaris.bf.core.context.domain.ExchangeDto;
+import io.polaris.bf.core.data.consts.Dml;
+import io.swagger.v3.oas.annotations.media.Schema;
+import javax.validation.Valid;
+import javax.validation.constraints.*;
+
+/**
+ * $!{table.name}
+ * $!{table.comment}
+ * @author $!{env.author}
+## * @since ${current.date}
+ */
+@Data
+public class ${table.javaClassName}${env.rpcGetInputClassSuffix} extends ExchangeDto{
+	@Valid
+	private Param param;
+
+	@Data
+	public static class Param{
+#foreach($col in $table.columns)
+		/** #if(${col.label})$!{col.label}#else$!{col.name}#end */
+		@Schema(description = "#if(${col.label})$!{col.label}#else$!{col.name}#end")
+	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
+		private ${col.javaTypeSimpleName}[] ${col.javaVariableName};
+	#else
+		private ${col.javaTypeSimpleName} ${col.javaVariableName};
+	#end
+#end
+	}
+
+}

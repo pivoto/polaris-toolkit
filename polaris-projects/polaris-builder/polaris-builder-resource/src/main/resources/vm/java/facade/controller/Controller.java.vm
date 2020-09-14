@@ -1,0 +1,53 @@
+#parse("/vm/include.vm")
+package ${pkgPrefixFacade}${env.controllerPackage.replace('/','.')};
+
+import ${pkgPrefix}${env.entityPackage.replace('/','.')|"entity"}.${table.javaClassName}${env.entityClassSuffix};
+import ${pkgPrefix}${env.servicePackage.replace('/','.')|"service"}.${table.javaClassName}${env.serviceClassSuffix};
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
+
+/**
+ * $!{table.name}
+ * $!{table.comment}
+ * @author $!{env.author}
+ * @since ${current.date}
+ */
+@Slf4j
+@RestController
+@RequestMapping(value = "$!{env.controllerPackage.concat("/")}${table.xmlName}")
+public class ${table.javaClassName}${env.controllerClassSuffix}{
+
+	private final ${table.javaClassName}${env.serviceClassSuffix} ${table.javaVariableName}${env.serviceClassSuffix};
+
+	public ${table.javaClassName}${env.controllerClassSuffix}(${table.javaClassName}${env.serviceClassSuffix} ${table.javaVariableName}${env.serviceClassSuffix}) {
+		this.${table.javaVariableName}${env.serviceClassSuffix} = ${table.javaVariableName}${env.serviceClassSuffix};
+	}
+
+	@GetMapping
+	public ${table.javaClassName}${env.entityClassSuffix} get(@RequestBody ${table.javaClassName}${env.entityClassSuffix} param) {
+		return ${table.javaVariableName}${env.serviceClassSuffix}.getUnique(param);
+	}
+
+	@PostMapping
+	public void add(@RequestBody ${table.javaClassName}${env.entityClassSuffix} param) {
+		${table.javaVariableName}${env.serviceClassSuffix}.insert(param);
+	}
+
+	@PutMapping
+	public void update(@RequestBody ${table.javaClassName}${env.entityClassSuffix} param) {
+		${table.javaVariableName}${env.serviceClassSuffix}.updateSelective(param);
+	}
+
+	@DeleteMapping
+	public void delete(@RequestBody ${table.javaClassName}${env.entityClassSuffix} param) {
+		${table.javaVariableName}${env.serviceClassSuffix}.delete(param);
+	}
+
+}
+

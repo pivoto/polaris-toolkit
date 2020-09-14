@@ -1,0 +1,128 @@
+#parse("/vm/include.vm")
+package ${pkgPrefix}${env.servicePackage.replace('/','.')};
+
+import java.util.List;
+
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
+
+import com.github.pagehelper.Page;
+
+/**
+ * $!{table.name}
+ * $!{table.comment}
+ * @author $!{env.author}
+ * @since ${current.date}
+ */
+public interface I${table.javaClassName}${env.serviceClassSuffix} {
+
+	/**
+	 *
+	 * 查询满足条件的总数
+	 *
+	 * @param ${table.javaVariableName}${env.entityClassSuffix} 查询条件对象
+	 * @return 结果总数
+	 */
+	int getCount(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix});
+
+	/**
+	 * 分页查询所有数据,返回当前页{@link Page}对象
+	 *
+	 * @param ${table.javaVariableName}${env.entityClassSuffix} 查询条件对象
+	 * @param pageNum 页码
+	 * @param pageSize 每页记录数
+	 * @return 当前页对象
+	 */
+	Page<${table.javaClassName}${env.entityClassSuffix}> getPage(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix}, int pageNum, int pageSize);
+
+	/**
+	 * 查询满足条件的不超过数据量上限的所有数据,返回{@link List}对象列表
+	 *
+	 * @param ${table.javaVariableName}${env.entityClassSuffix} 查询条件对象
+	 * @return 结果对象列表
+	 */
+	List<${table.javaClassName}${env.entityClassSuffix}> getLimitedList(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix});
+
+	/**
+	 * 查询满足条件的不超过数据量上限的所有数据,返回{@link List}对象列表
+	 *
+	 * @param ${table.javaVariableName}${env.entityClassSuffix} 查询条件对象
+	 * @param maxCount 数据量上限
+	 * @return 结果对象列表
+	 */
+	List<${table.javaClassName}${env.entityClassSuffix}> getLimitedList(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix}, int maxCount);
+
+	/**
+	 * 查询满足条件的所有数据,返回{@link List}对象列表
+	 *
+	 * @param ${table.javaVariableName}${env.entityClassSuffix} 查询条件对象
+	 * @return 结果对象列表
+	 */
+	List<${table.javaClassName}${env.entityClassSuffix}> getList(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix});
+
+	/**
+	 * 分页查询所有数据,返回{@link List}对象列表
+	 *
+	 * @param ${table.javaVariableName}${env.entityClassSuffix} 查询条件对象
+	 * @param pageIndex 页码
+	 * @param pageSize 每页记录数
+	 * @return 结果对象列表
+	 */
+	List<${table.javaClassName}${env.entityClassSuffix}> getList(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix}, int pageIndex, int pageSize);
+
+	/**
+	 * 新增一条记录
+	 *
+	 * @param ${table.javaVariableName}${env.entityClassSuffix} 记录对象
+	 * @return 影响记录数
+	 */
+	int insert(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix});
+
+	/**
+	 * 新增一条记录
+	 *
+	 * @param ${table.javaVariableName}${env.entityClassSuffix} 记录对象
+	 * @return 影响记录数
+	 */
+	int insertSelective(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix});
+
+	/**
+	 * 根据主键列，删除一条记录
+	 *
+	 * @param ${table.javaVariableName}${env.entityClassSuffix} 记录对象
+	 * @return 影响记录数
+	 */
+	int delete(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix});
+
+	/**
+	 * 根据主键列，修改一条记录,按入参修改所有列
+	 *
+	 * @param ${table.javaVariableName}${env.entityClassSuffix} 记录对象
+	 * @return 影响记录数
+	 */
+	int update(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix});
+
+	/**
+	 * 根据主键列，修改一条记录,只修改入参的非空字段对应的列
+	 *
+	 * @param ${table.javaVariableName}${env.entityClassSuffix} 记录对象
+	 * @return 影响记录数
+	 */
+	int updateSelective(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix});
+
+	/**
+	 * 根据主键列查询对象
+	 *
+	 * @param ${table.javaVariableName}${env.entityClassSuffix} 查询条件对象
+	 * @return 结果对象
+	 */
+	${table.javaClassName}${env.entityClassSuffix} getById(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix});
+
+	/**
+	 * 根据条件查询唯一结果
+	 *
+	 * @param ${table.javaVariableName}${env.entityClassSuffix} 查询条件对象
+	 * @return 唯一结果对象
+	 */
+	${table.javaClassName}${env.entityClassSuffix} getUnique(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix});
+
+}
