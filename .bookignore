@@ -1,0 +1,16 @@
+# project config file
+.project
+.settings/
+
+# Log file
+*.log
+
+# node
+node_modules
+
+# gitbook
+_book
+*.bak
+*.pdf
+*.bat
+*.sh
