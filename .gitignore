@@ -1,5 +1,6 @@
 # target
 target/
+build/
 
 # STS/Eclipse
 .settings/
@@ -29,9 +30,7 @@ rebel.xml
 
 # NetBeans
 nbproject/private/
-#build/
 nbbuild/
-dist/
 nbdist/
 .nb-gradle/
 
