@@ -1,0 +1,5 @@
+/**
+ * $!{table.name} $!{table.comment}
+ * @author $!{author}
+ * @version ${current.date}
+ */

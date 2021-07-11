@@ -4,7 +4,7 @@ import com.puppycrawl.tools.checkstyle.api.AbstractCheck;
 
 /**
  * @author Qt
- * @since Jun 17, 2021
+ * @version Jun 17, 2021
  */
 public class Test1Check extends AbstractCheck {
 	@Override

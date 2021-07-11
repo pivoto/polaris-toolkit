@@ -1,0 +1,88 @@
+#parse("/vm/include.vm")
+###include("vm/include.vm")
+#if(${table.javaPackageName})
+	#set($pkgPrefix="${table.javaPackageName}.")
+#else
+	#set($pkgPrefix="")
+#end
+<?xml version="1.0" encoding="UTF-8"?>
+<S>
+#set($domainClass="${pkgPrefix}${entityPackage}.${table.javaClassName}")
+	<!--
+		获得系统中所有数据集合,快捷查询，字段间关系为and，查询方式为精确查询，需与前端like一致
+		需要确定表结构字段, 是否需要添加条件: ${dollar}{InstuCdeQueryCondition1}
+	-->
+	<SQL id="query${table.javaClassName}Like" parameterClass="java.util.HashMap"
+		resultClass="${domainClass}" onlyReturnFirst="false">
+		<SELECT>
+		<![CDATA[
+			select * from ${table.name}
+			where (
+#foreach($col in $!{table.columns})
+				${dollar}{condition${foreach.count}}
+#end
+			)
+			and ${dollar}{InstuCdeQueryCondition1}
+		]]>
+		</SELECT>
+		<CONDI_GROUP defaultCondition='1=1'>
+#foreach($col in $!{table.columns})
+			<OPT_CONDITION id="condition${foreach.count}" relationType="and">
+				<![CDATA[
+					${col.name.toLowerCase()} like ${dollar}{${col.name.toLowerCase()}}
+				]]>
+			</OPT_CONDITION>
+#end
+		</CONDI_GROUP>
+	</SQL>
+
+
+	<!--
+		列表的快捷查询，字段间的关系为OR，查询方式为模糊查询，需与前端like一致
+		需要确定表结构字段, 是否需要添加条件: ${dollar}{InstuCdeQueryCondition1}
+	-->
+	<SQL id="query${table.javaClassName}LikeForQuick" parameterClass="java.util.HashMap"
+		resultClass="${domainClass}" onlyReturnFirst="false">
+		<SELECT>
+			<![CDATA[
+			select * from ${table.name}
+			where (
+#foreach($col in $!{table.columns})
+				${dollar}{condition${foreach.count}}
+#end
+			)
+			and ${dollar}{InstuCdeQueryCondition1}
+		]]>
+		</SELECT>
+
+		<CONDI_GROUP defaultCondition='1=1'>
+#foreach($col in $!{table.columns})
+			<OPT_CONDITION id="condition${foreach.count}" relationType="or">
+				<![CDATA[
+				${col.name.toLowerCase()} like ${dollar}{${col.name.toLowerCase()}}
+				]]>
+			</OPT_CONDITION>
+#end
+		</CONDI_GROUP>
+	</SQL>
+
+
+	<!-- 通过资源ID查询资源明细信息 -->
+	<SQL id="query${table.javaClassName}Detail" parameterClass="java.lang.String"
+		resultClass="${domainClass}">
+		<SELECT>
+		<![CDATA[
+			SELECT * FROM ${table.name} WHERE 1=1 ${condition1}
+		]]>
+		</SELECT>
+		<OPT_CONDITION id="condition1" relationType="and">
+			<![CDATA[
+#foreach($col in $!{table.pkColumns})
+				${col.name.toLowerCase()} = ${dollar}{${col.name.toLowerCase()}}
+#end
+			]]>
+		</OPT_CONDITION>
+	</SQL>
+
+
+</S>

@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database
+	xmlns="http://www.librecoder.com/schema/awesome/dbv/database"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.librecoder.com/schema/awesome/dbv/database database.xsd">
+	<sqls>
+		<!--
+	  coltype:
+		  0 = CHAR
+		  1 = SMALLINT
+		  2 = INTEGE R
+		  3 = FLOAT
+		  4 = SMALLFLOAT
+		  5 = DECIMAL
+		  6 = SERIAL *
+		  7 = DATE
+		  8 = MONEY
+		  9 = NULL
+		  10 = DATETIME
+		  11 = BYTE
+		  12 = TEXT
+		  13 = VARCHAR
+		  14 = INTERVAL
+		  15 = NCHAR
+		  16 = NVARCHAR
+		  17 = INT8
+		  18 = SERIAL8 *
+		  19 = SET
+		  20 = MULTISET
+		  21 = LIST
+		  22 = 未命令行
+		  40 = 变长不透明类型
+		  4118 = 已命名行
+	   -->
+		<sql id="selectColumnsForTable">
+			select
+			t.tabid,
+			t.owner TABLE_SCHEM,
+			t.tabname TABLE_NAME,
+			c.colno,
+			c.colname COLUMN_NAME,
+			case when c.coltype>=256 then c.coltype-256 else c.coltype end coltype_code,
+			case (case when c.coltype>=256 then c.coltype-256 else c.coltype end)
+			when 0 then 'CHAR'
+			when 1 then 'SMALLINT'
+			when 2 then 'INTEGER'
+			when 3 then 'FLOAT'
+			when 4 then 'SMALLFLOAT'
+			when 5 then 'DECIMAL'
+			when 6 then 'SERIAL'
+			when 7 then 'DATE'
+			when 8 then 'MONEY'
+			when 9 then 'NULL'
+			when 10 then 'DATETIME'
+			when 11 then 'BYTE'
+			when 12 then 'TEXT'
+			when 13 then 'VARCHAR'
+			when 14 then 'INTERVAL'
+			when 15 then 'NCHAR'
+			when 16 then 'NVARCHAR'
+			when 17 then 'INT8'
+			when 18 then 'SERIAL8'
+			when 19 then 'SET'
+			when 20 then 'MULTISET'
+			when 21 then 'LIST'
+			else null
+			end column_type_name,
+			c.collength collength,
+			case when c.coltype>=256 then 'N' else 'Y' end IS_NULLABLE,
+			x.default COLUMN_DEF,
+			c.extended_id,
+			y.name extended_type,
+			t.ncols,
+			t.nindexes,
+			t.nrows
+			from
+			informix.systables t,
+			informix.syscolumns c
+			left join informix.sysdefaults x on x.tabid=c.tabid and x.colno=c.colno
+			left join informix.sysxtdtypes y on c.extended_id=y.extended_id
+			where t.tabid=c.tabid
+			#if(${schema})
+			and t.owner=lower('${schema}')
+			#end
+			and t.tabname=lower('${tableName}')
+			ORDER BY
+			t.tabid,
+			c.colno
+		</sql>
+
+
+		<sql id="selectIndexesForTable">
+			SELECT
+			t.owner table_schem,
+			t.tabname table_name,
+			i.idxtype index_type,
+			case i.idxtype
+			when 'U' then 'UNIQUE'
+			when 'u' then 'UNIQUE'
+			else 'NONUNIQUE'
+			end uniqueness,
+			i.owner index_schem,
+			i.idxname index_name,
+			c.colname column_name,
+			t.ncols,
+			t.nindexes,
+			t.nrows
+			FROM
+			informix.systables t,
+			informix.sysindexes i,
+			informix.syscolumns c
+			where t.tabid=i.tabid
+			and c.tabid=t.tabid
+			and c.colno in
+			(i.part1,i.part2,i.part3,i.part4,i.part5,i.part6,i.part7,i.part8,i.part10,i.part11,i.part12,i.part13,i.part14,i.part15,i.part16)
+			and t.tabname=lower('${tableName}')
+			#if(${schema})
+			and t.owner=lower('${schema}')
+			#end
+			ORDER BY
+			t.tabid,
+			i.idxname,
+			c.colno
+		</sql>
+		<!--
+	  C = 检查约束
+	  N = 非空
+	  P = 主键
+	  R = 约束
+	  T = 表
+	  U = 唯一
+	  约束的附加信息表 syschecks,syscoldepend
+	   -->
+		<sql id="selectConstraintsForTable">
+			select
+			s.owner schema,
+			s.constrname constraint_name,
+			s.constrtype constraint_type,
+			t.tabname table_name,
+			c.colname column_name,
+			c.colno
+			from
+			informix.sysconstraints s,
+			informix.sysindexes i,
+			informix.systables t,
+			informix.syscolumns c
+			where
+			s.idxname=i.idxname
+			and t.tabid=i.tabid
+			and c.tabid=t.tabid
+			and c.colno in
+			(i.part1,i.part2,i.part3,i.part4,i.part5,i.part6,i.part7,i.part8,i.part10,i.part11,i.part12,i.part13,i.part14,i.part15,i.part16)
+			and t.tabname=lower('${tableName}')
+			#if(${schema})
+			and t.owner=lower('${schema}')
+			and s.owner=lower('${schema}')
+			#end
+			union all
+			select
+			s.owner schema,
+			s.constrname constraint_name,
+			s.constrtype constraint_type,
+			t.tabname table_name,
+			c.colname column_name,
+			c.colno
+			from
+			informix.sysconstraints s,
+			informix.syscoldepend d,
+			informix.systables t,
+			informix.syscolumns c
+			where
+			s.constrid=d.constrid
+			and d.tabid=c.tabid
+			and d.colno=c.colno
+			and c.tabid=t.tabid
+			and t.tabname=lower('${tableName}')
+			#if(${schema})
+			and t.owner=lower('${schema}')
+			and s.owner=lower('${schema}')
+			#end
+			order by s.constrname
+
+		</sql>
+	</sqls>
+</database>

@@ -1,0 +1,97 @@
+#parse("/vm/include.vm")
+###include("vm/include.vm")
+##env: ${env}
+
+java.sql.Types.CHAR:  ${field.in('java.sql.Types')['CHAR']}
+
+table:
+	table.name -> $!{table.name}
+	table.comment -> $!{table.comment}
+	table.classify -> $!{table.classify}
+	table.javaPackageName -> $!{table.javaPackageName}
+	table.javaPackageDir -> $!{table.javaPackageDir}
+	table.javaClassName -> $!{table.javaClassName}
+	table.javaVariableName -> $!{table.javaVariableName}
+	table.xmlName -> $!{table.xmlName}
+	table.columns.size -> $!{table.columns.size()}
+
+
+	table.pkColumns:
+#foreach($col in $!{table.pkColumns})
+	----------------------------------------------------------------------------------------
+		col.name -> $!{col.name}
+		col.type -> $!{col.type}
+		col.comment -> $!{col.comment}
+		col.defaultValue -> $!{col.defaultValue}
+		col.primary -> $!{col.primary}
+		col.nullable -> $!{col.nullable}
+		col.notNull -> $!{col.notNull}
+		col.columnSize -> $!{col.columnSize}
+		col.decimalDigits -> $!{col.decimalDigits}
+		col.generated -> $!{col.generated}
+		col.autoincrement -> $!{col.autoincrement}
+		col.javaClassName -> $!{col.javaClassName}
+		col.javaVariableName -> $!{col.javaVariableName}
+		col.javaClassType -> $!{col.javaClassType}
+		col.javaJdbcType -> $!{col.javaJdbcType}
+		col.xmlName -> $!{col.xmlName}
+	----------------------------------------------------------------------------------------
+#end
+
+
+	table.normalColumns:
+#foreach($col in $!{table.normalColumns})
+	----------------------------------------------------------------------------------------
+		col.name -> $!{col.name}
+		col.type -> $!{col.type}
+		col.comment -> $!{col.comment}
+		col.defaultValue -> $!{col.defaultValue}
+		col.primary -> $!{col.primary}
+		col.nullable -> $!{col.nullable}
+		col.notNull -> $!{col.notNull}
+		col.columnSize -> $!{col.columnSize}
+		col.decimalDigits -> $!{col.decimalDigits}
+		col.generated -> $!{col.generated}
+		col.autoincrement -> $!{col.autoincrement}
+		col.javaClassName -> $!{col.javaClassName}
+		col.javaVariableName -> $!{col.javaVariableName}
+		col.javaClassType -> $!{col.javaClassType}
+		col.javaJdbcType -> $!{col.javaJdbcType}
+		col.xmlName -> $!{col.xmlName}
+	----------------------------------------------------------------------------------------
+#end
+
+
+	table.columns:
+#foreach($col in $!{table.columns})
+	----------------------------------------------------------------------------------------
+		col.name -> $!{col.name}
+		col.type -> $!{col.type}
+		col.comment -> $!{col.comment}
+		col.defaultValue -> $!{col.defaultValue}
+		col.primary -> $!{col.primary}
+		col.nullable -> $!{col.nullable}
+		col.notNull -> $!{col.notNull}
+		col.columnSize -> $!{col.columnSize}
+		col.decimalDigits -> $!{col.decimalDigits}
+		col.generated -> $!{col.generated}
+		col.autoincrement -> $!{col.autoincrement}
+		col.javaClassName -> $!{col.javaClassName}
+		col.javaVariableName -> $!{col.javaVariableName}
+		col.javaClassType -> $!{col.javaClassType}
+		col.javaJdbcType -> $!{col.javaJdbcType}
+		col.xmlName -> $!{col.xmlName}
+	----------------------------------------------------------------------------------------
+#end
+
+
+
+env:
+	##env: ${env}
+	----------------------------------------------------------------------------------------
+#foreach($item in $env.entrySet())
+	$item.key -> [$item.value]  #if($foreach.first)// first#end
+#end
+	----------------------------------------------------------------------------------------
+
+

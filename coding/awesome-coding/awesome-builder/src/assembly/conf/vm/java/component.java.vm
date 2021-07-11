@@ -1,0 +1,195 @@
+#parse("/vm/include.vm")
+###include("vm/include.vm")
+#if(${table.javaPackageName})
+	#set($pkgPrefix="${table.javaPackageName}.")
+#else
+	#set($pkgPrefix="")
+#end
+package ${pkgPrefix}${componentPackage};
+
+
+import com.yucheng.cmis.base.CMISException;
+import com.ecc.emp.core.EMPException;
+import com.yucheng.cmis.dao.SqlClient;
+import com.yucheng.cmis.dao.util.PageInfo;
+import com.yucheng.cmis.pub.exception.AsynException;
+import com.yucheng.cmis.pub.CMISComponent;
+import com.yucheng.cmis.pub.CMISDomain;
+import java.sql.SQLException;
+import java.util.*;
+import java.sql.Connection;
+import lombok.extern.slf4j.Slf4j;
+
+import ${pkgPrefix}${entityPackage}.${table.javaClassName};
+
+/**
+ * $!{table.name} $!{table.comment}
+ * <br>
+ * 单表数据的相关操作
+ *
+ * @author $!{author}
+ * @version ${current.date}
+ */
+@Slf4j
+public class ${table.javaClassName}${componentSuffix} extends CMISComponent{
+
+	public static final String COMPONENT_ID = "${table.javaVariableName}${componentSuffix}";
+
+	/**
+	 * 列表数据查询
+	 * <br>
+	 * @param pageInfo 分页对象
+	 * @param paramMap 查询参数
+	 * @param conn 数据库连接
+	 * @return List<${table.javaClassName}> 列表数据集合
+	 * @throws CMISException
+	 */
+	public List<${table.javaClassName}> query${table.javaClassName}List(PageInfo pageInfo, Map paramMap, Connection conn) throws CMISException {
+		String sqlId = "query${table.javaClassName}Like";
+		try{
+			${table.javaClassName} domain = new ${table.javaClassName}(paramMap);
+			// 获取权限过滤条件ID
+			String[] rrCondi = this.judgeQueryRestrict(domain,conn);
+			pageInfo.recordSize = SqlClient.queryCount(sqlId,domain.getDataMap(),null,rrCondi,conn);
+			List<${table.javaClassName}> list;
+			if(pageInfo.recordSize>0){
+				list = (List<${table.javaClassName}>)SqlClient.queryList(sqlId,domain.getDataMap(),null,rrCondi,pageInfo.pageIdx,pageInfo.pageSize,conn);
+			} else {
+				list = new ArrayList<>();
+			}
+			return list;
+		} catch (Exception e){
+			log.error(e.getMessage(), e);
+			throw new CMISException("列表查询异常", e);
+		}
+	}
+
+
+	/**
+	 * 列表数据查询-搜索框搜索快捷查询
+	 * <br>
+	 * @param pageInfo 分页对象
+	 * @param paramMap 查询参数
+	 * @param conn 数据库连接
+	 * @return List<${table.javaClassName}> 列表数据集合
+	 * @throws CMISException
+	 */
+	public List<${table.javaClassName}> query${table.javaClassName}ListQuick(PageInfo pageInfo, Map paramMap, Connection conn) throws CMISException {
+		String sqlId = "query${table.javaClassName}LikeForQuick";
+		try {
+			${table.javaClassName} domain = new ${table.javaClassName}(paramMap);
+			//获取权限过滤条件ID
+			String[] rrCondi = this.judgeQueryRestrict(domain, conn);
+			pageInfo.recordSize = SqlClient.queryCount(sqlId, domain.getDataMap(), null, rrCondi, conn);
+			List<${table.javaClassName}> list;
+			if (pageInfo.recordSize > 0) {
+				list = (List<${table.javaClassName}>) SqlClient.queryList(sqlId, domain.getDataMap(), null, rrCondi, pageInfo.pageIdx, pageInfo.pageSize, conn);
+			} else {
+				list = new ArrayList<>();
+			}
+			return list;
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CMISException("列表查询异常", e);
+		}
+	}
+
+
+	/**
+	 * 通过DOMAIN对象新增数据
+	 *
+	 * @param domain ${table.javaClassName} 对象
+	 * @param conn   数据库连接
+	 * @return 操作结果: true-成功, false-失败
+	 * @throws CMISException
+	 */
+	public boolean add${table.javaClassName}(${table.javaClassName} domain, Connection conn) throws CMISException {
+		String sqlId = "query${table.javaClassName}Detail";
+		try {
+			//新增之前校验存在性
+			int count = SqlClient.queryCount(sqlId, domain, conn);
+			if (count > 0) {
+				throw new AsynException("数据已存在!");
+			}
+			SqlClient.insertAuto(domain, conn);
+			return true;
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CMISException("通过DOMAIN对象新增数据异常", e);
+		}
+	}
+
+
+	/**
+	 * 通过DOMAIN对象修改数据
+	 *
+	 * @param domain ${table.javaClassName} 对象
+	 * @param conn   数据库连接
+	 * @return 操作结果: true-成功, false-失败
+	 * @throws CMISException
+	 */
+	public boolean update${table.javaClassName}(${table.javaClassName} domain, Connection conn) throws CMISException {
+		try {
+			boolean result = false;
+			int count = SqlClient.updateAuto(domain, conn);
+			if (count == 1) {
+				result = true;
+			}
+			return result;
+		} catch (SQLException e) {
+			log.error(e.getMessage(), e);
+			throw new CMISException("通过DOMAIN对象修改数据异常", e);
+		}
+	}
+
+
+	/**
+	 * 单条查询, 获取表单数据
+	 *
+	 * @param param ${table.javaClassName} 对象, 查询条件
+	 * @param conn  数据库连接
+	 * @return ${table.javaClassName}
+	 * @throws CMISException
+	 */
+	public ${table.javaClassName} query${table.javaClassName}Detail(${table.javaClassName} param, Connection conn) throws CMISException {
+		try {
+			${table.javaClassName} domain = (${table.javaClassName}) SqlClient.queryAuto(param, conn);
+			return domain;
+		} catch (SQLException e) {
+			log.error(e.getMessage(), e);
+			throw new CMISException("数据查询失败", e);
+		}
+	}
+
+
+	/**
+	 * 删除数据
+	 *
+	 * @param domain ${table.javaClassName} 对象
+	 * @param conn   数据库连接
+	 * @return 操作结果: true-成功, false-失败
+	 * @throws CMISException
+	 */
+	public boolean remove${table.javaClassName}(${table.javaClassName} domain, Connection conn) throws CMISException {
+		try {
+			int count = SqlClient.deleteAuto(domain, conn);
+			return count == 1;
+		} catch (SQLException e) {
+			log.error(e.getMessage(), e);
+			throw new CMISException("数据删除失败", e);
+		}
+	}
+
+	/**
+	 * Excel导入数据时的批量操作方法
+	 *
+	 * @param sqlId SQL
+	 * @param value 数据对象数组
+	 * @param conn 数据库连接
+	 * @throws SQLException
+	 */
+	public void batchInsert(String sqlId, Object[] value, Connection conn) throws SQLException {
+		SqlClient.executeBatch(sqlId, value, conn);
+	}
+
+}

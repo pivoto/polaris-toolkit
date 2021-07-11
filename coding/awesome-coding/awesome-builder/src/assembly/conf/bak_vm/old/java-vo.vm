@@ -1,0 +1,112 @@
+#if(${table.javaPackageName})
+	#set($pkgPrefix="${table.javaPackageName}.")
+#else
+	#set($pkgPrefix="")
+#end
+package ${pkgPrefix}entity;
+
+import java.io.Serializable;
+
+#if(${config.jaskcon} == 'true')
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import com.fasterxml.jackson.databind.deser.std.DateDeserializers.DateDeserializer;
+import com.fasterxml.jackson.databind.deser.std.DateDeserializers.DateSerializer;
+import com.fasterxml.jackson.databind.deser.std.DateDeserializers.TimestampDeSerializer;
+import com.fasterxml.jackson.databind.deser.std.DateDeserializers.TimestampSerializer;
+#end
+
+/**
+ * $!{table.comment}
+ */
+public class ${table.javaClassName}Entity implements Serializable{
+
+	private static final long serialVersionUID = 1L;
+
+	// 查询SQL的ORDER BY子句内容(各排序字段)
+	private String orderByClauseContent;
+
+	// Begin: PK
+#foreach($col in $table.pkColumns)
+#if(${config.jaskcon} == 'true')
+#if(${col.javaClassType.endsWith("Date")})
+	@JsonDeserialize(using = DateDeSerializer.class)
+	@JsonSerialize(using = DateSerializer.class)
+#elseif(${col.javaClassType.endsWith("Timestamp")})
+	@JsonDeserialize(using = TimestampDeSerializer.class)
+	@JsonSerialize(using = TimestampSerializer.class)
+#end
+#end
+	private $col.javaClassType $col.javaVariableName; // #if($col.comment)$col.comment#else$col.name#end
+
+#end
+	// End: PK
+
+#foreach($col in $table.normalColumns)
+#if(${config.jaskcon} == 'true')
+#if(${col.javaClassType.endsWith("Date")})
+	@JsonDeserialize(using = DateDeSerializer.class)
+	@JsonSerialize(using = DateSerializer.class)
+#elseif(${col.javaClassType.endsWith("Timestamp")})
+	@JsonDeserialize(using = TimestampDeSerializer.class)
+	@JsonSerialize(using = TimestampSerializer.class)
+#end
+#end
+	private $col.javaClassType $col.javaVariableName; // #if($col.comment)$col.comment#else$col.name#end
+
+#end
+
+	/**
+	 * @param orderByClauseContent 查询SQL的ORDER BY子句内容(各排序字段)
+	 */
+	public void setOrderByClauseContent(String orderByClauseContent){
+		this.orderByClauseContent = orderByClauseContent;
+	}
+
+	/**
+	 * @return 查询SQL的ORDER BY子句内容(各排序字段)
+	 */
+	public String getOrderByClauseContent(){
+		return this.orderByClauseContent;
+	}
+
+#foreach($col in $table.pkColumns)
+	/**
+	 * @param $col.javaVariableName #if($col.comment)$col.comment#else$col.name#end
+
+	 */
+	public void set${col.javaClassName}($col.javaClassType $col.javaVariableName){
+		this.$col.javaVariableName = $col.javaVariableName;
+	}
+
+	/**
+	 * @return #if($col.comment)$col.comment#else$col.name#end
+	 
+	 */
+	public $col.javaClassType get${col.javaClassName}(){
+		return this.$col.javaVariableName;
+	}
+	
+#end
+#foreach($col in $table.normalColumns)
+	/**
+	 * @param $col.javaVariableName #if($col.comment)$col.comment#else$col.name#end
+	 
+	 */
+	public void set${col.javaClassName}($col.javaClassType $col.javaVariableName){
+		this.$col.javaVariableName = $col.javaVariableName;
+	}
+	
+	/**
+	 * @return #if($col.comment)$col.comment#else$col.name#end
+	 
+	 */
+	public $col.javaClassType get${col.javaClassName}(){
+		return this.$col.javaVariableName;
+	}
+	
+#end
+
+}

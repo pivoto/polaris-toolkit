@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<env>
+	<!--
+	属性优先级: 表属性 > 模板属性 > 组属性 > 全局属性
+	-->
+	<!-- outdir: 配置生成代码的位置 -->
+	<outdir>target</outdir>
+	<!-- region 全局属性配置 -->
+	<property>
+		<!-- author: JavaDoc 注释中的作者名 -->
+		<entry key="author" value="Qt"/>
+		<entry key="useGeneratedKeys" value="true"/>
+		<entry key="srcDir" value="src/main/java"/>
+		<entry key="resourceDir" value="src/main/config"/>
+		<entry key="webDir" value="src/main/webapp"/>
+
+		<!--  抽象实体基类, 所有的实体类均继承自本类. 实际使用中有以下辅助实现类可供选择:
+		 BaseAutoIncrementEntity: 自增主键实体, 适用于 MySQL、SQL Server、DB2 等有自增主键机制的数据库
+		 BaseAutoUuidEntity: UUID主键实体, 长度36位, 形如 0bfb52f7-0b05-47b3-a921-d11aca57d4f9
+		 BaseAutoUuidHexEntity: UUID主键实体, 长度32位, 形如 8a8a81d45f945fda015f945fdae90000
+		 BaseSequenceEntity: sequence主键实体, 适用于PostgreSQL、Oracle 等, 需要实体实现类配置sequence名称
+		 BaseAssignedEntity: 必须手动为主键赋值
+		 BaseAssignableAutoIncEntity: 支持手动赋值的自增主键实体
+		 BaseAssignableAutoUuidEntity: 支持手动赋值的UUID主键实体
+		 BaseAssignableAutoUuidHexEntity: 支持手动赋值的UUID主键实体
+
+		 ModuleBaseEntity: 模块基类, 含字段: 删除标志,创建时间,修改时间
+		 ModuleBaseExtEntity: 模块基类, 含字段: 删除标志,创建时间,修改时间,创建人,修改人
+		 OrgModuleBaseEntity: 模块基类, 含字段: 删除标志,创建时间,修改时间,机构ID
+		 OrgModuleBaseExtEntity: 模块基类, 含字段: 删除标志,创建时间,修改时间,机构ID,创建人,修改人
+		 -->
+		<entry key="baseEntity" value="BaseAutoIncrementEntity"/>
+		<entry key="entityPackage" value="entity"/>
+
+		<!--
+		 EntityMapper: 对应实体的Mapper接口
+		 BaseCrudMapper: 对应实体的Mapper接口,含常用增删改查操作
+		-->
+		<entry key="baseMapper" value="BaseMapper"/>
+		<entry key="mapperPackage" value="mapper"/>
+
+		<!--
+		 BaseCrudService: 模块基类
+		 ModuleBaseService: 模块基类
+		-->
+		<entry key="baseService" value="BaseCrudService"/>
+		<entry key="servicePackage" value="service"/>
+
+		<!--
+		 BaseCrudController: 模块基类
+		 ModuleBaseController: 模块基类
+		-->
+		<entry key="baseController" value="BaseCrudController"/>
+		<entry key="controllerPackage" value="controller"/>
+
+
+	</property>
+	<!-- endregion 全局属性配置 -->
+
+	<!-- 可配置多个组以使用不同的配置 -->
+	<groups>
+		<!-- region 代码生成配置组 -->
+		<group>
+			<!-- 组扩展属性配置-->
+			<property></property>
+			<templates>
+				<!-- region example -->
+				<template>
+					<!-- 模板扩展属性 -->
+					<property></property>
+					<path>/booster/example.txt.vm</path>
+					<outdir></outdir>
+					<filename>${table.javaClassName}.example.txt</filename>
+				</template>
+				<!-- endregion -->
+
+				<!-- region java -->
+				<template>
+					<path>/booster/${srcDir}/Entity.java.vm</path>
+					<outdir>${srcDir}/${table.javaPackageDir}/${entityPackage|"entity"}</outdir>
+					<filename>${table.javaClassName}.java</filename>
+				</template>
+				<template>
+					<path>/booster/${srcDir}/Mapper.java.vm</path>
+					<outdir>${srcDir}/${table.javaPackageDir}/${mapperPackage|"mapper"}</outdir>
+					<filename>${table.javaClassName}Mapper.java</filename>
+				</template>
+				<template>
+					<path>/booster/${srcDir}/Mapper.xml.vm</path>
+					<outdir>${srcDir}/${table.javaPackageDir}/${mapperPackage|"mapper"}</outdir>
+					<filename>${table.javaClassName}Mapper.xml</filename>
+				</template>
+				<template>
+					<path>/booster/${srcDir}/Service.java.vm</path>
+					<outdir>${srcDir}/${table.javaPackageDir}/${servicePackage|'service'}</outdir>
+					<filename>${table.javaClassName}Service.java</filename>
+				</template>
+				<template>
+					<path>/booster/${srcDir}/Controller.java.vm</path>
+					<outdir>${srcDir}/${table.javaPackageDir}/${controllerPackage|'controller'}</outdir>
+					<filename>${table.javaClassName}Controller.java</filename>
+				</template>
+				<!-- endregion -->
+
+			</templates>
+
+			<!--
+				tables: 配置待生成代码的表
+				table.catalog: 数据库名, oracle下不需要, mysql下使用
+				table.schema: 数据库用户, 大小写敏感, oracle下需要大写
+				table.name: 表名, 大小写敏感, oracle下需要大写
+				table.package: java包名, 如 com.yucheng.cmis.模块名.子模块名
+				table.property.moduleDir: 模块目录路径, sql文件、jsp文件等的目录名
+				table.property.moduleId: 模块Java服务接口声明的模块ID, 通常与包名类似, 如 com.yucheng.cmis.模块名.子模块名
+				table.property.moduleName: 模块Java服务接口声明的模块名称
+			 -->
+			<tables>
+				<table catalog="" schema="" name="SYS_USER" package="io.booster.sys" >
+					<property>
+						<entry key="controllerPath" value="sys/user"/>
+					</property>
+				</table>
+
+			</tables>
+
+		</group>
+		<!-- endregion 代码生成配置组 -->
+	</groups>
+
+</env>

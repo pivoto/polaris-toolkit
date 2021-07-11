@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<env>
+	<outdir>./</outdir>
+	<property>
+		<entry key="author" value="Qt"/>
+		<entry key="useGeneratedKeys" value="true"/>
+		<entry key="srcDir" value="src/main/java"/>
+		<entry key="webDir" value="src/main/resources/META-INF/resources"/>
+		<entry key="entityPackage" value="entity"/>
+		<entry key="entityPackage" value="entity"/>
+		<entry key="mapperPackage" value="mapper"/>
+		<entry key="servicePackage" value="service"/>
+		<entry key="implPackage" value="impl"/>
+		<entry key="controllerPackage" value="controller"/>
+	</property>
+
+	<groups>
+		<group>
+			<property></property>
+			<templates>
+				<template>
+					<property></property>
+					<path>/vm/example.txt.vm</path>
+					<outdir>${srcDir}/</outdir>
+					<filename>${table.javaClassName}.example.txt</filename>
+				</template>
+				<template>
+					<property></property>
+					<path>/vm/entity.java.vm</path>
+					<outdir>${srcDir}/${table.javaPackageDir}/${entityPackage}</outdir>
+					<filename>${table.javaClassName}Entity.java</filename>
+				</template>
+				<template>
+					<property></property>
+					<path>/vm/mapper.java.vm</path>
+					<outdir>${srcDir}/${table.javaPackageDir}/${mapperPackage}</outdir>
+					<filename>${table.javaClassName}Mapper.java</filename>
+				</template>
+				<template>
+					<property></property>
+					<path>/vm/mapper.xml.vm</path>
+					<outdir>${srcDir}/${table.javaPackageDir}/${mapperPackage}</outdir>
+					<filename>${table.javaClassName}Mapper.xml</filename>
+				</template>
+				<template>
+					<property></property>
+					<path>/vm/service.java.vm</path>
+					<outdir>${srcDir}/${table.javaPackageDir}/${servicePackage}</outdir>
+					<filename>I${table.javaClassName}Service.java</filename>
+				</template>
+				<template>
+					<property></property>
+					<path>/vm/service-impl.java.vm</path>
+					<outdir>${srcDir}/${table.javaPackageDir}/${servicePackage}/${implPackage}</outdir>
+					<filename>${table.javaClassName}ServiceImpl.java</filename>
+				</template>
+			</templates>
+
+			<tables>
+				<table catalog="" schema="NCMIS" table="TREE_CONFIG" package="com.intoverflow.sample" classify="config">
+					<property></property>
+				</table>
+			</tables>
+
+		</group>
+	</groups>
+</env>
