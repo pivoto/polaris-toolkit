@@ -10,42 +10,22 @@ charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
-[{*.yml,*.yaml}]
+[*.{yml,yaml,json}]
 indent_style = space
 indent_size = 2
 
 [{*.md,*.markdown,*.mkd}]
 indent_style = space
-indent_size = 4
-
-[*.java]
-indent_style = tab
-tab_width = 4
+indent_size = 2
 
 [{*.css,*.js}]
 indent_style = tab
 tab_width = 2
 
-[{*.xml,*.tld}]
+[{*.html,*.htm,*.xml,*.tld,*.jsp,*.jspf,*.tag}]
 indent_style = tab
 tab_width = 2
 
-[{*.html,*.htm}]
-indent_style = tab
-tab_width = 2
-
-[{*.jsp,*.jspf,*.tag}]
-indent_style = tab
-tab_width = 2
-
-[{*.sql,*.prc,*.fnc,*.tab,*.vw}]
-indent_style = tab
-tab_width = 2
-
-[{*.vm,*.ftl}]
-indent_style = tab
-tab_width = 2
-
-[{*.json,*.txt}]
+[{*.vm,*.ftl,*.sql,*.prc,*.fnc,*.tab,*.vw}]
 indent_style = tab
 tab_width = 2

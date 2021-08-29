@@ -24,7 +24,7 @@
 
 	<!-- region 属性配置 -->
 	<properties>
-		<maven.test.skip>true</maven.test.skip>
+		<start-class></start-class>
 		<java.version>8</java.version>
 		<file.encoding>UTF-8</file.encoding>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
@@ -36,10 +36,14 @@
 		<project.activeProfile>dev</project.activeProfile>
 		<project.profile.dir>${project.profiles.dir}/${project.activeProfile}</project.profile.dir>
 
-		<start-class></start-class>
+		<maven.test.skip>true</maven.test.skip>
 		<package.dependencyDirectory>libs</package.dependencyDirectory>
 		<includeScope>runtime</includeScope>
 		<maven.clean.failOnError>false</maven.clean.failOnError>
+		<maven.compiler.failOnError>true</maven.compiler.failOnError>
+		<maven.compiler.fork>true</maven.compiler.fork>
+		<maven.compiler.verbose>true</maven.compiler.verbose>
+		<maven.compiler.failOnWarning>false</maven.compiler.failOnWarning>
 		<assembly.appendAssemblyId>true</assembly.appendAssemblyId>
 		<assembly.skipAssembly>false</assembly.skipAssembly>
 
@@ -68,11 +72,6 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.groovy</groupId>
-			<artifactId>groovy-all</artifactId>
-			<type>pom</type>
 		</dependency>
 		<!-- endregion BuildTools -->
 
@@ -186,17 +185,6 @@
 				</excludes>
 			</resource>
 			<resource>
-				<directory>src/main/groovy</directory>
-				<includes>
-					<include>**/*</include>
-				</includes>
-				<excludes>
-					<exclude>**/*.groovy</exclude>
-					<exclude>README.md</exclude>
-					<exclude>.gitkeep*</exclude>
-				</excludes>
-			</resource>
-			<resource>
 				<directory>src/main/resources</directory>
 				<includes>
 					<include>**/*</include>
@@ -229,17 +217,6 @@
 				</includes>
 				<excludes>
 					<exclude>**/*.java</exclude>
-					<exclude>README.md</exclude>
-					<exclude>.gitkeep*</exclude>
-				</excludes>
-			</testResource>
-			<testResource>
-				<directory>src/test/groovy</directory>
-				<includes>
-					<include>**/*</include>
-				</includes>
-				<excludes>
-					<exclude>**/*.groovy</exclude>
 					<exclude>README.md</exclude>
 					<exclude>.gitkeep*</exclude>
 				</excludes>
@@ -386,45 +363,6 @@
 
 				<!-- compile -->
 				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>build-helper-maven-plugin</artifactId>
-					<version>3.2.0</version>
-					<executions>
-						<execution>
-							<id>add-source</id>
-							<phase>generate-sources</phase>
-							<goals>
-								<goal>add-source</goal>
-							</goals>
-							<configuration>
-								<sources>
-									<source>src/main/java</source>
-									<source>src/main/groovy</source>
-								</sources>
-							</configuration>
-						</execution>
-						<execution>
-							<id>add-test-source</id>
-							<phase>generate-test-sources</phase>
-							<goals>
-								<goal>add-test-source</goal>
-							</goals>
-							<configuration>
-								<sources>
-									<source>src/test/java</source>
-									<source>src/test/groovy</source>
-								</sources>
-							</configuration>
-						</execution>
-					</executions>
-				</plugin>
-				<plugin>
-					<groupId>org.codehaus.groovy</groupId>
-					<artifactId>groovy-eclipse-compiler</artifactId>
-					<version>3.7.0</version>
-					<extensions>true</extensions>
-				</plugin>
-				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>3.8.0</version>
@@ -432,36 +370,11 @@
 						<source>${maven.compiler.source}</source>
 						<target>${maven.compiler.target}</target>
 						<encoding>${project.build.sourceEncoding}</encoding>
-						<useIncrementalCompilation>false</useIncrementalCompilation>
-						<compilerId>groovy-eclipse-compiler</compilerId>
-						<fork>true</fork>
-						<verbose>true</verbose>
-						<failOnWarning>false</failOnWarning>
-
-						<compilerArguments>
-							<parameters/>
-							<javaAgentClass>lombok.launch.Agent</javaAgentClass>
-							<indy/>
-							<!--<configScript>config.groovy</configScript>-->
-						</compilerArguments>
+						<fork>${maven.compiler.fork}</fork>
+						<verbose>${maven.compiler.verbose}</verbose>
+						<failOnWarning>${maven.compiler.failOnWarning}</failOnWarning>
+						<failOnError>${maven.compiler.failOnError}</failOnError>
 					</configuration>
-					<dependencies>
-						<dependency>
-							<groupId>org.codehaus.groovy</groupId>
-							<artifactId>groovy-eclipse-compiler</artifactId>
-							<version>3.7.0</version>
-						</dependency>
-						<dependency>
-							<groupId>org.codehaus.groovy</groupId>
-							<artifactId>groovy-eclipse-batch</artifactId>
-							<version>3.0.8-01</version>
-						</dependency>
-						<dependency>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-							<version>1.18.20</version>
-						</dependency>
-					</dependencies>
 				</plugin>
 
 				<!-- lombok -->
@@ -530,7 +443,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
-					<version>3.0.1</version>
+					<version>3.2.1</version>
 					<configuration>
 						<attach>true</attach>
 						<!--<excludes>**/*</excludes>-->
@@ -578,7 +491,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
-					<version>2.4</version>
+					<version>3.2.0</version>
 					<configuration>
 						<skipIfEmpty>true</skipIfEmpty>
 						<excludes>
@@ -623,7 +536,7 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
 					<!--<version>2.9</version>-->
-					<version>3.0.0</version>
+					<version>3.2.0</version>
 					<configuration>
 						<!--<additionalparam>-Xdoclint:none</additionalparam>-->
 						<doclint>none</doclint>
@@ -838,10 +751,6 @@
 				<artifactId>maven-clean-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 			</plugin>
@@ -994,15 +903,6 @@
 				<maven.test.skip>false</maven.test.skip>
 				<project.activeProfile>sut</project.activeProfile>
 			</properties>
-		</profile>
-		<!-- endregion -->
-		<!-- region Integration Testing -->
-		<profile>
-			<id>sit</id>
-			<properties>
-				<maven.test.skip>false</maven.test.skip>
-				<project.activeProfile>sit</project.activeProfile>
-			</properties>
 			<build>
 				<plugins>
 					<plugin>
@@ -1011,6 +911,24 @@
 					</plugin>
 				</plugins>
 			</build>
+		</profile>
+		<!-- endregion -->
+		<!-- region Integration Testing -->
+		<profile>
+			<id>sit</id>
+			<properties>
+				<maven.test.skip>true</maven.test.skip>
+				<project.activeProfile>sit</project.activeProfile>
+			</properties>
+		</profile>
+		<!-- endregion -->
+		<!-- region User  Testing -->
+		<profile>
+			<id>uat</id>
+			<properties>
+				<maven.test.skip>true</maven.test.skip>
+				<project.activeProfile>uat</project.activeProfile>
+			</properties>
 		</profile>
 		<!-- endregion -->
 		<!-- region prepared/quasi production -->
@@ -1032,8 +950,145 @@
 		</profile>
 		<!-- endregion -->
 
+		<!-- region groovy -->
+		<profile>
+			<id>groovy</id>
+			<activation>
+				<file>
+					<exists>src/main/groovy</exists>
+				</file>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>org.codehaus.groovy</groupId>
+					<artifactId>groovy-all</artifactId>
+					<type>pom</type>
+				</dependency>
+			</dependencies>
+			<build>
+				<resources>
+					<resource>
+						<directory>src/main/groovy</directory>
+						<includes>
+							<include>**/*</include>
+						</includes>
+						<excludes>
+							<exclude>**/*.groovy</exclude>
+							<exclude>README.md</exclude>
+							<exclude>.gitkeep*</exclude>
+						</excludes>
+					</resource>
+				</resources>
+				<testResources>
+					<testResource>
+						<directory>src/test/groovy</directory>
+						<includes>
+							<include>**/*</include>
+						</includes>
+						<excludes>
+							<exclude>**/*.groovy</exclude>
+							<exclude>README.md</exclude>
+							<exclude>.gitkeep*</exclude>
+						</excludes>
+					</testResource>
+				</testResources>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>build-helper-maven-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+					</plugin>
+				</plugins>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.codehaus.mojo</groupId>
+							<artifactId>build-helper-maven-plugin</artifactId>
+							<version>3.2.0</version>
+							<executions>
+								<execution>
+									<id>add-source</id>
+									<phase>generate-sources</phase>
+									<goals>
+										<goal>add-source</goal>
+									</goals>
+									<configuration>
+										<sources>
+											<source>src/main/java</source>
+											<source>src/main/groovy</source>
+										</sources>
+									</configuration>
+								</execution>
+								<execution>
+									<id>add-test-source</id>
+									<phase>generate-test-sources</phase>
+									<goals>
+										<goal>add-test-source</goal>
+									</goals>
+									<configuration>
+										<sources>
+											<source>src/test/java</source>
+											<source>src/test/groovy</source>
+										</sources>
+									</configuration>
+								</execution>
+							</executions>
+						</plugin>
+						<plugin>
+							<groupId>org.codehaus.groovy</groupId>
+							<artifactId>groovy-eclipse-compiler</artifactId>
+							<version>3.7.0</version>
+							<extensions>true</extensions>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-compiler-plugin</artifactId>
+							<version>3.8.0</version>
+							<configuration>
+								<source>${maven.compiler.source}</source>
+								<target>${maven.compiler.target}</target>
+								<encoding>${project.build.sourceEncoding}</encoding>
+								<useIncrementalCompilation>false</useIncrementalCompilation>
+								<compilerId>groovy-eclipse-compiler</compilerId>
+								<fork>${maven.compiler.fork}</fork>
+								<verbose>${maven.compiler.verbose}</verbose>
+								<failOnWarning>${maven.compiler.failOnWarning}</failOnWarning>
+								<failOnError>${maven.compiler.failOnError}</failOnError>
+								<compilerArguments>
+									<parameters/>
+									<javaAgentClass>lombok.launch.Agent</javaAgentClass>
+									<indy/>
+									<!--<configScript>config.groovy</configScript>-->
+								</compilerArguments>
+							</configuration>
+							<dependencies>
+								<dependency>
+									<groupId>org.codehaus.groovy</groupId>
+									<artifactId>groovy-eclipse-compiler</artifactId>
+									<version>3.7.0</version>
+								</dependency>
+								<dependency>
+									<groupId>org.codehaus.groovy</groupId>
+									<artifactId>groovy-eclipse-batch</artifactId>
+									<version>3.0.8-01</version>
+								</dependency>
+								<dependency>
+									<groupId>org.projectlombok</groupId>
+									<artifactId>lombok</artifactId>
+									<version>1.18.20</version>
+								</dependency>
+							</dependencies>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+		</profile>
+		<!-- endregion -->
 
-		<!-- region build -->
+		<!-- region run -->
 		<profile>
 			<id>run</id>
 			<build>
@@ -1042,7 +1097,7 @@
 						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-jar-plugin</artifactId>
-							<version>2.4</version>
+							<version>3.2.0</version>
 							<configuration>
 								<skipIfEmpty>true</skipIfEmpty>
 								<excludes>
@@ -1169,7 +1224,7 @@
 
 		<!-- region ext -->
 		<profile>
-			<id>ext</id>
+			<id>extRepo</id>
 			<!-- 使用第三方镜像仓库 -->
 			<repositories>
 				<repository>
@@ -1253,7 +1308,7 @@
 
 		<!-- region oss -->
 		<profile>
-			<id>oss</id>
+			<id>ossRepo</id>
 			<properties>
 				<maven.test.skip>true</maven.test.skip>
 			</properties>
@@ -1263,7 +1318,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-source-plugin</artifactId>
-						<version>3.0.1</version>
+						<version>3.2.1</version>
 						<configuration>
 							<attach>true</attach>
 							<excludes>**/*</excludes>
@@ -1289,7 +1344,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-javadoc-plugin</artifactId>
-						<version>3.0.0</version>
+						<version>3.2.0</version>
 						<configuration>
 							<skip>true</skip>
 							<doclint>none</doclint>
