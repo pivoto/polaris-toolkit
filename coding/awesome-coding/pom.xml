@@ -6,12 +6,13 @@
 	<parent>
 		<groupId>com.librecoder.awesome</groupId>
 		<artifactId>awesome-base</artifactId>
-		<version>2.0.1-SNAPSHOT</version>
+		<version>2.0.2-SNAPSHOT</version>
+		<relativePath/>
 	</parent>
 	<groupId>com.librecoder.awesome</groupId>
 	<artifactId>awesome-coding</artifactId>
 	<name>awesome-coding</name>
-	<version>2.0.1-SNAPSHOT</version>
+	<version>2.0.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>awesome-logging</module>
@@ -30,19 +31,19 @@
 			<dependency>
 				<groupId>com.librecoder.awesome</groupId>
 				<artifactId>awesome-logging</artifactId>
-				<version>2.0.1-SNAPSHOT</version>
+				<version>2.0.2-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>com.librecoder.awesome</groupId>
 				<artifactId>awesome-dbv</artifactId>
-				<version>2.0.1-SNAPSHOT</version>
+				<version>2.0.2-SNAPSHOT</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.librecoder.awesome</groupId>
 				<artifactId>awesome-bom</artifactId>
 				<type>pom</type>
-				<version>2.0.1-SNAPSHOT</version>
+				<version>2.0.2-SNAPSHOT</version>
 				<scope>import</scope>
 			</dependency>
 			<dependency>
