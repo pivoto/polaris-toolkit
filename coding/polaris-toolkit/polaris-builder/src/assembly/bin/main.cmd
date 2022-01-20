@@ -17,7 +17,7 @@ set JAVA_OPTIONS=%JAVA_OPTIONS% -XX:TargetSurvivorRatio=70 -XX:+UseConcMarkSweep
 set JAVA_OPTIONS=%JAVA_OPTIONS% -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70 -XX:+CMSScavengeBeforeRemark
 set JAVA_OPTIONS=%JAVA_OPTIONS% -XX:+PrintGC -XX:+PrintGCDetails
 
-set APP_MAIN=io.awesome.builder.Main
+set APP_MAIN=io.polaris.builder.Main
 set JAVA_ARGS=--jdbcCfg %WORKDIR%/conf/jdbc.xml --xmlData %WORKDIR%/conf/tables.xml --codegen %WORKDIR%/conf/code.xml
 
 echo "java %JAVA_OPTIONS% %APP_MAIN% %JAVA_ARGS%"

@@ -30,5 +30,5 @@
 	<jdbc-url>jdbc:oracle:thin:@172.30.252.118:1521/cmisdb</jdbc-url>
 	<jdbc-username>ncmis</jdbc-username>
 	<jdbc-password>ncmis2019</jdbc-password>
-	<jdbc-info-properties-path>io/awesome/codegen2/jdbc.properties</jdbc-info-properties-path>
+	<jdbc-info-properties-path>io/polaris/codegen2/jdbc.properties</jdbc-info-properties-path>
 </database>

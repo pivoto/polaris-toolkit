@@ -21,6 +21,6 @@ JAVA_OPTIONS="${JAVA_OPTIONS} -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiati
 JAVA_OPTIONS="${JAVA_OPTIONS} -XX:+PrintGC -XX:+PrintGCDetails"
 
 JAVA_ARGS="--jdbcCfg $WORKDIR/conf/jdbc.xml --xmlData $WORKDIR/conf/tables.xml --codegen $WORKDIR/conf/code.xml"
-APP_MAIN=io.awesome.builder.Main
+APP_MAIN=io.polaris.builder.Main
 echo "java ${JAVA_OPTIONS} ${APP_MAIN} $JAVA_ARGS"
 java ${JAVA_OPTIONS} ${APP_MAIN} $JAVA_ARGS
