@@ -4,12 +4,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.librecoder.awesome</groupId>
-	<artifactId>awesome-bom</artifactId>
-	<version>2.0.2-SNAPSHOT</version>
+	<groupId>com.librecoder.polaris</groupId>
+	<artifactId>polaris-bom</artifactId>
+	<version>2.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>awesome-bom</name>
+	<name>polaris-bom</name>
 	<url>https://www.librecoder.com</url>
 	<description>librecoder</description>
 	<organization>
@@ -18,18 +18,18 @@
 	</organization>
 
 	<modules>
-		<module>awesome-build-tools</module>
-		<module>awesome-base</module>
-		<module>awesome-base-boot</module>
+		<module>polaris-build-tools</module>
+		<module>polaris-base</module>
+		<module>polaris-base-boot</module>
+		<module>polaris-base-cloud</module>
 	</modules>
 
 	<properties>
-		<module.project.version>2.0.1-SNAPSHOT</module.project.version>
 		<start-class></start-class>
-		<java.version>8</java.version>
+		<java.version>1.8</java.version>
 		<file.encoding>UTF-8</file.encoding>
 		<resource.delimiter>@</resource.delimiter>
-		<!--<resource.delimiter>@#{*}</resource.delimiter>-->
+		<!--<resource.delimiter>#{*}</resource.delimiter>-->
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<project.build.sourceEncoding>${file.encoding}</project.build.sourceEncoding>
@@ -56,8 +56,9 @@
 		<maven.lombok.version>1.18.20</maven.lombok.version>
 		<maven.groovy.version>2.5.14</maven.groovy.version>
 
-		<spring-boot.version>2.3.9.RELEASE</spring-boot.version>
-		<spring-cloud.version>Hoxton.SR10</spring-cloud.version>
+		<dependency.polaris.version>2.0.1-SNAPSHOT</dependency.polaris.version>
+		<dependency.spring-boot.version>2.3.9.RELEASE</dependency.spring-boot.version>
+		<dependency.spring-cloud.version>Hoxton.SR10</dependency.spring-cloud.version>
 
 		<log4j2.version>2.17.0</log4j2.version>
 		<dependency.junit-jupiter.version>5.8.1</dependency.junit-jupiter.version>
@@ -80,14 +81,14 @@
 		<dependencies>
 			<!-- region Modules -->
 			<dependency>
-				<groupId>com.librecoder.awesome</groupId>
-				<artifactId>awesome-build-tools</artifactId>
-				<version>${module.project.version}</version>
+				<groupId>com.librecoder.polaris</groupId>
+				<artifactId>polaris-build-tools</artifactId>
+				<version>${dependency.polaris.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.librecoder.awesome</groupId>
-				<artifactId>awesome-base</artifactId>
-				<version>${module.project.version}</version>
+				<groupId>com.librecoder.polaris</groupId>
+				<artifactId>polaris-base</artifactId>
+				<version>${dependency.polaris.version}</version>
 			</dependency>
 			<!-- endregion -->
 
@@ -104,8 +105,6 @@
 				<artifactId>groovy-all</artifactId>
 				<version>${maven.groovy.version}</version>
 				<type>pom</type>
-				<scope>provided</scope>
-				<optional>true</optional>
 			</dependency>
 			<!-- endregion BuildTools -->
 
@@ -495,7 +494,7 @@
 					<artifactId>maven-jar-plugin</artifactId>
 					<version>3.2.0</version>
 					<configuration>
-						<skipIfEmpty>true</skipIfEmpty>
+						<skipIfEmpty>false</skipIfEmpty>
 						<excludes>
 							<exclude>rebel.xml</exclude>
 							<exclude>.gitkeep*</exclude>
@@ -880,21 +879,21 @@
 			<url>file:${project.basedir}/site</url>
 		</site>
 		<repository>
-			<id>local-releases</id>
-			<name>Internal Releases</name>
+			<id>me</id>
+			<name>me</name>
 			<url>http://localhost:8081/nexus/repository/maven-releases/</url>
 		</repository>
 		<snapshotRepository>
-			<id>local-snapshots</id>
-			<name>Internal Releases</name>
+			<id>me</id>
+			<name>me</name>
 			<url>http://localhost:8081/nexus/repository/maven-snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
 
 	<scm>
-		<connection>scm:git:git@github.com:librecoder/awesome.git</connection>
-		<developerConnection>scm:git:git@github.com:librecoder/awesome.git</developerConnection>
-		<url>git@github.com:librecoder/awesome.git</url>
+		<connection>scm:git:git@github.com:librecoders/polaris.git</connection>
+		<developerConnection>scm:git:git@github.com:librecoders/polaris.git</developerConnection>
+		<url>git@github.com:librecoders/polaris.git</url>
 	</scm>
 
 	<profiles>
@@ -961,9 +960,9 @@
 		</profile>
 		<!-- endregion -->
 
-		<!-- region groovy -->
+		<!-- region src-groovy -->
 		<profile>
-			<id>groovy</id>
+			<id>src-groovy</id>
 			<activation>
 				<file>
 					<exists>src/main/groovy</exists>
@@ -1099,9 +1098,9 @@
 		</profile>
 		<!-- endregion -->
 
-		<!-- region run -->
+		<!-- region package-run -->
 		<profile>
-			<id>run</id>
+			<id>package-run</id>
 			<build>
 				<pluginManagement>
 					<plugins>
@@ -1185,9 +1184,9 @@
 		</profile>
 		<!-- endregion -->
 
-		<!-- region idea provided > compile -->
+		<!-- region ide-idea -->
 		<profile>
-			<id>idea</id>
+			<id>ide-idea</id>
 			<activation>
 				<property>
 					<name>idea.version</name>
@@ -1197,51 +1196,60 @@
 				<project.dependencies.scope.provided>compile</project.dependencies.scope.provided>
 				<maven.test.skip>true</maven.test.skip>
 			</properties>
-			<!--<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>build-helper-maven-plugin</artifactId>
-						<version>3.2.0</version>
-						<executions>
-							<execution>
-								<id>add-source</id>
-								<phase>generate-sources</phase>
-								<goals>
-									<goal>add-source</goal>
-								</goals>
-								<configuration>
-									<sources>
-										<source>src/main/java</source>
-										<source>src/main/groovy</source>
-										<source>src/main/lombok</source>
-									</sources>
-								</configuration>
-							</execution>
-							<execution>
-								<id>add-test-source</id>
-								<phase>generate-test-sources</phase>
-								<goals>
-									<goal>add-test-source</goal>
-								</goals>
-								<configuration>
-									<sources>
-										<source>src/test/java</source>
-										<source>src/test/groovy</source>
-										<source>src/test/lombok</source>
-									</sources>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>-->
 		</profile>
 		<!-- endregion -->
 
-		<!-- region ext -->
+		<!-- region repos-me -->
 		<profile>
-			<id>extRepo</id>
+			<id>repos-me</id>
+			<repositories>
+				<repository>
+					<id>me</id>
+					<name>me</name>
+					<url>http://localhost:8081/nexus/repository/maven-public/</url>
+					<releases>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+					</snapshots>
+				</repository>
+			</repositories>
+			<pluginRepositories>
+				<pluginRepository>
+					<id>me</id>
+					<name>me</name>
+					<url>http://localhost:8081/nexus/repository/maven-public/</url>
+					<releases>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+					</snapshots>
+				</pluginRepository>
+			</pluginRepositories>
+			<distributionManagement>
+				<repository>
+					<id>me</id>
+					<name>me</name>
+					<url>http://localhost:8081/nexus/repository/maven-releases/</url>
+				</repository>
+				<snapshotRepository>
+					<id>me</id>
+					<name>me</name>
+					<url>http://localhost:8081/nexus/repository/maven-snapshots/</url>
+				</snapshotRepository>
+			</distributionManagement>
+		</profile>
+		<!-- endregion -->
+
+		<!-- region repos-ext -->
+		<profile>
+			<id>repos-ext</id>
 			<!-- 使用第三方镜像仓库 -->
 			<repositories>
 				<repository>
@@ -1323,9 +1331,9 @@
 		</profile>
 		<!-- endregion -->
 
-		<!-- region oss -->
+		<!-- region repos-oss -->
 		<profile>
-			<id>ossRepo</id>
+			<id>repos-oss</id>
 			<build>
 				<plugins>
 					<!-- Source -->
