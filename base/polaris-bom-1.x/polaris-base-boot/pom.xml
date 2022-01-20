@@ -86,7 +86,7 @@
 						<dependency>
 							<groupId>com.librecoder.polaris</groupId>
 							<artifactId>polaris-build-tools</artifactId>
-							<version>${dependency.polaris.version}</version>
+							<version>${dependency.polaris-build-tools.version}</version>
 						</dependency>
 					</dependencies>
 					<executions>

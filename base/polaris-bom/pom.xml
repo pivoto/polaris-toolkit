@@ -56,11 +56,11 @@
 		<maven.lombok.version>1.18.20</maven.lombok.version>
 		<maven.groovy.version>2.5.14</maven.groovy.version>
 
-		<dependency.polaris.version>2.0.1-SNAPSHOT</dependency.polaris.version>
+		<dependency.polaris-build-tools.version>2.0.1-SNAPSHOT</dependency.polaris-build-tools.version>
 		<dependency.spring-boot.version>2.3.9.RELEASE</dependency.spring-boot.version>
 		<dependency.spring-cloud.version>Hoxton.SR10</dependency.spring-cloud.version>
 
-		<log4j2.version>2.17.0</log4j2.version>
+		<log4j2.version>2.17.1</log4j2.version>
 		<dependency.junit-jupiter.version>5.8.1</dependency.junit-jupiter.version>
 		<dependency.junit.version>4.13.2</dependency.junit.version>
 		<dependency.h2.version>1.4.200</dependency.h2.version>
@@ -83,12 +83,7 @@
 			<dependency>
 				<groupId>com.librecoder.polaris</groupId>
 				<artifactId>polaris-build-tools</artifactId>
-				<version>${dependency.polaris.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.librecoder.polaris</groupId>
-				<artifactId>polaris-base</artifactId>
-				<version>${dependency.polaris.version}</version>
+				<version>${dependency.polaris-build-tools.version}</version>
 			</dependency>
 			<!-- endregion -->
 
