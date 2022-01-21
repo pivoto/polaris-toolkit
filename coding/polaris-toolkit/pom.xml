@@ -18,8 +18,6 @@
 		<module>toolkit-logging</module>
 		<module>toolkit-dbv</module>
 		<module>toolkit-builder</module>
-		<module>toolkit-spring-boot</module>
-		<module>toolkit-spring-boot/toolkit-spring-boot-starter</module>
 	</modules>
 
 	<properties>

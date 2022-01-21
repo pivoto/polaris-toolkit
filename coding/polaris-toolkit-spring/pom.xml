@@ -14,7 +14,7 @@
 	<version>2.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<modules>
-		<module>polaris-toolkit-spring-starter</module>
+		<module>toolkit-spring-starter</module>
 	</modules>
 
 	<properties>

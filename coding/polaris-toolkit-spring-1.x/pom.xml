@@ -11,11 +11,10 @@
 	</parent>
 	<groupId>com.librecoder.polaris.toolkit</groupId>
 	<artifactId>polaris-toolkit-spring</artifactId>
-	<name>${project.artifactId}-1.x</name>
 	<version>1.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<modules>
-		<module>polaris-toolkit-spring-starter</module>
+		<module>toolkit-spring-starter</module>
 	</modules>
 
 	<properties>

@@ -8,7 +8,7 @@
 		<version>1.0.1-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>polaris-toolkit-spring-starter</artifactId>
-	<name>${project.artifactId}-1.x</name>
+	<artifactId>toolkit-spring-starter</artifactId>
+
 
 </project>
