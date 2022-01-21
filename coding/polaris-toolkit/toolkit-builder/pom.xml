@@ -3,13 +3,13 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
-		<groupId>com.librecoder.polaris</groupId>
+		<groupId>com.librecoder.polaris.toolkit</groupId>
 		<artifactId>polaris-toolkit</artifactId>
 		<version>2.0.1-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>polaris-builder</artifactId>
+	<artifactId>toolkit-builder</artifactId>
 	<description>代码生成器</description>
 
 	<properties>
@@ -19,12 +19,12 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.librecoder.polaris</groupId>
-			<artifactId>polaris-logging</artifactId>
+			<groupId>com.librecoder.polaris.toolkit</groupId>
+			<artifactId>toolkit-logging</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.librecoder.polaris</groupId>
-			<artifactId>polaris-dbv</artifactId>
+			<groupId>com.librecoder.polaris.toolkit</groupId>
+			<artifactId>toolkit-dbv</artifactId>
 		</dependency>
 
 		<dependency>

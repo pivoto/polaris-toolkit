@@ -6,24 +6,20 @@
 	<parent>
 		<groupId>com.librecoder.polaris</groupId>
 		<artifactId>polaris-base</artifactId>
-		<version>2.0.1-SNAPSHOT</version>
+		<version>1.0.1-SNAPSHOT</version>
 		<relativePath/>
 	</parent>
 	<groupId>com.librecoder.polaris.toolkit</groupId>
-	<artifactId>polaris-toolkit</artifactId>
-	<version>2.0.1-SNAPSHOT</version>
+	<artifactId>polaris-toolkit-spring</artifactId>
+	<name>${project.artifactId}-1.x</name>
+	<version>1.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<modules>
-		<module>toolkit-core</module>
-		<module>toolkit-logging</module>
-		<module>toolkit-dbv</module>
-		<module>toolkit-builder</module>
-		<module>toolkit-spring-boot</module>
-		<module>toolkit-spring-boot/toolkit-spring-boot-starter</module>
+		<module>polaris-toolkit-spring-starter</module>
 	</modules>
 
 	<properties>
-		<dependency.polaris-toolkit.version>${project.version}</dependency.polaris-toolkit.version>
+		<dependency.polaris-toolkit-spring.version>${project.version}</dependency.polaris-toolkit-spring.version>
 	</properties>
 
 	<dependencies>
@@ -32,21 +28,10 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>com.librecoder.polaris.toolkit</groupId>
-				<artifactId>toolkit-logging</artifactId>
-				<version>${dependency.polaris-toolkit.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.librecoder.polaris.toolkit</groupId>
-				<artifactId>toolkit-dbv</artifactId>
-				<version>${dependency.polaris-toolkit.version}</version>
-			</dependency>
-
-			<dependency>
 				<groupId>com.librecoder.polaris</groupId>
 				<artifactId>polaris-bom</artifactId>
 				<type>pom</type>
-				<version>2.0.1-SNAPSHOT</version>
+				<version>1.0.1-SNAPSHOT</version>
 				<scope>import</scope>
 			</dependency>
 			<dependency>
