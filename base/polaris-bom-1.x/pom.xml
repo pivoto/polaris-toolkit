@@ -6,7 +6,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.librecoder.polaris</groupId>
 	<artifactId>polaris-bom</artifactId>
-	<version>${revision}</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>polaris-bom</name>
@@ -57,7 +57,7 @@
 		<maven.lombok.version>1.18.20</maven.lombok.version>
 		<maven.groovy.version>2.5.14</maven.groovy.version>
 
-		<dependency.polaris-build-tools.version>${revision}</dependency.polaris-build-tools.version>
+		<dependency.polaris-build-tools.version>${project.version}</dependency.polaris-build-tools.version>
 		<dependency.spring-boot.version>1.5.21.RELEASE</dependency.spring-boot.version>
 		<dependency.spring-cloud.version>Dalston.SR5</dependency.spring-cloud.version>
 
@@ -762,10 +762,10 @@
 		</pluginManagement>
 
 		<plugins>
-			<plugin>
+			<!--<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>flatten-maven-plugin</artifactId>
-			</plugin>
+			</plugin>-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-help-plugin</artifactId>
