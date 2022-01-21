@@ -6,7 +6,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.librecoder.polaris</groupId>
 	<artifactId>polaris-bom</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>${revision}</version>
 	<packaging>pom</packaging>
 
 	<name>polaris-bom</name>
@@ -25,6 +25,7 @@
 	</modules>
 
 	<properties>
+		<revision>1.0.1-SNAPSHOT</revision>
 		<start-class></start-class>
 		<java.version>1.8</java.version>
 		<file.encoding>UTF-8</file.encoding>
@@ -56,12 +57,11 @@
 		<maven.lombok.version>1.18.20</maven.lombok.version>
 		<maven.groovy.version>2.5.14</maven.groovy.version>
 
-
-		<dependency.polaris-build-tools.version>1.0.1-SNAPSHOT</dependency.polaris-build-tools.version>
+		<dependency.polaris-build-tools.version>${revision}</dependency.polaris-build-tools.version>
 		<dependency.spring-boot.version>1.5.21.RELEASE</dependency.spring-boot.version>
 		<dependency.spring-cloud.version>Dalston.SR5</dependency.spring-cloud.version>
 
-		<log4j2.version>2.17.1</log4j2.version>
+		<dependency.log4j2.version>2.17.1</dependency.log4j2.version>
 		<dependency.junit-jupiter.version>5.8.1</dependency.junit-jupiter.version>
 		<dependency.junit.version>4.13.2</dependency.junit.version>
 		<dependency.h2.version>1.4.200</dependency.h2.version>
@@ -82,7 +82,7 @@
 			<!-- region Modules -->
 			<dependency>
 				<groupId>com.librecoder.polaris</groupId>
-				<artifactId>polaris-base</artifactId>
+				<artifactId>polaris-build-tools</artifactId>
 				<version>${dependency.polaris-build-tools.version}</version>
 			</dependency>
 			<!-- endregion -->
@@ -107,7 +107,7 @@
 			<dependency>
 				<groupId>org.apache.logging.log4j</groupId>
 				<artifactId>log4j-bom</artifactId>
-				<version>${log4j2.version}</version>
+				<version>${dependency.log4j2.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -286,6 +286,28 @@
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>flatten-maven-plugin</artifactId>
 					<version>1.2.5</version>
+					<configuration>
+						<!-- oss,ossrh,bom,defaults,clean,fatjar,resolveCiFriendliesOnly -->
+						<flattenMode>resolveCiFriendliesOnly</flattenMode>
+						<updatePomFile>true</updatePomFile>
+						<flattenedPomFilename>.flattened-pom.xml</flattenedPomFilename>
+					</configuration>
+					<executions>
+						<execution>
+							<id>flatten</id>
+							<phase>process-resources</phase>
+							<goals>
+								<goal>flatten</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>flatten.clean</id>
+							<phase>clean</phase>
+							<goals>
+								<goal>clean</goal>
+							</goals>
+						</execution>
+					</executions>
 				</plugin>
 				<plugin>
 					<groupId>org.flywaydb</groupId>
@@ -740,6 +762,10 @@
 		</pluginManagement>
 
 		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>flatten-maven-plugin</artifactId>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-help-plugin</artifactId>

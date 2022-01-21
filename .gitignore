@@ -1,6 +1,7 @@
 # target
 target/
 build/
+.flattened-pom.xml
 
 # STS/Eclipse
 .settings/
