@@ -1,0 +1,200 @@
+{
+  "groups": [
+    {
+      "name": "toolkit.crypto",
+      "type": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties"
+    },
+    {
+      "name": "toolkit.crypto.property",
+      "type": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties$EnvConfigurationProperties",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "toolkit.crypto.algorithm",
+      "type": "io.polaris.toolkit.spring.crypto.CryptoAlgorithm",
+      "description": "密钥算法",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties"
+    },
+    {
+      "name": "toolkit.crypto.decrypt-key",
+      "type": "java.lang.String",
+      "description": "解密密钥(非对称加密方式下通常为公钥)内容(Base64)",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties"
+    },
+    {
+      "name": "toolkit.crypto.decrypt-key-location",
+      "type": "java.lang.String",
+      "description": "解密密钥(非对称加密方式下通常为公钥)文件路径",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties"
+    },
+    {
+      "name": "toolkit.crypto.enabled",
+      "type": "java.lang.Boolean",
+      "description": "是否启用",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "toolkit.crypto.encrypt-key",
+      "type": "java.lang.String",
+      "description": "加密密钥(非对称加密方式下通常为私钥)内容(Base64)",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties"
+    },
+    {
+      "name": "toolkit.crypto.encrypt-key-location",
+      "type": "java.lang.String",
+      "description": "加密密钥(非对称加密方式下通常为私钥)文件路径",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties"
+    },
+    {
+      "name": "toolkit.crypto.property.excludes",
+      "type": "java.util.List<java.lang.String>",
+      "description": "加密属性名排除范式",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties$EnvConfigurationProperties"
+    },
+    {
+      "name": "toolkit.crypto.property.excludes",
+      "type": "java.util.List<java.lang.String>",
+      "description": "加密属性名排除范式",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties$EnvConfigurationProperties"
+    },
+    {
+      "name": "toolkit.crypto.property.excludes",
+      "type": "java.util.List<java.lang.String>",
+      "description": "加密属性名排除范式",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties$EnvConfigurationProperties"
+    },
+    {
+      "name": "toolkit.crypto.property.includes",
+      "type": "java.util.List<java.lang.String>",
+      "description": "加密属性名匹配范式",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties$EnvConfigurationProperties"
+    },
+    {
+      "name": "toolkit.crypto.property.includes",
+      "type": "java.util.List<java.lang.String>",
+      "description": "加密属性名匹配范式",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties$EnvConfigurationProperties"
+    },
+    {
+      "name": "toolkit.crypto.property.includes",
+      "type": "java.util.List<java.lang.String>",
+      "description": "加密属性名匹配范式",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties$EnvConfigurationProperties"
+    },
+    {
+      "name": "toolkit.crypto.property.key-prefix",
+      "type": "java.lang.String",
+      "description": "加密属性的关联密钥属性名前缀",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties$EnvConfigurationProperties",
+      "defaultValue": ""
+    },
+    {
+      "name": "toolkit.crypto.property.key-prefix",
+      "type": "java.lang.String",
+      "description": "加密属性的关联密钥属性名前缀",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties$EnvConfigurationProperties",
+      "defaultValue": ""
+    },
+    {
+      "name": "toolkit.crypto.property.key-prefix",
+      "type": "java.lang.String",
+      "description": "加密属性的关联密钥属性名前缀",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties$EnvConfigurationProperties",
+      "defaultValue": ""
+    },
+    {
+      "name": "toolkit.crypto.property.key-suffix",
+      "type": "java.lang.String",
+      "description": "加密属性的关联密钥属性名后缀",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties$EnvConfigurationProperties",
+      "defaultValue": "@key"
+    },
+    {
+      "name": "toolkit.crypto.property.key-suffix",
+      "type": "java.lang.String",
+      "description": "加密属性的关联密钥属性名后缀",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties$EnvConfigurationProperties",
+      "defaultValue": "@key"
+    },
+    {
+      "name": "toolkit.crypto.property.key-suffix",
+      "type": "java.lang.String",
+      "description": "加密属性的关联密钥属性名后缀",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties$EnvConfigurationProperties",
+      "defaultValue": "@key"
+    },
+    {
+      "name": "toolkit.crypto.property.match-type",
+      "type": "io.polaris.toolkit.spring.crypto.CryptoMatchType",
+      "description": "加密属性匹配方式(VALUE_ONLY-仅匹配属性值的前后缀, VALUE_OR_KEY-匹配属性名或属性值的前后缀)",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties$EnvConfigurationProperties"
+    },
+    {
+      "name": "toolkit.crypto.property.match-type",
+      "type": "io.polaris.toolkit.spring.crypto.CryptoMatchType",
+      "description": "加密属性匹配方式(VALUE_ONLY-仅匹配属性值的前后缀, VALUE_OR_KEY-匹配属性名或属性值的前后缀)",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties$EnvConfigurationProperties"
+    },
+    {
+      "name": "toolkit.crypto.property.prefix",
+      "type": "java.lang.String",
+      "description": "加密属性值前缀",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties$EnvConfigurationProperties",
+      "defaultValue": "ENC@"
+    },
+    {
+      "name": "toolkit.crypto.property.prefix",
+      "type": "java.lang.String",
+      "description": "加密属性值前缀",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties$EnvConfigurationProperties",
+      "defaultValue": "ENC@"
+    },
+    {
+      "name": "toolkit.crypto.property.prefix",
+      "type": "java.lang.String",
+      "description": "加密属性值前缀",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties$EnvConfigurationProperties",
+      "defaultValue": "ENC@"
+    },
+    {
+      "name": "toolkit.crypto.property.suffix",
+      "type": "java.lang.String",
+      "description": "加密属性值后缀",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties$EnvConfigurationProperties",
+      "defaultValue": ""
+    },
+    {
+      "name": "toolkit.crypto.property.suffix",
+      "type": "java.lang.String",
+      "description": "加密属性值后缀",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties$EnvConfigurationProperties",
+      "defaultValue": ""
+    },
+    {
+      "name": "toolkit.crypto.property.suffix",
+      "type": "java.lang.String",
+      "description": "加密属性值后缀",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties$EnvConfigurationProperties",
+      "defaultValue": ""
+    },
+    {
+      "name": "toolkit.crypto.show-origin",
+      "type": "java.lang.Boolean",
+      "description": "是否显示原文",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties",
+      "defaultValue": false
+    },
+    {
+      "name": "toolkit.crypto.throw-on-fail",
+      "type": "java.lang.Boolean",
+      "description": "解密失败后是否抛出异常",
+      "sourceType": "io.polaris.toolkit.spring.crypto.CryptoConfigurationProperties",
+      "defaultValue": true
+    }
+  ],
+  "hints": []
+}

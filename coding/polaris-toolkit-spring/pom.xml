@@ -18,7 +18,7 @@
 	</modules>
 
 	<properties>
-		<dependency.polaris-toolkit-spring.version>${project.version}</dependency.polaris-toolkit-spring.version>
+		<dependency.polaris-toolkit.version>2.0.1-SNAPSHOT</dependency.polaris-toolkit.version>
 	</properties>
 
 	<dependencies>
@@ -26,6 +26,20 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>com.librecoder.polaris.toolkit</groupId>
+				<artifactId>toolkit-core</artifactId>
+				<scope>compile</scope>
+				<version>${dependency.polaris-toolkit.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.librecoder.polaris.toolkit</groupId>
+				<artifactId>toolkit-logging</artifactId>
+				<scope>compile</scope>
+				<version>${dependency.polaris-toolkit.version}</version>
+			</dependency>
+
+
 			<dependency>
 				<groupId>com.librecoder.polaris</groupId>
 				<artifactId>polaris-bom</artifactId>
