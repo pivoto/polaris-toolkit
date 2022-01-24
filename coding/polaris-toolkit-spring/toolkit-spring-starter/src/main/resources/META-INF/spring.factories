@@ -1,7 +1,11 @@
 # Initializers
-org.springframework.context.ApplicationContextInitializer=io.polaris.toolkit.spring.autoconfigure.ToolkitApplicationContextInitializer
+org.springframework.context.ApplicationContextInitializer=\
+io.polaris.toolkit.spring.autoconfigure.ToolkitApplicationContextInitializer
 # Application Listeners
-org.springframework.context.ApplicationListener=io.polaris.toolkit.spring.autoconfigure.ToolkitApplicationListener
+org.springframework.context.ApplicationListener=\
+io.polaris.toolkit.spring.logging.plugin.SpringContextLookup\
+,io.polaris.toolkit.spring.autoconfigure.ToolkitApplicationListener
+
 # AutoConfiguration
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 io.polaris.toolkit.spring.autoconfigure.CryptoPropertyAutoConfiguration\
@@ -9,4 +13,5 @@ io.polaris.toolkit.spring.autoconfigure.CryptoPropertyAutoConfiguration\
 ,io.polaris.toolkit.spring.autoconfigure.DynamicTransactionAutoConfiguration
 
 # Environment Post Processors
-org.springframework.boot.env.EnvironmentPostProcessor=io.polaris.toolkit.spring.autoconfigure.ToolkitEnvironmentPostProcessor
+org.springframework.boot.env.EnvironmentPostProcessor=\
+io.polaris.toolkit.spring.autoconfigure.ToolkitEnvironmentPostProcessor
