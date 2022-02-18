@@ -290,6 +290,7 @@
 						<!-- oss,ossrh,bom,defaults,clean,fatjar,resolveCiFriendliesOnly -->
 						<flattenMode>resolveCiFriendliesOnly</flattenMode>
 						<updatePomFile>true</updatePomFile>
+						<outputDirectory>${project.build.directory}</outputDirectory>
 						<flattenedPomFilename>.flattened-pom.xml</flattenedPomFilename>
 					</configuration>
 					<executions>
