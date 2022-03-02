@@ -20,8 +20,8 @@ JAVA_OPTIONS="${JAVA_OPTIONS} -XX:TargetSurvivorRatio=70 -XX:+UseConcMarkSweepGC
 JAVA_OPTIONS="${JAVA_OPTIONS} -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70 -XX:+CMSScavengeBeforeRemark"
 JAVA_OPTIONS="${JAVA_OPTIONS} -XX:+PrintGC -XX:+PrintGCDetails"
 
-APP_MAIN=io.polaris.builder.Main
-JAVA_ARGS="--jdbcCfg $WORKDIR/conf/jdbc.xml --xmlData $WORKDIR/conf/tables.xml --codegen $WORKDIR/conf/code.xml"
+APP_MAIN=io.polaris.builder.change.PackageChangerRunner
+JAVA_ARGS="$WORKDIR/conf/change.xml"
 
 echo "java ${JAVA_OPTIONS} ${APP_MAIN} $JAVA_ARGS"
 java ${JAVA_OPTIONS} ${APP_MAIN} $JAVA_ARGS

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<changes>
+	<change>
+		<charset>utf-8</charset>
+		<copyForcedly>true</copyForcedly>
+		<fileExtensions>.xml .java .properties .yml</fileExtensions>
+		<dir src="./src/main/java" target="./target/java" />
+		<package name="org.polaris" mapping="io.polaris" />
+		<package name="io.gitee" mapping="io.github" />
+	</change>
+
+</changes>

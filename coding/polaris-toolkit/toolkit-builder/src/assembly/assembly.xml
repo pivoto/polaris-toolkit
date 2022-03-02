@@ -12,13 +12,13 @@
 
 	<fileSets>
 		<fileSet>
-			<directory>assembly/bin</directory>
+			<directory>src/assembly/bin</directory>
 			<outputDirectory>bin</outputDirectory>
 			<lineEnding>unix</lineEnding>
 			<fileMode>0755</fileMode>
 		</fileSet>
 		<fileSet>
-			<directory>assembly/conf</directory>
+			<directory>src/assembly/conf</directory>
 			<outputDirectory>conf</outputDirectory>
 			<lineEnding>unix</lineEnding>
 		</fileSet>

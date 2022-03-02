@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <env>
+	<!--
+	属性优先级: 表属性 > 模板属性 > 组属性 > 全局属性
+	-->
+	<!-- outdir: 配置生成代码的位置 -->
 	<outdir>./</outdir>
+	<!-- region 全局属性配置 -->
 	<property>
 		<entry key="author" value="Qt"/>
 		<entry key="useGeneratedKeys" value="true"/>
@@ -13,9 +18,13 @@
 		<entry key="implPackage" value="impl"/>
 		<entry key="controllerPackage" value="controller"/>
 	</property>
+	<!-- endregion 全局属性配置 -->
 
+	<!-- 可配置多个组以使用不同的配置 -->
 	<groups>
+		<!-- region 代码生成配置组 -->
 		<group>
+			<!-- 组扩展属性配置-->
 			<property></property>
 			<templates>
 				<template>
@@ -56,6 +65,16 @@
 				</template>
 			</templates>
 
+			<!--
+				tables: 配置待生成代码的表
+				table.catalog: 数据库名, oracle下不需要, mysql下使用
+				table.schema: 数据库用户, 大小写敏感, oracle下需要大写
+				table.name: 表名, 大小写敏感, oracle下需要大写
+				table.package: java包名, 如 com.yucheng.cmis.模块名.子模块名
+				table.property.moduleDir: 模块目录路径, sql文件、jsp文件等的目录名
+				table.property.moduleId: 模块Java服务接口声明的模块ID, 通常与包名类似, 如 com.yucheng.cmis.模块名.子模块名
+				table.property.moduleName: 模块Java服务接口声明的模块名称
+			 -->
 			<tables>
 				<table catalog="" schema="NCMIS" table="TREE_CONFIG" package="com.intoverflow.sample" classify="config">
 					<property></property>
@@ -63,5 +82,6 @@
 			</tables>
 
 		</group>
+		<!-- endregion 代码生成配置组 -->
 	</groups>
 </env>
