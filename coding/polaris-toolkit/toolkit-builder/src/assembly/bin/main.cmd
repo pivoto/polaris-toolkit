@@ -7,7 +7,8 @@ cd %WORKDIR%
 mkdir %WORKDIR%\logs
 
 set JAVA_OPTIONS=-cp %CLASSPATH%
-set JAVA_OPTIONS=%JAVA_OPTIONS% -DappName=%APP_NAME% -Dbase.dir=%WORKDIR%
+set JAVA_OPTIONS=%JAVA_OPTIONS% -Dapp.name=%APP_NAME% -Dwork.dir=%WORKDIR%
+set JAVA_OPTIONS=%JAVA_OPTIONS% -Dlog.name=%APP_NAME% -Dlog.basedir=%WORKDIR%/logs
 set JAVA_OPTIONS=%JAVA_OPTIONS% -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
 set JAVA_OPTIONS=%JAVA_OPTIONS% -Dlog4j.configurationFile=%WORKDIR%/conf/log4j2.xml
 set JAVA_OPTIONS=%JAVA_OPTIONS% -Dfile.encoding=UTF-8

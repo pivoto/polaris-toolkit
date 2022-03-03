@@ -10,7 +10,8 @@ fi
 cd ${WORKDIR}
 mkdir -p ${WORKDIR}/logs
 
-JAVA_OPTIONS="-DappName=${APP_NAME} -Dbase.dir=${WORKDIR}"
+JAVA_OPTIONS="-Dapp.name=${APP_NAME} -Dwork.dir=${WORKDIR}"
+JAVA_OPTIONS="-Dlog.appName=${APP_NAME} -Dlog.basedir=${WORKDIR}/logs"
 JAVA_OPTIONS="${JAVA_OPTIONS} -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector "
 JAVA_OPTIONS="${JAVA_OPTIONS} -Dlog4j.configurationFile=${WORKDIR}/conf/log4j2.xml "
 JAVA_OPTIONS="${JAVA_OPTIONS} -Dfile.encoding=UTF-8 "

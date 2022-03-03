@@ -12,7 +12,6 @@ else
 	export WORKDIR=${PWD}
 fi
 
-echo "WORKDIR: ${WORKDIR}"
 
 PATH_SEP=":"
 if [[ "${OS}" == "Windows_NT" ]];then
@@ -31,5 +30,6 @@ do
 done
 
 export CLASSPATH=.${PATH_SEP}${WORKDIR}/conf${PATH_SEP}${LIB_CLASSPATH}${PATH_SEP}${CLASSPATH}
+echo "WORKDIR: ${WORKDIR}"
 echo "CLASSPATH: ${CLASSPATH}"
 echo "JAVA_HOME: ${JAVA_HOME}"

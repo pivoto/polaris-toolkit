@@ -30,7 +30,7 @@
 		<Property name="log_third_level">${sys:log.thirdLevel:-${env:LOG_THIRD_LEVEL:-info}}</Property>
 
 		<Property name="log_include_location">${sys:log.includeLocation:-${env:LOG_INCLUDE_LOCATION:-true}}</Property>
-		<Property name="log_app_name">${sys:log.appName:-${env:LOG_APP_NAME:-${env:APP_NAME:-app}}}</Property>
+		<Property name="log_app_name">${sys:log.name:-${env:LOG_NAME:-${sys:app.name:-${env:APP_NAME:-app}}}}</Property>
 		<Property name="log_base_dir">${sys:log.basedir:-${env:LOG_BASEDIR:-${sys:user.home}/log}}</Property>
 
 		<Property name="log_dir">${log_base_dir}/${log_app_name}</Property>

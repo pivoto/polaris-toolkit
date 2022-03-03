@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<changes>
+	<charset>utf-8</charset>
+	<change>
+		<src>d:/xcode/jcfc/code/plat/base/jcfc-framework/spring-boot-starters/toolkit-spring-boot-starter/src</src>
+		<dest>d:/xcode/me/@diff/jcfc-framework-starters/toolkit-spring-boot-starter/src</dest>
+		<copy-all>true</copy-all>
+		<mapping-file-name>true</mapping-file-name>
+		<extensions>xml,java,properties,yml,json,factories</extensions>
+
+		<source-path>main/java</source-path>
+		<source-path>main/resources</source-path>
+		<source-path>test/java</source-path>
+		<source-path>test/resources</source-path>
+
+		<package name="com.jcfc.bf" mapping="io.polaris" />
+		<package name="com.jcfc.logging" mapping="io.polaris.logging" />
+	</change>
+	<change>
+		<src>d:/xcode/jcfc/code/plat/base/jcfc-framework/spring-boot-starters/toolkit-spring-boot-demo/src</src>
+		<dest>d:/xcode/me/@diff/jcfc-framework-starters/toolkit-spring-boot-demo/src</dest>
+		<copy-all>true</copy-all>
+		<mapping-file-name>true</mapping-file-name>
+		<extensions>xml,java,properties,yml,json,factories</extensions>
+
+		<source-path>main/java</source-path>
+		<source-path>main/resources</source-path>
+		<source-path>test/java</source-path>
+		<source-path>test/resources</source-path>
+
+		<package name="com.jcfc.bf" mapping="io.polaris" />
+		<package name="com.jcfc.logging" mapping="io.polaris.logging" />
+	</change>
+
+	<change>
+		<src>d:/xcode/jcfc/code/plat/base/jcfc-framework-1.x/spring-boot-starters/toolkit-spring-boot-starter/src</src>
+		<dest>d:/xcode/me/@diff/jcfc-framework-1.x-starters/toolkit-spring-boot-starter/src</dest>
+		<copy-all>true</copy-all>
+		<mapping-file-name>true</mapping-file-name>
+		<extensions>xml,java,properties,yml,json,factories</extensions>
+
+		<source-path>main/java</source-path>
+		<source-path>main/resources</source-path>
+		<source-path>test/java</source-path>
+		<source-path>test/resources</source-path>
+
+		<package name="com.jcfc.bf" mapping="io.polaris" />
+		<package name="com.jcfc.logging" mapping="io.polaris.logging" />
+	</change>
+	<change>
+		<src>d:/xcode/jcfc/code/plat/base/jcfc-framework-1.x/spring-boot-starters/toolkit-spring-boot-demo/src</src>
+		<dest>d:/xcode/me/@diff/jcfc-framework-1.x-starters/toolkit-spring-boot-demo/src</dest>
+		<copy-all>true</copy-all>
+		<mapping-file-name>true</mapping-file-name>
+		<extensions>xml,java,properties,yml,json,factories</extensions>
+
+		<source-path>main/java</source-path>
+		<source-path>main/resources</source-path>
+		<source-path>test/java</source-path>
+		<source-path>test/resources</source-path>
+
+		<package name="com.jcfc.bf" mapping="io.polaris" />
+		<package name="com.jcfc.logging" mapping="io.polaris.logging" />
+	</change>
+</changes>
