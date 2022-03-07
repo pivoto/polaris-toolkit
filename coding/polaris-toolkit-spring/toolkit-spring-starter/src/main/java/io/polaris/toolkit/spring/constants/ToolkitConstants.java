@@ -1,7 +1,6 @@
 package io.polaris.toolkit.spring.constants;
 
 import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 
 /**
  * @author Qt
@@ -29,28 +28,28 @@ public interface ToolkitConstants {
 
 	// region properties-key
 
-	String TOOLKIT_CRYPTO = "toolkit.crypto";
-	String TOOLKIT_CRYPTO_ENABLED = "toolkit.crypto.enabled";
-	String TOOLKIT_CRYPTO_ALGORITHM = "toolkit.crypto.algorithm";
-	String TOOLKIT_CRYPTO_DECRYPT_KEY = "toolkit.crypto.decryptKey";
-	String TOOLKIT_CRYPTO_DECRYPT_KEY2 = "toolkit.crypto.decrypt-key";
-	String TOOLKIT_CRYPTO_DECRYPT_KEY_LOCATION = "toolkit.crypto.decryptKeyLocation";
-	String TOOLKIT_CRYPTO_DECRYPT_KEY_LOCATION2 = "toolkit.crypto.decrypt-key-location";
-	String TOOLKIT_CRYPTO_ENCRYPT_KEY = "toolkit.crypto.encryptKey";
-	String TOOLKIT_CRYPTO_ENCRYPT_KEY2 = "toolkit.crypto.encrypt-key";
-	String TOOLKIT_CRYPTO_ENCRYPT_KEY_LOCATION = "toolkit.crypto.encryptKeyLocation";
-	String TOOLKIT_CRYPTO_ENCRYPT_KEY_LOCATION2 = "toolkit.crypto.encrypt-key-location";
-	String TOOLKIT_CRYPTO_PROPERTY_PREFIX = "toolkit.crypto.property.prefix";
-	String TOOLKIT_CRYPTO_PROPERTY_SUFFIX = "toolkit.crypto.property.suffix";
-	String TOOLKIT_CRYPTO_PROPERTY_INCLUDES = "toolkit.crypto.property.includes";
-	String TOOLKIT_CRYPTO_PROPERTY_EXCLUDES = "toolkit.crypto.property.excludes";
+	String TOOLKIT_CRYPTO = "spring.toolkit.crypto";
+	String TOOLKIT_CRYPTO_ENABLED = "spring.toolkit.crypto.enabled";
+	String TOOLKIT_CRYPTO_ALGORITHM = "spring.toolkit.crypto.algorithm";
+	String TOOLKIT_CRYPTO_DECRYPT_KEY = "spring.toolkit.crypto.decryptKey";
+	String TOOLKIT_CRYPTO_DECRYPT_KEY2 = "spring.toolkit.crypto.decrypt-key";
+	String TOOLKIT_CRYPTO_DECRYPT_KEY_LOCATION = "spring.toolkit.crypto.decryptKeyLocation";
+	String TOOLKIT_CRYPTO_DECRYPT_KEY_LOCATION2 = "spring.toolkit.crypto.decrypt-key-location";
+	String TOOLKIT_CRYPTO_ENCRYPT_KEY = "spring.toolkit.crypto.encryptKey";
+	String TOOLKIT_CRYPTO_ENCRYPT_KEY2 = "spring.toolkit.crypto.encrypt-key";
+	String TOOLKIT_CRYPTO_ENCRYPT_KEY_LOCATION = "spring.toolkit.crypto.encryptKeyLocation";
+	String TOOLKIT_CRYPTO_ENCRYPT_KEY_LOCATION2 = "spring.toolkit.crypto.encrypt-key-location";
+	String TOOLKIT_CRYPTO_PROPERTY_PREFIX = "spring.toolkit.crypto.property.prefix";
+	String TOOLKIT_CRYPTO_PROPERTY_SUFFIX = "spring.toolkit.crypto.property.suffix";
+	String TOOLKIT_CRYPTO_PROPERTY_INCLUDES = "spring.toolkit.crypto.property.includes";
+	String TOOLKIT_CRYPTO_PROPERTY_EXCLUDES = "spring.toolkit.crypto.property.excludes";
 
-	String TOOLKIT_DYNAMIC_DATASOURCE = "toolkit.dynamic.datasource";
-	String TOOLKIT_DYNAMIC_DATASOURCE_ENABLED = "toolkit.dynamic.datasource.enabled";
+	String TOOLKIT_DYNAMIC_DATASOURCE = "spring.toolkit.dynamic.datasource";
+	String TOOLKIT_DYNAMIC_DATASOURCE_ENABLED = "spring.toolkit.dynamic.datasource.enabled";
 
-	String TOOLKIT_DYNAMIC_TRANSACTION = "toolkit.dynamic.transaction";
-	String TOOLKIT_DYNAMIC_TRANSACTION_ENABLED = "toolkit.dynamic.transaction.enabled";
-	String TOOLKIT_DYNAMIC_TRANSACTION_ENABLED_ASPECTJ = "toolkit.dynamic.transaction.enableAspectj";
+	String TOOLKIT_DYNAMIC_TRANSACTION = "spring.toolkit.dynamic.transaction";
+	String TOOLKIT_DYNAMIC_TRANSACTION_ENABLED = "spring.toolkit.dynamic.transaction.enabled";
+	String TOOLKIT_DYNAMIC_TRANSACTION_ENABLED_ASPECTJ = "spring.toolkit.dynamic.transaction.enableAspectj";
 
 	// endregion properties-key
 

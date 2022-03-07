@@ -5,7 +5,6 @@ import io.polaris.toolkit.spring.transaction.JtaTransactionalAspect;
 import io.polaris.toolkit.spring.transaction.SpringRepositoryAspect;
 import io.polaris.toolkit.spring.transaction.SpringServiceAspect;
 import io.polaris.toolkit.spring.transaction.SpringTransactionalAspect;
-import org.springframework.aop.ClassFilter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -16,8 +15,6 @@ import org.springframework.transaction.annotation.ProxyTransactionManagementConf
 import org.springframework.transaction.interceptor.NameMatchTransactionAttributeSource;
 import org.springframework.transaction.interceptor.TransactionAttributeSource;
 import org.springframework.transaction.interceptor.TransactionInterceptor;
-
-import java.util.List;
 
 /**
  * @author Qt

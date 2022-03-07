@@ -3,7 +3,6 @@ package io.polaris.toolkit.spring.jdbc;
 import io.polaris.toolkit.spring.constants.ToolkitConstants;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.springframework.aop.ProxyMethodInvocation;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotationUtils;
 

@@ -1,6 +1,5 @@
 package io.polaris.toolkit.spring.transaction;
 
-import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.transaction.interceptor.TransactionInterceptor;
 
 /**

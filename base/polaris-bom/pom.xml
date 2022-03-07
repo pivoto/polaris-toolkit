@@ -292,6 +292,7 @@
 						<updatePomFile>true</updatePomFile>
 						<outputDirectory>${project.build.directory}</outputDirectory>
 						<flattenedPomFilename>.flattened-pom.xml</flattenedPomFilename>
+
 					</configuration>
 					<executions>
 						<execution>

@@ -1,6 +1,5 @@
 package io.polaris.toolkit.spring.annotation;
 
-import io.polaris.toolkit.spring.annotation.AbstractImportBeanDefinitionRegistrar;
 import io.polaris.toolkit.spring.transaction.TransactionAspectHelper;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;

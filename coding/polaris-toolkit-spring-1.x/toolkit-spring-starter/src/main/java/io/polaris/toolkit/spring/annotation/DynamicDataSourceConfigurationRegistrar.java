@@ -8,6 +8,8 @@ import io.polaris.toolkit.spring.jdbc.DynamicDataSourceMethodInterceptor;
 import io.polaris.toolkit.spring.jdbc.DynamicDataSourceProperties;
 import io.polaris.toolkit.spring.jdbc.TargetDataSource;
 import io.polaris.toolkit.spring.jdbc.TargetDataSourceFactory;
+import io.polaris.toolkit.spring.jdbc.init.DataSourceInitializer;
+import io.polaris.toolkit.spring.jdbc.init.DynamicDataSourceInitializerPostProcessor;
 import io.polaris.toolkit.spring.jdbc.properties.TargetDataSourceProperties;
 import io.polaris.toolkit.spring.support.AnnotationStaticMethodMatcherPointcut;
 import io.polaris.toolkit.spring.support.TypePatternClassPointcut;
@@ -68,29 +70,34 @@ class DynamicDataSourceConfigurationRegistrar extends AbstractImportBeanDefiniti
 			boolean enableAspectJAutoProxy = isEnableAspectJAutoProxy(importingClassMetadata, registry);
 			registerAnnotationAspect(enableAspectJAutoProxy, registry, properties);
 		}
+		// dynamic dataSource initializer
+		registry.registerBeanDefinition(DynamicDataSourceInitializerPostProcessor.class.getName(),
+				BeanDefinitionBuilder.genericBeanDefinition(DynamicDataSourceInitializerPostProcessor.class)
+						.setRole(BeanDefinition.ROLE_SUPPORT)
+						.getBeanDefinition());
 
-		// 多数据源暂不支持 DataSourceInitializer
-		registry.registerBeanDefinition(NoopDataSourceInitializerPostProcessor.class.getName(),
-				BeanDefinitionBuilder.genericBeanDefinition(NoopDataSourceInitializerPostProcessor.class)
-				.getBeanDefinition());
+//		// 多数据源暂不支持 DataSourceInitializer
+//		registry.registerBeanDefinition(NoopDataSourceInitializerPostProcessor.class.getName(),
+//				BeanDefinitionBuilder.genericBeanDefinition(NoopDataSourceInitializerPostProcessor.class)
+//				.getBeanDefinition());
 	}
-	static class NoopDataSourceInitializerPostProcessor implements BeanDefinitionRegistryPostProcessor{
-
-		@Override
-		public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-			if (registry.containsBeanDefinition("dataSourceInitializer")) {
-				registry.removeBeanDefinition("dataSourceInitializer");
-			}
-			if (registry.containsBeanDefinition("dataSourceInitializerPostProcessor")) {
-				registry.removeBeanDefinition("dataSourceInitializerPostProcessor");
-			}
-		}
-
-		@Override
-		public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-
-		}
-	}
+//	static class NoopDataSourceInitializerPostProcessor implements BeanDefinitionRegistryPostProcessor{
+//
+//		@Override
+//		public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+//			if (registry.containsBeanDefinition("dataSourceInitializer")) {
+//				registry.removeBeanDefinition("dataSourceInitializer");
+//			}
+//			if (registry.containsBeanDefinition("dataSourceInitializerPostProcessor")) {
+//				registry.removeBeanDefinition("dataSourceInitializerPostProcessor");
+//			}
+//		}
+//
+//		@Override
+//		public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+//
+//		}
+//	}
 
 	private void registerSingle(BeanDefinitionRegistry registry, DynamicDataSourceProperties properties) {
 		TargetDataSourceProperties primary = properties.getPrimary();
@@ -114,6 +121,11 @@ class DynamicDataSourceConfigurationRegistrar extends AbstractImportBeanDefiniti
 		beanDefinition.setPrimary(properties.isRegisterPrimary());
 		beanDefinition.setRole(BeanDefinition.ROLE_SUPPORT);
 		registry.registerBeanDefinition(beanName, beanDefinition);
+		// initializer
+		registry.registerBeanDefinition(DataSourceInitializer.class.getName(),
+				BeanDefinitionBuilder.genericBeanDefinition(DataSourceInitializer.class)
+						.addConstructorArgReference(beanName)
+						.getBeanDefinition());
 	}
 
 	private void registerMultiple(BeanDefinitionRegistry registry, DynamicDataSourceProperties properties) {
@@ -168,6 +180,7 @@ class DynamicDataSourceConfigurationRegistrar extends AbstractImportBeanDefiniti
 		beanDefinition.setBeanClass(DynamicDataSourceFactory.class);
 		beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, properties);
 		beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(1, defaultTargetDataSource);
+		beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(2, targetProperties);
 		beanDefinition.setPrimary(properties.isRegisterPrimary());
 		beanDefinition.setRole(BeanDefinition.ROLE_SUPPORT);
 
@@ -190,7 +203,7 @@ class DynamicDataSourceConfigurationRegistrar extends AbstractImportBeanDefiniti
 					registerClassPatternAspectBean(registry, key, value.getClassPattern());
 				}
 			}
-			beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(2, managedMap);
+			beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(3, managedMap);
 		} else {
 			Map<String, Object> targetDataSources = new HashMap<>();
 			for (Map.Entry<String, TargetDataSourceProperties> entry : targetProperties.entrySet()) {
@@ -202,10 +215,15 @@ class DynamicDataSourceConfigurationRegistrar extends AbstractImportBeanDefiniti
 					registerClassPatternAspectBean(registry, entry.getKey(), value.getClassPattern());
 				}
 			}
-			beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(2, defaultTargetDataSource);
+			beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(3, targetDataSources);
 		}
 
 		registry.registerBeanDefinition(beanName, beanDefinition);
+		// initializer
+		registry.registerBeanDefinition(DataSourceInitializer.class.getName(),
+				BeanDefinitionBuilder.genericBeanDefinition(DataSourceInitializer.class)
+						.addConstructorArgReference(beanName)
+						.getBeanDefinition());
 	}
 
 	private boolean isEnableAspectJAutoProxy(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {

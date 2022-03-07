@@ -1,7 +1,6 @@
 package io.polaris.toolkit.spring.annotation;
 
 import io.polaris.toolkit.spring.crypto.CryptoPropertiesBeanHelper;
-import io.polaris.toolkit.spring.util.Contexts;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;

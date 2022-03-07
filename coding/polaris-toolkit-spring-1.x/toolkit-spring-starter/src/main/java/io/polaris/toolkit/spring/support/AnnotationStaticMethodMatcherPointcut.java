@@ -1,6 +1,5 @@
 package io.polaris.toolkit.spring.support;
 
-import io.polaris.toolkit.spring.jdbc.TargetDataSource;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.aop.support.StaticMethodMatcherPointcut;

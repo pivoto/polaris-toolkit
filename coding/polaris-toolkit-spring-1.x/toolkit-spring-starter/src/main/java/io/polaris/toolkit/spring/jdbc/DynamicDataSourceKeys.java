@@ -1,13 +1,10 @@
 package io.polaris.toolkit.spring.jdbc;
 
-import io.polaris.toolkit.spring.transaction.TransactionAspectHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayDeque;
-import java.util.Collections;
 import java.util.Deque;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;

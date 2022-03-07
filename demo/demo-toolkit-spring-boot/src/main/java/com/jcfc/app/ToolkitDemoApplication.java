@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableDynamicTransaction
 //@EnableTransactionManagement
 public class ToolkitDemoApplication extends SpringBootServletInitializer {
+
 	public static void main(String[] args) {
 		SpringApplication.run(ToolkitDemoApplication.class, args);
 	}

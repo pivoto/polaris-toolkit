@@ -1,9 +1,8 @@
 package io.polaris.toolkit.spring.annotation;
 
-import io.polaris.toolkit.spring.annotation.AbstractImportSelector;
+import io.polaris.toolkit.spring.constants.ToolkitConstants;
 import io.polaris.toolkit.spring.configuration.DynamicAspectTransactionConfiguration;
 import io.polaris.toolkit.spring.configuration.DynamicProxyTransactionConfiguration;
-import io.polaris.toolkit.spring.constants.ToolkitConstants;
 import io.polaris.toolkit.spring.transaction.DynamicTransactionProperties;
 import io.polaris.toolkit.spring.transaction.TransactionAspectHelper;
 import io.polaris.toolkit.spring.util.Binders;

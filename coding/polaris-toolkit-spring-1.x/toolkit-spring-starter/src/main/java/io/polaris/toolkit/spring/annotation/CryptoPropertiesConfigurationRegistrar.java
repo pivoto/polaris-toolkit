@@ -1,6 +1,5 @@
 package io.polaris.toolkit.spring.annotation;
 
-import io.polaris.toolkit.spring.annotation.EnableCryptoProperties;
 import io.polaris.toolkit.spring.crypto.CryptoPropertiesBeanHelper;
 import io.polaris.toolkit.spring.crypto.CryptoPropertyResolver;
 import io.polaris.toolkit.spring.util.Contexts;
@@ -8,7 +7,6 @@ import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;

@@ -16,6 +16,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @EnableAspectJAutoProxy(proxyTargetClass = true, exposeProxy = true)
 @EnableCryptoProperties
 public class ToolkitDemo1xApplication extends SpringBootServletInitializer {
+
 	public static void main(String[] args) {
 		SpringApplication.run(ToolkitDemo1xApplication.class, args);
 	}

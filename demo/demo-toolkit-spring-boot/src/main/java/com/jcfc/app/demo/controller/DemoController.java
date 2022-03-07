@@ -5,8 +5,12 @@ import com.jcfc.app.demo.service.Demo2Service;
 import com.jcfc.app.demo.service.DemoService;
 import io.polaris.toolkit.spring.util.Contexts;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.sql.DataSource;
+import java.util.Map;
 
 /**
  * @author Qt
@@ -25,6 +29,13 @@ public class DemoController {
 		Contexts.getApplicationContext().getBean(DemoTestComponent.class).doSth();
 		Contexts.getApplicationContext().getBean(Demo2Service.class).doSth();
 		return "demo...";
+	}
+
+	@GetMapping("test")
+	public Object test() {
+		Map<String, DataSource> beans = Contexts.getApplicationContext().getBeansOfType(DataSource.class);
+		log.info("ds: {}", beans);
+		return beans.keySet();
 	}
 
 }

@@ -1,7 +1,9 @@
 # Initializers
 org.springframework.context.ApplicationContextInitializer=io.polaris.toolkit.spring.autoconfigure.ToolkitApplicationContextInitializer
 # Application Listeners
-org.springframework.context.ApplicationListener=io.polaris.toolkit.spring.autoconfigure.ToolkitApplicationListener
+org.springframework.context.ApplicationListener=\
+io.polaris.toolkit.spring.autoconfigure.ToolkitApplicationListener\
+,io.polaris.toolkit.spring.logging.plugin.SpringContextLookup
 # AutoConfiguration
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 io.polaris.toolkit.spring.autoconfigure.CryptoPropertyAutoConfiguration\

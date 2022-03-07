@@ -47,6 +47,8 @@ public class TargetDataSourceProperties {
 	private String password;
 	/** JNDI location of the datasource. Class, url, username and password are ignored when set. */
 	private String jndiName;
+	/** Populate the database using 'data.sql'. */
+	private boolean initialize = true;
 	/** Platform to use in the DDL or DML scripts (such as schema-${platform}.sql or data-${platform}.sql). */
 	private String platform = "all";
 	/** Schema (DDL) script resource references. */
@@ -141,6 +143,7 @@ public class TargetDataSourceProperties {
 		dataSourceProperties.setUsername(this.getUsername());
 		dataSourceProperties.setPassword(this.getPassword());
 		dataSourceProperties.setJndiName(this.getJndiName());
+		dataSourceProperties.setInitialize(this.isInitialize());
 		dataSourceProperties.setPlatform(this.getPlatform());
 		dataSourceProperties.setSchema(this.getSchema());
 		dataSourceProperties.setSchemaUsername(this.getSchemaUsername());

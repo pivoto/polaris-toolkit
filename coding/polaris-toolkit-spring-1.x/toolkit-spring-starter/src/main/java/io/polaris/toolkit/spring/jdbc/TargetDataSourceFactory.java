@@ -2,7 +2,6 @@ package io.polaris.toolkit.spring.jdbc;
 
 import io.polaris.toolkit.spring.jdbc.properties.TargetDataSourceProperties;
 import org.springframework.beans.factory.FactoryBean;
-import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
 
 import javax.sql.DataSource;
 

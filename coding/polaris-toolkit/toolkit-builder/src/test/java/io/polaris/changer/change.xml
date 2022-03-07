@@ -14,6 +14,9 @@
 		<source-path>test/resources</source-path>
 
 		<package name="com.jcfc.bf" mapping="io.polaris" />
+		<package name="com.yusys.bf" mapping="io.polaris" />
+		<package name="com.jcfc.bf.toolkit.logging" mapping="io.polaris.toolkit.spring.logging" />
+		<package name="com.yusys.bf.toolkit.logging" mapping="io.polaris.toolkit.spring.logging" />
 		<package name="com.jcfc.logging" mapping="io.polaris.logging" />
 	</change>
 	<change>
@@ -29,6 +32,9 @@
 		<source-path>test/resources</source-path>
 
 		<package name="com.jcfc.bf" mapping="io.polaris" />
+		<package name="com.yusys.bf" mapping="io.polaris" />
+		<package name="com.jcfc.bf.toolkit.logging" mapping="io.polaris.toolkit.spring.logging" />
+		<package name="com.yusys.bf.toolkit.logging" mapping="io.polaris.toolkit.spring.logging" />
 		<package name="com.jcfc.logging" mapping="io.polaris.logging" />
 	</change>
 
@@ -45,6 +51,9 @@
 		<source-path>test/resources</source-path>
 
 		<package name="com.jcfc.bf" mapping="io.polaris" />
+		<package name="com.yusys.bf" mapping="io.polaris" />
+		<package name="com.jcfc.bf.toolkit.logging" mapping="io.polaris.toolkit.spring.logging" />
+		<package name="com.yusys.bf.toolkit.logging" mapping="io.polaris.toolkit.spring.logging" />
 		<package name="com.jcfc.logging" mapping="io.polaris.logging" />
 	</change>
 	<change>
@@ -60,6 +69,9 @@
 		<source-path>test/resources</source-path>
 
 		<package name="com.jcfc.bf" mapping="io.polaris" />
+		<package name="com.yusys.bf" mapping="io.polaris" />
+		<package name="com.jcfc.bf.toolkit.logging" mapping="io.polaris.toolkit.spring.logging" />
+		<package name="com.yusys.bf.toolkit.logging" mapping="io.polaris.toolkit.spring.logging" />
 		<package name="com.jcfc.logging" mapping="io.polaris.logging" />
 	</change>
 </changes>

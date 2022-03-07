@@ -10,7 +10,6 @@ import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
 import org.springframework.util.StringUtils;
 
@@ -68,7 +67,7 @@ public class DynamicDataSourceConfiguration implements BeanClassLoaderAware {
 			}
 			dynamicDataSource = primary.buildDataSource(classLoader);
 		} else {
-			Map<String, Object> targetDataSources = new HashMap<>();
+			Map<String, DataSource> targetDataSources = new HashMap<>();
 			String defaultTargetDataSource = null;
 
 			TargetDataSourceProperties primary = this.properties.getPrimary();
@@ -120,7 +119,7 @@ public class DynamicDataSourceConfiguration implements BeanClassLoaderAware {
 					targetDataSources.put(name, dataSource);
 				}
 			}
-			dynamicDataSource = new DynamicDataSource(targetDataSources, defaultTargetDataSource);
+			dynamicDataSource = new DynamicDataSource(targetDataSources, defaultTargetDataSource, targets);
 		}
 		return asTransactionDelegate(dynamicDataSource);
 	}

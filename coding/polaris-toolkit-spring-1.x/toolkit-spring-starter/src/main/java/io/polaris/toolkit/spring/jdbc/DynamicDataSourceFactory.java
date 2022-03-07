@@ -1,5 +1,6 @@
 package io.polaris.toolkit.spring.jdbc;
 
+import io.polaris.toolkit.spring.jdbc.properties.TargetDataSourceProperties;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
 
@@ -14,14 +15,18 @@ import java.util.Map;
 public class DynamicDataSourceFactory implements FactoryBean<DataSource> {
 
 	private final DynamicDataSourceProperties properties;
-	private final Map<String, Object> multiDataSources;
+	private final Map<String, DataSource> multiDataSources;
+	private final Map<String, TargetDataSourceProperties> multiProperties;
 	private final String defaultKey;
 	private DataSource dataSource;
 
-	public DynamicDataSourceFactory(DynamicDataSourceProperties properties, String defaultKey, Map<String, Object> multiDataSources) {
+	public DynamicDataSourceFactory(DynamicDataSourceProperties properties, String defaultKey
+			, Map<String, TargetDataSourceProperties> multiProperties
+			, Map<String, DataSource> multiDataSources) {
 		this.properties = properties;
 		this.multiDataSources = multiDataSources;
 		this.defaultKey = defaultKey;
+		this.multiProperties = multiProperties;
 	}
 
 	@Override
@@ -39,7 +44,7 @@ public class DynamicDataSourceFactory implements FactoryBean<DataSource> {
 	}
 
 	private DynamicDataSource getDynamicDataSource() {
-		DynamicDataSource dynamicDataSource = new DynamicDataSource(multiDataSources, defaultKey);
+		DynamicDataSource dynamicDataSource = new DynamicDataSource(multiDataSources, defaultKey,multiProperties);
 		// factory bean 不执行`initializeBean`方法
 		dynamicDataSource.afterPropertiesSet();
 		return dynamicDataSource;

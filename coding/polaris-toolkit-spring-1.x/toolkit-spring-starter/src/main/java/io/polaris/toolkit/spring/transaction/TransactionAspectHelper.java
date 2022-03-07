@@ -7,8 +7,6 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 
-import java.util.concurrent.Callable;
-
 /**
  * @author Qt
  * @version Dec 30, 2021

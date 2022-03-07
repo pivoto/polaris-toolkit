@@ -4,6 +4,7 @@ import io.polaris.toolkit.spring.crypto.CryptoPropertiesBeanHelper;
 import io.polaris.toolkit.spring.util.Contexts;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.boot.context.event.ApplicationFailedEvent;
 import org.springframework.boot.context.event.ApplicationPreparedEvent;
@@ -13,6 +14,8 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
+
+import java.util.List;
 
 /**
  * @author Qt
@@ -76,6 +79,13 @@ public class ToolkitApplicationListener implements ApplicationListener<Applicati
 	}
 
 	private void onApplicationReady(ApplicationReadyEvent event) {
+		List<String> packageList = AutoConfigurationPackages.get(event.getApplicationContext().getBeanFactory());
+		String basePackage = ToolkitApplicationListener.class.getPackage().getName();
+		for (String packageName : packageList) {
+			if (basePackage.startsWith(packageName)) {
+				throw new IllegalArgumentException("禁止使用应用扫描包路径：" + packageName);
+			}
+		}
 	}
 
 	private void onApplicationFailed(ApplicationFailedEvent event) {

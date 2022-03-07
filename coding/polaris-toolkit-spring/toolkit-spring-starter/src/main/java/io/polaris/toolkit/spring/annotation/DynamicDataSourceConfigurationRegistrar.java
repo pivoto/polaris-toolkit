@@ -4,19 +4,18 @@ import io.polaris.toolkit.spring.constants.ToolkitConstants;
 import io.polaris.toolkit.spring.jdbc.DynamicDataSourceAspect;
 import io.polaris.toolkit.spring.jdbc.DynamicDataSourceBuilder;
 import io.polaris.toolkit.spring.jdbc.DynamicDataSourceFactory;
+import io.polaris.toolkit.spring.jdbc.init.DataSourceInitializerInvoker;
+import io.polaris.toolkit.spring.jdbc.init.DynamicDataSourceInitializerPostProcessor;
 import io.polaris.toolkit.spring.jdbc.DynamicDataSourceMethodInterceptor;
 import io.polaris.toolkit.spring.jdbc.DynamicDataSourceProperties;
 import io.polaris.toolkit.spring.jdbc.TargetDataSource;
 import io.polaris.toolkit.spring.jdbc.TargetDataSourceFactory;
 import io.polaris.toolkit.spring.jdbc.properties.TargetDataSourceProperties;
 import io.polaris.toolkit.spring.support.AnnotationStaticMethodMatcherPointcut;
-import io.polaris.toolkit.spring.support.InheritedAnnotationClassFilter;
 import io.polaris.toolkit.spring.support.TypePatternClassPointcut;
 import io.polaris.toolkit.spring.util.Binders;
 import io.polaris.toolkit.spring.util.Contexts;
 import org.aopalliance.aop.Advice;
-import org.springframework.aop.ClassFilter;
-import org.springframework.aop.aspectj.TypePatternClassFilter;
 import org.springframework.aop.config.AopConfigUtils;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.StaticMethodMatcherPointcut;
@@ -30,14 +29,12 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -69,6 +66,11 @@ class DynamicDataSourceConfigurationRegistrar extends AbstractImportBeanDefiniti
 			boolean enableAspectJAutoProxy = isEnableAspectJAutoProxy(importingClassMetadata, registry);
 			registerAnnotationAspect(enableAspectJAutoProxy, registry, properties);
 		}
+		// dynamic dataSource initializer
+		registry.registerBeanDefinition(DynamicDataSourceInitializerPostProcessor.class.getName(),
+				BeanDefinitionBuilder.genericBeanDefinition(DynamicDataSourceInitializerPostProcessor.class)
+						.setRole(BeanDefinition.ROLE_SUPPORT)
+						.getBeanDefinition());
 	}
 
 	private void registerSingle(BeanDefinitionRegistry registry, DynamicDataSourceProperties properties) {
@@ -93,6 +95,11 @@ class DynamicDataSourceConfigurationRegistrar extends AbstractImportBeanDefiniti
 				.setPrimary(properties.isRegisterPrimary())
 				.setRole(BeanDefinition.ROLE_SUPPORT);
 		registry.registerBeanDefinition(beanName, builder.getBeanDefinition());
+		// initializer
+		registry.registerBeanDefinition(DataSourceInitializerInvoker.class.getName(),
+				BeanDefinitionBuilder.genericBeanDefinition(DataSourceInitializerInvoker.class)
+						.addConstructorArgReference(beanName)
+						.getBeanDefinition());
 	}
 
 	private void registerMultiple(BeanDefinitionRegistry registry, DynamicDataSourceProperties properties) {
@@ -148,7 +155,8 @@ class DynamicDataSourceConfigurationRegistrar extends AbstractImportBeanDefiniti
 				.setPrimary(properties.isRegisterPrimary())
 				.setRole(BeanDefinition.ROLE_SUPPORT)
 				.addConstructorArgValue(properties)
-				.addConstructorArgValue(defaultTargetDataSource);
+				.addConstructorArgValue(defaultTargetDataSource)
+				.addConstructorArgValue(targetProperties);
 		if (properties.isRegisterAllTargets()) {
 			ManagedMap<Object, Object> managedMap = new ManagedMap<>();
 			managedMap.setKeyTypeName(String.class.getName());
@@ -171,7 +179,7 @@ class DynamicDataSourceConfigurationRegistrar extends AbstractImportBeanDefiniti
 			}
 			builder.addConstructorArgValue(managedMap);
 		} else {
-			Map<String, Object> targetDataSources = new HashMap<>();
+			Map<String, DataSource> targetDataSources = new HashMap<>();
 			for (Map.Entry<String, TargetDataSourceProperties> entry : targetProperties.entrySet()) {
 				TargetDataSourceProperties value = entry.getValue();
 				DataSource dataSource = DynamicDataSourceBuilder.create(value.getClassLoader())
@@ -181,10 +189,15 @@ class DynamicDataSourceConfigurationRegistrar extends AbstractImportBeanDefiniti
 					registerClassPatternAspectBean(registry, entry.getKey(), value.getClassPattern());
 				}
 			}
-			builder.addConstructorArgValue(defaultTargetDataSource);
+			builder.addConstructorArgValue(targetDataSources);
 		}
 
 		registry.registerBeanDefinition(beanName, builder.getBeanDefinition());
+		// initializer
+		registry.registerBeanDefinition(DataSourceInitializerInvoker.class.getName(),
+				BeanDefinitionBuilder.genericBeanDefinition(DataSourceInitializerInvoker.class)
+						.addConstructorArgReference(beanName)
+						.getBeanDefinition());
 	}
 
 	private boolean isEnableAspectJAutoProxy(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {

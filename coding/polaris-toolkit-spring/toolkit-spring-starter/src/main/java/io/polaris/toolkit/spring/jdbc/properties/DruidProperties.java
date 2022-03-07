@@ -1,19 +1,9 @@
 package io.polaris.toolkit.spring.jdbc.properties;
 
-import io.polaris.toolkit.spring.util.BeanUtils;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.util.ReflectionUtils;
-
-import java.beans.PropertyDescriptor;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
-import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * @author Qt
