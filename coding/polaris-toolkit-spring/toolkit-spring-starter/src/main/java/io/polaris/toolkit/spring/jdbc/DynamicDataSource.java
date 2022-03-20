@@ -1,6 +1,6 @@
 package io.polaris.toolkit.spring.jdbc;
 
-import io.polaris.toolkit.core.util.Tuple;
+import io.polaris.toolkit.spring.core.tuple.Tuple;
 import io.polaris.toolkit.spring.jdbc.properties.TargetDataSourceProperties;
 import lombok.Getter;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
@@ -32,7 +32,9 @@ public class DynamicDataSource extends AbstractRoutingDataSource {
 		Map<String, Tuple<DataSource, DataSourceProperties>> dataSourceProperties = new HashMap<>();
 		Map<Object, Object> targetDataSources = new HashMap<>();
 		Set<String> keys = new HashSet<>();
-		keys.add(defaultKey);
+		if(defaultKey != null){
+			keys.add(defaultKey);
+		}
 		multiDataSources.forEach((k, v) -> {
 			targetDataSources.put(k, v);
 			keys.add(k);

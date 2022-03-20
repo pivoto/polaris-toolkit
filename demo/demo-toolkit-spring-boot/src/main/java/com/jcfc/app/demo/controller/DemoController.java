@@ -35,6 +35,7 @@ public class DemoController {
 	public Object test() {
 		Map<String, DataSource> beans = Contexts.getApplicationContext().getBeansOfType(DataSource.class);
 		log.info("ds: {}", beans);
+		Contexts.getApplicationContext().getBean(DemoService.class).doTest();
 		return beans.keySet();
 	}
 

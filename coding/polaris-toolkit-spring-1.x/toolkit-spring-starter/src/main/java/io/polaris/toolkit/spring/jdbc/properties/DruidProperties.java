@@ -52,6 +52,9 @@ public class DruidProperties {
 	private String connectProperties;
 	private Integer maxPoolPreparedStatementPerConnectionSize;
 	private String initConnectionSqls;
+	private Boolean testOnReturn;
+	private String connectionProperties;
+	private Integer maxOpenPreparedStatements;
 
 	public DruidProperties() {
 	}

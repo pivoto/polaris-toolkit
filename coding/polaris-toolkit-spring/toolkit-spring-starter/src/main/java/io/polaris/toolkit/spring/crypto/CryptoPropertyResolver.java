@@ -1,6 +1,6 @@
 package io.polaris.toolkit.spring.crypto;
 
-import io.polaris.toolkit.core.io.IOUtils;
+import io.polaris.toolkit.spring.core.io.IOUtils;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;

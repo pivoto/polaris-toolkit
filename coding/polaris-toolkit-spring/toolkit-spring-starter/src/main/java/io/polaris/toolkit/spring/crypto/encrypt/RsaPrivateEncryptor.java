@@ -1,6 +1,6 @@
 package io.polaris.toolkit.spring.crypto.encrypt;
 
-import io.polaris.toolkit.core.crypto.RSA;
+import io.polaris.toolkit.spring.core.crypto.RSA;
 
 /**
  * @author Qt

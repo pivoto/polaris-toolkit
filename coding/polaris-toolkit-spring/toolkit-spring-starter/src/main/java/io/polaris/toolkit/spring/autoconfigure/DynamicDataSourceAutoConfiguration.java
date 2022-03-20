@@ -19,7 +19,6 @@ import javax.sql.DataSource;
 @ConditionalOnEnableDynamicDataSource
 @Configuration(proxyBeanMethods = false)
 @AutoConfigureBefore({JndiDataSourceAutoConfiguration.class, XADataSourceAutoConfiguration.class, DataSourceAutoConfiguration.class})
-@ConditionalOnMissingBean(DataSource.class)
 public class DynamicDataSourceAutoConfiguration {
 
 	@Configuration

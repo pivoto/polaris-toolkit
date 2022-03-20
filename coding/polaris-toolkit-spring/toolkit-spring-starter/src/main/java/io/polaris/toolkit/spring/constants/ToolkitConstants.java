@@ -8,6 +8,7 @@ import org.springframework.core.Ordered;
  * @since 1.8
  */
 public interface ToolkitConstants {
+	String UTF_8 = "UTF-8";
 
 	int ORDER_LOG_ASPECT = Ordered.HIGHEST_PRECEDENCE;
 	int ORDER_DATASOURCE_ASPECT = -128;

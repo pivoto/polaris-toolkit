@@ -49,6 +49,17 @@ class DynamicDataSourceConfigurationRegistrar extends AbstractImportBeanDefiniti
 
 	@Override
 	public void doRegisterBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+		// 已经注册过一次，防止同时使用注解与配置检测
+		if (registry.containsBeanDefinition(DynamicDataSourceInitializerPostProcessor.class.getName())) {
+			return;
+		}
+		for (String beanDefinitionName : registry.getBeanDefinitionNames()) {
+			BeanDefinition beanDefinition = registry.getBeanDefinition(beanDefinitionName);
+			if (DynamicDataSourceFactory.class.getName().equals(beanDefinition.getBeanClassName())
+				|| TargetDataSourceFactory.class.getName().equals(beanDefinition.getBeanClassName())) {
+				return;
+			}
+		}
 		Environment environment = Contexts.getEnvironment();
 		DynamicDataSourceProperties properties = Binders.bind(environment,
 				DynamicDataSourceProperties.class, ToolkitConstants.TOOLKIT_DYNAMIC_DATASOURCE);
@@ -109,7 +120,7 @@ class DynamicDataSourceConfigurationRegistrar extends AbstractImportBeanDefiniti
 		TargetDataSourceProperties primary = properties.getPrimary();
 		Map<String, TargetDataSourceProperties> targets = properties.getTargets();
 		String beanName = properties.getBeanName();
-		if (StringUtils.hasText(beanName)) {
+		if (!StringUtils.hasText(beanName)) {
 			beanName = uniqueBeanName(registry, ToolkitConstants.DYNAMIC_DATASOURCE_BEAN_NAME);
 		}
 		if (StringUtils.hasText(properties.getPrimaryName())) {
@@ -120,15 +131,15 @@ class DynamicDataSourceConfigurationRegistrar extends AbstractImportBeanDefiniti
 				} else {
 					throw new BeanInitializationException("创建数据源实例失败！主数据源" + defaultTargetDataSource + "未配置");
 				}
-			} else if (primary != null) {
-				String primaryName = ToolkitConstants.DYNAMIC_DATASOURCE_DEFAULT_KEY;
-				int i = 1;
-				while (targets.containsKey(ToolkitConstants.DYNAMIC_DATASOURCE_DEFAULT_KEY)) {
-					primaryName = ToolkitConstants.DYNAMIC_DATASOURCE_DEFAULT_KEY + "." + (i++);
-				}
-				defaultTargetDataSource = primaryName;
-				targetProperties.put(defaultTargetDataSource, primary);
 			}
+		} else if (primary != null) {
+			String primaryName = ToolkitConstants.DYNAMIC_DATASOURCE_DEFAULT_KEY;
+			int i = 1;
+			while (targets.containsKey(primaryName)) {
+				primaryName = ToolkitConstants.DYNAMIC_DATASOURCE_DEFAULT_KEY + "." + (i++);
+			}
+			defaultTargetDataSource = primaryName;
+			targetProperties.put(defaultTargetDataSource, primary);
 		}
 
 		if (properties.isEnableAllTargets()) {

@@ -1,7 +1,7 @@
-package io.polaris.toolkit.core.crypto;
+package io.polaris.toolkit.spring.core.crypto;
 
 
-import io.polaris.toolkit.core.crypto.RSA;
+import io.polaris.toolkit.spring.core.crypto.RSA;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;

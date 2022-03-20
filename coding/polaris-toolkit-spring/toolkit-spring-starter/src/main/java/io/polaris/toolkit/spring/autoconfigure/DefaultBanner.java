@@ -1,6 +1,6 @@
 package io.polaris.toolkit.spring.autoconfigure;
 
-import io.polaris.toolkit.core.io.IOUtils;
+import io.polaris.toolkit.spring.core.io.IOUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.Banner;
 import org.springframework.boot.ResourceBanner;

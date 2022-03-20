@@ -1,6 +1,6 @@
 package io.polaris.toolkit.spring.jdbc.init;
 
-import io.polaris.toolkit.core.util.Tuple;
+import io.polaris.toolkit.spring.core.tuple.Tuple;
 import io.polaris.toolkit.spring.jdbc.DynamicDataSource;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
