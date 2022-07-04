@@ -57,11 +57,11 @@
 		<maven.lombok.version>1.18.20</maven.lombok.version>
 		<maven.groovy.version>2.5.14</maven.groovy.version>
 
-		<dependency.polaris-build-tools.version>${project.version}</dependency.polaris-build-tools.version>
+		<dependency.polaris-build-tools.version>${revision}</dependency.polaris-build-tools.version>
 		<dependency.spring-boot.version>2.3.9.RELEASE</dependency.spring-boot.version>
 		<dependency.spring-cloud.version>Hoxton.SR10</dependency.spring-cloud.version>
 
-		<dependency.log4j2.version>2.17.1</dependency.log4j2.version>
+		<dependency.log4j2.version>2.17.2</dependency.log4j2.version>
 		<dependency.junit-jupiter.version>5.8.1</dependency.junit-jupiter.version>
 		<dependency.junit.version>4.13.2</dependency.junit.version>
 		<dependency.h2.version>1.4.200</dependency.h2.version>
@@ -904,12 +904,12 @@
 		<repository>
 			<id>me</id>
 			<name>me</name>
-			<url>http://localhost:8081/nexus/repository/maven-releases/</url>
+			<url>http://localhost:8081/repository/maven-releases/</url>
 		</repository>
 		<snapshotRepository>
 			<id>me</id>
 			<name>me</name>
-			<url>http://localhost:8081/nexus/repository/maven-snapshots/</url>
+			<url>http://localhost:8081/repository/maven-snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
 
@@ -1229,7 +1229,7 @@
 				<repository>
 					<id>me</id>
 					<name>me</name>
-					<url>http://localhost:8081/nexus/repository/maven-public/</url>
+					<url>http://localhost:8081/repository/maven-public/</url>
 					<releases>
 						<enabled>true</enabled>
 						<updatePolicy>always</updatePolicy>
@@ -1244,7 +1244,7 @@
 				<pluginRepository>
 					<id>me</id>
 					<name>me</name>
-					<url>http://localhost:8081/nexus/repository/maven-public/</url>
+					<url>http://localhost:8081/repository/maven-public/</url>
 					<releases>
 						<enabled>true</enabled>
 						<updatePolicy>always</updatePolicy>
@@ -1259,12 +1259,12 @@
 				<repository>
 					<id>me</id>
 					<name>me</name>
-					<url>http://localhost:8081/nexus/repository/maven-releases/</url>
+					<url>http://localhost:8081/repository/maven-releases/</url>
 				</repository>
 				<snapshotRepository>
 					<id>me</id>
 					<name>me</name>
-					<url>http://localhost:8081/nexus/repository/maven-snapshots/</url>
+					<url>http://localhost:8081/repository/maven-snapshots/</url>
 				</snapshotRepository>
 			</distributionManagement>
 		</profile>
