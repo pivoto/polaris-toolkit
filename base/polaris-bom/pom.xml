@@ -45,7 +45,7 @@
 		<includeScope>runtime</includeScope>
 		<maven.clean.failOnError>false</maven.clean.failOnError>
 		<maven.compiler.failOnError>true</maven.compiler.failOnError>
-		<maven.compiler.fork>true</maven.compiler.fork>
+		<maven.compiler.fork>false</maven.compiler.fork>
 		<maven.compiler.verbose>true</maven.compiler.verbose>
 		<maven.compiler.failOnWarning>false</maven.compiler.failOnWarning>
 		<assembly.appendAssemblyId>true</assembly.appendAssemblyId>
@@ -1027,6 +1027,78 @@
 				</testResources>
 				<plugins>
 					<plugin>
+						<groupId>org.codehaus.gmavenplus</groupId>
+						<artifactId>gmavenplus-plugin</artifactId>
+						<version>1.13.1</version>
+						<configuration>
+
+						</configuration>
+						<dependencies>
+							<dependency>
+								<groupId>org.codehaus.groovy</groupId>
+								<artifactId>groovy</artifactId>
+								<version>${maven.groovy.version}</version>
+								<scope>runtime</scope>
+								<type>pom</type>
+							</dependency>
+						</dependencies>
+						<executions>
+							<execution>
+								<goals>
+									<goal>addSources</goal>
+									<goal>addTestSources</goal>
+									<goal>generateStubs</goal>
+									<goal>compile</goal>
+									<goal>generateTestStubs</goal>
+									<goal>compileTests</goal>
+									<goal>removeStubs</goal>
+									<goal>removeTestStubs</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<!--
+		<profile>
+			<id>src-groovy-eclipse</id>
+			<dependencies>
+				<dependency>
+					<groupId>org.codehaus.groovy</groupId>
+					<artifactId>groovy-all</artifactId>
+					<type>pom</type>
+				</dependency>
+			</dependencies>
+			<build>
+				<resources>
+					<resource>
+						<directory>src/main/groovy</directory>
+						<includes>
+							<include>**/*</include>
+						</includes>
+						<excludes>
+							<exclude>**/*.groovy</exclude>
+							<exclude>README.md</exclude>
+							<exclude>.gitkeep*</exclude>
+						</excludes>
+					</resource>
+				</resources>
+				<testResources>
+					<testResource>
+						<directory>src/test/groovy</directory>
+						<includes>
+							<include>**/*</include>
+						</includes>
+						<excludes>
+							<exclude>**/*.groovy</exclude>
+							<exclude>README.md</exclude>
+							<exclude>.gitkeep*</exclude>
+						</excludes>
+					</testResource>
+				</testResources>
+				<plugins>
+					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>build-helper-maven-plugin</artifactId>
 					</plugin>
@@ -1094,7 +1166,7 @@
 									<parameters/>
 									<javaAgentClass>lombok.launch.Agent</javaAgentClass>
 									<indy/>
-									<!--<configScript>config.groovy</configScript>-->
+									&lt;!&ndash;<configScript>config.groovy</configScript>&ndash;&gt;
 								</compilerArguments>
 							</configuration>
 							<dependencies>
@@ -1119,6 +1191,7 @@
 				</pluginManagement>
 			</build>
 		</profile>
+		-->
 		<!-- endregion -->
 
 		<!-- region package-run -->
