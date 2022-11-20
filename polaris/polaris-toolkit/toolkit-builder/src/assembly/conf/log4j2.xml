@@ -104,7 +104,7 @@
 
 		<Logger name="io.polaris" level="${log_std_level}" additivity="true" includeLocation="${log_include_location}">
 		</Logger>
-		<Logger name="com.librecoder" level="${log_std_level}" additivity="true" includeLocation="${log_include_location}">
+		<Logger name="com.pivoto" level="${log_std_level}" additivity="true" includeLocation="${log_include_location}">
 		</Logger>
 
 	</Loggers>

@@ -4,17 +4,17 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.librecoder.polaris</groupId>
+	<groupId>cn.pivoto.polaris</groupId>
 	<artifactId>polaris-bom</artifactId>
 	<version>2.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>polaris-bom</name>
-	<url>https://www.librecoder.com</url>
-	<description>librecoder</description>
+	<url>https://www.pivoto.cn</url>
+	<description>pivoto</description>
 	<organization>
-		<name>librecoder</name>
-		<url>https://www.librecoder.com</url>
+		<name>pivoto</name>
+		<url>https://www.pivoto.cn</url>
 	</organization>
 
 	<modules>
@@ -81,7 +81,7 @@
 		<dependencies>
 			<!-- region Modules -->
 			<dependency>
-				<groupId>com.librecoder.polaris</groupId>
+				<groupId>cn.pivoto.polaris</groupId>
 				<artifactId>polaris-build-tools</artifactId>
 				<version>${dependency.polaris-build-tools.version}</version>
 			</dependency>
@@ -193,7 +193,7 @@
 					<exclude>**/*.yml</exclude>
 					<exclude>**/*.yaml</exclude>
 					<exclude>**/*.properties</exclude>
-					<exclude>**/*.xml</exclude>
+					<exclude>*.xml</exclude>
 				</excludes>
 				<filtering>false</filtering>
 			</resource>
@@ -203,7 +203,7 @@
 					<include>**/*.yml</include>
 					<include>**/*.yaml</include>
 					<include>**/*.properties</include>
-					<include>**/*.xml</include>
+					<include>*.xml</include>
 				</includes>
 				<filtering>true</filtering>
 			</resource>
@@ -232,7 +232,7 @@
 					<exclude>**/*.yml</exclude>
 					<exclude>**/*.yaml</exclude>
 					<exclude>**/*.properties</exclude>
-					<exclude>**/*.xml</exclude>
+					<exclude>*.xml</exclude>
 				</excludes>
 				<filtering>false</filtering>
 			</testResource>
@@ -242,7 +242,7 @@
 					<include>**/*.yml</include>
 					<include>**/*.yaml</include>
 					<include>**/*.properties</include>
-					<include>**/*.xml</include>
+					<include>*.xml</include>
 				</includes>
 				<filtering>true</filtering>
 			</testResource>
@@ -857,7 +857,7 @@
 		<developer>
 			<name>Qt</name>
 			<email>kylinmania@163.com</email>
-			<url>https://www.librecoder.com/</url>
+			<url>https://www.pivoto.cn/</url>
 			<roles>
 				<role>software engineer</role>
 			</roles>
@@ -874,7 +874,7 @@
 
 	<ciManagement>
 		<system>continuum</system>
-		<url>http://www.librecoder.com</url>
+		<url>http://www.pivoto.cn</url>
 		<notifiers>
 			<notifier>
 				<type>mail</type>
@@ -891,7 +891,7 @@
 
 	<issueManagement>
 		<system>issue</system>
-		<url>http://www.librecoder.com</url>
+		<url>http://www.pivoto.cn</url>
 	</issueManagement>
 
 	<distributionManagement>
@@ -914,9 +914,9 @@
 	</distributionManagement>
 
 	<scm>
-		<connection>scm:git:git@github.com:librecoders/polaris.git</connection>
-		<developerConnection>scm:git:git@github.com:librecoders/polaris.git</developerConnection>
-		<url>git@github.com:librecoders/polaris.git</url>
+		<connection>scm:git:git@github.com:pivoto/polaris.git</connection>
+		<developerConnection>scm:git:git@github.com:pivoto/polaris.git</developerConnection>
+		<url>git@github.com:pivoto/polaris.git</url>
 	</scm>
 
 	<profiles>

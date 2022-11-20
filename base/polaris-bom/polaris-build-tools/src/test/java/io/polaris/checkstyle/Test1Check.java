@@ -1,4 +1,4 @@
-package com.librecoder.awesome.checkstyle;
+package io.polaris.checkstyle;
 
 import com.puppycrawl.tools.checkstyle.api.AbstractCheck;
 

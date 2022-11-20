@@ -4,7 +4,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
 		<artifactId>polaris-toolkit-spring</artifactId>
-		<groupId>com.librecoder.polaris.toolkit</groupId>
+		<groupId>cn.pivoto.polaris.toolkit</groupId>
 		<version>1.0.1-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -16,12 +16,12 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.librecoder.polaris.toolkit</groupId>
+			<groupId>cn.pivoto.polaris.toolkit</groupId>
 			<artifactId>toolkit-core</artifactId>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.librecoder.polaris.toolkit</groupId>
+			<groupId>cn.pivoto.polaris.toolkit</groupId>
 			<artifactId>toolkit-logging</artifactId>
 			<scope>compile</scope>
 		</dependency>

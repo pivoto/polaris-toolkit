@@ -4,7 +4,7 @@
 	"-//Checkstyle//DTD Package Names Configuration 1.0//EN"
 	"https://checkstyle.org/dtds/packages_1_0.dtd">
 <checkstyle-packages>
-	<package name="com.librecoder.awesome.checkstyle">
+	<package name="io.polaris.checkstyle">
 
 	</package>
 	<package name="com.puppycrawl.tools.checkstyle">
