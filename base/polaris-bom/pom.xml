@@ -58,7 +58,7 @@
 		<maven.groovy.version>2.5.14</maven.groovy.version>
 
 		<dependency.polaris-build-tools.version>${revision}</dependency.polaris-build-tools.version>
-		<dependency.spring-boot.version>2.3.9.RELEASE</dependency.spring-boot.version>
+		<dependency.spring-boot.version>2.3.10.RELEASE</dependency.spring-boot.version>
 		<dependency.spring-cloud.version>Hoxton.SR10</dependency.spring-cloud.version>
 
 		<dependency.log4j2.version>2.17.2</dependency.log4j2.version>
