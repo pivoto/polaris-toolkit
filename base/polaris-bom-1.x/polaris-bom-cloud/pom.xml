@@ -5,10 +5,10 @@
 	<parent>
 		<groupId>cn.pivoto.polaris</groupId>
 		<artifactId>polaris-bom</artifactId>
-		<version>1.0.1-SNAPSHOT</version>
+		<version>${revision}</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>polaris-base-cloud</artifactId>
+	<artifactId>polaris-bom-cloud</artifactId>
 	<packaging>pom</packaging>
 
 	<properties>

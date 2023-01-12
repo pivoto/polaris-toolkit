@@ -6,7 +6,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cn.pivoto.polaris</groupId>
 	<artifactId>polaris-bom</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>${revision}</version>
 	<packaging>pom</packaging>
 
 	<name>polaris-bom</name>
@@ -19,9 +19,9 @@
 
 	<modules>
 		<module>polaris-build-tools</module>
-		<module>polaris-base</module>
-		<module>polaris-base-boot</module>
-		<module>polaris-base-cloud</module>
+		<module>polaris-bom-base</module>
+		<module>polaris-bom-boot</module>
+		<module>polaris-bom-cloud</module>
 	</modules>
 
 	<properties>
@@ -763,10 +763,10 @@
 		</pluginManagement>
 
 		<plugins>
-			<!--<plugin>
+			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>flatten-maven-plugin</artifactId>
-			</plugin>-->
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-help-plugin</artifactId>
