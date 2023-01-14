@@ -25,6 +25,13 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
+				<groupId>cn.pivoto.polaris</groupId>
+				<artifactId>polaris-bom</artifactId>
+				<version>${dependency.polaris.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-dependencies</artifactId>
 				<version>${dependency.spring-boot.version}</version>
@@ -86,7 +93,7 @@
 						<dependency>
 							<groupId>cn.pivoto.polaris</groupId>
 							<artifactId>polaris-build-tools</artifactId>
-							<version>${dependency.polaris-build-tools.version}</version>
+							<version>${dependency.polaris.version}</version>
 						</dependency>
 					</dependencies>
 					<executions>

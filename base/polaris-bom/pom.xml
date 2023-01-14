@@ -57,7 +57,7 @@
 		<maven.lombok.version>1.18.20</maven.lombok.version>
 		<maven.groovy.version>2.5.14</maven.groovy.version>
 
-		<dependency.polaris-build-tools.version>${revision}</dependency.polaris-build-tools.version>
+		<dependency.polaris.version>${revision}</dependency.polaris.version>
 		<dependency.spring-boot.version>2.3.10.RELEASE</dependency.spring-boot.version>
 		<dependency.spring-cloud.version>Hoxton.SR10</dependency.spring-cloud.version>
 
@@ -83,7 +83,7 @@
 			<dependency>
 				<groupId>cn.pivoto.polaris</groupId>
 				<artifactId>polaris-build-tools</artifactId>
-				<version>${dependency.polaris-build-tools.version}</version>
+				<version>${dependency.polaris.version}</version>
 			</dependency>
 			<!-- endregion -->
 
