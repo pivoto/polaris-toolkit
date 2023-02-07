@@ -62,11 +62,12 @@
 		<dependency.spring-cloud.version>Hoxton.SR10</dependency.spring-cloud.version>
 
 		<dependency.log4j2.version>2.17.2</dependency.log4j2.version>
+		<dependency.jmh.version>1.21</dependency.jmh.version>
 		<dependency.junit-jupiter.version>5.8.1</dependency.junit-jupiter.version>
 		<dependency.junit.version>4.13.2</dependency.junit.version>
 		<dependency.h2.version>1.4.200</dependency.h2.version>
 		<dependency.hsqldb.version>2.5.1</dependency.hsqldb.version>
-		<dependency.mockito.version>3.3.3</dependency.mockito.version>
+		<dependency.mockito.version>3.5.13</dependency.mockito.version>
 		<dependency.mybatis-spring.version>2.1.4</dependency.mybatis-spring.version>
 	</properties>
 
@@ -114,6 +115,18 @@
 			<!-- endregion log4j2 -->
 
 			<!-- region TestFramework -->
+			<dependency>
+				<groupId>org.openjdk.jmh</groupId>
+				<artifactId>jmh-core</artifactId>
+				<version>${dependency.jmh.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.openjdk.jmh</groupId>
+				<artifactId>jmh-generator-annprocess</artifactId>
+				<version>${dependency.jmh.version}</version>
+				<scope>test</scope>
+			</dependency>
 			<dependency>
 				<groupId>org.junit</groupId>
 				<artifactId>junit-bom</artifactId>

@@ -9,10 +9,20 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>toolkit-extra</artifactId>
-	<packaging>pom</packaging>
+	<artifactId>toolkit-logging-test</artifactId>
 
 	<properties>
 	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+		</dependency>
+	</dependencies>
 
 </project>
