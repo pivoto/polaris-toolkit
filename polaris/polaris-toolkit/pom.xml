@@ -23,6 +23,7 @@
 
 	<properties>
 		<revision>2.0.1</revision>
+		<dependency.polaris-pom.version>${revision}</dependency.polaris-pom.version>
 		<dependency.polaris-toolkit.version>${revision}</dependency.polaris-toolkit.version>
 	</properties>
 
@@ -46,7 +47,7 @@
 				<groupId>cn.pivoto.polaris</groupId>
 				<artifactId>polaris-bom</artifactId>
 				<type>pom</type>
-				<version>2.0.1-SNAPSHOT</version>
+				<version>${dependency.polaris-pom.version}</version>
 				<scope>import</scope>
 			</dependency>
 			<dependency>

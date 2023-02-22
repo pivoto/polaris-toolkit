@@ -25,7 +25,7 @@
 	</modules>
 
 	<properties>
-		<revision>2.0.1</revision>
+		<revision>2.0.3</revision>
 		<start-class></start-class>
 		<java.version>1.8</java.version>
 		<file.encoding>UTF-8</file.encoding>
@@ -36,9 +36,9 @@
 		<project.build.sourceEncoding>${file.encoding}</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>${file.encoding}</project.reporting.outputEncoding>
 		<project.dependencies.scope.provided>provided</project.dependencies.scope.provided>
-		<project.profiles.dir>src/profiles</project.profiles.dir>
 		<project.activeProfile>dev</project.activeProfile>
-		<project.profile.dir>${project.profiles.dir}/${project.activeProfile}</project.profile.dir>
+		<project.resources.profile>src/profiles/${project.activeProfile}/resources</project.resources.profile>
+		<project.resources.ext>src/ext/resources</project.resources.ext>
 
 		<maven.test.skip>true</maven.test.skip>
 		<package.dependencyDirectory>libs</package.dependencyDirectory>
@@ -482,7 +482,24 @@
 								<outputDirectory>${project.build.outputDirectory}</outputDirectory>
 								<resources>
 									<resource>
-										<directory>${project.profile.dir}/resources</directory>
+										<directory>${project.resources.profile}</directory>
+									</resource>
+								</resources>
+							</configuration>
+						</execution>
+						<execution>
+							<id>copy-ext</id>
+							<!-- 针对Processor注解配置, 打包前加入,否则会自循环失败 -->
+							<phase>prepare-package</phase>
+							<goals>
+								<goal>copy-resources</goal>
+							</goals>
+							<configuration>
+								<overwrite>true</overwrite>
+								<outputDirectory>${project.build.outputDirectory}</outputDirectory>
+								<resources>
+									<resource>
+										<directory>${project.resources.ext}</directory>
 									</resource>
 								</resources>
 							</configuration>
@@ -549,7 +566,7 @@
 						<stripVersion>false</stripVersion>
 						<!-- 表示是否建立依赖包的maven风格的目录结构 -->
 						<useRepositoryLayout>false</useRepositoryLayout>
-						 <prependGroupId>true</prependGroupId>
+						<prependGroupId>true</prependGroupId>
 						<includeScope>${includeScope}</includeScope>
 					</configuration>
 					<executions>
@@ -1501,6 +1518,26 @@
 								</goals>
 							</execution>
 						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-deploy-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<groupId>org.sonatype.plugins</groupId>
+						<artifactId>nexus-staging-maven-plugin</artifactId>
+						<version>1.6.7</version>
+						<extensions>true</extensions>
+						<configuration>
+							<serverId>oss</serverId>
+							<!--<nexusUrl>https://oss.sonatype.org/</nexusUrl>-->
+							<nexusUrl>https://s01.oss.sonatype.org//</nexusUrl>
+							<autoReleaseAfterClose>true</autoReleaseAfterClose>
+							<autoDropAfterRelease>true</autoDropAfterRelease>
+							<showReleased>true</showReleased>
+							<!-- 不发布时配置为true -->
+							<!--<skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>-->
+						</configuration>
 					</plugin>
 				</plugins>
 			</build>
