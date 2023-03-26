@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<database xmlns="http://www.librecoder.com/schema/awesome/dbv/database" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.librecoder.com/schema/awesome/dbv/database database.xsd">
+<database xmlns="http://polaris.pivoto.cn/schema/dbv/database" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://polaris.pivoto.cn/schema/dbv/database database.xsd">
 	<!--
 	<database-type>mysql</database-type>
 	<database-type>oracle</database-type>

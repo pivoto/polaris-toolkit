@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <changes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns="http://polaris.pivoto.cn/change" xsi:schemaLocation="http://polaris.pivoto.cn/change change.xsd" >
+	xmlns="http://polaris.pivoto.cn/schema/change" xsi:schemaLocation="http://polaris.pivoto.cn/schema/change change.xsd" >
 	<charset>utf-8</charset>
 
 	<change>

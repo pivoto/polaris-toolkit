@@ -4,10 +4,10 @@ package io.polaris.dbv.cfg;
  * @author Qt
  */
 public enum DatabaseType {
-	oracle("/oracle.xml"),
-	informix("/informix.xml"),
-	mysql("/mysql.xml"),
-	dameng("/dameng.xml"),
+	oracle("/dbv/oracle.xml"),
+	informix("/dbv/informix.xml"),
+	mysql("/dbv/mysql.xml"),
+	dameng("/dbv/dameng.xml"),
 	other(null),;
 
 	private String cfgFile;

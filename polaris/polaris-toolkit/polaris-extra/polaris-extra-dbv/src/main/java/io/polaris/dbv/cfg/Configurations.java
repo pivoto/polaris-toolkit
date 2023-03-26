@@ -20,7 +20,7 @@ import java.util.Properties;
 @Slf4j
 public class Configurations {
 
-	private static final String DATABASE_XML = "/database.xml";
+	private static final String DATABASE_XML = "/dbv/database.xml";
 
 	public static XStream buildXStream() {
 		XStream xs = new XStream();

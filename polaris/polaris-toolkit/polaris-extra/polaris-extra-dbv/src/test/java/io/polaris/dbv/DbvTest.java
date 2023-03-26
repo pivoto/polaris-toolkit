@@ -26,7 +26,7 @@ public class DbvTest extends DbvBaseTest {
 	public void test00() throws SQLException {
 		DatabaseMetaData metaData = conn.getMetaData();
 		show(ResultSetFetcher.fetchList(metaData.getTableTypes()));
-		ResultSet rs = metaData.getTables(null, null, "app_article_column", new String[]{"TABLE"});
+		ResultSet rs = metaData.getTables(null, null, "BS_USER", new String[]{"TABLE"});
 		List<Map<String, Object>> list = ResultSetFetcher.fetchList(rs);
 		show(list);
 	}
@@ -45,7 +45,7 @@ public class DbvTest extends DbvBaseTest {
 
 	@Test
 	public void test03() throws SQLException {
-		List<Table> tables = Dbv.readTables(conn.getMetaData(), null, null, "sys_user", null);
+		List<Table> tables = Dbv.readTables(conn.getMetaData(), null, null, "BS_USER", null);
 		show(tables);
 		for (Table table : tables) {
 			List<PrimaryKey> primaryKeys = Dbv.readPrimaryKeys(conn.getMetaData(), table);
@@ -55,13 +55,13 @@ public class DbvTest extends DbvBaseTest {
 
 	@Test
 	public void test04() throws SQLException {
-		List<Column> columns = Dbv.readColumns(conn.getMetaData(), null, null, "sys_user", null);
+		List<Column> columns = Dbv.readColumns(conn.getMetaData(), null, null, "BS_USER", null);
 		show(columns);
 	}
 
 	@Test
 	public void test05() throws SQLException {
-		List<IndexInfo> indexInfos = Dbv.readIndexes(conn.getMetaData(), null, null, "sys_user");
+		List<IndexInfo> indexInfos = Dbv.readIndexes(conn.getMetaData(), null, null, "BS_USER");
 		show(indexInfos);
 	}
 
@@ -69,10 +69,10 @@ public class DbvTest extends DbvBaseTest {
 	public void testExpExcel() throws IOException, SQLException {
 		try (
 				InputStream in = DbvExp.getTemplateResourceStream();
-				FileOutputStream out = new FileOutputStream(new File("/tmp/booster.xlsm"));
+				FileOutputStream out = new FileOutputStream(new File("/tmp/BASESV.xlsm"));
 		) {
 			XSSFWorkbook book = DbvExp.newXSSFWorkbook(in);
-			List<Table> tables = Dbv.readTables(conn.getMetaData(), "booster", null, null, "TABLE");
+			List<Table> tables = Dbv.readTables(conn.getMetaData(), null, "BASESV", null, "TABLE");
 			for (Table table : tables) {
 				if(table.getTableName().startsWith("DR$")
 						||table.getTableName().startsWith("TMP")){
@@ -90,12 +90,12 @@ public class DbvTest extends DbvBaseTest {
 	@Test
 	public void testExpExcelUpdate() throws IOException, SQLException {
 		try (
-				InputStream in = new FileInputStream("/tmp/booster0.xlsm");
-				FileOutputStream out = new FileOutputStream(new File("/tmp/booster1.xlsm"));
+				InputStream in = new FileInputStream("/tmp/BASESV.xlsm");
+				FileOutputStream out = new FileOutputStream(new File("/tmp/BASESV1.xlsm"));
 		) {
 			XSSFWorkbook book = DbvExp.newXSSFWorkbook(in);
 			for (String sheetTable : DbvExp.getTables(book)) {
-				List<Table> tables = Dbv.readTables(conn.getMetaData(), "booster", null, sheetTable.toUpperCase(), "TABLE");
+				List<Table> tables = Dbv.readTables(conn.getMetaData(), null, "BASESV", sheetTable.toUpperCase(), "TABLE");
 				if(tables.size()>0){
 					Table table = tables.get(0);
 					System.out.println("更新表: "+ table.getTableName());

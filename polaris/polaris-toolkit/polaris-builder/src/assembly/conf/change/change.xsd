@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified"
-	targetNamespace="http://polaris.pivoto.cn/change" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-	<xs:element name="changes" type="chan:changesType" xmlns:chan="http://polaris.pivoto.cn/change"/>
+	targetNamespace="http://polaris.pivoto.cn/schema/change" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="changes" type="chan:changesType" xmlns:chan="http://polaris.pivoto.cn/schema/change"/>
 	<xs:complexType name="changesType">
 		<xs:annotation>
 			<xs:documentation>转换配置组</xs:documentation>
@@ -13,7 +13,7 @@
 				</xs:annotation>
 			</xs:element>
 			<xs:element type="chan:changeType" name="change" maxOccurs="unbounded" minOccurs="0"
-				xmlns:chan="http://polaris.pivoto.cn/change"/>
+				xmlns:chan="http://polaris.pivoto.cn/schema/change"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="changeType">
@@ -62,7 +62,7 @@
 				</xs:annotation>
 			</xs:element>
 			<xs:element type="chan:packageType" name="package" maxOccurs="unbounded" minOccurs="1"
-				xmlns:chan="http://polaris.pivoto.cn/change"/>
+				xmlns:chan="http://polaris.pivoto.cn/schema/change"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="packageType">

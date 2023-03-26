@@ -2,7 +2,6 @@ package io.polaris.dbv;
 
 import io.polaris.dbv.annotation.ColumnHandler;
 import io.polaris.dbv.annotation.ColumnName;
-import io.polaris.dbv.handler.ColumnTypeHandler;
 import io.polaris.dbv.toolkit.MapKit;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +11,11 @@ import java.lang.reflect.Modifier;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Qt
@@ -59,7 +62,7 @@ public class ResultSetFetcher {
 		Set<ColumnFieldMeta> fields = columnFields.getFields();
 		for (ColumnFieldMeta meta : fields) {
 			Field field = meta.getField();
-			ColumnTypeHandler handler = meta.getHandler();
+			ColumnValueGetter handler = meta.getHandler();
 			boolean accessible = field.isAccessible();
 			try {
 				field.setAccessible(true);
@@ -114,83 +117,61 @@ public class ResultSetFetcher {
 				final ColumnHandler columnHandler = field.getAnnotation(ColumnHandler.class);
 				if (columnHandler != null) {
 					try {
-						ColumnTypeHandler columnTypeHandler = columnHandler.value().newInstance();
-						meta.setHandler(columnTypeHandler);
+						ColumnValueGetter columnValueGetter = columnHandler.value().newInstance();
+						meta.setHandler(columnValueGetter);
 					} catch (Exception e) {
 					}
 				} else {
 					final Class<?> type = field.getType();
-					if (type.isPrimitive()) {
-						if (int.class == type || Integer.class == type) {
-							meta.setHandler((rs, col) -> rs.getInt(col));
-						} else if (long.class == type || Long.class == type) {
-							meta.setHandler((rs, col) -> rs.getLong(col));
-						} else if (boolean.class == type || Boolean.class == type) {
-							meta.setHandler((rs, col) -> rs.getBoolean(col));
-						} else if (double.class == type || Double.class == type) {
-							meta.setHandler((rs, col) -> rs.getDouble(col));
-						} else if (float.class == type || Float.class == type) {
-							meta.setHandler((rs, col) -> rs.getFloat(col));
-						} else if (byte.class == type || Byte.class == type) {
-							meta.setHandler((rs, col) -> rs.getByte(col));
-						} else if (short.class == type || Short.class == type) {
-							meta.setHandler((rs, col) -> rs.getShort(col));
-						} else if (char.class == type || Character.class == type) {
-							meta.setHandler((rs, col) -> rs.getString(col).length() == 0 ? '\0' : rs.getString(col).charAt(0));
-						}
+					if (String.class == type) {
+						meta.setHandler((rs, col) -> rs.getString(col));
+					} else if (int.class == type || Integer.class == type) {
+						meta.setHandler((rs, col) -> rs.getInt(col));
+					} else if (long.class == type || Long.class == type) {
+						meta.setHandler((rs, col) -> rs.getLong(col));
+					} else if (boolean.class == type || Boolean.class == type) {
+						meta.setHandler((rs, col) -> rs.getBoolean(col));
+					} else if (double.class == type || Double.class == type) {
+						meta.setHandler((rs, col) -> rs.getDouble(col));
+					} else if (float.class == type || Float.class == type) {
+						meta.setHandler((rs, col) -> rs.getFloat(col));
+					} else if (byte.class == type || Byte.class == type) {
+						meta.setHandler((rs, col) -> rs.getByte(col));
+					} else if (short.class == type || Short.class == type) {
+						meta.setHandler((rs, col) -> rs.getShort(col));
+					} else if (char.class == type || Character.class == type) {
+						meta.setHandler((rs, col) -> rs.getString(col).length() == 0 ? '\0' : rs.getString(col).charAt(0));
 					} else if (type.isEnum()) {
 						meta.setHandler((rs, col) -> {
 							String val = rs.getString(col);
-							if (val == null) return null;
+							if (val == null) {
+								return null;
+							}
 							Class<Enum> t = (Class<Enum>) type;
 							return Enum.valueOf(t, val);
 						});
+					} else if (java.util.Date.class == type || java.sql.Date.class == type) {
+						meta.setHandler((rs, col) -> rs.getDate(col));
+					} else if (java.sql.Timestamp.class == type) {
+						meta.setHandler((rs, col) -> rs.getTimestamp(col));
+					} else if (java.sql.Time.class == type) {
+						meta.setHandler((rs, col) -> rs.getTime(col));
+					} else if (java.math.BigDecimal.class == type) {
+						meta.setHandler((rs, col) -> rs.getBigDecimal(col));
 					} else {
 						meta.setHandler((rs, col) -> {
 							try {
 								Object val = rs.getObject(col, type);
 								return val;
-							} catch (SQLException e) {
+							} catch (Throwable e) {
+								Object val = rs.getObject(col);
+								if (val == null || type.isAssignableFrom(val.getClass())) {
+									return val;
+								}
 								return null;
 							}
 						});
 					}
-					/*
-					if (String.class == type) {
-						fields.put(field, (rs, col) -> rs.getString(col));
-					} else if (int.class == type || Integer.class == type) {
-						fields.put(field, (rs, col) -> rs.getInt(col));
-					} else if (long.class == type || Long.class == type) {
-						fields.put(field, (rs, col) -> rs.getLong(col));
-					} else if (boolean.class == type || Boolean.class == type) {
-						fields.put(field, (rs, col) -> rs.getBoolean(col));
-					} else if (double.class == type || Double.class == type) {
-						fields.put(field, (rs, col) -> rs.getDouble(col));
-					} else if (float.class == type || Float.class == type) {
-						fields.put(field, (rs, col) -> rs.getFloat(col));
-					} else if (byte.class == type || Byte.class == type) {
-						fields.put(field, (rs, col) -> rs.getByte(col));
-					} else if (short.class == type || Short.class == type) {
-						fields.put(field, (rs, col) -> rs.getShort(col));
-					} else if (char.class == type || Character.class == type) {
-						fields.put(field, (rs, col) -> rs.getString(col).length() == 0 ? '\0' : rs.getString(col).charAt(0));
-					} else if (java.util.Date.class == type || java.sql.Date.class == type) {
-						fields.put(field, (rs, col) -> rs.getDate(col));
-					} else if (java.sql.Timestamp.class == type) {
-						fields.put(field, (rs, col) -> rs.getTimestamp(col));
-					} else if (java.sql.Time.class == type) {
-						fields.put(field, (rs, col) -> rs.getTime(col));
-					} else if (java.math.BigDecimal.class == type) {
-						fields.put(field, (rs, col) -> rs.getBigDecimal(col));
-					} else {
-						fields.put(field, (rs, col) -> {
-							Object val = rs.getObject(col);
-							if (val == null || type.isAssignableFrom(val.getClass())) {
-								return val;
-							}
-							return null;
-						});
-					}*/
 				}
 			}
 		}
@@ -217,7 +198,7 @@ public class ResultSetFetcher {
 	private static Set<Field> getDeclaredFields(Object obj) {
 		Set<Field> fields = new LinkedHashSet<>();
 		for (Class<?> superClass = obj.getClass();
-			 superClass != null && superClass != Object.class; superClass = superClass.getSuperclass()) {
+				 superClass != null && superClass != Object.class; superClass = superClass.getSuperclass()) {
 			Field[] declaredFields = superClass.getDeclaredFields();
 			for (Field field : declaredFields) {
 				if (Modifier.isFinal(field.getModifiers()) || Modifier.isStatic(field.getModifiers())
@@ -240,7 +221,7 @@ public class ResultSetFetcher {
 	@Data
 	public static class ColumnFieldMeta {
 		private Field field;
-		private ColumnTypeHandler handler;
+		private ColumnValueGetter handler;
 		private String column;
 	}
 }

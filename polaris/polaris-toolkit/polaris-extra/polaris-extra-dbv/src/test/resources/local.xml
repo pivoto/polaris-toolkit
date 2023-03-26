@@ -1,34 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<database xmlns="http://www.librecoder.com/schema/awesome/dbv/database" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.librecoder.com/schema/awesome/dbv/database database.xsd">
-	<!--
-	<database-type>mysql</database-type>
-	<database-type>oracle</database-type>
-	<database-type>informix</database-type>
-	<database-type>dameng</database-type>
-	 -->
-	<!--
-	<jdbc-driver>oracle.jdbc.driver.OracleDriver</jdbc-driver>
-	<jdbc-url>jdbc:oracle:thin:@localhost:1521/dbname</jdbc-url>
-	<jdbc-username>user</jdbc-username>
-	<jdbc-password>password</jdbc-password>
-	 -->
-	 <!--
-	<jdbc-driver>com.informix.jdbc.IfxDriver</jdbc-driver>
-	<jdbc-url>jdbc:informix-sqli://localhost:3310/dbname:informixserver=dbsvr;NEWCODESET=GBK,8859-1,819;lobcache=-1</jdbc-url>
-	<jdbc-username>user</jdbc-username>
-	<jdbc-password>password</jdbc-password>
-	 -->
-	<!--
-	<jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
-	<jdbc-url>jdbc:mysql://localhost:3306/dbname?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf-8&amp;zeroDateTimeBehavior=convertToNull&amp;useSSL=false<
-	<jdbc-username>user</jdbc-username>
-	<jdbc-password>password</jdbc-password>
-	 -->
+<database xmlns="http://polaris.pivoto.cn/schema/dbv/database" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://polaris.pivoto.cn/schema/dbv/database database.xsd">
 	<database-type>mysql</database-type>
 	<jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
-	<jdbc-url>jdbc:mysql://localhost:3306/booster?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf-8&amp;zeroDateTimeBehavior=convertToNull&amp;useSSL=false</jdbc-url>
-	<jdbc-username>user</jdbc-username>
-	<jdbc-password>user</jdbc-password>
-	<jdbc-info-properties-path>/dbinfo.properties</jdbc-info-properties-path>
+	<jdbc-url>jdbc:mysql://localhost:3306/study?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf-8&amp;zeroDateTimeBehavior=convertToNull&amp;useSSL=false</jdbc-url>
+	<jdbc-username>root</jdbc-username>
+	<jdbc-password>root</jdbc-password>
+	<jdbc-info-properties-path>/dbv/dbinfo.properties</jdbc-info-properties-path>
 </database>

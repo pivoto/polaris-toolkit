@@ -1,6 +1,6 @@
 package io.polaris.dbv.annotation;
 
-import io.polaris.dbv.handler.ColumnTypeHandler;
+import io.polaris.dbv.ColumnValueGetter;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -14,5 +14,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ColumnHandler {
 
-	Class<? extends ColumnTypeHandler> value();
+	Class<? extends ColumnValueGetter> value();
 }

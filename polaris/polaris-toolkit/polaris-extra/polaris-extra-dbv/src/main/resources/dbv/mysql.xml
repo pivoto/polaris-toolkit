@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database
+	xmlns="http://polaris.pivoto.cn/schema/dbv/database"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://polaris.pivoto.cn/schema/dbv/database database.xsd">
+	<sqls>
+		<sql id="selectColumnsForTable">
+			SELECT
+			TABLE_SCHEMA TABLE_SCHEM,
+			TABLE_NAME,
+			COLUMN_NAME,
+			DATA_TYPE TYPE_NAME,
+			CHARACTER_MAXIMUM_LENGTH DATA_LENGTH,
+			NUMERIC_PRECISION DATA_PRECISION,
+			NUMERIC_SCALE DATA_SCALE,
+			IS_NULLABLE IS_NULLABLE,
+			COLUMN_COMMENT COLUMN_COMMENT
+			FROM INFORMATION_SCHEMA.COLUMNS T
+			WHERE 1=1
+			#if(${catalog})
+			AND T.TABLE_SCHEMA='${catalog}'
+			#end
+			#if(${tableName})
+			AND T.TABLE_NAME='${tableName}'
+			#end
+			ORDER BY TABLE_SCHEMA,TABLE_NAME,ORDINAL_POSITION
+		</sql>
+		<sql id="selectIndexesForTable">
+			SELECT
+			INDEX_SCHEMA INDEX_SCHEM,
+			INDEX_NAME INDEX_NAME,
+			INDEX_TYPE INDEX_TYPE,
+			CASE NON_UNIQUE
+			WHEN '0' THEN 'UNIQUE'
+			ELSE 'NONUNIQUE'
+			END UNIQUENESS ,
+			TABLE_SCHEMA TABLE_SCHEM,
+			TABLE_NAME,
+			COLUMN_NAME
+			FROM INFORMATION_SCHEMA.STATISTICS T
+			WHERE 1=1
+			#if(${catalog})
+			AND TABLE_SCHEMA='${catalog}'
+			#end
+			#if(${tableName})
+			AND TABLE_NAME='${tableName}'
+			#end
+			ORDER BY TABLE_SCHEMA,INDEX_NAME,INDEX_NAME,SEQ_IN_INDEX
+		</sql>
+
+		<!--
+	  C = check constraint on a table (注： not null is one of check constraints)
+	  P = primary key
+	  U = unique key
+	  R = referential integrity
+	  V = with check option, on a view
+	  O = with read only, on a view
+	  -->
+		<sql id="selectConstraintsForTable">
+			SELECT
+			TABLE_SCHEMA TABLE_SCHEMA,
+			CONSTRAINT_NAME CONSTRAINT_NAME,
+			'P' CONSTRAINT_TYPE,
+			TABLE_NAME,
+			COLUMN_NAME
+			FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE T
+			WHERE 1=1
+			#if(${catalog})
+			AND TABLE_SCHEMA='${catalog}'
+			#end
+			#if(${tableName})
+			AND TABLE_NAME='${tableName}'
+			#end
+			ORDER BY TABLE_SCHEMA,TABLE_NAME,CONSTRAINT_NAME
+		</sql>
+	</sqls>
+</database>
