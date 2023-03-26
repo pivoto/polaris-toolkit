@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<groupId>cn.pivoto.polaris</groupId>
+		<artifactId>polaris-bom-base</artifactId>
+		<version>2.0.4</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>cn.pivoto.polaris.toolkit</groupId>
+	<artifactId>polaris-toolkit</artifactId>
+	<version>${revision}</version>
+	<modules>
+		<module>polaris-annotation-processor</module>
+		<module>polaris-logging</module>
+		<module>polaris-logging-test</module>
+		<module>polaris-core</module>
+		<module>polaris-extra</module>
+		<module>polaris-builder</module>
+	</modules>
+	<packaging>pom</packaging>
+
+	<properties>
+		<revision>2.0.1</revision>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.groovy</groupId>
+			<artifactId>groovy-all</artifactId>
+			<type>pom</type>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<artifactId>polaris-logging</artifactId>
+				<version>${revision}</version>
+				<type>pom</type>
+			</dependency>
+			<dependency>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<artifactId>polaris-core</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<artifactId>polaris-annotation-processor-service</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<artifactId>polaris-logging</artifactId>
+				<type>pom</type>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<artifactId>polaris-logging-test</artifactId>
+				<type>pom</type>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<artifactId>polaris-extra-dbv</artifactId>
+				<version>${revision}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+</project>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database
+	xmlns="http://www.librecoder.com/schema/awesome/dbv/database"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.librecoder.com/schema/awesome/dbv/database database.xsd">
+	<sqls>
+		<sql id="selectTables">
+			select
+			t.owner table_schem,
+			t.object_name table_name,
+			t.object_type table_type,
+			x.COMMENTS table_comment,
+			y.tablespace_name
+
+			from sys.all_objects t, sys.all_tab_comments x,sys.all_tables y
+			where
+			t.owner=x.owner(+)
+			and t.OBJECT_NAME=x.TABLE_NAME(+)
+			and t.object_type=x.TABLE_TYPE(+)
+			and t.owner=y.owner(+)
+			and t.object_name=y.table_name(+)
+			#if(${schema})
+			and t.owner=upper('${schema}')
+			#end
+			#if(${tableName})
+			and t.object_name=upper('${tableName}')
+			#end
+			#if(${type})
+			and t.object_type=upper('${type}')
+			#else
+			and t.object_type in ('SYNONYM','TABLE','VIEW')
+			#end
+			order by t.owner,t.object_name
+		</sql>
+		<sql id="selectColumnsForTable">
+			select
+			t.owner TABLE_SCHEM,
+			t.object_name TABLE_NAME,
+			c.column_name COLUMN_NAME,
+			c.data_type TYPE_NAME,
+			c.data_length,
+			c.data_precision,
+			c.data_scale,
+			c.nullable IS_NULLABLE,
+			x.comments column_comment
+			from
+			sys.all_objects t,
+			sys.ALL_TAB_COLS c,
+			sys.ALL_COL_COMMENTS x
+			where
+			t.object_name=c.TABLE_NAME
+			and t.owner=c.owner
+			and t.OBJECT_NAME=c.TABLE_NAME
+			and c.owner=x.owner(+)
+			and c.TABLE_NAME=x.TABLE_NAME(+)
+			and c.COLUMN_NAME=x.COLUMN_NAME(+)
+			and t.object_type in ('SYNONYM','TABLE','VIEW')
+			#if(${schema})
+			and t.owner=upper('${schema}')
+			#end
+			#if(${tableName})
+			and t.object_name=upper('${tableName}')
+			#end
+			order by t.owner,t.object_name,c.column_id
+		</sql>
+		<sql id="selectIndexesForTable">
+			select
+			a.owner index_schem,
+			a.index_name,
+			a.index_type,
+			a.uniqueness,
+			a.table_owner table_schem,
+			a.table_name,
+			a.tablespace_name,
+			b.column_name
+			from sys.all_indexes a,sys.all_ind_columns b
+			where a.index_name=b.index_name
+			and a.owner=b.index_owner and a.table_name=b.table_name
+			#if(${schema})
+			and a.owner=upper('${schema}')
+			and b.index_owner=upper('${schema}')
+			#end
+			#if(${tableName})
+			and a.table_name=upper('${tableName}')
+			and b.table_name=upper('${tableName}')
+			#end
+			order by a.owner,a.table_name,a.index_name,b.column_position
+		</sql>
+
+		<!--
+	  C = check constraint on a table (注： not null is one of check constraints)
+	  P = primary key
+	  U = unique key
+	  R = referential integrity
+	  V = with check option, on a view
+	  O = with read only, on a view
+	  -->
+		<sql id="selectConstraintsForTable">
+			select
+			a.owner schema,
+			a.constraint_name,
+			a.constraint_type,
+			a.table_name,
+			b.column_name,
+			b.position
+			from sys.all_constraints a,sys.all_cons_columns b
+			where a.constraint_name=b.constraint_name and a.table_name=b.table_name
+			#if(${schema})
+			and a.owner=upper('${schema}')
+			and b.owner=upper('${schema}')
+			#end
+			#if(${tableName})
+			and a.table_name=upper('${tableName}')
+			and b.table_name=upper('${tableName}')
+			#end
+			order by a.table_name,a.constraint_name,b.position
+		</sql>
+	</sqls>
+</database>

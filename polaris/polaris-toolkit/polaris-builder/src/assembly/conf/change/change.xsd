@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified"
+	targetNamespace="http://polaris.pivoto.cn/change" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="changes" type="chan:changesType" xmlns:chan="http://polaris.pivoto.cn/change"/>
+	<xs:complexType name="changesType">
+		<xs:annotation>
+			<xs:documentation>转换配置组</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element type="xs:string" name="charset">
+				<xs:annotation>
+					<xs:documentation>文件编码</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="chan:changeType" name="change" maxOccurs="unbounded" minOccurs="0"
+				xmlns:chan="http://polaris.pivoto.cn/change"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="changeType">
+		<xs:annotation>
+			<xs:documentation>转换配置</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element type="xs:string" name="charset" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>文件编码</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="xs:string" name="src" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>来源根目录</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="xs:string" name="dest" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>目标根目录</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="xs:boolean" name="copy-all" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>是否复制未映射的文件。默认true</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="xs:boolean" name="include-filename" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>是否同时处理符合映射关系的文件名。默认true</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="xs:string" name="extensions" minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>需要处理文件的扩展名，以逗号分隔</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="xs:string" name="name-pattern" maxOccurs="unbounded" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>需要处理文件名模式</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="xs:string" name="source-path" maxOccurs="unbounded" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>源代码相对路径</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="chan:packageType" name="package" maxOccurs="unbounded" minOccurs="1"
+				xmlns:chan="http://polaris.pivoto.cn/change"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="packageType">
+		<xs:annotation>
+			<xs:documentation>映射配置，多个配置会按顺序转换</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute type="xs:string" name="name" use="required">
+					<xs:annotation>
+						<xs:documentation>源名称</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute type="xs:string" name="mapping" use="required">
+					<xs:annotation>
+						<xs:documentation>映射名称</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+</xs:schema>

@@ -25,7 +25,7 @@
 	</modules>
 
 	<properties>
-		<revision>2.0.3</revision>
+		<revision>2.0.4</revision>
 		<start-class></start-class>
 		<java.version>1.8</java.version>
 		<file.encoding>UTF-8</file.encoding>
@@ -61,7 +61,10 @@
 		<dependency.spring-boot.version>2.3.10.RELEASE</dependency.spring-boot.version>
 		<dependency.spring-cloud.version>Hoxton.SR10</dependency.spring-cloud.version>
 
-		<dependency.log4j2.version>2.17.2</dependency.log4j2.version>
+		<dependency.log4j2.version>2.20.0</dependency.log4j2.version>
+		<dependency.disruptor.version>3.4.4</dependency.disruptor.version>
+		<dependency.slf4j.version>1.7.36</dependency.slf4j.version>
+		<!--<dependency.slf4j.version>2.0.5</dependency.slf4j.version>-->
 		<dependency.jmh.version>1.21</dependency.jmh.version>
 		<dependency.junit-jupiter.version>5.8.1</dependency.junit-jupiter.version>
 		<dependency.junit.version>4.13.2</dependency.junit.version>
@@ -104,7 +107,7 @@
 			</dependency>
 			<!-- endregion BuildTools -->
 
-			<!-- region log4j2 -->
+			<!-- region log -->
 			<dependency>
 				<groupId>org.apache.logging.log4j</groupId>
 				<artifactId>log4j-bom</artifactId>
@@ -112,9 +115,35 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
-			<!-- endregion log4j2 -->
+			<dependency>
+				<groupId>com.lmax</groupId>
+				<artifactId>disruptor</artifactId>
+				<version>${dependency.disruptor.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${dependency.slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>jcl-over-slf4j</artifactId>
+				<version>${dependency.slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>jul-to-slf4j</artifactId>
+				<version>${dependency.slf4j.version}</version>
+			</dependency>
+			<!-- endregion log -->
 
 			<!-- region TestFramework -->
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-simple</artifactId>
+				<version>${dependency.slf4j.version}</version>
+				<scope>test</scope>
+			</dependency>
 			<dependency>
 				<groupId>org.openjdk.jmh</groupId>
 				<artifactId>jmh-core</artifactId>

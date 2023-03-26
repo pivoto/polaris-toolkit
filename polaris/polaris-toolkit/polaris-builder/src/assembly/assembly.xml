@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<assembly xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
+	xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+
+	<id>bin</id>
+	<formats>
+		<format>tar.gz</format>
+		<format>dir</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+
+	<fileSets>
+		<fileSet>
+			<directory>src/assembly/bin</directory>
+			<outputDirectory>bin</outputDirectory>
+			<lineEnding>unix</lineEnding>
+			<fileMode>0755</fileMode>
+		</fileSet>
+		<fileSet>
+			<directory>src/assembly/conf</directory>
+			<outputDirectory>conf</outputDirectory>
+			<lineEnding>unix</lineEnding>
+		</fileSet>
+		<fileSet>
+			<directory>src/main/resources</directory>
+			<includes>
+				<include>**/*.*</include>
+			</includes>
+			<outputDirectory>conf</outputDirectory>
+			<lineEnding>unix</lineEnding>
+		</fileSet>
+	</fileSets>
+
+	<dependencySets>
+		<dependencySet>
+			<outputDirectory>lib</outputDirectory>
+			<excludes>
+				<exclude>*:pom</exclude>
+			</excludes>
+			<scope>runtime</scope>
+		</dependencySet>
+	</dependencySets>
+
+</assembly>
