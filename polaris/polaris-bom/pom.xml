@@ -25,7 +25,7 @@
 	</modules>
 
 	<properties>
-		<revision>2.0.5</revision>
+		<revision>2.0.8-SNAPSHOT</revision>
 		<start-class></start-class>
 		<java.version>1.8</java.version>
 		<file.encoding>UTF-8</file.encoding>
@@ -49,7 +49,7 @@
 		<maven.clean.failOnError>false</maven.clean.failOnError>
 		<maven.compiler.failOnError>true</maven.compiler.failOnError>
 		<maven.compiler.fork>false</maven.compiler.fork>
-		<maven.compiler.verbose>true</maven.compiler.verbose>
+		<maven.compiler.verbose>false</maven.compiler.verbose>
 		<maven.compiler.failOnWarning>false</maven.compiler.failOnWarning>
 		<assembly.appendAssemblyId>true</assembly.appendAssemblyId>
 		<assembly.skipAssembly>false</assembly.skipAssembly>
@@ -557,7 +557,6 @@
 					<version>3.2.1</version>
 					<configuration>
 						<attach>true</attach>
-						<!--<excludes>**/*</excludes>-->
 					</configuration>
 					<executions>
 						<execution>
@@ -566,12 +565,6 @@
 							<goals>
 								<goal>jar-no-fork</goal>
 							</goals>
-							<configuration>
-								<excludes>
-									<exclude>rebel.xml</exclude>
-									<exclude>.gitkeep*</exclude>
-								</excludes>
-							</configuration>
 						</execution>
 					</executions>
 				</plugin>
@@ -627,7 +620,6 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<!--<version>2.9</version>-->
 					<version>3.2.0</version>
 					<configuration>
 						<!--<additionalparam>-Xdoclint:none</additionalparam>-->
@@ -1520,7 +1512,6 @@
 						<version>3.2.1</version>
 						<configuration>
 							<attach>true</attach>
-							<excludes>**/*</excludes>
 						</configuration>
 						<executions>
 							<execution>
@@ -1529,13 +1520,6 @@
 								<goals>
 									<goal>jar-no-fork</goal>
 								</goals>
-								<configuration>
-									<excludes>
-										<exclude>**/*</exclude>
-										<exclude>rebel.xml</exclude>
-										<exclude>.gitkeep*</exclude>
-									</excludes>
-								</configuration>
 							</execution>
 						</executions>
 					</plugin>
@@ -1545,7 +1529,7 @@
 						<artifactId>maven-javadoc-plugin</artifactId>
 						<version>3.2.0</version>
 						<configuration>
-							<skip>true</skip>
+							<attach>true</attach>
 							<doclint>none</doclint>
 						</configuration>
 						<executions>
