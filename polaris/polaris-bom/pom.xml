@@ -25,7 +25,7 @@
 	</modules>
 
 	<properties>
-		<revision>2.0.4</revision>
+		<revision>2.0.5</revision>
 		<start-class></start-class>
 		<java.version>1.8</java.version>
 		<file.encoding>UTF-8</file.encoding>
@@ -39,8 +39,11 @@
 		<project.activeProfile>dev</project.activeProfile>
 		<project.resources.profile>src/profiles/${project.activeProfile}/resources</project.resources.profile>
 		<project.resources.ext>src/ext/resources</project.resources.ext>
+		<project.resources.addition>src/main/config</project.resources.addition>
+		<project.testResources.addition>src/test/config</project.testResources.addition>
 
-		<maven.test.skip>true</maven.test.skip>
+		<maven.test.skip>false</maven.test.skip>
+		<skipTests>true</skipTests>
 		<package.dependencyDirectory>libs</package.dependencyDirectory>
 		<includeScope>runtime</includeScope>
 		<maven.clean.failOnError>false</maven.clean.failOnError>
@@ -249,6 +252,12 @@
 				</includes>
 				<filtering>true</filtering>
 			</resource>
+			<resource>
+				<directory>${project.resources.addition}</directory>
+				<includes>
+					<include>**/*</include>
+				</includes>
+			</resource>
 		</resources>
 
 		<testResources>
@@ -287,6 +296,12 @@
 					<include>*.xml</include>
 				</includes>
 				<filtering>true</filtering>
+			</testResource>
+			<testResource>
+				<directory>${project.testResources.addition}</directory>
+				<includes>
+					<include>**/*</include>
+				</includes>
 			</testResource>
 		</testResources>
 
@@ -983,7 +998,8 @@
 		<profile>
 			<id>dev</id>
 			<properties>
-				<maven.test.skip>true</maven.test.skip>
+				<maven.test.skip>false</maven.test.skip>
+				<skipTests>true</skipTests>
 				<project.activeProfile>dev</project.activeProfile>
 			</properties>
 		</profile>
@@ -993,6 +1009,7 @@
 			<id>sut</id>
 			<properties>
 				<maven.test.skip>false</maven.test.skip>
+				<skipTests>false</skipTests>
 				<project.activeProfile>sut</project.activeProfile>
 			</properties>
 			<build>
@@ -1009,7 +1026,8 @@
 		<profile>
 			<id>sit</id>
 			<properties>
-				<maven.test.skip>true</maven.test.skip>
+				<maven.test.skip>false</maven.test.skip>
+				<skipTests>true</skipTests>
 				<project.activeProfile>sit</project.activeProfile>
 			</properties>
 		</profile>
@@ -1018,7 +1036,8 @@
 		<profile>
 			<id>uat</id>
 			<properties>
-				<maven.test.skip>true</maven.test.skip>
+				<maven.test.skip>false</maven.test.skip>
+				<skipTests>true</skipTests>
 				<project.activeProfile>uat</project.activeProfile>
 			</properties>
 		</profile>
@@ -1028,6 +1047,7 @@
 			<id>pre</id>
 			<properties>
 				<maven.test.skip>true</maven.test.skip>
+				<skipTests>true</skipTests>
 				<project.activeProfile>pre</project.activeProfile>
 			</properties>
 		</profile>
@@ -1037,6 +1057,7 @@
 			<id>pro</id>
 			<properties>
 				<maven.test.skip>true</maven.test.skip>
+				<skipTests>true</skipTests>
 				<project.activeProfile>pro</project.activeProfile>
 			</properties>
 		</profile>
@@ -1349,7 +1370,8 @@
 			</activation>
 			<properties>
 				<project.dependencies.scope.provided>compile</project.dependencies.scope.provided>
-				<maven.test.skip>true</maven.test.skip>
+				<maven.test.skip>false</maven.test.skip>
+				<skipTests>true</skipTests>
 			</properties>
 		</profile>
 		<!-- endregion -->
@@ -1560,7 +1582,7 @@
 						<configuration>
 							<serverId>oss</serverId>
 							<!--<nexusUrl>https://oss.sonatype.org/</nexusUrl>-->
-							<nexusUrl>https://s01.oss.sonatype.org//</nexusUrl>
+							<nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
 							<autoReleaseAfterClose>true</autoReleaseAfterClose>
 							<autoDropAfterRelease>true</autoDropAfterRelease>
 							<showReleased>true</showReleased>

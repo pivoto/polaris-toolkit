@@ -1,0 +1,96 @@
+#if(${table.javaPackageName})
+	#set($pkgPrefix="${table.javaPackageName}.")
+#else
+	#set($pkgPrefix="")
+#end
+package ${pkgPrefix}mapper;
+
+import java.util.List;
+
+import org.apache.ibatis.session.RowBounds;
+import org.springframework.stereotype.Repository;
+
+import ${pkgPrefix}entity.${table.javaClassName}Entity;
+
+/**
+ * 表[$!{table.comment}${table.name}]的SQL操作执行类
+ * 
+ */
+@Repository("${table.javaVariableName}Mapper")
+public interface ${table.javaClassName}Mapper{
+	
+	/**
+	 * 
+	 * 查询总数
+	 * 
+	 * @param entity 查询条件对象
+	 * @return 总数
+	 */
+	int getCount(${table.javaClassName}Entity ${table.javaVariableName}Entity);
+
+	/**
+	 * 查询所有数据,返回{@link List}对象列表
+	 * 
+	 * @param entity 查询条件对象
+	 * @return 结果对象列表
+	 */
+	List<${table.javaClassName}Entity> getAll(${table.javaClassName}Entity ${table.javaVariableName}Entity);
+	
+	/**
+	 * 分页查询所有数据,返回{@link List}对象列表
+	 * 
+	 * @param entity 查询条件对象
+	 * @param rowBoulds 分页条件
+	 * @return 结果对象列表
+	 */
+	List<${table.javaClassName}Entity> getAll(${table.javaClassName}Entity ${table.javaVariableName}Entity, RowBounds rowBoulds);
+
+	/**
+	 * 根据条件查询唯一结果
+	 * 
+	 * @param entity 查询条件对象
+	 * @return 结果对象
+	 */
+	${table.javaClassName}Entity getUnique(${table.javaClassName}Entity ${table.javaVariableName}Entity);
+
+	/**
+	 * 根据主键列查询对象
+	 * 
+	 * @param entity 查询条件对象
+	 * @return 结果对象
+	 */
+	${table.javaClassName}Entity getById(${table.javaClassName}Entity ${table.javaVariableName}Entity);
+	
+	/**
+	 * 新增记录
+	 * 
+	 * @param entity 记录对象
+	 * @return 影响记录数
+	 */
+	int insert(${table.javaClassName}Entity ${table.javaVariableName}Entity);
+
+	/**
+	 * 修改记录,按入参修改所有列
+	 * 
+	 * @param entity 记录对象
+	 * @return 影响记录数
+	 */
+	int update(${table.javaClassName}Entity ${table.javaVariableName}Entity);
+
+	/**
+	 * 修改记录,只修改入参的非空字段对应的列
+	 * 
+	 * @param entity 记录对象
+	 * @return 影响记录数
+	 */
+	int updateSelective(${table.javaClassName}Entity ${table.javaVariableName}Entity);
+
+	/**
+	 * 删除记录
+	 * 
+	 * @param entity 记录对象
+	 * @return 影响记录数
+	 */
+	int delete(${table.javaClassName}Entity ${table.javaVariableName}Entity);
+
+}

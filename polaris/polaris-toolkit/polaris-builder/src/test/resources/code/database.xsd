@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://polaris.pivoto.cn/schema/dbv/database"
+	elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+	<xsd:element name="database">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="database-type" minOccurs="0" maxOccurs="1">
+					<xsd:simpleType>
+						<xsd:annotation>
+							<xsd:documentation>数据库类型</xsd:documentation>
+						</xsd:annotation>
+						<xsd:restriction base="string">
+							<xsd:enumeration value="mysql"></xsd:enumeration>
+							<xsd:enumeration value="oracle"></xsd:enumeration>
+							<xsd:enumeration value="informix"></xsd:enumeration>
+							<xsd:enumeration value="other"></xsd:enumeration>
+						</xsd:restriction>
+					</xsd:simpleType>
+				</xsd:element>
+				<xsd:element name="jdbc-driver" type="string" minOccurs="0"
+					maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>jdbc 驱动</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="jdbc-url" type="string" minOccurs="0"
+					maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>jdbc URL</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="jdbc-username" type="string"
+					minOccurs="0" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>jdbc user</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="jdbc-password" type="string"
+					minOccurs="0" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>jdbc password</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="jdbc-info-properties-path" type="string"
+					minOccurs="0" maxOccurs="1">
+					<xsd:annotation>
+						<xsd:documentation>jdbc 连接扩展属性配置文件</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+
+				<xsd:element name="sqls" minOccurs="0" maxOccurs="1">
+					<xsd:complexType mixed="true">
+						<xsd:annotation>
+							<xsd:documentation>扩展元数据SQL配置</xsd:documentation>
+						</xsd:annotation>
+						<xsd:sequence>
+							<xsd:choice minOccurs="0" maxOccurs="unbounded">
+								<xsd:element name="sql">
+									<xsd:complexType mixed="true">
+										<xsd:annotation>
+											<xsd:documentation>扩展元数据SQL配置</xsd:documentation>
+										</xsd:annotation>
+										<xsd:attribute name="id" type="ID" use="required">
+										</xsd:attribute>
+									</xsd:complexType>
+								</xsd:element>
+							</xsd:choice>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+
+				<!--<xsd:choice minOccurs="0" maxOccurs="unbounded">
+				<xsd:element name="sql" >
+					<xsd:complexType mixed="true">
+						<xsd:attribute name="id" type="ID" use="required">
+						</xsd:attribute>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:choice>-->
+
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+
+</schema>

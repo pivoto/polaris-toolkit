@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://polaris.pivoto.cn/schema/code">
+	<xs:element name="code" type="codeType"/>
+
+	<xs:complexType name="prefixOrSuffix" abstract="true">
+		<xs:sequence>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element type="xs:string" name="table-prefix" maxOccurs="1" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>需忽略的表名前缀，多个间逗号分隔</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element type="xs:string" name="table-suffix" maxOccurs="1" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>需忽略的表名后缀，多个间逗号分隔</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element type="xs:string" name="column-prefix" maxOccurs="1" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>需忽略的列名前缀，多个间逗号分隔</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element type="xs:string" name="column-suffix" maxOccurs="1" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>需忽略的列名后缀，多个间逗号分隔</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="codeType">
+		<xs:complexContent>
+			<xs:extension base="prefixOrSuffix">
+				<xs:sequence>
+					<xs:element type="xs:string" name="outdir" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>配置生成代码的位置</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element type="propertyType" name="property" maxOccurs="1" minOccurs="0">
+						<xs:annotation>
+							<xs:documentation>全局扩展属性配置</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element type="groupsType" name="groups" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>可配置多个组以使用不同的配置</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="entryType">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute type="xs:string" name="key" use="required">
+					<xs:annotation>
+						<xs:documentation>属性名</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute type="xs:string" name="value" use="optional">
+					<xs:annotation>
+						<xs:documentation>属性值</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:complexType name="propertyType">
+		<xs:sequence>
+			<xs:element type="entryType" name="entry" maxOccurs="unbounded" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>扩展属性配置</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="groupsType">
+		<xs:sequence>
+			<xs:element type="groupType" name="group" maxOccurs="unbounded" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>代码生成配置组</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="groupType">
+		<xs:complexContent>
+			<xs:extension base="prefixOrSuffix">
+				<xs:sequence>
+					<xs:element type="propertyType" name="property" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>扩展属性配置</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element type="templatesType" name="templates" minOccurs="0">
+						<xs:annotation>
+							<xs:documentation>模板配置</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element type="tablesType" name="tables" minOccurs="0">
+						<xs:annotation>
+							<xs:documentation>
+								tables: 配置待生成代码的表<br/>
+								table.catalog: 数据库名，按需配置。如oracle下不需要, mysql下需要<br/>
+								table.schema: 数据库用户, 大小写敏感。如oracle下需要大写<br/>
+								table.name: 表名, 大小写敏感。如oracle下需要大写<br/>
+								table.package: 目标代码的包名, 如io.polaris.module.submodule<br/>
+								table.property: 扩展属性<br/>
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="templatesType">
+		<xs:sequence>
+			<xs:element type="templateType" name="template" maxOccurs="unbounded" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>模板配置</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="templateType">
+		<xs:sequence>
+			<xs:element name="path" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>模板路径</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="outdir" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>输出的相对路径</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="filename" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>输出文件名</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="propertyType" name="property" maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>扩展属性配置</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="tablesType">
+		<xs:sequence>
+			<xs:element type="tableType" name="table" maxOccurs="unbounded" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="tableType">
+		<xs:complexContent>
+			<xs:extension base="prefixOrSuffix">
+				<xs:sequence>
+					<xs:element type="propertyType" name="property" maxOccurs="1" minOccurs="0">
+						<xs:annotation>
+							<xs:documentation>扩展属性配置</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+				<xs:attribute type="xs:string" name="catalog" use="optional">
+					<xs:annotation>
+						<xs:documentation>数据库名，按需配置。如：oracle下不需要, mysql下需要</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute type="xs:string" name="schema" use="optional">
+					<xs:annotation>
+						<xs:documentation>数据库用户, 大小写敏感。如oracle下需要大写</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute type="xs:string" name="name" use="required">
+					<xs:annotation>
+						<xs:documentation>表名, 大小写敏感。如oracle下需要大写</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute type="xs:string" name="package" use="required">
+					<xs:annotation>
+						<xs:documentation>目标代码的包名, 如io.polaris.module.submodule</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>

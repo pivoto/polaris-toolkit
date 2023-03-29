@@ -12,8 +12,9 @@
 	<artifactId>polaris-builder</artifactId>
 
 	<properties>
-		<maven.install.skip>true</maven.install.skip>
-		<maven.deploy.skip>true</maven.deploy.skip>
+		<maven.install.skip>false</maven.install.skip>
+		<maven.deploy.skip>false</maven.deploy.skip>
+		<project.testResources.addition>src/assembly/conf</project.testResources.addition>
 	</properties>
 
 
@@ -27,14 +28,17 @@
 			<groupId>cn.pivoto.polaris.toolkit</groupId>
 			<artifactId>polaris-extra-dbv</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>com.squareup</groupId>
+			<artifactId>javapoet</artifactId>
+			<version>1.13.0</version>
+		</dependency>
 
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>31.1-jre</version>
 		</dependency>
-
 
 		<dependency>
 			<groupId>org.apache.velocity</groupId>
@@ -69,11 +73,6 @@
 			<version>1.4.9</version>
 		</dependency>
 		<dependency>
-			<groupId>com.alibaba</groupId>
-			<artifactId>fastjson</artifactId>
-			<version>1.2.72</version>
-		</dependency>
-		<dependency>
 			<groupId>org.yaml</groupId>
 			<artifactId>snakeyaml</artifactId>
 			<version>1.24</version>
@@ -83,11 +82,21 @@
 			<artifactId>jackson-dataformat-xml</artifactId>
 			<version>2.9.9</version>
 		</dependency>
+		<dependency>
+			<groupId>com.alibaba.fastjson2</groupId>
+			<artifactId>fastjson2</artifactId>
+			<version>2.0.25</version>
+		</dependency>
 
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.47</version>
+		</dependency>
+		<dependency>
+			<groupId>com.oracle.database.jdbc</groupId>
+			<artifactId>ojdbc6</artifactId>
+			<version>11.2.0.4</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -127,7 +136,6 @@
 
 	<build>
 		<finalName>${artifactId}-${version}</finalName>
-
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -135,6 +143,7 @@
 				<version>3.1.0</version>
 				<configuration>
 					<finalName>${project.artifactId}</finalName>
+					<attach>false</attach>
 					<descriptors>
 						<descriptor>src/assembly/assembly.xml</descriptor>
 					</descriptors>

@@ -20,6 +20,9 @@
 		<fileSet>
 			<directory>src/assembly/conf</directory>
 			<outputDirectory>conf</outputDirectory>
+			<excludes>
+				<exclude>bak/</exclude>
+			</excludes>
 			<lineEnding>unix</lineEnding>
 		</fileSet>
 		<fileSet>

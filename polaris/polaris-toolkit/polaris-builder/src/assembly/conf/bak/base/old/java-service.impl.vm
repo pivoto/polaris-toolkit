@@ -1,0 +1,168 @@
+#if(${table.javaPackageName})
+	#set($pkgPrefix="${table.javaPackageName}.")
+#else
+	#set($pkgPrefix="")
+#end
+package ${pkgPrefix}service.impl;
+
+import java.util.List;
+
+import org.apache.ibatis.session.RowBounds;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+
+import ${pkgPrefix}mapper.${table.javaClassName}Mapper;
+import ${pkgPrefix}entity.${table.javaClassName}Entity;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+
+@Service("i${table.javaClassName}Service")
+public class ${table.javaClassName}ServiceImpl implements ${pkgPrefix}service.I${table.javaClassName}Service {
+	private Logger logger = LoggerFactory.getLogger(${table.javaClassName}ServiceImpl.class);
+
+	@Autowired
+	@Qualifier("${table.javaVariableName}Mapper")
+	private ${table.javaClassName}Mapper ${table.javaVariableName}Mapper;
+
+	@Override
+	public int getCount(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+		logger.info("查询表记录数: ${table.name}");
+		int count = ${table.javaVariableName}Mapper.getCount(${table.javaVariableName}Entity);
+		return count;
+	}
+
+	@Override
+	public Page<${table.javaClassName}Entity> getPage(${table.javaClassName}Entity ${table.javaVariableName}Entity, int pageNum, int pageSize) {
+		logger.info("查询表结果集: ${table.name}");
+		Page<${table.javaClassName}Entity> page = PageHelper.startPage(pageNum, pageSize, false);
+		List<${table.javaClassName}Entity> list = ${table.javaVariableName}Mapper.getAll(${table.javaVariableName}Entity);
+		if(list instanceof Page){
+			page = (Page<${table.javaClassName}Entity>) list;
+		}else{
+			page.addAll(list);
+		}
+		int total = ${table.javaVariableName}Mapper.getCount(${table.javaVariableName}Entity);
+		page.setTotal(total);
+		return page;
+	}
+
+	@Override
+	public List<${table.javaClassName}Entity> getLimitedList(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+		return getLimitedList(${table.javaVariableName}Entity, 0xFFFF);
+	}
+
+	@Override
+	public List<${table.javaClassName}Entity> getLimitedList(${table.javaClassName}Entity ${table.javaVariableName}Entity, int maxCount) {
+		logger.info("查询表结果集: ${table.name}");
+		List<${table.javaClassName}Entity> list = ${table.javaVariableName}Mapper.getAll(${table.javaVariableName}Entity, new RowBounds(0, maxCount));
+		return list;
+	}
+
+	@Override
+	public List<${table.javaClassName}Entity> getList(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+		logger.info("查询表结果集: ${table.name}");
+		List<${table.javaClassName}Entity> list = ${table.javaVariableName}Mapper.getAll(${table.javaVariableName}Entity);
+		return list;
+	}
+
+	@Override
+	public List<${table.javaClassName}Entity> getList(${table.javaClassName}Entity ${table.javaVariableName}Entity, int pageIndex, int pageSize) {
+		logger.info("查询表结果集: ${table.name}");
+		List<${table.javaClassName}Entity> list = ${table.javaVariableName}Mapper.getAll(${table.javaVariableName}Entity, new RowBounds(pageIndex * pageSize, pageSize));
+		return list;
+	}
+
+	@Override
+	public int insert(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+		logger.info("新增表记录: ${table.name}");
+		// String id = UUID.randomUUID().toString().replace("-", "");
+		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
+#foreach($col in $table.pkColumns)
+#if(${col.javaClassType}=='String')
+		//Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+#else
+		//Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+#end
+#end
+#foreach($col in $table.normalColumns)
+#if(!${col.nullable})
+#if(${col.javaClassType}=='String')
+		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+#else
+		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+#end
+#end
+#end
+		return ${table.javaVariableName}Mapper.insert(${table.javaVariableName}Entity);
+	}
+
+	@Override
+	public int delete(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+		logger.info("根据主键删除表记录: ${table.name}");
+		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
+#foreach($col in $table.pkColumns)
+#if(${col.javaClassType}=='String')
+		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+#else
+		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+#end
+#end
+		return ${table.javaVariableName}Mapper.delete(${table.javaVariableName}Entity);
+	}
+
+	@Override
+	public int update(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+		logger.info("根据主键更新表记录: ${table.name}");
+		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
+#foreach($col in $table.columns)
+#if(!${col.nullable})
+#if(${col.javaClassType}=='String')
+		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+#else
+		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+#end
+#end
+#end
+		return ${table.javaVariableName}Mapper.update(${table.javaVariableName}Entity);
+	}
+
+	@Override
+	public int updateSelective(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+		logger.info("根据主键更新表记录: ${table.name}");
+		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
+#foreach($col in $table.pkColumns)
+#if(${col.javaClassType}=='String')
+		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+#else
+		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+#end
+#end
+		return ${table.javaVariableName}Mapper.updateSelective(${table.javaVariableName}Entity);
+	}
+
+	@Override
+	public ${table.javaClassName}Entity getById(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+		logger.info("根据主键查询表记录: ${table.name}");
+		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
+#foreach($col in $table.pkColumns)
+#if(${col.javaClassType}=='String')
+		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+#else
+		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+#end
+#end
+		return ${table.javaVariableName}Mapper.getById(${table.javaVariableName}Entity);
+	}
+
+	@Override
+	public ${table.javaClassName}Entity getUnique(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+		logger.info("查询表的唯一结果集: ${table.name}");
+		return ${table.javaVariableName}Mapper.getUnique(${table.javaVariableName}Entity);
+	}
+
+}

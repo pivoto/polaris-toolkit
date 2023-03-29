@@ -19,7 +19,13 @@
 			<groupId>cn.pivoto.polaris.toolkit</groupId>
 			<artifactId>polaris-annotation-processor-service</artifactId>
 		</dependency>
-		<!-- 除日志外不添加其他运行期依赖 -->
+
+		<!-- 只依赖日志、JSR标准等基础库，不依赖其他功能扩展库 -->
+		<dependency>
+			<groupId>com.google.code.findbugs</groupId>
+			<artifactId>jsr305</artifactId>
+			<version>3.0.2</version>
+		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>

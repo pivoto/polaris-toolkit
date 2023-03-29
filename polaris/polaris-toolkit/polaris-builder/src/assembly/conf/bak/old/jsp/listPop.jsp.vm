@@ -1,0 +1,106 @@
+#parse("/vm/include.vm")
+<%@page language="java" contentType="text/html; charset=UTF-8"%>
+<%@taglib uri="/WEB-INF/emp-jquery.tld" prefix="emp"%>
+<emp:page>
+<html>
+<head>
+<jsp:include page="/EUIInclude.jsp" flush="true" />
+</head>
+<body>
+	<!-- 高级搜索区 -->
+	<form id="queryForm" method="post">
+		<emp:panel id="searchPanel" title="输入查询条件" closed="true">
+			<!-- 精确查询用equals,模糊查询用like,并且命名SQL也要对应使用"="、"like"连接符  -->
+			<emp:FormLayout maxColumn="2">
+#foreach($col in $!{table.columns})
+				<emp:text id="like-$!{col.name.toLowerCase()}" label="$!{col.comment}"  align="center"/>
+#end
+			</emp:FormLayout>
+			<div id="dlg-buttons" style="text-align: center;">
+				<emp:button text="查询" id="query" iconCls="icon-search"></emp:button>
+				<emp:button text="重置" id="reset" iconCls="icon-redo"></emp:button>
+			</div>
+		</emp:panel>
+	</form>
+
+	<!-- 工具栏 -->
+	<div id="toolBar" style="height:auto">
+			<div style="margin-bottom: 5px" align="left">
+			<!-- 快捷查询 -->
+			<emp:searchbox id="searchbox" menu="#$!{table.javaClassName}QueryMenu" width="300" searcher="doSearch"></emp:searchbox>
+			<!-- 高级查询 -->
+			<div id="queryDlgDiv" style="display: inline-block;">
+				<emp:button text="高级查询" id="openQueryDlg" plain="true"></emp:button>
+			</div>
+			<div id="quickQueryDlgDiv" style="display: none;">
+				<emp:button text="快捷查询" id="quickQueryDlg" plain="true"></emp:button>
+			</div>
+		</div>
+	</div>
+
+	<!-- 快捷查询DIV -->
+   	<div id="$!{table.javaClassName}QueryMenu" style="width:120px">
+		<div data-options="name:'all'">所有条件</div>
+		<div data-options="name:'like.index_no'">指标编号</div>
+		<div data-options="name:'like.index_name'">指标名称</div>
+	</div>
+
+	<!-- 列表信息 -->
+	<emp:table id="$!{table.javaClassName}" url="get$!{table.javaClassName}Data.do"  title="$!{table.comment}列表" pageSize="20" toolbar="#toolBar">
+#foreach($col in $!{table.columns})
+		<emp:text id="$!{col.name.toLowerCase()}" label="$!{col.comment}" />
+#end
+	</emp:table>
+
+	<script type="text/javascript">
+	/** 打开高级查询窗口 */
+	function doOpenQueryDlg() {
+		${dollar}('#searchPanel').panel('open');
+		${dollar}('.searchbox').css('display', 'none');
+		${dollar}('#queryDlgDiv').css('display', 'none');
+		${dollar}('#quickQueryDlgDiv').css('display', 'inline-block');
+	}
+
+	/** 打开快捷查询工具栏 */
+	function doQuickQueryDlg() {
+		${dollar}('#searchPanel').panel('close');
+		${dollar}('.searchbox').css('display', 'inline-block');
+		${dollar}('#quickQueryDlgDiv').css('display', 'none');
+		${dollar}('#queryDlgDiv').css('display', 'inline-block');
+	}
+
+	//查询
+	function doSearch(value,name){
+		//构造查询参数
+		var params=EMP.searchParams('$!{table.javaClassName}QueryMenu',name,value);
+		params["searchType"] = "quickquery";
+		${dollar}('#$!{table.javaClassName}').datagrid('load',params);
+	}
+
+	//高级查询
+	function doQuery(){
+		var arry=$('#queryForm').toJsonData();
+		${dollar}('#$!{table.javaClassName}').datagrid('load',arry);
+	}
+
+	/** 高级查询--重置 */
+	function doReset() {
+		${dollar}('#queryForm').form('clear');
+	}
+	//取当前行的值
+	function doGetSelected($dialog,$window){
+		var row = ${dollar}('#$!{table.javaClassName}').datagrid('getSelected');
+		if (row){
+			//回调函数
+			try{
+				eval('$window.${param.returnMethod}(row)');
+				${dollar}dialog.dialog('close');
+			}catch(e){alert(e)};
+		}else{
+			EMP.alertMessage('CO00000002',[]);
+		}
+	}
+	</script>
+	</body>
+	</html>
+</emp:page>

@@ -1,0 +1,35 @@
+#parse("/vm/include.vm")
+package ${pkgPrefix}${env.entityPackage};
+
+import java.io.Serializable;
+import lombok.*;
+import lombok.experimental.Accessors;
+
+
+/**
+ * $!{table.name}
+ * $!{table.comment}
+ * @author $!{env.author}
+ * @since ${current.date}
+ */
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = false)
+public class ${table.javaClassName}Entity implements Serializable{
+
+	private static final long serialVersionUID = 1L;
+
+#foreach($col in $table.pkColumns)
+	/** 主键字段: #if(${col.comment})$!{col.comment}#else$!{col.name}#end */
+	private ${col.javaClassType} ${col.javaVariableName};
+#end
+
+#foreach($col in $table.normalColumns)
+	/** #if(${col.comment})$!{col.comment}#else$!{col.name}#end */
+	private ${col.javaClassType} ${col.javaVariableName};
+#end
+
+	/** 查询SQL的ORDER BY子句内容(各排序字段) */
+	private transient String orderByClause;
+
+}

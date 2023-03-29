@@ -36,14 +36,15 @@
 		<Property name="log_file_prefix">${log_app_name}</Property>
 		<property name="log_charset">UTF-8</property>
 		<Property name="max_file_size">300MB</Property>
-		<Property name="log_pattern_prefix">[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%t] [%-5p]</Property>
+		<!--<Property name="log_pattern_prefix">[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%t] [%-5p]</Property>
 		<Property name="log_pattern_location">%c{3.}.%M(%F:%L)</Property>
 		<Property name="log_pattern">${log_pattern_prefix} [${log_pattern_location}] %x %X - %m%n</Property>
-		<Property name="log_pattern_simple">${log_pattern_prefix} [%c] %x %X - %m%n</Property>
+		<Property name="log_pattern_simple">${log_pattern_prefix} [%c] %x %X - %m%n</Property>-->
 
 		<!--<Property name="log_pattern">[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%t] [%-5p] [%l] %x %X - %m%n</Property>-->
 		<!--<Property name="log_pattern">[%d{yyyy-MM-dd HH:mm:ss}] [%t] [%-5p] [%C{12}.%M(%F:%L)] [%X{user}] - %m%n</Property>-->
 		<!--<Property name="log_pattern">[%d{yyyy-MM-dd HH:mm:ss}] [%t] [%-5p] [%c] [%X] %m%n</Property>-->
+		<Property name="log_pattern">[%d{yyyy-MM-dd HH:mm:ss}] [%t] [%-5p] [%c{1.}] %m%n</Property>
 	</Properties>
 
 

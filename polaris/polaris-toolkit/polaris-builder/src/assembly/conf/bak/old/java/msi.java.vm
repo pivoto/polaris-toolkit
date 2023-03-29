@@ -1,0 +1,88 @@
+#parse("/vm/include.vm")
+###include("vm/include.vm")
+#if(${table.javaPackageName})
+	#set($pkgPrefix="${table.javaPackageName}.")
+#else
+	#set($pkgPrefix="")
+#end
+package ${pkgPrefix}${msiPackage};
+
+import java.sql.Connection;
+import java.util.*;
+
+import com.ecc.emp.core.Context;
+import com.yucheng.cmis.base.CMISException;
+import com.ecc.emp.core.EMPException;
+import com.yucheng.cmis.pub.annotation.MethodParam;
+import com.yucheng.cmis.pub.annotation.MethodService;
+import com.yucheng.cmis.pub.annotation.ModuleService;
+import lombok.extern.slf4j.Slf4j;
+
+
+import ${pkgPrefix}${env.entityPackage}.${table.javaClassName};
+import ${pkgPrefix}${componentPackage}.${table.javaClassName}${componentSuffix};
+
+
+/**
+ * $!{table.name} $!{table.comment}
+ * <br>
+ * 对外服务接口
+ *
+ * @author $!{author}
+ * @version ${current.date}
+ */
+@ModuleService(
+	serviceId="${table.javaClassName}${msiSuffix}",
+	serviceDesc="$!{table.comment}对外服务接口",
+	moduleId="${table.javaPackageName}", moduleName="${moduleName}",
+	className="${pkgPrefix}${msiPackage}.${table.javaClassName}${msiSuffix}"
+)
+public interface ${table.javaClassName}${msiSuffix} {
+
+	public static final String SERVICE_ID = "${table.javaVariableName}${msiSuffix}";
+
+	@MethodService(
+		method = "add${table.javaClassName}", desc = "添加$!{table.comment}数据",
+		inParam = {
+			@MethodParam(paramName = "domain", paramDesc = "数据对象"),
+			@MethodParam(paramName = "connection", paramDesc = "数据库连接")
+		},
+		outParam = @MethodParam(paramName = "boolean", paramDesc = "是否添加成功")
+	)
+	boolean add${table.javaClassName}(${table.javaClassName} domain, Connection connection) throws CMISException;
+
+
+	@MethodService(
+		method = "query${table.javaClassName}Detail", desc = "查询$!{table.comment}数据明细",
+		inParam = {
+			@MethodParam(paramName = "param", paramDesc = "查询条件"),
+			@MethodParam(paramName = "connection", paramDesc = "数据库连接")
+		},
+		outParam = @MethodParam(paramName = "boolean", paramDesc = "是否添加成功")
+	)
+	${table.javaClassName} query${table.javaClassName}Detail(${table.javaClassName} param, Connection conn) throws CMISException;
+
+
+	@MethodService(
+		method = "update${table.javaClassName}", desc = "修改$!{table.comment}数据",
+		inParam = {
+			@MethodParam(paramName = "domain", paramDesc = "数据对象"),
+			@MethodParam(paramName = "connection", paramDesc = "数据库连接")
+		},
+		outParam = @MethodParam(paramName = "boolean", paramDesc = "是否添加成功")
+	)
+	boolean update${table.javaClassName}(${table.javaClassName} domain, Connection conn) throws CMISException;
+
+
+	@MethodService(
+		method = "remove${table.javaClassName}", desc = "删除$!{table.comment}数据",
+		inParam = {
+			@MethodParam(paramName = "domain", paramDesc = "数据对象"),
+			@MethodParam(paramName = "connection", paramDesc = "数据库连接")
+		},
+		outParam = @MethodParam(paramName = "boolean", paramDesc = "是否添加成功")
+	)
+	boolean remove${table.javaClassName}(${table.javaClassName} domain, Connection conn) throws CMISException;
+
+
+}

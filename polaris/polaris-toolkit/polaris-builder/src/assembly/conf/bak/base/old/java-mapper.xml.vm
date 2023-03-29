@@ -1,0 +1,197 @@
+#if(${table.javaPackageName})
+	#set($pkgPrefix="${table.javaPackageName}.")
+#else
+	#set($pkgPrefix="")
+#end
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="${pkgPrefix}mapper.${table.javaClassName}Mapper">
+	<resultMap id="${table.javaVariableName}EntityMap" type="${pkgPrefix}entity.${table.javaClassName}Entity">
+#foreach($col in $table.pkColumns)
+		<id column="$col.name" property="$col.javaVariableName" />
+#end
+#foreach($col in $table.normalColumns)
+		<result column="$col.name" property="$col.javaVariableName" />
+#end
+	</resultMap>
+
+	<sql id="selectClause">
+		SELECT
+			#foreach($col in $table.pkColumns)#if(${velocityCount} > 1),#end${col.name}#set($tmp= ${velocityCount} % 5)#if($tmp == 0)
+
+			#end#end
+
+			#foreach($col in $table.normalColumns),${col.name}#set($tmp= ${velocityCount} % 5)#if($tmp == 0)
+
+			#end#end
+
+		FROM ${table.name}
+	</sql>
+	<sql id="whereClause">
+		<where>
+#foreach($col in $table.pkColumns)
+#if(${col.javaJdbcType} == 'VARCHAR' || ${col.javaJdbcType} == 'CHAR')
+			<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
+				AND $col.name = #{$col.javaVariableName}
+			</if>
+#else
+			<if test="$col.javaVariableName != null">
+				AND $col.name = #{$col.javaVariableName}
+			</if>
+#end
+#end
+#foreach($col in $table.normalColumns)
+#if(${col.javaJdbcType} == 'VARCHAR' || ${col.javaJdbcType} == 'CHAR')
+			<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
+				AND $col.name = #{$col.javaVariableName}
+			</if>
+#else
+			<if test="$col.javaVariableName != null">
+				AND $col.name = #{$col.javaVariableName}
+			</if>
+#end
+#end
+		</where>
+	</sql>
+	<sql id="orderClause">
+		<!-- here: order by something  -->
+		<if test="orderByClauseContent != null and orderByClauseContent != ''">
+			ORDER BY ${orderByClauseContent}
+		</if>
+	</sql>
+	
+	<select id="getCount" parameterType="${pkgPrefix}entity.${table.javaClassName}Entity" resultType="int">
+		SELECT COUNT(*) FROM ${table.name}
+		<include refid="whereClause"/>
+	</select>
+
+	<select id="getUnique" parameterType="${pkgPrefix}entity.${table.javaClassName}Entity" resultMap="${table.javaVariableName}EntityMap">
+		<include refid="selectClause"/>
+		<include refid="whereClause"/>
+	</select>
+
+	<select id="getAll" parameterType="${pkgPrefix}entity.${table.javaClassName}Entity" resultMap="${table.javaVariableName}EntityMap">
+		<include refid="selectClause"/>
+		<include refid="whereClause"/>
+		<include refid="orderClause"/>
+	</select>
+
+	<select id="getById" parameterType="${pkgPrefix}entity.${table.javaClassName}Entity" resultMap="${table.javaVariableName}EntityMap">
+		<include refid="selectClause"/>
+		<where>
+#foreach($col in $table.pkColumns)
+				AND $col.name = #{$col.javaVariableName}
+#end
+		</where>
+	</select>
+
+	<insert id="insert" parameterType="${pkgPrefix}entity.${table.javaClassName}Entity"#if(${config['mysql.useGeneratedKeys']} == 'true') useGeneratedKeys="true" keyProperty="${table.pkColumns[0].javaVariableName}"#end>
+		INSERT INTO ${table.name}(
+			#foreach($col in $table.pkColumns)#if(${velocityCount} > 1),#end${col.name}#set($tmp= ${velocityCount} % 5)#if($tmp == 0)
+
+			#end#end
+
+			#foreach($col in $table.normalColumns),${col.name}#set($tmp= ${velocityCount} % 5)#if($tmp == 0)
+
+			#end#end
+
+		)
+		VALUES(
+			#foreach($col in $table.pkColumns)#if(${velocityCount} > 1),#end#{${col.javaVariableName},jdbcType=${col.javaJdbcType}}#set($tmp= ${velocityCount} % 5)#if($tmp == 0)
+
+			#end#end
+
+			#foreach($col in $table.normalColumns),#{${col.javaVariableName},jdbcType=${col.javaJdbcType}}#set($tmp= ${velocityCount} % 5)#if($tmp == 0)
+
+			#end#end
+
+		)
+	</insert>
+
+	<update id="update" parameterType="${pkgPrefix}entity.${table.javaClassName}Entity">
+		UPDATE ${table.name}
+			<trim prefix="SET" suffixOverrides=",">
+#foreach($col in $table.pkColumns)
+					$col.name = #{$col.javaVariableName},
+#end
+#foreach($col in $table.normalColumns)
+					$col.name = #{$col.javaVariableName},
+#end
+			</trim>
+		WHERE
+			<trim prefix="" suffixOverrides="AND">
+#foreach($col in $table.pkColumns)
+#if(${col.javaJdbcType} == 'VARCHAR' || ${col.javaJdbcType} == 'CHAR')
+			<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
+				$col.name = #{$col.javaVariableName} AND
+			</if>
+#else
+			<if test="$col.javaVariableName != null">
+				$col.name = #{$col.javaVariableName} AND
+			</if>
+#end
+#end
+			</trim>
+	</update>
+
+	<update id="updateSelective" parameterType="${pkgPrefix}entity.${table.javaClassName}Entity">
+		UPDATE ${table.name}
+			<trim prefix="SET" suffixOverrides=",">
+#foreach($col in $table.pkColumns)
+#if(${col.javaJdbcType} == 'VARCHAR' || ${col.javaJdbcType} == 'CHAR')
+				<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
+					$col.name = #{$col.javaVariableName},
+				</if>
+#else
+				<if test="$col.javaVariableName != null">
+					$col.name = #{$col.javaVariableName},
+				</if>
+#end
+#end
+#foreach($col in $table.normalColumns)
+#if(${col.javaJdbcType} == 'VARCHAR' || ${col.javaJdbcType} == 'CHAR')
+				<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
+					$col.name = #{$col.javaVariableName},
+				</if>
+#else
+				<if test="$col.javaVariableName != null">
+					$col.name = #{$col.javaVariableName},
+				</if>
+#end
+#end
+			</trim>
+		WHERE
+			<trim prefix="" suffixOverrides="AND">
+#foreach($col in $table.pkColumns)
+#if(${col.javaJdbcType} == 'VARCHAR' || ${col.javaJdbcType} == 'CHAR')
+			<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
+				$col.name = #{$col.javaVariableName} AND
+			</if>
+#else
+			<if test="$col.javaVariableName != null">
+				$col.name = #{$col.javaVariableName} AND
+			</if>
+#end
+#end
+			</trim>
+	</update>
+
+	<delete id="delete" parameterType="${pkgPrefix}entity.${table.javaClassName}Entity">
+		DELETE FROM ${table.name} 
+		WHERE
+			<trim prefix="" suffixOverrides="AND">
+#foreach($col in $table.pkColumns)
+#if(${col.javaJdbcType} == 'VARCHAR' || ${col.javaJdbcType} == 'CHAR')
+			<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
+				$col.name = #{$col.javaVariableName} AND
+			</if>
+#else
+			<if test="$col.javaVariableName != null">
+				$col.name = #{$col.javaVariableName} AND
+			</if>
+#end
+#end
+			</trim>
+	</delete>
+
+</mapper>

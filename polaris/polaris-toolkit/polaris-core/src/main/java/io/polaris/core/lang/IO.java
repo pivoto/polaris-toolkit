@@ -3,6 +3,8 @@ package io.polaris.core.lang;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,7 +17,10 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.URL;
 import java.nio.charset.Charset;
+import java.security.CodeSource;
+import java.util.Objects;
 
 /**
  * @author Qt
@@ -35,6 +40,19 @@ public class IO {
 		}
 	}
 
+	@Nullable
+	public static String getCodeSourceLocation(@Nonnull Class c) {
+		CodeSource codeSource = c.getProtectionDomain().getCodeSource();
+		if (codeSource == null) {
+			return null;
+		}
+		URL url = codeSource.getLocation();
+		if (Objects.equals(url.getProtocol(), "file")) {
+			return url.getFile();
+		}
+		return null;
+	}
+
 	public static InputStream getInputStream(String path) throws FileNotFoundException {
 		try {
 			StackTraceElement[] traces = new Throwable().getStackTrace();
@@ -48,7 +66,7 @@ public class IO {
 
 	@SuppressWarnings("resource")
 	public static InputStream getInputStream(String path, Class<?> caller)
-			throws FileNotFoundException {
+		throws FileNotFoundException {
 		InputStream in = null;
 		try {
 			in = new FileInputStream(path);
@@ -123,12 +141,12 @@ public class IO {
 
 
 	public static int copy(InputStream input, OutputStream output)
-			throws IOException {
+		throws IOException {
 		return copy(input, output, 4096);
 	}
 
 	public static int copy(InputStream input, OutputStream output, int bufferSize)
-			throws IOException {
+		throws IOException {
 		byte[] buffer = new byte[bufferSize];
 		int count = 0;
 		int n;

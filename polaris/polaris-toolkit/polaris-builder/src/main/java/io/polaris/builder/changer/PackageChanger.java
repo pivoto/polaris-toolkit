@@ -3,7 +3,8 @@ package io.polaris.builder.changer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -27,9 +28,8 @@ import java.util.regex.Pattern;
  * @author Qt
  * @since 1.8
  */
-
-@Slf4j
 public class PackageChanger {
+	private static final Logger log = LoggerFactory.getLogger("code.changer");
 	private static final int EOF = -1;
 	private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
 	static Pattern patternDigits = Pattern.compile("(?<!\\\\)\\{(\\d+)\\}");
