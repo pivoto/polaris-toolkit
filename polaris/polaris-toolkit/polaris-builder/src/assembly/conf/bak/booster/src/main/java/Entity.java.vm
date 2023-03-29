@@ -35,24 +35,24 @@ public class ${table.javaClassName} extends ${baseEntity}{
 	 * $!{col.comment}
 	 * 列名: $!{col.name}#if(${col.primary}), 主键#end#if(${col.notNull}), 非空#end#if(${col.defaultValue}), 默认值: ${col.defaultValue}#end
 	 */
-	#if(${col.javaClassType} eq 'java.util.Date')
+	#if(${col.javaType} eq 'java.util.Date')
 	@Temporal(TemporalType.DATE)
 	@Column(name = "${col.name}")
 	@Comment("$!{col.comment}")
 	private java.util.Date ${col.javaVariableName};
-	#elseif(${col.javaClassType} eq 'java.sql.Timestamp')
+	#elseif(${col.javaType} eq 'java.sql.Timestamp')
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "${col.name}")
 	@Comment("$!{col.comment}")
 	private java.util.Date ${col.javaVariableName};
-	#elseif(${col.javaJdbcType} eq 'TINYINT' && ${col.comment.contains('是否')})
+	#elseif(${col.jdbcType} eq 'TINYINT' && ${col.comment.contains('是否')})
 	@Column(name = "${col.name}")
 	@Comment("$!{col.comment}")
 	private Boolean ${col.javaVariableName};
 	#else
 	@Column(name = "${col.name}")
 	@Comment("$!{col.comment}")
-	private ${col.javaClassType} ${col.javaVariableName};
+	private ${col.javaType} ${col.javaVariableName};
 	#end
 
 #end
@@ -66,12 +66,12 @@ public class ${table.javaClassName} extends ${baseEntity}{
 	public $!{table.javaClassName}() {
 	}
 
-	public $!{table.javaClassName}(#foreach($col in $!{table.pkColumns})#if(${col.javaClassType} eq 'java.util.Date' || ${col.javaClassType} eq 'java.sql.Timestamp')
+	public $!{table.javaClassName}(#foreach($col in $!{table.pkColumns})#if(${col.javaType} eq 'java.util.Date' || ${col.javaType} eq 'java.sql.Timestamp')
 		#set($colType='java.util.Date')
-	#elseif(${col.javaJdbcType} eq 'TINYINT' && ${col.comment.contains('是否')})
+	#elseif(${col.jdbcType} eq 'TINYINT' && ${col.comment.contains('是否')})
 		#set($colType='Boolean')
 	#else
-		#set($colType="${col.javaClassType}")
+		#set($colType="${col.javaType}")
 	#end$!{colType} ${col.javaVariableName}#if($foreach.hasNext), #end#end) {
 	#foreach($col in $!{table.pkColumns})
 		this.set${col.javaClassName}(${col.javaVariableName});
@@ -82,12 +82,12 @@ public class ${table.javaClassName} extends ${baseEntity}{
 	public $!{table.javaClassName}(
 	#foreach($col in $!{table.columns})
 	#if(!${col.generated} && !$ignoreColumns.containsKey($col.name.toLowerCase()))
-		#if(${col.javaClassType} eq 'java.util.Date' || ${col.javaClassType} eq 'java.sql.Timestamp')
+		#if(${col.javaType} eq 'java.util.Date' || ${col.javaType} eq 'java.sql.Timestamp')
 			#set($colType='java.util.Date')
-		#elseif(${col.javaJdbcType} eq 'TINYINT' && ${col.comment.contains('是否')})
+		#elseif(${col.jdbcType} eq 'TINYINT' && ${col.comment.contains('是否')})
 			#set($colType='Boolean')
 		#else
-			#set($colType="${col.javaClassType}")
+			#set($colType="${col.javaType}")
 		#end
 		$!{colType} ${col.javaVariableName}#if($foreach.hasNext), #end
 	#end

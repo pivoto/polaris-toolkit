@@ -21,7 +21,7 @@
 	<sql id="whereClause">
 		<where>
 #foreach($col in $table.pkColumns)
-#if(${col.javaJdbcType} == 'VARCHAR' || ${col.javaJdbcType} == 'CHAR')
+#if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
 			<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
 				AND $col.name = #{$col.javaVariableName}
 			</if>
@@ -32,7 +32,7 @@
 #end
 #end
 #foreach($col in $table.normalColumns)
-#if(${col.javaJdbcType} == 'VARCHAR' || ${col.javaJdbcType} == 'CHAR')
+#if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
 			<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
 				AND $col.name = #{$col.javaVariableName}
 			</if>
@@ -81,8 +81,8 @@
 			${empty}#foreach($col in $table.normalColumns)${col.name}#if(${foreach.hasNext}),#set($tmp=${foreach.count} % 5)#if($tmp == 0)${lf}${tab}${tab}${tab}#end#end#end
 		)
 		VALUES(
-			${empty}#foreach($col in ${table.pkColumns})#{${col.javaVariableName},jdbcType=${col.javaJdbcType}}#if(${foreach.hasNext}),#set($tmp=${foreach.count} % 5)#if($tmp == 0)${lf}${tab}${tab}${tab}#end#end#end
-			${empty}#foreach($col in $table.normalColumns)#{${col.javaVariableName},jdbcType=${col.javaJdbcType}}#if(${foreach.hasNext}),#set($tmp=${foreach.count} % 5)#if($tmp == 0)${lf}${tab}${tab}${tab}#end#end#end
+			${empty}#foreach($col in ${table.pkColumns})#{${col.javaVariableName},jdbcType=${col.jdbcType}}#if(${foreach.hasNext}),#set($tmp=${foreach.count} % 5)#if($tmp == 0)${lf}${tab}${tab}${tab}#end#end#end
+			${empty}#foreach($col in $table.normalColumns)#{${col.javaVariableName},jdbcType=${col.jdbcType}}#if(${foreach.hasNext}),#set($tmp=${foreach.count} % 5)#if($tmp == 0)${lf}${tab}${tab}${tab}#end#end#end
 		)
 	</insert>
 
@@ -99,7 +99,7 @@
 		WHERE
 			<trim prefix="" suffixOverrides="AND">
 #foreach($col in $table.pkColumns)
-#if(${col.javaJdbcType} == 'VARCHAR' || ${col.javaJdbcType} == 'CHAR')
+#if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
 			<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
 				$col.name = #{$col.javaVariableName} AND
 			</if>
@@ -116,7 +116,7 @@
 		UPDATE ${table.name}
 			<trim prefix="SET" suffixOverrides=",">
 #foreach($col in $table.pkColumns)
-#if(${col.javaJdbcType} == 'VARCHAR' || ${col.javaJdbcType} == 'CHAR')
+#if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
 				<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
 					$col.name = #{$col.javaVariableName},
 				</if>
@@ -127,7 +127,7 @@
 #end
 #end
 #foreach($col in $table.normalColumns)
-#if(${col.javaJdbcType} == 'VARCHAR' || ${col.javaJdbcType} == 'CHAR')
+#if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
 				<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
 					$col.name = #{$col.javaVariableName},
 				</if>
@@ -141,7 +141,7 @@
 		WHERE
 			<trim prefix="" suffixOverrides="AND">
 #foreach($col in $table.pkColumns)
-#if(${col.javaJdbcType} == 'VARCHAR' || ${col.javaJdbcType} == 'CHAR')
+#if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
 			<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
 				$col.name = #{$col.javaVariableName} AND
 			</if>
@@ -159,7 +159,7 @@
 		WHERE
 			<trim prefix="" suffixOverrides="AND">
 #foreach($col in $table.pkColumns)
-#if(${col.javaJdbcType} == 'VARCHAR' || ${col.javaJdbcType} == 'CHAR')
+#if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
 			<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
 				$col.name = #{$col.javaVariableName} AND
 			</if>

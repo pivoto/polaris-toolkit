@@ -40,7 +40,7 @@ public class ${table.javaClassName}Entity implements Serializable{
 	 * 主键字段:
 	 * #if(${col.comment})$!{col.comment}#else$!{col.name}#end
 	 */
-	private ${col.javaClassType} ${col.javaVariableName};
+	private ${col.javaType} ${col.javaVariableName};
 #end
 	// endregion
 
@@ -49,7 +49,7 @@ public class ${table.javaClassName}Entity implements Serializable{
 	/**
 	 * #if(${col.comment})$!{col.comment}#else$!{col.name}#end
 	 */
-	private ${col.javaClassType} ${col.javaVariableName};
+	private ${col.javaType} ${col.javaVariableName};
 #end
 	// endregion
 

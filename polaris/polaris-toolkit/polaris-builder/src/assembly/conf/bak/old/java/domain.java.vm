@@ -38,14 +38,14 @@ public class $!{table.javaClassName} extends CMISDomain{
 	 * 获取字段 $!{col.name} 的值
 	 * @return 字段 $!{col.name}, $!{col.comment}
 	 */
-	public $!{col.javaClassType} get$!{col.javaClassName}(){
-#if($!{col.javaClassType} == 'String')
-		$!{col.javaClassType} val = ($!{col.javaClassType})this.dataPool.get("$!{col.name.toLowerCase()}");
+	public $!{col.javaType} get$!{col.javaClassName}(){
+#if($!{col.javaType} == 'String')
+		$!{col.javaType} val = ($!{col.javaType})this.dataPool.get("$!{col.name.toLowerCase()}");
 		if(val == null || val.equals("")){
 			val = null;
 		}
 #else
-		$!{col.javaClassType} val = ($!{col.javaClassType})this.dataPool.get("$!{col.name.toLowerCase()}");
+		$!{col.javaType} val = ($!{col.javaType})this.dataPool.get("$!{col.name.toLowerCase()}");
 #end
 		return val;
 	}
@@ -62,15 +62,15 @@ public class $!{table.javaClassName} extends CMISDomain{
 7 -> 未知
 *#
 #set($parameterType="1")
-#if($!{col.javaClassType} == "Integer")
+#if($!{col.javaType} == "Integer")
 	#set($parameterType="2")
-#elseif($!{col.javaClassType} == "Float")
+#elseif($!{col.javaType} == "Float")
 	#set($parameterType="3")
-#elseif($!{col.javaClassType} == "Double")
+#elseif($!{col.javaType} == "Double")
 	#set($parameterType="4")
-#elseif($!{col.javaClassType} == "java.math.BigDecimal")
+#elseif($!{col.javaType} == "java.math.BigDecimal")
 	#set($parameterType="5")
-#elseif($!{col.javaClassType} == "Boolean")
+#elseif($!{col.javaType} == "Boolean")
 	#set($parameterType="6")
 #end
 	/**
@@ -78,7 +78,7 @@ public class $!{table.javaClassName} extends CMISDomain{
 	 * @param $!{col.javaVariableName} 字段 $!{col.name}, $!{col.comment}
 	 */
 	@CMISDomainAnnotation(parameterType="$!{parameterType}") // jdbcType: $!{col.type}
-	public void set$!{col.javaClassName}($!{col.javaClassType} $!{col.javaVariableName}){
+	public void set$!{col.javaClassName}($!{col.javaType} $!{col.javaVariableName}){
 		this.dataPool.put("$!{col.name.toLowerCase()}", $!{col.javaVariableName});
 	}
 

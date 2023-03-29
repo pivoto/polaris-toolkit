@@ -31,30 +31,30 @@ public class ${table.javaClassName}Entity implements Serializable{
 	// Begin: PK
 #foreach($col in $table.pkColumns)
 #if(${config.jaskcon} == 'true')
-#if(${col.javaClassType.endsWith("Date")})
+#if(${col.javaType.endsWith("Date")})
 	@JsonDeserialize(using = DateDeSerializer.class)
 	@JsonSerialize(using = DateSerializer.class)
-#elseif(${col.javaClassType.endsWith("Timestamp")})
+#elseif(${col.javaType.endsWith("Timestamp")})
 	@JsonDeserialize(using = TimestampDeSerializer.class)
 	@JsonSerialize(using = TimestampSerializer.class)
 #end
 #end
-	private $col.javaClassType $col.javaVariableName; // #if($col.comment)$col.comment#else$col.name#end
+	private $col.javaType $col.javaVariableName; // #if($col.comment)$col.comment#else$col.name#end
 
 #end
 	// End: PK
 
 #foreach($col in $table.normalColumns)
 #if(${config.jaskcon} == 'true')
-#if(${col.javaClassType.endsWith("Date")})
+#if(${col.javaType.endsWith("Date")})
 	@JsonDeserialize(using = DateDeSerializer.class)
 	@JsonSerialize(using = DateSerializer.class)
-#elseif(${col.javaClassType.endsWith("Timestamp")})
+#elseif(${col.javaType.endsWith("Timestamp")})
 	@JsonDeserialize(using = TimestampDeSerializer.class)
 	@JsonSerialize(using = TimestampSerializer.class)
 #end
 #end
-	private $col.javaClassType $col.javaVariableName; // #if($col.comment)$col.comment#else$col.name#end
+	private $col.javaType $col.javaVariableName; // #if($col.comment)$col.comment#else$col.name#end
 
 #end
 
@@ -77,36 +77,36 @@ public class ${table.javaClassName}Entity implements Serializable{
 	 * @param $col.javaVariableName #if($col.comment)$col.comment#else$col.name#end
 
 	 */
-	public void set${col.javaClassName}($col.javaClassType $col.javaVariableName){
+	public void set${col.javaClassName}($col.javaType $col.javaVariableName){
 		this.$col.javaVariableName = $col.javaVariableName;
 	}
 
 	/**
 	 * @return #if($col.comment)$col.comment#else$col.name#end
-	 
+
 	 */
-	public $col.javaClassType get${col.javaClassName}(){
+	public $col.javaType get${col.javaClassName}(){
 		return this.$col.javaVariableName;
 	}
-	
+
 #end
 #foreach($col in $table.normalColumns)
 	/**
 	 * @param $col.javaVariableName #if($col.comment)$col.comment#else$col.name#end
-	 
+
 	 */
-	public void set${col.javaClassName}($col.javaClassType $col.javaVariableName){
+	public void set${col.javaClassName}($col.javaType $col.javaVariableName){
 		this.$col.javaVariableName = $col.javaVariableName;
 	}
-	
+
 	/**
 	 * @return #if($col.comment)$col.comment#else$col.name#end
-	 
+
 	 */
-	public $col.javaClassType get${col.javaClassName}(){
+	public $col.javaType get${col.javaClassName}(){
 		return this.$col.javaVariableName;
 	}
-	
+
 #end
 
 }

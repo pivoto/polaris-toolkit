@@ -44,13 +44,13 @@
 				</template>
 				<template>
 					<property></property>
-					<path>/vm/java/ServiceSimple.java.vm</path>
+					<path>/vm/java/Service.java.vm</path>
 					<outdir>${env.srcDir}/${table.javaPackageDir}/${env.servicePackage}</outdir>
 					<filename>${table.javaClassName}Service.java</filename>
 				</template>
 				<template>
 					<property></property>
-					<path>/vm/java/Service.java.vm</path>
+					<path>/vm/java/IService.java.vm</path>
 					<outdir>${env.srcDir}/${table.javaPackageDir}/${env.servicePackage}</outdir>
 					<filename>I${table.javaClassName}Service.java</filename>
 				</template>

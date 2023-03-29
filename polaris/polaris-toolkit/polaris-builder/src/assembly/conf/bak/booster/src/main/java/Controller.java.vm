@@ -34,7 +34,7 @@ import java.util.*;
 @RequestMapping(value = "$!{controllerPath}")
 @ResourceIdentity("$!{controllerPath.replace("/",":")}")
 @Description("$!{table.comment}")
-public class ${table.javaClassName}Controller extends ${baseController|'BaseCrudController'}<${table.javaClassName}, ${table.pkColumns[0].javaClassType}>{
+public class ${table.javaClassName}Controller extends ${baseController|'BaseCrudController'}<${table.javaClassName}, ${table.pkColumns[0].javaType}>{
 
 	@BaseComponent
 	@Autowired

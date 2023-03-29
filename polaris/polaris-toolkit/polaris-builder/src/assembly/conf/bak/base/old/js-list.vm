@@ -14,11 +14,11 @@ var dtGridColumns = [
 	{
 		id : '$col.javaVariableName',
 		title : '#if($col.comment)$col.comment#else$col.name#end',
-#if(${col.javaClassType.endsWith("Date")})
+#if(${col.javaType.endsWith("Date")})
 		type : 'date',
 	    format : 'yyyy-MM-dd hh:mm:ss',
 	    otype : 'time_stamp_ms',
-#elseif(${col.javaClassType.endsWith("Timestamp")})
+#elseif(${col.javaType.endsWith("Timestamp")})
 		type : 'date',
 		format : 'yyyy-MM-dd hh:mm:ss',
 		otype : 'time_stamp_ms',
@@ -66,7 +66,7 @@ ${dollar}(function() {
 		grid.sortParameter.sortType = ${dollar}("#orderByType").val();
 	}
 	grid.load();
-	
+
 	// [start] search
 	${dollar}("#btnSearch").click(customSearch);
 	document.onkeypress = function(e){
@@ -75,7 +75,7 @@ ${dollar}(function() {
 			customSearch();
 		}
 	};
-	
+
 	// [end] search
 	// [start] add
 	${dollar}("#btnAdd").click(function(){

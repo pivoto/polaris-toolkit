@@ -2,17 +2,32 @@
 package ${pkgPrefix}${env.servicePackage};
 
 import java.util.List;
+import lombok.*;
 
+import org.apache.ibatis.session.RowBounds;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+
+import ${pkgPrefix}${env.mapperPackage}.${table.javaClassName}Mapper;
 import ${pkgPrefix}${env.entityPackage}.${table.javaClassName}Entity;
 
 import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 
 /**
  * $!{table.name}
  * $!{table.comment}
  * @author $!{env.author}
  */
-public interface I${table.javaClassName}Service {
+@Slf4j
+@Service("i${table.javaClassName}Service")
+public class ${table.javaClassName}Service {
+	@Autowired
+	private ${table.javaClassName}Mapper mapper;
 
 	/**
 	 *
@@ -21,7 +36,11 @@ public interface I${table.javaClassName}Service {
 	 * @param ${table.javaVariableName}Entity 查询条件对象
 	 * @return 结果总数
 	 */
-	int getCount(${table.javaClassName}Entity ${table.javaVariableName}Entity);
+	public int getCount(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+		log.info("查询表记录数: ${table.name}");
+		int count = mapper.getCount(${table.javaVariableName}Entity);
+		return count;
+	}
 
 	/**
 	 * 分页查询所有数据,返回当前页{@link Page}对象
@@ -31,15 +50,30 @@ public interface I${table.javaClassName}Service {
 	 * @param pageSize 每页记录数
 	 * @return 当前页对象
 	 */
-	Page<${table.javaClassName}Entity> getPage(${table.javaClassName}Entity ${table.javaVariableName}Entity, int pageNum, int pageSize);
-
+	public Page<${table.javaClassName}Entity> getPage(${table.javaClassName}Entity ${table.javaVariableName}Entity, int pageNum, int pageSize) {
+		log.info("查询表结果集: ${table.name}");
+		Page<${table.javaClassName}Entity> page = PageHelper.startPage(pageNum, pageSize, false);
+		List<${table.javaClassName}Entity> list = mapper.getAll(${table.javaVariableName}Entity);
+		if(list instanceof Page){
+			page = (Page<${table.javaClassName}Entity>) list;
+		}else{
+			page.addAll(list);
+		}
+		int total = mapper.getCount(${table.javaVariableName}Entity);
+		page.setTotal(total);
+		return page;
+	}
 	/**
 	 * 查询满足条件的不超过数据量上限的所有数据,返回{@link List}对象列表
 	 *
 	 * @param ${table.javaVariableName}Entity 查询条件对象
 	 * @return 结果对象列表
 	 */
-	List<${table.javaClassName}Entity> getLimitedList(${table.javaClassName}Entity ${table.javaVariableName}Entity);
+	public List<${table.javaClassName}Entity> getLimitedList(${table.javaClassName}Entity ${table.javaVariableName}Entity, int maxCount) {
+		log.info("查询表结果集: ${table.name}");
+		List<${table.javaClassName}Entity> list = mapper.getAll(${table.javaVariableName}Entity, new RowBounds(0, maxCount));
+		return list;
+	}
 
 	/**
 	 * 查询满足条件的不超过数据量上限的所有数据,返回{@link List}对象列表
@@ -48,7 +82,11 @@ public interface I${table.javaClassName}Service {
 	 * @param maxCount 数据量上限
 	 * @return 结果对象列表
 	 */
-	List<${table.javaClassName}Entity> getLimitedList(${table.javaClassName}Entity ${table.javaVariableName}Entity, int maxCount);
+	public List<${table.javaClassName}Entity> getLimitedList(${table.javaClassName}Entity ${table.javaVariableName}Entity, int maxCount) {
+		log.info("查询表结果集: ${table.name}");
+		List<${table.javaClassName}Entity> list = mapper.getAll(${table.javaVariableName}Entity, new RowBounds(0, maxCount));
+		return list;
+	}
 
 	/**
 	 * 查询满足条件的所有数据,返回{@link List}对象列表
@@ -56,7 +94,11 @@ public interface I${table.javaClassName}Service {
 	 * @param ${table.javaVariableName}Entity 查询条件对象
 	 * @return 结果对象列表
 	 */
-	List<${table.javaClassName}Entity> getList(${table.javaClassName}Entity ${table.javaVariableName}Entity);
+	public List<${table.javaClassName}Entity> getList(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+		log.info("查询表结果集: ${table.name}");
+		List<${table.javaClassName}Entity> list = mapper.getAll(${table.javaVariableName}Entity);
+		return list;
+	}
 
 	/**
 	 * 分页查询所有数据,返回{@link List}对象列表
@@ -66,7 +108,11 @@ public interface I${table.javaClassName}Service {
 	 * @param pageSize 每页记录数
 	 * @return 结果对象列表
 	 */
-	List<${table.javaClassName}Entity> getList(${table.javaClassName}Entity ${table.javaVariableName}Entity, int pageIndex, int pageSize);
+	public List<${table.javaClassName}Entity> getList(${table.javaClassName}Entity ${table.javaVariableName}Entity, int pageIndex, int pageSize) {
+		log.info("查询表结果集: ${table.name}");
+		List<${table.javaClassName}Entity> list = mapper.getAll(${table.javaVariableName}Entity, new RowBounds(pageIndex * pageSize, pageSize));
+		return list;
+	}
 
 	/**
 	 * 新增一条记录
@@ -74,7 +120,28 @@ public interface I${table.javaClassName}Service {
 	 * @param ${table.javaVariableName}Entity 记录对象
 	 * @return 影响记录数
 	 */
-	int insert(${table.javaClassName}Entity ${table.javaVariableName}Entity);
+	public int insert(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+		log.info("新增表记录: ${table.name}");
+		// String id = UUID.randomUUID().toString().replace("-", "");
+		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
+		#foreach($col in $table.pkColumns)
+			#if(${col.javaClassType}=='String')
+				//Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+			#else
+				//Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+			#end
+		#end
+		#foreach($col in $table.normalColumns)
+			#if(!${col.nullable})
+				#if(${col.javaClassType}=='String')
+					Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+				#else
+					Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+				#end
+			#end
+		#end
+		return mapper.insert(${table.javaVariableName}Entity);
+	}
 
 	/**
 	 * 根据主键列，删除一条记录
@@ -82,7 +149,18 @@ public interface I${table.javaClassName}Service {
 	 * @param ${table.javaVariableName}Entity 记录对象
 	 * @return 影响记录数
 	 */
-	int delete(${table.javaClassName}Entity ${table.javaVariableName}Entity);
+	public int delete(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+		log.info("根据主键删除表记录: ${table.name}");
+		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
+		#foreach($col in $table.pkColumns)
+			#if(${col.javaClassType}=='String')
+				Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+			#else
+				Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+			#end
+		#end
+		return mapper.delete(${table.javaVariableName}Entity);
+	}
 
 	/**
 	 * 根据主键列，修改一条记录,按入参修改所有列
@@ -90,7 +168,20 @@ public interface I${table.javaClassName}Service {
 	 * @param ${table.javaVariableName}Entity 记录对象
 	 * @return 影响记录数
 	 */
-	int update(${table.javaClassName}Entity ${table.javaVariableName}Entity);
+	public int update(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+		log.info("根据主键更新表记录: ${table.name}");
+		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
+		#foreach($col in $table.columns)
+			#if(!${col.nullable})
+				#if(${col.javaClassType}=='String')
+					Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+				#else
+					Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+				#end
+			#end
+		#end
+		return mapper.update(${table.javaVariableName}Entity);
+	}
 
 	/**
 	 * 根据主键列，修改一条记录,只修改入参的非空字段对应的列
@@ -98,7 +189,18 @@ public interface I${table.javaClassName}Service {
 	 * @param ${table.javaVariableName}Entity 记录对象
 	 * @return 影响记录数
 	 */
-	int updateSelective(${table.javaClassName}Entity ${table.javaVariableName}Entity);
+	public int updateSelective(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+		log.info("根据主键更新表记录: ${table.name}");
+		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
+		#foreach($col in $table.pkColumns)
+			#if(${col.javaClassType}=='String')
+				Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+			#else
+				Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+			#end
+		#end
+		return mapper.updateSelective(${table.javaVariableName}Entity);
+	}
 
 	/**
 	 * 根据主键列查询对象
@@ -106,7 +208,18 @@ public interface I${table.javaClassName}Service {
 	 * @param ${table.javaVariableName}Entity 查询条件对象
 	 * @return 结果对象
 	 */
-	${table.javaClassName}Entity getById(${table.javaClassName}Entity ${table.javaVariableName}Entity);
+	public ${table.javaClassName}Entity getById(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+		log.info("根据主键查询表记录: ${table.name}");
+		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
+		#foreach($col in $table.pkColumns)
+			#if(${col.javaClassType}=='String')
+				Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+			#else
+				Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+			#end
+		#end
+		return mapper.getById(${table.javaVariableName}Entity);
+	}
 
 	/**
 	 * 根据条件查询唯一结果
@@ -114,6 +227,9 @@ public interface I${table.javaClassName}Service {
 	 * @param ${table.javaVariableName}Entity 查询条件对象
 	 * @return 唯一结果对象
 	 */
-	${table.javaClassName}Entity getUnique(${table.javaClassName}Entity ${table.javaVariableName}Entity);
+	public ${table.javaClassName}Entity getUnique(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+		log.info("查询表的唯一结果集: ${table.name}");
+		return mapper.getUnique(${table.javaVariableName}Entity);
+	}
 
 }

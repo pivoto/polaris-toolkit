@@ -14,7 +14,7 @@
 		<emp:FormLayout id="detailForm" maxColumn="2" hiddenBorder="true">
 
 #foreach($col in $!{table.normalColumns})
-#if(${col.javaClassType} == 'java.math.BigDecimal')
+#if(${col.javaType} == 'java.math.BigDecimal')
 			<emp:number id="$!{table.javaClassName}-$!{col.name.toLowerCase()}" label="$!{col.comment}" required="${!col.nullable}" precision="2" dataType="Double"/>
 #else
 			<emp:text id="$!{table.javaClassName}-$!{col.name.toLowerCase()}" label="$!{col.comment}" maxLength="$!{col.columnSize}" required="${!col.nullable}"/>

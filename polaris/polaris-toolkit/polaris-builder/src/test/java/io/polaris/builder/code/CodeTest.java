@@ -25,8 +25,8 @@ public class CodeTest {
 
 	@Test
 	void test01() throws Exception {
-		Codes.generate("src/test/resources/code/test.code.xml",
-			"src/test/resources/code/test.jdbc.xml",
-			"target/code/test.data.xml");
+		Codes.generate("src/assembly/conf/code/code.xml",
+			"src/assembly/conf/code/database.xml",
+			"src/assembly/conf/code/metadata.xml");
 	}
 }

@@ -43,20 +43,20 @@
 				<label class="control-label col-sm-1 no-padding-right" for="accountName">#if($col.comment)$col.comment#else$col.name#end</label>
 				<div class="col-sm-10">
 					<div class="clearfix">
-#if(${col.javaClassType.endsWith("Date")} || ${col.javaClassType.endsWith("Timestamp")})
-					<input class="form-control" id="${col.javaVariableName}Text" type="text" 
+#if(${col.javaType.endsWith("Date")} || ${col.javaType.endsWith("Timestamp")})
+					<input class="form-control" id="${col.javaVariableName}Text" type="text"
 						value="<fmt:formatDate value="${dollar}{${table.javaVariableName}Entity.${col.javaVariableName}}" pattern="yyyy-MM-dd HH:mm:ss"/>"
 						placeholder="#if($col.comment)$col.comment#else$col.name#end..."/>
 					<input type="hidden" name="${col.javaVariableName}" id="${col.javaVariableName}" value="${dollar}{${table.javaVariableName}Entity.${col.javaVariableName}.time}">
 #else
-					<input class="form-control" name="${col.javaVariableName}" id="${col.javaVariableName}" type="text" 
+					<input class="form-control" name="${col.javaVariableName}" id="${col.javaVariableName}" type="text"
 						value="${dollar}{${table.javaVariableName}Entity.${col.javaVariableName}}"
 						placeholder="#if($col.comment)$col.comment#else$col.name#end..."/>
 #end
 					</div>
 				</div>
 			</div>
-	
+
 #end
 
 		</form>
@@ -157,17 +157,17 @@
 		});
 		// [end] validate
 	});
-	
+
 	function commit(){
 		// date handle
 #foreach($col in $table.normalColumns)
-#if(${col.javaClassType.endsWith("Date")} || ${col.javaClassType.endsWith("Timestamp")})
+#if(${col.javaType.endsWith("Date")} || ${col.javaType.endsWith("Timestamp")})
 		${dollar}("#${col.javaVariableName}").val(
 				Date.parse(${dollar}("#${col.javaVariableName}Text").val()) || (new Date()).getTime()
 			);
 #*
-#elseif(${col.javaClassType} == "long" || ${col.javaClassType} == "int"
-		|| ${col.javaClassType} == "short" || ${col.javaClassType} == "byte")
+#elseif(${col.javaType} == "long" || ${col.javaType} == "int"
+		|| ${col.javaType} == "short" || ${col.javaType} == "byte")
 		${dollar}("#${col.javaVariableName}").val(
 				${dollar}("#${col.javaVariableName}").val() || 0
 			);

@@ -143,7 +143,7 @@ public class CodeWriter {
 			try {
 				String basedir = VelocityTemplate.eval(context, baseOutdir);
 				File dir = StringUtils.isBlank(basedir) ? new File(outdir) : new File(basedir + "/" + outdir);
-				log.info("生成代码，目录:[{}]，文件：[{}]", dir.getPath(), filename);
+				log.info("生成表名[{}]的代码，目录:[{}]，文件：[{}]", table.getName(),dir.getPath(), filename);
 				write(path, context, dir, filename);
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);

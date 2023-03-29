@@ -31,8 +31,8 @@ table:
 		col.autoincrement -> $!{col.autoincrement}
 		col.javaClassName -> $!{col.javaClassName}
 		col.javaVariableName -> $!{col.javaVariableName}
-		col.javaClassType -> $!{col.javaClassType}
-		col.javaJdbcType -> $!{col.javaJdbcType}
+		col.javaType -> $!{col.javaType}
+		col.jdbcType -> $!{col.jdbcType}
 		col.xmlName -> $!{col.xmlName}
 	----------------------------------------------------------------------------------------
 #end
@@ -54,8 +54,8 @@ table:
 		col.autoincrement -> $!{col.autoincrement}
 		col.javaClassName -> $!{col.javaClassName}
 		col.javaVariableName -> $!{col.javaVariableName}
-		col.javaClassType -> $!{col.javaClassType}
-		col.javaJdbcType -> $!{col.javaJdbcType}
+		col.javaType -> $!{col.javaType}
+		col.jdbcType -> $!{col.jdbcType}
 		col.xmlName -> $!{col.xmlName}
 	----------------------------------------------------------------------------------------
 #end
@@ -77,8 +77,8 @@ table:
 		col.autoincrement -> $!{col.autoincrement}
 		col.javaClassName -> $!{col.javaClassName}
 		col.javaVariableName -> $!{col.javaVariableName}
-		col.javaClassType -> $!{col.javaClassType}
-		col.javaJdbcType -> $!{col.javaJdbcType}
+		col.javaType -> $!{col.javaType}
+		col.jdbcType -> $!{col.jdbcType}
 		col.xmlName -> $!{col.xmlName}
 	----------------------------------------------------------------------------------------
 #end

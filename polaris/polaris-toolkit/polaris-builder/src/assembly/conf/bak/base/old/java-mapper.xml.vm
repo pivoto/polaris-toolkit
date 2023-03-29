@@ -30,7 +30,7 @@
 	<sql id="whereClause">
 		<where>
 #foreach($col in $table.pkColumns)
-#if(${col.javaJdbcType} == 'VARCHAR' || ${col.javaJdbcType} == 'CHAR')
+#if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
 			<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
 				AND $col.name = #{$col.javaVariableName}
 			</if>
@@ -41,7 +41,7 @@
 #end
 #end
 #foreach($col in $table.normalColumns)
-#if(${col.javaJdbcType} == 'VARCHAR' || ${col.javaJdbcType} == 'CHAR')
+#if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
 			<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
 				AND $col.name = #{$col.javaVariableName}
 			</if>
@@ -59,7 +59,7 @@
 			ORDER BY ${orderByClauseContent}
 		</if>
 	</sql>
-	
+
 	<select id="getCount" parameterType="${pkgPrefix}entity.${table.javaClassName}Entity" resultType="int">
 		SELECT COUNT(*) FROM ${table.name}
 		<include refid="whereClause"/>
@@ -97,11 +97,11 @@
 
 		)
 		VALUES(
-			#foreach($col in $table.pkColumns)#if(${velocityCount} > 1),#end#{${col.javaVariableName},jdbcType=${col.javaJdbcType}}#set($tmp= ${velocityCount} % 5)#if($tmp == 0)
+			#foreach($col in $table.pkColumns)#if(${velocityCount} > 1),#end#{${col.javaVariableName},jdbcType=${col.jdbcType}}#set($tmp= ${velocityCount} % 5)#if($tmp == 0)
 
 			#end#end
 
-			#foreach($col in $table.normalColumns),#{${col.javaVariableName},jdbcType=${col.javaJdbcType}}#set($tmp= ${velocityCount} % 5)#if($tmp == 0)
+			#foreach($col in $table.normalColumns),#{${col.javaVariableName},jdbcType=${col.jdbcType}}#set($tmp= ${velocityCount} % 5)#if($tmp == 0)
 
 			#end#end
 
@@ -121,7 +121,7 @@
 		WHERE
 			<trim prefix="" suffixOverrides="AND">
 #foreach($col in $table.pkColumns)
-#if(${col.javaJdbcType} == 'VARCHAR' || ${col.javaJdbcType} == 'CHAR')
+#if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
 			<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
 				$col.name = #{$col.javaVariableName} AND
 			</if>
@@ -138,7 +138,7 @@
 		UPDATE ${table.name}
 			<trim prefix="SET" suffixOverrides=",">
 #foreach($col in $table.pkColumns)
-#if(${col.javaJdbcType} == 'VARCHAR' || ${col.javaJdbcType} == 'CHAR')
+#if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
 				<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
 					$col.name = #{$col.javaVariableName},
 				</if>
@@ -149,7 +149,7 @@
 #end
 #end
 #foreach($col in $table.normalColumns)
-#if(${col.javaJdbcType} == 'VARCHAR' || ${col.javaJdbcType} == 'CHAR')
+#if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
 				<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
 					$col.name = #{$col.javaVariableName},
 				</if>
@@ -163,7 +163,7 @@
 		WHERE
 			<trim prefix="" suffixOverrides="AND">
 #foreach($col in $table.pkColumns)
-#if(${col.javaJdbcType} == 'VARCHAR' || ${col.javaJdbcType} == 'CHAR')
+#if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
 			<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
 				$col.name = #{$col.javaVariableName} AND
 			</if>
@@ -177,11 +177,11 @@
 	</update>
 
 	<delete id="delete" parameterType="${pkgPrefix}entity.${table.javaClassName}Entity">
-		DELETE FROM ${table.name} 
+		DELETE FROM ${table.name}
 		WHERE
 			<trim prefix="" suffixOverrides="AND">
 #foreach($col in $table.pkColumns)
-#if(${col.javaJdbcType} == 'VARCHAR' || ${col.javaJdbcType} == 'CHAR')
+#if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
 			<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
 				$col.name = #{$col.javaVariableName} AND
 			</if>

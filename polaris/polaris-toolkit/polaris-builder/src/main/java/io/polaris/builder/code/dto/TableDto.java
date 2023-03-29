@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.ToString;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,16 +36,17 @@ public class TableDto {
 	@XStreamImplicit(itemFieldName = "column", keyFieldName = "name")
 	private List<ColumnDto> columns = new ArrayList<>();
 
+
 	/** 主键列 */
 	@ToString.Exclude
 	@XStreamOmitField
-	@XStreamAsAttribute
 	private List<ColumnDto> pkColumns = new ArrayList<>();
 	/** 非主键列 */
 	@ToString.Exclude
 	@XStreamOmitField
-	@XStreamAsAttribute
 	private List<ColumnDto> normalColumns = new ArrayList<ColumnDto>();
+	@XStreamOmitField
+	private Set<String> columnJavaTypes = new LinkedHashSet<>();
 
 	@XStreamOmitField
 	private Map<String, String> property;
@@ -76,9 +79,15 @@ public class TableDto {
 		if (normalColumns == null) {
 			normalColumns = new ArrayList<>();
 		}
+		if (columnJavaTypes == null){
+			columnJavaTypes = new LinkedHashSet<>();
+		}
 
 		for (ColumnDto col : columns) {
 			col.prepare4Java(columnNameTrimmer);
+			if (col.getJavaType().contains(".")) {
+				columnJavaTypes.add(col.getJavaType());
+			}
 		}
 
 		if (pkColumns.isEmpty()) {
@@ -90,6 +99,9 @@ public class TableDto {
 		} else {
 			for (ColumnDto col : pkColumns) {
 				col.prepare4Java(columnNameTrimmer);
+				if (col.getJavaType().contains(".")) {
+					columnJavaTypes.add(col.getJavaType());
+				}
 			}
 		}
 
@@ -102,6 +114,9 @@ public class TableDto {
 		} else {
 			for (ColumnDto col : normalColumns) {
 				col.prepare4Java(columnNameTrimmer);
+				if (col.getJavaType().contains(".")) {
+					columnJavaTypes.add(col.getJavaType());
+				}
 			}
 		}
 		javaPackageDir = javaPackageName.replace('.', '/');

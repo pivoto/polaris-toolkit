@@ -83,7 +83,7 @@ public class ${table.javaClassName}ServiceImpl implements ${pkgPrefix}service.I$
 		// String id = UUID.randomUUID().toString().replace("-", "");
 		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
 #foreach($col in $table.pkColumns)
-#if(${col.javaClassType}=='String')
+#if(${col.javaType}=='String')
 		//Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
 #else
 		//Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
@@ -91,7 +91,7 @@ public class ${table.javaClassName}ServiceImpl implements ${pkgPrefix}service.I$
 #end
 #foreach($col in $table.normalColumns)
 #if(!${col.nullable})
-#if(${col.javaClassType}=='String')
+#if(${col.javaType}=='String')
 		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
 #else
 		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
@@ -106,7 +106,7 @@ public class ${table.javaClassName}ServiceImpl implements ${pkgPrefix}service.I$
 		log.info("根据主键删除表记录: ${table.name}");
 		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
 #foreach($col in $table.pkColumns)
-#if(${col.javaClassType}=='String')
+#if(${col.javaType}=='String')
 		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
 #else
 		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
@@ -121,7 +121,7 @@ public class ${table.javaClassName}ServiceImpl implements ${pkgPrefix}service.I$
 		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
 #foreach($col in $table.columns)
 #if(!${col.nullable})
-#if(${col.javaClassType}=='String')
+#if(${col.javaType}=='String')
 		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
 #else
 		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
@@ -136,7 +136,7 @@ public class ${table.javaClassName}ServiceImpl implements ${pkgPrefix}service.I$
 		log.info("根据主键更新表记录: ${table.name}");
 		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
 #foreach($col in $table.pkColumns)
-#if(${col.javaClassType}=='String')
+#if(${col.javaType}=='String')
 		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
 #else
 		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
@@ -150,7 +150,7 @@ public class ${table.javaClassName}ServiceImpl implements ${pkgPrefix}service.I$
 		log.info("根据主键查询表记录: ${table.name}");
 		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
 #foreach($col in $table.pkColumns)
-#if(${col.javaClassType}=='String')
+#if(${col.javaType}=='String')
 		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
 #else
 		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");

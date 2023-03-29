@@ -14,6 +14,6 @@ import ${pkgPrefix}${entityPackage|"entity"}.${table.javaClassName};
 @Repository
 @Mapper
 @AfterEntityScanner
-public interface ${table.javaClassName}Mapper extends ${baseMapper|'BaseMapper'}<${table.javaClassName}, ${table.pkColumns[0].javaClassType}>{
+public interface ${table.javaClassName}Mapper extends ${baseMapper|'BaseMapper'}<${table.javaClassName}, ${table.pkColumns[0].javaType}>{
 
 }

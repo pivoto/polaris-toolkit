@@ -19,7 +19,7 @@ set JAVA_OPTIONS=%JAVA_OPTIONS% -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitia
 set JAVA_OPTIONS=%JAVA_OPTIONS% -XX:+PrintGC -XX:+PrintGCDetails
 
 set APP_MAIN=io.polaris.builder.Main
-set JAVA_ARGS=--database %WORKDIR%/conf/jdbc.xml --metadata %WORKDIR%/conf/tables.xml --code %WORKDIR%/conf/code.xml
+set JAVA_ARGS=--database %WORKDIR%/conf/database.xml --metadata %WORKDIR%/conf/tables.xml --code %WORKDIR%/conf/code.xml
 
 echo "java %JAVA_OPTIONS% %APP_MAIN% %JAVA_ARGS%"
 java %JAVA_OPTIONS% %APP_MAIN% %JAVA_ARGS%
