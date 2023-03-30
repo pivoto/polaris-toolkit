@@ -40,7 +40,6 @@ import java.util.Base64;
  * @version Oct 29, 2021
  * @since 1.8
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RSA {
 	private static final String DEFAULT_PUBLIC_KEY_STRING
 			= "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAINE31e8jyk0fkrqLCjyLRR6MYp2yZ8z4OXtVaK6VUcOyPDB+FYQs599/BS604NoTWKavPvlcB30n7lu3Of7uGcCAwEAAQ==";
