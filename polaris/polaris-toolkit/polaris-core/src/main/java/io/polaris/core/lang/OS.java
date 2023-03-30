@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
  * @since 1.8
  */
 @SuppressWarnings("All")
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OS {
 
 	private static volatile int PID = -1;

@@ -17,5 +17,68 @@
 		<package name="com.jcfc.stdk" mapping="io.polaris"/>
 		<package name="com.jcfc" mapping="io.polaris"/>
 	</change>
+	<change>
+		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-extra-validator/src</src>
+		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-extra-validator/src</dest>
+		<copy-all>true</copy-all>
+		<include-filename>true</include-filename>
+		<extensions>xml,java,properties,yml,json</extensions>
+		<name-pattern>META-INF/services/.*</name-pattern>
+		<source-path>main/java</source-path>
+		<source-path>main/resources</source-path>
+		<source-path>test/java</source-path>
+		<source-path>test/resources</source-path>
+		<package name="com.jcfc.stdk" mapping="io.polaris"/>
+		<package name="com.jcfc" mapping="io.polaris"/>
+	</change>
+
+	<!-- region polaris-annotation-processor -->
+	<change>
+		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-commons/stdk-annotation-processor/stdk-annotation-processor-core/src</src>
+		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-annotation-processor/polaris-annotation-processor-core/src</dest>
+		<copy-all>true</copy-all>
+		<include-filename>true</include-filename>
+		<extensions>xml,java,properties,yml,json</extensions>
+		<name-pattern>META-INF/services/.*</name-pattern>
+		<source-path>main/java</source-path>
+		<source-path>main/resources</source-path>
+		<source-path>test/java</source-path>
+		<source-path>test/resources</source-path>
+		<package name="com.jcfc.stdk.commons" mapping="io.polaris"/>
+		<package name="com.jcfc.stdk" mapping="io.polaris"/>
+		<package name="com.jcfc" mapping="io.polaris"/>
+		<package name="stdk-annotation-processor" mapping="polaris-annotation-processor"/>
+	</change>
+	<change>
+		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-commons/stdk-annotation-processor/stdk-annotation-processor-service/src</src>
+		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-annotation-processor/polaris-annotation-processor-service/src</dest>
+		<copy-all>true</copy-all>
+		<include-filename>true</include-filename>
+		<extensions>xml,java,properties,yml,json</extensions>
+		<name-pattern>META-INF/services/.*</name-pattern>
+		<source-path>main/java</source-path>
+		<source-path>main/resources</source-path>
+		<source-path>test/java</source-path>
+		<source-path>test/resources</source-path>
+		<package name="com.jcfc.stdk.commons" mapping="io.polaris"/>
+		<package name="com.jcfc.stdk" mapping="io.polaris"/>
+		<package name="com.jcfc" mapping="io.polaris"/>
+	</change>
+	<change>
+		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-commons/stdk-annotation-processor/stdk-annotation-processor-test/src</src>
+		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-annotation-processor/polaris-annotation-processor-test/src</dest>
+		<copy-all>true</copy-all>
+		<include-filename>true</include-filename>
+		<extensions>xml,java,properties,yml,json</extensions>
+		<name-pattern>META-INF/services/.*</name-pattern>
+		<source-path>main/java</source-path>
+		<source-path>main/resources</source-path>
+		<source-path>test/java</source-path>
+		<source-path>test/resources</source-path>
+		<package name="com.jcfc.stdk.commons" mapping="io.polaris"/>
+		<package name="com.jcfc.stdk" mapping="io.polaris"/>
+		<package name="com.jcfc" mapping="io.polaris"/>
+	</change>
+	<!-- endregion polaris-annotation-processor -->
 
 </changes>

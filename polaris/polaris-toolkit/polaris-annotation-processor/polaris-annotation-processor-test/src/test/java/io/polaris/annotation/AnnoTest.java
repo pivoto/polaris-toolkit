@@ -12,6 +12,7 @@ import java.util.function.Function;
  * @since 1.8
  */
 public class AnnoTest {
+
 	@Test
 	void test01() throws ClassNotFoundException {
 
@@ -23,7 +24,13 @@ public class AnnoTest {
 		Type type = ((ParameterizedType) consumer.getClass().getGenericInterfaces()[0]).getActualTypeArguments()[0];
 		System.out.println(type);
 
-		System.out.println(Class.forName(DemoBean.class.getName()+"Map"));
+		System.out.println(Class.forName(BeanA.class.getName()+"Map"));
 //		System.out.println(Bean1Fields.getId.apply(new Bean1()));
+
+		Function<Object, Type> convert;
+	}
+
+	static class RelatedMap{
+
 	}
 }

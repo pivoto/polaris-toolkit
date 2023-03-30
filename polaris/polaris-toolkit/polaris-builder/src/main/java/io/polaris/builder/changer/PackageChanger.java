@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -274,6 +275,27 @@ public class PackageChanger {
 	}
 
 	private void doChange(final File src, final File dest) throws IOException {
+		String lineSeparator = "\n";
+		try (RandomAccessFile raf = new RandomAccessFile(src, "r");) {
+			String line = raf.readLine();
+			raf.seek(line.getBytes("ISO-8859-1").length);
+			if (raf.getFilePointer() < raf.length()) {
+				byte b = raf.readByte();
+				if (b == 0x0A) {
+					lineSeparator = "\n";
+				} else if (b == 0x0D) {
+					lineSeparator = "\r";
+					//lineSeparator = "\r\n";
+					if (raf.getFilePointer() < raf.length()) {
+						b = raf.readByte();
+						if (b == 0x0A) {
+							lineSeparator = "\r\n";
+						}
+					}
+				}
+			}
+		}
+
 		try (FileInputStream fis = new FileInputStream(src);
 				 FileOutputStream fos = new FileOutputStream(dest);
 				 BufferedReader br = new BufferedReader(new InputStreamReader(fis, charset));
@@ -282,7 +304,7 @@ public class PackageChanger {
 			for (String line = br.readLine(); line != null; line = br.readLine()) {
 				String s = doChangeForLine(line);
 				bw.write(s);
-				bw.newLine();
+				bw.write(lineSeparator);
 			}
 			bw.flush();
 		}

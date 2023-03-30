@@ -14,8 +14,16 @@
 
 	<modules>
 		<module>polaris-extra-dbv</module>
+		<module>polaris-extra-validator</module>
 	</modules>
 	<properties>
 	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>cn.pivoto.polaris.toolkit</groupId>
+			<artifactId>polaris-core</artifactId>
+		</dependency>
+	</dependencies>
 
 </project>
