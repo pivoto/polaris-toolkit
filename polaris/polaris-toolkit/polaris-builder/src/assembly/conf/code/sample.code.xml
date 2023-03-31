@@ -6,6 +6,14 @@
 	-->
 	<!-- outdir: 配置生成代码的位置 -->
 	<outdir>./</outdir>
+	<!-- 需忽略的表名前缀，多个间逗号分隔 -->
+	<table-prefix>_,t_,tbl_</table-prefix>
+	<!-- 需忽略的表名后缀，多个间逗号分隔 -->
+	<table-suffix>_,_bak,_tmp</table-suffix>
+	<!-- 需忽略的列名前缀，多个间逗号分隔 -->
+	<column-prefix>_</column-prefix>
+	<!-- 需忽略的列名后缀，多个间逗号分隔 -->
+	<column-suffix>_</column-suffix>
 	<!-- region 全局属性配置 -->
 	<property>
 		<entry key="author" value="Qt"/>

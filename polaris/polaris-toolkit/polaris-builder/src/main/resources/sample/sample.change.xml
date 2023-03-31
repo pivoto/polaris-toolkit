@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <changes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns="http://polaris.pivoto.cn/schema/change" xsi:schemaLocation="http://polaris.pivoto.cn/schema/change change.xsd" >
+
+	<!--文件编码-->
 	<charset>utf-8</charset>
+	<!--是否复制未映射的文件。默认true-->
+	<copy-all>true</copy-all>
+	<!--是否同时处理符合映射关系的文件名。默认true-->
+	<include-filename>true</include-filename>
+	<!--需要处理文件的扩展名，以逗号分隔-->
+	<extensions>xml,java,properties,yml,json</extensions>
+	<!--源代码相对路径-->
+	<source-path>java</source-path>
+	<source-path>resources</source-path>
+	<!--映射配置，多个配置会按顺序转换-->
+	<package name="io.polaris" mapping="cn.pivoto.polaris"/>
+	<package name="io.gitee" mapping="io.github"/>
+
 
 	<change>
-		<!--文件编码-->
-		<charset>utf-8</charset>
 		<!--来源根目录-->
 		<src>./src/main</src>
 		<!--目标根目录-->
 		<dest>./target/src/main</dest>
-		<!--是否复制未映射的文件。默认true-->
-		<copy-all>true</copy-all>
-		<!--是否同时处理符合映射关系的文件名。默认true-->
-		<include-filename>true</include-filename>
-		<!--需要处理文件的扩展名，以逗号分隔-->
-		<extensions>xml,java,properties,yml,json</extensions>
-
-		<!--源代码相对路径-->
-		<source-path>java</source-path>
-		<source-path>resources</source-path>
-		<!--映射配置，多个配置会按顺序转换-->
-		<package name="io.polaris" mapping="cn.pivoto.polaris"/>
-		<package name="io.gitee" mapping="io.github"/>
 	</change>
 	<change>
 		<!-- charset-->

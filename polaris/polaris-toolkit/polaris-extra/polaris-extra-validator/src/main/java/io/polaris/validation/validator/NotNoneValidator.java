@@ -5,7 +5,7 @@
 
 package io.polaris.validation.validator;
 
-import io.polaris.commons.consts.StdConsts;
+import io.polaris.core.consts.StdConsts;
 import io.polaris.validation.NotNone;
 
 import javax.validation.ConstraintValidator;

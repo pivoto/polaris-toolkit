@@ -1,8 +1,8 @@
 package io.polaris.validation;
 
-import io.polaris.commons.err.ValidationException;
-import io.polaris.commons.lang.Types;
-import io.polaris.commons.reflect.Reflects;
+import io.polaris.core.err.ValidationException;
+import io.polaris.core.lang.Types;
+import io.polaris.core.reflect.Reflects;
 import org.hibernate.validator.internal.engine.constraintvalidation.ConstraintValidatorDescriptor;
 import org.hibernate.validator.internal.metadata.core.ConstraintHelper;
 import org.hibernate.validator.messageinterpolation.AbstractMessageInterpolator;
