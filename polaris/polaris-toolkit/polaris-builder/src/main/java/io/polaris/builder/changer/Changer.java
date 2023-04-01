@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
  * @author Qt
  * @since 1.8
  */
-public class PackageChanger {
+public class Changer {
 	private static final Logger log = LoggerFactory.getLogger("code.changer");
 	private static final int EOF = -1;
 	private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;

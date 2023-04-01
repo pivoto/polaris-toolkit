@@ -1,6 +1,6 @@
-package io.polaris.annotation;
+package io.polaris.annotation.processing;
 
-import io.polaris.annotation.Access;
+import io.polaris.annotation.processing.Access;
 import lombok.Data;
 
 import java.util.Map;
@@ -12,7 +12,7 @@ import java.util.Set;
  */
 @Data
 @Access(map = true)
-public class BeanA {
+public class DemoBean {
 	private long id;
 	private String name;
 	private double score;

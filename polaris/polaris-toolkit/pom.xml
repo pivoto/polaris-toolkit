@@ -18,6 +18,7 @@
 		<module>polaris-core</module>
 		<module>polaris-extra</module>
 		<module>polaris-builder</module>
+		<module>polaris-all</module>
 	</modules>
 	<packaging>pom</packaging>
 
@@ -43,9 +44,9 @@
 		<dependencies>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
-				<artifactId>polaris-logging</artifactId>
-				<version>${revision}</version>
+				<artifactId>polaris-all</artifactId>
 				<type>pom</type>
+				<version>${revision}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
@@ -72,6 +73,21 @@
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-extra-dbv</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<artifactId>polaris-extra-validator</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<artifactId>polaris-extra-log</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<artifactId>polaris-extra-bytecode</artifactId>
 				<version>${revision}</version>
 			</dependency>
 		</dependencies>

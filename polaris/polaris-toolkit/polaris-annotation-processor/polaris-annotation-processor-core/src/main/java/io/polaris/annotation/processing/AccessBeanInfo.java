@@ -1,6 +1,5 @@
 package io.polaris.annotation.processing;
 
-import io.polaris.annotation.Access;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 import lombok.Data;

@@ -1,8 +1,6 @@
 package io.polaris.core.lang;
 
 import io.polaris.core.consts.StdConsts;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +25,7 @@ import java.util.regex.Pattern;
 public class OS {
 
 	private static volatile int PID = -1;
+	private static volatile String LOCAL_HOST_IP;
 	private static volatile String CACHE_ONE_IP;
 	private static volatile List<String> CACHE_ALL_IPS;
 	private static volatile String OS_NAME;
@@ -49,6 +48,20 @@ public class OS {
 			}
 		}
 		return HOST_NAME;
+	}
+
+	public static String getLocalHostIp() {
+		if (null != LOCAL_HOST_IP) {
+			return LOCAL_HOST_IP;
+		}
+		String ip = null;
+		try {
+			ip = InetAddress.getLocalHost().getHostAddress();
+		} catch (UnknownHostException e) {
+			ip = StdConsts.UNKNOWN;
+		}
+		LOCAL_HOST_IP = ip;
+		return ip;
 	}
 
 	public static String getOneIp() {

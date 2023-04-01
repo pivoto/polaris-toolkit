@@ -12,6 +12,7 @@
 	<artifactId>polaris-annotation-processor-core</artifactId>
 
 	<properties>
+		<dependency.javapoet.version>1.13.0</dependency.javapoet.version>
 	</properties>
 
 	<dependencies>
@@ -23,7 +24,7 @@
 		<dependency>
 			<groupId>com.squareup</groupId>
 			<artifactId>javapoet</artifactId>
-			<version>1.13.0</version>
+			<version>${dependency.javapoet.version}</version>
 		</dependency>
 	</dependencies>
 

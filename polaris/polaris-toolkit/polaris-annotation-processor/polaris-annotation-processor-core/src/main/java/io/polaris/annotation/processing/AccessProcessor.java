@@ -1,6 +1,5 @@
 package io.polaris.annotation.processing;
 
-import io.polaris.annotation.Access;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
@@ -37,7 +36,7 @@ import java.util.function.Supplier;
  * @since 1.8
  */
 //@AutoService(Processor.class)
-@SupportedAnnotationTypes(value = {"io.polaris.annotation.Access"})
+@SupportedAnnotationTypes(value = {"io.polaris.annotation.processing.Access"})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class AccessProcessor extends BaseProcessor {
 	@Override

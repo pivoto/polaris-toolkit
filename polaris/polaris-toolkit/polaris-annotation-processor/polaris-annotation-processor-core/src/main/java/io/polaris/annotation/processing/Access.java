@@ -1,4 +1,4 @@
-package io.polaris.annotation;
+package io.polaris.annotation.processing;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

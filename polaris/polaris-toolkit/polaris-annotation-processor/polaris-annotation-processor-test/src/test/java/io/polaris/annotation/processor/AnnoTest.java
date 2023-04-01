@@ -1,5 +1,6 @@
-package io.polaris.annotation;
+package io.polaris.annotation.processor;
 
+import io.polaris.annotation.processing.BeanA;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.ParameterizedType;

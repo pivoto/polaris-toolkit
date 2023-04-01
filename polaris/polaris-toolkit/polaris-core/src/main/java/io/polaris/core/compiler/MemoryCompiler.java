@@ -1,0 +1,127 @@
+package io.polaris.core.compiler;
+
+import javax.tools.Diagnostic;
+import javax.tools.DiagnosticCollector;
+import javax.tools.JavaCompiler;
+import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
+import javax.tools.StandardLocation;
+import javax.tools.ToolProvider;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+/**
+ * @author Qt
+ * @since 1.8
+ */
+public class MemoryCompiler {
+
+	private final JavaCompiler compiler;
+	private final MemoryClassLoader memoryClassLoader;
+	private final List<String> options = new ArrayList<>();
+	private final List<File> classPathFiles;
+
+	private static class Holder {
+		private static final Map<ClassLoader, MemoryCompiler> COMPILERS = new ConcurrentHashMap<>();
+
+		public static MemoryCompiler get(ClassLoader classLoader) {
+			return COMPILERS.computeIfAbsent(classLoader, loader -> new MemoryCompiler(loader));
+		}
+	}
+
+	public static MemoryCompiler getInstance() {
+		return Holder.get(Thread.currentThread().getContextClassLoader());
+	}
+
+	public static MemoryCompiler getInstance(ClassLoader classLoader) {
+		return Holder.get(classLoader);
+	}
+
+	public static List<String> defaultOption() {
+		return Arrays.asList("-source", "1.8", "-target", "1.8", "-encoding", Charset.defaultCharset().name());
+	}
+
+	public MemoryCompiler() {
+		this(Thread.currentThread().getContextClassLoader(), defaultOption());
+	}
+
+	public MemoryCompiler(List<String> options) {
+		this(Thread.currentThread().getContextClassLoader(), options);
+	}
+
+	public MemoryCompiler(ClassLoader parentClassLoader) {
+		this(parentClassLoader, defaultOption());
+	}
+
+	public MemoryCompiler(ClassLoader loader, List<String> options) {
+		this.options.addAll(options);
+		this.compiler = ToolProvider.getSystemJavaCompiler();
+		this.memoryClassLoader = AccessController.doPrivileged(
+				(PrivilegedAction<MemoryClassLoader>) () -> new MemoryClassLoader(loader));
+
+		Set<String> classPaths = memoryClassLoader.getClassPaths();
+		List<File> files = new ArrayList<>();
+		for (String classPath : classPaths) {
+			files.add(new File(classPath));
+		}
+		this.classPathFiles = files;
+
+	}
+
+	public Class<?> compile(String name, String sourceCode) throws ClassNotFoundException {
+		DiagnosticCollector<? super JavaFileObject> diagnostics = new DiagnosticCollector<>();
+		StandardJavaFileManager manager = this.compiler.getStandardFileManager(diagnostics, null, null);
+		try {
+			manager.setLocation(StandardLocation.CLASS_PATH, classPathFiles);
+		} catch (IOException e) {
+			throw new IllegalStateException(e.getMessage(), e);
+		}
+
+		MemoryJavaFileObject javaFileObject = new MemoryJavaFileObject(name, sourceCode);
+		MemoryJavaFileManager javaFileManager = new MemoryJavaFileManager(manager, memoryClassLoader);
+		javaFileManager.putFileForInput(StandardLocation.SOURCE_PATH, name, javaFileObject);
+		JavaCompiler.CompilationTask task = compiler.getTask(null, javaFileManager, diagnostics, options,
+				null, Collections.singletonList(javaFileObject));
+		Boolean rs = task.call();
+		if (rs == null || !rs) {
+			throw new IllegalStateException(compileError(name, diagnostics));
+		}
+		return memoryClassLoader.loadClass(name);
+	}
+
+
+	String compileError(String name, DiagnosticCollector<? super JavaFileObject> diagnostics) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Compilation error. class: ").append(name).append(" , diagnostics:\n");
+		for (Diagnostic<?> diagnostic : diagnostics.getDiagnostics()) {
+			sb.append(diagnostic.toString()).append("\n");
+		}
+		return sb.toString();
+	}
+
+	String compileError(Diagnostic<?> diagnostic) {
+		/*
+		StringBuilder sb = new StringBuilder();
+		sb.append("\tCode:[" + diagnostic.getCode() + "]\n");
+		sb.append("\tKind:[" + diagnostic.getKind() + "]\n");
+		sb.append("\tPosition:[" + diagnostic.getPosition() + "]\n");
+		sb.append("\tStart Position:[" + diagnostic.getStartPosition() + "]\n");
+		sb.append("\tEnd Position:[" + diagnostic.getEndPosition() + "]\n");
+		sb.append("\tSource:[" + diagnostic.getSource() + "]\n");
+		sb.append("\tMessage:[" + diagnostic.getMessage(null) + "]\n");
+		sb.append("\tLineNumber:[" + diagnostic.getLineNumber() + "]\n");
+		sb.append("\tColumnNumber:[" + diagnostic.getColumnNumber() + "]\n");
+		*/
+		return diagnostic.toString();
+	}
+}

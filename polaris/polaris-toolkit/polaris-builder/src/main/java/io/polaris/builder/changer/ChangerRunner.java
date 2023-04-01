@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  * @author Qt
  * @since 1.8
  */
-public class PackageChangerRunner {
+public class ChangerRunner {
 	public static void main(String[] args) throws IOException, DocumentException {
 		if (args.length == 0) {
 			throw new IllegalArgumentException();
@@ -113,7 +113,7 @@ public class PackageChangerRunner {
 			ChangerDto dto = parse(change);
 			dto.mergeFrom(parent);
 
-			PackageChanger pc = new PackageChanger();
+			Changer pc = new Changer();
 			pc.setCharset(dto.getCharset());
 			pc.setSrcRoot(new File(dto.getSrc()));
 			pc.setDestRoot(new File(dto.getDest()));
