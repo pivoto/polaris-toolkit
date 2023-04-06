@@ -11,12 +11,12 @@
 	<source-path>test/java</source-path>
 	<source-path>test/resources</source-path>
 	<package name="com.jcfc.stdk.annotation.processing" mapping="io.polaris.annotation.processing"/>
-	<package name="com.jcfc.stdk.commons" mapping="io.polaris.core"/>
+	<package name="com.jcfc.stdk.core" mapping="io.polaris.core"/>
 	<package name="com.jcfc.stdk" mapping="io.polaris"/>
 	<package name="com.jcfc" mapping="io.polaris"/>
 	<package name="stdk-annotation-processor" mapping="polaris-annotation-processor"/>
 	<change>
-		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-commons/stdk-core/src</src>
+		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-core/src</src>
 		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-core/src</dest>
 	</change>
 	<change>
@@ -32,15 +32,15 @@
 		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-extra-log/src</dest>
 	</change>
 	<change>
-		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-commons/stdk-annotation-processor/stdk-annotation-processor-core/src</src>
+		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-annotation-processor/stdk-annotation-processor-core/src</src>
 		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-annotation-processor/polaris-annotation-processor-core/src</dest>
 	</change>
 	<change>
-		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-commons/stdk-annotation-processor/stdk-annotation-processor-service/src</src>
+		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-annotation-processor/stdk-annotation-processor-service/src</src>
 		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-annotation-processor/polaris-annotation-processor-service/src</dest>
 	</change>
 	<change>
-		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-commons/stdk-annotation-processor/stdk-annotation-processor-test/src</src>
+		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-annotation-processor/stdk-annotation-processor-test/src</src>
 		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-annotation-processor/polaris-annotation-processor-test/src</dest>
 	</change>
 
