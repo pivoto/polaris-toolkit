@@ -1,10 +1,10 @@
 package io.polaris.builder.code;
 
-import com.google.common.base.CaseFormat;
 import io.polaris.builder.code.config.CodeEnv;
 import io.polaris.builder.code.config.CodeGroup;
 import io.polaris.builder.code.config.CodeTable;
 import io.polaris.builder.code.config.CodeTemplate;
+import io.polaris.builder.code.config.TypeMapping;
 import io.polaris.builder.code.dto.TableDto;
 import io.polaris.builder.velocity.VelocityTemplate;
 import org.apache.commons.lang3.StringUtils;
@@ -63,42 +63,6 @@ public class CodeWriter {
 		}
 	}
 
-	private void mkdirs(File dir) {
-		if (!dir.exists()) {
-			if (!dir.mkdirs()) {
-				throw new RuntimeException("Can't mkdir: " + dir.getAbsolutePath());
-			}
-		}
-	}
-
-
-	private void fetchVarToContextAndEnv(Map<String, String> vars, Context context, Map<String, String> env, String prefix) {
-		if (vars == null || vars.isEmpty()) {
-			return;
-		}
-		Set<Map.Entry<String, String>> entries = vars.entrySet();
-		for (Map.Entry<String, String> entry : entries) {
-			String key = entry.getKey();
-			String value = entry.getValue();
-			// ref config-keys above
-			value = VelocityTemplate.eval(context, value);
-			env.put(key, value);
-
-			if (StringUtils.isNotBlank(prefix) && key.length() >= 1) {
-				String extKey;
-				if (key.indexOf(".") < 0) {
-					extKey = prefix + Character.toUpperCase(key.charAt(0));
-					if (key.length() >= 2) {
-						extKey += key.substring(1);
-					}
-				} else {
-					extKey = prefix + "." + key;
-				}
-				env.putIfAbsent(extKey, value);
-			}
-		}
-	}
-
 	private void write(CodeGroup group, TableDto table) throws IOException {
 		String baseOutdir = codeEnv.getOutdir();
 
@@ -114,7 +78,7 @@ public class CodeWriter {
 
 			//String javaPackageName = table.getJavaPackageName();
 
-			log.info("生成表名[{}]的代码，模板：[{}]", table.getName(), path);
+			log.info("生成表名[{}]的代码，模板：[{}]", table.getName(), path.replace('\\','/'));
 
 			Map<String, String> env = new LinkedHashMap<>();
 			Map<String, Map<String, String>> property = new LinkedHashMap<>();
@@ -143,7 +107,7 @@ public class CodeWriter {
 			try {
 				String basedir = VelocityTemplate.eval(context, baseOutdir);
 				File dir = StringUtils.isBlank(basedir) ? new File(outdir) : new File(basedir + "/" + outdir);
-				log.info("生成表名[{}]的代码，目录:[{}]，文件：[{}]", table.getName(),dir.getPath(), filename);
+				log.info("生成表名[{}]的代码，目录：[{}]，文件：[{}]", table.getName(), dir.getPath().replace('\\','/'), filename);
 				write(path, context, dir, filename);
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
@@ -159,6 +123,41 @@ public class CodeWriter {
 		VelocityTemplate.write(context, bw, template);
 		bw.flush();
 		bw.close();
+	}
+
+	private void fetchVarToContextAndEnv(Map<String, String> vars, Context context, Map<String, String> env, String prefix) {
+		if (vars == null || vars.isEmpty()) {
+			return;
+		}
+		Set<Map.Entry<String, String>> entries = vars.entrySet();
+		for (Map.Entry<String, String> entry : entries) {
+			String key = entry.getKey();
+			String value = entry.getValue();
+			// ref config-keys above
+			value = VelocityTemplate.eval(context, value);
+			env.put(key, value);
+
+			if (StringUtils.isNotBlank(prefix) && key.length() >= 1) {
+				String extKey;
+				if (key.indexOf(".") < 0) {
+					extKey = prefix + Character.toUpperCase(key.charAt(0));
+					if (key.length() >= 2) {
+						extKey += key.substring(1);
+					}
+				} else {
+					extKey = prefix + "." + key;
+				}
+				env.putIfAbsent(extKey, value);
+			}
+		}
+	}
+
+	private void mkdirs(File dir) {
+		if (!dir.exists()) {
+			if (!dir.mkdirs()) {
+				throw new RuntimeException("Can't mkdir: " + dir.getAbsolutePath());
+			}
+		}
 	}
 
 

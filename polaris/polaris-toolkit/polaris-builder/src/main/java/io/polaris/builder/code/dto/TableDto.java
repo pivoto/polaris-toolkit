@@ -6,9 +6,10 @@ import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import lombok.Data;
 import lombok.ToString;
+import org.apache.commons.lang3.SerializationUtils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -21,8 +22,8 @@ import java.util.function.Function;
 @SuppressWarnings("ALL")
 @Data
 @XStreamAlias("table")
-public class TableDto {
-
+public class TableDto implements Serializable {
+	private static final long serialVersionUID = 1L;
 	/** 表名 */
 	@XStreamAsAttribute
 	private String name;
@@ -69,7 +70,7 @@ public class TableDto {
 	/**
 	 * 预处理,对类名、变量名、主键列、非主键列等的处理
 	 */
-	public void prepare4Java(Function<String,String> tableNameTrimmer, Function<String,String> columnNameTrimmer) {
+	public void prepare4Java(Function<String, String> tableNameTrimmer, Function<String, String> columnNameTrimmer) {
 		if (columns == null) {
 			columns = new ArrayList<>();
 		}
@@ -79,7 +80,7 @@ public class TableDto {
 		if (normalColumns == null) {
 			normalColumns = new ArrayList<>();
 		}
-		if (columnJavaTypes == null){
+		if (columnJavaTypes == null) {
 			columnJavaTypes = new LinkedHashSet<>();
 		}
 
@@ -142,5 +143,9 @@ public class TableDto {
 		xmlName = name.toLowerCase().replace("_", "-");
 	}
 
+	@Override
+	public TableDto clone() {
+		return SerializationUtils.clone(this);
+	}
 
 }

@@ -1,12 +1,14 @@
 package io.polaris.builder.code.reader.impl;
 
+import io.polaris.builder.code.JdbcTypes;
 import io.polaris.builder.code.dto.ColumnDto;
 import io.polaris.builder.code.dto.TableDto;
 import io.polaris.builder.code.reader.TablesReader;
 import io.polaris.dbv.Dbv;
 import io.polaris.dbv.cfg.Configurations;
 import io.polaris.dbv.cfg.DatabaseCfg;
-import io.polaris.dbv.model.*;
+import io.polaris.dbv.model.Column;
+import io.polaris.dbv.model.Table;
 import io.polaris.dbv.toolkit.DBKit;
 import io.polaris.dbv.toolkit.StringKit;
 
@@ -68,6 +70,8 @@ public class JdbcTablesReader implements TablesReader {
 					column.setDecimalDigits(col.getDecimalDigits());
 					column.setAutoincrement(col.isAutoincrement());
 					column.setGenerated(col.isGenerated());
+					column.setJdbcType(JdbcTypes.getTypeName(col.getDataType()));
+					column.setJavaType(JdbcTypes.getJavaType(col.getDataType(), col.getColumnSize(),col.getDecimalDigits()).getName());
 					table.getColumns().add(column);
 					if (pkColumns.contains(col.getColumnName())) {
 						column.setPrimary(true);

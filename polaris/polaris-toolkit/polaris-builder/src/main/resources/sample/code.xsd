@@ -26,8 +26,40 @@
 						<xs:documentation>需忽略的列名后缀，多个间逗号分隔</xs:documentation>
 					</xs:annotation>
 				</xs:element>
+				<xs:element type="mappingsType" name="mappings" minOccurs="0" maxOccurs="1">
+					<xs:annotation>
+						<xs:documentation>配置jdbc类型与java类型的映射关系，覆盖默认值</xs:documentation>
+					</xs:annotation>
+				</xs:element>
 			</xs:choice>
 		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="mappingsType">
+		<xs:sequence>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element type="mappingType" name="mapping" minOccurs="0" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>配置jdbc类型与java类型的映射关系，覆盖默认值</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="mappingType">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute type="xs:string" name="jdbcType" use="required">
+					<xs:annotation>
+						<xs:documentation>jdbcType，参见java.sql.Types字段，如VARCHAR</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute type="xs:string" name="javaType" use="required">
+					<xs:annotation>
+						<xs:documentation>javaType，如java.lang.String</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
 	</xs:complexType>
 	<xs:complexType name="codeType">
 		<xs:complexContent>

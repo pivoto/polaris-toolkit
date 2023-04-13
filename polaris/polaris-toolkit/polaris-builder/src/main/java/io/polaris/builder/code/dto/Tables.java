@@ -4,7 +4,9 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import io.polaris.dbv.toolkit.MapKit;
 import lombok.*;
+import org.apache.commons.lang3.SerializationUtils;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -14,7 +16,8 @@ import java.util.Map;
 @SuppressWarnings("Duplicates")
 @Data
 @XStreamAlias("tables")
-public class Tables {
+public class Tables implements Serializable {
+	private static final long serialVersionUID = 1L;
 
 	@ToString.Exclude
 	@XStreamImplicit(itemFieldName = "catalog", keyFieldName = "name")
@@ -28,4 +31,8 @@ public class Tables {
 		catalogs.put(catalog.getName(), catalog);
 	}
 
+	@Override
+	public Tables clone() {
+		return SerializationUtils.clone(this);
+	}
 }

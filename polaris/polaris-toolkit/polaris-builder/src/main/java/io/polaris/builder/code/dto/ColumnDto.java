@@ -6,7 +6,9 @@ import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import io.polaris.builder.code.JdbcTypes;
 import io.polaris.dbv.toolkit.StringKit;
 import lombok.Data;
+import org.apache.commons.lang3.SerializationUtils;
 
+import java.io.Serializable;
 import java.util.function.Function;
 
 /**
@@ -15,7 +17,8 @@ import java.util.function.Function;
 @SuppressWarnings({"AlibabaAvoidCommentBehindStatement"})
 @Data
 @XStreamAlias("column")
-public class ColumnDto {
+public class ColumnDto implements Serializable {
+	private static final long serialVersionUID = 1L;
 	@XStreamAsAttribute
 	private String name; // 列名
 	@XStreamAsAttribute
@@ -53,6 +56,8 @@ public class ColumnDto {
 	private String javaVariableName; // 列的映射变量名
 	@XStreamOmitField
 	private String xmlName;
+	@XStreamOmitField
+	private String trimName;
 
 
 	public boolean isNotNull() {
@@ -68,6 +73,8 @@ public class ColumnDto {
 	 */
 	public void prepare4Java(Function<String, String> columnNameTrimmer) {
 		String name = columnNameTrimmer.apply(this.name);
+		this.trimName = name;
+		this.xmlName = name.toLowerCase().replace("_", "-");
 		char[] nameChars = name.toCharArray();
 		StringBuilder sb = new StringBuilder();
 		boolean flag = false;
@@ -90,20 +97,19 @@ public class ColumnDto {
 			this.javaVariableName = Character.toLowerCase(nameChars[0]) + sb.toString();
 		}
 
-		if (StringKit.isNotEmpty(this.jdbcType)) {
-			this.type = JdbcTypes.getTypeValue(this.jdbcType);
-		} else {
-			if (this.type == null) {
-				throw new IllegalArgumentException("未知JdbcType");
-			}
-			this.jdbcType = JdbcTypes.getTypeName(this.type);
-		}
-		if (StringKit.isEmpty(this.javaType)) {
-			Class c = JdbcTypes.getJavaType(this.type);
-			if (c == null) {
-				throw new IllegalArgumentException("不支持的JdbcType：" + this.jdbcType);
-			}
+		prepare4Type();
+
+		Class c = JdbcTypes.getCustomJavaType(this.type);
+		if (c != null) {
 			this.javaType = c.getName();
+		} else {
+			if (StringKit.isEmpty(this.javaType)) {
+				c = JdbcTypes.getJavaType(this.type, this.columnSize, this.decimalDigits);
+				if (c == null) {
+					throw new IllegalArgumentException("不支持的JdbcType：" + this.jdbcType);
+				}
+				this.javaType = c.getName();
+			}
 		}
 
 		if (this.javaType.matches("java\\.lang\\.\\w+")) {
@@ -117,7 +123,31 @@ public class ColumnDto {
 				this.javaTypeSimpleName = this.javaType;
 			}
 		}
-		this.xmlName = name.toLowerCase().replace("_", "-");
 	}
 
+	public void prepare4Type() {
+		if (StringKit.isNotEmpty(this.jdbcType)) {
+			this.type = JdbcTypes.getTypeValue(this.jdbcType);
+			if (this.type == null) {
+				throw new IllegalArgumentException("未知JdbcType");
+			}
+		} else {
+			if (this.type == null) {
+				throw new IllegalArgumentException("未知JdbcType");
+			}
+			this.jdbcType = JdbcTypes.getTypeName(this.type, "VARCHAR");
+		}
+
+		if (StringKit.isEmpty(this.javaType)) {
+			Class c = JdbcTypes.getJavaType(this.type, this.columnSize, this.decimalDigits);
+			if (c != null) {
+				this.javaType = c.getName();
+			}
+		}
+	}
+
+	@Override
+	public ColumnDto clone() {
+		return SerializationUtils.clone(this);
+	}
 }

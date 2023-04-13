@@ -14,6 +14,9 @@
 	<column-prefix>_</column-prefix>
 	<!-- 需忽略的列名后缀，多个间逗号分隔 -->
 	<column-suffix>_</column-suffix>
+	<mappings>
+		<mapping jdbcType="VARCHAR" javaType="java.lang.String" />
+	</mappings>
 	<!-- 扩展属性配置 -->
 	<property>
 		<!-- 扩展属性配置 -->

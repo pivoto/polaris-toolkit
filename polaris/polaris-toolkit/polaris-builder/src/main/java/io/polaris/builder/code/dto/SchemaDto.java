@@ -6,7 +6,9 @@ import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import io.polaris.dbv.toolkit.MapKit;
 import lombok.*;
+import org.apache.commons.lang3.SerializationUtils;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -15,7 +17,8 @@ import java.util.Map;
 @SuppressWarnings("ALL")
 @Data
 @XStreamAlias("schema")
-public class SchemaDto {
+public class SchemaDto implements Serializable {
+	private static final long serialVersionUID = 1L;
 
 	@XStreamAlias("name")
 	@XStreamAsAttribute
@@ -38,4 +41,8 @@ public class SchemaDto {
 	}
 
 
+	@Override
+	public SchemaDto clone() {
+		return SerializationUtils.clone(this);
+	}
 }

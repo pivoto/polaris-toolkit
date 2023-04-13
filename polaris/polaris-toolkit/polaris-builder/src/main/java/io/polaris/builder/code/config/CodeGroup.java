@@ -35,6 +35,9 @@ public class CodeGroup {
 	@XStreamAlias("property")
 	@XStreamConverter(ConfigParser.PropertyConverter.class)
 	private Map<String, String> property;
+	/** jdbc类型映射 */
+	@XStreamAlias("mappings")
+	private List<TypeMapping> mappings = new ArrayList<>();
 
 	/** 模板 */
 	@XStreamAlias("templates")

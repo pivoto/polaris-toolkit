@@ -7,7 +7,9 @@ import com.thoughtworks.xstream.annotations.XStreamConverter;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,6 +39,9 @@ public class CodeTable {
 	@XStreamAlias("property")
 	@XStreamConverter(ConfigParser.PropertyConverter.class)
 	private Map<String, String> property;
+	/** jdbc类型映射 */
+	@XStreamAlias("mappings")
+	private List<TypeMapping> mappings = new ArrayList<>();
 
 	/** 需忽略的表名前缀，多个间逗号分隔 */
 	@XStreamAlias("table-prefix")

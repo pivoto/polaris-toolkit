@@ -4,13 +4,13 @@ import io.polaris.builder.code.config.CodeEnv;
 import io.polaris.builder.code.config.CodeGroup;
 import io.polaris.builder.code.config.CodeTable;
 import io.polaris.builder.code.config.ConfigParser;
+import io.polaris.builder.code.config.TypeMapping;
 import io.polaris.builder.code.dto.TableDto;
 import io.polaris.builder.code.reader.TablesReader;
 import io.polaris.builder.code.reader.TablesReaders;
 import io.polaris.dbv.toolkit.IOKit;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,10 +89,32 @@ public class CodeGenerator {
 		if (groups == null) {
 			return;
 		}
-		for (CodeGroup group : groups) {
-			if (group.getTables() == null) {
-				continue;
+		List<TypeMapping> mappings = codeEnv.getMappings();
+		if (mappings != null) {
+			JdbcTypes.createCustomMappings();
+			mappings.forEach(m -> JdbcTypes.addCustomMapping(m.getJdbcType(), m.getJavaType()));
+		}
+		try {
+			for (CodeGroup group : groups) {
+				if (group.getTables() == null) {
+					continue;
+				}
+				readTables(group);
 			}
+		} finally {
+			if (mappings != null) {
+				JdbcTypes.removeCustomMappings();
+			}
+		}
+	}
+
+	private void readTables(CodeGroup group) {
+		List<TypeMapping> mappings = group.getMappings();
+		if (mappings != null) {
+			JdbcTypes.createCustomMappings();
+			mappings.forEach(m -> JdbcTypes.addCustomMapping(m.getJdbcType(), m.getJavaType()));
+		}
+		try {
 			for (CodeTable tableConfig : group.getTables()) {
 				String catalogName = StringUtils.trimToNull(tableConfig.getCatalog());
 				String schemaName = StringUtils.trimToNull(tableConfig.getSchema());
@@ -102,17 +124,39 @@ public class CodeGenerator {
 					log.error("找不到表信息：[{}]", tableConfig.getTable());
 					continue;
 				}
-				if (StringUtils.isNotEmpty(tableConfig.getJavaPackageName())) {
-					table.setJavaPackageName(tableConfig.getJavaPackageName());
-				}
-				table.setProperty(tableConfig.getProperty());
 
-				Set<String> tablePrefix = splitToSet(tableConfig.getTablePrefix(), group.getTablePrefix(), codeEnv.getTablePrefix());
-				Set<String> tableSuffix = splitToSet(tableConfig.getTableSuffix(), group.getTableSuffix(), codeEnv.getTableSuffix());
-				Set<String> columnPrefix = splitToSet(tableConfig.getColumnPrefix(), group.getColumnPrefix(), codeEnv.getColumnPrefix());
-				Set<String> columnSuffix = splitToSet(tableConfig.getColumnSuffix(), group.getColumnSuffix(), codeEnv.getColumnSuffix());
-				table.prepare4Java(buildNameTrimmer(tablePrefix, tableSuffix), buildNameTrimmer(columnPrefix, columnSuffix));
-				tables.put(tableConfig, table);
+				readTables(group, tableConfig, table);
+			}
+		} finally {
+			if (mappings != null) {
+				JdbcTypes.removeCustomMappings();
+			}
+		}
+	}
+
+	private void readTables(CodeGroup group, CodeTable tableConfig, TableDto table) {
+		List<TypeMapping> mappings = tableConfig.getMappings();
+		if (mappings != null) {
+			JdbcTypes.createCustomMappings();
+			mappings.forEach(m -> JdbcTypes.addCustomMapping(m.getJdbcType(), m.getJavaType()));
+		}
+		try {
+			// clone后再修改临时字段信息
+			table = table.clone();
+			if (StringUtils.isNotEmpty(tableConfig.getJavaPackageName())) {
+				table.setJavaPackageName(tableConfig.getJavaPackageName());
+			}
+			table.setProperty(tableConfig.getProperty());
+
+			Set<String> tablePrefix = splitToSet(tableConfig.getTablePrefix(), group.getTablePrefix(), codeEnv.getTablePrefix());
+			Set<String> tableSuffix = splitToSet(tableConfig.getTableSuffix(), group.getTableSuffix(), codeEnv.getTableSuffix());
+			Set<String> columnPrefix = splitToSet(tableConfig.getColumnPrefix(), group.getColumnPrefix(), codeEnv.getColumnPrefix());
+			Set<String> columnSuffix = splitToSet(tableConfig.getColumnSuffix(), group.getColumnSuffix(), codeEnv.getColumnSuffix());
+			table.prepare4Java(buildNameTrimmer(tablePrefix, tableSuffix), buildNameTrimmer(columnPrefix, columnSuffix));
+			tables.put(tableConfig, table);
+		} finally {
+			if (mappings != null) {
+				JdbcTypes.removeCustomMappings();
 			}
 		}
 	}

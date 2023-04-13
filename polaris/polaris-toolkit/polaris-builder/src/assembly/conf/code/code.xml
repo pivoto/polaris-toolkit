@@ -13,6 +13,9 @@
 		<entry key="implPackage" value="impl"/>
 		<entry key="controllerPackage" value="controller"/>
 	</property>
+	<mappings>
+		<mapping jdbcType="VARCHAR" javaType="java.lang.String" />
+	</mappings>
 
 	<groups>
 		<group>

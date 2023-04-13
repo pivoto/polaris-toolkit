@@ -1,21 +1,29 @@
 package io.polaris.builder.code;
 
+
+import lombok.extern.slf4j.Slf4j;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.sql.Types;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 
 /**
  * @author Qt
  * @since 1.8
  */
+@Slf4j
 public class JdbcTypes {
 
 	private static final Map<Integer, String> typeNames = new HashMap<>();
 	private static final Map<String, Integer> typeValues = new HashMap<>();
 	private static final Map<Integer, Class> javaTypes = new HashMap<>();
+	private static final ThreadLocal<Deque<Map<Integer, Class>>> local = new ThreadLocal<>();
 
 	static {
 		try {
@@ -70,19 +78,100 @@ public class JdbcTypes {
 		javaTypes.put(Types.REF_CURSOR, java.sql.ResultSet.class);
 	}
 
+	public static void removeCustomMappings() {
+		Deque<Map<Integer, Class>> queue = local.get();
+		if (queue == null) {
+			return;
+		}
+		queue.pollFirst();
+		if (queue.isEmpty()) {
+			local.remove();
+		}
+	}
+
+	public static Map<Integer, Class> createCustomMappings() {
+		Deque<Map<Integer, Class>> queue = local.get();
+		if (queue == null) {
+			local.set(queue = new LinkedList<>());
+		}
+		Map<Integer, Class> map;
+		queue.offerFirst(map = new HashMap<>());
+		return map;
+	}
+
+	public static boolean addCustomMapping(String jdbcType, String javaType) {
+		Class c;
+		try {
+			c = Class.forName(javaType);
+		} catch (ClassNotFoundException e) {
+			if (!javaType.contains(".")) {
+				try {
+					c = Class.forName("java.lang." + javaType);
+				} catch (ClassNotFoundException ex) {
+					log.warn("", e);
+					return false;
+				}
+			} else {
+				log.warn("", e);
+				return false;
+			}
+		}
+		Integer type = getTypeValue(jdbcType);
+		if (type == null) {
+			return false;
+		}
+		return addCustomMapping(type, c);
+	}
+
+	public static boolean addCustomMapping(int jdbcType, Class javaType) {
+		Deque<Map<Integer, Class>> queue = local.get();
+		if (queue == null || queue.isEmpty()) {
+			return false;
+		}
+		queue.peekFirst().put(jdbcType, javaType);
+		return true;
+	}
+
+	public static Class getCustomJavaType(int type) {
+		Deque<Map<Integer, Class>> queue = local.get();
+		if (queue != null) {
+			for (Iterator<Map<Integer, Class>> iter = queue.iterator(); iter.hasNext(); ) {
+				Map<Integer, Class> next = iter.next();
+				Class c = next.get(type);
+				if (c != null) {
+					return c;
+				}
+			}
+		}
+		return null;
+	}
+
 	public static Class getJavaType(int type) {
 		return javaTypes.get(type);
 	}
-
-	public static Class getJavaType(String jdbcTypeName) {
-		return javaTypes.get(getTypeValue(jdbcTypeName));
+	public static Class getJavaType(int type, int columnSize, int decimalDigits) {
+		Class c = javaTypes.get(type);
+		if (c == BigDecimal.class) {
+			if (decimalDigits == 0) {
+				c = Long.class;
+			}
+		}
+		return c;
 	}
 
-	public static int getTypeValue(String jdbcTypeName) {
-		return typeValues.getOrDefault(jdbcTypeName, Types.VARCHAR);
+	public static Integer getTypeValue(String jdbcTypeName) {
+		return typeValues.get(jdbcTypeName);
+	}
+
+	public static Integer getTypeValue(String jdbcTypeName, int defaultVal) {
+		return typeValues.getOrDefault(jdbcTypeName, defaultVal);
 	}
 
 	public static String getTypeName(int jdbcType) {
-		return typeNames.getOrDefault(jdbcType, "VARCHAR");
+		return typeNames.get(jdbcType);
+	}
+
+	public static String getTypeName(int jdbcType, String defaultVal) {
+		return typeNames.getOrDefault(jdbcType, defaultVal);
 	}
 }
