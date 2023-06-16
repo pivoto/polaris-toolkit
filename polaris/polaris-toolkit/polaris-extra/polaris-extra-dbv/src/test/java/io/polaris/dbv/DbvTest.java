@@ -78,6 +78,9 @@ public class DbvTest extends DbvBaseTest {
 						||table.getTableName().startsWith("TMP")){
 					continue;
 				}
+				if (!table.getTableName().startsWith("ARM")){
+					continue;
+				}
 				System.out.println("处理表: "+ table.getTableName());
 				DbvExp.addTableIndex(book, table);
 				DbvExp.addTable(book, table);

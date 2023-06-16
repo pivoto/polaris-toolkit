@@ -5,16 +5,11 @@ import io.polaris.dbv.model.Index;
 import io.polaris.dbv.model.PrimaryKey;
 import io.polaris.dbv.model.Table;
 import io.polaris.dbv.toolkit.StringKit;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFComment;
-import org.apache.poi.xssf.usermodel.XSSFHyperlink;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +23,8 @@ import java.util.List;
 @SuppressWarnings("All")
 public class DbvExp {
 	private static final String EXCEL_TPL_NAME = "/tables.xlsm";
+	private static final ExcelTemplateConfig DEFAULT_TEMPLATE_CONFIG = new ExcelTemplateConfig();
+	public static final ExcelIndexConfig DEFAULT_INDEX_CONFIG = new ExcelIndexConfig();
 
 
 	public static InputStream getTemplateResourceStream() {
@@ -50,7 +47,7 @@ public class DbvExp {
 			XSSFRow row = idxSheet.getRow(iRow);
 			XSSFCell cell = row.getCell(3);
 			String table = cell.getStringCellValue();
-			if (org.apache.commons.lang3.StringUtils.isNotBlank(table)) {
+			if (StringUtils.isNotBlank(table)) {
 				list.add(table.trim());
 			}
 		}
@@ -59,39 +56,46 @@ public class DbvExp {
 	}
 
 	public static void addTableIndex(XSSFWorkbook book, Table table) {
-		XSSFSheet idxSheet = book.getSheet("目录");
-		int minRow = 4;
+		addTableIndex(book, table, DEFAULT_INDEX_CONFIG);
+	}
+
+	public static void addTableIndex(XSSFWorkbook book, Table table, ExcelIndexConfig config) {
+		XSSFSheet idxSheet = book.getSheet(config.getIndexSheetName());
+		int minRow = config.getTableRowBegin();
 		int maxRow = idxSheet.getLastRowNum();
 		int blankRow = maxRow + 1;
-		boolean lastEmpty = false;
 		for (int iRow = minRow; iRow <= maxRow; iRow++) {
 			XSSFRow row = idxSheet.getRow(iRow);
 			XSSFCell cell = row.getCell(3);
 			String stringCellValue = cell.getStringCellValue();
-			if (org.apache.commons.lang3.StringUtils.isNotBlank(stringCellValue)) {
+			if (StringUtils.isNotBlank(stringCellValue)) {
 				if (stringCellValue.equalsIgnoreCase(table.getTableName())) {
 					return;
 				}
-				//blankRow = maxRow + 1;
-				lastEmpty = false;
-			} else {
-				if (!lastEmpty) {
-					//blankRow = iRow;
-				}
-				lastEmpty = true;
 			}
 		}
 
-		copy(idxSheet, 5, 0, idxSheet, blankRow, 0, 'J' - 'A');
+		copy(idxSheet, config.getTableRowTemplate(), 0, idxSheet, blankRow, 0, 'Z' - 'A');
 		XSSFRow row = idxSheet.getRow(blankRow);
-		row.getCell(3).setCellValue(table.getTableName());
-		row.getCell(4).setCellValue(table.getRemarks());
-		row.getCell(5).setCellFormula("HYPERLINK(\"#'\"&D" + (blankRow + 1) + "&\"'!A1\",\"====>>\")");
-		row.getCell(6).setCellValue(table.getRemarks());
+		row.getCell(config.getTableColName()).setCellValue(table.getTableName());
+		String label = StringKit.coalesce(table.getRemarks(), "");
+		String remarks = "";
+		int labelSplitIdx = label.indexOf('\n');
+		if (labelSplitIdx > 0) {
+			remarks = label.substring(labelSplitIdx + 1);
+			label = label.substring(0, labelSplitIdx);
+		}
+		row.getCell(config.getTableColLabel()).setCellValue(label);
+		row.getCell(config.getTableColLink()).setCellFormula("HYPERLINK(\"#'\"&D" + (blankRow + 1) + "&\"'!A1\",\"====>>\")");
+		row.getCell(config.getTableColRemark()).setCellValue(remarks);
 	}
 
 	public static void addTable(XSSFWorkbook book, Table table) {
-		XSSFSheet tplSheet = book.getSheet("模板");
+		addTable(book, table, DEFAULT_TEMPLATE_CONFIG);
+	}
+
+	public static void addTable(XSSFWorkbook book, Table table, ExcelTemplateConfig config) {
+		XSSFSheet tplSheet = book.getSheet(config.getTemplateSheetName());
 
 		String sheetName = StringKit.coalesce(table.getTableName());
 
@@ -100,25 +104,29 @@ public class DbvExp {
 		}
 		XSSFSheet sheet = book.createSheet(sheetName);
 
-		for (int i = 0; i < 11; i++) {
-			copy(tplSheet, i, 0, sheet, i, 0, 'Q' - 'A');
+
+		for (int i = 0; i <= config.getColumnRowBegin(); i++) {
+			// 列标题前的所有单元复制
+			copy(tplSheet, i, 0, sheet, i, 0, 'Z' - 'A');
 		}
-		sheet.addMergedRegion(new CellRangeAddress(2, 4, 0, 'H' - 'A'));
-		sheet.getRow(0).getCell(1).setCellValue(sheetName);
-		sheet.getRow(2).getCell(0).setCellValue(table.getRemarks());
-		sheet.addMergedRegion(new CellRangeAddress(6, 7, 1, 1));
-		sheet.addMergedRegion(new CellRangeAddress(6, 7, 2, 'H' - 'A'));
 
 
 		// columns
-		int iRow = 11;
+		int iRow = config.getColumnRowContent();
 		int colNum = 0;
 		for (Column col : table.getColumnList()) {
-			copy(tplSheet, 11, 0, sheet, iRow, 0, 'Q' - 'A');
-			sheet.getRow(iRow).getCell(0).setCellType(CellType.NUMERIC);
-			sheet.getRow(iRow).getCell(0).setCellValue(++colNum);
-			sheet.getRow(iRow).getCell(1).setCellValue(col.getColumnName());
-			sheet.getRow(iRow).getCell(2).setCellValue(StringKit.coalesce(col.getRemarks(), col.getColumnName()));
+			copy(tplSheet, config.getColumnRowContent(), 0, sheet, iRow, 0, 'Z' - 'A');
+			sheet.getRow(iRow).getCell(config.getColumnColSeq()).setCellType(CellType.NUMERIC);
+			sheet.getRow(iRow).getCell(config.getColumnColSeq()).setCellValue(++colNum);
+			sheet.getRow(iRow).getCell(config.getColumnColName()).setCellValue(col.getColumnName());
+			String columnLabel = StringKit.coalesce(col.getRemarks(), col.getColumnName());
+			String columnRemark = "";
+			int columnLabelSplitIdx = columnLabel.indexOf('\n');
+			if (columnLabelSplitIdx > 0) {
+				columnRemark = columnLabel.substring(columnLabelSplitIdx + 1);
+				columnLabel = columnLabel.substring(0, columnLabelSplitIdx);
+			}
+			sheet.getRow(iRow).getCell(config.getColumnColLabel()).setCellValue(columnLabel);
 
 			String columnType = col.getColumnType();
 			/*if (col.getColumnSize() > 0) {
@@ -128,21 +136,18 @@ public class DbvExp {
 				}
 				columnType += ")";
 			}*/
-			sheet.getRow(iRow).getCell(3).setCellValue(columnType);
-
-//			sheet.getRow(iRow).getCell(3).setCellValue(col.getTypeName());
-//			sheet.getRow(iRow).getCell(4).setCellValue(col.getColumnSize());
-//			if (col.getDecimalDigits() > 0) {
-//				sheet.getRow(iRow).getCell(5).setCellValue(col.getDecimalDigits());
-//			}
+			sheet.getRow(iRow).getCell(config.getColumnColType()).setCellValue(columnType);
 			if (col.isPrimaryKey()) {
-				sheet.getRow(iRow).getCell(4).setCellValue("Y");
+				sheet.getRow(iRow).getCell(config.getColumnColPrimary()).setCellValue("Y");
 			}
 			if (col.isNotNull()) {
-				sheet.getRow(iRow).getCell(5).setCellValue("Y");
+				sheet.getRow(iRow).getCell(config.getColumnColNonnull()).setCellValue("Y");
 			}
-			if (StringKit.isNotEmpty(col.getColumnDef())) {
-				sheet.getRow(iRow).getCell(6).setCellValue(col.getColumnDef());
+			if (StringUtils.isNotBlank(col.getColumnDef())) {
+				sheet.getRow(iRow).getCell(config.getColumnColDefault()).setCellValue(col.getColumnDef());
+			}
+			if (StringUtils.isNotBlank(columnRemark)) {
+				sheet.getRow(iRow).getCell(config.getColumnColRemark()).setCellValue(columnRemark);
 			}
 			/*if ("YES".equalsIgnoreCase(col.getIsAutoincrement())) {
 				sheet.getRow(iRow).getCell(7).setCellValue("自增长列");// 备注
@@ -150,17 +155,17 @@ public class DbvExp {
 			iRow++;
 		}
 
-		copy(tplSheet, 20, 0, sheet, iRow, 0, 'Q' - 'A');// empty col line
+
+		copy(tplSheet, config.getColumnRowContent(), 0, sheet, iRow, 0, 'Z' - 'A');// empty col line
 		sheet.getRow(iRow).getCell(0).setCellValue(++colNum);
 		iRow++;
-		copy(tplSheet, 21, 0, sheet, iRow, 0, 'Q' - 'A');// end col
+		copy(tplSheet, config.getColumnRowEnd(), 0, sheet, iRow, 0, 'Z' - 'A');// end col
 
 		iRow++;
-		copy(tplSheet, 22, 0, sheet, iRow, 0, 'Q' - 'A');
-		iRow++;
-		copy(tplSheet, 23, 0, sheet, iRow, 0, 'Q' - 'A');
+		copy(tplSheet, Integer.max(config.getIndexRowBegin() - 1, config.getColumnRowEnd() + 1), 0, sheet, iRow, 0, 'Z' - 'A');
 		// index
-		copy(tplSheet, 24, 0, sheet, ++iRow, 0, 'Q' - 'A');
+		copy(tplSheet, config.getIndexRowBegin(), 0, sheet, ++iRow, 0, 'Z' - 'A');
+		sheet.addMergedRegion(new CellRangeAddress(iRow, iRow, config.getIndexColFields(), config.getIndexColUnique() - 1));
 
 		int idxNum = 0;
 		idxLoop:
@@ -171,34 +176,32 @@ public class DbvExp {
 				}
 			}
 
-			copy(tplSheet, 25, 0, sheet, ++iRow, 0, 'Q' - 'A');
-			sheet.addMergedRegion(new CellRangeAddress(iRow, iRow, 'C'-'A', 'F' - 'A'));
-			sheet.getRow(iRow).getCell(0).setCellType(CellType.NUMERIC);
-			sheet.getRow(iRow).getCell(0).setCellValue(++idxNum);
-			sheet.getRow(iRow).getCell(1).setCellValue(idx.getIndexName());
-			sheet.getRow(iRow).getCell(2).setCellValue(idx.getColumnNames());
-			/*String[] columnNames = idx.getColumnNames().split(",", 6);
-			int iCol = 2;
-			for (String columnName : columnNames) {
-				sheet.getRow(iRow).getCell(iCol++).setCellValue(columnName);
-			}*/
-			sheet.getRow(iRow).getCell(6).setCellValue(idx.isUnique() ? "Y" : "N");
-			//sheet.getRow(iRow).getCell(7).setCellValue("D".equals(idx.getAscOrDesc()) ? "DESC" : "ASC");
+			copy(tplSheet, config.getIndexRowContent(), 0, sheet, ++iRow, 0, 'Z' - 'A');
+			sheet.addMergedRegion(new CellRangeAddress(iRow, iRow, config.getIndexColFields(), config.getIndexColUnique() - 1));
+			sheet.getRow(iRow).getCell(config.getIndexColSeq()).setCellType(CellType.NUMERIC);
+			sheet.getRow(iRow).getCell(config.getIndexColSeq()).setCellValue(++idxNum);
+			sheet.getRow(iRow).getCell(config.getIndexColName()).setCellValue(idx.getIndexName());
+			sheet.getRow(iRow).getCell(config.getIndexColFields()).setCellValue(idx.getColumnNames());
+			sheet.getRow(iRow).getCell(config.getIndexColUnique()).setCellValue(idx.isUnique() ? "Y" : "N");
 		}
-		copy(tplSheet, 30, 0, sheet, ++iRow, 0, 'Q' - 'A');// empty idx line
-		sheet.getRow(iRow).getCell(0).setCellValue(++idxNum);
-		copy(tplSheet, 31, 0, sheet, ++iRow, 0, 'Q' - 'A');
-		for (int i = 0; i < 'I' - 'A'; i++) {
+		copy(tplSheet, config.getIndexRowContent(), 0, sheet, ++iRow, 0, 'Z' - 'A');// empty idx line
+		sheet.getRow(iRow).getCell(config.getIndexColSeq()).setCellValue(++idxNum);
+		copy(tplSheet, config.getIndexRowEnd(), 0, sheet, ++iRow, 0, 'Z' - 'A');
+		for (int i = 0; i < 'Z' - 'A'; i++) {
 			sheet.setColumnWidth(i, tplSheet.getColumnWidth(i));
 		}
 		/*for (int i = 0; i < 'I' - 'A'; i++) {
 			sheet.autoSizeColumn(i, true);
 		}*/
 
-
-		sheet.addMergedRegion(new CellRangeAddress(2, 2, 'J' - 'A', 'N' - 'A'));
-		sheet.addMergedRegion(new CellRangeAddress(3, iRow, 'J' - 'A', 'N' - 'A'));
-
+		for (CellMergeArea area : config.getMergeAreas()) {
+			sheet.addMergedRegion(new CellRangeAddress(
+				area.getFirstRow() < 0 ? iRow : area.getFirstRow(),
+				area.getLastRow() < 0 ? iRow : area.getLastRow(),
+				area.getFirstCol(), area.getLastCol()));
+		}
+		sheet.getRow(config.getTableNameCell().getRow()).getCell(config.getTableNameCell().getCol()).setCellValue(sheetName);
+		sheet.getRow(config.getTableRemarkCell().getRow()).getCell(config.getTableRemarkCell().getCol()).setCellValue(table.getRemarks());
 	}
 
 	@SuppressWarnings({"deprecation", "DuplicatedCode"})

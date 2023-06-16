@@ -6,6 +6,7 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import com.thoughtworks.xstream.security.AnyTypePermission;
 import io.polaris.dbv.toolkit.IOKit;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,6 +26,7 @@ public class Configurations {
 	public static XStream buildXStream() {
 		XStream xs = new XStream();
 		xs.ignoreUnknownElements();
+		xs.addPermission(AnyTypePermission.ANY);
 		xs.autodetectAnnotations(true);
 		xs.processAnnotations(DatabaseCfg.class);
 		xs.processAnnotations(SqlCfg.class);
