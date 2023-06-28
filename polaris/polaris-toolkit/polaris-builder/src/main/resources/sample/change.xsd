@@ -40,12 +40,12 @@
 			</xs:element>
 			<xs:element type="xs:string" name="extensions" minOccurs="0" maxOccurs="1">
 				<xs:annotation>
-					<xs:documentation>需要处理文件的扩展名，以逗号分隔</xs:documentation>
+					<xs:documentation>需要处理文件的扩展名，以逗号分隔，extensions与name-pattern匹配一个即认为匹配</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element type="xs:string" name="name-pattern" maxOccurs="unbounded" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>需要处理文件名模式</xs:documentation>
+					<xs:documentation>需要处理文件名模式，extensions与name-pattern匹配一个即认为匹配</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element type="xs:string" name="source-path" maxOccurs="unbounded" minOccurs="0">

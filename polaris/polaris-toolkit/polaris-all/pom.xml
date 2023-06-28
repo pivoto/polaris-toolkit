@@ -25,20 +25,25 @@
 			<type>pom</type>
 		</dependency>
 		<dependency>
-			<groupId>cn.pivoto.polaris.toolkit</groupId>
-			<artifactId>polaris-extra-dbv</artifactId>
+			<groupId>cn.pivoto.polaris.toolkit.extra</groupId>
+			<artifactId>polaris-dbv</artifactId>
+			<version>2.0.2-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>cn.pivoto.polaris.toolkit</groupId>
-			<artifactId>polaris-extra-validator</artifactId>
+			<groupId>cn.pivoto.polaris.toolkit.extra</groupId>
+			<artifactId>polaris-validator</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>cn.pivoto.polaris.toolkit</groupId>
-			<artifactId>polaris-extra-bytecode</artifactId>
+			<groupId>cn.pivoto.polaris.toolkit.extra</groupId>
+			<artifactId>polaris-bytecode</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>cn.pivoto.polaris.toolkit</groupId>
-			<artifactId>polaris-extra-log</artifactId>
+			<groupId>cn.pivoto.polaris.toolkit.extra</groupId>
+			<artifactId>polaris-log</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>cn.pivoto.polaris.toolkit.extra</groupId>
+			<artifactId>polaris-web</artifactId>
 		</dependency>
 
 	</dependencies>

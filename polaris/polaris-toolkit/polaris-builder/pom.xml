@@ -25,8 +25,8 @@
 			<type>pom</type>
 		</dependency>
 		<dependency>
-			<groupId>cn.pivoto.polaris.toolkit</groupId>
-			<artifactId>polaris-extra-dbv</artifactId>
+			<groupId>cn.pivoto.polaris.toolkit.extra</groupId>
+			<artifactId>polaris-dbv</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.squareup</groupId>

@@ -19,16 +19,20 @@
 		<dest>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-core/src</dest>
 	</change>
 	<change>
-		<src>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-extra-validator/src</src>
+		<src>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-validator/src</src>
 		<dest>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-extra-validator/src</dest>
 	</change>
 	<change>
-		<src>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-extra-bytecode/src</src>
+		<src>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-bytecode/src</src>
 		<dest>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-extra-bytecode/src</dest>
 	</change>
 	<change>
-		<src>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-extra-log/src</src>
+		<src>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-log/src</src>
 		<dest>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-extra-log/src</dest>
+	</change>
+	<change>
+		<src>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-web/src</src>
+		<dest>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-extra-web/src</dest>
 	</change>
 	<change>
 		<src>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-annotation-processor/polaris-annotation-processor-core/src</src>

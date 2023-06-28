@@ -9,14 +9,16 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
+	<groupId>cn.pivoto.polaris.toolkit.extra</groupId>
 	<artifactId>polaris-extra</artifactId>
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>polaris-extra-dbv</module>
-		<module>polaris-extra-validator</module>
-		<module>polaris-extra-log</module>
-		<module>polaris-extra-bytecode</module>
+		<module>polaris-dbv</module>
+		<module>polaris-validator</module>
+		<module>polaris-log</module>
+		<module>polaris-bytecode</module>
+		<module>polaris-web</module>
 	</modules>
 	<properties>
 		<dependency.bytebuddy.version>1.12.23</dependency.bytebuddy.version>
