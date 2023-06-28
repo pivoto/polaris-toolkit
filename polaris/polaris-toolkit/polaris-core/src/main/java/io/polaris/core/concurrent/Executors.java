@@ -1,17 +1,24 @@
 package io.polaris.core.concurrent;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Qt
  * @since 1.8
  */
 public class Executors {
+
+	public static final int KEEP_ALIVE_TIME = 30000;
+	public static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.MILLISECONDS;
+	private static RejectedExecutionHandler defaultRejectedPolicy = new ThreadPoolExecutor.CallerRunsPolicy();
+
+	public static void setDefaultRejectedPolicy(RejectedExecutionHandler defaultRejectedPolicy) {
+		Executors.defaultRejectedPolicy = defaultRejectedPolicy;
+	}
+
+	public static RejectedExecutionHandler getDefaultRejectedPolicy() {
+		return defaultRejectedPolicy;
+	}
 
 	public static ThreadPoolExecutor create(int core, final String threadNamePrefix) {
 		return create(core, core, threadNamePrefix, true);
@@ -30,13 +37,13 @@ public class Executors {
 	}
 
 	public static ThreadPoolExecutor create(int core, BlockingQueue<Runnable> blockingQueue, final String threadNamePrefix, final boolean isDaemon) {
-		return new ThreadPoolExecutor(core, core, 10 * 1000, TimeUnit.MILLISECONDS, blockingQueue,
+		return new ThreadPoolExecutor(core, core, KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, blockingQueue,
 			new PooledThreadFactory().withPrefix(threadNamePrefix).withDaemon(isDaemon)
 		);
 	}
 
 	public static ThreadPoolExecutor create(int core, int max, BlockingQueue<Runnable> blockingQueue, final String threadNamePrefix, final boolean isDaemon) {
-		return new ThreadPoolExecutor(core, max, 10 * 1000, TimeUnit.MILLISECONDS, blockingQueue,
+		return new ThreadPoolExecutor(core, max, KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, blockingQueue,
 			new PooledThreadFactory().withPrefix(threadNamePrefix).withDaemon(isDaemon)
 		);
 	}
@@ -50,17 +57,18 @@ public class Executors {
 		return create(core, max, createDefaultBlockingQueue(), threadFactory);
 	}
 
+	private static BlockingQueue<Runnable> createDefaultBlockingQueue() {
+		return new LinkedBlockingQueue<>(1000);
+	}
+
 	public static ThreadPoolExecutor create(int core, BlockingQueue<Runnable> blockingQueue, ThreadFactory threadFactory) {
-		return new ThreadPoolExecutor(core, core, 10 * 1000, TimeUnit.MILLISECONDS, blockingQueue, threadFactory);
+		return new ThreadPoolExecutor(core, core, KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, blockingQueue, threadFactory, defaultRejectedPolicy);
 	}
 
 	public static ThreadPoolExecutor create(int core, int max, BlockingQueue<Runnable> blockingQueue, ThreadFactory threadFactory) {
-		return new ThreadPoolExecutor(core, max, 10 * 1000, TimeUnit.MILLISECONDS, blockingQueue, threadFactory);
+		return new ThreadPoolExecutor(core, max, KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, blockingQueue, threadFactory, defaultRejectedPolicy);
 	}
 
-	private static LinkedBlockingQueue<Runnable> createDefaultBlockingQueue() {
-		return new LinkedBlockingQueue<>(1000);
-	}
 
 	public static void shutdown(ExecutorService pool) {
 		if (pool == null) {

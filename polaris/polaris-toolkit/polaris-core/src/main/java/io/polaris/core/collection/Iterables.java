@@ -1,13 +1,11 @@
 package io.polaris.core.collection;
 
+import javax.annotation.Nonnull;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author Qt
@@ -48,20 +46,95 @@ public class Iterables {
 		};
 	}
 
-	public static <E> List<E> asList(Enumeration<E> enumeration) {
-		List<E> list = new ArrayList<>();
+	public static <C extends Collection<E>, E> C asCollection(Supplier<C> supplier, Enumeration<E> enumeration) {
+		C c = supplier.get();
 		while (enumeration.hasMoreElements()) {
-			list.add(enumeration.nextElement());
+			c.add(enumeration.nextElement());
 		}
-		return list;
+		return c;
+	}
+
+	public static <C extends Collection<E>, E> C asCollection(Supplier<C> supplier, E... iterable) {
+		C c = supplier.get();
+		Collections.addAll(c, iterable);
+		return c;
+	}
+
+	public static <C extends Collection<E>, E> C asCollection(Supplier<C> supplier, Iterable<E> iterable) {
+		C c = supplier.get();
+		for (E e : iterable) {
+			c.add(e);
+		}
+		return c;
+	}
+
+	public static <C extends Collection<E>, E> C asCollection(Supplier<C> supplier, Iterator<E> iterator) {
+		C c = supplier.get();
+		while (iterator.hasNext()) {
+			c.add(iterator.next());
+		}
+		return c;
+	}
+
+	public static <E> List<E> asList(Enumeration<E> enumeration) {
+		List<E> c = new ArrayList<>();
+		while (enumeration.hasMoreElements()) {
+			c.add(enumeration.nextElement());
+		}
+		return c;
+	}
+
+	public static <E> Set<E> asSet(Enumeration<E> enumeration) {
+		Set<E> c = new HashSet<>();
+		while (enumeration.hasMoreElements()) {
+			c.add(enumeration.nextElement());
+		}
+		return c;
+	}
+
+	public static <E> List<E> asList(E... iterable) {
+		List<E> c = new ArrayList<>();
+		Collections.addAll(c, iterable);
+		return c;
+	}
+
+	public static <E> Set<E> asSet(E... iterable) {
+		Set<E> c = new HashSet<>();
+		Collections.addAll(c, iterable);
+		return c;
+	}
+
+
+	public static <E> List<E> asList(Iterable<E> iterable) {
+		List<E> c = new ArrayList<>();
+		for (E e : iterable) {
+			c.add(e);
+		}
+		return c;
+	}
+
+	public static <E> Set<E> asSet(Iterable<E> iterable) {
+		Set<E> c = new HashSet<>();
+		for (E e : iterable) {
+			c.add(e);
+		}
+		return c;
 	}
 
 	public static <E> List<E> asList(Iterator<E> iterator) {
-		List<E> list = new ArrayList<>();
+		List<E> c = new ArrayList<>();
 		while (iterator.hasNext()) {
-			list.add(iterator.next());
+			c.add(iterator.next());
 		}
-		return list;
+		return c;
+	}
+
+	public static <E> Set<E> asSet(Iterator<E> iterator) {
+		Set<E> c = new HashSet<>();
+		while (iterator.hasNext()) {
+			c.add(iterator.next());
+		}
+		return c;
 	}
 
 	public static <S, T> Iterator<T> convert(Iterator<S> iterator, Function<S, T> converter) {
@@ -203,5 +276,51 @@ public class Iterables {
 				throw new UnsupportedOperationException();
 			}
 		};
+	}
+
+
+	public static <S, T> boolean isMatchAll(S[] array1, T[] array2, BiFunction<S, T, Boolean> matcher) {
+		if (array1 == null && array2 == null) {
+			return true;
+		}
+		if (array1 == null || array2 == null) {
+			return false;
+		}
+		if (array1.length != array1.length) {
+			return false;
+		}
+		for (int i = 0; i < array1.length; i++) {
+			Boolean matched = matcher.apply(array1[i], array2[i]);
+			if (!matched) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public static String toArrayString(@Nonnull Object obj) {
+		if (obj instanceof long[]) {
+			return Arrays.toString((long[]) obj);
+		} else if (obj instanceof int[]) {
+			return Arrays.toString((int[]) obj);
+		} else if (obj instanceof short[]) {
+			return Arrays.toString((short[]) obj);
+		} else if (obj instanceof char[]) {
+			return Arrays.toString((char[]) obj);
+		} else if (obj instanceof byte[]) {
+			return Arrays.toString((byte[]) obj);
+		} else if (obj instanceof boolean[]) {
+			return Arrays.toString((boolean[]) obj);
+		} else if (obj instanceof float[]) {
+			return Arrays.toString((float[]) obj);
+		} else if (obj instanceof double[]) {
+			return Arrays.toString((double[]) obj);
+		} else if (obj.getClass().isArray()) {
+			try {
+				return Arrays.deepToString((Object[]) obj);
+			} catch (Exception ignore) {
+			}
+		}
+		return obj.toString();
 	}
 }

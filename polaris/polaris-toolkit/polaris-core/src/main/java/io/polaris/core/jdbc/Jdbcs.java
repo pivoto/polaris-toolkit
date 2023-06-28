@@ -1,6 +1,6 @@
 package io.polaris.core.jdbc;
 
-import io.polaris.core.lang.Strings;
+import io.polaris.core.string.Strings;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;

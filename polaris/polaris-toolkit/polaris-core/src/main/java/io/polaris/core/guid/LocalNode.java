@@ -1,5 +1,7 @@
 package io.polaris.core.guid;
 
+import io.polaris.core.os.OS;
+
 import java.io.RandomAccessFile;
 import java.net.InetAddress;
 import java.nio.channels.FileLock;
@@ -46,8 +48,14 @@ public class LocalNode {
 
 		int addr = 0;
 		try {
-			byte[] address = InetAddress.getLocalHost().getAddress();
-			addr = address[address.length - 1];
+			String firstIp = OS.getFirstIp();
+			if (firstIp == null){
+				byte[] address = InetAddress.getLocalHost().getAddress();
+				addr = address[address.length - 1];
+			}else{
+				String[] arr = firstIp.split("\\.");
+				addr = Byte.parseByte(arr[arr.length - 1]);
+			}
 		} catch (Throwable e) {
 			System.err.println("cannot read InetAddress!");
 			e.printStackTrace(System.err);

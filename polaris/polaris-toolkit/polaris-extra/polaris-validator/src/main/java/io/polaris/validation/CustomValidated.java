@@ -1,6 +1,5 @@
 package io.polaris.validation;
 
-import io.polaris.validation.validator.CustomValidation;
 import io.polaris.validation.validator.CustomValidator;
 
 import javax.validation.Constraint;

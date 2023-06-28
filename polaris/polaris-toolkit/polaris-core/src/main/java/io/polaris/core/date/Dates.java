@@ -1,12 +1,6 @@
 package io.polaris.core.date;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
@@ -21,12 +15,22 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Dates {
 	private static Map<String, DateTimeFormatter> formatterCache = new ConcurrentHashMap<>();
 
-	public static final DateTimeFormatter YYYYMMDD = getFormatter("yyyyMMdd");
-	public static final DateTimeFormatter YYYY_MM_DD = getFormatter("yyyy-MM-dd");
-	public static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS = getFormatter("yyyy-MM-dd HH:mm:ss");
-	public static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS_SSS = getFormatter("yyyy-MM-dd HH:mm:ss.SSS");
-	public static final DateTimeFormatter HH_MM_SS = getFormatter("HH:mm:ss");
-	public static final DateTimeFormatter HH_MM_SS_SSS = getFormatter("HH:mm:ss.SSS");
+	public static final String PATTERN_YYYYMMDD = "yyyyMMdd";
+	public static final DateTimeFormatter YYYYMMDD = getFormatter(PATTERN_YYYYMMDD);
+	public static final String PATTERN_YYYYMMDDHHMMSS = "yyyyMMddHHmmss";
+	public static final DateTimeFormatter YYYYMMDDHHMMSS = getFormatter(PATTERN_YYYYMMDDHHMMSS);
+	public static final String PATTERN_YYYYMMDDHHMMSSSSS = "yyyyMMddHHmmssSSS";
+	public static final DateTimeFormatter YYYYMMDDHHMMSSSSS = getFormatter(PATTERN_YYYYMMDDHHMMSSSSS);
+	public static final String PATTERN_YYYY_MM_DD = "yyyy-MM-dd";
+	public static final DateTimeFormatter YYYY_MM_DD = getFormatter(PATTERN_YYYY_MM_DD);
+	public static final String PATTERN_YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
+	public static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS = getFormatter(PATTERN_YYYY_MM_DD_HH_MM_SS);
+	public static final String PATTERN_YYYY_MM_DD_HH_MM_SS_SSS = "yyyy-MM-dd HH:mm:ss.SSS";
+	public static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS_SSS = getFormatter(PATTERN_YYYY_MM_DD_HH_MM_SS_SSS);
+	public static final String PATTERN_HH_MM_SS = "HH:mm:ss";
+	public static final DateTimeFormatter HH_MM_SS = getFormatter(PATTERN_HH_MM_SS);
+	public static final String PATTERN_HH_MM_SS_SSS = "HH:mm:ss.SSS";
+	public static final DateTimeFormatter HH_MM_SS_SSS = getFormatter(PATTERN_HH_MM_SS_SSS);
 
 
 	public static DateTimeFormatter getFormatter(String formatterStr) {
@@ -104,17 +108,27 @@ public class Dates {
 		return date.toInstant();
 	}
 
-	public static Date toDate(LocalDateTime localDateTime) {
-		return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+	public static Instant toInstant(LocalDateTime localDateTime) {
+		return localDateTime.atZone(ZoneId.systemDefault()).toInstant();
 	}
+
+	public static Instant toInstant(LocalDate localDate) {
+		return localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
+	}
+
+	public static Date toDate(LocalDateTime localDateTime) {
+		return Date.from(toInstant(localDateTime));
+	}
+
 
 	public static LocalDateTime toLocalDateTime(Date date) {
 		return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
 	}
 
 	public static Date toDate(LocalDate localDate) {
-		return Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+		return Date.from(toInstant(localDate));
 	}
+
 
 	public static LocalDate toLocalDate(Date date) {
 		return toLocalDateTime(date).toLocalDate();
@@ -176,6 +190,52 @@ public class Dates {
 	private static int getChronoFieldOrDefault(TemporalAccessor temporal, ChronoField field) {
 		return (temporal.isSupported(field)) ?
 			temporal.get(field) : (int) field.range().getMinimum();
+	}
+
+	public static TemporalAccessor parse(String valueStr) {
+		TemporalAccessor accessor = null;
+		try {
+			if (valueStr.length() == Dates.PATTERN_YYYY_MM_DD_HH_MM_SS_SSS.length()) {
+				accessor = Dates.YYYY_MM_DD_HH_MM_SS_SSS.parse(valueStr);
+			} else if (valueStr.length() == Dates.PATTERN_YYYY_MM_DD_HH_MM_SS.length()) {
+				accessor = Dates.YYYY_MM_DD_HH_MM_SS.parse(valueStr);
+			} else if (valueStr.length() == Dates.PATTERN_YYYY_MM_DD.length()) {
+				accessor = Dates.YYYY_MM_DD.parse(valueStr);
+			} else if (valueStr.length() == Dates.PATTERN_YYYYMMDDHHMMSSSSS.length()) {
+				accessor = Dates.YYYYMMDDHHMMSSSSS.parse(valueStr);
+			} else if (valueStr.length() == Dates.PATTERN_YYYYMMDDHHMMSS.length()) {
+				accessor = Dates.YYYYMMDDHHMMSS.parse(valueStr);
+			} else if (valueStr.length() == Dates.PATTERN_YYYYMMDD.length()) {
+				try {
+					accessor = Dates.YYYYMMDD.parse(valueStr);
+				} catch (Exception e) {
+					accessor = Dates.HH_MM_SS.parse(valueStr);
+				}
+			} else if (valueStr.length() == Dates.PATTERN_HH_MM_SS_SSS.length()) {
+				accessor = Dates.HH_MM_SS_SSS.parse(valueStr);
+			}
+		} catch (Exception e) {
+		}
+		if (accessor == null) {
+			accessor = DateTimeFormatter.ISO_DATE_TIME.parse(valueStr);
+		}
+		return accessor;
+	}
+
+	public static Date parseDate(String valueStr) {
+		return Dates.toDate(parse(valueStr));
+	}
+
+	public static LocalDateTime parseLocalDateTime(String valueStr) {
+		return toLocalDateTime(parse(valueStr));
+	}
+
+	public static LocalDate parseLocalDate(String valueStr) {
+		return toLocalDate(parse(valueStr));
+	}
+
+	public static LocalTime parseLocalTime(String valueStr) {
+		return toLocalTime(parse(valueStr));
 	}
 
 }

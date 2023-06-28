@@ -7,5 +7,5 @@ import io.polaris.core.datacarrier.buffer.BufferChannel;
  * @since 1.8
  */
 public interface IBulkConsumerDriver<T> extends IConsumerDriver<T> {
-	void add(String name, BufferChannel<T> channel, IConsumer<T> consumer);
+	void add(BufferChannel<T> channel, IConsumer<T> consumer);
 }

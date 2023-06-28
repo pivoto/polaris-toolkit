@@ -2,8 +2,6 @@ package io.polaris.core.guid;
 
 
 
-import io.polaris.core.clock.TimeMillisClock;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.locks.Lock;

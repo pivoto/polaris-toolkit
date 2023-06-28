@@ -1,16 +1,9 @@
 package io.polaris.core.datacarrier;
 
-import io.polaris.core.datacarrier.buffer.BufferChannel;
-import io.polaris.core.datacarrier.buffer.IQueueBuffer;
-import io.polaris.core.datacarrier.consumer.IConsumer;
 import io.polaris.core.datacarrier.consumer.BulkConsumeDriver;
+import io.polaris.core.datacarrier.consumer.IConsumer;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author Qt
@@ -21,7 +14,7 @@ public class DataCarrierTest {
 
 	@Test
 	public void testBlockingProduce() throws IllegalAccessException {
-		final DataCarrier<SampleData> carrier = new DataCarrier<>(2, 100);
+		final DataCarrier<SampleData> carrier = new DataCarrier<>(3, 100);
 
 		for (int i = 0; i < 200; i++) {
 			carrier.produce(new SampleData().setName("d" + i));
@@ -29,7 +22,7 @@ public class DataCarrierTest {
 
 		long time1 = System.currentTimeMillis();
 		IConsumer<SampleData> consumer = data -> log.info("{} consume: {}", System.currentTimeMillis(), data.size());
-		carrier.consume(consumer, 2);
+		carrier.consume(consumer, 3);
 		carrier.produce(new SampleData().setName("blocking-data"));
 
 		for (int i = 0; i < 800; i++) {
@@ -44,8 +37,9 @@ public class DataCarrierTest {
 	public void testBlockingProduce2() throws Exception {
 		IConsumer<SampleData> consumer = data -> log.info("{} consume: {}", System.currentTimeMillis(), data.size());
 
-		final DataCarrier<SampleData> carrier = new DataCarrier<>(2, 100);
-		carrier.consume(new BulkConsumeDriver<SampleData>("test", 3, 20), consumer);
+		final DataCarrier<SampleData> carrier = new DataCarrier<>(3, 100);
+		BulkConsumeDriver<SampleData> bulkConsumeDriver = new BulkConsumeDriver<>("test", 3, 20);
+		carrier.consume(bulkConsumeDriver, consumer);
 
 		long time1 = System.currentTimeMillis();
 		for (int i = 0; i < 200; i++) {
@@ -54,6 +48,31 @@ public class DataCarrierTest {
 		carrier.produce(new SampleData().setName("blocking-data"));
 		for (int i = 0; i < 800; i++) {
 			carrier.produce(new SampleData().setName("d" + i));
+		}
+
+		long time2 = System.currentTimeMillis();
+		log.info("exec time : {}ms", time2 - time1);
+	}
+	@Test
+	public void testBlockingProduce3() throws Exception {
+		IConsumer<SampleData> consumer = data -> log.info("{} consume: {}", System.currentTimeMillis(), data.size());
+
+		final DataCarrier<SampleData> carrier = new DataCarrier<>(3, 100);
+		final DataCarrier<SampleData> carrier2 = new DataCarrier<>(3, 100);
+		BulkConsumeDriver<SampleData> bulkConsumeDriver = new BulkConsumeDriver<>("test", 3, 20);
+		carrier.consume(bulkConsumeDriver, consumer);
+		carrier2.consume(bulkConsumeDriver, consumer);
+
+		long time1 = System.currentTimeMillis();
+		for (int i = 0; i < 200; i++) {
+			carrier.produce(new SampleData().setName("d" + i));
+			carrier2.produce(new SampleData().setName("d" + i));
+		}
+		carrier.produce(new SampleData().setName("blocking-data"));
+		carrier2.produce(new SampleData().setName("blocking-data"));
+		for (int i = 0; i < 800; i++) {
+			carrier.produce(new SampleData().setName("d" + i));
+			carrier2.produce(new SampleData().setName("d" + i));
 		}
 
 		long time2 = System.currentTimeMillis();

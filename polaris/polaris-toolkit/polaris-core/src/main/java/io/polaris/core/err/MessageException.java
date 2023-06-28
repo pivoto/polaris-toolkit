@@ -1,5 +1,6 @@
 package io.polaris.core.err;
 
+import io.polaris.core.string.Strings;
 import io.polaris.core.msg.MessageResources;
 
 /**
@@ -26,35 +27,32 @@ public class MessageException extends RuntimeException implements IErrorCode {
 
 	public MessageException(Throwable cause) {
 		super(cause);
-		fetchCode(cause);
-	}
-
-	private void fetchCode(Throwable cause) {
-		if (cause instanceof IErrorCode) {
-			withCode(((IErrorCode) cause).getCode());
-		}
+		fetchCode(null, cause, null);
 	}
 
 	public MessageException(Throwable cause, String message) {
 		super(message, cause);
-		fetchCode(cause);
+		fetchCode(null, cause, message);
 	}
 
 	public MessageException(Throwable cause, String code, String message) {
 		super(message, cause);
-		fetchCode(code, cause);
+		fetchCode(code, cause, message);
 	}
 
 	public MessageException(Throwable cause, boolean enableSuppression, boolean writableStackTrace, String code, String message) {
 		super(message, cause, enableSuppression, writableStackTrace);
-		fetchCode(code, cause);
+		fetchCode(code, cause, message);
 	}
 
-	private void fetchCode(String code, Throwable cause) {
+
+	private void fetchCode(String code, Throwable cause, String message) {
 		if (code == null || code.trim().length() == 0) {
-			fetchCode(cause);
+			if (cause instanceof IErrorCode) {
+				withCode(((IErrorCode) cause).getCode(), Strings.coalesce(message, cause.getMessage(), code));
+			}
 		} else {
-			withCode(code);
+			withCode(code, Strings.coalesce(message, cause == null ? null : cause.getMessage(), code));
 		}
 	}
 
@@ -64,13 +62,14 @@ public class MessageException extends RuntimeException implements IErrorCode {
 	}
 
 	public MessageException withCode(String code) {
-		withCode(code, code);
+		withCode(code, this.message);
 		return this;
 	}
 
 	public MessageException withCode(String code, String defaultMessage) {
 		this.code = code;
 		if (code != null && code.length() > 0) {
+			// 获取编码对应的提示信息，不存在则使用默认消息
 			this.message = MessageResources.getDefaultMessageResource().getMessageOrDefault(code, defaultMessage);
 		}
 		return this;

@@ -3,12 +3,8 @@ package io.polaris.core.service;
 import lombok.AccessLevel;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import javax.annotation.Nullable;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -93,10 +89,12 @@ public class StatefulServiceLoader<S> implements Iterable<S> {
 		return Optional.ofNullable(serviceLoader.get()).map(Service::getSingleton);
 	}
 
+	@Nullable
 	public S service() {
 		return serviceLoader.getSingleton();
 	}
 
+	@Nullable
 	public S service(String propertyName, String propertyValue) {
 		return serviceLoader.getSingleton(propertyName, propertyValue);
 	}

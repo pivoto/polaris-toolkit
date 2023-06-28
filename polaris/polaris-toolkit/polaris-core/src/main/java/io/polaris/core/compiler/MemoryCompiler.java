@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Qt
  * @since 1.8
  */
-public class MemoryCompiler {
+public class MemoryCompiler implements Compiler{
 
 	private final JavaCompiler compiler;
 	private final MemoryClassLoader memoryClassLoader;

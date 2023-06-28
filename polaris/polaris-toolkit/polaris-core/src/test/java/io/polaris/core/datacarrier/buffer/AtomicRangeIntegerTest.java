@@ -8,8 +8,6 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 public class AtomicRangeIntegerTest {
 
 	private static AtomicRangeInteger ATOMIC_V3 = new AtomicRangeInteger(0, 100);

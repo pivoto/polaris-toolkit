@@ -2,13 +2,15 @@ package io.polaris.core.datacarrier.buffer;
 
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * @author Qt
  * @since 1.8
  */
 public class BlockingQueueBuffer<T> implements IQueueBuffer<T> {
-	private final ArrayBlockingQueue<T> queue;
+	private final BlockingQueue<T> queue;
 	private final int size;
 
 	BlockingQueueBuffer(int bufferSize) {

@@ -8,7 +8,6 @@ import io.polaris.core.datacarrier.consumer.IConsumer;
 import io.polaris.core.datacarrier.consumer.IConsumerDriver;
 import io.polaris.core.datacarrier.partition.IDataPartitioner;
 import io.polaris.core.datacarrier.partition.SimpleRollingPartitioner;
-import lombok.Getter;
 
 /**
  * @author Qt
@@ -32,8 +31,13 @@ public class DataCarrier<T> {
 	}
 
 	public DataCarrier(String name, int bufferCount, int bufferSize, BufferStrategy strategy) {
+		this(name, bufferCount, bufferSize, strategy, new SimpleRollingPartitioner<T>());
+	}
+
+
+	public DataCarrier(String name, int bufferCount, int bufferSize, BufferStrategy strategy,IDataPartitioner<T> partitioner) {
 		this.name = name;
-		channel = new BufferChannel<>(bufferCount, bufferSize, new SimpleRollingPartitioner<T>(), strategy);
+		channel = new BufferChannel<>(bufferCount, bufferSize, partitioner, strategy);
 	}
 
 	public boolean produce(T data) {
@@ -60,7 +64,7 @@ public class DataCarrier<T> {
 
 	public DataCarrier<T> consume(IBulkConsumerDriver<T> consumerDriver, IConsumer<T> consumer) {
 		driver = consumerDriver;
-		consumerDriver.add(this.name, channel, consumer);
+		consumerDriver.add(channel, consumer);
 		driver.begin(channel);
 		return this;
 	}

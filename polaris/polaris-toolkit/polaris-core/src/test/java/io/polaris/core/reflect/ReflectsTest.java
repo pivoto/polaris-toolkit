@@ -1,5 +1,6 @@
 package io.polaris.core.reflect;
 
+import io.polaris.core.tuple.Ref;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -30,10 +31,27 @@ class ReflectsTest {
 		System.out.println(Reflects.findParameterizedType(I.class, C.class, 2));
 	}
 
+
+	@Test
+	void test03() throws ClassNotFoundException {
+		System.out.println(Reflects.loadClass("int"));
+		System.out.println(Reflects.loadClass("[int"));
+		System.out.println(Reflects.loadClass("[int[]"));
+		System.out.println(Reflects.loadClass(I.class.getCanonicalName()));
+		System.out.println(Reflects.loadClass(I.II.class.getCanonicalName()));
+		System.out.println(Reflects.loadClass(I.II.IIC.class.getCanonicalName()));
+	}
+
 	interface I<K, V> {
 
 		default V get(K k) {
 			return null;
+		}
+
+		interface II{
+			class IIC{
+
+			}
 		}
 	}
 

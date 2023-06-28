@@ -9,8 +9,12 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Guids {
 	private static final Map<String, Guid> guidCache = new ConcurrentHashMap<>();
-	private static LocalNodeStrategy strategy = LocalNodeStrategy.getInstance("java");
-	private static final Guid defaultInstance = new Guid(strategy);
+	private static LocalNodeStrategy defaultStrategy = LocalNodeStrategy.getInstance("java");
+	private static final Guid defaultInstance = new Guid(defaultStrategy);
+
+	public static void setDefaultStrategy(LocalNodeStrategy defaultStrategy) {
+		Guids.defaultStrategy = defaultStrategy;
+	}
 
 	public static Guid getInstance() {
 		return defaultInstance;
@@ -25,7 +29,7 @@ public class Guids {
 			synchronized (guidCache) {
 				guid = guidCache.get(name);
 				if (guid == null) {
-					guid = new Guid(strategy);
+					guid = new Guid(defaultStrategy);
 					guidCache.put(name, guid);
 				}
 			}

@@ -1,6 +1,6 @@
 package io.polaris.bytecode.javassist;
 
-import io.polaris.core.lang.Strings;
+import io.polaris.core.string.Strings;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;

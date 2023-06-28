@@ -1,7 +1,7 @@
 package io.polaris.core.compiler;
 
 
-import io.polaris.core.lang.Strings;
+import io.polaris.core.string.Strings;
 
 import javax.tools.JavaFileObject;
 import java.io.ByteArrayInputStream;

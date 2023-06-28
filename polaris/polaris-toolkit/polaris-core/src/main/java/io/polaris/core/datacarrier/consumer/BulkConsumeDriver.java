@@ -23,7 +23,7 @@ public class BulkConsumeDriver<T> implements IBulkConsumerDriver<T> {
 	}
 
 	@Override
-	synchronized public void add(String name, BufferChannel<T> channel, IConsumer<T> consumer) {
+	synchronized public void add(BufferChannel<T> channel, IConsumer<T> consumer) {
 		BulkConsumerThread<T> thread = getLowestPayload();
 		thread.addBulk(channel, consumer);
 	}
@@ -31,9 +31,9 @@ public class BulkConsumeDriver<T> implements IBulkConsumerDriver<T> {
 	private BulkConsumerThread<T> getLowestPayload() {
 		BulkConsumerThread<T> winner = threads.get(0);
 		for (int i = 1; i < threads.size(); i++) {
-			BulkConsumerThread<T> option = threads.get(i);
-			if (option.size() < winner.size()) {
-				winner = option;
+			BulkConsumerThread<T> thread = threads.get(i);
+			if (thread.size() < winner.size()) {
+				winner = thread;
 			}
 		}
 		return winner;
@@ -49,16 +49,16 @@ public class BulkConsumeDriver<T> implements IBulkConsumerDriver<T> {
 		if (running) {
 			return;
 		}
-		for (BulkConsumerThread<T> consumer : threads) {
-			consumer.start();
+		for (BulkConsumerThread<T> thread : threads) {
+			thread.start();
 		}
 		running = true;
 	}
 
 	@Override
 	public void close(BufferChannel<T> channel) {
-		for (BulkConsumerThread<T> consumer : threads) {
-			consumer.shutdown();
+		for (BulkConsumerThread<T> thread : threads) {
+			thread.shutdown();
 		}
 	}
 }

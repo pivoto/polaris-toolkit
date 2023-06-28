@@ -2,6 +2,8 @@ package io.polaris.core.service;
 
 import lombok.extern.slf4j.Slf4j;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,15 +11,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
@@ -219,40 +213,49 @@ public class ServiceLoader<S> implements Iterable<Service<S>> {
 		}
 	}
 
-	private S getSingleton(final Service<S> s) {
+	@Nullable
+	private S getSingleton(@Nullable Service<S> s) {
 		return Optional.ofNullable(s).map(Service::getSingleton).orElse(null);
 	}
 
-	private S getPureSingleton(final Service<S> s) {
+	@Nullable
+	private S getPureSingleton(@Nullable Service<S> s) {
 		return Optional.ofNullable(s).map(Service::getPureSingleton).orElse(null);
 	}
 
+	@Nullable
 	public Service<S> get() {
 		load();
 		return providers.isEmpty() ? null : providers.get(0);
 	}
 
+	@Nullable
 	public S getSingleton() {
 		return getSingleton(get());
 	}
 
+	@Nullable
 	public S getPureSingleton() {
 		return getPureSingleton(get());
 	}
 
+	@Nullable
 	public Service<S> get(String name) {
 		load();
 		return this.namings.get(name);
 	}
 
+	@Nullable
 	public S getSingleton(String name) {
 		return getSingleton(get(name));
 	}
 
+	@Nullable
 	public S getPureSingleton(String name) {
 		return getPureSingleton(get(name));
 	}
 
+	@Nullable
 	public Service<S> get(String propertyName, String propertyValue) {
 		load();
 		for (Service<S> service : providers) {
@@ -264,15 +267,18 @@ public class ServiceLoader<S> implements Iterable<Service<S>> {
 		return null;
 	}
 
+	@Nullable
 	public S getSingleton(String propertyName, String propertyValue) {
 		return getSingleton(get(propertyName, propertyValue));
 	}
 
+	@Nullable
 	public S getPureSingleton(String propertyName, String propertyValue) {
 		return getPureSingleton(get(propertyName, propertyValue));
 	}
 
-	public Service<S> get(Function<Service<S>, Boolean> matcher) {
+	@Nullable
+	public Service<S> get(@Nonnull Function<Service<S>, Boolean> matcher) {
 		load();
 		for (Service<S> service : providers) {
 			if (matcher.apply(service)) {
@@ -282,11 +288,13 @@ public class ServiceLoader<S> implements Iterable<Service<S>> {
 		return null;
 	}
 
-	public S getSingleton(Function<Service<S>, Boolean> matcher) {
+	@Nullable
+	public S getSingleton(@Nonnull Function<Service<S>, Boolean> matcher) {
 		return getSingleton(get(matcher));
 	}
 
-	public S getPureSingleton(Function<Service<S>, Boolean> matcher) {
+	@Nullable
+	public S getPureSingleton(@Nonnull Function<Service<S>, Boolean> matcher) {
 		return getPureSingleton(get(matcher));
 	}
 

@@ -2,7 +2,6 @@ package io.polaris.core.service.impl;
 
 import io.polaris.core.service.ITestService;
 import io.polaris.core.service.ServiceDefault;
-import io.polaris.core.service.ServiceName;
 import io.polaris.core.service.ServiceProperty;
 import lombok.extern.slf4j.Slf4j;
 
