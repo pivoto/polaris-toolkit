@@ -16,9 +16,8 @@
 	<dependencies>
 
 		<dependency>
-			<groupId>cn.pivoto.polaris.toolkit</groupId>
-			<artifactId>polaris-logging</artifactId>
-			<type>pom</type>
+			<groupId>cn.pivoto.polaris.toolkit.extra</groupId>
+			<artifactId>polaris-log</artifactId>
 		</dependency>
 
 		<dependency>
@@ -55,8 +54,6 @@
 		</dependency>
 		<!-- endregion -->
 
-
-
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
@@ -65,7 +62,7 @@
 		<dependency>
 			<groupId>com.alibaba.fastjson2</groupId>
 			<artifactId>fastjson2</artifactId>
-			<version>2.0.25</version>
+			<version>2.0.31</version>
 		</dependency>
 		<dependency>
 			<groupId>mysql</groupId>

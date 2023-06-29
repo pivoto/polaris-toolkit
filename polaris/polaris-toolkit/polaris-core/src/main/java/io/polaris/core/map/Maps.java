@@ -13,6 +13,8 @@ import java.util.function.Supplier;
  * @since 1.8
  */
 public class Maps {
+
+
 	public static <K, V> Map<K, V> createMap(Class<?> mapType) {
 		if (null == mapType || mapType.isAssignableFrom(AbstractMap.class)) {
 			return new HashMap<>();
@@ -29,6 +31,11 @@ public class Maps {
 		Map<V, K> result = createMap(map.getClass());
 		map.forEach((key, value) -> result.put(value, key));
 		return result;
+	}
+
+
+	public static <K, V> FluentMap<K, V> newFluentMap(Map<K, V> map) {
+		return new FluentMap<K, V>(map);
 	}
 
 	public static <K, V> Map<K, V> newLimitCapacityMap(int maxCapacity) {
@@ -55,6 +62,21 @@ public class Maps {
 		return new TreeMap<K, V>();
 	}
 
+	public static <V> Map<String, V> newLowerCaseHashMap() {
+		return new CaseInsensitiveMap<>(new HashMap<>(), false);
+	}
+
+	public static <V> Map<String, V> newUpperCaseHashMap() {
+		return new CaseInsensitiveMap<>(new HashMap<>(), true);
+	}
+
+	public static <V> Map<String, V> newLowerCaseLinkedHashMap() {
+		return new CaseInsensitiveMap<>(new LinkedHashMap<>(), false);
+	}
+
+	public static <V> Map<String, V> newUpperCaseLinkedHashMap() {
+		return new CaseInsensitiveMap<>(new LinkedHashMap<>(), true);
+	}
 
 	public static <K, V> Map<K, V> newSoftHashMap() {
 		return new SoftHashMap<>();

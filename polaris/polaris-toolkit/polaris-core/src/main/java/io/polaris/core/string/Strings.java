@@ -1,5 +1,6 @@
 package io.polaris.core.string;
 
+import io.polaris.core.annotation.Compatible;
 import io.polaris.core.ulid.UlidCreator;
 
 import java.util.*;

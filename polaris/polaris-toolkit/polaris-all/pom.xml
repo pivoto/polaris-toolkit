@@ -27,7 +27,6 @@
 		<dependency>
 			<groupId>cn.pivoto.polaris.toolkit.extra</groupId>
 			<artifactId>polaris-dbv</artifactId>
-			<version>2.0.2-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>cn.pivoto.polaris.toolkit.extra</groupId>

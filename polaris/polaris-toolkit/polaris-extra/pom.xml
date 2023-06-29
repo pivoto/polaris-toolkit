@@ -3,8 +3,8 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
-		<artifactId>polaris-toolkit</artifactId>
 		<groupId>cn.pivoto.polaris.toolkit</groupId>
+		<artifactId>polaris-toolkit</artifactId>
 		<version>${revision}</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -14,11 +14,11 @@
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>polaris-dbv</module>
 		<module>polaris-validator</module>
 		<module>polaris-log</module>
 		<module>polaris-bytecode</module>
 		<module>polaris-web</module>
+		<module>polaris-dbv</module>
 	</modules>
 	<properties>
 		<dependency.bytebuddy.version>1.12.23</dependency.bytebuddy.version>

@@ -52,10 +52,16 @@ class XmlTest {
 			+ "<remainpoint>1490</remainpoint>"//
 			+ "<taskID>885</taskID>"//
 			+ "<successCounts>1</successCounts>"//
-			+ "</returnsms>";
+			+ "<list>" +
+			"<task id=\"test0\">0</task>" +
+			"<task id=\"test1\">1</task>" +
+			"<task id=\"test2\">1</task>" +
+			"</list>" +
+			"</returnsms>";
 		Document docResult = Xml.parseXml(result);
 		Object value = Xml.getByXPath("//returnsms/message", docResult, XPathConstants.STRING);
 		assertEquals("ok", value);
+		System.out.println(Xml.getByXPath("//returnsms/list/task[@id='test1']", docResult, XPathConstants.STRING));
 	}
 
 	@Test

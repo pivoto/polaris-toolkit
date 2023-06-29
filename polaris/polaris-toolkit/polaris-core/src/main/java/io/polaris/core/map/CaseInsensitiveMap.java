@@ -12,4 +12,9 @@ public class CaseInsensitiveMap<K, V> extends TransformMap<K, V> {
 		super(raw, key -> (K) (key instanceof CharSequence ? key.toString().toLowerCase() : key));
 	}
 
+	public CaseInsensitiveMap(Map<K, V> raw, boolean upperCase) {
+		super(raw, upperCase ? key -> (K) (key instanceof CharSequence ? key.toString().toUpperCase() : key)
+			: key -> (K) (key instanceof CharSequence ? key.toString().toLowerCase() : key));
+	}
+
 }

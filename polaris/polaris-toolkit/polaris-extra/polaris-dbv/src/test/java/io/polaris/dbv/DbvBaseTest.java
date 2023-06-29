@@ -47,6 +47,7 @@ public class DbvBaseTest {
 		log.info("-----------------------------------------------------------------------------------");
 		log.info("Before Test: {}", name.getMethodName());
 	}
+
 	@After
 	public void after() {
 		log.info("After Test: {}", name.getMethodName());
@@ -58,6 +59,7 @@ public class DbvBaseTest {
 			log.info("{}", o);
 		}
 	}
+
 	protected void show(Collection<?> collection) {
 		for (Object o : collection) {
 			log.info("{}", JSON.toJSONString(o));
