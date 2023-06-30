@@ -26,10 +26,6 @@
 		</dependency>
 		<dependency>
 			<groupId>cn.pivoto.polaris.toolkit.extra</groupId>
-			<artifactId>polaris-dbv</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>cn.pivoto.polaris.toolkit.extra</groupId>
 			<artifactId>polaris-validator</artifactId>
 		</dependency>
 		<dependency>

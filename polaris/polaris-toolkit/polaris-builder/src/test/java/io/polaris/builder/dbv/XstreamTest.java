@@ -1,25 +1,27 @@
-package io.polaris.dbv;
+package io.polaris.builder.dbv;
 
 import com.alibaba.fastjson2.JSON;
+import io.polaris.builder.dbv.cfg.Configurations;
+import io.polaris.builder.dbv.cfg.DatabaseCfg;
+import io.polaris.core.io.IO;
 import com.thoughtworks.xstream.XStream;
-import io.polaris.dbv.cfg.Configurations;
-import io.polaris.dbv.cfg.DatabaseCfg;
-import io.polaris.dbv.toolkit.IOKit;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import java.io.FileNotFoundException;
 
 /**
  * @author Qt
- * @version Jul 24, 2019
+ * @since 1.8
  */
 public class XstreamTest {
 
 	@Test
-	public void test02() throws FileNotFoundException {
+	public void test02(TestInfo testInfo) throws FileNotFoundException {
+		System.out.println(testInfo.getDisplayName());
 		DatabaseCfg cfg = Configurations.getDatabaseCfg("/local.xml");
 		System.out.println(Configurations.buildXStream().toXML(cfg));
-		Object o = Configurations.buildXStream().fromXML(IOKit.getInputStream("/dbv/mysql.xml", Configurations.class));
+		Object o = Configurations.buildXStream().fromXML(IO.getInputStream("/META-INF/dbv/mysql.xml", Configurations.class));
 		System.out.println(o);
 	}
 

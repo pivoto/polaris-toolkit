@@ -10,12 +10,7 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -37,6 +32,20 @@ public class OS {
 			OS_NAME = System.getProperty("os.name");
 		}
 		return OS_NAME;
+	}
+
+	public static OsType getOsType() {
+		String osName = getOsName().toLowerCase();
+		if (osName.contains("win"))
+			return OsType.WINDOWS;
+		else if (osName.contains("mac"))
+			return OsType.MAC;
+		else if ((osName.contains("nix")) || (osName.contains("nux")))
+			return OsType.LINUX;
+		else if (osName.contains("sunos"))
+			return OsType.SOLARIS;
+		else
+			return OsType.UNKOWN;
 	}
 
 	public static String getHostName() {

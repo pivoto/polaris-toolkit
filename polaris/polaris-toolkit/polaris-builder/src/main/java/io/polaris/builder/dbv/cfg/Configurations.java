@@ -1,5 +1,6 @@
-package io.polaris.dbv.cfg;
+package io.polaris.builder.dbv.cfg;
 
+import io.polaris.core.io.IO;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
@@ -7,7 +8,6 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.security.AnyTypePermission;
-import io.polaris.dbv.toolkit.IOKit;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.FileNotFoundException;
@@ -17,11 +17,12 @@ import java.util.Properties;
 
 /**
  * @author Qt
+ * @since 1.8
  */
 @Slf4j
 public class Configurations {
+	private static final String DATABASE_XML = "/META-INF/dbv/database.xml";
 
-	private static final String DATABASE_XML = "/dbv/database.xml";
 
 	public static XStream buildXStream() {
 		XStream xs = new XStream();
@@ -55,11 +56,11 @@ public class Configurations {
 	}
 
 	private static InputStream getDatabaseCfgInputStream() throws FileNotFoundException {
-		return IOKit.getInputStream(DATABASE_XML);
+		return IO.getInputStream(DATABASE_XML);
 	}
 
 	private static InputStream getDatabaseCfgInputStream(String cfgPath) throws FileNotFoundException {
-		return IOKit.getInputStream(cfgPath);
+		return IO.getInputStream(cfgPath);
 	}
 
 	public static DatabaseCfg getDatabaseCfg(String cfgPath) throws FileNotFoundException {
@@ -87,7 +88,7 @@ public class Configurations {
 			log.error(e.getMessage(), e);
 			return null;
 		} finally {
-			IOKit.closeQuietly(in);
+			IO.close(in);
 		}
 	}
 
@@ -120,7 +121,7 @@ public class Configurations {
 			}
 			String jdbcInfoPropertiesPath = cfg.getJdbcInfoPropertiesPath();
 			if (jdbcInfoPropertiesPath != null) {
-				info.load(IOKit.getInputStream(jdbcInfoPropertiesPath));
+				info.load(IO.getInputStream(jdbcInfoPropertiesPath));
 			}
 			String jdbcUsername = cfg.getJdbcUsername();
 			if (jdbcUsername != null) {

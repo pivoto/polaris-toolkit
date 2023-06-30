@@ -72,11 +72,6 @@
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit.extra</groupId>
-				<artifactId>polaris-dbv</artifactId>
-				<version>${revision}</version>
-			</dependency>
-			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit.extra</groupId>
 				<artifactId>polaris-validator</artifactId>
 				<version>${revision}</version>
 			</dependency>

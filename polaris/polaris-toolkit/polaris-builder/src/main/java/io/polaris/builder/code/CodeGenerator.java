@@ -8,7 +8,7 @@ import io.polaris.builder.code.config.TypeMapping;
 import io.polaris.builder.code.dto.TableDto;
 import io.polaris.builder.code.reader.TablesReader;
 import io.polaris.builder.code.reader.TablesReaders;
-import io.polaris.dbv.toolkit.IOKit;
+import io.polaris.core.io.IO;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.StringUtils;
@@ -216,7 +216,7 @@ public class CodeGenerator {
 				if (StringUtils.isBlank(codeXmlPath) || !new File(codeXmlPath).isFile()) {
 					throw new IllegalArgumentException("代码生成配置信息未设置");
 				}
-				codeEnv = ConfigParser.parseXml(IOKit.getInputStream(codeXmlPath), new CodeEnv());
+				codeEnv = ConfigParser.parseXml(IO.getInputStream(codeXmlPath), new CodeEnv());
 			}
 		}
 		if (tablesReader == null) {
@@ -227,7 +227,7 @@ public class CodeGenerator {
 	private TablesReader buildTablesReader() throws IOException {
 		InputStream jdbcInput = null;
 		try {
-			jdbcInput = IOKit.getInputStream(jdbcXmlPath);
+			jdbcInput = IO.getInputStream(jdbcXmlPath);
 		} catch (FileNotFoundException e) {
 			log.warn(e.getMessage(), e);
 		}

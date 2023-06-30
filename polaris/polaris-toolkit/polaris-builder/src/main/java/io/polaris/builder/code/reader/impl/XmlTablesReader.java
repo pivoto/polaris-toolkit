@@ -8,8 +8,7 @@ import io.polaris.builder.code.dto.SchemaDto;
 import io.polaris.builder.code.dto.TableDto;
 import io.polaris.builder.code.dto.Tables;
 import io.polaris.builder.code.reader.TablesReader;
-import io.polaris.dbv.toolkit.MapKit;
-import io.polaris.dbv.toolkit.StringKit;
+import io.polaris.core.map.CaseInsensitiveMap;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -46,7 +45,7 @@ public class XmlTablesReader implements TablesReader {
 		xs.ignoreUnknownElements();
 		xs.autodetectAnnotations(true);
 		xs.processAnnotations(Tables.class);
-		xs.addDefaultImplementation(MapKit.CaseInsensitiveMap.class, Map.class);
+		xs.addDefaultImplementation(CaseInsensitiveMap.class, Map.class);
 		return xs;
 	}
 

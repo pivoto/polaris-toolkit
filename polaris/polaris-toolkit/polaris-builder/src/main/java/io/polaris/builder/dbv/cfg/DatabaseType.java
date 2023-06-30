@@ -1,4 +1,4 @@
-package io.polaris.dbv.cfg;
+package io.polaris.builder.dbv.cfg;
 
 /**
  * @author Qt

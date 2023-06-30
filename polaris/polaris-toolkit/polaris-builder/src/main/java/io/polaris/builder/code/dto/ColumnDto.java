@@ -4,7 +4,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import io.polaris.builder.code.JdbcTypes;
-import io.polaris.dbv.toolkit.StringKit;
+import io.polaris.core.string.Strings;
 import lombok.Data;
 import org.apache.commons.lang3.SerializationUtils;
 
@@ -90,10 +90,10 @@ public class ColumnDto implements Serializable {
 				}
 			}
 		}
-		if (StringKit.isEmpty(this.javaClassName)) {
+		if (Strings.isEmpty(this.javaClassName)) {
 			this.javaClassName = Character.toUpperCase(nameChars[0]) + sb.toString();
 		}
-		if (StringKit.isEmpty(this.javaVariableName)) {
+		if (Strings.isEmpty(this.javaVariableName)) {
 			this.javaVariableName = Character.toLowerCase(nameChars[0]) + sb.toString();
 		}
 
@@ -103,7 +103,7 @@ public class ColumnDto implements Serializable {
 		if (c != null) {
 			this.javaType = c.getName();
 		} else {
-			if (StringKit.isEmpty(this.javaType)) {
+			if (Strings.isEmpty(this.javaType)) {
 				c = JdbcTypes.getJavaType(this.type, this.columnSize, this.decimalDigits);
 				if (c == null) {
 					throw new IllegalArgumentException("不支持的JdbcType：" + this.jdbcType);
@@ -126,7 +126,7 @@ public class ColumnDto implements Serializable {
 	}
 
 	public void prepare4Type() {
-		if (StringKit.isNotEmpty(this.jdbcType)) {
+		if (Strings.isNotEmpty(this.jdbcType)) {
 			this.type = JdbcTypes.getTypeValue(this.jdbcType);
 			if (this.type == null) {
 				throw new IllegalArgumentException("未知JdbcType");
@@ -138,7 +138,7 @@ public class ColumnDto implements Serializable {
 			this.jdbcType = JdbcTypes.getTypeName(this.type, "VARCHAR");
 		}
 
-		if (StringKit.isEmpty(this.javaType)) {
+		if (Strings.isEmpty(this.javaType)) {
 			Class c = JdbcTypes.getJavaType(this.type, this.columnSize, this.decimalDigits);
 			if (c != null) {
 				this.javaType = c.getName();

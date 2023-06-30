@@ -4,7 +4,7 @@ package io.polaris.builder.code.dto;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
-import io.polaris.dbv.toolkit.MapKit;
+import io.polaris.core.map.Maps;
 import lombok.*;
 import org.apache.commons.lang3.SerializationUtils;
 
@@ -29,7 +29,7 @@ public class SchemaDto implements Serializable {
 	@Setter(AccessLevel.NONE)
 	@XStreamAlias("tables")
 	@XStreamImplicit(itemFieldName = "table", keyFieldName = "name")
-	private Map<String, TableDto> tables = MapKit.newCaseInsensitiveLinkedHashMap();
+	private Map<String, TableDto> tables = Maps.newUpperCaseLinkedHashMap();
 
 
 	public TableDto getTable(String name) {

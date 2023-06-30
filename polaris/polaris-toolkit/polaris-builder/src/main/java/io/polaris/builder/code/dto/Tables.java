@@ -2,7 +2,7 @@ package io.polaris.builder.code.dto;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
-import io.polaris.dbv.toolkit.MapKit;
+import io.polaris.core.map.Maps;
 import lombok.*;
 import org.apache.commons.lang3.SerializationUtils;
 
@@ -21,7 +21,7 @@ public class Tables implements Serializable {
 
 	@ToString.Exclude
 	@XStreamImplicit(itemFieldName = "catalog", keyFieldName = "name")
-	Map<String, CatalogDto> catalogs = MapKit.newCaseInsensitiveLinkedHashMap();
+	Map<String, CatalogDto> catalogs = Maps.newUpperCaseLinkedHashMap();
 
 	public CatalogDto getCatalog(String name) {
 		return catalogs.get(name);

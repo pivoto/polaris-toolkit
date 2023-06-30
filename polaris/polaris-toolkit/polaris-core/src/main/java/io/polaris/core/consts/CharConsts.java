@@ -88,7 +88,10 @@ public interface CharConsts {
 	 * 斜线
 	 */
 	char SLASH = '/';
-
+	/**
+	 * 反斜线
+	 */
+	char BACKSLASH = '\\';
 	/**
 	 * 问号
 	 */
@@ -108,7 +111,7 @@ public interface CharConsts {
 	/**
 	 * 双引号
 	 */
-	char DOUBLE_QUOTATION = '\'';
+	char DOUBLE_QUOTATION = '\"';
 	/**
 	 * 单引号
 	 */
