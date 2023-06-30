@@ -1,0 +1,51 @@
+#parse("/vm/include.vm")
+package ${pkgPrefix}${env.entityPackage};
+
+import cn.org.atool.fluent.mybatis.annotation.FluentMybatis;
+import cn.org.atool.fluent.mybatis.annotation.TableField;
+import cn.org.atool.fluent.mybatis.annotation.TableId;
+import cn.org.atool.fluent.mybatis.base.RichEntity;
+import cn.org.atool.fluent.mybatis.metadata.DbType;
+
+import java.io.Serializable;
+import lombok.*;
+import lombok.experimental.Accessors;
+#foreach($name in $table.columnJavaTypes)
+import $name;
+#end
+
+/**
+ * $!{table.name}
+ * $!{table.comment}
+ * @author $!{env.author}
+ * @since ${current.date}
+ */
+@SuppressWarnings({"rawtypes", "unchecked"})
+@Data
+@EqualsAndHashCode(callSuper = false)
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@FluentMybatis(table = "$!{table.name}", dbType = DbType.ORACLE, useDao = false)
+public class ${table.javaClassName}Entity extends RichEntity implements Serializable{
+
+	private static final long serialVersionUID = 1L;
+
+#foreach($col in $table.pkColumns)
+	/** 主键字段: #if(${col.comment})$!{col.comment}#else$!{col.name}#end */
+	@TableId(value = "$!{col.name}", auto = false, before = true)
+	private ${col.javaTypeSimpleName} ${col.javaVariableName};
+#end
+
+#foreach($col in $table.normalColumns)
+	/** #if(${col.comment})$!{col.comment}#else$!{col.name}#end */
+	@TableField("$!{col.name}")
+	private ${col.javaTypeSimpleName} ${col.javaVariableName};
+#end
+
+	@Override
+	public final Class entityClass() {
+		return ${table.javaClassName}Entity.class;
+	}
+
+}

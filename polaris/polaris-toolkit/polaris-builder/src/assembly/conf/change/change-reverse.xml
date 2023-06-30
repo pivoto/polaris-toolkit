@@ -15,6 +15,10 @@
 	<package name="io.polaris" mapping="com.jcfc.stdk"/>
 	<package name="polaris-annotation-processor" mapping="stdk-annotation-processor"/>
 	<change>
+		<src>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-builder/src</src>
+		<dest>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-builder/src</dest>
+	</change>
+	<change>
 		<src>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-core/src</src>
 		<dest>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-core/src</dest>
 	</change>
