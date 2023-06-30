@@ -112,24 +112,9 @@ public class Configurations {
 		try {
 			// 配置参数再加工
 			Properties info = cfg.getJdbcInfoProperties();
-			if (info == null) {
-				info = new Properties();
-				info.setProperty("remarks", "true");
-				info.setProperty("remarksReporting", "true");
-				info.setProperty("useInformationSchema", "true");
-				cfg.setJdbcInfoProperties(info);
-			}
 			String jdbcInfoPropertiesPath = cfg.getJdbcInfoPropertiesPath();
 			if (jdbcInfoPropertiesPath != null) {
 				info.load(IO.getInputStream(jdbcInfoPropertiesPath));
-			}
-			String jdbcUsername = cfg.getJdbcUsername();
-			if (jdbcUsername != null) {
-				info.setProperty("user", jdbcUsername);
-			}
-			String jdbcPassword = cfg.getJdbcPassword();
-			if (jdbcPassword != null) {
-				info.setProperty("password", jdbcPassword);
 			}
 		} catch (IOException e) {
 			log.warn(e.getMessage(), e);

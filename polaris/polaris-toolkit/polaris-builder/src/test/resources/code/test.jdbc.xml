@@ -6,5 +6,4 @@
 	<jdbc-url>jdbc:oracle:thin:@localhost:1521/cmisdb</jdbc-url>
 	<jdbc-username>basesv</jdbc-username>
 	<jdbc-password>basesv</jdbc-password>
-	<jdbc-info-properties-path>/code/database.properties</jdbc-info-properties-path>
 </database>

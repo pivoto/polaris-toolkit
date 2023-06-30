@@ -167,7 +167,7 @@
 					<xs:documentation>模板路径</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="outdir" type="xs:string">
+			<xs:element name="dirname" type="xs:string">
 				<xs:annotation>
 					<xs:documentation>输出的相对路径</xs:documentation>
 				</xs:annotation>

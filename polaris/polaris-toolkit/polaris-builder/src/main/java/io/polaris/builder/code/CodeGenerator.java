@@ -1,10 +1,6 @@
 package io.polaris.builder.code;
 
-import io.polaris.builder.code.config.CodeEnv;
-import io.polaris.builder.code.config.CodeGroup;
-import io.polaris.builder.code.config.CodeTable;
-import io.polaris.builder.code.config.ConfigParser;
-import io.polaris.builder.code.config.TypeMapping;
+import io.polaris.builder.code.config.*;
 import io.polaris.builder.code.dto.TableDto;
 import io.polaris.builder.code.reader.TablesReader;
 import io.polaris.builder.code.reader.TablesReaders;
@@ -20,11 +16,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -89,7 +81,7 @@ public class CodeGenerator {
 		if (groups == null) {
 			return;
 		}
-		List<TypeMapping> mappings = codeEnv.getMappings();
+		Collection<TypeMapping> mappings = codeEnv.getMappings();
 		if (mappings != null) {
 			JdbcTypes.createCustomMappings();
 			mappings.forEach(m -> JdbcTypes.addCustomMapping(m.getJdbcType(), m.getJavaType()));
@@ -109,7 +101,7 @@ public class CodeGenerator {
 	}
 
 	private void readTables(CodeGroup group) {
-		List<TypeMapping> mappings = group.getMappings();
+		Collection<TypeMapping> mappings = group.getMappings();
 		if (mappings != null) {
 			JdbcTypes.createCustomMappings();
 			mappings.forEach(m -> JdbcTypes.addCustomMapping(m.getJdbcType(), m.getJavaType()));
@@ -118,10 +110,10 @@ public class CodeGenerator {
 			for (CodeTable tableConfig : group.getTables()) {
 				String catalogName = StringUtils.trimToNull(tableConfig.getCatalog());
 				String schemaName = StringUtils.trimToNull(tableConfig.getSchema());
-				String tableName = StringUtils.trimToNull(tableConfig.getTable());
+				String tableName = StringUtils.trimToNull(tableConfig.getName());
 				TableDto table = tablesReader.read(catalogName, schemaName, tableName);
 				if (table == null) {
-					log.error("找不到表信息：[{}]", tableConfig.getTable());
+					log.error("找不到表信息：[{}]", tableConfig.getName());
 					continue;
 				}
 
@@ -135,7 +127,7 @@ public class CodeGenerator {
 	}
 
 	private void readTables(CodeGroup group, CodeTable tableConfig, TableDto table) {
-		List<TypeMapping> mappings = tableConfig.getMappings();
+		Collection<TypeMapping> mappings = tableConfig.getMappings();
 		if (mappings != null) {
 			JdbcTypes.createCustomMappings();
 			mappings.forEach(m -> JdbcTypes.addCustomMapping(m.getJdbcType(), m.getJavaType()));
@@ -143,8 +135,8 @@ public class CodeGenerator {
 		try {
 			// clone后再修改临时字段信息
 			table = table.clone();
-			if (StringUtils.isNotEmpty(tableConfig.getJavaPackageName())) {
-				table.setJavaPackageName(tableConfig.getJavaPackageName());
+			if (StringUtils.isNotEmpty(tableConfig.getJavaPackage())) {
+				table.setJavaPackageName(tableConfig.getJavaPackage());
 			}
 			table.setProperty(tableConfig.getProperty());
 

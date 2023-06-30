@@ -1,8 +1,10 @@
-package io.polaris.builder.code;
+package io.polaris.builder.code.config;
 
-import io.polaris.builder.code.config.CodeTable;
-
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * @author Qt
@@ -25,8 +27,8 @@ public class CodeTableBuilder {
 		return groupBuilder;
 	}
 
-	public CodeTableBuilder table(String table) {
-		target.setTable(table);
+	public CodeTableBuilder name(String name) {
+		target.setName(name);
 		return this;
 	}
 
@@ -40,13 +42,64 @@ public class CodeTableBuilder {
 		return this;
 	}
 
-	public CodeTableBuilder javaPackageName(String javaPackageName) {
-		target.setJavaPackageName(javaPackageName);
+	public CodeTableBuilder javaPackage(String javaPackage) {
+		target.setJavaPackage(javaPackage);
 		return this;
 	}
 
 	public CodeTableBuilder property(Map<String, String> property) {
 		target.setProperty(property);
+		return this;
+	}
+
+	public CodeTableBuilder property(Supplier<Map<String, String>> property) {
+		target.setProperty(property.get());
+		return this;
+	}
+
+	public CodeTableBuilder property(String key, String value) {
+		if (target.getProperty() == null) {
+			target.setProperty(new HashMap<>());
+		}
+		target.getProperty().put(key, value);
+		return this;
+	}
+
+	public CodeTableBuilder tablePrefix(String tablePrefix) {
+		target.setTablePrefix(tablePrefix);
+		return this;
+	}
+
+	public CodeTableBuilder tableSuffix(String tableSuffix) {
+		target.setTableSuffix(tableSuffix);
+		return this;
+	}
+
+	public CodeTableBuilder columnPrefix(String columnPrefix) {
+		target.setColumnPrefix(columnPrefix);
+		return this;
+	}
+
+	public CodeTableBuilder columnSuffix(String columnSuffix) {
+		target.setColumnSuffix(columnSuffix);
+		return this;
+	}
+
+	public CodeTableBuilder mappings(Set<TypeMapping> mappings) {
+		target.setMappings(mappings);
+		return this;
+	}
+
+	public CodeTableBuilder mappings(Supplier<Set<TypeMapping>> mappings) {
+		target.setMappings(mappings.get());
+		return this;
+	}
+
+	public CodeTableBuilder mapping(String jdbcType, String javaType) {
+		if (target.getMappings() == null) {
+			target.setMappings(new LinkedHashSet<>());
+		}
+		target.getMappings().add(new TypeMapping(jdbcType, javaType));
 		return this;
 	}
 }

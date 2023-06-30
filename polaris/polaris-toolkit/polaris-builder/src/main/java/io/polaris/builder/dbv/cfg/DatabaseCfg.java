@@ -35,5 +35,18 @@ public class DatabaseCfg {
 	@XStreamOmitField
 	private Map<String, SqlCfg> sqlmap = new LinkedHashMap<String, SqlCfg>();
 
+	public DatabaseCfg() {
+	}
 
+	public Properties getJdbcInfoProperties() {
+		if (jdbcInfoProperties == null) {
+			jdbcInfoProperties = new Properties();
+		}
+		jdbcInfoProperties.setProperty("remarks", "true");
+		jdbcInfoProperties.setProperty("remarksReporting", "true");
+		jdbcInfoProperties.setProperty("useInformationSchema", "true");
+		jdbcInfoProperties.setProperty("user", jdbcUsername);
+		jdbcInfoProperties.setProperty("password", jdbcPassword);
+		return jdbcInfoProperties;
+	}
 }

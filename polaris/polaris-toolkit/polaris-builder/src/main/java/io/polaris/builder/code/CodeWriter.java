@@ -4,7 +4,6 @@ import io.polaris.builder.code.config.CodeEnv;
 import io.polaris.builder.code.config.CodeGroup;
 import io.polaris.builder.code.config.CodeTable;
 import io.polaris.builder.code.config.CodeTemplate;
-import io.polaris.builder.code.config.TypeMapping;
 import io.polaris.builder.code.dto.TableDto;
 import io.polaris.builder.velocity.VelocityTemplate;
 import org.apache.commons.lang3.StringUtils;
@@ -12,11 +11,7 @@ import org.apache.velocity.context.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,6 +26,7 @@ public class CodeWriter {
 	private static final Logger log = LoggerFactory.getLogger("code.writer");
 	private final CodeEnv codeEnv;
 	private final Map<CodeTable, TableDto> tables;
+	public static final String VM_PREFIX = "#parse(\"/vm/include.vm\")";
 
 	public CodeWriter(CodeEnv codeEnv, Map<CodeTable, TableDto> tables) {
 		this.codeEnv = codeEnv;
@@ -73,23 +69,25 @@ public class CodeWriter {
 		for (CodeTemplate template : templates) {
 
 			String path = template.getPath();
-			String outdir = template.getOutdir();
+			String dirname = template.getDirname();
 			String filename = template.getFilename();
 
 			//String javaPackageName = table.getJavaPackageName();
 
-			log.info("生成表名[{}]的代码，模板：[{}]", table.getName(), path.replace('\\','/'));
+			log.info("生成表名[{}]的代码，模板：[{}]", table.getName(), path.replace('\\', '/'));
 
 			Map<String, String> env = new LinkedHashMap<>();
 			Map<String, Map<String, String>> property = new LinkedHashMap<>();
 
 			Context context = VelocityTemplate.createContext();
 
+			System.getenv().forEach((key, value) -> env.putIfAbsent((String) key, (String) value));
+			System.getProperties().forEach((key, value) -> env.putIfAbsent((String) key, (String) value));
+
 			context.put("sys", System.getProperties());
 			context.put("env", env);
 			context.put("property", property);
 			context.put("table", table);
-			System.getProperties().forEach((key, value) -> env.putIfAbsent((String) key, (String) value));
 			property.put("code", codeEnv.getProperty());
 			property.put("group", group.getProperty());
 			property.put("template", template.getProperty());
@@ -100,14 +98,14 @@ public class CodeWriter {
 			fetchVarToContextAndEnv(template.getProperty(), context, env, "template");
 			fetchVarToContextAndEnv(table.getProperty(), context, env, "table");
 
-			path = VelocityTemplate.eval(context, path);
-			outdir = VelocityTemplate.eval(context, outdir);
-			filename = VelocityTemplate.eval(context, filename);
+			path = VelocityTemplate.eval(context, VM_PREFIX + path);
+			dirname = VelocityTemplate.eval(context, VM_PREFIX + dirname);
+			filename = VelocityTemplate.eval(context, VM_PREFIX + filename);
 
 			try {
-				String basedir = VelocityTemplate.eval(context, baseOutdir);
-				File dir = StringUtils.isBlank(basedir) ? new File(outdir) : new File(basedir + "/" + outdir);
-				log.info("生成表名[{}]的代码，目录：[{}]，文件：[{}]", table.getName(), dir.getPath().replace('\\','/'), filename);
+				String basedir = VelocityTemplate.eval(context, VM_PREFIX + baseOutdir);
+				File dir = StringUtils.isBlank(basedir) ? new File(dirname) : new File(basedir + "/" + dirname);
+				log.info("生成表名[{}]的代码，目录：[{}]，文件：[{}]", table.getName(), dir.getPath().replace('\\', '/'), filename);
 				write(path, context, dir, filename);
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
@@ -134,7 +132,7 @@ public class CodeWriter {
 			String key = entry.getKey();
 			String value = entry.getValue();
 			// ref config-keys above
-			value = VelocityTemplate.eval(context, value);
+			value = VelocityTemplate.eval(context, VM_PREFIX + value);
 			env.put(key, value);
 
 			if (StringUtils.isNotBlank(prefix) && key.length() >= 1) {

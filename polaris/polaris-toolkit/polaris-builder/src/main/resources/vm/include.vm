@@ -24,8 +24,32 @@
 	#set($pkgPrefix='')
 #end
 ## default
+#if(not ${env.author})
+	#set($env.author="Qt")
+#end
+#if(not ${env.srcDir})
+	#set($env.srcDir="src/main/java")
+#end
+#if(not ${env.resourceDir})
+	#set($env.resourceDir="src/main/resources")
+#end
+#if(not ${env.webDir})
+	#set($env.webDir="src/main/resources/META-INF/resources")
+#end
 #if(not ${env.entityPackage})
 	#set($env.entityPackage="entity")
+#end
+#if(not ${env.mapperPackage})
+	#set($env.mapperPackage="mapper")
+#end
+#if(not ${env.servicePackage})
+	#set($env.servicePackage="service")
+#end
+#if(not ${env.implPackage})
+	#set($env.implPackage="impl")
+#end
+#if(not ${env.controllerPackage})
+	#set($env.controllerPackage="controller")
 #end
 ## author
 #macro(javaAuthor)

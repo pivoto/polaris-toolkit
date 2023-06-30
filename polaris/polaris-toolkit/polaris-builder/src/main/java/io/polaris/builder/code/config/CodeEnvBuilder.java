@@ -1,12 +1,9 @@
-package io.polaris.builder.code;
+package io.polaris.builder.code.config;
 
-import io.polaris.builder.code.config.CodeEnv;
-import io.polaris.builder.code.config.CodeGroup;
+import io.polaris.builder.code.CodeGenerator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Supplier;
 
 /**
  * @author Qt
@@ -40,8 +37,8 @@ public class CodeEnvBuilder {
 		return this;
 	}
 
-	public CodeEnvBuilder groups(List<CodeGroup> groups) {
-		target.setGroups(groups);
+	public CodeEnvBuilder property(Supplier<Map<String, String>> property) {
+		target.setProperty(property.get());
 		return this;
 	}
 
@@ -52,6 +49,50 @@ public class CodeEnvBuilder {
 		target.getProperty().put(key, value);
 		return this;
 	}
+
+	public CodeEnvBuilder tablePrefix(String tablePrefix) {
+		target.setTablePrefix(tablePrefix);
+		return this;
+	}
+
+	public CodeEnvBuilder tableSuffix(String tableSuffix) {
+		target.setTableSuffix(tableSuffix);
+		return this;
+	}
+
+	public CodeEnvBuilder columnPrefix(String columnPrefix) {
+		target.setColumnPrefix(columnPrefix);
+		return this;
+	}
+
+	public CodeEnvBuilder columnSuffix(String columnSuffix) {
+		target.setColumnSuffix(columnSuffix);
+		return this;
+	}
+
+	public CodeEnvBuilder mappings(Set<TypeMapping> mappings) {
+		target.setMappings(mappings);
+		return this;
+	}
+
+	public CodeEnvBuilder mappings(Supplier<Set<TypeMapping>> mappings) {
+		target.setMappings(mappings.get());
+		return this;
+	}
+
+	public CodeEnvBuilder mapping(String jdbcType, String javaType) {
+		if (target.getMappings() == null) {
+			target.setMappings(new LinkedHashSet<>());
+		}
+		target.getMappings().add(new TypeMapping(jdbcType, javaType));
+		return this;
+	}
+
+	public CodeEnvBuilder groups(List<CodeGroup> groups) {
+		target.setGroups(groups);
+		return this;
+	}
+
 
 	public CodeEnvBuilder addGroup(CodeGroup group) {
 		if (target.getGroups() == null) {

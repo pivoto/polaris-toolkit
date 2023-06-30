@@ -28,8 +28,12 @@ import java.util.Set;
  * @since 1.8
  */
 public class JdbcTablesReader implements TablesReader {
+	private final DatabaseCfg cfg;
 	private Connection conn;
-	private DatabaseCfg cfg;
+
+	public JdbcTablesReader(DatabaseCfg cfg) {
+		this.cfg = cfg;
+	}
 
 	public JdbcTablesReader(File jdbcCfgFile) throws IOException {
 		cfg = Configurations.getDatabaseCfg(new FileInputStream(jdbcCfgFile));
@@ -43,7 +47,7 @@ public class JdbcTablesReader implements TablesReader {
 	public TableDto read(String catalogName, String schemaName, String tableName) {
 		try {
 			if (conn == null || conn.isClosed()) {
-				conn =Jdbcs.getConnection(cfg.getJdbcDriver(),cfg.getJdbcUrl(),cfg.getJdbcInfoProperties());
+				conn = Jdbcs.getConnection(cfg.getJdbcDriver(), cfg.getJdbcUrl(), cfg.getJdbcInfoProperties());
 			}
 			DatabaseMetaData metaData = conn.getMetaData();
 			// 读取数据库中的表的元数据
@@ -71,7 +75,7 @@ public class JdbcTablesReader implements TablesReader {
 					column.setAutoincrement(col.isAutoincrement());
 					column.setGenerated(col.isGenerated());
 					column.setJdbcType(JdbcTypes.getTypeName(col.getDataType()));
-					column.setJavaType(JdbcTypes.getJavaType(col.getDataType(), col.getColumnSize(),col.getDecimalDigits()).getName());
+					column.setJavaType(JdbcTypes.getJavaType(col.getDataType(), col.getColumnSize(), col.getDecimalDigits()).getName());
 					table.getColumns().add(column);
 					if (pkColumns.contains(col.getColumnName())) {
 						column.setPrimary(true);

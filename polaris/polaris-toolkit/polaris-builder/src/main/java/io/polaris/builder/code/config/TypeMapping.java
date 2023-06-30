@@ -2,8 +2,7 @@ package io.polaris.builder.code.config;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 /**
  * @author Qt
@@ -12,6 +11,9 @@ import lombok.NoArgsConstructor;
 @Data
 @XStreamAlias("mapping")
 @NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class TypeMapping {
 	@XStreamAsAttribute
 	@XStreamAlias("jdbcType")

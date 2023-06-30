@@ -6,10 +6,7 @@ import com.thoughtworks.xstream.annotations.XStreamConverter;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Qt
@@ -37,7 +34,7 @@ public class CodeGroup {
 	private Map<String, String> property;
 	/** jdbc类型映射 */
 	@XStreamAlias("mappings")
-	private List<TypeMapping> mappings = new ArrayList<>();
+	private Set<TypeMapping> mappings = new LinkedHashSet<>();
 
 	/** 模板 */
 	@XStreamAlias("templates")

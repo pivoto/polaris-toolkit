@@ -6,5 +6,4 @@
 	<jdbc-url>jdbc:mysql://localhost:3306/study?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf-8&amp;zeroDateTimeBehavior=convertToNull&amp;useSSL=false</jdbc-url>
 	<jdbc-username>root</jdbc-username>
 	<jdbc-password>root</jdbc-password>
-	<jdbc-info-properties-path>/dbv/dbinfo.properties</jdbc-info-properties-path>
 </database>

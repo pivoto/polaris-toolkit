@@ -1,13 +1,12 @@
-package io.polaris.builder.code;
+package io.polaris.builder.code.config;
 
+import io.polaris.builder.code.config.CodeEnvBuilder;
 import io.polaris.builder.code.config.CodeGroup;
 import io.polaris.builder.code.config.CodeTable;
 import io.polaris.builder.code.config.CodeTemplate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Supplier;
 
 /**
  * @author Qt
@@ -46,6 +45,11 @@ public class CodeGroupBuilder {
 		return this;
 	}
 
+	public CodeGroupBuilder property(Supplier<Map<String, String>> property) {
+		target.setProperty(property.get());
+		return this;
+	}
+
 	public CodeGroupBuilder property(String key, String value) {
 		if (target.getProperty() == null) {
 			target.setProperty(new HashMap<>());
@@ -53,6 +57,45 @@ public class CodeGroupBuilder {
 		target.getProperty().put(key, value);
 		return this;
 	}
+
+	public CodeGroupBuilder tablePrefix(String tablePrefix) {
+		target.setTablePrefix(tablePrefix);
+		return this;
+	}
+
+	public CodeGroupBuilder tableSuffix(String tableSuffix) {
+		target.setTableSuffix(tableSuffix);
+		return this;
+	}
+
+	public CodeGroupBuilder columnPrefix(String columnPrefix) {
+		target.setColumnPrefix(columnPrefix);
+		return this;
+	}
+
+	public CodeGroupBuilder columnSuffix(String columnSuffix) {
+		target.setColumnSuffix(columnSuffix);
+		return this;
+	}
+
+	public CodeGroupBuilder mappings(Set<TypeMapping> mappings) {
+		target.setMappings(mappings);
+		return this;
+	}
+
+	public CodeGroupBuilder mappings(Supplier<Set<TypeMapping>> mappings) {
+		target.setMappings(mappings.get());
+		return this;
+	}
+
+	public CodeGroupBuilder mapping(String jdbcType, String javaType) {
+		if (target.getMappings() == null) {
+			target.setMappings(new LinkedHashSet<>());
+		}
+		target.getMappings().add(new TypeMapping(jdbcType, javaType));
+		return this;
+	}
+
 
 	public CodeGroupBuilder addTemplate(CodeTemplate template) {
 		if (target.getTemplates() == null) {

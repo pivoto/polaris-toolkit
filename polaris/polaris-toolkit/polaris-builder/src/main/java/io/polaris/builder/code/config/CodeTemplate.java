@@ -5,7 +5,6 @@ import com.thoughtworks.xstream.annotations.XStreamConverter;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -19,8 +18,8 @@ public class CodeTemplate {
 	@XStreamAlias("path")
 	private String path;
 	/** 输出目录路径*/
-	@XStreamAlias("outdir")
-	private String outdir;
+	@XStreamAlias("dirname")
+	private String dirname;
 	/** 输出文件名*/
 	@XStreamAlias("filename")
 	private String filename;
