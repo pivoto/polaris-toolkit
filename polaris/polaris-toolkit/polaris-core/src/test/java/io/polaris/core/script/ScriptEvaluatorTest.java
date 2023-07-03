@@ -12,10 +12,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class CalcEngineTest {
+class ScriptEvaluatorTest {
 	@Test
 	void test02() {
-		CalcEngine engine = CalcEngines.getCalcEngine("javascript");
+		ScriptEvaluator engine = ScriptEvaluators.getCalcEngine("javascript");
 		Map<String, Object> map = new HashMap<>();
 		map.put("c","123");
 		map.put("a","123");
@@ -37,7 +37,7 @@ class CalcEngineTest {
 
 	@Test
 	void test01() {
-		CalcEngine engine = CalcEngines.getCalcEngine("javascript");
+		ScriptEvaluator engine = ScriptEvaluators.getCalcEngine("javascript");
 		String content = "JSON.parse(input)";
 		String input = "{\"a\":1,\"b\":2,\"c\":{\"c1\":3,\"c2\":4},\"d\":[1,2,3,4]}";
 		Object rs = engine.eval(content, input);

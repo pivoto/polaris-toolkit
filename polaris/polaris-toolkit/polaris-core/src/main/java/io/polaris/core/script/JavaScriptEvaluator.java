@@ -4,7 +4,6 @@ import io.polaris.core.cache.ICache;
 import io.polaris.core.cache.MapCache;
 import io.polaris.core.compiler.MemoryCompiler;
 import io.polaris.core.crypto.Digests;
-import io.polaris.core.err.CalcException;
 import io.polaris.core.service.ServiceDefault;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,7 +21,7 @@ import java.util.regex.Pattern;
  */
 @Slf4j
 @ServiceDefault(Integer.MAX_VALUE)
-public class JavaCalcEngine implements CalcEngine {
+public class JavaScriptEvaluator implements ScriptEvaluator {
 	private static final AtomicLong CLASS_NO = new AtomicLong(0);
 	private static final Pattern importPattern = Pattern.compile("\\s*\\bimport\\s+(static\\s+)?[\\w\\.\\*]+;\\s*+");
 
@@ -84,7 +83,7 @@ public class JavaCalcEngine implements CalcEngine {
 	}
 
 	@Override
-	public Object eval(String scriptContent, Object input, Object output, Map<String, Object> mergeBindings) throws CalcException {
+	public Object eval(String scriptContent, Object input, Object output, Map<String, Object> mergeBindings) throws ScriptEvalException {
 		try {
 			String inputType = input == null ? Map.class.getName() : input.getClass().getName();
 			String outputType = output == null ? Map.class.getName() : output.getClass().getName();
@@ -125,7 +124,7 @@ public class JavaCalcEngine implements CalcEngine {
 			return output;
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
-			throw new CalcException(e.getMessage(), e);
+			throw new ScriptEvalException(e.getMessage(), e);
 		}
 	}
 }

@@ -6,8 +6,8 @@ import io.polaris.core.service.ServiceOrder;
  * @author Qt
  * @since 1.8
  */
-@ServiceOrder(200)
-public class GroovyCalcEngine extends StandardCalcEngine {
+@ServiceOrder(100)
+public class GroovyScriptEvaluator extends AbstractStandardScriptEvaluator {
 	public static final String ENGINE_NAME = "groovy";
 
 	@Override

@@ -3,7 +3,6 @@ package io.polaris.core.script;
 import io.polaris.core.cache.ICache;
 import io.polaris.core.cache.MapCache;
 import io.polaris.core.crypto.Digests;
-import io.polaris.core.err.CalcException;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.script.*;
@@ -16,7 +15,7 @@ import java.util.Map;
  * @since 1.8
  */
 @Slf4j
-public abstract class StandardCalcEngine implements CalcEngine {
+public abstract class AbstractStandardScriptEvaluator implements ScriptEvaluator {
 
 	public static final String OUT = "out";
 	public static final String ERR = "err";
@@ -26,7 +25,7 @@ public abstract class StandardCalcEngine implements CalcEngine {
 	private boolean compilable;
 	private ICache<String, CompiledScript> cache;
 
-	public StandardCalcEngine() {
+	public AbstractStandardScriptEvaluator() {
 		String engineName = getEngineName();
 		scriptEngine = manager.getEngineByName(engineName);
 		if (scriptEngine != null) {
@@ -65,7 +64,7 @@ public abstract class StandardCalcEngine implements CalcEngine {
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
-	public Object eval(String scriptContent, Object input, Object output, Map<String, Object> mergeBindings) throws CalcException {
+	public Object eval(String scriptContent, Object input, Object output, Map<String, Object> mergeBindings) throws ScriptEvalException {
 		try {
 			Bindings bindings = scriptEngine.createBindings();
 			if (mergeBindings != null) {
@@ -106,7 +105,7 @@ public abstract class StandardCalcEngine implements CalcEngine {
 			return rs;
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
-			throw new CalcException(e.getMessage(), e);
+			throw new ScriptEvalException(e.getMessage(), e);
 		}
 	}
 

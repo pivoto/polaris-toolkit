@@ -78,7 +78,7 @@ public class MemoryCompiler implements Compiler{
 
 	}
 
-	public Class<?> compile(String name, String sourceCode) throws ClassNotFoundException {
+	public Class<?> compile(String className, String sourceCode) throws ClassNotFoundException {
 		DiagnosticCollector<? super JavaFileObject> diagnostics = new DiagnosticCollector<>();
 		StandardJavaFileManager manager = this.compiler.getStandardFileManager(diagnostics, null, null);
 		try {
@@ -87,16 +87,16 @@ public class MemoryCompiler implements Compiler{
 			throw new IllegalStateException(e.getMessage(), e);
 		}
 
-		MemoryJavaFileObject javaFileObject = new MemoryJavaFileObject(name, sourceCode);
+		MemoryJavaFileObject javaFileObject = new MemoryJavaFileObject(className, sourceCode);
 		MemoryJavaFileManager javaFileManager = new MemoryJavaFileManager(manager, memoryClassLoader);
-		javaFileManager.putFileForInput(StandardLocation.SOURCE_PATH, name, javaFileObject);
+		javaFileManager.putFileForInput(StandardLocation.SOURCE_PATH, className, javaFileObject);
 		JavaCompiler.CompilationTask task = compiler.getTask(null, javaFileManager, diagnostics, options,
 				null, Collections.singletonList(javaFileObject));
 		Boolean rs = task.call();
 		if (rs == null || !rs) {
-			throw new IllegalStateException(compileError(name, diagnostics));
+			throw new IllegalStateException(compileError(className, diagnostics));
 		}
-		return memoryClassLoader.loadClass(name);
+		return memoryClassLoader.loadClass(className);
 	}
 
 

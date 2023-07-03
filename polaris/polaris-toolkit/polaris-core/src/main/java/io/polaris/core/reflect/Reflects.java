@@ -17,6 +17,8 @@ import java.util.function.Predicate;
  * @since 1.8
  */
 public class Reflects {
+	public static final String MAIN_METHOD = "main";
+	public static final Class[] MAIN_METHOD_ARGS = {String[].class};
 	private static final Map<Class<?>, Constructor<?>[]> CONSTRUCTORS_CACHE = Maps.newWeakKeyMap(new ConcurrentHashMap<>());
 	private static final Map<Class<?>, Field[]> FIELDS_CACHE = Maps.newWeakKeyMap(new ConcurrentHashMap<>());
 	private static final Map<Class<?>, Method[]> METHODS_CACHE = Maps.newWeakKeyMap(new ConcurrentHashMap<>());
@@ -632,6 +634,24 @@ public class Reflects {
 		} catch (ReflectiveOperationException ignore) {
 			return null;
 		}
+	}
+
+	public Object invokeMain(Class clazz) throws ReflectiveOperationException {
+		return invokeMain(clazz, new String[0]);
+	}
+
+	public Object invokeMain(Class clazz, String... mainArgs) throws ReflectiveOperationException {
+		Method main = clazz.getMethod(MAIN_METHOD, MAIN_METHOD_ARGS);
+		return main.invoke(null, new Object[]{mainArgs});
+	}
+
+	public <T> T invoke(Class clazz, String methodName, Class[] paramTypes, Object[] paramValues) throws ReflectiveOperationException {
+		Method method = Reflects.getMethod(clazz, methodName, paramTypes);
+		if (Modifier.isStatic(method.getModifiers())) {
+			return (T) Reflects.invoke(null, method, paramValues);
+		}
+		Object o = Reflects.newInstanceIfPossible(clazz);
+		return (T) Reflects.invoke(o, method, paramValues);
 	}
 
 	/**

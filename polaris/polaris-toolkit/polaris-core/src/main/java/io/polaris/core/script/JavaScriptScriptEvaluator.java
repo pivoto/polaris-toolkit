@@ -6,8 +6,8 @@ import io.polaris.core.service.ServiceOrder;
  * @author Qt
  * @since 1.8
  */
-@ServiceOrder(100)
-public class JavaScriptCalcEngine extends StandardCalcEngine {
+@ServiceOrder(200)
+public class JavaScriptScriptEvaluator extends AbstractStandardScriptEvaluator {
 
 	public static final String ENGINE_NAME = "javascript";
 
