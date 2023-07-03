@@ -22,12 +22,12 @@ import java.util.List;
  */
 @SuppressWarnings("All")
 public class DbvExp {
-	private static final String EXCEL_TPL_NAME = "/tables.xlsm";
+	private static final String EXCEL_TPL_NAME = "/META-INF/dbv/tables.xlsm";
 	private static final ExcelTemplateConfig DEFAULT_TEMPLATE_CONFIG = new ExcelTemplateConfig();
 	public static final ExcelIndexConfig DEFAULT_INDEX_CONFIG = new ExcelIndexConfig();
 
 
-	public static InputStream getTemplateResourceStream() {
+	public static InputStream getTemplateExcelStream() {
 		InputStream in = DbvExp.class.getResourceAsStream(EXCEL_TPL_NAME);
 		return in;
 	}

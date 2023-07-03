@@ -32,7 +32,7 @@ class DbvExpTest {
 	@Test
 	public void testExpExcel() throws IOException, SQLException {
 		try (
-			InputStream in = DbvExp.getTemplateResourceStream();
+			InputStream in = DbvExp.getTemplateExcelStream();
 			FileOutputStream out = new FileOutputStream(new File("/tmp/BASESV.xlsm"));
 		) {
 			XSSFWorkbook book = DbvExp.newXSSFWorkbook(in);
