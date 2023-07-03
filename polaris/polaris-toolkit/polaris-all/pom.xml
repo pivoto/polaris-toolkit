@@ -40,6 +40,5 @@
 			<groupId>cn.pivoto.polaris.toolkit.extra</groupId>
 			<artifactId>polaris-web</artifactId>
 		</dependency>
-
 	</dependencies>
 </project>

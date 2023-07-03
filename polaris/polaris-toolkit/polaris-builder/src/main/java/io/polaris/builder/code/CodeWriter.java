@@ -23,7 +23,6 @@ import java.util.Set;
  * @since 1.8
  */
 public class CodeWriter {
-	private static final Logger log = LoggerFactory.getLogger("code.writer");
 	private final CodeEnv codeEnv;
 	private final Map<CodeTable, TableDto> tables;
 	public static final String VM_PREFIX = "#parse(\"/vm/include.vm\")";
@@ -54,7 +53,7 @@ public class CodeWriter {
 				}
 			}
 		} catch (IOException e) {
-			log.error("", e);
+			CodeLogger.error("", e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -74,7 +73,7 @@ public class CodeWriter {
 
 			//String javaPackageName = table.getJavaPackageName();
 
-			log.info("生成表名[{}]的代码，模板：[{}]", table.getName(), path.replace('\\', '/'));
+			CodeLogger.info("生成表名[{}]的代码，模板：[{}]", table.getName(), path.replace('\\', '/'));
 
 			Map<String, String> env = new LinkedHashMap<>();
 			Map<String, Map<String, String>> property = new LinkedHashMap<>();
@@ -105,10 +104,10 @@ public class CodeWriter {
 			try {
 				String basedir = VelocityTemplate.eval(context, VM_PREFIX + baseOutdir);
 				File dir = StringUtils.isBlank(basedir) ? new File(dirname) : new File(basedir + "/" + dirname);
-				log.info("生成表名[{}]的代码，目录：[{}]，文件：[{}]", table.getName(), dir.getPath().replace('\\', '/'), filename);
+				CodeLogger.info("生成表名[{}]的代码，目录：[{}]，文件：[{}]", table.getName(), dir.getPath().replace('\\', '/'), filename);
 				write(path, context, dir, filename);
 			} catch (Exception e) {
-				log.error(e.getMessage(), e);
+				CodeLogger.error(e.getMessage(), e);
 			}
 		}
 	}

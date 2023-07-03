@@ -24,7 +24,7 @@ public class CodeTest {
 	void beforeEach() {
 		String dir = getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
 		targetDir = dir.replaceFirst("test-classes/$", "");
-		System.out.println(targetDir);
+		System.out.println("targetDir: " + targetDir);
 	}
 
 
@@ -62,6 +62,7 @@ public class CodeTest {
 	}
 
 	@Code(
+		logWithStd = false,
 		outDir = "/tmp/code",
 		jdbcDriver = "oracle.jdbc.OracleDriver",
 		jdbcUrl = "jdbc:oracle:thin:@localhost:1521/cmisdb",

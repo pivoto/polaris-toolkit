@@ -35,6 +35,8 @@ import static io.polaris.builder.code.annotation.Template.*;
 })
 public @interface Code {
 
+	boolean logWithStd() default true;
+
 	String outDir() default ".";
 
 	Property[] property() default {};

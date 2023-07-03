@@ -57,7 +57,7 @@ public class Codes {
 			}
 		}
 
-		CodeGenerator generator = generator();
+		CodeGenerator generator = generator().logWithStd(code.logWithStd());
 		CodeEnvBuilder codeEnvBuilder = generator.codeEnvBuilder();
 		codeEnvBuilder
 			.outdir(code.outDir())

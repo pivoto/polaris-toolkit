@@ -17,7 +17,6 @@ import java.util.Map;
  * @author Qt
  * @since 1.8
  */
-@Slf4j
 public class JdbcTypes {
 
 	private static final Map<Integer, String> typeNames = new HashMap<>();
@@ -108,11 +107,11 @@ public class JdbcTypes {
 				try {
 					c = Class.forName("java.lang." + javaType);
 				} catch (ClassNotFoundException ex) {
-					log.warn("", e);
+					CodeLogger.warn("", e);
 					return false;
 				}
 			} else {
-				log.warn("", e);
+				CodeLogger.warn("", e);
 				return false;
 			}
 		}

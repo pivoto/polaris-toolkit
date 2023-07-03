@@ -24,7 +24,6 @@ import java.util.function.Function;
  * @version Jun 09, 2019
  */
 public class CodeGenerator {
-	private static final Logger log = LoggerFactory.getLogger("code.generator");
 	private CodeEnvBuilder codeEnvBuilder;
 	/** 代码生成配置信息 */
 	@Accessors(fluent = true, chain = true)
@@ -56,6 +55,12 @@ public class CodeGenerator {
 	public void generate() throws IOException {
 		readConfig();
 		new CodeWriter(codeEnv, tables).write();
+	}
+
+
+	public CodeGenerator logWithStd(boolean withStd){
+		CodeLogger.withStd(withStd);
+		return this;
 	}
 
 	public CodeEnvBuilder codeEnvBuilder() {
@@ -113,7 +118,7 @@ public class CodeGenerator {
 				String tableName = StringUtils.trimToNull(tableConfig.getName());
 				TableDto table = tablesReader.read(catalogName, schemaName, tableName);
 				if (table == null) {
-					log.error("找不到表信息：[{}]", tableConfig.getName());
+					CodeLogger.error("找不到表信息：[{}]", tableConfig.getName());
 					continue;
 				}
 
@@ -221,7 +226,7 @@ public class CodeGenerator {
 		try {
 			jdbcInput = IO.getInputStream(jdbcXmlPath);
 		} catch (FileNotFoundException e) {
-			log.warn(e.getMessage(), e);
+			CodeLogger.warn(e.getMessage(), e);
 		}
 		TablesReader tablesReader = null;
 		if (jdbcInput == null) {

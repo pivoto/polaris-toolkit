@@ -55,6 +55,11 @@
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<artifactId>polaris-builder</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-annotation-processor-service</artifactId>
 				<version>${revision}</version>
 			</dependency>
