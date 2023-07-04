@@ -6,7 +6,7 @@ import io.polaris.core.service.ServiceOrder;
  * @author Qt
  * @since 1.8
  */
-@ServiceOrder(100)
+@ServiceOrder(200)
 public class GroovyScriptEvaluator extends AbstractStandardScriptEvaluator {
 	public static final String ENGINE_NAME = "groovy";
 
