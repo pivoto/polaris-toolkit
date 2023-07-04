@@ -240,6 +240,10 @@ public class Reflects {
 		return Introspector.decapitalize(name);
 	}
 
+	public static String getLambdaMethodName(MethodReferenceReflection f) {
+		return f.serialized().getImplMethodName();
+	}
+
 
 	public static <T> String getPropertyName(SerializableSupplier<T> getter) {
 		return toGetterOrSetterName(getter.method().getName());

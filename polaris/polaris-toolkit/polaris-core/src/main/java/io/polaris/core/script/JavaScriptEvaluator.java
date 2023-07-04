@@ -4,6 +4,8 @@ import io.polaris.core.cache.ICache;
 import io.polaris.core.cache.MapCache;
 import io.polaris.core.compiler.MemoryCompiler;
 import io.polaris.core.crypto.Digests;
+import io.polaris.core.reflect.Reflects;
+import io.polaris.core.reflect.SerializableQuaternionConsumer;
 import io.polaris.core.service.ServiceDefault;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,10 +27,10 @@ public class JavaScriptEvaluator implements ScriptEvaluator {
 	private static final AtomicLong CLASS_NO = new AtomicLong(0);
 	private static final Pattern importPattern = Pattern.compile("\\s*\\bimport\\s+(static\\s+)?[\\w\\.\\*]+;\\s*+");
 
-	private ICache<String, JavaCalcFunction> cache = new MapCache<>(0x1000, true);
+	private ICache<String, JavaScriptFunction> cache = new MapCache<>(0x1000, true);
 
 	static String nextClassName() {
-		return JavaCalcFunction.class.getName() + "Impl" + CLASS_NO.incrementAndGet();
+		return JavaScriptFunction.class.getName() + "Impl" + CLASS_NO.incrementAndGet();
 	}
 
 	static String asClassContent(String className, String classBody, String inputType, String outputType) {
@@ -58,7 +60,7 @@ public class JavaScriptEvaluator implements ScriptEvaluator {
 			body.setLength(0);
 		}
 
-		sb.append("public class ").append(simpleName).append(" extends ").append(JavaCalcFunction.class.getName());
+		sb.append("public class ").append(simpleName).append(" extends ").append(JavaScriptFunction.class.getName());
 		sb.append("{");
 		sb.append("\n");
 
@@ -68,8 +70,11 @@ public class JavaScriptEvaluator implements ScriptEvaluator {
 		sb.append("}");
 		sb.append("\n");
 
-		// region calc override
-		sb.append("public void calc(Object _input, Object _output, Map<String, Object> bindings){\n");
+		// region override
+		sb.append("public void ")
+			.append(Reflects.getLambdaMethodName(
+				(SerializableQuaternionConsumer<JavaScriptFunction, Object, Object, Map<String, Object>>) JavaScriptFunction::doEval))
+			.append("(Object _input, Object _output, Map<String, Object> bindings){\n");
 		sb.append(inputType).append(" input = (").append(inputType).append(")_input;").append("\n");
 		sb.append(outputType).append(" output = (").append(outputType).append(")_output;").append("\n");
 		sb.append(classBody).append("\n");
@@ -90,7 +95,7 @@ public class JavaScriptEvaluator implements ScriptEvaluator {
 			String sha1 = Base64.getEncoder().encodeToString(
 				Digests.sha1(scriptContent + "\n" + inputType + "\n" + outputType)
 			);
-			JavaCalcFunction bean = cache.getIfPresent(sha1);
+			JavaScriptFunction bean = cache.getIfPresent(sha1);
 			if (bean == null) {
 				synchronized (this) {
 					bean = cache.getIfPresent(sha1);
@@ -98,7 +103,7 @@ public class JavaScriptEvaluator implements ScriptEvaluator {
 						String className = nextClassName();
 						String content = asClassContent(className, scriptContent, inputType, outputType);
 						Class<?> clazz = MemoryCompiler.getInstance().compile(className, content);
-						bean = (JavaCalcFunction) clazz.newInstance();
+						bean = (JavaScriptFunction) clazz.newInstance();
 						cache.put(sha1, bean);
 					}
 				}
