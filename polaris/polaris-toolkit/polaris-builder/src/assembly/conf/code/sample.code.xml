@@ -38,37 +38,37 @@
 				<template>
 					<property></property>
 					<path>/vm/example.txt.vm</path>
-					<outdir>${env.srcDir}/</outdir>
+					<dirname>${env.srcDir}/</dirname>
 					<filename>${table.javaClassName}.example.txt</filename>
 				</template>
 				<template>
 					<property></property>
 					<path>/vm/entity.java.vm</path>
-					<outdir>${env.srcDir}/${table.javaPackageDir}/${env.entityPackage}</outdir>
+					<dirname>${env.srcDir}/${table.javaPackageDir}/${env.entityPackage}</dirname>
 					<filename>${table.javaClassName}Entity.java</filename>
 				</template>
 				<template>
 					<property></property>
 					<path>/vm/mapper.java.vm</path>
-					<outdir>${env.srcDir}/${table.javaPackageDir}/${env.mapperPackage}</outdir>
+					<dirname>${env.srcDir}/${table.javaPackageDir}/${env.mapperPackage}</dirname>
 					<filename>${table.javaClassName}Mapper.java</filename>
 				</template>
 				<template>
 					<property></property>
 					<path>/vm/mapper.xml.vm</path>
-					<outdir>${env.srcDir}/${table.javaPackageDir}/${env.mapperPackage}</outdir>
+					<dirname>${env.srcDir}/${table.javaPackageDir}/${env.mapperPackage}</dirname>
 					<filename>${table.javaClassName}Mapper.xml</filename>
 				</template>
 				<template>
 					<property></property>
 					<path>/vm/service.java.vm</path>
-					<outdir>${env.srcDir}/${table.javaPackageDir}/${env.servicePackage}</outdir>
+					<dirname>${env.srcDir}/${table.javaPackageDir}/${env.servicePackage}</dirname>
 					<filename>I${table.javaClassName}Service.java</filename>
 				</template>
 				<template>
 					<property></property>
 					<path>/vm/service-impl.java.vm</path>
-					<outdir>${env.srcDir}/${table.javaPackageDir}/${env.servicePackage}/${env.implPackage}</outdir>
+					<dirname>${env.srcDir}/${table.javaPackageDir}/${env.servicePackage}/${env.implPackage}</dirname>
 					<filename>${table.javaClassName}ServiceImpl.java</filename>
 				</template>
 			</templates>
