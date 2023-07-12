@@ -26,13 +26,13 @@
 				</template>
 				<template>
 					<property></property>
-					<path>/vm/java/Entity.java.vm</path>
+					<path>/vm/java/base/entity/Entity.java.vm</path>
 					<dirname>${env.srcDir}/${table.javaPackageDir}/${env.entityPackage}</dirname>
 					<filename>${table.javaClassName}Entity.java</filename>
 				</template>
 				<template>
 					<property></property>
-					<path>/vm/java/Mapper.java.vm</path>
+					<path>/vm/java/base/mapper/Mapper.java.vm</path>
 					<dirname>${env.srcDir}/${table.javaPackageDir}/${env.mapperPackage}</dirname>
 					<filename>${table.javaClassName}Mapper.java</filename>
 				</template>
@@ -44,25 +44,25 @@
 				</template>
 				<template>
 					<property></property>
-					<path>/vm/java/Service.java.vm</path>
+					<path>/vm/java/base/service/Service.java.vm</path>
 					<dirname>${env.srcDir}/${table.javaPackageDir}/${env.servicePackage}</dirname>
 					<filename>${table.javaClassName}Service.java</filename>
 				</template>
 				<template>
 					<property></property>
-					<path>/vm/java/IService.java.vm</path>
+					<path>/vm/java/base/service/IService.java.vm</path>
 					<dirname>${env.srcDir}/${table.javaPackageDir}/${env.servicePackage}</dirname>
 					<filename>I${table.javaClassName}Service.java</filename>
 				</template>
 				<template>
 					<property></property>
-					<path>/vm/java/ServiceImpl.java.vm</path>
+					<path>/vm/java/base/service/ServiceImpl.java.vm</path>
 					<dirname>${env.srcDir}/${table.javaPackageDir}/${env.servicePackage}/${env.implPackage}</dirname>
 					<filename>${table.javaClassName}ServiceImpl.java</filename>
 				</template>
 				<template>
 					<property></property>
-					<path>/vm/java/Controller.java.vm</path>
+					<path>/vm/java/facade/controller/Controller.java.vm</path>
 					<dirname>${env.srcDir}/${table.javaPackageDir}/${env.controllerPackage}/${env.implPackage}</dirname>
 					<filename>${table.javaClassName}Controller.java</filename>
 				</template>

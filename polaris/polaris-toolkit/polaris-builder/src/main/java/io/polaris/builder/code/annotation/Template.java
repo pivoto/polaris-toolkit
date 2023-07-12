@@ -14,23 +14,40 @@ import java.lang.annotation.Target;
 public @interface Template {
 
 	String VM_PATH_EXAMPLE = "/vm/example.txt.vm";
-	String VM_PATH_ENTITY = "/vm/java/Entity.java.vm";
-	String VM_PATH_ENTITY_FLUENT_MYBATIS = "/vm/java/FluentMybatisEntity.java.vm";
-	String VM_PATH_MAPPER = "/vm/java/Mapper.java.vm";
-	String VM_PATH_SERVICE = "/vm/java/Service.java.vm";
+	String VM_PATH_ENTITY = "/vm/java/base/entity/Entity.java.vm";
+	String VM_PATH_ENTITY_FLUENT_MYBATIS = "/vm/java/base/entity/FluentMybatisEntity.java.vm";
+	String VM_PATH_MAPPER = "/vm/java/base/mapper/Mapper.java.vm";
+	String VM_PATH_SERVICE = "/vm/java/base/service/Service.java.vm";
 	String VM_PATH_MAPPER_XML = "/vm/resources/Mapper.xml.vm";
+	String VM_PATH_CONTROLLER = "/vm/java/facade/controller/Controller.java.vm";
+	String VM_PATH_RPC = "/vm/java/facade/rpc/Rpc.java.vm";
+	String VM_PATH_RPC_DML_INPUT = "/vm/java/facade/model/RpcDmlInput.java.vm";
+	String VM_PATH_RPC_GET_INPUT = "/vm/java/facade/model/RpcGetInput.java.vm";
+	String VM_PATH_RPC_LIST_INPUT = "/vm/java/facade/model/RpcListInput.java.vm";
+	String VM_PATH_RPC_GET_OUTPUT = "/vm/java/facade/model/RpcGetOutput.java.vm";
+	String VM_PATH_RPC_LIST_OUTPUT = "/vm/java/facade/model/RpcListOutput.java.vm";
 
 	String FILENAME_EXAMPLE = "${table.javaClassName}.example.txt";
 	String FILENAME_ENTITY = "${table.javaClassName}Entity.java";
 	String FILENAME_MAPPER = "${table.javaClassName}Mapper.java";
 	String FILENAME_SERVICE = "${table.javaClassName}Service.java";
 	String FILENAME_MAPPER_XML = "${table.javaClassName}Mapper.xml";
+	String FILENAME_CONTROLLER = "${table.javaClassName}Controller.java";
+	String FILENAME_RPC = "${table.javaClassName}Rpc.java";
+	String FILENAME_RPC_DML_INPUT = "${table.javaClassName}DmlInput.java";
+	String FILENAME_RPC_GET_INPUT = "${table.javaClassName}GetInput.java";
+	String FILENAME_RPC_LIST_INPUT = "${table.javaClassName}ListInput.java";
+	String FILENAME_RPC_GET_OUTPUT = "${table.javaClassName}GetOutput.java";
+	String FILENAME_RPC_LIST_OUTPUT = "${table.javaClassName}ListOutput.java";
 
 	String DIRNAME_EXAMPLE = "/";
-	String DIRNAME_ENTITY = "${env.srcDir}/${table.javaPackageDir}/${env.entityPackage}";
-	String DIRNAME_MAPPER = "${env.srcDir}/${table.javaPackageDir}/${env.mapperPackage}";
-	String DIRNAME_SERVICE = "${env.srcDir}/${table.javaPackageDir}/${env.servicePackage}";
-	String DIRNAME_MAPPER_XML = "${env.resourceDir}/${env.mapperPackage}";
+	String DIRNAME_ENTITY = "${env.srcDir}/${table.javaPackageDir}/${env.basePackage.replace('.','/')}/${env.entityPackage.replace('.','/')}";
+	String DIRNAME_MAPPER = "${env.srcDir}/${table.javaPackageDir}/${env.basePackage.replace('.','/')}/${env.mapperPackage.replace('.','/')}";
+	String DIRNAME_SERVICE = "${env.srcDir}/${table.javaPackageDir}/${env.basePackage.replace('.','/')}/${env.servicePackage.replace('.','/')}";
+	String DIRNAME_MAPPER_XML = "${env.resourceDir}/${env.mapperPackage.replace('.','/')}";
+	String DIRNAME_CONTROLLER = "${env.srcDir}/${table.javaPackageDir}/${env.facadePackage.replace('.','/')}/${env.controllerPackage.replace('.','/')}";
+	String DIRNAME_RPC = "${env.srcDir}/${table.javaPackageDir}/${env.facadePackage.replace('.','/')}//${env.rpcPackage.replace('.','/')}";
+	String DIRNAME_MODEL = "${env.srcDir}/${table.javaPackageDir}/${env.facadePackage.replace('.','/')}/${env.modelPackage.replace('.','/')}";
 
 	String path();
 

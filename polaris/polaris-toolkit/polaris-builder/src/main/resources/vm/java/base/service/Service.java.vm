@@ -1,0 +1,345 @@
+#parse("/vm/include.vm")
+package ${pkgPrefix}${env.servicePackage.replace('/','.')};
+
+import java.util.List;
+import java.util.Map;
+import lombok.*;
+import lombok.experimental.*;
+import lombok.extern.slf4j.*;
+
+import org.apache.ibatis.session.RowBounds;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+
+import ${pkgPrefix}${env.mapperPackage.replace('/','.')}.${table.javaClassName}Mapper;
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}Entity;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+
+/**
+ * $!{table.name}
+ * $!{table.comment}
+ * @author $!{env.author}
+ * @since ${current.date}
+ */
+@Slf4j
+@Service
+public class ${table.javaClassName}Service {
+	@Autowired
+	private ${table.javaClassName}Mapper mapper;
+
+	/**
+	 * 查询满足条件的总数
+	 *
+	 * @param param 查询条件对象
+	 * @return 结果总数
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public int getCount(${table.javaClassName}Entity param) {
+		log.info("查询表记录数: ${table.name}");
+		int count = mapper.getCount(param);
+		return count;
+	}
+	/**
+	 * 查询满足条件的总数
+	 *
+	 * @param param 查询条件对象
+	 * @return 结果总数
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public int getCount(Map<String,Object> param) {
+		log.info("查询表记录数: ${table.name}");
+		int count = mapper.getCount(param);
+		return count;
+	}
+
+	/**
+	 * 分页查询所有数据,返回当前页{@link Page}对象
+	 *
+	 * @param param 查询条件对象
+	 * @param pageNum 页码
+	 * @param pageSize 每页记录数
+	 * @return 当前页对象
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public Page<${table.javaClassName}Entity> getPage(${table.javaClassName}Entity param, int pageNum, int pageSize) {
+		log.info("查询表结果集: ${table.name}");
+		Page<${table.javaClassName}Entity> page = PageHelper.startPage(pageNum, pageSize, false);
+		List<${table.javaClassName}Entity> list = mapper.getAll(param);
+		if(list instanceof Page){
+			page = (Page<${table.javaClassName}Entity>) list;
+		}else{
+			page.addAll(list);
+		}
+		int total = mapper.getCount(param);
+		page.setTotal(total);
+		return page;
+	}
+	/**
+	 * 分页查询所有数据,返回当前页{@link Page}对象
+	 *
+	 * @param param 查询条件对象
+	 * @param pageNum 页码
+	 * @param pageSize 每页记录数
+	 * @return 当前页对象
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public Page<${table.javaClassName}Entity> getPage(Map<String,Object> param, int pageNum, int pageSize) {
+		log.info("查询表结果集: ${table.name}");
+		Page<${table.javaClassName}Entity> page = PageHelper.startPage(pageNum, pageSize, false);
+		List<${table.javaClassName}Entity> list = mapper.getAll(param);
+		if(list instanceof Page){
+			page = (Page<${table.javaClassName}Entity>) list;
+		}else{
+			page.addAll(list);
+		}
+		int total = mapper.getCount(param);
+		page.setTotal(total);
+		return page;
+	}
+
+	/**
+	 * 分页查询所有数据, 无分页参数时返回所有数据
+	 *
+	 * @param param 查询条件对象
+	 * @param page 分布参数
+	 * @return 当前页对象
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public List<${table.javaClassName}Entity> getPage(${table.javaClassName}Entity param, com.jcfc.bf.core.data.domain.Page page) {
+		if (page == null) {
+			return mapper.getAll(param);
+		}
+		Page<${table.javaClassName}Entity> data = PageHelper.startPage(page.pageIdx, page.pageSize, true)
+			.doSelectPage(() -> mapper.getAll(param));
+		page.setRecordSize((int) data.getTotal());
+		return data;
+	}
+	/**
+	 * 分页查询所有数据, 无分页参数时返回所有数据
+	 *
+	 * @param param 查询条件对象
+	 * @param page 分布参数
+	 * @return 当前页对象
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public List<${table.javaClassName}Entity> getPage(Map<String,Object> param, com.jcfc.bf.core.data.domain.Page page) {
+		if (page == null) {
+			return mapper.getAll(param);
+		}
+		Page<${table.javaClassName}Entity> data = PageHelper.startPage(page.pageIdx, page.pageSize, true)
+			.doSelectPage(() -> mapper.getAll(param));
+		page.setRecordSize((int) data.getTotal());
+		return data;
+	}
+
+	/**
+	 * 查询满足条件的不超过数据量上限的所有数据,返回{@link List}对象列表
+	 *
+	 * @param param 查询条件对象
+	 * @return 结果对象列表
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public List<${table.javaClassName}Entity> getLimitedList(${table.javaClassName}Entity param, int maxCount) {
+		log.info("查询表结果集: ${table.name}");
+		List<${table.javaClassName}Entity> list = mapper.getAll(param, new RowBounds(0, maxCount));
+		return list;
+	}
+
+	/**
+	 * 查询满足条件的不超过数据量上限的所有数据,返回{@link List}对象列表
+	 *
+	 * @param param 查询条件对象
+	 * @return 结果对象列表
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public List<${table.javaClassName}Entity> getLimitedList(Map<String,Object> param, int maxCount) {
+		log.info("查询表结果集: ${table.name}");
+		List<${table.javaClassName}Entity> list = mapper.getAll(param, new RowBounds(0, maxCount));
+		return list;
+	}
+
+	/**
+	 * 查询满足条件的所有数据,返回{@link List}对象列表
+	 *
+	 * @param param 查询条件对象
+	 * @return 结果对象列表
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public List<${table.javaClassName}Entity> getList(${table.javaClassName}Entity param) {
+		log.info("查询表结果集: ${table.name}");
+		List<${table.javaClassName}Entity> list = mapper.getAll(param);
+		return list;
+	}
+	/**
+	 * 查询满足条件的所有数据,返回{@link List}对象列表
+	 *
+	 * @param param 查询条件对象
+	 * @return 结果对象列表
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public List<${table.javaClassName}Entity> getList(Map<String,Object> param) {
+		log.info("查询表结果集: ${table.name}");
+		List<${table.javaClassName}Entity> list = mapper.getAll(param);
+		return list;
+	}
+
+	/**
+	 * 分页查询所有数据,返回{@link List}对象列表
+	 *
+	 * @param param 查询条件对象
+	 * @param pageIndex 页码
+	 * @param pageSize 每页记录数
+	 * @return 结果对象列表
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public List<${table.javaClassName}Entity> getList(${table.javaClassName}Entity param, int pageIndex, int pageSize) {
+		log.info("查询表结果集: ${table.name}");
+		List<${table.javaClassName}Entity> list = mapper.getAll(param, new RowBounds(pageIndex * pageSize, pageSize));
+		return list;
+	}
+	/**
+	 * 分页查询所有数据,返回{@link List}对象列表
+	 *
+	 * @param param 查询条件对象
+	 * @param pageIndex 页码
+	 * @param pageSize 每页记录数
+	 * @return 结果对象列表
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public List<${table.javaClassName}Entity> getList(Map<String,Object> param, int pageIndex, int pageSize) {
+		log.info("查询表结果集: ${table.name}");
+		List<${table.javaClassName}Entity> list = mapper.getAll(param, new RowBounds(pageIndex * pageSize, pageSize));
+		return list;
+	}
+
+	/**
+	 * 新增一条记录
+	 *
+	 * @param ${table.javaVariableName}Entity 记录对象
+	 * @return 影响记录数
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public int insert(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+		log.info("新增表记录: ${table.name}");
+		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
+		#foreach($col in $table.pkColumns)
+			#if(${col.javaClassType}=='String')
+		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+			#else
+		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+			#end
+		#end
+		#foreach($col in $table.normalColumns)
+			#if(!${col.nullable})
+				#if(${col.javaClassType}=='String')
+		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+				#else
+		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+				#end
+			#end
+		#end
+		return mapper.insert(${table.javaVariableName}Entity);
+	}
+
+	/**
+	 * 根据主键列，删除一条记录
+	 *
+	 * @param ${table.javaVariableName}Entity 记录对象
+	 * @return 影响记录数
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public int delete(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+		log.info("根据主键删除表记录: ${table.name}");
+		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
+		#foreach($col in $table.pkColumns)
+			#if(${col.javaClassType}=='String')
+		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+			#else
+		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+			#end
+		#end
+		return mapper.delete(${table.javaVariableName}Entity);
+	}
+
+	/**
+	 * 根据主键列，修改一条记录,按入参修改所有列
+	 *
+	 * @param ${table.javaVariableName}Entity 记录对象
+	 * @return 影响记录数
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public int update(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+		log.info("根据主键更新表记录: ${table.name}");
+		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
+		#foreach($col in $table.columns)
+			#if(!${col.nullable})
+				#if(${col.javaClassType}=='String')
+		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+				#else
+		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+				#end
+			#end
+		#end
+		return mapper.update(${table.javaVariableName}Entity);
+	}
+
+	/**
+	 * 根据主键列，修改一条记录,只修改入参的非空字段对应的列
+	 *
+	 * @param ${table.javaVariableName}Entity 记录对象
+	 * @return 影响记录数
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public int updateSelective(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+		log.info("根据主键更新表记录: ${table.name}");
+		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
+		#foreach($col in $table.pkColumns)
+			#if(${col.javaClassType}=='String')
+		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+			#else
+		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+			#end
+		#end
+		return mapper.updateSelective(${table.javaVariableName}Entity);
+	}
+
+	/**
+	 * 根据主键列查询对象
+	 *
+	 * @param ${table.javaVariableName}Entity 查询条件对象
+	 * @return 结果对象
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public ${table.javaClassName}Entity getById(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+		log.info("根据主键查询表记录: ${table.name}");
+		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
+		#foreach($col in $table.pkColumns)
+			#if(${col.javaClassType}=='String')
+		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+			#else
+		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+			#end
+		#end
+		return mapper.getById(${table.javaVariableName}Entity);
+	}
+
+	/**
+	 * 根据条件查询唯一结果
+	 *
+	 * @param ${table.javaVariableName}Entity 查询条件对象
+	 * @return 唯一结果对象
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public ${table.javaClassName}Entity getUnique(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+		log.info("查询表的唯一结果集: ${table.name}");
+		return mapper.getUnique(${table.javaVariableName}Entity);
+	}
+
+}

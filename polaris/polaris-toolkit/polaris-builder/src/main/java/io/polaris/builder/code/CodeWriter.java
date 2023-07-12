@@ -8,8 +8,6 @@ import io.polaris.builder.code.dto.TableDto;
 import io.polaris.builder.velocity.VelocityTemplate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.context.Context;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -130,13 +128,16 @@ public class CodeWriter {
 		for (Map.Entry<String, String> entry : entries) {
 			String key = entry.getKey();
 			String value = entry.getValue();
-			// ref config-keys above
+
 			value = VelocityTemplate.eval(context, VM_PREFIX + value);
 			env.put(key, value);
+			if (!context.containsKey(key)) {
+				context.put(key, value);
+			}
 
 			if (StringUtils.isNotBlank(prefix) && key.length() >= 1) {
 				String extKey;
-				if (key.indexOf(".") < 0) {
+				if (!key.contains(".")) {
 					extKey = prefix + Character.toUpperCase(key.charAt(0));
 					if (key.length() >= 2) {
 						extKey += key.substring(1);
@@ -145,6 +146,9 @@ public class CodeWriter {
 					extKey = prefix + "." + key;
 				}
 				env.putIfAbsent(extKey, value);
+				if (!context.containsKey(extKey)) {
+					context.put(extKey, value);
+				}
 			}
 		}
 	}

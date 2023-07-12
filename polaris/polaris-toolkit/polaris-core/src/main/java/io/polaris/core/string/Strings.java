@@ -498,7 +498,7 @@ public class Strings {
 		while (matcher.find()) {
 			int i = Integer.parseInt(matcher.group(1));
 			bitSet.set(i);
-			matcher.appendReplacement(sb, String.valueOf(i < args.length ? args[i] : null));
+			matcher.appendReplacement(sb, String.valueOf(i < args.length ? args[i] : null).replace("\\", "\\\\").replace("$", "\\$"));
 		}
 		matcher.appendTail(sb);
 		msg = sb.toString();
@@ -511,7 +511,7 @@ public class Strings {
 				while (bitSet.get(i)) {
 					i++;
 				}
-				matcher.appendReplacement(sb, String.valueOf(i < args.length ? args[i] : null));
+				matcher.appendReplacement(sb, String.valueOf(i < args.length ? args[i] : null).replace("\\", "\\\\").replace("$", "\\$"));
 				bitSet.set(i);
 			}
 			matcher.appendTail(sb);

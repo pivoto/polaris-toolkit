@@ -1,0 +1,22 @@
+#parse("/vm/include.vm")
+package ${pkgPrefix}${env.mapperPackage.replace('/','.')};
+
+import java.util.List;
+
+import com.mybatisflex.core.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.session.RowBounds;
+
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}Entity;;
+
+/**
+ * ${table.name}
+ * $!{table.comment}
+ * @author $!{env.author}
+ * @since ${current.date}
+ */
+@Mapper
+public interface ${table.javaClassName}Mapper extends BaseMapper<${table.javaClassName}Entity>{
+
+}
+

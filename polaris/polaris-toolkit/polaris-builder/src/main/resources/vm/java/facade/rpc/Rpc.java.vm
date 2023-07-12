@@ -1,0 +1,103 @@
+#parse("/vm/include.vm")
+package ${pkgPrefixFacade}${env.rpcPackage.replace('/','.')};
+
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}Entity;
+import ${pkgPrefix}${env.servicePackage.replace('/','.')}.${table.javaClassName}Service;
+import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassName}DmlInput;
+import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassName}GetInput;
+import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassName}ListInput;
+import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassName}GetOutput;
+import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassName}ListOutput;
+
+import com.jcfc.bf.common.map.BeanMap;
+import com.jcfc.bf.core.context.domain.ExchangeDto;
+import com.jcfc.bf.core.data.consts.Dml;
+import com.jcfc.bf.core.data.domain.Page;
+import com.jcfc.bf.core.data.domain.QueryDto;
+import com.jcfc.bf.core.rpc.annotation.RpcService;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.Assert;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+
+import java.util.*;
+
+/**
+ * $!{table.name}
+ * $!{table.comment}
+ * @author $!{env.author}
+ * @since ${current.date}
+ */
+@Slf4j
+@RpcService
+public class ${table.javaClassName}Rpc{
+
+	private final ${table.javaClassName}Service ${table.javaVariableName}Service;
+
+	public ${table.javaClassName}Rpc(${table.javaClassName}Service ${table.javaVariableName}Service) {
+		this.${table.javaVariableName}Service = ${table.javaVariableName}Service;
+	}
+
+	@RpcService(code = "${table.javaClassName}Dml", name = "数据操作")
+	public ExchangeDto doDml(${table.javaClassName}DmlInput input) {
+		Assert.notNull(input.getType(), "操作类型不能为空");
+		Dml type = input.getType();
+		switch (type) {
+			case INSERT: {
+				${table.javaClassName}Entity entity = BeanMap.of(input.getParam()).copyToBean(new ${table.javaClassName}Entity());
+				${table.javaVariableName}Service.insert(entity);
+				break;
+			}
+			case UPDATE: {
+				${table.javaClassName}Entity entity = BeanMap.of(input.getParam()).copyToBean(new ${table.javaClassName}Entity());
+				${table.javaVariableName}Service.updateSelective(entity);
+				break;
+			}
+			case DELETE: {
+				${table.javaClassName}Entity entity = BeanMap.of(input.getParam()).copyToBean(new ${table.javaClassName}Entity());
+				${table.javaVariableName}Service.delete(entity);
+				break;
+			}
+			default: // ignore
+		}
+		return new ExchangeDto();
+	}
+
+
+	@RpcService(code = "${table.javaClassName}Get", name = "单行数据查询")
+	public ${table.javaClassName}GetOutput doGet(${table.javaClassName}GetInput input) {
+		${table.javaClassName}Entity entity = ${table.javaVariableName}Service.getUnique(
+			BeanMap.of(input.getParam()).copyToBean(new ${table.javaClassName}Entity())
+		);
+		${table.javaClassName}GetOutput output = new ${table.javaClassName}GetOutput();
+		output.setEntity(entity);
+		return output;
+	}
+
+	@RpcService(code = "${table.javaClassName}List", name = "列表数据查询")
+	public ${table.javaClassName}ListOutput doList(${table.javaClassName}ListInput input) {
+		${table.javaClassName}ListOutput output = new ${table.javaClassName}ListOutput();
+		${table.javaClassName}Entity param = BeanMap.of(input.getParam()).copyToBean(new ${table.javaClassName}Entity());
+		Page page = input.getPage();
+		List<${table.javaClassName}Entity> list = ${table.javaVariableName}Service.getPage(param, page);
+		output.setPage(page);
+		output.setList(list);
+		return output;
+	}
+
+	@RpcService(code = "${table.javaClassName}Query", name = "通用数据查询")
+	public ${table.javaClassName}ListOutput doQuery(QueryDto input) {
+		${table.javaClassName}ListOutput output = new ${table.javaClassName}ListOutput();
+		Page page = input.getPage();
+		Map<String, Object> param = input.getParam().getSqlParamMap();
+		List<${table.javaClassName}Entity> list = ${table.javaVariableName}Service.getPage(param, page);
+		output.setPage(page);
+		output.setList(list);
+		return output;
+	}
+}
+

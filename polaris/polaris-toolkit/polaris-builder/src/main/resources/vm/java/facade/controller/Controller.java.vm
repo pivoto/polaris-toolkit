@@ -1,0 +1,53 @@
+#parse("/vm/include.vm")
+package ${pkgPrefixFacade}${env.controllerPackage.replace('/','.')};
+
+import ${pkgPrefix}${env.entityPackage.replace('/','.')|"entity"}.${table.javaClassName}Entity;
+import ${pkgPrefix}${env.servicePackage.replace('/','.')|"service"}.${table.javaClassName}Service;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Description;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
+
+/**
+ * $!{table.name}
+ * $!{table.comment}
+ * @author $!{env.author}
+ * @since ${current.date}
+ */
+@Slf4j
+@RestController
+@RequestMapping(value = "$!{env.controllerPackage.concat("/")}${table.xmlName}")
+public class ${table.javaClassName}Controller{
+
+	private final ${table.javaClassName}Service ${table.javaVariableName}Service;
+
+	public ${table.javaClassName}Controller(${table.javaClassName}Service ${table.javaVariableName}Service) {
+		this.${table.javaVariableName}Service = ${table.javaVariableName}Service;
+	}
+
+	@GetMapping
+	public ${table.javaClassName}Entity get(@RequestBody ${table.javaClassName}Entity param) {
+		return ${table.javaVariableName}Service.getUnique(param);
+	}
+
+	@PostMapping
+	public void add(@RequestBody ${table.javaClassName}Entity param) {
+		${table.javaVariableName}Service.insert(param);
+	}
+
+	@PutMapping
+	public void update(@RequestBody ${table.javaClassName}Entity param) {
+		${table.javaVariableName}Service.updateSelective(param);
+	}
+
+	@DeleteMapping
+	public void delete(@RequestBody ${table.javaClassName}Entity param) {
+		${table.javaVariableName}Service.delete(param);
+	}
+
+}
+

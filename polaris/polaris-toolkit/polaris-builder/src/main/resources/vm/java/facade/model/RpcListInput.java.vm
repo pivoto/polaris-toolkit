@@ -1,0 +1,41 @@
+#parse("/vm/include.vm")
+package ${pkgPrefixFacade}${env.modelPackage.replace('/','.')};
+
+import java.io.Serializable;
+import lombok.*;
+import lombok.experimental.Accessors;
+#foreach($name in $table.columnJavaTypes)
+import $name;
+#end
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}Entity;
+import com.jcfc.bf.core.context.domain.ExchangeDto;
+import com.jcfc.bf.core.data.domain.Page;
+import com.jcfc.bf.core.data.consts.Dml;
+import io.swagger.v3.oas.annotations.media.Schema;
+import javax.validation.Valid;
+import javax.validation.constraints.*;
+
+/**
+ * $!{table.name}
+ * $!{table.comment}
+ * @author $!{env.author}
+ * @since ${current.date}
+ */
+@Data
+public class ${table.javaClassName}ListInput extends ExchangeDto{
+	@Schema(description = "分页信息")
+	private Page page = new Page();
+	@Schema(description = "查询参数")
+	@Valid
+	private Param param = new Param();
+
+	@Data
+	public static class Param{
+	#foreach($col in $table.columns)
+		/** #if(${col.comment})$!{col.comment}#else$!{col.name}#end */
+		@Schema(description = "#if(${col.comment})$!{col.comment}#else$!{col.name}#end")
+		private ${col.javaTypeSimpleName} ${col.javaVariableName};
+	#end
+	}
+
+}

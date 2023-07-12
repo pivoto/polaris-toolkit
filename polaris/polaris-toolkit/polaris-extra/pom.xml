@@ -18,6 +18,7 @@
 		<module>polaris-log</module>
 		<module>polaris-bytecode</module>
 		<module>polaris-web</module>
+		<module>polaris-git</module>
 	</modules>
 	<properties>
 		<dependency.bytebuddy.version>1.12.23</dependency.bytebuddy.version>

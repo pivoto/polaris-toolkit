@@ -17,18 +17,31 @@ import static io.polaris.builder.code.annotation.Template.*;
 	@Property(key = "author", value = "${sys['user.name']}"),
 	@Property(key = "srcDir", value = "src/main/java"),
 	@Property(key = "resourceDir", value = "src/main/resources"),
+	@Property(key = "basePackage", value = "base"),
+	@Property(key = "facadePackage", value = "facade"),
 	@Property(key = "entityPackage", value = "entity"),
+	@Property(key = "modelPackage", value = "model"),
 	@Property(key = "mapperPackage", value = "mapper"),
 	@Property(key = "servicePackage", value = "service"),
 	@Property(key = "implPackage", value = "impl"),
+	@Property(key = "rpcPackage", value = "rpc"),
 	@Property(key = "controllerPackage", value = "controller"),
 	@Property(key = "webDir", value = "src/main/resources/META-INF/resources"),
 })
 @DefaultTemplate({
 	@Template(path = VM_PATH_ENTITY, filename = FILENAME_ENTITY, dirname = DIRNAME_ENTITY),
+
 	@Template(path = VM_PATH_MAPPER, filename = FILENAME_MAPPER, dirname = DIRNAME_MAPPER),
-	@Template(path = VM_PATH_SERVICE, filename = FILENAME_SERVICE, dirname = DIRNAME_SERVICE),
 	@Template(path = VM_PATH_MAPPER_XML, filename = FILENAME_MAPPER_XML, dirname = DIRNAME_MAPPER_XML),
+
+	@Template(path = VM_PATH_SERVICE, filename = FILENAME_SERVICE, dirname = DIRNAME_SERVICE),
+
+	@Template(path = VM_PATH_RPC, filename = FILENAME_RPC, dirname = DIRNAME_RPC),
+	@Template(path = VM_PATH_RPC_DML_INPUT, filename = FILENAME_RPC_DML_INPUT, dirname = DIRNAME_MODEL),
+	@Template(path = VM_PATH_RPC_GET_INPUT, filename = FILENAME_RPC_GET_INPUT, dirname = DIRNAME_MODEL),
+	@Template(path = VM_PATH_RPC_LIST_INPUT, filename = FILENAME_RPC_LIST_INPUT, dirname = DIRNAME_MODEL),
+	@Template(path = VM_PATH_RPC_GET_OUTPUT, filename = FILENAME_RPC_GET_OUTPUT, dirname = DIRNAME_MODEL),
+	@Template(path = VM_PATH_RPC_LIST_OUTPUT, filename = FILENAME_RPC_LIST_OUTPUT, dirname = DIRNAME_MODEL),
 })
 @DefaultMapping({
 	@Mapping(jdbcType = "TIMESTAMP", javaType = "java.util.Date")

@@ -17,12 +17,6 @@
 	'date':$dateFormat.format($now),
 	'time':$timeFormat.format($now)
 })
-## base package
-#if(${table.javaPackageName})
-	#set($pkgPrefix="${table.javaPackageName}.")
-#else
-	#set($pkgPrefix='')
-#end
 ## default
 #if(not ${env.author})
 	#set($env.author="Qt")
@@ -35,6 +29,15 @@
 #end
 #if(not ${env.webDir})
 	#set($env.webDir="src/main/resources/META-INF/resources")
+#end
+#if(not ${env.basePackage})
+	#set($env.basePackage="base")
+#end
+#if(not ${env.facadePackage})
+	#set($env.facadePackage="facade")
+#end
+#if(not ${env.modelPackage})
+	#set($env.modelPackage="model")
 #end
 #if(not ${env.entityPackage})
 	#set($env.entityPackage="entity")
@@ -51,6 +54,33 @@
 #if(not ${env.controllerPackage})
 	#set($env.controllerPackage="controller")
 #end
+#if(not ${env.rpcPackage})
+	#set($env.rpcPackage="rpc")
+#end
+## base package
+#if(${table.javaPackageName})
+	#if(${env.basePackage})
+		#set($pkgPrefix="${table.javaPackageName}.${env.basePackage.replace('/','.')}.")
+	#else
+		#set($pkgPrefix="${table.javaPackageName}.")
+	#end
+	#if(${env.facadePackage})
+		#set($pkgPrefixFacade="${table.javaPackageName}.${env.facadePackage.replace('/','.')}.")
+	#else
+		#set($pkgPrefixFacade="${table.javaPackageName}.")
+	#end
+#else
+	#if(${env.basePackage})
+		#set($pkgPrefix="${env.basePackage.replace('/','.')}.")
+	#else
+		#set($pkgPrefix='')
+	#end
+	#if(${env.facadePackage})
+		#set($pkgPrefixFacade="${env.facadePackage.replace('/','.')}.")
+	#else
+		#set($pkgPrefixFacade='')
+	#end
+#end
 ## author
 #macro(javaAuthor)
 /**
@@ -61,5 +91,7 @@
 #end
 #macro(javaImports)
 import lombok.*;
+import lombok.experimental.*;
+import lombok.extern.slf4j.*;
 import java.math.*;
 #end
