@@ -1,14 +1,16 @@
 package io.polaris.builder.code.dto;
 
+import io.polaris.builder.code.JdbcTypes;
+import io.polaris.builder.code.config.ConfigColumn;
+import io.polaris.core.string.Strings;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
-import io.polaris.builder.code.JdbcTypes;
-import io.polaris.core.string.Strings;
 import lombok.Data;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -58,6 +60,10 @@ public class ColumnDto implements Serializable {
 	private String xmlName;
 	@XStreamOmitField
 	private String trimName;
+	@XStreamOmitField
+	private String label;
+	@XStreamOmitField
+	private String remark;
 
 
 	public boolean isNotNull() {
@@ -71,56 +77,77 @@ public class ColumnDto implements Serializable {
 	/**
 	 * 预处理,对列的映射变量名、映射类型等的处理
 	 */
-	public void prepare4Java(Function<String, String> columnNameTrimmer) {
-		String name = columnNameTrimmer.apply(this.name);
-		this.trimName = name;
-		this.xmlName = name.toLowerCase().replace("_", "-");
-		char[] nameChars = name.toCharArray();
-		StringBuilder sb = new StringBuilder();
-		boolean flag = false;
-		for (int i = 1; i < nameChars.length; i++) {
-			if (nameChars[i] == '_') {
-				flag = true;
-			} else {
-				if (flag) {
-					sb.append(Character.toUpperCase(nameChars[i]));
-					flag = false;
+	public void prepare4Java(Function<String, String> columnNameTrimmer, Map<String, ConfigColumn> columnMap) {
+		{
+			String columnLabel = Strings.coalesce(this.comment, "");
+			String columnRemark = "";
+			int columnLabelSplitIdx = columnLabel.indexOf('\n');
+			if (columnLabelSplitIdx > 0) {
+				columnRemark = columnLabel.substring(columnLabelSplitIdx + 1);
+				columnLabel = columnLabel.substring(0, columnLabelSplitIdx);
+			}
+			this.label = columnLabel.trim();
+			this.remark = columnRemark.trim();
+		}
+
+		{
+			String name = columnNameTrimmer.apply(this.name);
+			this.trimName = name;
+			this.xmlName = name.toLowerCase().replace("_", "-");
+			char[] nameChars = name.toCharArray();
+			StringBuilder sb = new StringBuilder();
+			boolean flag = false;
+			for (int i = 1; i < nameChars.length; i++) {
+				if (nameChars[i] == '_') {
+					flag = true;
 				} else {
-					sb.append(Character.toLowerCase(nameChars[i]));
+					if (flag) {
+						sb.append(Character.toUpperCase(nameChars[i]));
+						flag = false;
+					} else {
+						sb.append(Character.toLowerCase(nameChars[i]));
+					}
 				}
 			}
-		}
-		if (Strings.isEmpty(this.javaClassName)) {
-			this.javaClassName = Character.toUpperCase(nameChars[0]) + sb.toString();
-		}
-		if (Strings.isEmpty(this.javaVariableName)) {
-			this.javaVariableName = Character.toLowerCase(nameChars[0]) + sb.toString();
+			if (Strings.isEmpty(this.javaClassName)) {
+				this.javaClassName = Character.toUpperCase(nameChars[0]) + sb.toString();
+			}
+			if (Strings.isEmpty(this.javaVariableName)) {
+				this.javaVariableName = Character.toLowerCase(nameChars[0]) + sb.toString();
+			}
 		}
 
 		prepare4Type();
 
-		Class c = JdbcTypes.getCustomJavaType(this.type);
-		if (c != null) {
-			this.javaType = c.getName();
+		ConfigColumn configColumn = columnMap.get(this.name);
+		if (configColumn != null && Strings.isNotBlank(configColumn.getJavaType())) {
+			this.javaType = configColumn.getJavaType();
 		} else {
-			if (Strings.isEmpty(this.javaType)) {
-				c = JdbcTypes.getJavaType(this.type, this.columnSize, this.decimalDigits);
-				if (c == null) {
-					throw new IllegalArgumentException("不支持的JdbcType：" + this.jdbcType);
-				}
+			Class c = JdbcTypes.getCustomJavaType(this.type);
+			if (c != null) {
 				this.javaType = c.getName();
+			} else {
+				if (Strings.isEmpty(this.javaType)) {
+					c = JdbcTypes.getJavaType(this.type, this.columnSize, this.decimalDigits);
+					if (c == null) {
+						throw new IllegalArgumentException("不支持的JdbcType：" + this.jdbcType);
+					}
+					this.javaType = c.getName();
+				}
 			}
 		}
 
-		if (this.javaType.matches("java\\.lang\\.\\w+")) {
-			this.javaType = this.javaType.replace("java.lang.", "");
-			this.javaTypeSimpleName = this.javaType;
-		} else {
-			int i = this.javaType.lastIndexOf(".");
-			if (i >= 0) {
-				this.javaTypeSimpleName = this.javaType.substring(i + 1);
-			} else {
+		{
+			if (this.javaType.matches("java\\.lang\\.\\w+")) {
+				this.javaType = this.javaType.replace("java.lang.", "");
 				this.javaTypeSimpleName = this.javaType;
+			} else {
+				int i = this.javaType.lastIndexOf(".");
+				if (i >= 0) {
+					this.javaTypeSimpleName = this.javaType.substring(i + 1);
+				} else {
+					this.javaTypeSimpleName = this.javaType;
+				}
 			}
 		}
 	}

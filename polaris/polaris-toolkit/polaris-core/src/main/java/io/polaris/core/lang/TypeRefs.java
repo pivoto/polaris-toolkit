@@ -1,7 +1,7 @@
 package io.polaris.core.lang;
 
-import io.polaris.core.compiler.MemoryCompiler;
 import com.squareup.javapoet.*;
+import io.polaris.core.compiler.MemoryCompiler;
 
 import javax.lang.model.element.Modifier;
 import java.io.StringWriter;

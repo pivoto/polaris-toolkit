@@ -89,8 +89,6 @@
 
 	<Loggers>
 		<Root level="${log_default_level}" includeLocation="${log_include_location}">
-			<AppenderRef ref="traceLog"/>
-			<AppenderRef ref="errorLog"/>
 			<AppenderRef ref="console"/>
 		</Root>
 

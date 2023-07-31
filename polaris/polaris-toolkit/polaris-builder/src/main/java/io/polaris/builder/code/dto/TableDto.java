@@ -1,5 +1,7 @@
 package io.polaris.builder.code.dto;
 
+import io.polaris.builder.code.config.ConfigColumn;
+import io.polaris.core.string.Strings;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
@@ -9,11 +11,7 @@ import lombok.ToString;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -66,11 +64,26 @@ public class TableDto implements Serializable {
 	private String javaVariableName;
 	@XStreamOmitField
 	private String xmlName;
+	@XStreamOmitField
+	private String label;
+	@XStreamOmitField
+	private String remark;
 
 	/**
 	 * 预处理,对类名、变量名、主键列、非主键列等的处理
 	 */
-	public void prepare4Java(Function<String, String> tableNameTrimmer, Function<String, String> columnNameTrimmer) {
+	public void prepare4Java(Function<String, String> tableNameTrimmer, Function<String, String> columnNameTrimmer, Map<String, ConfigColumn> columnMap) {
+		{
+			String columnLabel = Strings.coalesce(this.comment, "");
+			String columnRemark = "";
+			int columnLabelSplitIdx = columnLabel.indexOf('\n');
+			if (columnLabelSplitIdx > 0) {
+				columnRemark = columnLabel.substring(columnLabelSplitIdx + 1);
+				columnLabel = columnLabel.substring(0, columnLabelSplitIdx);
+			}
+			this.label = columnLabel.trim();
+			this.remark = columnRemark.trim();
+		}
 		if (columns == null) {
 			columns = new ArrayList<>();
 		}
@@ -85,7 +98,7 @@ public class TableDto implements Serializable {
 		}
 
 		for (ColumnDto col : columns) {
-			col.prepare4Java(columnNameTrimmer);
+			col.prepare4Java(columnNameTrimmer, columnMap);
 			if (col.getJavaType().contains(".")) {
 				columnJavaTypes.add(col.getJavaType());
 			}
@@ -99,7 +112,7 @@ public class TableDto implements Serializable {
 			}
 		} else {
 			for (ColumnDto col : pkColumns) {
-				col.prepare4Java(columnNameTrimmer);
+				col.prepare4Java(columnNameTrimmer, columnMap);
 				if (col.getJavaType().contains(".")) {
 					columnJavaTypes.add(col.getJavaType());
 				}
@@ -114,7 +127,7 @@ public class TableDto implements Serializable {
 			}
 		} else {
 			for (ColumnDto col : normalColumns) {
-				col.prepare4Java(columnNameTrimmer);
+				col.prepare4Java(columnNameTrimmer, columnMap);
 				if (col.getJavaType().contains(".")) {
 					columnJavaTypes.add(col.getJavaType());
 				}

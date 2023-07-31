@@ -7,7 +7,6 @@ package io.polaris.validation.validator;
 
 
 import io.polaris.validation.DecimalScale;
-import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

@@ -5,16 +5,17 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 class ChangerRunnerTest {
 
 	@Test
-	void test01() throws DocumentException, IOException {
+	void doChange() throws DocumentException, IOException, NoSuchAlgorithmException {
 		ChangerRunner.change(new File("src/assembly/conf/change/change.xml"));
 	}
 
 	@Test
-	void test02() throws DocumentException, IOException {
+	void doChangeReverse() throws DocumentException, IOException, NoSuchAlgorithmException {
 		ChangerRunner.change(new File("src/assembly/conf/change/change-reverse.xml"));
 	}
 

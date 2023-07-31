@@ -1,6 +1,7 @@
 package io.polaris.builder.code;
 
 import io.polaris.builder.code.annotation.Code;
+import io.polaris.builder.code.annotation.Property;
 import io.polaris.builder.code.annotation.Table;
 import io.polaris.builder.code.annotation.Template;
 import io.polaris.builder.code.config.CodeEnv;
@@ -48,16 +49,34 @@ public class CodeTest {
 
 
 	@Code(
-		outDir = "D:/xcode/jcfc/base/basic/tmc-rm",
+		outDir = "D:/xcode/jcfc/base/basic/tmc/tmc-rm",
 		jdbcDriver = "oracle.jdbc.OracleDriver",
 		jdbcUrl = "jdbc:oracle:thin:@localhost:1521/cmisdb",
 		jdbcUsername = "basesv", jdbcPassword = "basesv",
 		tables = {
-			@Table(schema = "BASESV", name = "ARM_BCH", javaPackage = "io.polaris.tmc.rm.arm")
+			@Table(schema = "BASESV", name = "SRM_BIT_POS", javaPackage = "io.polaris.tmc.rm.srm"),
+		},
+		property = {
+			@Property(key = "author", value = "Qt"),
+			@Property(key = "mapperClassSuffix", value = "SqlMapper"),
+			@Property(key = "entityExtInterface", value = "io.polaris.sdk.tmc.common.entity.Creatable, io.polaris.sdk.tmc.common.entity.Updatable"),
 		},
 		templates = {
-//			@Template(path = Template.VM_PATH_ENTITY_FLUENT_MYBATIS, filename = Template.FILENAME_ENTITY, dirname = Template.DIRNAME_ENTITY),
-//			@Template(path = Template.VM_PATH_EXAMPLE, filename = Template.FILENAME_EXAMPLE, dirname = Template.DIRNAME_EXAMPLE),
+			//@Template(path = Template.VM_PATH_EXAMPLE, filename = Template.FILENAME_EXAMPLE, dirname = Template.DIRNAME_EXAMPLE),
+			@Template(path = Template.VM_PATH_ENTITY_FLUENT_MYBATIS, filename = Template.FILENAME_ENTITY, dirname = Template.DIRNAME_ENTITY),
+			//@Template(path = VM_PATH_ENTITY, filename = FILENAME_ENTITY, dirname = DIRNAME_ENTITY),
+
+			@Template(path = VM_PATH_MAPPER, filename = FILENAME_MAPPER, dirname = DIRNAME_MAPPER),
+			@Template(path = VM_PATH_MAPPER_XML, filename = FILENAME_MAPPER_XML, dirname = DIRNAME_MAPPER_XML),
+
+			@Template(path = VM_PATH_SERVICE, filename = FILENAME_SERVICE, dirname = DIRNAME_SERVICE),
+
+			@Template(path = VM_PATH_RPC, filename = FILENAME_RPC, dirname = DIRNAME_RPC),
+			@Template(path = VM_PATH_RPC_DML_INPUT, filename = FILENAME_RPC_DML_INPUT, dirname = DIRNAME_MODEL),
+			@Template(path = VM_PATH_RPC_GET_INPUT, filename = FILENAME_RPC_GET_INPUT, dirname = DIRNAME_MODEL),
+			@Template(path = VM_PATH_RPC_LIST_INPUT, filename = FILENAME_RPC_LIST_INPUT, dirname = DIRNAME_MODEL),
+			@Template(path = VM_PATH_RPC_GET_OUTPUT, filename = FILENAME_RPC_GET_OUTPUT, dirname = DIRNAME_MODEL),
+			@Template(path = VM_PATH_RPC_LIST_OUTPUT, filename = FILENAME_RPC_LIST_OUTPUT, dirname = DIRNAME_MODEL),
 		}
 	)
 	public static class Config {

@@ -1,11 +1,12 @@
 package io.polaris.core.net.http;
 
-import io.polaris.core.consts.StdConsts;
 import io.polaris.core.io.IO;
 import io.polaris.core.string.Strings;
 
 import javax.net.ssl.*;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.GeneralSecurityException;
@@ -18,45 +19,30 @@ import java.security.cert.X509Certificate;
  * @since 1.8
  */
 public class HttpClients {
-	public static final String POST = "POST";
 
 
-	public static String doFormPost(String url, String params) throws IOException, GeneralSecurityException {
-		return doRequest(RequestSettings.builder().url(url)
-			.contentType(ContentType.FORM_URLENCODED).requestMethod(POST).content(params).build());
+	public static Response doFormPost(String url, String params) throws IOException, GeneralSecurityException {
+		return doRequest(new RequestSettings().withUrl(url)
+			.withContentType(ContentType.FORM_URLENCODED).withRequestMethod(RequestSettings.POST).withContent(params));
 	}
 
-	public static String doPost(String url, String content) throws IOException, GeneralSecurityException {
-		return doRequest(RequestSettings.builder().url(url).content(content).requestMethod(POST).build());
+	public static Response doPost(String url, String content) throws IOException, GeneralSecurityException {
+		return doRequest(new RequestSettings().withUrl(url).withContent(content).withRequestMethod(RequestSettings.POST));
 	}
 
 
-	public static String doHttpsPost(String url, String keyStorePath, String keyStorePassword, String content)
+	public static Response doHttpsPost(String url, String keyStorePath, String keyStorePassword, String content)
 		throws IOException, GeneralSecurityException {
-		return doRequest(RequestSettings.builder().url(url).requestMethod(POST).keyStorePassword(keyStorePassword)
-			.keyStorePath(keyStorePath).content(content).build());
+		return doRequest(new RequestSettings().withUrl(url).withRequestMethod(RequestSettings.POST).withKeyStorePassword(keyStorePassword)
+			.withKeyStorePath(keyStorePath).withContent(content));
 	}
 
-	public static String doRequest(RequestSettings settings)
-		throws IOException, GeneralSecurityException {
-		// region settings
+	public static Response doRequest(RequestSettings settings) throws IOException, GeneralSecurityException {
 		String requestMethod = settings.getRequestMethod();
-		if (Strings.isBlank(requestMethod)) {
-			requestMethod = POST;
-		}
 		String requestUrl = settings.getUrl();
 		boolean https = requestUrl.startsWith("https://");
-
 		String charset = settings.getCharset();
-		if (Strings.isBlank(charset)) {
-			charset = StdConsts.UTF_8;
-		}
-
 		ContentType contentType = settings.getContentType();
-		if (contentType==null) {
-			contentType = ContentType.JSON;
-		}
-		// endregion
 
 		URL url = new URL(requestUrl);
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -76,25 +62,49 @@ public class HttpClients {
 		}
 
 		conn.setRequestMethod(requestMethod);
+		if (settings.getConnectTimeout() > 0) {
+			conn.setConnectTimeout(settings.getConnectTimeout());
+		}
+		if (settings.getReadTimeout() > 0) {
+			conn.setReadTimeout(settings.getReadTimeout());
+		}
+
 		conn.setRequestProperty("accept", "*/*");
 		conn.setRequestProperty("Connection", "Keep-Alive");
+		if (settings.getHeaders() != null) {
+			settings.getHeaders().forEach(conn::setRequestProperty);
+		}
+		conn.setRequestProperty("User-Agent", settings.getUserAgent());
 		conn.setRequestProperty("Content-Type", contentType.toString(charset));
-		conn.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
+
+		conn.setUseCaches(true);
 		conn.setDoOutput(true);
 		conn.setDoInput(true);
 		conn.connect();
 
 		String content = settings.getContent();
 		if (Strings.isNotBlank(content)) {
-			OutputStream os = conn.getOutputStream();
-			os.write(content.getBytes(charset));
-			os.flush();
-			os.close();
+			try (OutputStream out = conn.getOutputStream();) {
+				out.write(content.getBytes(charset));
+				out.flush();
+			}
 		}
+		Response response = new Response();
+		response.setResponseCode(conn.getResponseCode());
+		response.setResponseMessage(conn.getResponseMessage());
+		response.setResponseHeaders(conn.getHeaderFields());
+		response.setContentLength(conn.getContentLengthLong());
+		response.setContentType(conn.getContentType());
 
 		// 读取服务器端返回的内容
-		InputStream is = conn.getInputStream();
-		return IO.toString(is, charset);
+		try (InputStream in = conn.getInputStream();) {
+			if (settings.isReadBytes()) {
+				response.setContentBytes(IO.toBytes(in));
+			} else {
+				response.setContent(IO.toString(in, charset));
+			}
+		}
+		return response;
 	}
 
 	public static HostnameVerifier getNoopHostnameVerifier() {
@@ -202,8 +212,8 @@ public class HttpClients {
 	 * @param trustStorePath 信任库路径
 	 * @throws Exception
 	 */
-	public static void initHttpsURLConnection(String password,
-																						String keyStorePath, String trustStorePath) throws Exception {
+	public static void initHttpsDefaultConfig(String password
+		, String keyStorePath, String trustStorePath) throws Exception {
 		// 声明SSL上下文
 		SSLContext sslContext = null;
 		// 实例化主机名验证接口

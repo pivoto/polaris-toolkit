@@ -1,7 +1,6 @@
 package io.polaris.core.cache;
 
 import io.polaris.core.service.ServiceDefault;
-import io.polaris.core.service.ServiceOrder;
 
 /**
  * @author Qt
@@ -17,7 +16,7 @@ public class MapCacheManagerFactory implements ICacheManagerFactory {
 	}
 
 	@Override
-	public ICacheManager get() {
+	public ICacheManager getCacheManager() {
 		return cacheManager;
 	}
 }

@@ -96,6 +96,8 @@
 			<tables>
 				<table catalog="" schema="BASESV" name="ARM_BCH" package="io.polaris.app">
 					<property></property>
+					<columns>
+					</columns>
 				</table>
 				<table catalog="" schema="BASESV" name="ARM_USER" package="io.polaris.app">
 					<property></property>

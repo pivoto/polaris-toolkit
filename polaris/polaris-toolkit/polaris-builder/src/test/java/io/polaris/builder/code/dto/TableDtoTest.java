@@ -4,8 +4,6 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.Types;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class TableDtoTest {
 
 	@Test

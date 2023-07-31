@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -23,7 +24,7 @@ import java.util.regex.Pattern;
  * @since 1.8
  */
 public class ChangerRunner {
-	public static void main(String[] args) throws IOException, DocumentException {
+	public static void main(String[] args) throws IOException, DocumentException, NoSuchAlgorithmException {
 		if (args.length == 0) {
 			throw new IllegalArgumentException();
 		}
@@ -32,7 +33,7 @@ public class ChangerRunner {
 		change(file);
 	}
 
-	public static void change(File file) throws DocumentException, IOException {
+	public static void change(File file) throws DocumentException, IOException, NoSuchAlgorithmException {
 		try (FileInputStream in = new FileInputStream(file);) {
 			change(in);
 		}
@@ -103,7 +104,7 @@ public class ChangerRunner {
 	}
 
 
-	public static void change(InputStream in) throws DocumentException, IOException {
+	public static void change(InputStream in) throws DocumentException, IOException, NoSuchAlgorithmException {
 		SAXReader reader = new SAXReader();
 		Document doc = reader.read(in);
 		Element root = doc.getRootElement();

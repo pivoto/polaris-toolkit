@@ -1,13 +1,10 @@
 package io.polaris.core.object.copier;
 
-import io.polaris.core.lang.Types;
-import io.polaris.core.reflect.Reflects;
+import io.polaris.core.lang.JavaType;
+import io.polaris.core.object.BeanMap;
+import io.polaris.core.object.Beans;
+import lombok.extern.slf4j.Slf4j;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Map;
 
@@ -16,8 +13,9 @@ import java.util.Map;
  * @since 1.8
  */
 @SuppressWarnings("rawtypes")
-public class BeanToMapCopier<T> extends BaseCopier<T,Map> {
-	private final Type targetType;
+@Slf4j
+public class BeanToMapCopier<T> extends BaseCopier<T, Map> {
+
 	/**
 	 * @param source      来源Map
 	 * @param target      目标Map对象
@@ -25,60 +23,70 @@ public class BeanToMapCopier<T> extends BaseCopier<T,Map> {
 	 * @param copyOptions 拷贝选项
 	 */
 	public BeanToMapCopier(T source, Map target, Type targetType, CopyOptions copyOptions) {
-		super(source, target, copyOptions);
-		this.targetType = targetType;
+		super(source, target, targetType, copyOptions);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public Map copy() {
 		Class<?> actualEditable = source.getClass();
-		if (null != options.editable) {
-			actualEditable = options.editable;
+		if (options.getEditable() != null && options.getEditable().isAssignableFrom(actualEditable)) {
+			actualEditable = options.getEditable();
 		}
 		try {
-			BeanInfo beanInfo = Introspector.getBeanInfo(actualEditable);
-			for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
+			BeanMap sourceMap = Beans.asBeanMap(source, actualEditable);
+			sourceMap.forEach((name, value) -> {
 				try {
-					String propertyName = pd.getName();
-					Method readMethod = pd.getReadMethod();
-					Class<?> propertyType = pd.getPropertyType();
-					if (readMethod == null || Reflects.isGetClassMethod(readMethod)) {
-						continue;
+					name = super.editName(name);
+					if (name == null) {
+						return;
+					}
+					if (super.isIgnore(name)) {
+						return;
+					}
+					if (value == null && options.isIgnoreNull()) {
+						return;
+					}
+					Type type = sourceMap.getType(name);
+					if (!super.filter(name, type, value)) {
+						return;
+					}
+					JavaType<Object> javaType = JavaType.of(this.targetType);
+					Object key = super.convert(javaType.getActualType(Map.class,0), name);
+					if (!options.isOverride()) {
+						Object orig = target.get(name);
+						if (orig != null) {
+							return;
+						}
+					}
+					value = super.convert(javaType.getActualType(Map.class,1), value);
+					value = super.editValue(name, value);
+					if (value == null && options.isIgnoreNull()) {
+						return;
 					}
 
-					propertyName = options.editPropertyName(propertyName);
-					if (propertyName == null) {
-						continue;
-					}
-					if (!options.isIncludePropertyName(propertyName)) {
-						continue;
-					}
-					Object value = Reflects.invoke(source, readMethod);
-
-					if (!options.filterProperty(propertyName, propertyType, value)) {
-						continue;
-					}
-					if (!options.override && target.get(propertyName)!= null) {
-						continue;
-					}
-
-					final Type[] typeArguments = Types.getTypeArguments(this.targetType);
-					if(typeArguments != null){
-						value = this.options.convert(typeArguments[1], value);
-						value = options.editPropertyValue(propertyName, value);
-					}
-					if (value == null && options.ignoreNull) {
-						continue;
-					}
-					target.put(propertyName, value);
+					target.put(key, value);
 				} catch (Exception e) {
-					if (!options.ignoreError){
+					if (!options.isIgnoreError()) {
 						throw new UnsupportedOperationException(e);
+					} else {
+						log.warn("对象复制失败：{}",  e.getMessage());
+						if (log.isDebugEnabled()) {
+							log.debug(e.getMessage(), e);
+						}
 					}
 				}
+			});
+
+		} catch (Exception e) {
+			if (!options.isIgnoreError()) {
+				throw new UnsupportedOperationException(e);
+			} else {
+				log.warn("对象复制失败：{}",  e.getMessage());
+				if (log.isDebugEnabled()) {
+					log.debug(e.getMessage(), e);
+				}
 			}
-		} catch (IntrospectionException ignore) {
 		}
 
 		return this.target;

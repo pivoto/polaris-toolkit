@@ -5,17 +5,12 @@ import io.polaris.builder.code.dto.TableDto;
 import io.polaris.builder.code.reader.TablesReader;
 import io.polaris.builder.code.reader.TablesReaders;
 import io.polaris.core.io.IO;
+import io.polaris.core.string.Strings;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.*;
 import java.util.function.Function;
 
@@ -58,7 +53,7 @@ public class CodeGenerator {
 	}
 
 
-	public CodeGenerator logWithStd(boolean withStd){
+	public CodeGenerator logWithStd(boolean withStd) {
 		CodeLogger.withStd(withStd);
 		return this;
 	}
@@ -145,11 +140,21 @@ public class CodeGenerator {
 			}
 			table.setProperty(tableConfig.getProperty());
 
+			Map<String, ConfigColumn> columnMap = new HashMap<>();
+			Set<ConfigColumn> columnSet = tableConfig.getColumns();
+			if (columnSet != null) {
+				columnSet.forEach(c -> {
+					if (Strings.isNotBlank(c.getName())) {
+						columnMap.put(c.getName(), c);
+					}
+				});
+			}
+
 			Set<String> tablePrefix = splitToSet(tableConfig.getTablePrefix(), group.getTablePrefix(), codeEnv.getTablePrefix());
 			Set<String> tableSuffix = splitToSet(tableConfig.getTableSuffix(), group.getTableSuffix(), codeEnv.getTableSuffix());
 			Set<String> columnPrefix = splitToSet(tableConfig.getColumnPrefix(), group.getColumnPrefix(), codeEnv.getColumnPrefix());
 			Set<String> columnSuffix = splitToSet(tableConfig.getColumnSuffix(), group.getColumnSuffix(), codeEnv.getColumnSuffix());
-			table.prepare4Java(buildNameTrimmer(tablePrefix, tableSuffix), buildNameTrimmer(columnPrefix, columnSuffix));
+			table.prepare4Java(buildNameTrimmer(tablePrefix, tableSuffix), buildNameTrimmer(columnPrefix, columnSuffix), columnMap);
 			tables.put(tableConfig, table);
 		} finally {
 			if (mappings != null) {

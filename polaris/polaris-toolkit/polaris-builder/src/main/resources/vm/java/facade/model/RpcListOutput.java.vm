@@ -7,7 +7,7 @@ import lombok.experimental.Accessors;
 #foreach($name in $table.columnJavaTypes)
 import $name;
 #end
-import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}Entity;
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
 import com.jcfc.bf.core.context.domain.ExchangeDto;
 import com.jcfc.bf.core.data.domain.Page;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,11 +20,11 @@ import java.util.List;
  * @since ${current.date}
  */
 @Data
-public class ${table.javaClassName}ListOutput extends ExchangeDto{
+public class ${table.javaClassName}${env.rpcListOutputClassSuffix} extends ExchangeDto{
 
 	@Schema(description = "分页信息")
 	protected Page page;
 	@Schema(description = "数据列表")
-	protected List<${table.javaClassName}Entity> list;
+	protected List<${table.javaClassName}${env.entityClassSuffix}> list;
 
 }

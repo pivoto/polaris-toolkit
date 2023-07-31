@@ -2,9 +2,9 @@ package io.polaris.validation;
 
 import io.polaris.core.annotation.Experimental;
 import io.polaris.core.err.ValidationException;
-import io.polaris.core.string.Strings;
 import io.polaris.core.lang.Types;
 import io.polaris.core.reflect.Reflects;
+import io.polaris.core.string.Strings;
 import org.hibernate.validator.internal.engine.MessageInterpolatorContext;
 import org.hibernate.validator.internal.engine.constraintvalidation.ConstraintValidatorContextImpl;
 import org.hibernate.validator.internal.engine.constraintvalidation.ConstraintValidatorDescriptor;

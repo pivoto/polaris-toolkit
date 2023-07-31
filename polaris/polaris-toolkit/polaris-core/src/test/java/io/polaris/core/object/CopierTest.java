@@ -1,7 +1,6 @@
 package io.polaris.core.object;
 
 import io.polaris.core.object.copier.CopyOptions;
-import io.polaris.core.reflect.SerializableRunnable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;

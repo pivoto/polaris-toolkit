@@ -1,7 +1,6 @@
 package io.polaris.core.reflect;
 
 import java.io.Serializable;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
 /**

@@ -46,6 +46,10 @@ public class IO {
 		return IO.toBuffered(IO.toStream(file));
 	}
 
+	public static ByteArrayInputStream toStream(byte[] content) {
+		return new ByteArrayInputStream(content);
+	}
+
 	public static FileInputStream toStream(File file) throws IOException {
 		return new FileInputStream(file);
 	}
@@ -176,6 +180,7 @@ public class IO {
 		InputStreamReader in = new InputStreamReader(input, charset);
 		return toString(in);
 	}
+
 	public static String toString(InputStream input, Charset charset) throws IOException {
 		InputStreamReader in = new InputStreamReader(input, charset);
 		return toString(in);
@@ -253,5 +258,19 @@ public class IO {
 			close(out);
 			close(in);
 		}
+	}
+
+	public static void writeString(File file, Charset charset, String content) throws IOException {
+		try (BufferedOutputStream out = IO.getOutputStream(file);) {
+			out.write(content.getBytes(charset));
+		}
+	}
+
+	public static void writeString(OutputStream out, Charset charset, String... contents) throws IOException {
+		OutputStreamWriter writer = getWriter(out, charset);
+		for (String content : contents) {
+			writer.write(content);
+		}
+		writer.flush();
 	}
 }

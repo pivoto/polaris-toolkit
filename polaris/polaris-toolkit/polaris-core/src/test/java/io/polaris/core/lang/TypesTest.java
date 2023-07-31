@@ -4,6 +4,9 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 class TypesTest {
 
@@ -22,4 +25,23 @@ class TypesTest {
 	}
 
 
+	@Test
+	void test01() {
+		{
+			JavaType t = JavaType.of(A.class);
+			System.out.println(t.getTypeVariableMap());
+			System.out.println(t.getActualType(List.class, 0));
+			System.out.println(t.getActualType(Collection.class, 0));
+		}
+		{
+			JavaType t = JavaType.of(new TypeRef<List<? extends List<String>>>() {
+			});
+			System.out.println(t.getTypeVariableMap());
+			System.out.println(t.getActualType(List.class, 0));
+			System.out.println(t.getActualType(Collection.class, 0));
+		}
+	}
+
+	static class A extends ArrayList<String> {
+	}
 }

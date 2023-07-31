@@ -1,9 +1,6 @@
 package io.polaris.core.script;
 
 import io.polaris.core.io.IO;
-import io.polaris.core.script.JavaScriptScriptEvaluator;
-import io.polaris.core.script.ScriptEvalException;
-import io.polaris.core.script.ScriptEvaluator;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -22,32 +19,32 @@ public class ScriptEvaluators {
 
 	private static final String FILE_PREFIX = "file:";
 	private static final String CLASSPATH_PREFIX = "classpath:";
-	private static final Map<String, ScriptEvaluator> engineMap = new ConcurrentHashMap<>();
-	private static ScriptEvaluator defaultEngine;
+	private static final Map<String, Evaluator> engineMap = new ConcurrentHashMap<>();
+	private static Evaluator defaultEngine;
 
 	static {
-		ServiceLoader<ScriptEvaluator> loader = ServiceLoader.load(ScriptEvaluator.class);
-		for (ScriptEvaluator scriptEvaluator : loader) {
+		ServiceLoader<Evaluator> loader = ServiceLoader.load(Evaluator.class);
+		for (Evaluator evaluator : loader) {
 			if (defaultEngine == null) {
-				defaultEngine = scriptEvaluator;
-				String simpleName = scriptEvaluator.getClass().getSimpleName();
-				String engineName = simpleName.replaceFirst(ScriptEvaluator.class.getSimpleName() + "$", "");
-				register(engineName, scriptEvaluator);
-				register(engineName.toUpperCase(), scriptEvaluator);
-				register(engineName.toLowerCase(), scriptEvaluator);
+				defaultEngine = evaluator;
 			}
+			String simpleName = evaluator.getClass().getSimpleName();
+			String engineName = simpleName.replaceFirst(Evaluator.class.getSimpleName() + "$", "");
+			register(engineName, evaluator);
+			register(engineName.toUpperCase(), evaluator);
+			register(engineName.toLowerCase(), evaluator);
 		}
 		if (defaultEngine == null) {
-			defaultEngine = new JavaScriptScriptEvaluator();
+			defaultEngine = new JavaScriptEvaluator();
 		}
 	}
 
-	public static ScriptEvaluator getCalcEngine(String engineName) {
+	public static Evaluator getEvaluator(String engineName) {
 		return engineMap.get(engineName);
 	}
 
-	public static void register(String engineName, ScriptEvaluator scriptEvaluator) {
-		engineMap.put(engineName, scriptEvaluator);
+	public static void register(String engineName, Evaluator evaluator) {
+		engineMap.put(engineName, evaluator);
 	}
 
 
@@ -63,14 +60,14 @@ public class ScriptEvaluators {
 
 	public static Object eval(String engineName, String content, Map<String, Object> input, Map<String, Object> output, Map<String, Object> mergeBindings)
 		throws ScriptEvalException {
-		ScriptEvaluator scriptEvaluator = engineMap.get(engineName);
-		return scriptEvaluator.eval(content, input, output, mergeBindings);
+		Evaluator evaluator = engineMap.get(engineName);
+		return evaluator.eval(content, input, output, mergeBindings);
 	}
 
 	public static Object evalFile(String engineName, String file, Map<String, Object> input, Map<String, Object> output, Map<String, Object> mergeBindings)
 		throws IOException, ScriptEvalException {
-		ScriptEvaluator scriptEvaluator = engineMap.get(engineName);
-		return scriptEvaluator.eval(getContent(file), input, output, mergeBindings);
+		Evaluator evaluator = engineMap.get(engineName);
+		return evaluator.eval(getContent(file), input, output, mergeBindings);
 	}
 
 	private static String getContent(String path) throws IOException {

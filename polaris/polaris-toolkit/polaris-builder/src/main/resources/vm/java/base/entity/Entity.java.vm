@@ -8,7 +8,12 @@ import lombok.experimental.Accessors;
 #foreach($name in $table.columnJavaTypes)
 import $name;
 #end
-
+#if(${env.entityExtInterface})
+	#set($env.entityExtInterfaceArr=${env.entityExtInterface.split(',')})
+	#foreach($name in ${env.entityExtInterfaceArr})
+import ${name.trim()};
+	#end
+#end
 /**
  * $!{table.name}
  * $!{table.comment}
@@ -19,19 +24,22 @@ import $name;
 @Setter
 @EqualsAndHashCode
 @ToString
-public class ${table.javaClassName}Entity implements Serializable{
+public class ${table.javaClassName}${env.entityClassSuffix} implements Serializable#if(${env.entityExtInterface})
+	#set($env.entityExtInterfaceArr=${env.entityExtInterface.split(',')})
+	#foreach($name in ${env.entityExtInterfaceArr}), ${name.trim().substring(1 + ${name.trim().lastIndexOf(".")})}#end
+#end{
 
 	private static final long serialVersionUID = 1L;
 
 #foreach($col in $table.pkColumns)
-	/** 主键字段: #if(${col.comment})$!{col.comment}#else$!{col.name}#end */
-	@Schema(description = "#if(${col.comment})$!{col.comment}#else$!{col.name}#end")
+	/** 主键字段: #if(${col.label})$!{col.name} $!{col.label}#else$!{col.name}#end */
+	@Schema(description = "#if(${col.label})$!{col.label}#else$!{col.name}#end")
 	private ${col.javaTypeSimpleName} ${col.javaVariableName};
 #end
 
 #foreach($col in $table.normalColumns)
-	/** #if(${col.comment})$!{col.comment}#else$!{col.name}#end */
-	@Schema(description = "#if(${col.comment})$!{col.comment}#else$!{col.name}#end")
+	/** #if(${col.label})$!{col.name} $!{col.label}#else$!{col.name}#end */
+	@Schema(description = "#if(${col.label})$!{col.label}#else$!{col.name}#end")
 	private ${col.javaTypeSimpleName} ${col.javaVariableName};
 #end
 

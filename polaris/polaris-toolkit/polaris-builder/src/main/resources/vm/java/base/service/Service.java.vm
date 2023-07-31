@@ -16,8 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import ${pkgPrefix}${env.mapperPackage.replace('/','.')}.${table.javaClassName}Mapper;
-import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}Entity;
+import ${pkgPrefix}${env.mapperPackage.replace('/','.')}.${table.javaClassName}${env.mapperClassSuffix};
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -30,9 +30,9 @@ import com.github.pagehelper.PageHelper;
  */
 @Slf4j
 @Service
-public class ${table.javaClassName}Service {
+public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Autowired
-	private ${table.javaClassName}Mapper mapper;
+	private ${table.javaClassName}${env.mapperClassSuffix} mapper;
 
 	/**
 	 * 查询满足条件的总数
@@ -41,7 +41,7 @@ public class ${table.javaClassName}Service {
 	 * @return 结果总数
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public int getCount(${table.javaClassName}Entity param) {
+	public int getCount(${table.javaClassName}${env.entityClassSuffix} param) {
 		log.info("查询表记录数: ${table.name}");
 		int count = mapper.getCount(param);
 		return count;
@@ -68,12 +68,12 @@ public class ${table.javaClassName}Service {
 	 * @return 当前页对象
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public Page<${table.javaClassName}Entity> getPage(${table.javaClassName}Entity param, int pageNum, int pageSize) {
+	public Page<${table.javaClassName}${env.entityClassSuffix}> getPage(${table.javaClassName}${env.entityClassSuffix} param, int pageNum, int pageSize) {
 		log.info("查询表结果集: ${table.name}");
-		Page<${table.javaClassName}Entity> page = PageHelper.startPage(pageNum, pageSize, false);
-		List<${table.javaClassName}Entity> list = mapper.getAll(param);
+		Page<${table.javaClassName}${env.entityClassSuffix}> page = PageHelper.startPage(pageNum, pageSize, false);
+		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.getAll(param);
 		if(list instanceof Page){
-			page = (Page<${table.javaClassName}Entity>) list;
+			page = (Page<${table.javaClassName}${env.entityClassSuffix}>) list;
 		}else{
 			page.addAll(list);
 		}
@@ -90,12 +90,12 @@ public class ${table.javaClassName}Service {
 	 * @return 当前页对象
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public Page<${table.javaClassName}Entity> getPage(Map<String,Object> param, int pageNum, int pageSize) {
+	public Page<${table.javaClassName}${env.entityClassSuffix}> getPage(Map<String,Object> param, int pageNum, int pageSize) {
 		log.info("查询表结果集: ${table.name}");
-		Page<${table.javaClassName}Entity> page = PageHelper.startPage(pageNum, pageSize, false);
-		List<${table.javaClassName}Entity> list = mapper.getAll(param);
+		Page<${table.javaClassName}${env.entityClassSuffix}> page = PageHelper.startPage(pageNum, pageSize, false);
+		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.getAll(param);
 		if(list instanceof Page){
-			page = (Page<${table.javaClassName}Entity>) list;
+			page = (Page<${table.javaClassName}${env.entityClassSuffix}>) list;
 		}else{
 			page.addAll(list);
 		}
@@ -112,11 +112,11 @@ public class ${table.javaClassName}Service {
 	 * @return 当前页对象
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public List<${table.javaClassName}Entity> getPage(${table.javaClassName}Entity param, com.jcfc.bf.core.data.domain.Page page) {
+	public List<${table.javaClassName}${env.entityClassSuffix}> getPage(${table.javaClassName}${env.entityClassSuffix} param, com.jcfc.bf.core.data.domain.Page page) {
 		if (page == null) {
 			return mapper.getAll(param);
 		}
-		Page<${table.javaClassName}Entity> data = PageHelper.startPage(page.pageIdx, page.pageSize, true)
+		Page<${table.javaClassName}${env.entityClassSuffix}> data = PageHelper.startPage(page.pageIdx, page.pageSize, true)
 			.doSelectPage(() -> mapper.getAll(param));
 		page.setRecordSize((int) data.getTotal());
 		return data;
@@ -129,11 +129,11 @@ public class ${table.javaClassName}Service {
 	 * @return 当前页对象
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public List<${table.javaClassName}Entity> getPage(Map<String,Object> param, com.jcfc.bf.core.data.domain.Page page) {
+	public List<${table.javaClassName}${env.entityClassSuffix}> getPage(Map<String,Object> param, com.jcfc.bf.core.data.domain.Page page) {
 		if (page == null) {
 			return mapper.getAll(param);
 		}
-		Page<${table.javaClassName}Entity> data = PageHelper.startPage(page.pageIdx, page.pageSize, true)
+		Page<${table.javaClassName}${env.entityClassSuffix}> data = PageHelper.startPage(page.pageIdx, page.pageSize, true)
 			.doSelectPage(() -> mapper.getAll(param));
 		page.setRecordSize((int) data.getTotal());
 		return data;
@@ -146,9 +146,9 @@ public class ${table.javaClassName}Service {
 	 * @return 结果对象列表
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public List<${table.javaClassName}Entity> getLimitedList(${table.javaClassName}Entity param, int maxCount) {
+	public List<${table.javaClassName}${env.entityClassSuffix}> getLimitedList(${table.javaClassName}${env.entityClassSuffix} param, int maxCount) {
 		log.info("查询表结果集: ${table.name}");
-		List<${table.javaClassName}Entity> list = mapper.getAll(param, new RowBounds(0, maxCount));
+		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.getAll(param, new RowBounds(0, maxCount));
 		return list;
 	}
 
@@ -159,9 +159,9 @@ public class ${table.javaClassName}Service {
 	 * @return 结果对象列表
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public List<${table.javaClassName}Entity> getLimitedList(Map<String,Object> param, int maxCount) {
+	public List<${table.javaClassName}${env.entityClassSuffix}> getLimitedList(Map<String,Object> param, int maxCount) {
 		log.info("查询表结果集: ${table.name}");
-		List<${table.javaClassName}Entity> list = mapper.getAll(param, new RowBounds(0, maxCount));
+		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.getAll(param, new RowBounds(0, maxCount));
 		return list;
 	}
 
@@ -172,9 +172,9 @@ public class ${table.javaClassName}Service {
 	 * @return 结果对象列表
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public List<${table.javaClassName}Entity> getList(${table.javaClassName}Entity param) {
+	public List<${table.javaClassName}${env.entityClassSuffix}> getList(${table.javaClassName}${env.entityClassSuffix} param) {
 		log.info("查询表结果集: ${table.name}");
-		List<${table.javaClassName}Entity> list = mapper.getAll(param);
+		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.getAll(param);
 		return list;
 	}
 	/**
@@ -184,9 +184,9 @@ public class ${table.javaClassName}Service {
 	 * @return 结果对象列表
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public List<${table.javaClassName}Entity> getList(Map<String,Object> param) {
+	public List<${table.javaClassName}${env.entityClassSuffix}> getList(Map<String,Object> param) {
 		log.info("查询表结果集: ${table.name}");
-		List<${table.javaClassName}Entity> list = mapper.getAll(param);
+		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.getAll(param);
 		return list;
 	}
 
@@ -199,9 +199,9 @@ public class ${table.javaClassName}Service {
 	 * @return 结果对象列表
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public List<${table.javaClassName}Entity> getList(${table.javaClassName}Entity param, int pageIndex, int pageSize) {
+	public List<${table.javaClassName}${env.entityClassSuffix}> getList(${table.javaClassName}${env.entityClassSuffix} param, int pageIndex, int pageSize) {
 		log.info("查询表结果集: ${table.name}");
-		List<${table.javaClassName}Entity> list = mapper.getAll(param, new RowBounds(pageIndex * pageSize, pageSize));
+		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.getAll(param, new RowBounds(pageIndex * pageSize, pageSize));
 		return list;
 	}
 	/**
@@ -213,56 +213,56 @@ public class ${table.javaClassName}Service {
 	 * @return 结果对象列表
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public List<${table.javaClassName}Entity> getList(Map<String,Object> param, int pageIndex, int pageSize) {
+	public List<${table.javaClassName}${env.entityClassSuffix}> getList(Map<String,Object> param, int pageIndex, int pageSize) {
 		log.info("查询表结果集: ${table.name}");
-		List<${table.javaClassName}Entity> list = mapper.getAll(param, new RowBounds(pageIndex * pageSize, pageSize));
+		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.getAll(param, new RowBounds(pageIndex * pageSize, pageSize));
 		return list;
 	}
 
 	/**
 	 * 新增一条记录
 	 *
-	 * @param ${table.javaVariableName}Entity 记录对象
+	 * @param ${table.javaVariableName}${env.entityClassSuffix} 记录对象
 	 * @return 影响记录数
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public int insert(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+	public int insert(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix}) {
 		log.info("新增表记录: ${table.name}");
-		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
+		Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}, "参数对象[${table.javaClassName}${env.entityClassSuffix}]不能为空");
 		#foreach($col in $table.pkColumns)
 			#if(${col.javaClassType}=='String')
-		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+		Assert.hasText(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 			#else
-		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+		Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 			#end
 		#end
 		#foreach($col in $table.normalColumns)
 			#if(!${col.nullable})
 				#if(${col.javaClassType}=='String')
-		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+		Assert.hasText(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 				#else
-		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+		Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 				#end
 			#end
 		#end
-		return mapper.insert(${table.javaVariableName}Entity);
+		return mapper.insert(${table.javaVariableName}${env.entityClassSuffix});
 	}
 
 	/**
 	 * 根据主键列，删除一条记录
 	 *
-	 * @param ${table.javaVariableName}Entity 记录对象
+	 * @param ${table.javaVariableName}${env.entityClassSuffix} 记录对象
 	 * @return 影响记录数
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public int delete(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+	public int delete(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix}) {
 		log.info("根据主键删除表记录: ${table.name}");
 		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
 		#foreach($col in $table.pkColumns)
 			#if(${col.javaClassType}=='String')
-		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 			#else
-		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 			#end
 		#end
 		return mapper.delete(${table.javaVariableName}Entity);
@@ -281,9 +281,9 @@ public class ${table.javaClassName}Service {
 		#foreach($col in $table.columns)
 			#if(!${col.nullable})
 				#if(${col.javaClassType}=='String')
-		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 				#else
-		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 				#end
 			#end
 		#end
@@ -302,9 +302,9 @@ public class ${table.javaClassName}Service {
 		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
 		#foreach($col in $table.pkColumns)
 			#if(${col.javaClassType}=='String')
-		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 			#else
-		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 			#end
 		#end
 		return mapper.updateSelective(${table.javaVariableName}Entity);
@@ -322,9 +322,9 @@ public class ${table.javaClassName}Service {
 		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
 		#foreach($col in $table.pkColumns)
 			#if(${col.javaClassType}=='String')
-		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 			#else
-		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 			#end
 		#end
 		return mapper.getById(${table.javaVariableName}Entity);

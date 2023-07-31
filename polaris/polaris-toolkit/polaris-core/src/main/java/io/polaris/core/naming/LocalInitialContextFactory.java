@@ -1,12 +1,6 @@
 package io.polaris.core.naming;
 
-import javax.naming.Binding;
-import javax.naming.Context;
-import javax.naming.Name;
-import javax.naming.NameClassPair;
-import javax.naming.NameParser;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
+import javax.naming.*;
 import javax.naming.spi.InitialContextFactory;
 import java.util.Hashtable;
 import java.util.Map;

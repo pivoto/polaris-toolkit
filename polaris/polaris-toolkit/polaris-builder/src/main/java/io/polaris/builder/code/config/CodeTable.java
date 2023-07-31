@@ -7,7 +7,9 @@ import com.thoughtworks.xstream.annotations.XStreamConverter;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Qt
@@ -39,6 +41,8 @@ public class CodeTable {
 	/** jdbc类型映射 */
 	@XStreamAlias("mappings")
 	private Set<TypeMapping> mappings = new LinkedHashSet<>();
+	@XStreamAlias("columns")
+	private Set<ConfigColumn> columns = new LinkedHashSet<>();
 
 	/** 需忽略的表名前缀，多个间逗号分隔 */
 	@XStreamAlias("table-prefix")

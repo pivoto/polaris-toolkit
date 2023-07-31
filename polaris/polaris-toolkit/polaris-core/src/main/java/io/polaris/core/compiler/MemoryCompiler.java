@@ -1,30 +1,19 @@
 package io.polaris.core.compiler;
 
-import javax.tools.Diagnostic;
-import javax.tools.DiagnosticCollector;
-import javax.tools.JavaCompiler;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardJavaFileManager;
-import javax.tools.StandardLocation;
-import javax.tools.ToolProvider;
+import javax.tools.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Qt
  * @since 1.8
  */
-public class MemoryCompiler implements Compiler{
+public class MemoryCompiler implements Compiler {
 
 	private final JavaCompiler compiler;
 	private final MemoryClassLoader memoryClassLoader;
@@ -35,6 +24,7 @@ public class MemoryCompiler implements Compiler{
 		private static final Map<ClassLoader, MemoryCompiler> COMPILERS = new ConcurrentHashMap<>();
 
 		public static MemoryCompiler get(ClassLoader classLoader) {
+			classLoader = classLoader == null ? Thread.currentThread().getContextClassLoader() : classLoader;
 			return COMPILERS.computeIfAbsent(classLoader, loader -> new MemoryCompiler(loader));
 		}
 	}
@@ -67,7 +57,7 @@ public class MemoryCompiler implements Compiler{
 		this.options.addAll(options);
 		this.compiler = ToolProvider.getSystemJavaCompiler();
 		this.memoryClassLoader = AccessController.doPrivileged(
-				(PrivilegedAction<MemoryClassLoader>) () -> new MemoryClassLoader(loader));
+			(PrivilegedAction<MemoryClassLoader>) () -> new MemoryClassLoader(loader));
 
 		Set<String> classPaths = memoryClassLoader.getClassPaths();
 		List<File> files = new ArrayList<>();
@@ -91,7 +81,7 @@ public class MemoryCompiler implements Compiler{
 		MemoryJavaFileManager javaFileManager = new MemoryJavaFileManager(manager, memoryClassLoader);
 		javaFileManager.putFileForInput(StandardLocation.SOURCE_PATH, className, javaFileObject);
 		JavaCompiler.CompilationTask task = compiler.getTask(null, javaFileManager, diagnostics, options,
-				null, Collections.singletonList(javaFileObject));
+			null, Collections.singletonList(javaFileObject));
 		Boolean rs = task.call();
 		if (rs == null || !rs) {
 			throw new IllegalStateException(compileError(className, diagnostics));

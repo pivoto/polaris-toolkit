@@ -1,9 +1,9 @@
 package io.polaris.builder.code.reader.impl;
 
-import io.polaris.builder.code.dto.Tables;
 import io.polaris.builder.code.dto.CatalogDto;
 import io.polaris.builder.code.dto.SchemaDto;
 import io.polaris.builder.code.dto.TableDto;
+import io.polaris.builder.code.dto.Tables;
 
 import java.io.File;
 import java.io.IOException;

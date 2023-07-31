@@ -1,7 +1,6 @@
 package io.polaris.core.map;
 
 import io.polaris.core.map.reference.ReferenceType;
-import io.polaris.core.map.reference.WeakValueReference;
 
 import java.util.HashMap;
 import java.util.Map;

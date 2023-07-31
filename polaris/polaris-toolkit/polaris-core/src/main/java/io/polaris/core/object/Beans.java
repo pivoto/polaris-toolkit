@@ -6,9 +6,12 @@ import io.polaris.core.reflect.Reflects;
 import io.polaris.core.string.StringCases;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -28,45 +31,65 @@ public class Beans {
 		return false;
 	}
 
-	public static <T> T toBean(Object source, Class<T> clazz) {
-		return toBean(source, clazz, null);
+	public static <T> BeanMap asBeanMap(T bean
+		, Class<?> beanType, BiFunction<Object, Type, Object> converter
+		, Function<String, Object> fallbackGetter
+		, BiConsumer<String, Object> fallbackSetter) {
+		return new BeanMap(bean, beanType, converter, fallbackGetter, fallbackSetter);
 	}
 
-	public static <T> T toBean(Object source, Class<T> clazz, CopyOptions options) {
-		return toBean(source, () -> Reflects.newInstanceIfPossible(clazz), options);
+	public static <T> BeanMap asBeanMap(T bean, Class<?> beanType) {
+		return asBeanMap(bean, beanType, null, null, null);
 	}
 
-	public static <T> T toBean(Object source, Supplier<T> targetSupplier, CopyOptions options) {
+	public static <T> BeanMap asBeanMap(T bean) {
+		return asBeanMap(bean, bean.getClass(), null, null, null);
+	}
+
+	public static <T> BeanMap asBeanMap(T bean, BiFunction<Object, Type, Object> converter) {
+		return asBeanMap(bean, bean.getClass(), converter, null, null);
+	}
+
+
+	public static <T> T copyBean(Object source, Class<T> clazz) {
+		return copyBean(source, clazz, null);
+	}
+
+	public static <T> T copyBean(Object source, Class<T> clazz, CopyOptions options) {
+		return copyBean(source, () -> Reflects.newInstanceIfPossible(clazz), options);
+	}
+
+	public static <T> T copyBean(Object source, Supplier<T> targetSupplier, CopyOptions options) {
 		if (null == source || null == targetSupplier) {
 			return null;
 		}
 		final T target = targetSupplier.get();
-		copyProperties(source, target, options);
+		copyBean(source, target, options);
 		return target;
 	}
 
-	public static void copyProperties(Object source, Object target, CopyOptions copyOptions) {
+	public static void copyBean(Object source, Object target, CopyOptions copyOptions) {
 		if (null == source) {
 			return;
 		}
 		Copiers.create(source, target, (copyOptions != null ? copyOptions : CopyOptions.create())).copy();
 	}
 
-	public static Map<String, Object> beanToMap(Object bean, boolean isUnderlineCase, boolean ignoreNull) {
+	public static Map<String, Object> copyBean(Object bean, boolean isUnderlineCase, boolean ignoreNull) {
 		if (null == bean) {
 			return null;
 		}
-		return beanToMap(bean, new LinkedHashMap<>(), isUnderlineCase, ignoreNull);
+		return copyBean(bean, new LinkedHashMap<>(), isUnderlineCase, ignoreNull);
 	}
 
-	public static Map<String, Object> beanToMap(Object bean, Map<String, Object> targetMap, final boolean isUnderlineCase, boolean ignoreNull) {
+	public static Map<String, Object> copyBean(Object bean, Map<String, Object> targetMap, final boolean isUnderlineCase, boolean ignoreNull) {
 		if (null == bean) {
 			return null;
 		}
-		return beanToMap(bean, targetMap, ignoreNull, key -> isUnderlineCase ? StringCases.camelToUnderlineCase(key) : key);
+		return copyBean(bean, targetMap, ignoreNull, key -> isUnderlineCase ? StringCases.camelToUnderlineCase(key) : key);
 	}
 
-	public static Map<String, Object> beanToMap(Object bean, String... properties) {
+	public static Map<String, Object> copyBean(Object bean, String... properties) {
 		int mapSize = 16;
 		Function<String, String> keyEditor = null;
 		if (properties.length > 0) {
@@ -75,13 +98,14 @@ public class Beans {
 			keyEditor = property -> propertiesSet.contains(property) ? property : null;
 		}
 		// 指明了要复制的属性 所以不忽略null值
-		return beanToMap(bean, new LinkedHashMap<>(mapSize, 1), false, keyEditor);
+		return copyBean(bean, new LinkedHashMap<>(mapSize, 1), false, keyEditor);
 	}
 
-	public static Map<String, Object> beanToMap(Object bean, Map<String, Object> targetMap, boolean ignoreNull, Function<String, String> keyEditor) {
+	public static Map<String, Object> copyBean(Object bean, Map<String, Object> targetMap, boolean ignoreNull, Function<String, String> keyEditor) {
 		if (null == bean) {
 			return null;
 		}
-		return Copiers.create(bean, targetMap, CopyOptions.create().ignoreNull(ignoreNull).propertyNameEditor(keyEditor)).copy();
+		return Copiers.create(bean, targetMap, CopyOptions.create().ignoreNull(ignoreNull).nameEditor(keyEditor)).copy();
 	}
+
 }

@@ -11,7 +11,7 @@ import java.util.Optional;
  */
 public interface ICacheManagerFactory {
 
-	ICacheManager get();
+	ICacheManager getCacheManager();
 
 
 	@Nullable
@@ -22,7 +22,7 @@ public interface ICacheManagerFactory {
 
 	@Nullable
 	static ICacheManager defaultCacheManager() {
-		return Optional.ofNullable(defaultCacheManagerFactory()).map(ICacheManagerFactory::get).orElse(null);
+		return Optional.ofNullable(defaultCacheManagerFactory()).map(ICacheManagerFactory::getCacheManager).orElse(null);
 	}
 
 }

@@ -486,11 +486,11 @@ public class Reflects {
 	}
 
 	public static boolean isGetterMethod(Method method) {
-		return method != null && method.getParameterCount() == 0
-			&& (
-			method.getName().length() > 2 && method.getName().startsWith("is") && method.getReturnType() == boolean.class
-				|| method.getName().length() > 3 && method.getName().startsWith("get")
-		);
+		return method != null && method.getParameterCount() == 0 && method.getName().length() > 2
+			&&
+			(method.getName().startsWith("is") && method.getReturnType() == boolean.class
+				|| method.getName().startsWith("get") && method.getReturnType() != void.class)
+			;
 	}
 
 	public static boolean isSetterMethod(Method method) {
@@ -515,6 +515,38 @@ public class Reflects {
 
 	public static boolean isGetClassMethod(Method method) {
 		return method != null && "getClass".equals(method.getName()) && method.getParameterCount() == 0;
+	}
+
+	public static boolean isCloneMethod(Method method) {
+		return method != null && "clone".equals(method.getName()) && method.getParameterCount() == 0;
+	}
+
+	public static boolean isNotifyMethod(Method method) {
+		return method != null && "notify".equals(method.getName()) && method.getParameterCount() == 0;
+	}
+
+	public static boolean isNotifyAllMethod(Method method) {
+		return method != null && "notifyAll".equals(method.getName()) && method.getParameterCount() == 0;
+	}
+
+	public static boolean isWaitMethod(Method method) {
+		return method != null && "wait".equals(method.getName()) &&
+			(
+				method.getParameterCount() == 0
+					|| method.getParameterCount() == 1 && method.getParameterTypes()[0] == long.class
+					|| method.getParameterCount() == 2 && method.getParameterTypes()[0] == long.class && method.getParameterTypes()[1] == int.class
+			);
+	}
+
+	public static boolean isFinalizeMethod(Method method) {
+		return method != null && "finalize".equals(method.getName()) && method.getParameterCount() == 0;
+	}
+
+	public static boolean isObjectDeclaredMethod(Method method) {
+		return isEqualsMethod(method) || isHashCodeMethod(method) || isToStringMethod(method) || isGetClassMethod(method)
+			|| isCloneMethod(method) || isNotifyMethod(method) || isNotifyAllMethod(method)
+			|| isWaitMethod(method) || isFinalizeMethod(method)
+			;
 	}
 
 	public static Method getPublicMethod(Class<?> clazz, String methodName, Class<?>... paramTypes) {

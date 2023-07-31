@@ -20,4 +20,6 @@ public @interface Table {
 	String name();
 
 	String javaPackage();
+
+	Column[] columns() default {};
 }

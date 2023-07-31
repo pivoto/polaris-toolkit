@@ -1,10 +1,6 @@
 package io.polaris.core.annotation;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * 尚未完成但因构建依赖或部分投产等原因而提交的功能

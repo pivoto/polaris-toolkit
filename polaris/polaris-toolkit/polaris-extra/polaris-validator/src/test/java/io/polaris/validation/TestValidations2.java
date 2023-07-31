@@ -1,6 +1,5 @@
 package io.polaris.validation;
 
-import io.polaris.core.string.Strings;
 import io.polaris.validation.group.Create;
 import io.polaris.validation.group.Delete;
 import io.polaris.validation.group.Retrieve;
@@ -13,8 +12,10 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.groups.Default;
 import java.lang.reflect.Method;
-import java.util.*;
-import java.util.function.Function;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Qt

@@ -1,5 +1,7 @@
 package io.polaris.core.tuple;
 
+import lombok.ToString;
+
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -7,6 +9,7 @@ import java.util.Arrays;
  * @author Qt
  * @since 1.8
  */
+@ToString
 public class TupleN implements Serializable, Tuple {
 
 	private static final long serialVersionUID = 1L;

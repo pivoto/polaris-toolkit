@@ -1,15 +1,16 @@
 package io.polaris.core.script;
 
-import io.polaris.core.crypto.Digests;
-import io.polaris.core.string.Strings;
 import groovy.lang.Binding;
 import groovy.lang.GroovyClassLoader;
 import groovy.lang.GroovyCodeSource;
 import groovy.lang.Script;
+import io.polaris.core.crypto.digest.Digests;
+import io.polaris.core.string.Strings;
 import lombok.Getter;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.runtime.InvokerHelper;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,7 +47,11 @@ public class GroovyCompiler {
 	}
 
 	private static String sha1(String content) {
-		return Base64.getEncoder().encodeToString(Digests.sha1(content != null ? content.trim() : ""));
+		try {
+			return Base64.getEncoder().encodeToString(Digests.sha1(content != null ? content.trim() : ""));
+		} catch (NoSuchAlgorithmException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	private String buildDefaultScriptName(String str) {

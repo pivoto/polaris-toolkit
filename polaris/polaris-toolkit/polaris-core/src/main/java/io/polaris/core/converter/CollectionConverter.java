@@ -3,9 +3,11 @@ package io.polaris.core.converter;
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.consts.SymbolConsts;
 import io.polaris.core.json.IJsonSerializer;
+import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.Types;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.service.StatefulServiceLoader;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
@@ -17,38 +19,55 @@ import java.util.concurrent.LinkedBlockingDeque;
  * @author Qt
  * @since 1.8
  */
-public class CollectionConverter implements Converter<Collection<?>> {
+@Slf4j
+public class CollectionConverter<T extends Collection<E>, E> extends AbstractConverter<T> {
+	/** 集合类型 */
+	private final JavaType<T> collectionType;
+	/** 集合元素类型 */
+	private final JavaType<E> elementType;
 
-	/**
-	 * 集合类型
-	 */
-	private final Type collectionType;
-	/**
-	 * 集合元素类型
-	 */
-	private final Type elementType;
+
+	public CollectionConverter(JavaType<T> collectionType, JavaType<E> elementType) {
+		this.collectionType = collectionType;
+		if (elementType == null) {
+			elementType = JavaType.of(collectionType.getActualType(Collection.class, 0));
+		}
+		this.elementType = elementType;
+	}
+
+	public CollectionConverter(JavaType<T> collectionType) {
+		this(collectionType, null);
+	}
+
+	public CollectionConverter(Type collectionType) {
+		this(JavaType.of(collectionType), null);
+	}
 
 	public CollectionConverter() {
 		this(Collection.class);
 	}
 
-	public CollectionConverter(Type collectionType) {
-		this(collectionType, Types.getTypeArgument(collectionType));
-	}
-
-	public CollectionConverter(Class<?> collectionType) {
-		this(collectionType, Types.getTypeArgument(collectionType));
-	}
-
-	public CollectionConverter(Type collectionType, Type elementType) {
-		this.collectionType = collectionType;
-		this.elementType = elementType == null ? Object.class : elementType;
-	}
-
 
 	@Override
-	public Collection<?> convert(Object value) {
-		Collection<?> c = create(Types.getClass(this.collectionType), Types.getClass(this.elementType));
+	public JavaType<T> getTargetType() {
+		return collectionType;
+	}
+
+	@Override
+	protected <S> T doConvert(S value, JavaType<T> targetType, JavaType<S> sourceType) {
+		if (this.collectionType.getRawClass().isAssignableFrom(sourceType.getRawClass())) {
+			Type sourceElementType = sourceType.getActualType(Collection.class, 0);
+			// 元素泛型一致
+			if (sourceElementType instanceof Class) {
+				if (this.elementType.getRawClass().isAssignableFrom((Class<?>) sourceElementType)) {
+					return (T) value;
+				}
+			} else if (this.elementType.getRawType() == sourceElementType) {
+				return (T) value;
+			}
+		}
+
+		T c = (T) create(Types.getClass(this.collectionType), Types.getClass(this.elementType));
 		Iterator<?> iter = null;
 		if (value instanceof Iterator) {
 			iter = ((Iterator<?>) value);
@@ -63,13 +82,19 @@ public class CollectionConverter implements Converter<Collection<?>> {
 					c.add(ConverterRegistry.INSTANCE.convert(elementType, Array.get(value, i)));
 				}
 			} else if (value instanceof CharSequence) {
-				// 扩展json实现，
-				Optional<IJsonSerializer> optional = StatefulServiceLoader.load(IJsonSerializer.class).optionalService();
-				if (optional.isPresent()) {
-					String json = value.toString();
-					return optional.get().deserialize(json, collectionType);
+				try {
+					// 扩展json实现，
+					Optional<IJsonSerializer> optional = StatefulServiceLoader.load(IJsonSerializer.class).optionalService();
+					if (optional.isPresent()) {
+						String json = value.toString();
+						return optional.get().deserialize(json, collectionType.getRawType());
+					}
+				} catch (Exception e) {
+					log.warn("解析JSON失败：{}", e.getMessage());
+					if (log.isDebugEnabled()) {
+						log.debug(e.getMessage(), e);
+					}
 				}
-
 				splitCharSequence((CharSequence) value, c);
 			} else {
 				c.add(ConverterRegistry.INSTANCE.convert(elementType, value));

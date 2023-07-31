@@ -1,6 +1,7 @@
 package io.polaris.core.converter.support;
 
-import io.polaris.core.converter.AbstractConverter;
+import io.polaris.core.converter.AbstractSimpleConverter;
+import io.polaris.core.lang.JavaType;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -8,16 +9,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Qt
  * @since 1.8
  */
-public class AtomicBooleanConverter extends AbstractConverter<AtomicBoolean> {
+public class AtomicBooleanConverter extends AbstractSimpleConverter<AtomicBoolean> {
+	private final JavaType<AtomicBoolean> targetType = JavaType.of(AtomicBoolean.class);
+
 	@Override
-	protected AtomicBoolean convertInternal(Object value, Class<? extends AtomicBoolean> targetType) {
+	public JavaType<AtomicBoolean> getTargetType() {
+		return targetType;
+	}
+
+	@Override
+	protected AtomicBoolean doConvert(Object value, JavaType<AtomicBoolean> targetType) {
 		if (value instanceof Boolean) {
 			return new AtomicBoolean((Boolean) value);
 		}
 		if (value instanceof Number) {
 			return new AtomicBoolean(0 != ((Number) value).intValue());
 		}
-		String valueStr = convertToStr(value);
+		String valueStr = asString(value);
 		return new AtomicBoolean(Boolean.parseBoolean(valueStr));
 	}
 }

@@ -1,7 +1,8 @@
 package io.polaris.core.converter.support;
 
-import io.polaris.core.converter.AbstractConverter;
+import io.polaris.core.converter.AbstractSimpleConverter;
 import io.polaris.core.io.IO;
+import io.polaris.core.lang.JavaType;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -15,9 +16,16 @@ import java.util.TimeZone;
  * @author Qt
  * @since 1.8
  */
-public class StringConverter extends AbstractConverter<String> {
+public class StringConverter extends AbstractSimpleConverter<String> {
+
+	private final JavaType<String> targetType = JavaType.of(String.class);
 	@Override
-	protected String convertInternal(Object value, Class<? extends String> targetType) {
+	public JavaType<String> getTargetType() {
+		return targetType;
+	}
+
+	@Override
+	protected String doConvert(Object value, JavaType<String> targetType) {
 		if (value instanceof TimeZone) {
 			return ((TimeZone) value).getID();
 		} else if (value instanceof Clob) {
@@ -27,7 +35,7 @@ public class StringConverter extends AbstractConverter<String> {
 		} else if (value instanceof Type) {
 			return ((Type) value).getTypeName();
 		}
-		return convertToStr(value);
+		return asString(value);
 	}
 
 	private static String clobToStr(Clob clob) {

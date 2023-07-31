@@ -1,5 +1,6 @@
 package io.polaris.core.lang;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.*;
 import java.util.*;
@@ -8,6 +9,7 @@ import java.util.*;
  * @author Qt
  * @since 1.8
  */
+@SuppressWarnings("rawtypes")
 public class Types {
 	private static final Map<Class, Class> primitiveWrapperTypes = new HashMap<>();
 	private static final Map<Class, Class> wrapperPrimitiveTypes = new HashMap<>();
@@ -37,6 +39,20 @@ public class Types {
 		return type.isPrimitive() ? type : wrapperPrimitiveTypes.get(type);
 	}
 
+	public static boolean isPrimitive(Class<?> clazz) {
+		if (null == clazz) {
+			return false;
+		}
+		return clazz.isPrimitive();
+	}
+
+	public static boolean isPrimitiveWrapper(Class<?> clazz) {
+		if (null == clazz) {
+			return false;
+		}
+		return wrapperPrimitiveTypes.containsKey(clazz);
+	}
+
 	/**
 	 * 获取包装类型
 	 */
@@ -55,20 +71,16 @@ public class Types {
 	@Nullable
 	public static Type getTypeArgument(Type type, int index) {
 		final Type[] typeArguments = getTypeArguments(type);
-		if (null != typeArguments && typeArguments.length > index) {
+		if (typeArguments.length > index) {
 			return typeArguments[index];
 		}
 		return null;
 	}
 
-	@Nullable
-	public static Type[] getTypeArguments(Type type) {
-		if (null == type) {
-			return null;
-		}
-
+	@Nonnull
+	public static Type[] getTypeArguments(@Nonnull Type type) {
 		final ParameterizedType parameterizedType = toParameterizedType(type);
-		return (null == parameterizedType) ? null : parameterizedType.getActualTypeArguments();
+		return (null == parameterizedType) ? new Type[0] : parameterizedType.getActualTypeArguments();
 	}
 
 	@Nullable
@@ -92,10 +104,8 @@ public class Types {
 		return result;
 	}
 
-	/**
-	 * 获取泛型变量和泛型实际类型的对应关系Map
-	 */
-	public static Map<TypeVariable, Type> getTypeVariableMap(Type type) {
+	@SuppressWarnings("rawtypes")
+	static Map<TypeVariable, Type> _getTypeVariableMap(Type type) {
 		Map<TypeVariable, Type> typeMap = new HashMap<>();
 		while (null != type) {
 			ParameterizedType parameterizedType = Types.toParameterizedType(type);
@@ -106,9 +116,8 @@ public class Types {
 			final Class<?> rawType = (Class<?>) parameterizedType.getRawType();
 			final TypeVariable[] typeParameters = rawType.getTypeParameters();
 
-			Type value;
 			for (int i = 0; i < typeParameters.length; i++) {
-				value = typeArguments[i];
+				Type value = typeArguments[i];
 				// 跳过泛型变量对应泛型变量的情况
 				if (!(value instanceof TypeVariable)) {
 					typeMap.put(typeParameters[i], value);
@@ -120,10 +129,89 @@ public class Types {
 	}
 
 	/**
+	 * 获取泛型变量和泛型实际类型的对应关系Map
+	 */
+	@SuppressWarnings("rawtypes")
+	public static Map<TypeVariable<?>, Type> getTypeVariableMap(Type type) {
+		Map<TypeVariable<?>, Type> typeMap = new HashMap<>();
+		fetchTypeVariableMap(typeMap, type);
+		return typeMap;
+	}
+
+	@SuppressWarnings("rawtypes")
+	private static void fetchTypeVariableMap(Map<TypeVariable<?>, Type> typeMap, Type type) {
+		if (type instanceof ParameterizedType) {
+			Map<String, Type> nameMap = new HashMap<>();
+			final Class<?> rawType = (Class<?>) ((ParameterizedType) type).getRawType();
+			{
+				Type[] actualTypes = ((ParameterizedType) type).getActualTypeArguments();
+				final TypeVariable[] variables = rawType.getTypeParameters();
+				for (int i = 0; i < variables.length; i++) {
+					Type value = actualTypes[i];
+					// 跳过泛型变量对应泛型变量的情况
+					if (!(value instanceof TypeVariable)) {
+						typeMap.put(variables[i], value);
+						nameMap.putIfAbsent(variables[i].getName(), value);
+					} else {
+						Type existed = typeMap.get(variables[i]);
+						if (existed != null) {
+							nameMap.putIfAbsent(variables[i].getName(), existed);
+						}
+					}
+				}
+			}
+			// 父类泛型处理
+			{
+				Type genericSuper = rawType.getGenericSuperclass();
+				fetchTypeVariableMap(typeMap, nameMap, genericSuper);
+			}
+			// 接口泛型处理
+			{
+				Type[] genericInterfaces = rawType.getGenericInterfaces();
+				for (Type genericInterface : genericInterfaces) {
+					fetchTypeVariableMap(typeMap, nameMap, genericInterface);
+				}
+			}
+		} else if (type instanceof Class) {
+			// 父类与接口泛型处理
+			fetchTypeVariableMap(typeMap, ((Class<?>) type).getGenericSuperclass());
+			for (Type genericInterface : ((Class<?>) type).getGenericInterfaces()) {
+				fetchTypeVariableMap(typeMap, genericInterface);
+			}
+		}
+	}
+
+	private static void fetchTypeVariableMap(Map<TypeVariable<?>, Type> typeMap, Map<String, Type> nameMap, Type genericInterface) {
+		if (genericInterface instanceof ParameterizedType) {
+			Class<?> superRawType = (Class<?>) ((ParameterizedType) genericInterface).getRawType();
+			Type[] superActualTypes = ((ParameterizedType) genericInterface).getActualTypeArguments();
+			TypeVariable[] superVariables = superRawType.getTypeParameters();
+			for (int i = 0; i < superVariables.length; i++) {
+				Type value = superActualTypes[i];
+				if (!(value instanceof TypeVariable)) {
+					typeMap.put(superVariables[i], value);
+					nameMap.putIfAbsent(superVariables[i].getName(), value);
+				} else {
+					Type existed = typeMap.get(superVariables[i]);
+					if (existed != null) {
+						nameMap.putIfAbsent(superVariables[i].getName(), existed);
+					} else {
+						value = nameMap.get(superVariables[i].getName());
+						if (value != null) {
+							typeMap.put(superVariables[i], value);
+						}
+					}
+				}
+			}
+		}
+	}
+
+
+	/**
 	 * 获得泛型变量对应的泛型实际类型，如果此变量没有对应的实际类型，返回null
 	 */
 	public static Type getActualType(Type type, TypeVariable<?> typeVariable) {
-		Map<TypeVariable, Type> map = getTypeVariableMap(type);
+		Map<TypeVariable<?>, Type> map = getTypeVariableMap(type);
 		Type rs = map.get(typeVariable);
 		while (rs instanceof TypeVariable) {
 			rs = map.get(rs);
@@ -139,10 +227,8 @@ public class Types {
 	/**
 	 * 获得Type对应的原始类，如果无法获取原始类，返回null
 	 */
-	public static Class<?> getClass(Type type) {
-		if (type == null) {
-			return null;
-		}
+	@Nonnull
+	public static Class<?> getClass(@Nonnull Type type) {
 		if (type instanceof Class) {
 			return (Class<?>) type;
 		} else if (type instanceof ParameterizedType) {
@@ -173,14 +259,26 @@ public class Types {
 		if (componentClass == int.class) {
 			return int[].class;
 		}
+		if (componentClass == long.class) {
+			return long[].class;
+		}
 		if (componentClass == byte.class) {
 			return byte[].class;
+		}
+		if (componentClass == char.class) {
+			return char[].class;
+		}
+		if (componentClass == boolean.class) {
+			return boolean[].class;
 		}
 		if (componentClass == short.class) {
 			return short[].class;
 		}
-		if (componentClass == long.class) {
-			return long[].class;
+		if (componentClass == double.class) {
+			return double[].class;
+		}
+		if (componentClass == float.class) {
+			return float[].class;
 		}
 		if (componentClass == String.class) {
 			return String[].class;
@@ -188,7 +286,7 @@ public class Types {
 		if (componentClass == Object.class) {
 			return Object[].class;
 		}
-		return Array.newInstance(componentClass, 1).getClass();
+		return Array.newInstance(componentClass, 0).getClass();
 	}
 
 	/**
@@ -239,18 +337,47 @@ public class Types {
 	}
 
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	public static boolean isFunction(Class type) {
 		if (type.isInterface()) {
-			String typeName = type.getName();
+			/*String typeName = type.getName();
 			if (typeName.startsWith("java.util.function.")) {
 				return true;
-			}
-
+			}*/
 			if (type.isAnnotationPresent(FunctionalInterface.class)) {
 				return true;
 			}
+			int count = 0;
+			Method[] methods = type.getMethods();
+			for (Method method : methods) {
+				if (!method.isDefault() && !Modifier.isStatic(method.getModifiers())) {
+					count++;
+					if (count > 1) {
+						return false;
+					}
+				}
+			}
+			return count == 1;
 		}
-
 		return false;
+	}
+
+	/** 推测是否为Lambda表达式对象， */
+	public static boolean isLambda(@Nullable Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		Class<?> c = obj.getClass();
+		if (!c.getSimpleName().contains("$$Lambda$")) {
+			return false;
+		}
+		if (c.getSuperclass() != Object.class) {
+			return false;
+		}
+		Class<?>[] interfaces = c.getInterfaces();
+		if (interfaces.length != 1) {
+			return false;
+		}
+		return isFunction(interfaces[0]);
 	}
 }

@@ -102,4 +102,22 @@ public class CodeTableBuilder {
 		target.getMappings().add(new TypeMapping(jdbcType, javaType));
 		return this;
 	}
+
+	public CodeTableBuilder columns(Set<ConfigColumn> columns) {
+		target.setColumns(columns);
+		return this;
+	}
+
+	public CodeTableBuilder columns(Supplier<Set<ConfigColumn>> columns) {
+		target.setColumns(columns.get());
+		return this;
+	}
+
+	public CodeTableBuilder column(String name, String javaType) {
+		if (target.getColumns() == null) {
+			target.setColumns(new LinkedHashSet<>());
+		}
+		target.getColumns().add(new ConfigColumn(name, javaType));
+		return this;
+	}
 }

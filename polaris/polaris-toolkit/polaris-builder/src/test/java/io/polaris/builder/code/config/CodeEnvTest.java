@@ -4,11 +4,7 @@ import com.alibaba.fastjson2.JSON;
 import com.thoughtworks.xstream.XStream;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class CodeEnvTest {
 

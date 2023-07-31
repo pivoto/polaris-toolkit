@@ -1,8 +1,8 @@
 #parse("/vm/include.vm")
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="${pkgPrefix}${env.mapperPackage}.${table.javaClassName}Mapper">
-	<resultMap id="${table.javaVariableName}EntityMap" type="${pkgPrefix}${env.entityPackage}.${table.javaClassName}Entity">
+<mapper namespace="${pkgPrefix}${env.mapperPackage}.${table.javaClassName}${env.mapperClassSuffix}">
+	<resultMap id="${table.javaVariableName}${env.entityClassSuffix}Map" type="${pkgPrefix}${env.entityPackage}.${table.javaClassName}${env.entityClassSuffix}">
 		#foreach($col in ${table.pkColumns})
 			<id column="$col.name" property="${col.javaVariableName}" />
 		#end
@@ -13,7 +13,7 @@
 
 	<sql id="selectClause">
 		SELECT
-			${empty}#foreach($col in ${table.pkColumns})${col.name}#if(${foreach.hasNext}),#set($tmp=${foreach.count} % 5)#if($tmp == 0)${lf}${tab}${tab}${tab}#end#end#end
+			${empty}#foreach($col in ${table.pkColumns})${col.name}#if(${foreach.hasNext}),#set($tmp=${foreach.count} % 5)#if($tmp == 0)${lf}${tab}${tab}${tab}#end#end#end,
 			${empty}#foreach($col in $table.normalColumns)${col.name}#if(${foreach.hasNext}),#set($tmp=${foreach.count} % 5)#if($tmp == 0)${lf}${tab}${tab}${tab}#end#end#end
 		FROM ${table.name}
 	</sql>
@@ -50,23 +50,23 @@
 		</if>
 	</sql>
 
-	<select id="getCount" parameterType="${pkgPrefix}entity.${table.javaClassName}Entity" resultType="int">
+	<select id="getCount" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}" resultType="int">
 		SELECT COUNT(*) FROM ${table.name}
 		<include refid="whereClause"/>
 	</select>
 
-	<select id="getUnique" parameterType="${pkgPrefix}entity.${table.javaClassName}Entity" resultMap="${table.javaVariableName}EntityMap">
+	<select id="getUnique" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}" resultMap="${table.javaVariableName}${env.entityClassSuffix}Map">
 		<include refid="selectClause"/>
 		<include refid="whereClause"/>
 	</select>
 
-	<select id="getAll" parameterType="${pkgPrefix}entity.${table.javaClassName}Entity" resultMap="${table.javaVariableName}EntityMap">
+	<select id="getAll" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}" resultMap="${table.javaVariableName}${env.entityClassSuffix}Map">
 		<include refid="selectClause"/>
 		<include refid="whereClause"/>
 		<include refid="orderClause"/>
 	</select>
 
-	<select id="getById" parameterType="${pkgPrefix}entity.${table.javaClassName}Entity" resultMap="${table.javaVariableName}EntityMap">
+	<select id="getById" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}" resultMap="${table.javaVariableName}${env.entityClassSuffix}Map">
 		<include refid="selectClause"/>
 		<where>
 #foreach($col in $table.pkColumns)
@@ -75,18 +75,18 @@
 		</where>
 	</select>
 
-	<insert id="insert" parameterType="${pkgPrefix}entity.${table.javaClassName}Entity"#if(${config['mysql.useGeneratedKeys']} == 'true') useGeneratedKeys="true" keyProperty="${table.pkColumns[0].javaVariableName}"#end>
+	<insert id="insert" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}"#if(${config['mysql.useGeneratedKeys']} == 'true') useGeneratedKeys="true" keyProperty="${table.pkColumns[0].javaVariableName}"#end>
 		INSERT INTO ${table.name}(
-			${empty}#foreach($col in ${table.pkColumns})${col.name}#if(${foreach.hasNext}),#set($tmp=${foreach.count} % 5)#if($tmp == 0)${lf}${tab}${tab}${tab}#end#end#end
+			${empty}#foreach($col in ${table.pkColumns})${col.name}#if(${foreach.hasNext}),#set($tmp=${foreach.count} % 5)#if($tmp == 0)${lf}${tab}${tab}${tab}#end#end#end,
 			${empty}#foreach($col in $table.normalColumns)${col.name}#if(${foreach.hasNext}),#set($tmp=${foreach.count} % 5)#if($tmp == 0)${lf}${tab}${tab}${tab}#end#end#end
 		)
 		VALUES(
-			${empty}#foreach($col in ${table.pkColumns})#{${col.javaVariableName},jdbcType=${col.jdbcType}}#if(${foreach.hasNext}),#set($tmp=${foreach.count} % 5)#if($tmp == 0)${lf}${tab}${tab}${tab}#end#end#end
+			${empty}#foreach($col in ${table.pkColumns})#{${col.javaVariableName},jdbcType=${col.jdbcType}}#if(${foreach.hasNext}),#set($tmp=${foreach.count} % 5)#if($tmp == 0)${lf}${tab}${tab}${tab}#end#end#end,
 			${empty}#foreach($col in $table.normalColumns)#{${col.javaVariableName},jdbcType=${col.jdbcType}}#if(${foreach.hasNext}),#set($tmp=${foreach.count} % 5)#if($tmp == 0)${lf}${tab}${tab}${tab}#end#end#end
 		)
 	</insert>
 
-	<update id="update" parameterType="${pkgPrefix}entity.${table.javaClassName}Entity">
+	<update id="update" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}">
 		UPDATE ${table.name}
 			<trim prefix="SET" suffixOverrides=",">
 #foreach($col in $table.pkColumns)
@@ -112,7 +112,7 @@
 			</trim>
 	</update>
 
-	<update id="updateSelective" parameterType="${pkgPrefix}entity.${table.javaClassName}Entity">
+	<update id="updateSelective" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}">
 		UPDATE ${table.name}
 			<trim prefix="SET" suffixOverrides=",">
 #foreach($col in $table.pkColumns)
@@ -154,7 +154,7 @@
 			</trim>
 	</update>
 
-	<delete id="delete" parameterType="${pkgPrefix}entity.${table.javaClassName}Entity">
+	<delete id="delete" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}">
 		DELETE FROM ${table.name}
 		WHERE
 			<trim prefix="" suffixOverrides="AND">

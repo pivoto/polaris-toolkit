@@ -245,7 +245,6 @@ public final class Ulid implements Serializable, Comparable<Ulid> {
 	 *
 	 * @return a ULID
 	 * @see {@link SplittableRandom}
-	 * @since 5.1.0
 	 */
 	public static Ulid fast() {
 		final long time = System.currentTimeMillis();

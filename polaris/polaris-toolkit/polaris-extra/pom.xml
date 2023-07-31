@@ -9,7 +9,7 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>cn.pivoto.polaris.toolkit.extra</groupId>
+	<groupId>cn.pivoto.polaris.toolkit</groupId>
 	<artifactId>polaris-extra</artifactId>
 	<packaging>pom</packaging>
 
@@ -18,6 +18,8 @@
 		<module>polaris-log</module>
 		<module>polaris-bytecode</module>
 		<module>polaris-web</module>
+		<module>polaris-crypto</module>
+		<module>polaris-image</module>
 		<module>polaris-git</module>
 	</modules>
 	<properties>

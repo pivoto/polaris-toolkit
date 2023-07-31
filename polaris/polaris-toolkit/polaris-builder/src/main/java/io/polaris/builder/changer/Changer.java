@@ -1,6 +1,6 @@
 package io.polaris.builder.changer;
 
-import io.polaris.core.crypto.Digests;
+import io.polaris.core.crypto.digest.Digests;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -120,7 +121,7 @@ public class Changer {
 		return s;
 	}
 
-	private int copy(final File src, final File dest) throws IOException {
+	private int copy(final File src, final File dest) throws IOException, NoSuchAlgorithmException {
 		if (dest.exists() && src.length() == dest.length()) {
 			byte[] sha1s;
 			try (FileInputStream in = new FileInputStream(src);) {
@@ -159,7 +160,7 @@ public class Changer {
 		return (int) count;
 	}
 
-	public void execute() throws IOException {
+	public void execute() throws IOException, NoSuchAlgorithmException {
 		check();
 
 		if (sourcePaths.isEmpty()) {
@@ -197,7 +198,7 @@ public class Changer {
 		return false;
 	}
 
-	private void doChange(String srcPath, String destPath, File from) throws IOException {
+	private void doChange(String srcPath, String destPath, File from) throws IOException, NoSuchAlgorithmException {
 		if (!from.isDirectory()) {
 			return;
 		}
@@ -294,7 +295,7 @@ public class Changer {
 		return null;
 	}
 
-	private void doChange(final File src, final File dest) throws IOException {
+	private void doChange(final File src, final File dest) throws IOException, NoSuchAlgorithmException {
 		String lineSeparator = "\n";
 		try (RandomAccessFile raf = new RandomAccessFile(src, "r");) {
 			String line = raf.readLine();

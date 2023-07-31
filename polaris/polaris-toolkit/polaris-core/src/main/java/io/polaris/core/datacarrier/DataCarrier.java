@@ -1,7 +1,7 @@
 package io.polaris.core.datacarrier;
 
-import io.polaris.core.datacarrier.buffer.BufferStrategy;
 import io.polaris.core.datacarrier.buffer.BufferChannel;
+import io.polaris.core.datacarrier.buffer.BufferStrategy;
 import io.polaris.core.datacarrier.consumer.ConsumeDriver;
 import io.polaris.core.datacarrier.consumer.IBulkConsumerDriver;
 import io.polaris.core.datacarrier.consumer.IConsumer;

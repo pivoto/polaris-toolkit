@@ -1,10 +1,10 @@
 package io.polaris.builder.code.dto;
 
 
+import io.polaris.core.map.Maps;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
-import io.polaris.core.map.Maps;
 import lombok.*;
 import org.apache.commons.lang3.SerializationUtils;
 

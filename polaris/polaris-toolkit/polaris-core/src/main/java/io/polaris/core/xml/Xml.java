@@ -894,10 +894,10 @@ public class Xml {
 			final String simpleName = bean.getSimpleName();
 			if (map.containsKey(simpleName)) {
 				// 只有key和bean的名称匹配时才做单一对象转换
-				return Beans.toBean(map.get(simpleName), bean);
+				return Beans.copyBean(map.get(simpleName), bean);
 			}
 		}
-		return Beans.toBean(map, bean);
+		return Beans.copyBean(map, bean);
 	}
 
 	/**
@@ -1125,7 +1125,7 @@ public class Xml {
 		if (null == bean) {
 			return null;
 		}
-		return mapToXml(Beans.beanToMap(bean, false, ignoreNull),
+		return mapToXml(Beans.copyBean(bean, false, ignoreNull),
 			bean.getClass().getSimpleName(), namespace);
 	}
 

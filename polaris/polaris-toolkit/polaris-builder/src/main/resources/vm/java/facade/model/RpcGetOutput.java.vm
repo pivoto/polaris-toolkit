@@ -7,7 +7,7 @@ import lombok.experimental.Accessors;
 #foreach($name in $table.columnJavaTypes)
 import $name;
 #end
-import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}Entity;
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
 import com.jcfc.bf.core.context.domain.ExchangeDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -18,8 +18,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * @since ${current.date}
  */
 @Data
-public class ${table.javaClassName}GetOutput extends ExchangeDto{
+public class ${table.javaClassName}${env.rpcGetOutputClassSuffix} extends ExchangeDto{
 
-	private ${table.javaClassName}Entity entity;
+	private ${table.javaClassName}${env.entityClassSuffix} entity;
 
 }

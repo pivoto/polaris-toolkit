@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import ${pkgPrefix}${env.mapperPackage.replace('/','.')}.${table.javaClassName}Mapper;
-import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}Entity;
+import ${pkgPrefix}${env.mapperPackage.replace('/','.')}.${table.javaClassName}${env.mapperClassSuffix};
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -25,137 +25,137 @@ import com.github.pagehelper.PageHelper;
  * @since ${current.date}
  */
 @Slf4j
-@Service("i${table.javaClassName}Service")
-public class ${table.javaClassName}ServiceImpl implements ${pkgPrefix}service.I${table.javaClassName}Service {
+@Service("i${table.javaClassName}S${env.serviceClassSuffix}")
+public class ${table.javaClassName}${env.serviceClassSuffix}Impl implements ${pkgPrefix}service.I${table.javaClassName}${env.serviceClassSuffix} {
 
 	@Autowired
-	private ${table.javaClassName}Mapper mapper;
+	private ${table.javaClassName}${env.mapperClassSuffix} mapper;
 
 	@Override
-	public int getCount(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+	public int getCount(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix}) {
 		log.info("查询表记录数: ${table.name}");
-		int count = mapper.getCount(${table.javaVariableName}Entity);
+		int count = mapper.getCount(${table.javaVariableName}${env.entityClassSuffix});
 		return count;
 	}
 
 	@Override
-	public Page<${table.javaClassName}Entity> getPage(${table.javaClassName}Entity ${table.javaVariableName}Entity, int pageNum, int pageSize) {
+	public Page<${table.javaClassName}${env.entityClassSuffix}> getPage(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix}, int pageNum, int pageSize) {
 		log.info("查询表结果集: ${table.name}");
-		Page<${table.javaClassName}Entity> page = PageHelper.startPage(pageNum, pageSize, false);
-		List<${table.javaClassName}Entity> list = mapper.getAll(${table.javaVariableName}Entity);
+		Page<${table.javaClassName}${env.entityClassSuffix}> page = PageHelper.startPage(pageNum, pageSize, false);
+		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.getAll(${table.javaVariableName}${env.entityClassSuffix});
 		if(list instanceof Page){
-			page = (Page<${table.javaClassName}Entity>) list;
+			page = (Page<${table.javaClassName}${env.entityClassSuffix}>) list;
 		}else{
 			page.addAll(list);
 		}
-		int total = mapper.getCount(${table.javaVariableName}Entity);
+		int total = mapper.getCount(${table.javaVariableName}${env.entityClassSuffix});
 		page.setTotal(total);
 		return page;
 	}
 
 	@Override
-	public List<${table.javaClassName}Entity> getLimitedList(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
-		return getLimitedList(${table.javaVariableName}Entity, 0xFFFF);
+	public List<${table.javaClassName}${env.entityClassSuffix}> getLimitedList(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix}) {
+		return getLimitedList(${table.javaVariableName}${env.entityClassSuffix}, 0xFFFF);
 	}
 
 	@Override
-	public List<${table.javaClassName}Entity> getLimitedList(${table.javaClassName}Entity ${table.javaVariableName}Entity, int maxCount) {
+	public List<${table.javaClassName}${env.entityClassSuffix}> getLimitedList(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix}, int maxCount) {
 		log.info("查询表结果集: ${table.name}");
-		List<${table.javaClassName}Entity> list = mapper.getAll(${table.javaVariableName}Entity, new RowBounds(0, maxCount));
+		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.getAll(${table.javaVariableName}${env.entityClassSuffix}, new RowBounds(0, maxCount));
 		return list;
 	}
 
 	@Override
-	public List<${table.javaClassName}Entity> getList(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+	public List<${table.javaClassName}${env.entityClassSuffix}> getList(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix}) {
 		log.info("查询表结果集: ${table.name}");
-		List<${table.javaClassName}Entity> list = mapper.getAll(${table.javaVariableName}Entity);
+		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.getAll(${table.javaVariableName}${env.entityClassSuffix});
 		return list;
 	}
 
 	@Override
-	public List<${table.javaClassName}Entity> getList(${table.javaClassName}Entity ${table.javaVariableName}Entity, int pageIndex, int pageSize) {
+	public List<${table.javaClassName}${env.entityClassSuffix}> getList(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix}, int pageIndex, int pageSize) {
 		log.info("查询表结果集: ${table.name}");
-		List<${table.javaClassName}Entity> list = mapper.getAll(${table.javaVariableName}Entity, new RowBounds(pageIndex * pageSize, pageSize));
+		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.getAll(${table.javaVariableName}${env.entityClassSuffix}, new RowBounds(pageIndex * pageSize, pageSize));
 		return list;
 	}
 
 	@Override
-	public int insert(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+	public int insert(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix}) {
 		log.info("新增表记录: ${table.name}");
 		// String id = UUID.randomUUID().toString().replace("-", "");
-		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
+		Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}, "参数对象[${table.javaClassName}${env.entityClassSuffix}]不能为空");
 #foreach($col in $table.pkColumns)
 #if(${col.javaType}=='String')
-		//Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+		//Assert.hasText(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 #else
-		//Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+		//Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 #end
 #end
 #foreach($col in $table.normalColumns)
 #if(!${col.nullable})
 #if(${col.javaType}=='String')
-		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+		Assert.hasText(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 #else
-		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+		Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 #end
 #end
 #end
-		return mapper.insert(${table.javaVariableName}Entity);
+		return mapper.insert(${table.javaVariableName}${env.entityClassSuffix});
 	}
 
 	@Override
-	public int delete(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+	public int delete(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix}) {
 		log.info("根据主键删除表记录: ${table.name}");
-		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
+		Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}, "参数对象[${table.javaClassName}${env.entityClassSuffix}]不能为空");
 #foreach($col in $table.pkColumns)
 #if(${col.javaType}=='String')
-		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+		Assert.hasText(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 #else
-		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+		Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 #end
 #end
-		return mapper.delete(${table.javaVariableName}Entity);
+		return mapper.delete(${table.javaVariableName}${env.entityClassSuffix});
 	}
 
 	@Override
-	public int update(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+	public int update(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix}) {
 		log.info("根据主键更新表记录: ${table.name}");
-		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
+		Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}, "参数对象[${table.javaClassName}${env.entityClassSuffix}]不能为空");
 #foreach($col in $table.columns)
 #if(!${col.nullable})
 #if(${col.javaType}=='String')
-		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+		Assert.hasText(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 #else
-		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+		Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 #end
 #end
 #end
-		return mapper.update(${table.javaVariableName}Entity);
+		return mapper.update(${table.javaVariableName}${env.entityClassSuffix});
 	}
 
 	@Override
-	public int updateSelective(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+	public int updateSelective(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix}) {
 		log.info("根据主键更新表记录: ${table.name}");
-		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
+		Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}, "参数对象[${table.javaClassName}${env.entityClassSuffix}]不能为空");
 #foreach($col in $table.pkColumns)
 #if(${col.javaType}=='String')
-		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+		Assert.hasText(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 #else
-		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+		Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 #end
 #end
-		return mapper.updateSelective(${table.javaVariableName}Entity);
+		return mapper.updateSelective(${table.javaVariableName}${env.entityClassSuffix});
 	}
 
 	@Override
-	public ${table.javaClassName}Entity getById(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+	public ${table.javaClassName}${env.entityClassSuffix} getById(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
 		log.info("根据主键查询表记录: ${table.name}");
 		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
 #foreach($col in $table.pkColumns)
 #if(${col.javaType}=='String')
-		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 #else
-		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.comment)$col.comment#else$col.name#end]不能为空");
+		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 #end
 #end
 		return mapper.getById(${table.javaVariableName}Entity);

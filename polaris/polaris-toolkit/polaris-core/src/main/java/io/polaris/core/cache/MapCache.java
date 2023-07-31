@@ -42,7 +42,7 @@ public class MapCache<K, V> implements ICache<K, V> {
 		this.map = map;
 	}
 
-	@Nonnull
+	@Nullable
 	@Override
 	public Ref<V> get(@Nonnull K key) {
 		return map.get(key);
@@ -57,18 +57,18 @@ public class MapCache<K, V> implements ICache<K, V> {
 
 	@Nullable
 	@Override
-	public V get(K key, Supplier<V> loader) {
+	public V get(@Nonnull K key, Supplier<V> loader) {
 		Ref<V> ref = map.get(key);
 		return ref == null ? loader.get() : ref.get(loader);
 	}
 
 	@Override
-	public Ref<V> putIfAbsent(@Nonnull K key, @Nonnull V value) {
+	public Ref<V> putIfAbsent(@Nonnull K key, @Nullable V value) {
 		return map.putIfAbsent(key, Ref.of(value));
 	}
 
 	@Override
-	public void put(@Nonnull K key, @Nonnull V value) {
+	public void put(@Nonnull K key, @Nullable V value) {
 		map.put(key, Ref.of(value));
 	}
 

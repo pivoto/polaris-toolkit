@@ -1,16 +1,22 @@
 package io.polaris.core.converter.support;
 
-import io.polaris.core.converter.AbstractConverter;
-
-import java.util.concurrent.atomic.AtomicBoolean;
+import io.polaris.core.converter.AbstractSimpleConverter;
+import io.polaris.core.lang.JavaType;
 
 /**
  * @author Qt
  * @since 1.8
  */
-public class BooleanConverter extends AbstractConverter<Boolean> {
+public class BooleanConverter extends AbstractSimpleConverter<Boolean> {
+	private final JavaType<Boolean> targetType = JavaType.of(Boolean.class);
+
 	@Override
-	protected Boolean convertInternal(Object value, Class<? extends Boolean> targetType) {
+	public JavaType<Boolean> getTargetType() {
+		return targetType;
+	}
+
+	@Override
+	protected Boolean doConvert(Object value, JavaType<Boolean> targetType) {
 		if (value instanceof Boolean) {
 			return (Boolean) value;
 		}
@@ -18,6 +24,6 @@ public class BooleanConverter extends AbstractConverter<Boolean> {
 			// 0为false，其它数字为true
 			return 0 != ((Number) value).intValue();
 		}
-		return Boolean.parseBoolean(convertToStr(value));
+		return Boolean.parseBoolean(asString(value));
 	}
 }

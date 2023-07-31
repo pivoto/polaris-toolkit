@@ -1,9 +1,5 @@
 package io.polaris.core.script;
 
-import groovy.lang.Binding;
-import groovy.lang.Script;
-import org.codehaus.groovy.runtime.InvokerHelper;
-
 import java.util.Map;
 import java.util.function.Function;
 

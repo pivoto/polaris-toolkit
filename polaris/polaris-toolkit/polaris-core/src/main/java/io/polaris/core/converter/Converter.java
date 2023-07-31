@@ -1,5 +1,7 @@
 package io.polaris.core.converter;
 
+import java.lang.reflect.Type;
+
 /**
  * @author Qt
  * @since 1.8
@@ -7,30 +9,22 @@ package io.polaris.core.converter;
 @FunctionalInterface
 public interface Converter<T> {
 
-	T convert(Object value);
+	<S> T convert(Type valueType, S value);
 
-	default T convertOrDefault(Object value, T defaultValue) {
-		T t = convert(value);
+	default <S> T convert(S value) {
+		return convert(value.getClass(), value);
+	}
+
+	default <S> T convertOrDefault(Type valueType, S value, T defaultValue) {
+		T t = convert(valueType, value);
 		if (t == null) {
 			t = defaultValue;
 		}
 		return t;
 	}
 
-	default T convertQuietly(Object value) {
-		try {
-			return convert(value);
-		} catch (Exception e) {
-			return null;
-		}
-	}
-
-	default T convertQuietly(Object value, T defaultValue) {
-		try {
-			return convertOrDefault(value, defaultValue);
-		} catch (Exception e) {
-			return null;
-		}
+	default <S> T convertOrDefault(S value, T defaultValue) {
+		return convertOrDefault(value.getClass(), value, defaultValue);
 	}
 
 }

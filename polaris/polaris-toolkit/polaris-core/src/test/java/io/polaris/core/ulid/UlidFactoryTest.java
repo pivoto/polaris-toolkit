@@ -5,9 +5,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class UlidFactoryTest {
 	protected static final int DEFAULT_LOOP_MAX = 10_000;

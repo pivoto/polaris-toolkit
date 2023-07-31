@@ -7,7 +7,7 @@ import com.mybatisflex.core.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.session.RowBounds;
 
-import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}Entity;;
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};;
 
 /**
  * ${table.name}
@@ -16,7 +16,7 @@ import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}E
  * @since ${current.date}
  */
 @Mapper
-public interface ${table.javaClassName}Mapper extends BaseMapper<${table.javaClassName}Entity>{
+public interface ${table.javaClassName}${env.mapperClassSuffix} extends BaseMapper<${table.javaClassName}${env.entityClassSuffix}>{
 
 }
 

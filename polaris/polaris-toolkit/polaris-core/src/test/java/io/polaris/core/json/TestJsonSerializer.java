@@ -8,8 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import io.polaris.core.json.IJsonSerializer;
-import io.polaris.core.service.ServiceDefault;
+import io.polaris.core.lang.JavaType;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -19,7 +18,6 @@ import java.math.BigInteger;
  * @author Qt
  * @since 1.8
  */
-@ServiceDefault
 public class TestJsonSerializer implements IJsonSerializer {
 	private static final ObjectMapper MAPPER = buildObjectMapper();
 
@@ -78,6 +76,9 @@ public class TestJsonSerializer implements IJsonSerializer {
 	@Override
 	public <T> T deserialize(String json, Type type) {
 		try {
+			if (type instanceof JavaType) {
+				type = ((JavaType<?>) type).getRawType();
+			}
 			return MAPPER.readValue(json, MAPPER.constructType(type));
 		} catch (JsonProcessingException e) {
 			throw new UnsupportedOperationException(e);

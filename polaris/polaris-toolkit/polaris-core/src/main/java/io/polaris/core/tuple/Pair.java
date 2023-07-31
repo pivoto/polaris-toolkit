@@ -1,7 +1,9 @@
 package io.polaris.core.tuple;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -12,6 +14,8 @@ import java.util.Map;
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class Pair<A, B> extends Tuple2<A, B> implements Map.Entry<A, B>, Serializable, Tuple {
 
 	public Pair(final A first, final B second) {
@@ -19,6 +23,10 @@ public class Pair<A, B> extends Tuple2<A, B> implements Map.Entry<A, B>, Seriali
 	}
 
 	public Pair() {
+	}
+
+	public static <T1, T2> Pair<T1, T2> of(T1 first, T2 second) {
+		return new Pair<>(first, second);
 	}
 
 	@Override

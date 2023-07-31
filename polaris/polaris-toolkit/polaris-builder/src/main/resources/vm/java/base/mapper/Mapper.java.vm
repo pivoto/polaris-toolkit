@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.stereotype.Repository;
 
-import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}Entity;;
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};;
 
 /**
  * ${table.name}
@@ -16,9 +16,8 @@ import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}E
  * @author $!{env.author}
  * @since ${current.date}
  */
-@Repository
 @Mapper
-public interface ${table.javaClassName}Mapper{
+public interface ${table.javaClassName}${env.mapperClassSuffix}{
 
 	/**
 	 * 查询总数
@@ -26,7 +25,7 @@ public interface ${table.javaClassName}Mapper{
 	 * @param param 查询条件对象
 	 * @return 总数
 	 */
-	int getCount(${table.javaClassName}Entity param);
+	int getCount(${table.javaClassName}${env.entityClassSuffix} param);
 	/**
 	 * 查询总数
 	 *
@@ -41,14 +40,14 @@ public interface ${table.javaClassName}Mapper{
 	 * @param param 查询条件对象
 	 * @return 结果对象列表
 	 */
-	List<${table.javaClassName}Entity> getAll(${table.javaClassName}Entity param);
+	List<${table.javaClassName}${env.entityClassSuffix}> getAll(${table.javaClassName}${env.entityClassSuffix} param);
 	/**
 	 * 查询所有数据,返回{@link List}对象列表
 	 *
 	 * @param param 查询条件对象
 	 * @return 结果对象列表
 	 */
-	List<${table.javaClassName}Entity> getAll(Map<String,Object> param);
+	List<${table.javaClassName}${env.entityClassSuffix}> getAll(Map<String,Object> param);
 
 	/**
 	 * 分页查询所有数据,返回{@link List}对象列表
@@ -57,7 +56,7 @@ public interface ${table.javaClassName}Mapper{
 	 * @param rowBounds 分页条件
 	 * @return 结果对象列表
 	 */
-	List<${table.javaClassName}Entity> getAll(${table.javaClassName}Entity param, RowBounds rowBounds);
+	List<${table.javaClassName}${env.entityClassSuffix}> getAll(${table.javaClassName}${env.entityClassSuffix} param, RowBounds rowBounds);
 
 	/**
 	 * 分页查询所有数据,返回{@link List}对象列表
@@ -66,7 +65,7 @@ public interface ${table.javaClassName}Mapper{
 	 * @param rowBounds 分页条件
 	 * @return 结果对象列表
 	 */
-	List<${table.javaClassName}Entity> getAll(Map<String,Object> param, RowBounds rowBounds);
+	List<${table.javaClassName}${env.entityClassSuffix}> getAll(Map<String,Object> param, RowBounds rowBounds);
 
 	/**
 	 * 根据条件查询唯一结果
@@ -74,14 +73,14 @@ public interface ${table.javaClassName}Mapper{
 	 * @param param 查询条件对象
 	 * @return 结果对象
 	 */
-	${table.javaClassName}Entity getUnique(${table.javaClassName}Entity param);
+	${table.javaClassName}${env.entityClassSuffix} getUnique(${table.javaClassName}${env.entityClassSuffix} param);
 	/**
 	 * 根据条件查询唯一结果
 	 *
 	 * @param param 查询条件对象
 	 * @return 结果对象
 	 */
-	${table.javaClassName}Entity getUnique(Map<String,Object> param);
+	${table.javaClassName}${env.entityClassSuffix} getUnique(Map<String,Object> param);
 
 	/**
 	 * 根据主键列查询对象
@@ -89,14 +88,14 @@ public interface ${table.javaClassName}Mapper{
 	 * @param param 查询条件对象
 	 * @return 结果对象
 	 */
-	${table.javaClassName}Entity getById(${table.javaClassName}Entity param);
+	${table.javaClassName}${env.entityClassSuffix} getById(${table.javaClassName}${env.entityClassSuffix} param);
 	/**
 	 * 根据主键列查询对象
 	 *
 	 * @param param 查询条件对象
 	 * @return 结果对象
 	 */
-	${table.javaClassName}Entity getById(Map<String,Object> param);
+	${table.javaClassName}${env.entityClassSuffix} getById(Map<String,Object> param);
 
 	/**
 	 * 新增记录
@@ -104,7 +103,7 @@ public interface ${table.javaClassName}Mapper{
 	 * @param entity 记录对象
 	 * @return 影响记录数
 	 */
-	int insert(${table.javaClassName}Entity entity);
+	int insert(${table.javaClassName}${env.entityClassSuffix} entity);
 
 	/**
 	 * 修改记录,按入参修改所有列
@@ -112,7 +111,7 @@ public interface ${table.javaClassName}Mapper{
 	 * @param entity 记录对象
 	 * @return 影响记录数
 	 */
-	int update(${table.javaClassName}Entity entity);
+	int update(${table.javaClassName}${env.entityClassSuffix} entity);
 
 	/**
 	 * 修改记录,只修改入参的非空字段对应的列
@@ -120,7 +119,7 @@ public interface ${table.javaClassName}Mapper{
 	 * @param entity 记录对象
 	 * @return 影响记录数
 	 */
-	int updateSelective(${table.javaClassName}Entity entity);
+	int updateSelective(${table.javaClassName}${env.entityClassSuffix} entity);
 
 	/**
 	 * 删除记录
@@ -128,7 +127,7 @@ public interface ${table.javaClassName}Mapper{
 	 * @param entity 记录对象
 	 * @return 影响记录数
 	 */
-	int delete(${table.javaClassName}Entity entity);
+	int delete(${table.javaClassName}${env.entityClassSuffix} entity);
 
 }
 

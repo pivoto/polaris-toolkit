@@ -3,6 +3,7 @@ package io.polaris.builder.code;
 import io.polaris.builder.code.annotation.*;
 import io.polaris.builder.code.config.CodeEnvBuilder;
 import io.polaris.builder.code.config.CodeGroupBuilder;
+import io.polaris.builder.code.config.ConfigColumn;
 import io.polaris.builder.code.config.TypeMapping;
 import io.polaris.builder.code.reader.impl.JdbcTablesReader;
 import io.polaris.builder.dbv.cfg.DatabaseCfg;
@@ -82,15 +83,26 @@ public class Codes {
 				.filename(template.filename())
 				.outdir(template.dirname())
 				.property(property)
-				;
+			;
 		}
 
 		for (Table table : code.tables()) {
-		codeGroupBuilder.addTable()
+			Set<ConfigColumn> columns   = new HashSet<>();
+			for (Column column : table.columns()) {
+				columns.add(new ConfigColumn(column.name(), column.javaType()));
+			}
+			codeGroupBuilder.addTable()
 				.catalog(table.catalog())
-			.schema(table.schema())
-			.name(table.name())
-			.javaPackage(table.javaPackage())
+				.schema(table.schema())
+				.name(table.name())
+				.javaPackage(table.javaPackage())
+				.property(property)
+				.columns(columns)
+				.mappings(mappings)
+				.tablePrefix(code.tablePrefix())
+				.tableSuffix(code.tableSuffix())
+				.columnPrefix(code.columnPrefix())
+				.columnSuffix(code.columnSuffix());
 			;
 		}
 

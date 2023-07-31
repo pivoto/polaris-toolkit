@@ -7,7 +7,7 @@ import lombok.experimental.Accessors;
 #foreach($name in $table.columnJavaTypes)
 import $name;
 #end
-import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}Entity;
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
 import com.jcfc.bf.core.context.domain.ExchangeDto;
 import com.jcfc.bf.core.data.domain.Page;
 import com.jcfc.bf.core.data.consts.Dml;
@@ -22,7 +22,7 @@ import javax.validation.constraints.*;
  * @since ${current.date}
  */
 @Data
-public class ${table.javaClassName}ListInput extends ExchangeDto{
+public class ${table.javaClassName}${env.rpcListInputClassSuffix} extends ExchangeDto{
 	@Schema(description = "分页信息")
 	private Page page = new Page();
 	@Schema(description = "查询参数")
@@ -32,8 +32,8 @@ public class ${table.javaClassName}ListInput extends ExchangeDto{
 	@Data
 	public static class Param{
 	#foreach($col in $table.columns)
-		/** #if(${col.comment})$!{col.comment}#else$!{col.name}#end */
-		@Schema(description = "#if(${col.comment})$!{col.comment}#else$!{col.name}#end")
+		/** #if(${col.label})$!{col.label}#else$!{col.name}#end */
+		@Schema(description = "#if(${col.label})$!{col.label}#else$!{col.name}#end")
 		private ${col.javaTypeSimpleName} ${col.javaVariableName};
 	#end
 	}

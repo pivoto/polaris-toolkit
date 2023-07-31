@@ -1,13 +1,14 @@
 package io.polaris.core.converter;
 
 import io.polaris.core.converter.support.*;
+import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.TypeRef;
-import io.polaris.core.lang.Types;
 import io.polaris.core.object.Beans;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.service.Service;
 import io.polaris.core.service.ServiceLoader;
 import io.polaris.core.ulid.Ulid;
+import lombok.extern.slf4j.Slf4j;
 
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
@@ -31,12 +32,14 @@ import java.util.concurrent.atomic.*;
  * @author Qt
  * @since 1.8
  */
+@SuppressWarnings({"all"})
+@Slf4j
 public enum ConverterRegistry {
 
 	INSTANCE;
 
-	private Map<Type, Converter<?>> defaultConverters = new ConcurrentHashMap<>();
-	private Map<Type, Converter<?>> customConverters = new ConcurrentHashMap<>();
+	private final Map<Type, Converter<?>> defaultConverters = new ConcurrentHashMap<>();
+	private final Map<Type, Converter<?>> customConverters = new ConcurrentHashMap<>();
 
 	ConverterRegistry() {
 		initDefaults();
@@ -48,8 +51,8 @@ public enum ConverterRegistry {
 			try {
 				Class<? extends Converter> converterClass = service.getServiceClass();
 				Converter converter = service.newInstance();
-				Class type = Reflects.findParameterizedType(Converter.class, converterClass, 0);
-				customConverters.putIfAbsent(type, converter);
+				Type actualType = JavaType.of(converterClass).getActualType(Converter.class, 0);
+				customConverters.putIfAbsent(actualType, converter);
 			} catch (Exception ignore) {
 			}
 		}
@@ -98,7 +101,7 @@ public enum ConverterRegistry {
 		defaultConverters.put(java.sql.Time.class, new DateConverter(java.sql.Time.class));
 		defaultConverters.put(java.sql.Timestamp.class, new DateConverter(java.sql.Timestamp.class));
 
-		// 日期时间 JDK8+(since 5.0.0)
+		// 日期时间 JDK8+
 		defaultConverters.put(TemporalAccessor.class, new TemporalAccessorConverter(Instant.class));
 		defaultConverters.put(Instant.class, new TemporalAccessorConverter(Instant.class));
 		defaultConverters.put(LocalDateTime.class, new TemporalAccessorConverter(LocalDateTime.class));
@@ -159,59 +162,85 @@ public enum ConverterRegistry {
 	}
 
 	public <T> T convert(Type type, Object value) {
+		if (value == null) {
+			return null;
+		}
 		return convert(type, value, null);
+	}
+
+	public <T> T convert(Type type, Type valueType, Object value) {
+		return convert(type, valueType, value, null);
 	}
 
 	public <T> T convert(Type type, Object value, T defaultValue) {
 		if (value == null) {
 			return defaultValue;
 		}
-		if (Types.isUnknown(type)) {
+		return convert(type, value.getClass(), value, defaultValue);
+	}
+
+	public <T> T convert(Type type, Type valueType, Object value, T defaultValue) {
+		// check
+		if (value == null) {
+			return defaultValue;
+		}
+		if (type == Object.class) {
+			return (T) value;
+		}
+		/*if (Types.isUnknown(type)) {
 			if (defaultValue == null) {
 				// 未知类型
 				return (T) value;
 			} else {
 				type = defaultValue.getClass();
 			}
-		}
-		//null == type || type instanceof TypeVariable
+		}*/
 		if (type instanceof TypeRef) {
 			type = ((TypeRef<?>) type).getType();
+			return convert(type, valueType, value, defaultValue);
 		}
+		JavaType<Object> sourceType = JavaType.of(valueType);
+		if (!sourceType.isInstance(value)) {
+			throw new IllegalArgumentException();
+		}
+		JavaType<T> targetType = JavaType.of(type);
+		if (targetType.getRawType() == sourceType.getRawType()) {
+			return (T) value;
+		}
+		valueType = sourceType.getRawType();
+		type = targetType.getRawType();
+		Class<T> clazz = targetType.getRawClass();
+		if (type instanceof Class && clazz.isInstance(value)) {
+			return (T) value;
+		}
+
 		Converter<T> converter = getConverter(type);
 		if (converter != null) {
-			return converter.convertOrDefault(value, defaultValue);
+			return converter.convertOrDefault(valueType, value, defaultValue);
 		}
 
-		Class<?> clazz = Types.getClass(type);
-		if (clazz != null) {
-			if (Collection.class.isAssignableFrom(clazz)) {
-				// CollectionConverter
-				CollectionConverter collectionConverter = new CollectionConverter(type);
-				return (T) collectionConverter.convertOrDefault(value, (Collection<?>) defaultValue);
-			}
-			if (Map.class.isAssignableFrom(clazz)) {
-				// MapConverter
-				MapConverter mapConverter = new MapConverter(type);
-				return (T) mapConverter.convertOrDefault(value, (Map<?, ?>) defaultValue);
-			}
-			if (clazz.isInstance(value)) {
-				return (T) value;
-			}
-			if (clazz.isEnum()) {
-				// EnumConverter
-				return (T) new EnumConverter(clazz).convertOrDefault(value, defaultValue);
-			}
-			if (clazz.isArray()) {
-				// ArrayConverter
-				ArrayConverter arrayConverter = new ArrayConverter(clazz);
-				return (T) arrayConverter.convertOrDefault(value, defaultValue);
-			}
+		if (clazz.isEnum()) {
+			// EnumConverter
+			return (T) new EnumConverter(targetType.getRawClass()).convertOrDefault(valueType, value, defaultValue);
 		}
-
-		// BeanConverter
+		if (Collection.class.isAssignableFrom(clazz)) {
+			// CollectionConverter
+			CollectionConverter collectionConverter = new CollectionConverter(type);
+			return (T) collectionConverter.convertOrDefault(valueType, value, (Collection<?>) defaultValue);
+		}
+		if (Map.class.isAssignableFrom(clazz)) {
+			// MapConverter
+			MapConverter mapConverter = new MapConverter(type);
+			return (T) mapConverter.convertOrDefault(valueType, value, (Map<?, ?>) defaultValue);
+		}
+		if (clazz.isArray()) {
+			// ArrayConverter
+			ArrayConverter arrayConverter = new ArrayConverter(clazz);
+			return (T) arrayConverter.convertOrDefault(valueType, value, defaultValue);
+		}
 		if (Beans.isBeanClass(clazz)) {
-			return new BeanConverter<T>(type).convertOrDefault(value, defaultValue);
+			// BeanConverter
+			return new BeanConverter<T>(type).convertOrDefault(valueType, value, defaultValue);
 		}
 
 		if (type instanceof Class) {
@@ -222,17 +251,31 @@ public enum ConverterRegistry {
 	}
 
 	public <T> T convertQuietly(Type type, Object value) {
-		try {
-			return convert(type, value, null);
-		} catch (Exception e) {
+		if (value == null) {
 			return null;
 		}
+		return convertQuietly(type, value.getClass(), value, null);
+	}
+
+	public <T> T convertQuietly(Type type, Type valueType, Object value) {
+		return convertQuietly(type, valueType, value, null);
 	}
 
 	public <T> T convertQuietly(Type type, Object value, T defaultValue) {
+		if (value == null) {
+			return defaultValue;
+		}
+		return convertQuietly(type, value.getClass(), value, defaultValue);
+	}
+
+	public <T> T convertQuietly(Type type, Type valueType, Object value, T defaultValue) {
 		try {
-			return convert(type, value, defaultValue);
+			return convert(type, valueType, value, defaultValue);
 		} catch (Exception e) {
+			log.warn("类型转换失败：{}", e.getMessage());
+			if (log.isDebugEnabled()) {
+				log.debug(e.getMessage(), e);
+			}
 			return defaultValue;
 		}
 	}

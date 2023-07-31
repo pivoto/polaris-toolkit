@@ -1,13 +1,8 @@
 package io.polaris.core.converter;
 
-import io.polaris.core.collection.Iterables;
-import io.polaris.core.json.IJsonSerializer;
-import io.polaris.core.reflect.Reflects;
-import io.polaris.core.service.StatefulServiceLoader;
+import io.polaris.core.lang.JavaType;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
+import java.lang.reflect.Type;
 
 /**
  * @author Qt
@@ -15,48 +10,69 @@ import java.util.Optional;
  */
 public abstract class AbstractConverter<T> implements Converter<T> {
 
-	public Class<T> getTargetType() {
-		return (Class<T>) Reflects.findParameterizedType(Converter.class, getClass(), 0);
+	public JavaType<T> getTargetType() {
+		Type actualType = JavaType.of(getClass()).getActualType(Converter.class, 0);
+		return JavaType.of(actualType);
+		//return (Class<T>) Reflects.findParameterizedType(Converter.class, getClass(), 0);
 	}
 
-	@Override
-	public T convert(Object value) {
-		if (value == null) {
-			return null;
+	public final <S> T convert(Type valueType, S value) {
+		return convert(JavaType.of(valueType), value);
+	}
+
+	public final <S> T convert(S value) {
+		return convert(value.getClass(), value);
+	}
+
+	public final <S> T convertOrDefault(Type valueType, S value, T defaultValue) {
+		T t = convert(valueType, value);
+		if (t == null) {
+			t = defaultValue;
 		}
-		Class<T> targetType = getTargetType();
-		if (!Map.class.isAssignableFrom(targetType)
-			&& !Collection.class.isAssignableFrom(targetType)) {
-			if (targetType.isInstance(value)) {
-				return targetType.cast(value);
+		return t;
+	}
+
+	public final <S> T convertOrDefault(S value, T defaultValue) {
+		return convertOrDefault(value.getClass(), value, defaultValue);
+	}
+
+
+	@SuppressWarnings("unchecked")
+	public final <S> T convert(JavaType<S> valueType, S value) {
+		if (value == null) {
+			Class<S> rawClass = valueType.getRawClass();
+			if (rawClass.isPrimitive()) {
+				if (Long.TYPE == rawClass) {
+					return (T) Long.valueOf(0L);
+				} else if (Boolean.TYPE == rawClass) {
+					return (T) Boolean.FALSE;
+				} else if (Character.TYPE == rawClass) {
+					return (T) Character.valueOf((char) 0);
+				} else if (Byte.TYPE == rawClass) {
+					return (T) Byte.valueOf((byte) 0);
+				} else if (Short.TYPE == rawClass) {
+					return (T) Short.valueOf((short) 0);
+				} else if (Integer.TYPE == rawClass) {
+					return (T) Integer.valueOf((int) 0);
+				} else if (Float.TYPE == rawClass) {
+					return (T) Float.valueOf((float) 0);
+				} else if (Double.TYPE == rawClass) {
+					return (T) Double.valueOf((double) 0);
+				}
 			}
-		}
-		return convertInternal(value, targetType);
-	}
-
-	protected abstract T convertInternal(Object value, Class<? extends T> targetType);
-
-	protected String convertToStr(Object value) {
-		if (value == null) {
 			return null;
 		}
-		if (value instanceof CharSequence) {
-			return value.toString();
+		JavaType<T> targetType = getTargetType();
+		if (valueType.getRawType() == targetType.getRawType()) {
+			// 类型完全一致
+			return targetType.cast(value);
 		}
-		// 扩展json实现，
-		Optional<IJsonSerializer> optional = StatefulServiceLoader.load(IJsonSerializer.class).optionalService();
-		if (optional.isPresent()) {
-			return optional.get().serialize(value);
+		if (targetType.getRawType() instanceof Class && targetType.isInstance(value)) {
+			// 无泛型且类型匹配
+			return targetType.cast(value);
 		}
-
-		if (value.getClass().isArray()) {
-			return Iterables.toArrayString(value);
-		}
-		if (value instanceof Character || value.getClass() == char.class) {
-			return String.valueOf((char) value);
-		}
-		return value.toString();
+		return doConvert(value, targetType, valueType);
 	}
 
-
+	protected abstract <S> T doConvert(S value, JavaType<T> targetType, JavaType<S> sourceType);
 }

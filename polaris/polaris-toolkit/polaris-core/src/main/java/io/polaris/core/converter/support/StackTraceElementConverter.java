@@ -1,7 +1,8 @@
 package io.polaris.core.converter.support;
 
-import io.polaris.core.converter.AbstractConverter;
+import io.polaris.core.converter.AbstractSimpleConverter;
 import io.polaris.core.converter.ConverterRegistry;
+import io.polaris.core.lang.JavaType;
 
 import java.util.Map;
 
@@ -9,9 +10,16 @@ import java.util.Map;
  * @author Qt
  * @since 1.8
  */
-public class StackTraceElementConverter extends AbstractConverter<StackTraceElement> {
+public class StackTraceElementConverter extends AbstractSimpleConverter<StackTraceElement> {
+	private final JavaType<StackTraceElement> targetType = JavaType.of(StackTraceElement.class);
+
 	@Override
-	protected StackTraceElement convertInternal(Object value, Class<? extends StackTraceElement> targetType) {
+	public JavaType<StackTraceElement> getTargetType() {
+		return targetType;
+	}
+
+	@Override
+	protected StackTraceElement doConvert(Object value, JavaType<StackTraceElement> targetType) {
 		if (value instanceof Map) {
 			final Map<?, ?> map = (Map<?, ?>) value;
 

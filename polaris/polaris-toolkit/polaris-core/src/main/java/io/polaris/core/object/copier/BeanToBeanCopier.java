@@ -1,24 +1,21 @@
 package io.polaris.core.object.copier;
 
-import io.polaris.core.map.CaseInsensitiveMap;
-import io.polaris.core.reflect.Reflects;
+import io.polaris.core.map.ListMultiMap;
+import io.polaris.core.object.BeanMap;
+import io.polaris.core.object.Beans;
+import lombok.extern.slf4j.Slf4j;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Qt
  * @since 1.8
  */
 @SuppressWarnings("rawtypes")
+@Slf4j
 public class BeanToBeanCopier<S, T> extends BaseCopier<S, T> {
-	private final Type targetType;
 
 	/**
 	 * @param source      来源Map
@@ -27,84 +24,94 @@ public class BeanToBeanCopier<S, T> extends BaseCopier<S, T> {
 	 * @param copyOptions 拷贝选项
 	 */
 	public BeanToBeanCopier(S source, T target, Type targetType, CopyOptions copyOptions) {
-		super(source, target, copyOptions);
-		this.targetType = targetType;
+		super(source, target, targetType, copyOptions);
 	}
 
 	@Override
 	public T copy() {
 		Class<?> actualEditable = target.getClass();
-		if (null != options.editable) {
-			actualEditable = options.editable;
+		if (options.getEditable() != null && options.getEditable().isAssignableFrom(actualEditable)) {
+			actualEditable = options.getEditable();
 		}
-		Map<String, PropertyDescriptor> spds = options.ignoreCase ? new CaseInsensitiveMap(new HashMap<>()) : new HashMap<>();
-		Map<String, PropertyDescriptor> tpds = options.ignoreCase ? new CaseInsensitiveMap(new HashMap<>()) : new HashMap<>();
 
 		try {
-			BeanInfo beanInfo = Introspector.getBeanInfo(source.getClass());
-			for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
-				Method readMethod = pd.getReadMethod();
-				if (readMethod == null || Reflects.isGetClassMethod(readMethod)){
-					continue;
+			BeanMap sourceMap = Beans.asBeanMap(source);
+			BeanMap targetMap = Beans.asBeanMap(target, actualEditable);
+			final ListMultiMap<String, String> rel;
+			if (options.isIgnoreCase()) {
+				rel = new ListMultiMap<>();
+				for (String key : targetMap.keySet()) {
+					rel.putOne(key.toUpperCase(), key);
 				}
-				spds.put(pd.getName(), pd);
-			}
-		} catch (IntrospectionException ignore) {
-		}
-		try {
-			BeanInfo beanInfo = Introspector.getBeanInfo(actualEditable);
-			for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
-				Method writeMethod = pd.getWriteMethod();
-				if (writeMethod == null) {
-					continue;
-				}
-				tpds.put(pd.getName(), pd);
-			}
-		} catch (IntrospectionException ignore) {
-		}
-
-		spds.forEach((name, spd) -> {
-			Method readMethod = spd.getReadMethod();
-			name = options.editPropertyName(name);
-			if (name == null) {
-				return;
-			}
-			if (!options.isIncludePropertyName(name)) {
-				return;
+			} else {
+				rel = null;
 			}
 
-			PropertyDescriptor tpd = tpds.get(name);
-			if (tpd == null) {
-				return;
-			}
-			Method writeMethod = tpd.getWriteMethod();
-			try {
-				Object value = Reflects.invoke(source, readMethod);
-				Class<?> propertyType = tpd.getPropertyType();
-				if (!options.filterProperty(name, propertyType, value)) {
-					return;
-				}
-				if (!options.override) {
-					Method targetReadMethod = tpd.getReadMethod();
-					if (targetReadMethod != null) {
-						Object orig = Reflects.invokeQuietly(target, targetReadMethod);
-						if (orig != null) {
+			sourceMap.forEach((name, value) -> {
+				try {
+					name = super.editName(name);
+					if (name == null) {
+						return;
+					}
+					if (super.isIgnore(name)) {
+						return;
+					}
+					if (value == null && options.isIgnoreNull()) {
+						return;
+					}
+					List<String> list;
+					if (rel != null) {
+						list = rel.get(name.toUpperCase());
+						if (list == null) {
 							return;
+						}
+					} else {
+						list = Collections.singletonList(name);
+					}
+					for (String key : list) {
+						Type type = targetMap.getType(key);
+						if (type == null) {
+							// 无此属性
+							continue;
+						}
+						if (!super.filter(name, type, value)) {
+							continue;
+						}
+						if (!options.isOverride()) {
+							Object orig = targetMap.get(key);
+							if (orig != null) {
+								continue;
+							}
+						}
+						Object newValue = super.convert(type, value);
+						newValue = super.editValue(name, newValue);
+						if (newValue == null && options.isIgnoreNull()) {
+							continue;
+						}
+						targetMap.put(key, newValue);
+					}
+				} catch (Exception e) {
+					if (!options.isIgnoreError()) {
+						throw new UnsupportedOperationException(e);
+					} else {
+						log.warn("对象复制失败：{}",  e.getMessage());
+						if (log.isDebugEnabled()) {
+							log.debug(e.getMessage(), e);
 						}
 					}
 				}
-				Object newValue = options.convert(propertyType, value);
-				newValue = options.editPropertyValue(name, newValue);
-				if (newValue == null && options.ignoreNull) {
-					return;
-				}
-				Reflects.invoke(target, writeMethod, newValue);
-			} catch (ReflectiveOperationException e) {
-				if (!options.ignoreError) {
-					throw new UnsupportedOperationException(e);
+			});
+		} catch (Exception e) {
+			if (!options.isIgnoreError()) {
+				throw new UnsupportedOperationException(e);
+			} else {
+				log.warn("对象复制失败：{}",  e.getMessage());
+				if (log.isDebugEnabled()) {
+					log.debug(e.getMessage(), e);
 				}
 			}
-		});
+		}
+
 		return this.target;
 	}
 }

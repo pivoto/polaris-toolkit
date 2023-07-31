@@ -26,6 +26,16 @@ import static io.polaris.builder.code.annotation.Template.*;
 	@Property(key = "implPackage", value = "impl"),
 	@Property(key = "rpcPackage", value = "rpc"),
 	@Property(key = "controllerPackage", value = "controller"),
+	@Property(key = "entityClassSuffix", value = "Entity"),
+	@Property(key = "mapperClassSuffix", value = "Mapper"),
+	@Property(key = "serviceClassSuffix", value = "Service"),
+	@Property(key = "controllerClassSuffix", value = "Controller"),
+	@Property(key = "rpcClassSuffix", value = "Rpc"),
+	@Property(key = "rpcDmlInputClassSuffix", value = "DmlInput"),
+	@Property(key = "rpcGetInputClassSuffix", value = "GetInput"),
+	@Property(key = "rpcGetOutputClassSuffix", value = "GetOutput"),
+	@Property(key = "rpcListInputClassSuffix", value = "ListInput"),
+	@Property(key = "rpcListOutputClassSuffix", value = "ListOutput"),
 	@Property(key = "webDir", value = "src/main/resources/META-INF/resources"),
 })
 @DefaultTemplate({

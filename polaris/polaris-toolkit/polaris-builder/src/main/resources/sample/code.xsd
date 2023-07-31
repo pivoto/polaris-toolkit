@@ -34,6 +34,33 @@
 			</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="columnsType">
+		<xs:sequence>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element type="columnType" name="column" minOccurs="0" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>配置表字段的自定义java类型等，覆盖默认值</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="columnType">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute type="xs:string" name="name" use="required">
+					<xs:annotation>
+						<xs:documentation>name，列名称</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute type="xs:string" name="javaType" use="required">
+					<xs:annotation>
+						<xs:documentation>javaType，如java.lang.String</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
 	<xs:complexType name="mappingsType">
 		<xs:sequence>
 			<xs:choice minOccurs="0" maxOccurs="unbounded">
@@ -197,6 +224,11 @@
 					<xs:element type="propertyType" name="property" maxOccurs="1" minOccurs="0">
 						<xs:annotation>
 							<xs:documentation>扩展属性配置</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element type="columnsType" name="columns" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>配置表字段的自定义java类型等，覆盖默认值</xs:documentation>
 						</xs:annotation>
 					</xs:element>
 				</xs:sequence>

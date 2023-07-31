@@ -76,23 +76,33 @@
 				<version>${revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit.extra</groupId>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-validator</artifactId>
 				<version>${revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit.extra</groupId>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-log</artifactId>
 				<version>${revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit.extra</groupId>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-bytecode</artifactId>
 				<version>${revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit.extra</groupId>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-web</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<artifactId>polaris-crypto</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<artifactId>polaris-image</artifactId>
 				<version>${revision}</version>
 			</dependency>
 		</dependencies>

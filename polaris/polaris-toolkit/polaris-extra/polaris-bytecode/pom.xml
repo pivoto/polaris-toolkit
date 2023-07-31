@@ -3,7 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
-		<groupId>cn.pivoto.polaris.toolkit.extra</groupId>
+		<groupId>cn.pivoto.polaris.toolkit</groupId>
 		<artifactId>polaris-extra</artifactId>
 		<version>${revision}</version>
 	</parent>
@@ -40,6 +40,11 @@
 		<dependency>
 			<groupId>org.ow2.asm</groupId>
 			<artifactId>asm-util</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.janino</groupId>
+			<artifactId>janino</artifactId>
+			<version>3.1.10</version>
 		</dependency>
 	</dependencies>
 

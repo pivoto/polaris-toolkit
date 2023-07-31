@@ -1,34 +1,37 @@
 package io.polaris.core.converter.support;
 
-import io.polaris.core.converter.AbstractConverter;
+import io.polaris.core.converter.AbstractSimpleConverter;
 import io.polaris.core.converter.ConverterRegistry;
+import io.polaris.core.lang.JavaType;
 import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
  * @since 1.8
  */
-public class PrimitiveConverter extends AbstractConverter<Object> {
-	private final Class<?> targetType;
+public class PrimitiveConverter extends AbstractSimpleConverter<Object> {
+	private final JavaType<Object> targetType;
 
 	public PrimitiveConverter(Class<?> clazz) {
 		if (!clazz.isPrimitive()) {
 			throw new IllegalArgumentException();
 		}
-		this.targetType = clazz;
-	}
-
-	public Class<Object> getTargetType() {
-		return (Class<Object>) this.targetType;
+		this.targetType = (JavaType<Object>) JavaType.of(clazz);
 	}
 
 	@Override
-	protected String convertToStr(Object value) {
-		return Strings.trimToEmpty(super.convertToStr(value));
+	public JavaType<Object> getTargetType() {
+		return targetType;
 	}
 
 	@Override
-	protected Object convertInternal(Object value, Class<?> primitiveClass) {
+	protected String asString(Object value) {
+		return Strings.trimToEmpty(super.asString(value));
+	}
+
+	@Override
+	protected Object doConvert(Object value, JavaType<Object> targetType) {
+		Class<?> primitiveClass = targetType.getRawClass();
 		if (byte.class == primitiveClass) {
 			return ConverterRegistry.INSTANCE.convertQuietly(Byte.class, value, (byte) 0).byteValue();
 		} else if (short.class == primitiveClass) {

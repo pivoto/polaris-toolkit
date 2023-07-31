@@ -1,27 +1,27 @@
 package io.polaris.core.converter.support;
 
-import io.polaris.core.converter.AbstractConverter;
-import io.polaris.core.converter.ConverterRegistry;
-import io.polaris.core.lang.Types;
+import io.polaris.core.converter.AbstractSimpleConverter;
+import io.polaris.core.lang.JavaType;
 
-import java.lang.reflect.Type;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Qt
  * @since 1.8
  */
-public class AtomicReferenceConverter extends AbstractConverter<AtomicReference> {
+public class AtomicReferenceConverter extends AbstractSimpleConverter<AtomicReference> {
+	private final JavaType<AtomicReference> targetType = JavaType.of(AtomicReference.class);
+
 	@Override
-	protected AtomicReference convertInternal(Object value, Class<? extends AtomicReference> targetType) {
-		Object targetValue = null;
-		final Type paramType = Types.getTypeArgument(AtomicReference.class);
-		if (false == Types.isUnknown(paramType)) {
-			targetValue = ConverterRegistry.INSTANCE.convert(paramType, value);
+	public JavaType<AtomicReference> getTargetType() {
+		return targetType;
+	}
+
+	@Override
+	protected AtomicReference doConvert(Object value, JavaType<AtomicReference> targetType) {
+		if (value instanceof AtomicReference) {
+			return (AtomicReference) value;
 		}
-		if (null == targetValue) {
-			targetValue = value;
-		}
-		return new AtomicReference<>(targetValue);
+		return new AtomicReference<>(value);
 	}
 }

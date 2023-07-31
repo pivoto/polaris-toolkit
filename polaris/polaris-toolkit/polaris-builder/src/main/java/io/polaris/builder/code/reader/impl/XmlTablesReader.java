@@ -1,21 +1,11 @@
 package io.polaris.builder.code.reader.impl;
 
-import com.thoughtworks.xstream.XStream;
-import io.polaris.builder.code.JdbcTypes;
-import io.polaris.builder.code.dto.CatalogDto;
-import io.polaris.builder.code.dto.ColumnDto;
-import io.polaris.builder.code.dto.SchemaDto;
-import io.polaris.builder.code.dto.TableDto;
-import io.polaris.builder.code.dto.Tables;
+import io.polaris.builder.code.dto.*;
 import io.polaris.builder.code.reader.TablesReader;
 import io.polaris.core.map.CaseInsensitiveMap;
+import com.thoughtworks.xstream.XStream;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.Writer;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Map;
 

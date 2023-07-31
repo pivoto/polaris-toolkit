@@ -1,32 +1,33 @@
 package io.polaris.core.converter;
 
+import io.polaris.core.lang.JavaType;
+
 /**
  * @author Qt
  * @since 1.8
  */
-public class EnumConverter<T extends Enum<T>> extends AbstractConverter<T> {
-	private final Class<T> enumClass;
+public class EnumConverter<T extends Enum<T>> extends AbstractSimpleConverter<T> {
+	private final JavaType<T> targetType ;
 
 	public EnumConverter(Class<T> enumClass) {
-		this.enumClass = enumClass;
+		this.targetType = JavaType.of(enumClass);
+	}
+	@Override
+	public JavaType<T> getTargetType() {
+		return targetType;
 	}
 
 	@Override
-	public Class<T> getTargetType() {
-		return this.enumClass;
-	}
-
-	@Override
-	protected T convertInternal(Object value, Class<? extends T> targetType) {
+	protected T doConvert(Object value, JavaType<T> targetType) {
 		if (value == null) {
 			return null;
 		}
-		T[] enumConstants = enumClass.getEnumConstants();
+		T[] enumConstants = targetType.getRawClass().getEnumConstants();
 		if (value instanceof Number) {
 			int i = ((Number) value).intValue();
 			return i >= 0 && i < enumConstants.length ? enumConstants[i] : null;
 		} else {
-			return (T) Enum.valueOf(enumClass, convertToStr(value));
+			return (T) Enum.valueOf(targetType.getRawClass(), asString(value));
 		}
 	}
 

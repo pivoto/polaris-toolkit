@@ -1,10 +1,6 @@
 package io.polaris.core.tuple;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serializable;
 
@@ -17,6 +13,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
+@ToString
 public class Tuple3<T1, T2, T3> implements Serializable, Tuple {
 	private static final long serialVersionUID = 1L;
 	private T1 first;

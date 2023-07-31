@@ -298,8 +298,98 @@ public class Iterables {
 		return true;
 	}
 
+	public static <E> boolean isEmpty(Collection<E> array) {
+		return array == null || array.size() == 0;
+	}
+
+	public static <E> boolean isEmpty(E[] array) {
+		return array == null || array.length == 0;
+	}
+
+	public static <E> boolean isNotEmpty(Collection<E> array) {
+		return array != null && array.size() > 0;
+	}
+
+	public static <E> boolean isNotEmpty(E[] array) {
+		return array != null && array.length > 0;
+	}
+
+	public static <E> boolean hasNull(E[] array) {
+		if (array == null) {
+			return false;
+		}
+		for (E e : array) {
+			if (e == null) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static <E> boolean hasNull(Iterable<E> array) {
+		if (array == null) {
+			return false;
+		}
+		for (E e : array) {
+			if (e == null) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static <E> boolean isMatchAny(E[] array, Function<E, Boolean> matcher) {
+		if (array == null) {
+			return false;
+		}
+		for (E e : array) {
+			if (matcher.apply(e)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static <E> boolean isMatchAny(Iterable<E> array, Function<E, Boolean> matcher) {
+		if (array == null) {
+			return false;
+		}
+		for (E e : array) {
+			if (matcher.apply(e)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static <E> boolean isMatchAll(E[] array, Function<E, Boolean> matcher) {
+		if (array == null) {
+			return false;
+		}
+		for (E e : array) {
+			if (!matcher.apply(e)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public static <E> boolean isMatchAll(Iterable<E> array, Function<E, Boolean> matcher) {
+		if (array == null) {
+			return false;
+		}
+		for (E e : array) {
+			if (!matcher.apply(e)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public static String toArrayString(@Nonnull Object obj) {
-		if (obj instanceof long[]) {
+		if (obj == null) {
+			return null;
+		} else if (obj instanceof long[]) {
 			return Arrays.toString((long[]) obj);
 		} else if (obj instanceof int[]) {
 			return Arrays.toString((int[]) obj);

@@ -1,8 +1,8 @@
 package io.polaris.builder.code.reader;
 
 import io.polaris.builder.code.reader.impl.JdbcTablesReader;
-import io.polaris.builder.code.reader.impl.XmlTablesReader;
 import io.polaris.builder.code.reader.impl.MixTablesReader;
+import io.polaris.builder.code.reader.impl.XmlTablesReader;
 
 import java.io.File;
 import java.io.IOException;

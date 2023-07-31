@@ -13,20 +13,32 @@ import java.util.function.Supplier;
  */
 public interface ICache<K, V> {
 
-	@Nonnull
+	@Nullable
 	Ref<V> get(@Nonnull K key);
 
 	@Nullable
-	V getIfPresent(@Nonnull K key);
+	default V getIfPresent(@Nonnull K key) {
+		Ref<V> ref = get(key);
+		return ref == null ? null : ref.get();
+	}
 
 	@Nullable
-	V get(K key, Supplier<V> loader);
+	V get(@Nonnull K key, Supplier<V> loader);
 
-	Ref<V> putIfAbsent(@Nonnull K key, @Nonnull V value);
+	@Nullable
+	default Ref<V> putIfAbsent(@Nonnull K key, @Nullable V value) {
+		Ref<V> existingValue = get(key);
+		if (existingValue == null) {
+			put(key, value);
+		}
+		return existingValue;
+	}
 
-	void put(@Nonnull K key, @Nonnull V value);
+	void put(@Nonnull K key, @Nullable V value);
 
-	void putAll(Map<? extends K, ? extends V> m);
+	default void putAll(Map<? extends K, ? extends V> m) {
+		m.forEach((k, v) -> put(k, v));
+	}
 
 	void remove(K key);
 

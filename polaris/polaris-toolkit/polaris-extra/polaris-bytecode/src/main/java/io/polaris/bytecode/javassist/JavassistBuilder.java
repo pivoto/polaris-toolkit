@@ -1,16 +1,7 @@
 package io.polaris.bytecode.javassist;
 
 import io.polaris.core.string.Strings;
-import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtConstructor;
-import javassist.CtField;
-import javassist.CtMethod;
-import javassist.CtNewConstructor;
-import javassist.CtNewMethod;
-import javassist.Modifier;
-import javassist.NotFoundException;
+import javassist.*;
 
 import java.util.ArrayList;
 import java.util.List;

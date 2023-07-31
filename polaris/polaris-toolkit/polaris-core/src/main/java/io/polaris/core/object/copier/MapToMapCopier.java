@@ -1,6 +1,7 @@
 package io.polaris.core.object.copier;
 
-import io.polaris.core.lang.Types;
+import io.polaris.core.lang.JavaType;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -10,8 +11,8 @@ import java.util.Map;
  * @since 1.8
  */
 @SuppressWarnings("rawtypes")
+@Slf4j
 public class MapToMapCopier extends BaseCopier<Map, Map> {
-	private final Type targetType;
 
 	/**
 	 * @param source      来源Map
@@ -20,43 +21,66 @@ public class MapToMapCopier extends BaseCopier<Map, Map> {
 	 * @param copyOptions 拷贝选项
 	 */
 	public MapToMapCopier(Map source, Map target, Type targetType, CopyOptions copyOptions) {
-		super(source, target, copyOptions);
-		this.targetType = targetType;
+		super(source, target, targetType, copyOptions);
 	}
 
 	@Override
 	public Map copy() {
-		this.source.forEach((key, value) -> {
-			if (null == key) {
-				return;
-			}
-			if (options.ignoreNull && value == null) {
-				return;
-			}
+		try {
+			this.source.forEach((key, value) -> {
+				try {
+					if (key == null) {
+						return;
+					}
+					if (options.isIgnoreNull() && value == null) {
+						return;
+					}
 
-			final String keyStr = options.editPropertyName(key.toString());
-			if (keyStr == null) {
-				return;
+					JavaType<Object> javaType = JavaType.of(this.targetType);
+					if (key instanceof String) {
+						final String keyStr = super.editName(key.toString());
+						if (keyStr == null) {
+							return;
+						}
+						if (super.isIgnore(keyStr)) {
+							return;
+						}
+						value = super.convert(javaType.getActualType(Map.class, 1), value);
+						value = super.editValue(keyStr, value);
+						key = super.convert(javaType.getActualType(Map.class, 0), keyStr);
+					} else {
+						key = super.convert(javaType.getActualType(Map.class, 0), key);
+						value = super.convert(javaType.getActualType(Map.class, 1), value);
+					}
+					if (value == null && options.isIgnoreNull()) {
+						return;
+					}
+					if (!options.isOverride() && null != target.get(key)) {
+						return;
+					}
+					// 目标赋值
+					target.put(key, value);
+				} catch (Exception e) {
+					if (!options.isIgnoreError()) {
+						throw new UnsupportedOperationException(e);
+					} else {
+						log.warn("对象复制失败：{}",  e.getMessage());
+						if (log.isDebugEnabled()) {
+							log.debug(e.getMessage(), e);
+						}
+					}
+				}
+			});
+		} catch (Exception e) {
+			if (!options.isIgnoreError()) {
+				throw new UnsupportedOperationException(e);
+			} else {
+				log.warn("对象复制失败：{}",  e.getMessage());
+				if (log.isDebugEnabled()) {
+					log.debug(e.getMessage(), e);
+				}
 			}
-			if (!options.isIncludePropertyName(keyStr)) {
-				return;
-			}
-
-			if (!options.override && null != target.get(keyStr)) {
-				return;
-			}
-
-			final Type[] typeArguments = Types.getTypeArguments(this.targetType);
-			if (null != typeArguments) {
-				value = options.convert(typeArguments[1], value);
-				value = options.editPropertyValue(keyStr, value);
-			}
-			if (value == null && options.ignoreNull) {
-				return;
-			}
-			// 目标赋值
-			target.put(keyStr, value);
-		});
+		}
 		return this.target;
 	}
 }

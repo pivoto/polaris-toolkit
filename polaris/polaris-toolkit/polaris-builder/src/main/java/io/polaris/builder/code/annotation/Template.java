@@ -28,17 +28,17 @@ public @interface Template {
 	String VM_PATH_RPC_LIST_OUTPUT = "/vm/java/facade/model/RpcListOutput.java.vm";
 
 	String FILENAME_EXAMPLE = "${table.javaClassName}.example.txt";
-	String FILENAME_ENTITY = "${table.javaClassName}Entity.java";
-	String FILENAME_MAPPER = "${table.javaClassName}Mapper.java";
-	String FILENAME_SERVICE = "${table.javaClassName}Service.java";
-	String FILENAME_MAPPER_XML = "${table.javaClassName}Mapper.xml";
-	String FILENAME_CONTROLLER = "${table.javaClassName}Controller.java";
-	String FILENAME_RPC = "${table.javaClassName}Rpc.java";
-	String FILENAME_RPC_DML_INPUT = "${table.javaClassName}DmlInput.java";
-	String FILENAME_RPC_GET_INPUT = "${table.javaClassName}GetInput.java";
-	String FILENAME_RPC_LIST_INPUT = "${table.javaClassName}ListInput.java";
-	String FILENAME_RPC_GET_OUTPUT = "${table.javaClassName}GetOutput.java";
-	String FILENAME_RPC_LIST_OUTPUT = "${table.javaClassName}ListOutput.java";
+	String FILENAME_ENTITY = "${table.javaClassName}${env.entityClassSuffix}.java";
+	String FILENAME_MAPPER = "${table.javaClassName}${env.mapperClassSuffix}.java";
+	String FILENAME_SERVICE = "${table.javaClassName}${env.serviceClassSuffix}.java";
+	String FILENAME_MAPPER_XML = "${table.javaClassName}${env.mapperClassSuffix}.xml";
+	String FILENAME_CONTROLLER = "${table.javaClassName}${env.controllerClassSuffix}.java";
+	String FILENAME_RPC = "${table.javaClassName}${env.rpcClassSuffix}.java";
+	String FILENAME_RPC_DML_INPUT = "${table.javaClassName}${env.rpcDmlInputClassSuffix}.java";
+	String FILENAME_RPC_GET_INPUT = "${table.javaClassName}${env.rpcGetInputClassSuffix}.java";
+	String FILENAME_RPC_LIST_INPUT = "${table.javaClassName}${env.rpcListInputClassSuffix}.java";
+	String FILENAME_RPC_GET_OUTPUT = "${table.javaClassName}${env.rpcGetOutputClassSuffix}.java";
+	String FILENAME_RPC_LIST_OUTPUT = "${table.javaClassName}${env.rpcListOutputClassSuffix}.java";
 
 	String DIRNAME_EXAMPLE = "/";
 	String DIRNAME_ENTITY = "${env.srcDir}/${table.javaPackageDir}/${env.basePackage.replace('.','/')}/${env.entityPackage.replace('.','/')}";

@@ -9,7 +9,6 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintViolation;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
-import javax.validation.constraints.NotNull;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;

@@ -1,10 +1,14 @@
 package io.polaris.core.string;
 
-import io.polaris.core.annotation.Compatible;
+import io.polaris.core.collection.ObjectArrays;
+import io.polaris.core.collection.PrimitiveArrays;
+import io.polaris.core.lang.Chars;
 import io.polaris.core.ulid.UlidCreator;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -99,19 +103,6 @@ public class Strings {
 		return new String(array);
 	}
 
-	public static String coalesce(String... args) {
-		String v = null;
-		if (args.length > 0) {
-			for (String arg : args) {
-				if (arg != null && !arg.trim().equals("")) {
-					v = arg.trim();
-					break;
-				}
-			}
-		}
-		return v;
-	}
-
 	public static <T> T nvl(T o, T reo) {
 		if (isEmpty(o)) {
 			return reo;
@@ -120,15 +111,37 @@ public class Strings {
 		}
 	}
 
-	public static boolean isEmpty(Object o) {
-		if (o == null || "".equals(o)) {
-			return true;
+	public static String coalesce(String... args) {
+		String v = null;
+		for (String arg : args) {
+			v = arg;
+			if (Strings.isNotBlank(v)) {
+				break;
+			}
 		}
-		return false;
+		return v;
 	}
 
-	public static boolean isNotEmpty(Object o) {
-		return !isEmpty(o);
+	public static String coalesceNull(String... args) {
+		String v = null;
+		for (String arg : args) {
+			v = arg;
+			if (v != null) {
+				break;
+			}
+		}
+		return v;
+	}
+
+	public static String coalesceEmpty(String... args) {
+		String v = null;
+		for (String arg : args) {
+			v = arg;
+			if (Strings.isNotEmpty(v)) {
+				break;
+			}
+		}
+		return v;
 	}
 
 
@@ -195,7 +208,7 @@ public class Strings {
 
 
 	/**
-	 * 字符串占位符替换，点位符：`${xxx.yyy.xxx}`或`${xxx.yyy.xxx:123}`
+	 * 字符串占位符替换，占位符：`${xxx.yyy.xxx}`或`${xxx.yyy.xxx:123}`
 	 *
 	 * @param origin
 	 * @param getter
@@ -251,6 +264,47 @@ public class Strings {
 		}
 	}
 
+	public static String filter(CharSequence str, Predicate<Character> filter) {
+		if (str == null || filter == null) {
+			return Objects.toString(str,"");
+		}
+		int len = str.length();
+		StringBuilder sb = new StringBuilder(len);
+		char c;
+		for (int i = 0; i < len; i++) {
+			c = str.charAt(i);
+			if (filter.test(c)) {
+				sb.append(c);
+			}
+		}
+		return sb.toString();
+	}
+
+	public static String cleanBlank(CharSequence str) {
+		return filter(str, c -> !Chars.isBlankChar(c));
+	}
+
+	public static String removePrefix(CharSequence str, CharSequence prefix) {
+		if (isEmpty(str) || isEmpty(prefix)) {
+			return Objects.toString(str,"");
+		}
+		String str1 = str.toString();
+		if (str1.startsWith(prefix.toString())) {
+			return str1.substring(prefix.length());
+		}
+		return str1;
+	}
+
+	public static String removeSuffix(CharSequence str, CharSequence suffix) {
+		if (isEmpty(str) || isEmpty(suffix)) {
+			return Objects.toString(str,"");
+		}
+		String str1 = str.toString();
+		if (str1.endsWith(suffix.toString())) {
+			return str1.substring(0, str.length() - suffix.length());
+		}
+		return str1;
+	}
 
 	public static String trimToEmpty(String str) {
 		if (str == null) {
@@ -346,6 +400,17 @@ public class Strings {
 		return str.substring(0, end);
 	}
 
+	public static boolean isEmpty(Object o) {
+		if (o == null || "".equals(o)) {
+			return true;
+		}
+		return false;
+	}
+
+	public static boolean isNotEmpty(Object o) {
+		return !isEmpty(o);
+	}
+
 	public static boolean isNotNone(CharSequence str) {
 		return !isNone(str);
 	}
@@ -377,6 +442,202 @@ public class Strings {
 	public static boolean isEmpty(final CharSequence str) {
 		return str == null || str.length() == 0;
 	}
+
+	public static boolean containsAny(CharSequence str, CharSequence... testStrs) {
+		return null != getContainsStr(str, testStrs);
+	}
+
+	public static String getContainsStr(CharSequence str, CharSequence... testStrs) {
+		if (isEmpty(str) || ObjectArrays.isEmpty(testStrs)) {
+			return null;
+		}
+		for (CharSequence checkStr : testStrs) {
+			if (str.toString().contains(checkStr)) {
+				return checkStr.toString();
+			}
+		}
+		return null;
+	}
+
+	public static boolean containsAny(CharSequence str, char... testChars) {
+		if (!isEmpty(str)) {
+			int len = str.length();
+			for (int i = 0; i < len; i++) {
+				if (PrimitiveArrays.contains(testChars, str.charAt(i))) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public static boolean startWithIgnoreCase(@Nonnull String str, @Nonnull String prefix) {
+		if (prefix.length() == 0) {
+			return true;
+		}
+		if (str.length() == 0) {
+			return false;
+		}
+		return str.regionMatches(true, 0, prefix, 0, prefix.length());
+	}
+
+	public static boolean endWithIgnoreCase(@Nonnull String str, @Nonnull String prefix) {
+		if (prefix.length() == 0) {
+			return true;
+		}
+		if (str.length() == 0) {
+			return false;
+		}
+		return str.regionMatches(true, str.length() - prefix.length(), prefix, 0, prefix.length());
+	}
+
+	public static int indexOfIgnoreCase(String source, String target) {
+		return indexOfIgnoreCase(source.toCharArray(), 0, source.length(),
+			target.toCharArray(), 0, target.length(), 0);
+	}
+
+	public static int indexOfIgnoreCase(String source, String target, int fromIndex) {
+		return indexOfIgnoreCase(source.toCharArray(), 0, source.length(),
+			target.toCharArray(), 0, target.length(), fromIndex);
+	}
+
+
+	@SuppressWarnings({"StatementWithEmptyBody", "AliControlFlowStatementWithoutBraces"})
+	public static int indexOfIgnoreCase(char[] source, int sourceOffset, int sourceCount
+		, char[] target, int targetOffset, int targetCount, int fromIndex) {
+		if (fromIndex >= sourceCount) {
+			return (targetCount == 0 ? sourceCount : -1);
+		}
+		if (fromIndex < 0) {
+			fromIndex = 0;
+		}
+		if (targetCount == 0) {
+			return fromIndex;
+		}
+
+		char first = Character.toUpperCase(target[targetOffset]);
+		int max = sourceOffset + (sourceCount - targetCount);
+
+		for (int i = sourceOffset + fromIndex; i <= max; i++) {
+			/* Look for first character. */
+			if (Character.toUpperCase(source[i]) != first) {
+				while (++i <= max && Character.toUpperCase(source[i]) != first) ;
+			}
+
+			/* Found first character, now look at the rest of v2 */
+			if (i <= max) {
+				int j = i + 1;
+				int end = j + targetCount - 1;
+				for (int k = targetOffset + 1; j < end && Character.toUpperCase(source[j])
+					== Character.toUpperCase(target[k]); j++, k++)
+					;
+
+				if (j == end) {
+					/* Found whole string. */
+					return i - sourceOffset;
+				}
+			}
+		}
+		return -1;
+	}
+
+
+	public static int lastIndexOfIgnoreCase(String source, String target) {
+		return lastIndexOfIgnoreCase(source.toCharArray(), 0, source.length(),
+			target.toCharArray(), 0, target.length(), source.length());
+	}
+
+	public static int lastIndexOfIgnoreCase(String source, String target, int fromIndex) {
+		return lastIndexOfIgnoreCase(source.toCharArray(), 0, source.length(),
+			target.toCharArray(), 0, target.length(), fromIndex);
+	}
+
+	public static int lastIndexOfIgnoreCase(char[] source, int sourceOffset, int sourceCount
+		, char[] target, int targetOffset, int targetCount, int fromIndex) {
+		int rightIndex = sourceCount - targetCount;
+		if (fromIndex < 0) {
+			return -1;
+		}
+		if (fromIndex > rightIndex) {
+			fromIndex = rightIndex;
+		}
+		/* Empty string always matches. */
+		if (targetCount == 0) {
+			return fromIndex;
+		}
+
+		int strLastIndex = targetOffset + targetCount - 1;
+		char strLastChar = Character.toUpperCase(target[strLastIndex]);
+		int min = sourceOffset + targetCount - 1;
+		int i = min + fromIndex;
+
+		startSearchForLastChar:
+		while (true) {
+			while (i >= min && Character.toUpperCase(source[i]) != strLastChar) {
+				i--;
+			}
+			if (i < min) {
+				return -1;
+			}
+			int j = i - 1;
+			int start = j - (targetCount - 1);
+			int k = strLastIndex - 1;
+
+			while (j > start) {
+				if (Character.toUpperCase(source[j--]) != Character.toUpperCase(target[k--])) {
+					i--;
+					continue startSearchForLastChar;
+				}
+			}
+			return start - sourceOffset + 1;
+		}
+	}
+
+	public static boolean isEquals(CharSequence str1, CharSequence str2) {
+		if (str1 == str2) {
+			return true;
+		}
+		if (str1 == null || str2 == null) {
+			return false;
+		}
+		if (str1.length() != str2.length()) {
+			return false;
+		}
+		return str1.toString().equals(str2.toString());
+	}
+
+	public static boolean isEqualsIgnoreCase(CharSequence str1, CharSequence str2) {
+		if (str1 == str2) {
+			return true;
+		}
+		if (str1 == null || str2 == null) {
+			return false;
+		}
+		if (str1.length() != str2.length()) {
+			return false;
+		}
+		return str1.toString().equalsIgnoreCase(str2.toString());
+	}
+
+	public static boolean isEqualsIgnoreCase(char[] cs1, char[] cs2) {
+		if (cs1 == cs2) {
+			return true;
+		}
+		if (cs1 == null || cs2 == null) {
+			return false;
+		}
+		int len = cs1.length;
+		if (len != cs2.length) {
+			return false;
+		}
+		for (int i = 0; i < len; i++) {
+			if (Character.toUpperCase(cs1[i]) != Character.toUpperCase(cs2[i])) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 
 	public static <T extends Collection<String>> T splitToCollection(Supplier<T> supplier, String str, String delimiterRegex) {
 		return asCollection(supplier, str.split(delimiterRegex));
@@ -443,7 +704,7 @@ public class Strings {
 	}
 
 	public static String join(CharSequence delimiter, CharSequence prefix, CharSequence suffix,
-														CharSequence[] arr) {
+							  CharSequence[] arr) {
 		StringJoiner joiner = new StringJoiner(delimiter, prefix, suffix);
 		for (CharSequence s : arr) {
 			if (isBlank(s)) {
@@ -466,7 +727,7 @@ public class Strings {
 	}
 
 	public static String join(CharSequence delimiter, CharSequence prefix, CharSequence suffix,
-														Iterable<CharSequence> arr) {
+							  Iterable<CharSequence> arr) {
 		StringJoiner joiner = new StringJoiner(delimiter, prefix, suffix);
 		for (CharSequence s : arr) {
 			if (isBlank(s)) {

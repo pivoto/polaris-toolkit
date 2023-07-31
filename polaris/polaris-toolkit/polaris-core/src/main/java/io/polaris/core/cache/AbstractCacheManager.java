@@ -13,7 +13,7 @@ public abstract class AbstractCacheManager implements ICacheManager {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <K, V> ICache<K, V> get(String name) {
+	public <K, V> ICache<K, V> getCache(String name) {
 		ICache<K, V> iCache = cacheMap.get(name);
 		if (iCache != null) {
 			return iCache;

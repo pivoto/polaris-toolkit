@@ -1,6 +1,5 @@
 package io.polaris.annotation.processing;
 
-import io.polaris.annotation.processing.Access;
 import lombok.Data;
 
 import java.util.Map;

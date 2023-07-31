@@ -1,7 +1,7 @@
 package io.polaris.core.err;
 
-import io.polaris.core.string.Strings;
 import io.polaris.core.msg.MessageResources;
+import io.polaris.core.string.Strings;
 
 /**
  * @author Qt

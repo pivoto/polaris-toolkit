@@ -14,7 +14,6 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 

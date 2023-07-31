@@ -1,15 +1,13 @@
 package io.polaris.core.object.copier;
 
-import io.polaris.core.map.CaseInsensitiveMap;
-import io.polaris.core.reflect.Reflects;
+import io.polaris.core.map.ListMultiMap;
+import io.polaris.core.object.BeanMap;
+import io.polaris.core.object.Beans;
+import lombok.extern.slf4j.Slf4j;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,8 +15,8 @@ import java.util.Map;
  * @since 1.8
  */
 @SuppressWarnings("rawtypes")
+@Slf4j
 public class MapToBeanCopier<T> extends BaseCopier<Map, T> {
-	private final Type targetType;
 
 	/**
 	 * @param source      来源Map
@@ -27,74 +25,93 @@ public class MapToBeanCopier<T> extends BaseCopier<Map, T> {
 	 * @param copyOptions 拷贝选项
 	 */
 	public MapToBeanCopier(Map source, T target, Type targetType, CopyOptions copyOptions) {
-		super(source, target, copyOptions);
-		this.targetType = targetType;
+		super(source, target, targetType, copyOptions);
 	}
 
 	@Override
 	public T copy() {
 		Class<?> actualEditable = target.getClass();
-		if (null != options.editable) {
-			actualEditable = options.editable;
+		if (options.getEditable() != null && options.getEditable().isAssignableFrom(actualEditable)) {
+			actualEditable = options.getEditable();
 		}
-		Map<String, PropertyDescriptor> pds = options.ignoreCase ? new CaseInsensitiveMap(new HashMap<>()) : new HashMap<>();
 		try {
-			BeanInfo beanInfo = Introspector.getBeanInfo(actualEditable);
-			for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
-				Method writeMethod = pd.getWriteMethod();
-				if (writeMethod == null) {
-					continue;
+			BeanMap targetMap = Beans.asBeanMap(target, actualEditable);
+			final ListMultiMap<String, String> rel;
+			if (options.isIgnoreCase()) {
+				rel = new ListMultiMap<>();
+				for (String key : targetMap.keySet()) {
+					rel.putOne(key.toUpperCase(), key);
 				}
-				pds.put(pd.getName(), pd);
+			} else {
+				rel = null;
 			}
-		} catch (IntrospectionException ignore) {
-		}
-		this.source.forEach((name, value) -> {
-			try {
-				if (null == name) {
-					return;
-				}
-				String key = options.editPropertyName(name.toString());
-				if (key == null) {
-					return;
-				}
-				if (!options.isIncludePropertyName(key)) {
-					return;
-				}
-				PropertyDescriptor pd = pds.isEmpty() ? null : pds.get(key);
-				if (pd == null) {
-					return;
-				}
-				Method writeMethod = pd.getWriteMethod();
-				if (writeMethod == null) {
-					return;
-				}
-				Class<?> propertyType = pd.getPropertyType();
-				if (!options.filterProperty(key, propertyType, value)) {
-					return;
-				}
-				if (!options.override) {
-					Method targetReadMethod = pd.getReadMethod();
-					if (targetReadMethod != null) {
-						Object orig = Reflects.invokeQuietly(target, targetReadMethod);
-						if (orig != null) {
+			this.source.forEach((k, value) -> {
+				try {
+					if (k == null) {
+						return;
+					}
+					String name = super.editName(k.toString());
+					if (name == null) {
+						return;
+					}
+					if (super.isIgnore(name)) {
+						return;
+					}
+					if (value == null && options.isIgnoreNull()) {
+						return;
+					}
+					List<String> list;
+					if (rel != null) {
+						list = rel.get(name.toUpperCase());
+						if (list == null) {
 							return;
+						}
+					} else {
+						list = Collections.singletonList(name);
+					}
+					for (String key : list) {
+						Type type = targetMap.getType(key);
+						if (type == null) {
+							// 无此属性
+							continue;
+						}
+						if (!super.filter(name, type, value)) {
+							continue;
+						}
+						if (!options.isOverride()) {
+							Object orig = targetMap.get(key);
+							if (orig != null) {
+								continue;
+							}
+						}
+						Object newValue = super.convert(type, value);
+						newValue = super.editValue(name, newValue);
+						if (newValue == null && options.isIgnoreNull()) {
+							continue;
+						}
+						targetMap.put(key, newValue);
+					}
+				} catch (Exception e) {
+					if (!options.isIgnoreError()) {
+						throw new UnsupportedOperationException(e);
+					} else {
+						log.warn("对象复制失败：{}",  e.getMessage());
+						if (log.isDebugEnabled()) {
+							log.debug(e.getMessage(), e);
 						}
 					}
 				}
-
-				Object newValue = options.convert(propertyType, value);
-				newValue = options.editPropertyValue(key, newValue);
-				if (newValue == null && options.ignoreNull) {
-					return;
-				}
-				Reflects.invoke(target, writeMethod, newValue);
-			} catch (Exception e) {
-				if (!options.ignoreError) {
-					throw new UnsupportedOperationException(e);
+			});
+		} catch (Exception e) {
+			if (!options.isIgnoreError()) {
+				throw new UnsupportedOperationException(e);
+			} else {
+				log.warn("对象复制失败：{}",  e.getMessage());
+				if (log.isDebugEnabled()) {
+					log.debug(e.getMessage(), e);
 				}
 			}
-		});
+		}
 		return this.target;
 	}
 }

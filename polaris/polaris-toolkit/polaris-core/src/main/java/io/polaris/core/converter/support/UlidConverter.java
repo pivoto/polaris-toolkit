@@ -1,17 +1,23 @@
 package io.polaris.core.converter.support;
 
-import io.polaris.core.converter.AbstractConverter;
+import io.polaris.core.converter.AbstractSimpleConverter;
+import io.polaris.core.lang.JavaType;
 import io.polaris.core.ulid.Ulid;
-
-import java.util.UUID;
 
 /**
  * @author Qt
  * @since 1.8
  */
-public class UlidConverter extends AbstractConverter<Ulid> {
+public class UlidConverter extends AbstractSimpleConverter<Ulid> {
+	private final JavaType<Ulid> targetType = JavaType.of(Ulid.class);
+
 	@Override
-	protected Ulid convertInternal(Object value, Class<? extends Ulid> targetType) {
-		return Ulid.from(convertToStr(value));
+	public JavaType<Ulid> getTargetType() {
+		return targetType;
+	}
+
+	@Override
+	protected Ulid doConvert(Object value, JavaType<Ulid> targetType) {
+		return Ulid.from(asString(value));
 	}
 }

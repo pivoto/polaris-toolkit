@@ -15,7 +15,7 @@ class ICacheManagerFactoryTest {
 		System.out.println(ICacheManagerFactory.defaultCacheManager());
 		System.out.println(ICacheManagerFactory.defaultCacheManager());
 
-		ICache<String, Object> cache = ICacheManagerFactory.defaultCacheManager().get("test");
+		ICache<String, Object> cache = ICacheManagerFactory.defaultCacheManager().getCache("test");
 
 		for (int i = 0; i < 20; i++) {
 			cache.put("key-" + i, "val-" + i);
