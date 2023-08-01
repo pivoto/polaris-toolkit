@@ -13,7 +13,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Column {
 
+	/** 列名称 */
 	String name();
 
+	/** 自定义的Java映射类型，覆盖默认配置 */
 	String javaType();
 }

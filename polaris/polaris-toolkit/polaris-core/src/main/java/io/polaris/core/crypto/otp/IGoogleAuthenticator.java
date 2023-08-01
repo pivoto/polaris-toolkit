@@ -38,7 +38,6 @@ public interface IGoogleAuthenticator {
 	 *
 	 * @param secret the encoded secret key.
 	 * @return the current TOTP password.
-	 * @since 1.1.0
 	 */
 	int getTotpPassword(String secret);
 
@@ -48,7 +47,6 @@ public interface IGoogleAuthenticator {
 	 * @param secret The encoded secret key.
 	 * @param time   The time to use to calculate the password.
 	 * @return the TOTP password at the specified time.
-	 * @since 1.1.0
 	 */
 	int getTotpPassword(String secret, long time);
 
@@ -88,7 +86,6 @@ public interface IGoogleAuthenticator {
 	 *                                      The only failures that should occur
 	 *                                      are related with the cryptographic
 	 *                                      functions provided by the JCE.
-	 * @since 0.6.0
 	 */
 	boolean authorize(String secret, int verificationCode, long time);
 

@@ -767,7 +767,7 @@ public class ObjectArrays extends PrimitiveArrays {
 	 * @return 数组中指定元素所在位置，未找到返回{@link #INDEX_NOT_FOUND}
 	 */
 	public static <T> int indexOf(T[] array, Object value, int beginIndexInclude) {
-		return matchIndex((obj) -> Objs.equal(value, obj), beginIndexInclude, array);
+		return matchIndex((obj) -> Objs.equals(value, obj), beginIndexInclude, array);
 	}
 
 	/**
@@ -779,7 +779,7 @@ public class ObjectArrays extends PrimitiveArrays {
 	 * @return 数组中指定元素所在位置，未找到返回{@link #INDEX_NOT_FOUND}
 	 */
 	public static <T> int indexOf(T[] array, Object value) {
-		return matchIndex((obj) -> Objs.equal(value, obj), array);
+		return matchIndex((obj) -> Objs.equals(value, obj), array);
 	}
 
 	/**
@@ -827,7 +827,7 @@ public class ObjectArrays extends PrimitiveArrays {
 	public static <T> int lastIndexOf(T[] array, Object value, int endInclude) {
 		if (isNotEmpty(array)) {
 			for (int i = endInclude; i >= 0; i--) {
-				if (Objs.equal(value, array[i])) {
+				if (Objs.equals(value, array[i])) {
 					return i;
 				}
 			}
@@ -1764,7 +1764,7 @@ public class ObjectArrays extends PrimitiveArrays {
 		}
 
 		for (int i = 0; i < subArray.length; i++) {
-			if (!Objs.equal(array[i + firstIndex], subArray[i])) {
+			if (!Objs.equals(array[i + firstIndex], subArray[i])) {
 				return indexOfSub(array, firstIndex + 1, subArray);
 			}
 		}
@@ -1807,7 +1807,7 @@ public class ObjectArrays extends PrimitiveArrays {
 		}
 
 		for (int i = 0; i < subArray.length; i++) {
-			if (!Objs.equal(array[i + firstIndex], subArray[i])) {
+			if (!Objs.equals(array[i + firstIndex], subArray[i])) {
 				return lastIndexOfSub(array, firstIndex - 1, subArray);
 			}
 		}

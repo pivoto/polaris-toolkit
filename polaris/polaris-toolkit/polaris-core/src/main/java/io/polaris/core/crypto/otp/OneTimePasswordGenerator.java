@@ -25,10 +25,10 @@ public class OneTimePasswordGenerator {
 	}
 
 	public OneTimePasswordGenerator(int length) {
-		this(length, HmacHash.HmacSHA1);
+		this(length, OtpHmacHashAlgorithm.HmacSHA1);
 	}
 
-	public OneTimePasswordGenerator(int length, HmacHash algorithm) {
+	public OneTimePasswordGenerator(int length, OtpHmacHashAlgorithm algorithm) {
 		try {
 			this.prototypeMac = Mac.getInstance(algorithm.getHmacAlgorithm());
 		} catch (NoSuchAlgorithmException e) {

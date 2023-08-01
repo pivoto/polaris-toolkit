@@ -21,24 +21,6 @@ import java.util.function.Supplier;
 public class Objs {
 
 	/**
-	 * 比较两个对象是否相等，此方法是 {@link #equal(Object, Object)}的别名方法。<br>
-	 * 相同的条件有两个，满足其一即可：<br>
-	 * <ol>
-	 * <li>obj1 == null &amp;&amp; obj2 == null</li>
-	 * <li>obj1.equals(obj2)</li>
-	 * <li>如果是BigDecimal比较，0 == obj1.compareTo(obj2)</li>
-	 * </ol>
-	 *
-	 * @param obj1 对象1
-	 * @param obj2 对象2
-	 * @return 是否相等
-	 * @see #equal(Object, Object)
-	 */
-	public static boolean equals(Object obj1, Object obj2) {
-		return equal(obj1, obj2);
-	}
-
-	/**
 	 * 比较两个对象是否相等。<br>
 	 * 相同的条件有两个，满足其一即可：<br>
 	 * <ol>
@@ -52,34 +34,40 @@ public class Objs {
 	 * @return 是否相等
 	 * @see java.util.Objects#equals(Object, Object)
 	 */
-	public static boolean equal(Object obj1, Object obj2) {
+	public static boolean equals(Object obj1, Object obj2) {
 		if (obj1 instanceof Number && obj2 instanceof Number) {
 			return Numbers.equals((Number) obj1, (Number) obj2);
 		}
 		return java.util.Objects.equals(obj1, obj2);
 	}
 
+	/** @see Objects#deepEquals(Object, Object) */
 	public static boolean deepEquals(Object a, Object b) {
 		return java.util.Objects.deepEquals(a, b);
 	}
 
+	/** @see Objects#hashCode(Object) */
 	public static int hashCode(Object o) {
 		return java.util.Objects.hashCode(o);
 	}
 
+	/** @see Arrays#hashCode(Object[]) */
 	public static int hash(Object... values) {
 		return Arrays.hashCode(values);
 	}
 
+	/** @see Objects#toString(Object) */
 	@Nullable
 	public static String toString(Object o) {
 		return Objects.toString(o, null);
 	}
 
+	/** @see Objects#toString(Object, String) */
 	public static String toString(Object o, String nullDefault) {
 		return (o != null) ? o.toString() : nullDefault;
 	}
 
+	/** @see Objects#compare(Object, Object, Comparator) */
 	public static <T> int compare(T a, T b, Comparator<? super T> c) {
 		return (a == b) ? 0 : c.compare(a, b);
 	}
@@ -92,8 +80,9 @@ public class Objs {
 	 * @return 是否不等
 	 */
 	public static boolean notEqual(Object obj1, Object obj2) {
-		return false == equal(obj1, obj2);
+		return false == equals(obj1, obj2);
 	}
+
 
 	/**
 	 * 计算对象长度，如果是字符串调用其length函数，集合类调用其size函数，数组调用其length属性，其他可遍历对象遍历计算长度<br>
@@ -185,7 +174,7 @@ public class Objs {
 			final Iterator<?> iter = (Iterator<?>) obj;
 			while (iter.hasNext()) {
 				final Object o = iter.next();
-				if (equal(o, element)) {
+				if (equals(o, element)) {
 					return true;
 				}
 			}
@@ -195,7 +184,7 @@ public class Objs {
 			final Enumeration<?> enumeration = (Enumeration<?>) obj;
 			while (enumeration.hasMoreElements()) {
 				final Object o = enumeration.nextElement();
-				if (equal(o, element)) {
+				if (equals(o, element)) {
 					return true;
 				}
 			}
@@ -205,7 +194,7 @@ public class Objs {
 			final int len = Array.getLength(obj);
 			for (int i = 0; i < len; i++) {
 				final Object o = Array.get(obj, i);
-				if (equal(o, element)) {
+				if (equals(o, element)) {
 					return true;
 				}
 			}
@@ -214,35 +203,15 @@ public class Objs {
 	}
 
 	/**
-	 * 检查对象是否为null<br>
-	 * 判断标准为：
-	 *
-	 * <pre>
-	 * 1. == null
-	 * 2. equals(null)
-	 * </pre>
-	 *
-	 * @param obj 对象
-	 * @return 是否为null
+	 * @see Objects#isNull(Object)
 	 */
 	public static boolean isNull(Object obj) {
-		//noinspection ConstantConditions
-		return null == obj || obj.equals(null);
+		return obj == null;
 	}
 
-	/**
-	 * 检查对象是否不为null
-	 * <pre>
-	 * 1. != null
-	 * 2. not equals(null)
-	 * </pre>
-	 *
-	 * @param obj 对象
-	 * @return 是否为非null
-	 */
+	/** @see Objects#nonNull(Object) */
 	public static boolean isNotNull(Object obj) {
-		//noinspection ConstantConditions
-		return null != obj && !obj.equals(null);
+		return obj != null;
 	}
 
 	/**
@@ -350,24 +319,6 @@ public class Objs {
 	/**
 	 * 如果给定对象为{@code null} 返回默认值, 如果不为null 返回自定义handle处理后的返回值
 	 *
-	 * @param source       Object 类型对象
-	 * @param handle       非空时自定义的处理方法
-	 * @param defaultValue 默认为空的返回值
-	 * @param <T>          被检查对象为{@code null}返回默认值，否则返回自定义handle处理后的返回值
-	 * @return 处理后的返回值
-	 * @deprecated 当str为{@code null}时，handle使用了str相关的方法引用会导致空指针问题
-	 */
-	@Deprecated
-	public static <T> T defaultIfNull(Object source, Supplier<? extends T> handle, final T defaultValue) {
-		if (isNotNull(source)) {
-			return handle.get();
-		}
-		return defaultValue;
-	}
-
-	/**
-	 * 如果给定对象为{@code null} 返回默认值, 如果不为null 返回自定义handle处理后的返回值
-	 *
 	 * @param <T>          被检查对象为{@code null}返回默认值，否则返回自定义handle处理后的返回值
 	 * @param <R>          被检查的对象类型
 	 * @param source       Object 类型对象
@@ -382,23 +333,6 @@ public class Objs {
 		return defaultValue;
 	}
 
-	/**
-	 * 如果给定对象为{@code null}或者""返回默认值, 否则返回自定义handle处理后的返回值
-	 *
-	 * @param str          String 类型
-	 * @param handle       自定义的处理方法
-	 * @param defaultValue 默认为空的返回值
-	 * @param <T>          被检查对象为{@code null}或者 ""返回默认值，否则返回自定义handle处理后的返回值
-	 * @return 处理后的返回值
-	 * @deprecated 当str为{@code null}时，handle使用了str相关的方法引用会导致空指针问题
-	 */
-	@Deprecated
-	public static <T> T defaultIfEmpty(String str, Supplier<? extends T> handle, final T defaultValue) {
-		if (Strings.isNotEmpty(str)) {
-			return handle.get();
-		}
-		return defaultValue;
-	}
 
 	/**
 	 * 如果给定对象为{@code null}或者""返回默认值, 否则返回自定义handle处理后的返回值

@@ -7,7 +7,6 @@ package io.polaris.core.io.ansi;
  * <p>来自Spring Boot</p>
  *
  * @author Phillip Webb, Geoffrey Chandler
- * @since 5.8.0
  */
 public enum AnsiColor implements AnsiElement {
 

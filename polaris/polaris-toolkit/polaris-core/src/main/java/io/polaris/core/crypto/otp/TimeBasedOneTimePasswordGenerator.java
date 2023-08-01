@@ -22,10 +22,10 @@ public class TimeBasedOneTimePasswordGenerator {
 	}
 
 	public TimeBasedOneTimePasswordGenerator(Duration timeStep, int length) {
-		this(timeStep, length, HmacHash.HmacSHA1);
+		this(timeStep, length, OtpHmacHashAlgorithm.HmacSHA1);
 	}
 
-	public TimeBasedOneTimePasswordGenerator(Duration timeStep, int length, HmacHash algorithm) {
+	public TimeBasedOneTimePasswordGenerator(Duration timeStep, int length, OtpHmacHashAlgorithm algorithm) {
 		this.otp = new OneTimePasswordGenerator(length, algorithm);
 		this.timeStep = timeStep;
 	}

@@ -13,13 +13,28 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Table {
 
+	/**
+	 * 数据库目录名。注意特定数据库的大小写敏感性
+	 */
 	String catalog() default "";
 
+	/**
+	 * 数据库模式名。注意特定数据库的大小写敏感性
+	 */
 	String schema() default "";
 
+	/**
+	 * 表名称。注意特定数据库的大小写敏感性
+	 */
 	String name();
 
+	/**
+	 * java包名
+	 */
 	String javaPackage();
 
+	/**
+	 * 列映射配置
+	 */
 	Column[] columns() default {};
 }

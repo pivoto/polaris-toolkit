@@ -1,11 +1,11 @@
 package io.polaris.core.object;
 
-import com.squareup.javapoet.*;
 import io.polaris.core.compiler.MemoryCompiler;
 import io.polaris.core.converter.ConverterRegistry;
 import io.polaris.core.lang.TypeRef;
 import io.polaris.core.map.Maps;
 import io.polaris.core.reflect.Reflects;
+import com.squareup.javapoet.*;
 
 import javax.lang.model.element.Modifier;
 import java.beans.BeanInfo;
@@ -402,7 +402,8 @@ public class BeanMap extends AbstractMap<String, Object> implements Map<String, 
 	public boolean containsValue(Object value) {
 		for (Entry<String, Function<Object, Object>> entry : getters.entrySet()) {
 			Function<Object, Object> function = entry.getValue();
-			if (Objs.equals(function.apply(bean), value)) {
+			Object obj1 = function.apply(bean);
+			if (Objs.equals(obj1, value)) {
 				return true;
 			}
 		}

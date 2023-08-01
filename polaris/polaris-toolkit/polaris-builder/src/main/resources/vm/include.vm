@@ -27,6 +27,9 @@
 #if(not ${env.resourceDir})
 	#set($env.resourceDir="src/main/resources")
 #end
+#if(not ${env.mapperDir})
+	#set($env.mapperDir="mapper")
+#end
 #if(not ${env.webDir})
 	#set($env.webDir="src/main/resources/META-INF/resources")
 #end

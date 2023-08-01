@@ -44,15 +44,24 @@ public @interface Template {
 	String DIRNAME_ENTITY = "${env.srcDir}/${table.javaPackageDir}/${env.basePackage.replace('.','/')}/${env.entityPackage.replace('.','/')}";
 	String DIRNAME_MAPPER = "${env.srcDir}/${table.javaPackageDir}/${env.basePackage.replace('.','/')}/${env.mapperPackage.replace('.','/')}";
 	String DIRNAME_SERVICE = "${env.srcDir}/${table.javaPackageDir}/${env.basePackage.replace('.','/')}/${env.servicePackage.replace('.','/')}";
-	String DIRNAME_MAPPER_XML = "${env.resourceDir}/${env.mapperPackage.replace('.','/')}";
+	String DIRNAME_MAPPER_XML = "${env.resourceDir}/${env.mapperDir.replace('.','/')}";
 	String DIRNAME_CONTROLLER = "${env.srcDir}/${table.javaPackageDir}/${env.facadePackage.replace('.','/')}/${env.controllerPackage.replace('.','/')}";
 	String DIRNAME_RPC = "${env.srcDir}/${table.javaPackageDir}/${env.facadePackage.replace('.','/')}//${env.rpcPackage.replace('.','/')}";
 	String DIRNAME_MODEL = "${env.srcDir}/${table.javaPackageDir}/${env.facadePackage.replace('.','/')}/${env.modelPackage.replace('.','/')}";
 
+	/**
+	 * 模板路径，绝对路径或类路径的相对路径
+	 */
 	String path();
 
+	/**
+	 * 生成的文件名
+	 */
 	String filename();
 
+	/**
+	 * 生成文件的目录
+	 */
 	String dirname();
 
 

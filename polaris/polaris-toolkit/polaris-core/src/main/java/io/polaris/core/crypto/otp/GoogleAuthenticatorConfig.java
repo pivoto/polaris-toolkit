@@ -9,7 +9,7 @@ public class GoogleAuthenticatorConfig {
 	private int numberOfScratchCodes = 5;
 	private int keyModulus = (int) Math.pow(10, codeDigits);
 	private int secretBits = 160;
-	private HmacHash hmacHash = HmacHash.HmacSHA1;
+	private OtpHmacHashAlgorithm hmacHash = OtpHmacHashAlgorithm.HmacSHA1;
 
 	/**
 	 * Returns the key module.
@@ -86,7 +86,7 @@ public class GoogleAuthenticatorConfig {
 	 *
 	 * @return the HMAC hash function.
 	 */
-	public HmacHash getHmacHash() {
+	public OtpHmacHashAlgorithm getHmacHash() {
 		return hmacHash;
 	}
 
@@ -159,7 +159,7 @@ public class GoogleAuthenticatorConfig {
 			return this;
 		}
 
-		public GoogleAuthenticatorConfigBuilder setHmacHash(HmacHash hmacHash) {
+		public GoogleAuthenticatorConfigBuilder setHmacHash(OtpHmacHashAlgorithm hmacHash) {
 			if (hmacHash == null) {
 				throw new IllegalArgumentException("HMAC Hash Function cannot be null.");
 			}

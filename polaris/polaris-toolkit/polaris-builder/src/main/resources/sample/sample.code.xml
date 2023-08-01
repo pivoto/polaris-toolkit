@@ -24,6 +24,7 @@
 		<entry key="useGeneratedKeys" value="true"/>
 		<entry key="srcDir" value="src/main/java"/>
 		<entry key="webDir" value="src/main/resources/META-INF/resources"/>
+		<entry key="mapperDir" value="mapper"/>
 		<entry key="entityPackage" value="entity"/>
 		<entry key="mapperPackage" value="mapper"/>
 		<entry key="servicePackage" value="service"/>

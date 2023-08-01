@@ -16,7 +16,6 @@ import java.util.List;
  * @version 1.1.4
  * @see GoogleAuthenticator
  * @see <a href="https://github.com/wstrange/GoogleAuth">GoogleAuth</a>
- * @since 1.0.0
  */
 public final class GoogleAuthenticatorKey {
 	/**
