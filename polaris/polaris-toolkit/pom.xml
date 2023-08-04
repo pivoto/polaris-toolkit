@@ -23,7 +23,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<revision>2.0.2-SNAPSHOT</revision>
+		<revision>2.0.2</revision>
 		<maven.compiler.verbose>false</maven.compiler.verbose>
 		<dependency.bytebuddy.version>1.12.23</dependency.bytebuddy.version>
 		<dependency.asm.version>9.4</dependency.asm.version>
