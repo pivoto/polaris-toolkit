@@ -34,10 +34,6 @@
 		</dependency>
 		<dependency>
 			<groupId>cn.pivoto.polaris.toolkit</groupId>
-			<artifactId>polaris-log</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>cn.pivoto.polaris.toolkit</groupId>
 			<artifactId>polaris-web</artifactId>
 		</dependency>
 	</dependencies>

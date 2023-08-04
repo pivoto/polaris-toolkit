@@ -1,13 +1,14 @@
-package io.polaris.core.object.copier;
+package io.polaris.core.lang.copier;
 
 import io.polaris.core.map.ListMultiMap;
-import io.polaris.core.object.BeanMap;
-import io.polaris.core.object.Beans;
+import io.polaris.core.lang.bean.BeanMap;
+import io.polaris.core.lang.bean.Beans;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Qt
@@ -15,7 +16,7 @@ import java.util.List;
  */
 @SuppressWarnings("rawtypes")
 @Slf4j
-public class BeanToBeanCopier<S, T> extends BaseCopier<S, T> {
+public class MapToBeanCopier<T> extends BaseCopier<Map, T> {
 
 	/**
 	 * @param source      来源Map
@@ -23,7 +24,7 @@ public class BeanToBeanCopier<S, T> extends BaseCopier<S, T> {
 	 * @param targetType  目标泛型类型
 	 * @param copyOptions 拷贝选项
 	 */
-	public BeanToBeanCopier(S source, T target, Type targetType, CopyOptions copyOptions) {
+	public MapToBeanCopier(Map source, T target, Type targetType, CopyOptions copyOptions) {
 		super(source, target, targetType, copyOptions);
 	}
 
@@ -33,9 +34,7 @@ public class BeanToBeanCopier<S, T> extends BaseCopier<S, T> {
 		if (options.getEditable() != null && options.getEditable().isAssignableFrom(actualEditable)) {
 			actualEditable = options.getEditable();
 		}
-
 		try {
-			BeanMap sourceMap = Beans.asBeanMap(source);
 			BeanMap targetMap = Beans.asBeanMap(target, actualEditable);
 			final ListMultiMap<String, String> rel;
 			if (options.isIgnoreCase()) {
@@ -46,10 +45,12 @@ public class BeanToBeanCopier<S, T> extends BaseCopier<S, T> {
 			} else {
 				rel = null;
 			}
-
-			sourceMap.forEach((name, value) -> {
+			this.source.forEach((k, value) -> {
 				try {
-					name = super.editName(name);
+					if (k == null) {
+						return;
+					}
+					String name = super.editName(k.toString());
 					if (name == null) {
 						return;
 					}
@@ -111,7 +112,6 @@ public class BeanToBeanCopier<S, T> extends BaseCopier<S, T> {
 				}
 			}
 		}
-
 		return this.target;
 	}
 }

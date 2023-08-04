@@ -1,7 +1,8 @@
-package io.polaris.core.object;
+package io.polaris.core.lang.bean;
 
 import io.polaris.core.compiler.MemoryCompiler;
 import io.polaris.core.converter.ConverterRegistry;
+import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.TypeRef;
 import io.polaris.core.map.Maps;
 import io.polaris.core.reflect.Reflects;

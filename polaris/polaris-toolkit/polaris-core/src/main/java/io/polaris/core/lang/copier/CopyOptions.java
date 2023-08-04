@@ -1,4 +1,4 @@
-package io.polaris.core.object.copier;
+package io.polaris.core.lang.copier;
 
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.converter.ConverterRegistry;

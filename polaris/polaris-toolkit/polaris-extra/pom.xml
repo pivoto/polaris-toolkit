@@ -15,7 +15,6 @@
 
 	<modules>
 		<module>polaris-validator</module>
-		<module>polaris-log</module>
 		<module>polaris-bytecode</module>
 		<module>polaris-web</module>
 		<module>polaris-crypto</module>
@@ -24,10 +23,8 @@
 	</modules>
 	<properties>
 		<dependency.bytebuddy.version>1.12.23</dependency.bytebuddy.version>
-		<dependency.asm.version>9.4</dependency.asm.version>
 		<dependency.javassist.version>3.29.2-GA</dependency.javassist.version>
 		<dependency.reflectasm.version>1.11.9</dependency.reflectasm.version>
-		<dependency.javapoet.version>1.13.0</dependency.javapoet.version>
 	</properties>
 
 	<dependencies>

@@ -1,8 +1,8 @@
-package io.polaris.core.object.copier;
+package io.polaris.core.lang.copier;
 
 import io.polaris.core.lang.JavaType;
-import io.polaris.core.object.BeanMap;
-import io.polaris.core.object.Beans;
+import io.polaris.core.lang.bean.BeanMap;
+import io.polaris.core.lang.bean.Beans;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Type;

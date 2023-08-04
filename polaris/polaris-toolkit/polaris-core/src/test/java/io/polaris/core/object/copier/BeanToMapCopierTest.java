@@ -1,6 +1,9 @@
 package io.polaris.core.object.copier;
 
 import io.polaris.core.lang.TypeRef;
+import io.polaris.core.lang.copier.BeanToMapCopier;
+import io.polaris.core.lang.copier.CopyOptions;
+import io.polaris.core.lang.copier.MapToBeanCopier;
 import lombok.Data;
 import lombok.ToString;
 import org.junit.jupiter.api.Test;

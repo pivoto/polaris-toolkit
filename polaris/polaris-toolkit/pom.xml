@@ -25,6 +25,11 @@
 	<properties>
 		<revision>2.0.2-SNAPSHOT</revision>
 		<maven.compiler.verbose>false</maven.compiler.verbose>
+		<dependency.bytebuddy.version>1.12.23</dependency.bytebuddy.version>
+		<dependency.asm.version>9.4</dependency.asm.version>
+		<dependency.javassist.version>3.29.2-GA</dependency.javassist.version>
+		<dependency.reflectasm.version>1.11.9</dependency.reflectasm.version>
+		<dependency.javapoet.version>1.13.0</dependency.javapoet.version>
 	</properties>
 
 	<dependencies>
@@ -46,64 +51,100 @@
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-all</artifactId>
 				<type>pom</type>
-				<version>${revision}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-core</artifactId>
-				<version>${revision}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-builder</artifactId>
-				<version>${revision}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-annotation-processor-service</artifactId>
-				<version>${revision}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-logging</artifactId>
 				<type>pom</type>
-				<version>${revision}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-logging-test</artifactId>
 				<type>pom</type>
-				<version>${revision}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-validator</artifactId>
-				<version>${revision}</version>
-			</dependency>
-			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit</groupId>
-				<artifactId>polaris-log</artifactId>
-				<version>${revision}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-bytecode</artifactId>
-				<version>${revision}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-web</artifactId>
-				<version>${revision}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-crypto</artifactId>
-				<version>${revision}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-image</artifactId>
-				<version>${revision}</version>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.esotericsoftware</groupId>
+				<artifactId>reflectasm</artifactId>
+				<version>${dependency.reflectasm.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.javassist</groupId>
+				<artifactId>javassist</artifactId>
+				<version>${dependency.javassist.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>net.bytebuddy</groupId>
+				<artifactId>byte-buddy</artifactId>
+				<version>${dependency.bytebuddy.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>net.bytebuddy</groupId>
+				<artifactId>byte-buddy-agent</artifactId>
+				<version>${dependency.bytebuddy.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.squareup</groupId>
+				<artifactId>javapoet</artifactId>
+				<version>${dependency.javapoet.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ow2.asm</groupId>
+				<artifactId>asm</artifactId>
+				<version>${dependency.asm.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ow2.asm</groupId>
+				<artifactId>asm-commons</artifactId>
+				<version>${dependency.asm.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ow2.asm</groupId>
+				<artifactId>asm-util</artifactId>
+				<version>${dependency.asm.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

@@ -1,6 +1,6 @@
 package io.polaris.core.io.image;
 
-import io.polaris.core.object.Objs;
+import io.polaris.core.lang.Objs;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

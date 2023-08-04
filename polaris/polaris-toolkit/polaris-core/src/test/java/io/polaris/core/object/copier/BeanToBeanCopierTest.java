@@ -1,5 +1,7 @@
 package io.polaris.core.object.copier;
 
+import io.polaris.core.lang.copier.BeanToBeanCopier;
+import io.polaris.core.lang.copier.CopyOptions;
 import lombok.Data;
 import lombok.ToString;
 import org.junit.jupiter.api.Assertions;

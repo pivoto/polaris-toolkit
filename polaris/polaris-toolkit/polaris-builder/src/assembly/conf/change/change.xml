@@ -33,10 +33,6 @@
 		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-bytecode/src</dest>
 	</change>
 	<change>
-		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-extra-log/src</src>
-		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-log/src</dest>
-	</change>
-	<change>
 		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-extra-web/src</src>
 		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-web/src</dest>
 	</change>

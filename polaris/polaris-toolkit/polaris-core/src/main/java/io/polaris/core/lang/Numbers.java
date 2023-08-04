@@ -3,7 +3,6 @@ package io.polaris.core.lang;
 import io.polaris.core.assertion.Assertions;
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.collection.ObjectArrays;
-import io.polaris.core.object.Objs;
 import io.polaris.core.random.Randoms;
 import io.polaris.core.string.Strings;
 

@@ -2,6 +2,7 @@
 target/
 build/
 .flattened-pom.xml
+dependency-reduced-pom.xml
 
 # STS/Eclipse
 .settings/

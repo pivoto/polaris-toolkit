@@ -31,12 +31,34 @@
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.squareup</groupId>
+			<artifactId>javapoet</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.ow2.asm</groupId>
+			<artifactId>asm</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.ow2.asm</groupId>
+			<artifactId>asm-commons</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.ow2.asm</groupId>
+			<artifactId>asm-util</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- region test -->
+		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
 			<scope>test</scope>
 		</dependency>
-
-		<!-- region test -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
@@ -95,4 +117,88 @@
 		</dependency>
 		<!-- endregion -->
 	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<configuration>
+					<!--<keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>-->
+					<createDependencyReducedPom>true</createDependencyReducedPom>
+					<shadedClassifierName>shaded</shadedClassifierName>
+					<createSourcesJar>true</createSourcesJar>
+					<minimizeJar>false</minimizeJar>
+					<shadeSourcesContent>true</shadeSourcesContent>
+					<shadedArtifactAttached>false</shadedArtifactAttached>
+					<filters>
+						<filter>
+							<artifact>*:*</artifact>
+							<excludes>
+								<exclude>module-info.class</exclude>
+								<exclude>META-INF/*.SF</exclude>
+								<exclude>META-INF/*.DSA</exclude>
+								<exclude>META-INF/*.RSA</exclude>
+							</excludes>
+						</filter>
+					</filters>
+					<artifactSet>
+						<excludes>
+							<exclude>org.slf4j:*</exclude>
+							<exclude>com.google.code.findbugs:jsr305</exclude>
+						</excludes>
+					</artifactSet>
+					<relocations>
+						<relocation>
+							<pattern>com.squareup.javapoet</pattern>
+							<shadedPattern>com.jcfc.stdk.dependency.com.squareup.javapoet</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>org.objectweb.asm</pattern>
+							<shadedPattern>com.jcfc.stdk.dependency.org.objectweb.asm</shadedPattern>
+						</relocation>
+					</relocations>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<transformers>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<manifestEntries>
+										<mainClass>${start-class}</mainClass>
+										<X-Author>Qt</X-Author>
+										<X-File-Encoding>${project.build.sourceEncoding}</X-File-Encoding>
+										<X-Compiler-Source>${maven.compiler.source}</X-Compiler-Source>
+										<X-Compiler-Target>${maven.compiler.target}</X-Compiler-Target>
+									</manifestEntries>
+								</transformer>
+								<!-- 阻止META-INF/LICENSE和META-INF/LICENSE.txt -->
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer"/>
+								<!-- 整合spi服务中META-INF/services/文件夹的相关配置 -->
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+								<!-- 如果多个jar包在META-INF文件夹下含有相同的xml文件，则需要聚合他们 -->
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ComponentsXmlResourceTransformer"/>
+								<!--合并所有notice文件-->
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer">
+									<addHeader>true</addHeader>
+								</transformer>
+								<!-- 排除掉指定资源文件 -->
+								<transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
+									<resource>.gitkeep</resource>
+								</transformer>
+								<!-- 将项目下的文件file额外加到resource中-->
+								<transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+									<resource>META-INF/proto/${project.groupId}-${project.artifactId}-${project.version}.pom.xml</resource>
+									<file>pom.xml</file>
+								</transformer>
+							</transformers>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>

@@ -1,14 +1,13 @@
-package io.polaris.core.object.copier;
+package io.polaris.core.lang.copier;
 
 import io.polaris.core.map.ListMultiMap;
-import io.polaris.core.object.BeanMap;
-import io.polaris.core.object.Beans;
+import io.polaris.core.lang.bean.BeanMap;
+import io.polaris.core.lang.bean.Beans;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Qt
@@ -16,7 +15,7 @@ import java.util.Map;
  */
 @SuppressWarnings("rawtypes")
 @Slf4j
-public class MapToBeanCopier<T> extends BaseCopier<Map, T> {
+public class BeanToBeanCopier<S, T> extends BaseCopier<S, T> {
 
 	/**
 	 * @param source      来源Map
@@ -24,7 +23,7 @@ public class MapToBeanCopier<T> extends BaseCopier<Map, T> {
 	 * @param targetType  目标泛型类型
 	 * @param copyOptions 拷贝选项
 	 */
-	public MapToBeanCopier(Map source, T target, Type targetType, CopyOptions copyOptions) {
+	public BeanToBeanCopier(S source, T target, Type targetType, CopyOptions copyOptions) {
 		super(source, target, targetType, copyOptions);
 	}
 
@@ -34,7 +33,9 @@ public class MapToBeanCopier<T> extends BaseCopier<Map, T> {
 		if (options.getEditable() != null && options.getEditable().isAssignableFrom(actualEditable)) {
 			actualEditable = options.getEditable();
 		}
+
 		try {
+			BeanMap sourceMap = Beans.asBeanMap(source);
 			BeanMap targetMap = Beans.asBeanMap(target, actualEditable);
 			final ListMultiMap<String, String> rel;
 			if (options.isIgnoreCase()) {
@@ -45,12 +46,10 @@ public class MapToBeanCopier<T> extends BaseCopier<Map, T> {
 			} else {
 				rel = null;
 			}
-			this.source.forEach((k, value) -> {
+
+			sourceMap.forEach((name, value) -> {
 				try {
-					if (k == null) {
-						return;
-					}
-					String name = super.editName(k.toString());
+					name = super.editName(name);
 					if (name == null) {
 						return;
 					}
@@ -112,6 +111,7 @@ public class MapToBeanCopier<T> extends BaseCopier<Map, T> {
 				}
 			}
 		}
+
 		return this.target;
 	}
 }

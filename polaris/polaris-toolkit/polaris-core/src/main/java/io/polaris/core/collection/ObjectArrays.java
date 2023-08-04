@@ -4,7 +4,7 @@ import io.polaris.core.assertion.Assertions;
 import io.polaris.core.collection.comparator.Comparators;
 import io.polaris.core.consts.SymbolConsts;
 import io.polaris.core.converter.ConverterRegistry;
-import io.polaris.core.object.Objs;
+import io.polaris.core.lang.Objs;
 import io.polaris.core.random.Randoms;
 import io.polaris.core.string.Strings;
 

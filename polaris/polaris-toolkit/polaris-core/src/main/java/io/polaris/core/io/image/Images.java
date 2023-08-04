@@ -5,7 +5,7 @@ import io.polaris.core.codec.Base64;
 import io.polaris.core.io.Filenames;
 import io.polaris.core.io.IO;
 import io.polaris.core.lang.Numbers;
-import io.polaris.core.object.Objs;
+import io.polaris.core.lang.Objs;
 import io.polaris.core.string.Strings;
 
 import javax.imageio.*;

@@ -5,7 +5,7 @@ import io.polaris.core.consts.StdConsts;
 import io.polaris.core.consts.SymbolConsts;
 import io.polaris.core.io.IO;
 import io.polaris.core.map.Maps;
-import io.polaris.core.object.Beans;
+import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.string.Escapes;
 import io.polaris.core.string.Strings;
 import org.w3c.dom.*;

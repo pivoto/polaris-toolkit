@@ -31,7 +31,7 @@
 		<dependency>
 			<groupId>cn.pivoto.polaris.toolkit</groupId>
 			<artifactId>polaris-annotation-processor-service</artifactId>
-			<version>${revision}</version>
+			<version>${project.version}</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>

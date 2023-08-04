@@ -4,9 +4,9 @@ import io.polaris.core.json.IJsonSerializer;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.TypeRef;
 import io.polaris.core.lang.Types;
-import io.polaris.core.object.Beans;
-import io.polaris.core.object.Copiers;
-import io.polaris.core.object.copier.CopyOptions;
+import io.polaris.core.lang.bean.Beans;
+import io.polaris.core.lang.copier.Copiers;
+import io.polaris.core.lang.copier.CopyOptions;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.service.StatefulServiceLoader;
 

@@ -1,7 +1,4 @@
-package io.polaris.core.object;
-
-import io.polaris.core.object.copier.CopyOptions;
-import io.polaris.core.object.copier.GeneralCopier;
+package io.polaris.core.lang.copier;
 
 import java.lang.reflect.Type;
 

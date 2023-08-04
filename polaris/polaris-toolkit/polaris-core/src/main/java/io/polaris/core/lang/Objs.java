@@ -1,10 +1,8 @@
-package io.polaris.core.object;
+package io.polaris.core.lang;
 
 import io.polaris.core.collection.ObjectArrays;
 import io.polaris.core.collection.comparator.Comparators;
 import io.polaris.core.io.Serializations;
-import io.polaris.core.lang.Numbers;
-import io.polaris.core.lang.Types;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.string.Strings;
 

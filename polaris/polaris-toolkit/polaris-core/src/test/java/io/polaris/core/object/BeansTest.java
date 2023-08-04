@@ -1,5 +1,7 @@
 package io.polaris.core.object;
 
+import io.polaris.core.lang.bean.BeanMap;
+import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.time.Times;
 import lombok.Data;
 import org.junit.jupiter.api.Test;

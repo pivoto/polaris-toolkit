@@ -1,4 +1,4 @@
-package io.polaris.core.object;
+package io.polaris.core.lang.copier;
 
 /**
  * @author Qt

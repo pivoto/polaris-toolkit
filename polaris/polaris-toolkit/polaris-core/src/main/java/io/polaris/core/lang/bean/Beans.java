@@ -1,7 +1,8 @@
-package io.polaris.core.object;
+package io.polaris.core.lang.bean;
 
 import io.polaris.core.collection.Iterables;
-import io.polaris.core.object.copier.CopyOptions;
+import io.polaris.core.lang.copier.Copiers;
+import io.polaris.core.lang.copier.CopyOptions;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.string.StringCases;
 

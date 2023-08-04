@@ -1,6 +1,7 @@
 package io.polaris.core.object;
 
-import io.polaris.core.object.copier.CopyOptions;
+import io.polaris.core.lang.copier.Copiers;
+import io.polaris.core.lang.copier.CopyOptions;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;

@@ -1,6 +1,4 @@
-package io.polaris.core.object.copier;
-
-import io.polaris.core.object.Copier;
+package io.polaris.core.lang.copier;
 
 import java.lang.reflect.Type;
 import java.util.Map;
