@@ -3,7 +3,7 @@ package io.polaris.core.script;
 import io.polaris.core.cache.ICache;
 import io.polaris.core.cache.MapCache;
 import io.polaris.core.crypto.digest.Digests;
-import lombok.extern.slf4j.Slf4j;
+import io.polaris.core.log.ILogger;
 
 import javax.script.*;
 import java.util.Base64;
@@ -14,8 +14,8 @@ import java.util.Map;
  * @author Qt
  * @since 1.8
  */
-@Slf4j
 public abstract class AbstractStandardEvaluator implements Evaluator {
+	private static final ILogger log = ILogger.of(AbstractStandardEvaluator.class);
 
 	public static final String OUT = "out";
 	public static final String ERR = "err";

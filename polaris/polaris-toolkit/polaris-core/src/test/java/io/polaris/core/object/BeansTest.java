@@ -1,6 +1,8 @@
 package io.polaris.core.object;
 
 import io.polaris.core.lang.bean.BeanMap;
+import io.polaris.core.lang.bean.BeanMetadata;
+import io.polaris.core.lang.bean.BeanMetadatas;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.time.Times;
 import lombok.Data;
@@ -39,8 +41,8 @@ public class BeansTest {
 
 	@Test
 	void test02() throws  Exception {
-		Class<BeanMap.IMetadata> metadataClass = BeanMap.getMetadataClass(Bean01.class);
-		BeanMap.IMetadata iMetadata = metadataClass.newInstance();
+		Class<BeanMetadata> metadataClass = BeanMetadatas.getMetadataClass(Bean01.class);
+		BeanMetadata iMetadata = metadataClass.newInstance();
 		System.out.println(iMetadata.getters());
 		System.out.println(iMetadata.setters());
 	}

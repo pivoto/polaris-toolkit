@@ -1,4 +1,6 @@
-package io.polaris.core.lang;
+package io.polaris.core.lang.primitive;
+
+import io.polaris.core.lang.Numbers;
 
 import javax.annotation.Nonnull;
 import java.math.BigDecimal;
@@ -30,9 +32,104 @@ import java.util.concurrent.atomic.LongAdder;
  * @since 1.8
  */
 public class Bytes {
-	public static final ByteOrder DEFAULT_ORDER = ByteOrder.LITTLE_ENDIAN;
+	public static final ByteOrder DEFAULT_ORDER = ByteOrder.BIG_ENDIAN;
 	/** CPU的字节序 */
-	public static final ByteOrder CPU_ENDIAN = "little".equals(System.getProperty("sun.cpu.endian")) ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+	public static final ByteOrder CPU_ENDIAN;
+
+	static {
+		ByteOrder byteOrder;
+		try {
+			byteOrder = ByteOrder.nativeOrder();
+		} catch (Throwable e) {
+			byteOrder = "little".equals(System.getProperty("sun.cpu.endian")) ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+		}
+		CPU_ENDIAN = byteOrder;
+	}
+
+	public static byte[] utf8Bytes(CharSequence str) {
+		return str.toString().getBytes(StandardCharsets.UTF_8);
+	}
+
+	public static byte[] utf8Bytes(String str) {
+		return str.getBytes(StandardCharsets.UTF_8);
+	}
+
+	public static byte[] bytes(CharSequence str) {
+		return str.toString().getBytes();
+	}
+
+	public static byte[] bytes(String str) {
+		return str.getBytes();
+	}
+
+	public static byte[] copy(byte[] array, int length) {
+		return Arrays.copyOf(array, length);
+	}
+
+	public static byte[] copy(byte[] array, int from, int to) {
+		return Arrays.copyOfRange(array, from, to);
+	}
+
+	public static byte[] concat(@Nonnull byte[] byteArray, byte[]... byteArrays) {
+		if (byteArrays.length == 0) {
+			return byteArray;
+		}
+		int length = 0;
+		for (byte[] bytes : byteArrays) {
+			length += bytes.length;
+		}
+		byte[] result = new byte[length];
+		int pos = 0;
+		for (byte[] bytes : byteArrays) {
+			System.arraycopy(bytes, 0, result, pos, bytes.length);
+			pos += bytes.length;
+		}
+		return result;
+	}
+
+	public static boolean contains(byte[] array, byte target) {
+		for (byte value : array) {
+			if (value == target) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static int indexOf(byte[] array, byte target) {
+		for (int i = 0; i < array.length; i++) {
+			if (array[i] == target) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	public static int indexOf(byte[] array, byte[] target) {
+		if (target.length == 0) {
+			return 0;
+		}
+
+		outer:
+		for (int i = 0; i < array.length - target.length + 1; i++) {
+			for (int j = 0; j < target.length; j++) {
+				if (array[i + j] != target[j]) {
+					continue outer;
+				}
+			}
+			return i;
+		}
+		return -1;
+	}
+
+	public static int lastIndexOf(byte[] array, byte target) {
+		for (int i = array.length - 1; i >= 0; i--) {
+			if (array[i] == target) {
+				return i;
+			}
+		}
+		return -1;
+	}
 
 	/**
 	 * int转byte
@@ -51,7 +148,6 @@ public class Bytes {
 	 * @return 无符号int值
 	 */
 	public static int byteToUnsignedInt(byte byteValue) {
-		// Java 总是把 byte 当做有符处理；我们可以通过将其和 0xFF 进行二进制与得到它的无符值
 		return byteValue & 0xFF;
 	}
 
@@ -442,15 +538,15 @@ public class Bytes {
 	@SuppressWarnings("unchecked")
 	public static <T extends Number> T bytesToNumber(byte[] bytes, Class<T> targetClass, ByteOrder byteOrder) throws IllegalArgumentException {
 		Number number;
-		if (Byte.class == targetClass) {
+		if (Byte.class == targetClass || byte.class == targetClass) {
 			number = bytes[0];
-		} else if (Short.class == targetClass) {
+		} else if (Short.class == targetClass || short.class == targetClass) {
 			number = bytesToShort(bytes, byteOrder);
-		} else if (Integer.class == targetClass) {
+		} else if (Integer.class == targetClass || int.class == targetClass) {
 			number = bytesToInt(bytes, byteOrder);
 		} else if (AtomicInteger.class == targetClass) {
 			number = new AtomicInteger(bytesToInt(bytes, byteOrder));
-		} else if (Long.class == targetClass) {
+		} else if (Long.class == targetClass || long.class == targetClass) {
 			number = bytesToLong(bytes, byteOrder);
 		} else if (AtomicLong.class == targetClass) {
 			number = new AtomicLong(bytesToLong(bytes, byteOrder));
@@ -458,9 +554,9 @@ public class Bytes {
 			final LongAdder longValue = new LongAdder();
 			longValue.add(bytesToLong(bytes, byteOrder));
 			number = longValue;
-		} else if (Float.class == targetClass) {
+		} else if (Float.class == targetClass || float.class == targetClass) {
 			number = bytesToFloat(bytes, byteOrder);
-		} else if (Double.class == targetClass) {
+		} else if (Double.class == targetClass || double.class == targetClass) {
 			number = bytesToDouble(bytes, byteOrder);
 		} else if (DoubleAdder.class == targetClass) {
 			final DoubleAdder doubleAdder = new DoubleAdder();
@@ -480,90 +576,4 @@ public class Bytes {
 
 		return (T) number;
 	}
-
-	public static byte[] utf8Bytes(CharSequence str) {
-		return str.toString().getBytes(StandardCharsets.UTF_8);
-	}
-
-	public static byte[] utf8Bytes(String str) {
-		return str.getBytes(StandardCharsets.UTF_8);
-	}
-
-	public static byte[] bytes(CharSequence str) {
-		return str.toString().getBytes();
-	}
-
-	public static byte[] bytes(String str) {
-		return str.getBytes();
-	}
-
-	public static byte[] copy(byte[] array, int length) {
-		return Arrays.copyOf(array, length);
-	}
-
-	public static byte[] copy(byte[] array, int from, int to) {
-		return Arrays.copyOfRange(array, from, to);
-	}
-
-	public static byte[] concat(@Nonnull byte[] byteArray, byte[]... byteArrays) {
-		if (byteArrays.length == 0) {
-			return byteArray;
-		}
-		int length = 0;
-		for (byte[] bytes : byteArrays) {
-			length += bytes.length;
-		}
-		byte[] result = new byte[length];
-		int pos = 0;
-		for (byte[] bytes : byteArrays) {
-			System.arraycopy(bytes, 0, result, pos, bytes.length);
-			pos += bytes.length;
-		}
-		return result;
-	}
-
-	public static boolean contains(byte[] array, byte target) {
-		for (byte value : array) {
-			if (value == target) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public static int indexOf(byte[] array, byte target) {
-		for (int i = 0; i < array.length; i++) {
-			if (array[i] == target) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	public static int indexOf(byte[] array, byte[] target) {
-		if (target.length == 0) {
-			return 0;
-		}
-
-		outer:
-		for (int i = 0; i < array.length - target.length + 1; i++) {
-			for (int j = 0; j < target.length; j++) {
-				if (array[i + j] != target[j]) {
-					continue outer;
-				}
-			}
-			return i;
-		}
-		return -1;
-	}
-
-	public static int lastIndexOf(byte[] array, byte target) {
-		for (int i = array.length - 1; i >= 0; i--) {
-			if (array[i] == target) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
 }

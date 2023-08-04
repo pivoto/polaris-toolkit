@@ -8,9 +8,9 @@ class CodecTest {
 	@Test
 	void test01() {
 		byte[] data = Randoms.randomBytes(20);
-		System.out.printf("encode: %s\n", Hex.encodeToString(data));
-		System.out.printf("encode: %s\n", new String(Hex.encode(data)));
-		System.out.printf("decode: %s\n", new String(Hex.decode(Hex.encodeToString(data))));
+		System.out.printf("encode: %s\n", HexCodec.encodeToString(data));
+		System.out.printf("encode: %s\n", new String(HexCodec.encode(data)));
+		System.out.printf("decode: %s\n", new String(HexCodec.decode(HexCodec.encodeToString(data))));
 	}
 
 	@Test

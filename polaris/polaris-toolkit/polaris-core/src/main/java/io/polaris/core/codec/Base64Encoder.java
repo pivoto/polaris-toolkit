@@ -86,10 +86,12 @@ public class Base64Encoder implements Encoder {
 		return outPos - outOff;
 	}
 
+	@Override
 	public int getEncodedLength(int inputLength) {
 		return (inputLength + 2) / 3 * 4;
 	}
 
+	@Override
 	public int getMaxDecodedLength(int inputLength) {
 		return inputLength / 4 * 3;
 	}
@@ -99,6 +101,7 @@ public class Base64Encoder implements Encoder {
 	 *
 	 * @return the number of bytes produced.
 	 */
+	@Override
 	public int encode(byte[] buf, int off, int len, OutputStream out)
 		throws IOException {
 		if (len < 0) {
@@ -128,6 +131,7 @@ public class Base64Encoder implements Encoder {
 	 *
 	 * @return the number of bytes produced.
 	 */
+	@Override
 	public int decode(
 		byte[] data,
 		int off,
@@ -227,6 +231,7 @@ public class Base64Encoder implements Encoder {
 	 *
 	 * @return the number of bytes produced.
 	 */
+	@Override
 	public int decode(
 		String data,
 		OutputStream out)

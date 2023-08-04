@@ -1,5 +1,6 @@
 package io.polaris.janino;
 
+import io.polaris.core.log.ILogger;
 import org.codehaus.commons.compiler.CompileException;
 import org.codehaus.commons.compiler.CompilerFactoryFactory;
 import org.codehaus.commons.compiler.IExpressionEvaluator;
@@ -70,6 +71,17 @@ public class JaninoTest {
 		ClassBodyDemo.main(new String[]{"public static void\n" +
 			"main(String[] args) { System.out.println(\"test...\");}"});
 	}
+
+	@Test
+	void test07() {
+		ILogger log = ILogger.of(getClass());
+		log.trace("test....");
+		log.debug("test....");
+		log.info("test....");
+		log.warn("test....");
+		log.error("test....");
+	}
+
 	@Test
 	void test0() throws Exception {
 		SimpleCompiler.main(new String[]{"" +

@@ -4,10 +4,10 @@ import io.polaris.core.cache.ICache;
 import io.polaris.core.cache.MapCache;
 import io.polaris.core.compiler.MemoryCompiler;
 import io.polaris.core.crypto.digest.Digests;
+import io.polaris.core.log.ILogger;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.reflect.SerializableQuaternionConsumer;
 import io.polaris.core.service.ServiceDefault;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.Base64;
 import java.util.HashMap;
@@ -21,9 +21,9 @@ import java.util.regex.Pattern;
  * @author Qt
  * @since 1.8
  */
-@Slf4j
 @ServiceDefault(Integer.MAX_VALUE)
 public class JavaEvaluator implements Evaluator {
+	private static final ILogger log = ILogger.of(JavaEvaluator.class);
 	private static final AtomicLong CLASS_NO = new AtomicLong(0);
 	private static final Pattern importPattern = Pattern.compile("\\s*\\bimport\\s+(static\\s+)?[\\w\\.\\*]+;\\s*+");
 

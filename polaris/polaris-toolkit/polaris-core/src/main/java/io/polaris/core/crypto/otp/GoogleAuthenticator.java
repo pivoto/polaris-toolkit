@@ -1,7 +1,7 @@
 package io.polaris.core.crypto.otp;
 
 import io.polaris.core.codec.Base32;
-import lombok.extern.slf4j.Slf4j;
+import io.polaris.core.log.ILogger;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -42,8 +42,8 @@ import java.util.Random;
  * @see <a href="http://code.google.com/p/google-authenticator"></a>
  * @see <a href="http://tools.ietf.org/id/draft-mraihi-totp-timebased-06.txt"></a>
  */
-@Slf4j
 public final class GoogleAuthenticator implements IGoogleAuthenticator {
+	private static final ILogger log = ILogger.of(GoogleAuthenticator.class);
 	public static final String RNG_ALGORITHM_KEY = "googleauth.rng.algorithm";
 	public static final String RNG_ALGORITHM_PROVIDER_KEY = "googleauth.rng.algorithmProvider";
 	private static final String DEFAULT_RANDOM_NUMBER_ALGORITHM = "SHA1PRNG";

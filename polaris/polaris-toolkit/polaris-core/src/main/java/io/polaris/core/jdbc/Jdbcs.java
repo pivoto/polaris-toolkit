@@ -1,8 +1,8 @@
 package io.polaris.core.jdbc;
 
+import io.polaris.core.log.ILogger;
 import io.polaris.core.map.Maps;
 import io.polaris.core.string.Strings;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -19,8 +19,8 @@ import java.util.Properties;
  * @author Qt
  * @since 1.8
  */
-@Slf4j
 public class Jdbcs {
+	private static final ILogger log = ILogger.of(Jdbcs.class);
 
 	public static DataSource getDataSource(String jndiName) throws SQLException {
 		try {
@@ -115,12 +115,12 @@ public class Jdbcs {
 
 
 	public static <T> T query(Connection conn, String sql, Iterable<?> parameters,
-														QueryCallback<T> queryCallback) throws SQLException {
+							  QueryCallback<T> queryCallback) throws SQLException {
 		return query(conn, sql, (Object) parameters, queryCallback);
 	}
 
 	public static <T> T query(Connection conn, String sql, Object[] parameters,
-														QueryCallback<T> queryCallback) throws SQLException {
+							  QueryCallback<T> queryCallback) throws SQLException {
 		return query(conn, sql, (Object) parameters, queryCallback);
 	}
 
@@ -146,12 +146,12 @@ public class Jdbcs {
 	}
 
 	public static List<Map<String, Object>> queryForList(Connection conn, String sql,
-																											 Iterable<?> parameters) throws SQLException {
+														 Iterable<?> parameters) throws SQLException {
 		return query(conn, sql, parameters, new DefaultQueryCallback());
 	}
 
 	public static List<Map<String, Object>> queryForList(Connection conn, String sql,
-																											 Object[] parameters) throws SQLException {
+														 Object[] parameters) throws SQLException {
 		return query(conn, sql, parameters, new DefaultQueryCallback());
 	}
 
@@ -160,7 +160,7 @@ public class Jdbcs {
 	}
 
 	public static Map<String, Object> queryForMap(Connection conn, String sql,
-																								Iterable<?> parameters) throws SQLException {
+												  Iterable<?> parameters) throws SQLException {
 		return query(conn, sql, parameters, new UniqueRowQueryCallback());
 	}
 

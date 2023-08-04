@@ -142,6 +142,10 @@
 						</filter>
 					</filters>
 					<artifactSet>
+						<includes>
+							<include>org.ow2.asm:*</include>
+							<include>com.squareup:*</include>
+						</includes>
 						<excludes>
 							<exclude>org.slf4j:*</exclude>
 							<exclude>com.google.code.findbugs:jsr305</exclude>
@@ -150,17 +154,17 @@
 					<relocations>
 						<relocation>
 							<pattern>com.squareup.javapoet</pattern>
-							<shadedPattern>com.jcfc.stdk.dependency.com.squareup.javapoet</shadedPattern>
+							<shadedPattern>io.polaris.dependency.com.squareup.javapoet</shadedPattern>
 						</relocation>
 						<relocation>
 							<pattern>org.objectweb.asm</pattern>
-							<shadedPattern>com.jcfc.stdk.dependency.org.objectweb.asm</shadedPattern>
+							<shadedPattern>io.polaris.dependency.org.objectweb.asm</shadedPattern>
 						</relocation>
 					</relocations>
 				</configuration>
 				<executions>
 					<execution>
-						<phase>install</phase>
+						<phase>package</phase>
 						<goals>
 							<goal>shade</goal>
 						</goals>

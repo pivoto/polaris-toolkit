@@ -1,5 +1,6 @@
 package io.polaris.crypto.asymmetric;
 
+import io.polaris.core.log.LogStack;
 import io.polaris.crypto.SmUtils;
 import org.bouncycastle.crypto.CryptoException;
 import org.junit.jupiter.api.Test;
@@ -20,5 +21,9 @@ class SM2Test {
 		byte[] sign = sm2.sign(data);
 		boolean verify = sm2.verify(data, sign);
 		System.out.println(verify);
+	}
+
+	@Test
+	void test02() {
 	}
 }

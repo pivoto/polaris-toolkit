@@ -1,4 +1,4 @@
-package io.polaris.core.lang;
+package io.polaris.core.lang.primitive;
 
 import io.polaris.core.consts.CharConsts;
 

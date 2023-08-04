@@ -1,6 +1,6 @@
 package io.polaris.core.lang;
 
-import lombok.extern.slf4j.Slf4j;
+import io.polaris.core.log.ILogger;
 
 import java.util.concurrent.Callable;
 
@@ -8,8 +8,8 @@ import java.util.concurrent.Callable;
  * @author Qt
  * @since 1.8
  */
-@Slf4j
 public class Retry {
+	private static final ILogger log = ILogger.of(Retry.class);
 
 
 	public static <T> T doRetry(Callable<T> callable, int retryTimes, long sleepTimeInMilliSecond,

@@ -1,8 +1,10 @@
 package io.polaris.core.lang;
 
+import io.polaris.core.annotation.Experimental;
 import io.polaris.core.assertion.Assertions;
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.collection.ObjectArrays;
+import io.polaris.core.lang.primitive.Chars;
 import io.polaris.core.random.Randoms;
 import io.polaris.core.string.Strings;
 
@@ -2808,6 +2810,7 @@ public class Numbers {
 	 * @param expression 数学表达式
 	 * @return 结果
 	 */
+	@Experimental
 	public static double calculate(String expression) {
 		return Calculator.conversion(expression);
 	}

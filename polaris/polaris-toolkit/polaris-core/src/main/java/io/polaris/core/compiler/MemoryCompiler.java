@@ -1,11 +1,10 @@
 package io.polaris.core.compiler;
 
+import javax.annotation.Nullable;
 import javax.tools.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,7 +24,7 @@ public class MemoryCompiler implements Compiler {
 
 		public static MemoryCompiler get(ClassLoader classLoader) {
 			classLoader = classLoader == null ? Thread.currentThread().getContextClassLoader() : classLoader;
-			return COMPILERS.computeIfAbsent(classLoader, loader -> new MemoryCompiler(loader));
+			return COMPILERS.computeIfAbsent(classLoader, MemoryCompiler::new);
 		}
 	}
 
@@ -56,9 +55,7 @@ public class MemoryCompiler implements Compiler {
 	public MemoryCompiler(ClassLoader loader, List<String> options) {
 		this.options.addAll(options);
 		this.compiler = ToolProvider.getSystemJavaCompiler();
-		this.memoryClassLoader = AccessController.doPrivileged(
-			(PrivilegedAction<MemoryClassLoader>) () -> new MemoryClassLoader(loader));
-
+		this.memoryClassLoader = MemoryClassLoader.getInstance(loader);
 		Set<String> classPaths = memoryClassLoader.getClassPaths();
 		List<File> files = new ArrayList<>();
 		for (String classPath : classPaths) {
@@ -66,6 +63,11 @@ public class MemoryCompiler implements Compiler {
 		}
 		this.classPathFiles = files;
 
+	}
+
+	@Nullable
+	public byte[] getClassBytes(String name) {
+		return memoryClassLoader.getMemoryClassBytes(name);
 	}
 
 	public Class<?> compile(String className, String sourceCode) throws ClassNotFoundException {
@@ -77,7 +79,7 @@ public class MemoryCompiler implements Compiler {
 			throw new IllegalStateException(e.getMessage(), e);
 		}
 
-		MemoryJavaFileObject javaFileObject = new MemoryJavaFileObject(className, sourceCode);
+		MemoryStreamableJavaFileObject javaFileObject = new MemoryStreamableJavaFileObject(className, sourceCode);
 		MemoryJavaFileManager javaFileManager = new MemoryJavaFileManager(manager, memoryClassLoader);
 		javaFileManager.putFileForInput(StandardLocation.SOURCE_PATH, className, javaFileObject);
 		JavaCompiler.CompilationTask task = compiler.getTask(null, javaFileManager, diagnostics, options,

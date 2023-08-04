@@ -2,7 +2,7 @@ package io.polaris.core.string;
 
 import io.polaris.core.collection.ObjectArrays;
 import io.polaris.core.collection.PrimitiveArrays;
-import io.polaris.core.lang.Chars;
+import io.polaris.core.lang.primitive.Chars;
 import io.polaris.core.ulid.UlidCreator;
 
 import javax.annotation.Nonnull;

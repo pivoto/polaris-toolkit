@@ -7,7 +7,7 @@ import java.util.function.Supplier;
  * @author Qt
  * @since 1.8
  */
-public abstract class BaseMultiMap<K, V, E extends Collection<V>> implements IMultiMap<K, V, E> {
+public abstract class BaseMultiMap<K, V, E extends Collection<V>> implements MultiMap<K, V, E> {
 	protected final Map<K, E> raw;
 	protected final Supplier<E> supplier;
 

@@ -4,8 +4,8 @@ import io.polaris.core.consts.CharConsts;
 import io.polaris.core.consts.StdConsts;
 import io.polaris.core.consts.SymbolConsts;
 import io.polaris.core.io.IO;
+import io.polaris.core.log.ILogger;
 import lombok.Value;
-import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -19,8 +19,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Qt
  * @since 1.8
  */
-@Slf4j
 public class Shells {
+	private static final ILogger log = ILogger.of(Shells.class);
 
 
 	public static Result executeScriptContent(File workDir, String scriptFileName, String scriptContent) throws IOException {

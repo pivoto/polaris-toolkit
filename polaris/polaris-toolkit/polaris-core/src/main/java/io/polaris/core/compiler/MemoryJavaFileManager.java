@@ -9,7 +9,7 @@ import java.util.*;
  * @author Qt
  * @since 1.8
  */
-public class MemoryJavaFileManager extends ForwardingJavaFileManager<JavaFileManager> {
+class MemoryJavaFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 
 	private final MemoryClassLoader classLoader;
 	private final Map<URI, JavaFileObject> fileObjects = new HashMap<>();
@@ -36,9 +36,9 @@ public class MemoryJavaFileManager extends ForwardingJavaFileManager<JavaFileMan
 
 	@Override
 	public JavaFileObject getJavaFileForOutput(Location location, String qualifiedName, JavaFileObject.Kind kind, FileObject outputFile)
-			throws IOException {
+		throws IOException {
 		URI uri = URI.create(qualifiedName.replace('.', '/') + JavaFileObject.Kind.SOURCE.extension);
-		MemoryJavaFileObject file = new MemoryJavaFileObject(uri, kind);
+		MemoryStreamableJavaFileObject file = new MemoryStreamableJavaFileObject(uri, kind);
 		classLoader.add(qualifiedName, file);
 		return file;
 	}
@@ -59,7 +59,7 @@ public class MemoryJavaFileManager extends ForwardingJavaFileManager<JavaFileMan
 
 	@Override
 	public Iterable<JavaFileObject> list(Location location, String packageName, Set<JavaFileObject.Kind> kinds, boolean recurse)
-			throws IOException {
+		throws IOException {
 		Iterable<JavaFileObject> result = super.list(location, packageName, kinds, recurse);
 		List<JavaFileObject> files = new ArrayList<>();
 		if (location == StandardLocation.CLASS_PATH && kinds.contains(JavaFileObject.Kind.CLASS)) {

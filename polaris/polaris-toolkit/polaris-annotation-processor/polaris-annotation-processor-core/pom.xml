@@ -60,15 +60,19 @@
 					<relocations>
 						<relocation>
 							<pattern>com.squareup.javapoet</pattern>
-							<shadedPattern>com.jcfc.stdk.dependency.com.squareup.javapoet</shadedPattern>
+							<shadedPattern>io.polaris.dependency.com.squareup.javapoet</shadedPattern>
 							<excludes>
 							</excludes>
+						</relocation>
+						<relocation>
+							<pattern>org.objectweb.asm</pattern>
+							<shadedPattern>io.polaris.dependency.org.objectweb.asm</shadedPattern>
 						</relocation>
 					</relocations>
 				</configuration>
 				<executions>
 					<execution>
-						<phase>install</phase>
+						<phase>package</phase>
 						<goals>
 							<goal>shade</goal>
 						</goals>

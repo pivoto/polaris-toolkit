@@ -15,21 +15,31 @@ import java.net.URI;
 public class MemoryJavaFileObject extends SimpleJavaFileObject {
 
 	private final CharSequence source;
-	private ByteArrayOutputStream bout;
+	private final byte[] bytes;
 
-	public MemoryJavaFileObject(final String classFullName, final CharSequence source) {
+	public MemoryJavaFileObject(final String classFullName, final byte[] bytes) {
+		super(URI.create(classFullName.replace('.', '/') + Kind.CLASS.extension), Kind.CLASS);
+		this.source = null;
+		this.bytes = bytes;
+	}
+
+
+	protected MemoryJavaFileObject(final String classFullName, final CharSequence source) {
 		super(URI.create(classFullName.replace('.', '/') + JavaFileObject.Kind.SOURCE.extension), Kind.SOURCE);
 		this.source = source;
+		this.bytes = null;
 	}
 
-	public MemoryJavaFileObject(final URI uri, final CharSequence source) {
+	protected MemoryJavaFileObject(final URI uri, final CharSequence source) {
 		super(uri, Kind.SOURCE);
 		this.source = source;
+		this.bytes = null;
 	}
 
-	public MemoryJavaFileObject(final URI uri, final Kind kind) {
+	protected MemoryJavaFileObject(final URI uri, final Kind kind) {
 		super(uri, kind);
 		this.source = null;
+		this.bytes = null;
 	}
 
 
@@ -43,15 +53,10 @@ public class MemoryJavaFileObject extends SimpleJavaFileObject {
 
 	@Override
 	public InputStream openInputStream() {
-		return new ByteArrayInputStream(getByteCode());
-	}
-
-	@Override
-	public OutputStream openOutputStream() {
-		return bout = new ByteArrayOutputStream();
+		return new ByteArrayInputStream(bytes);
 	}
 
 	public byte[] getByteCode() {
-		return bout == null ? null : bout.toByteArray();
+		return bytes;
 	}
 }

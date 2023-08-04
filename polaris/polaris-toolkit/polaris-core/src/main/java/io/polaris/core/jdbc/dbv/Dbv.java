@@ -3,8 +3,8 @@ package io.polaris.core.jdbc.dbv;
 import io.polaris.core.jdbc.Jdbcs;
 import io.polaris.core.jdbc.RowMapper;
 import io.polaris.core.jdbc.dbv.model.*;
+import io.polaris.core.log.ILogger;
 import io.polaris.core.string.Strings;
-import lombok.extern.slf4j.Slf4j;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -17,8 +17,8 @@ import java.util.List;
  * @author Qt
  * @since 1.8
  */
-@Slf4j
 public class Dbv {
+	private static final ILogger log = ILogger.of(Dbv.class);
 
 	public static <T> List<T> read(ResultSet rs, List<T> list, final Class<? extends T> clazz)
 		throws InstantiationException, IllegalAccessException {

@@ -61,9 +61,7 @@ public class ReferenceMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
 				if (ref instanceof ValueReference) {
 					ValueReference<Reference<K>, V> vr = (ValueReference<Reference<K>, V>) ref;
 					Reference<K> keyRef = vr.key();
-					if (vr == raw.get(keyRef)) {
-						raw.remove(keyRef);
-					}
+					raw.remove(keyRef, vr);
 				}
 			}
 		}

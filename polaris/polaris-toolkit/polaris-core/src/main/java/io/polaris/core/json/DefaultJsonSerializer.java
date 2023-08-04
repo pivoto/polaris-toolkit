@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @since 1.8
  */
 @ServiceDefault
-public class DefaultJsonSerializer implements IJsonSerializer {
+public class DefaultJsonSerializer implements JsonSerializer {
 	@Override
 	public String serialize(Object value) {
 		try {
@@ -105,7 +105,7 @@ public class DefaultJsonSerializer implements IJsonSerializer {
 				return sb.toString();
 			}
 			if (Beans.isBeanClass(value.getClass())) {
-				BeanMap beanMap = Beans.asBeanMap(value);
+				BeanMap<?> beanMap = Beans.asBeanMap(value);
 				sb.append("{");
 				Set<String> keys = beanMap.keySet();
 				Iterator<String> iter = keys.iterator();

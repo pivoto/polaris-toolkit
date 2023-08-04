@@ -55,21 +55,23 @@ public class HexEncoder implements Encoder {
 		return outPos - outOff;
 	}
 
+	@Override
 	public int getEncodedLength(int inputLength) {
 		return inputLength * 2;
 	}
 
+	@Override
 	public int getMaxDecodedLength(int inputLength) {
 		return inputLength / 2;
 	}
 
 	/**
-	 * encode the input data producing a Hex output stream.
+	 * encode the input data producing a HexCodec output stream.
 	 *
 	 * @return the number of bytes produced.
 	 */
-	public int encode(byte[] buf, int off, int len, OutputStream out)
-		throws IOException {
+	@Override
+	public int encode(byte[] buf, int off, int len, OutputStream out) throws IOException {
 		if (len < 0) {
 			return 0;
 		}
@@ -86,23 +88,18 @@ public class HexEncoder implements Encoder {
 		return len * 2;
 	}
 
-	private static boolean ignore(
-		char c) {
+	private static boolean ignore(char c) {
 		return c == '\n' || c == '\r' || c == '\t' || c == ' ';
 	}
 
 	/**
-	 * decode the Hex encoded byte data writing it to the given output stream,
+	 * decode the HexCodec encoded byte data writing it to the given output stream,
 	 * whitespace characters will be ignored.
 	 *
 	 * @return the number of bytes produced.
 	 */
-	public int decode(
-		byte[] data,
-		int off,
-		int length,
-		OutputStream out)
-		throws IOException {
+	@Override
+	public int decode(byte[] data, int off, int length, OutputStream out) throws IOException {
 		byte b1, b2;
 		int outLen = 0;
 		byte[] buf = new byte[36];
@@ -133,7 +130,7 @@ public class HexEncoder implements Encoder {
 			b2 = decodingTable[data[i++]];
 
 			if ((b1 | b2) < 0) {
-				throw new IOException("invalid characters encountered in Hex data");
+				throw new IOException("invalid characters encountered in HexCodec data");
 			}
 
 			buf[bufOff++] = (byte) ((b1 << 4) | b2);
@@ -153,15 +150,13 @@ public class HexEncoder implements Encoder {
 	}
 
 	/**
-	 * decode the Hex encoded String data writing it to the given output stream,
+	 * decode the HexCodec encoded String data writing it to the given output stream,
 	 * whitespace characters will be ignored.
 	 *
 	 * @return the number of bytes produced.
 	 */
-	public int decode(
-		String data,
-		OutputStream out)
-		throws IOException {
+	@Override
+	public int decode(String data, OutputStream out) throws IOException {
 		byte b1, b2;
 		int length = 0;
 		byte[] buf = new byte[36];
@@ -192,7 +187,7 @@ public class HexEncoder implements Encoder {
 			b2 = decodingTable[data.charAt(i++)];
 
 			if ((b1 | b2) < 0) {
-				throw new IOException("invalid characters encountered in Hex string");
+				throw new IOException("invalid characters encountered in HexCodec string");
 			}
 
 			buf[bufOff++] = (byte) ((b1 << 4) | b2);
@@ -233,7 +228,7 @@ public class HexEncoder implements Encoder {
 
 			int n = (b1 << 4) | b2;
 			if (n < 0) {
-				throw new IOException("invalid characters encountered in Hex string");
+				throw new IOException("invalid characters encountered in HexCodec string");
 			}
 
 			result[i] = (byte) n;

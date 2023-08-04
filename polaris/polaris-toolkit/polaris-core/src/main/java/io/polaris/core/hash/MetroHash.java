@@ -1,6 +1,6 @@
 package io.polaris.core.hash;
 
-import io.polaris.core.lang.Bytes;
+import io.polaris.core.lang.primitive.Bytes;
 
 import java.nio.ByteOrder;
 import java.util.Arrays;

@@ -2,12 +2,12 @@ package io.polaris.core.converter;
 
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.consts.SymbolConsts;
-import io.polaris.core.json.IJsonSerializer;
+import io.polaris.core.json.JsonSerializer;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.Types;
+import io.polaris.core.log.ILogger;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.service.StatefulServiceLoader;
-import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
@@ -19,8 +19,8 @@ import java.util.concurrent.LinkedBlockingDeque;
  * @author Qt
  * @since 1.8
  */
-@Slf4j
 public class CollectionConverter<T extends Collection<E>, E> extends AbstractConverter<T> {
+	private static final ILogger log = ILogger.of(CollectionConverter.class);
 	/** 集合类型 */
 	private final JavaType<T> collectionType;
 	/** 集合元素类型 */
@@ -84,7 +84,7 @@ public class CollectionConverter<T extends Collection<E>, E> extends AbstractCon
 			} else if (value instanceof CharSequence) {
 				try {
 					// 扩展json实现，
-					Optional<IJsonSerializer> optional = StatefulServiceLoader.load(IJsonSerializer.class).optionalService();
+					Optional<JsonSerializer> optional = StatefulServiceLoader.load(JsonSerializer.class).optionalService();
 					if (optional.isPresent()) {
 						String json = value.toString();
 						return optional.get().deserialize(json, collectionType.getRawType());

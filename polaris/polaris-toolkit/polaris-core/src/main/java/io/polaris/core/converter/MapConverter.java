@@ -1,6 +1,6 @@
 package io.polaris.core.converter;
 
-import io.polaris.core.json.IJsonSerializer;
+import io.polaris.core.json.JsonSerializer;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.TypeRef;
 import io.polaris.core.lang.Types;
@@ -98,7 +98,7 @@ public class MapConverter<K, V> extends AbstractConverter<Map<K, V>> {
 			}));
 		} else if (value instanceof CharSequence) {
 			// 扩展json实现，
-			Optional<IJsonSerializer> optional = StatefulServiceLoader.load(IJsonSerializer.class).optionalService();
+			Optional<JsonSerializer> optional = StatefulServiceLoader.load(JsonSerializer.class).optionalService();
 			if (optional.isPresent()) {
 				String json = value.toString();
 				return optional.get().deserialize(json, targetType.getRawType());

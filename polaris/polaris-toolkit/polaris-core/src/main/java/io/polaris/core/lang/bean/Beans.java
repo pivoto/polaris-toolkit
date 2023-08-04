@@ -32,22 +32,22 @@ public class Beans {
 		return false;
 	}
 
-	public static <T> BeanMap asBeanMap(T bean
+	public static <T> BeanMap<T> asBeanMap(T bean
 		, Class<?> beanType, BiFunction<Object, Type, Object> converter
 		, Function<String, Object> fallbackGetter
 		, BiConsumer<String, Object> fallbackSetter) {
-		return new BeanMap(bean, beanType, converter, fallbackGetter, fallbackSetter);
+		return new BeanMap<>(bean, beanType, converter, fallbackGetter, fallbackSetter);
 	}
 
-	public static <T> BeanMap asBeanMap(T bean, Class<?> beanType) {
+	public static <T> BeanMap<T> asBeanMap(T bean, Class<?> beanType) {
 		return asBeanMap(bean, beanType, null, null, null);
 	}
 
-	public static <T> BeanMap asBeanMap(T bean) {
+	public static <T> BeanMap<T> asBeanMap(T bean) {
 		return asBeanMap(bean, bean.getClass(), null, null, null);
 	}
 
-	public static <T> BeanMap asBeanMap(T bean, BiFunction<Object, Type, Object> converter) {
+	public static <T> BeanMap<T> asBeanMap(T bean, BiFunction<Object, Type, Object> converter) {
 		return asBeanMap(bean, bean.getClass(), converter, null, null);
 	}
 

@@ -1,6 +1,6 @@
 package io.polaris.core.service;
 
-import lombok.extern.slf4j.Slf4j;
+import io.polaris.core.log.ILogger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -19,8 +19,8 @@ import java.util.function.Function;
  * @author Qt
  * @since 1.8
  */
-@Slf4j
 public class ServiceLoader<S> implements Iterable<Service<S>> {
+	private static final ILogger log = ILogger.of(ServiceLoader.class);
 	public static final String[] PREFIX = {"META-INF/services/"};
 	private final Class<S> type;
 	private final ClassLoader loader;

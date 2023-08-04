@@ -41,7 +41,7 @@ public class Base32 {
 		try {
 			encoder.encode(data, off, length, bOut);
 		} catch (Exception e) {
-			throw new EncoderException("exception encoding base32 string: " + e.getMessage(), e);
+			throw new CodecException("exception encoding base32 string: " + e.getMessage(), e);
 		}
 
 		return bOut.toByteArray();

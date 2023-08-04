@@ -1,7 +1,7 @@
 package io.polaris.core.converter;
 
 import io.polaris.core.collection.Iterables;
-import io.polaris.core.json.IJsonSerializer;
+import io.polaris.core.json.JsonSerializer;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.service.StatefulServiceLoader;
 
@@ -49,7 +49,7 @@ public abstract class AbstractSimpleConverter<T> extends AbstractConverter<T> {
 			return String.valueOf((char) value);
 		}
 		// 扩展json实现，
-		Optional<IJsonSerializer> optional = StatefulServiceLoader.load(IJsonSerializer.class).optionalService();
+		Optional<JsonSerializer> optional = StatefulServiceLoader.load(JsonSerializer.class).optionalService();
 		if (optional.isPresent()) {
 			return optional.get().serialize(value);
 		}

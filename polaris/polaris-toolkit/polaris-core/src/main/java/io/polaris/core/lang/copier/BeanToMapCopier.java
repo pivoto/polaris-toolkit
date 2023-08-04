@@ -3,7 +3,7 @@ package io.polaris.core.lang.copier;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.bean.BeanMap;
 import io.polaris.core.lang.bean.Beans;
-import lombok.extern.slf4j.Slf4j;
+import io.polaris.core.log.ILogger;
 
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -13,8 +13,8 @@ import java.util.Map;
  * @since 1.8
  */
 @SuppressWarnings("rawtypes")
-@Slf4j
 public class BeanToMapCopier<T> extends BaseCopier<T, Map> {
+	private static final ILogger log = ILogger.of(BeanToMapCopier.class);
 
 	/**
 	 * @param source      来源Map
@@ -34,7 +34,7 @@ public class BeanToMapCopier<T> extends BaseCopier<T, Map> {
 			actualEditable = options.getEditable();
 		}
 		try {
-			BeanMap sourceMap = Beans.asBeanMap(source, actualEditable);
+			BeanMap<T> sourceMap = Beans.asBeanMap(source, actualEditable);
 			sourceMap.forEach((name, value) -> {
 				try {
 					name = super.editName(name);

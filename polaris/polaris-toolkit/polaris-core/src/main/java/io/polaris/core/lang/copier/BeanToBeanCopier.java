@@ -1,9 +1,9 @@
 package io.polaris.core.lang.copier;
 
-import io.polaris.core.map.ListMultiMap;
 import io.polaris.core.lang.bean.BeanMap;
 import io.polaris.core.lang.bean.Beans;
-import lombok.extern.slf4j.Slf4j;
+import io.polaris.core.log.ILogger;
+import io.polaris.core.map.ListMultiMap;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
@@ -14,8 +14,8 @@ import java.util.List;
  * @since 1.8
  */
 @SuppressWarnings("rawtypes")
-@Slf4j
 public class BeanToBeanCopier<S, T> extends BaseCopier<S, T> {
+	private static final ILogger log = ILogger.of(BeanToBeanCopier.class);
 
 	/**
 	 * @param source      来源Map
@@ -35,8 +35,8 @@ public class BeanToBeanCopier<S, T> extends BaseCopier<S, T> {
 		}
 
 		try {
-			BeanMap sourceMap = Beans.asBeanMap(source);
-			BeanMap targetMap = Beans.asBeanMap(target, actualEditable);
+			BeanMap<S> sourceMap = Beans.asBeanMap(source);
+			BeanMap<T> targetMap = Beans.asBeanMap(target, actualEditable);
 			final ListMultiMap<String, String> rel;
 			if (options.isIgnoreCase()) {
 				rel = new ListMultiMap<>();

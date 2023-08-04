@@ -3,6 +3,7 @@ package io.polaris.core.compiler;
 
 import io.polaris.core.string.Strings;
 
+import javax.annotation.Nullable;
 import javax.tools.JavaFileObject;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -10,7 +11,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Qt
@@ -20,6 +24,19 @@ public class MemoryClassLoader extends URLClassLoader {
 	private final Map<String, MemoryJavaFileObject> classes = new HashMap<>();
 	private final String classPath;
 	private final Set<String> classPaths = new LinkedHashSet<>();
+
+	private static final class Holder {
+		private static final Map<ClassLoader, MemoryClassLoader> CACHE = new ConcurrentHashMap<>();
+
+		public static MemoryClassLoader get(ClassLoader classLoader) {
+			classLoader = classLoader == null ? Thread.currentThread().getContextClassLoader() : classLoader;
+			return CACHE.computeIfAbsent(classLoader, loader ->
+				AccessController.doPrivileged(
+					(PrivilegedAction<MemoryClassLoader>) () -> new MemoryClassLoader(loader)
+				)
+			);
+		}
+	}
 
 	public MemoryClassLoader() {
 		super(new URL[0], Thread.currentThread().getContextClassLoader());
@@ -31,9 +48,18 @@ public class MemoryClassLoader extends URLClassLoader {
 		this.classPath = parseClassPath();
 	}
 
+	public static MemoryClassLoader getInstance() {
+		return Holder.get(Thread.currentThread().getContextClassLoader());
+	}
+
+	public static MemoryClassLoader getInstance(ClassLoader parentClassLoader) {
+		return Holder.get(parentClassLoader);
+	}
+
 	public Collection<JavaFileObject> files() {
 		return Collections.unmodifiableCollection(classes.values());
 	}
+
 
 	@Override
 	protected Class<?> findClass(final String className) throws ClassNotFoundException {
@@ -51,6 +77,18 @@ public class MemoryClassLoader extends URLClassLoader {
 		}
 	}
 
+	public void addIfAbsent(String className, byte[] classBytes) {
+		classes.putIfAbsent(className, new MemoryJavaFileObject(className, classBytes));
+	}
+
+	public void add(String className, byte[] classBytes) {
+		classes.put(className, new MemoryJavaFileObject(className, classBytes));
+	}
+
+	public void addIfAbsent(final String className, MemoryJavaFileObject file) {
+		classes.putIfAbsent(className, file);
+	}
+
 	public void add(final String className, MemoryJavaFileObject file) {
 		classes.put(className, file);
 	}
@@ -58,6 +96,22 @@ public class MemoryClassLoader extends URLClassLoader {
 	@Override
 	protected synchronized Class<?> loadClass(final String name, final boolean resolve) throws ClassNotFoundException {
 		return super.loadClass(name, resolve);
+	}
+
+
+	@Nullable
+	public byte[] getMemoryClassBytes(String name) {
+		String className = name;
+		if (name.endsWith(JavaFileObject.Kind.CLASS.extension)) {
+			className = name.substring(0, name.length() - JavaFileObject.Kind.CLASS.extension.length())
+				.replace('/', '.');
+
+		}
+		MemoryJavaFileObject file = classes.get(className);
+		if (file == null) {
+			return null;
+		}
+		return file.getByteCode();
 	}
 
 	@Override

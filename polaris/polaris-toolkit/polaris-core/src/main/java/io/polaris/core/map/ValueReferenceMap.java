@@ -49,9 +49,7 @@ public class ValueReferenceMap<K, V> extends AbstractMap<K, V> implements Map<K,
 		while ((ref = queue.poll()) != null) {
 			if (ref instanceof ValueReference) {
 				ValueReference<K, V> vr = (ValueReference<K, V>) ref;
-				if (vr == raw.get(vr.key())) {
-					raw.remove(vr.key());
-				}
+				raw.remove(vr.key(),vr);
 			}
 		}
 	}

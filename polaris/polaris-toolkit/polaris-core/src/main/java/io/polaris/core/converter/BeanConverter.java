@@ -1,7 +1,7 @@
 package io.polaris.core.converter;
 
 import io.polaris.core.io.Serializations;
-import io.polaris.core.json.IJsonSerializer;
+import io.polaris.core.json.JsonSerializer;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.lang.copier.Copiers;
@@ -59,7 +59,7 @@ public class BeanConverter<T> extends AbstractConverter<T> {
 
 		if (value instanceof CharSequence) {
 			// 扩展json实现，
-			Optional<IJsonSerializer> optional = StatefulServiceLoader.load(IJsonSerializer.class).optionalService();
+			Optional<JsonSerializer> optional = StatefulServiceLoader.load(JsonSerializer.class).optionalService();
 			if (optional.isPresent()) {
 				String json = value.toString();
 				return optional.get().deserialize(json, targetType.getRawType());

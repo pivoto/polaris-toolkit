@@ -4,11 +4,11 @@ import io.polaris.core.converter.support.*;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.TypeRef;
 import io.polaris.core.lang.bean.Beans;
+import io.polaris.core.log.ILogger;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.service.Service;
 import io.polaris.core.service.ServiceLoader;
 import io.polaris.core.ulid.Ulid;
-import lombok.extern.slf4j.Slf4j;
 
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
@@ -33,11 +33,11 @@ import java.util.concurrent.atomic.*;
  * @since 1.8
  */
 @SuppressWarnings({"all"})
-@Slf4j
 public enum ConverterRegistry {
 
 	INSTANCE;
 
+	private static final ILogger log = ILogger.of(ConverterRegistry.class);
 	private final Map<Type, Converter<?>> defaultConverters = new ConcurrentHashMap<>();
 	private final Map<Type, Converter<?>> customConverters = new ConcurrentHashMap<>();
 
@@ -199,17 +199,17 @@ public enum ConverterRegistry {
 			type = ((TypeRef<?>) type).getType();
 			return convert(type, valueType, value, defaultValue);
 		}
-		JavaType<Object> sourceType = JavaType.of(valueType);
-		if (!sourceType.isInstance(value)) {
+		JavaType<Object> sourceJavaType = JavaType.of(valueType);
+		if (!sourceJavaType.isInstance(value)) {
 			throw new IllegalArgumentException();
 		}
-		JavaType<T> targetType = JavaType.of(type);
-		if (targetType.getRawType() == sourceType.getRawType()) {
+		JavaType<T> targetJavaType = JavaType.of(type);
+		valueType = sourceJavaType.getRawType();
+		type = targetJavaType.getRawType();
+		if (valueType == type) {
 			return (T) value;
 		}
-		valueType = sourceType.getRawType();
-		type = targetType.getRawType();
-		Class<T> clazz = targetType.getRawClass();
+		Class<T> clazz = targetJavaType.getRawClass();
 		if (type instanceof Class && clazz.isInstance(value)) {
 			return (T) value;
 		}
@@ -221,7 +221,7 @@ public enum ConverterRegistry {
 
 		if (clazz.isEnum()) {
 			// EnumConverter
-			return (T) new EnumConverter(targetType.getRawClass()).convertOrDefault(valueType, value, defaultValue);
+			return (T) new EnumConverter(targetJavaType.getRawClass()).convertOrDefault(valueType, value, defaultValue);
 		}
 		if (Collection.class.isAssignableFrom(clazz)) {
 			// CollectionConverter
@@ -246,8 +246,10 @@ public enum ConverterRegistry {
 		if (type instanceof Class) {
 			return convertByPropertyEditor((Class) type, value, defaultValue);
 		}
-
-		throw new UnsupportedOperationException();
+		if (clazz.isInstance(value)) {
+			return (T) value;
+		}
+		return clazz.cast(value);
 	}
 
 	public <T> T convertQuietly(Type type, Object value) {

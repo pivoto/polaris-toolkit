@@ -3,10 +3,10 @@ package io.polaris.core.converter;
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.consts.SymbolConsts;
 import io.polaris.core.io.Serializations;
-import io.polaris.core.json.IJsonSerializer;
+import io.polaris.core.json.JsonSerializer;
 import io.polaris.core.lang.JavaType;
+import io.polaris.core.log.ILogger;
 import io.polaris.core.service.StatefulServiceLoader;
-import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -21,8 +21,8 @@ import java.util.Optional;
  * @author Qt
  * @since 1.8
  */
-@Slf4j
 public class ArrayConverter<T> extends AbstractConverter<T[]> {
+	private static final ILogger log = ILogger.of(ArrayConverter.class);
 	private final JavaType<T[]> targetType;
 	private final JavaType<T> targetComponentType;
 
@@ -128,7 +128,7 @@ public class ArrayConverter<T> extends AbstractConverter<T[]> {
 			}
 			try {
 				// 扩展json实现，
-				Optional<IJsonSerializer> optional = StatefulServiceLoader.load(IJsonSerializer.class).optionalService();
+				Optional<JsonSerializer> optional = StatefulServiceLoader.load(JsonSerializer.class).optionalService();
 				if (optional.isPresent()) {
 					String json = value.toString();
 					return optional.get().deserialize(json, targetType.getRawType());

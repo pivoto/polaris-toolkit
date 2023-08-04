@@ -1,5 +1,6 @@
 package io.polaris.core.lang;
 
+import io.polaris.core.annotation.Experimental;
 import io.polaris.core.string.Strings;
 
 import java.math.BigDecimal;
@@ -10,7 +11,8 @@ import java.util.Stack;
  * @author Qt
  * @since 1.8
  */
-public class Calculator {
+@Experimental
+class Calculator {
 	private final Stack<String> postfixStack = new Stack<>();// 后缀式栈
 	private final int[] operatPriority = new int[]{0, 3, 2, 1, -1, 1, 0, 2};// 运用运算符ASCII码-40做索引的运算符优先级
 
@@ -124,11 +126,11 @@ public class Calculator {
 	 */
 	private boolean compare(char cur, char peek) {// 如果是peek优先级高于cur，返回true，默认都是peek优先级要低
 		final int offset = 40;
-		if(cur  == '%'){
+		if (cur == '%') {
 			// %优先级最高
 			cur = 47;
 		}
-		if(peek  == '%'){
+		if (peek == '%') {
 			// %优先级最高
 			peek = 47;
 		}
@@ -176,7 +178,7 @@ public class Calculator {
 	 */
 	private static String transform(String expression) {
 		expression = Strings.cleanBlank(expression);
-		expression = expression.endsWith("=")?expression.substring(0, expression.length()-1):expression;
+		expression = expression.endsWith("=") ? expression.substring(0, expression.length() - 1) : expression;
 		final char[] arr = expression.toCharArray();
 		for (int i = 0; i < arr.length; i++) {
 			if (arr[i] == '-') {

@@ -18,7 +18,7 @@ import java.math.BigInteger;
  * @author Qt
  * @since 1.8
  */
-public class TestJsonSerializer implements IJsonSerializer {
+public class TestJsonSerializer implements JsonSerializer {
 	private static final ObjectMapper MAPPER = buildObjectMapper();
 
 	public static ObjectMapper defaultObjectMapper() {

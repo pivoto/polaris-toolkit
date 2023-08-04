@@ -1,7 +1,7 @@
 package io.polaris.core.hash;
 
 
-import io.polaris.core.lang.Bytes;
+import io.polaris.core.lang.primitive.Bytes;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
