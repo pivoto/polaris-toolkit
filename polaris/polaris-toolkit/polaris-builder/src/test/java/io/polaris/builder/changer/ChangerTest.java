@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
-class ChangerRunnerTest {
+class ChangerTest {
 
 	@Test
 	void doChange() throws DocumentException, IOException, NoSuchAlgorithmException {
