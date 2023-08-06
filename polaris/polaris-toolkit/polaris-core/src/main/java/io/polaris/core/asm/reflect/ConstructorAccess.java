@@ -16,7 +16,6 @@ import static org.objectweb.asm.Opcodes.*;
 public abstract class ConstructorAccess<T> {
 	/** 是否非静态成员内部类 */
 	private boolean isNonStaticMemberClass;
-
 	/**
 	 * 是否非静态成员内部类
 	 */
@@ -39,11 +38,7 @@ public abstract class ConstructorAccess<T> {
 
 		boolean isNonStaticMemberClass = enclosingType != null && type.isMemberClass() && !Modifier.isStatic(type.getModifiers());
 
-		String className = type.getName();
-		String accessClassName = className + "ConstructorAccess";
-		if (accessClassName.startsWith("java.")) {
-			accessClassName = "javax." + accessClassName.substring(5);
-		}
+		String accessClassName = AccessClassLoader.buildAccessClassName(type, ConstructorAccess.class);
 
 		Class accessClass;
 		AccessClassLoader loader = AccessClassLoader.get(type);
@@ -51,7 +46,7 @@ public abstract class ConstructorAccess<T> {
 			accessClass = loader.loadAccessClass(accessClassName);
 			if (accessClass == null) {
 				String accessClassNameInternal = accessClassName.replace('.', '/');
-				String classNameInternal = className.replace('.', '/');
+				String classNameInternal = type.getName().replace('.', '/');
 				String enclosingClassNameInternal;
 				Constructor<T> constructor = null;
 				int modifiers = 0;
@@ -84,7 +79,7 @@ public abstract class ConstructorAccess<T> {
 					: ConstructorAccess.class.getName().replace('.', '/');
 
 				ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-				cw.visit(V1_1, ACC_PUBLIC + ACC_SUPER, accessClassNameInternal, null, superclassNameInternal, null);
+				cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, accessClassNameInternal, null, superclassNameInternal, null);
 
 				insertConstructor(cw, superclassNameInternal);
 				insertNewInstance(cw, classNameInternal);
@@ -156,4 +151,5 @@ public abstract class ConstructorAccess<T> {
 		}
 		mv.visitEnd();
 	}
+
 }

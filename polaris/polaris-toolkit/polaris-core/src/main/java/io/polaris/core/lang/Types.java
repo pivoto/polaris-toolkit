@@ -56,7 +56,7 @@ public class Types {
 	/**
 	 * 获取包装类型
 	 */
-	public static Class getWrapperClass(Class type) {
+	public static Class<?> getWrapperClass(Class<?> type) {
 		if (!type.isPrimitive()) {
 			return type;
 		}
@@ -380,4 +380,39 @@ public class Types {
 		}
 		return isFunction(interfaces[0]);
 	}
+
+	public static boolean isEquals(Class<?>[] definedTypes, Class<?>[] checkedTypes) {
+		if (definedTypes.length != checkedTypes.length) {
+			return false;
+		}
+		for (int i = 0; i < definedTypes.length; i++) {
+			if (definedTypes[i] != checkedTypes[i]) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public static boolean isAssignable(Class<?> definedType, Class<?> checkedType) {
+		if (definedType.isPrimitive()) {
+			return definedType == getPrimitiveClassByWrapper(checkedType);
+		} else if (checkedType.isPrimitive()) {
+			return getPrimitiveClassByWrapper(definedType) == checkedType;
+		} else {
+			return definedType.isAssignableFrom(checkedType);
+		}
+	}
+
+	public static boolean isAssignable(Class<?>[] definedTypes, Class<?>[] checkedTypes) {
+		if (definedTypes.length != checkedTypes.length) {
+			return false;
+		}
+		for (int i = 0; i < definedTypes.length; i++) {
+			if (!isAssignable(definedTypes[i], checkedTypes[i])) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 }

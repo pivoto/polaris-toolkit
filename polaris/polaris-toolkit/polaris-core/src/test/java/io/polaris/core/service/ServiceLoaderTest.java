@@ -1,12 +1,12 @@
 package io.polaris.core.service;
 
-import lombok.extern.slf4j.Slf4j;
+import io.polaris.core.log.ILogger;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-@Slf4j
 class ServiceLoaderTest {
+	private static final ILogger log = ILogger.of(ServiceLoaderTest.class);
 
 	@Test
 	void test01() {

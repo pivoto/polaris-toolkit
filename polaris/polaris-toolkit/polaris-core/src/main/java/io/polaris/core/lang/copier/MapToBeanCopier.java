@@ -35,7 +35,7 @@ public class MapToBeanCopier<T> extends BaseCopier<Map, T> {
 			actualEditable = options.getEditable();
 		}
 		try {
-			BeanMap<T> targetMap = Beans.asBeanMap(target, actualEditable);
+			BeanMap<T> targetMap = Beans.newBeanMap(target, actualEditable);
 			final ListMultiMap<String, String> rel;
 			if (options.isIgnoreCase()) {
 				rel = new ListMultiMap<>();

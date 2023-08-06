@@ -65,7 +65,7 @@ public class Validations {
 
 	public static <A extends Annotation, T> List<Class<? extends ConstraintValidator<A, ?>>> getConstraintValidator(Class<A> annotationType, Class<T> type) {
 
-		type = Types.getWrapperClass(type);
+		type = (Class<T>) Types.getWrapperClass(type);
 
 		List<ConstraintValidatorDescriptor<A>> list =
 			ConstraintHelper.forAllBuiltinConstraints().getAllValidatorDescriptors(annotationType);
@@ -83,7 +83,7 @@ public class Validations {
 
 	public static <A extends Annotation, T> Class<? extends ConstraintValidator<A, ?>> getFirstConstraintValidator(Class<A> annotationType, Class<T> type) {
 
-		type = Types.getWrapperClass(type);
+		type = (Class<T>) Types.getWrapperClass(type);
 
 		List<ConstraintValidatorDescriptor<A>> list =
 			ConstraintHelper.forAllBuiltinConstraints().getAllValidatorDescriptors(annotationType);

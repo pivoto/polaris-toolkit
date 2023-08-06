@@ -136,11 +136,7 @@ public abstract class FieldAccess {
 			fieldTypes[i] = fields.get(i).getType();
 		}
 
-		String className = type.getName();
-		String accessClassName = className + "FieldAccess";
-		if (accessClassName.startsWith("java.")) {
-			accessClassName = "javax." + accessClassName.substring(5);
-		}
+		String accessClassName = AccessClassLoader.buildAccessClassName(type, FieldAccess.class);
 
 		Class accessClass;
 		AccessClassLoader loader = AccessClassLoader.get(type);
@@ -148,10 +144,10 @@ public abstract class FieldAccess {
 			accessClass = loader.loadAccessClass(accessClassName);
 			if (accessClass == null) {
 				String accessClassNameInternal = accessClassName.replace('.', '/');
-				String classNameInternal = className.replace('.', '/');
+				String classNameInternal = type.getName().replace('.', '/');
 
 				ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-				cw.visit(V1_1, ACC_PUBLIC + ACC_SUPER, accessClassNameInternal, null,
+				cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, accessClassNameInternal, null,
 					FieldAccess.class.getName().replace('.', '/'),
 					null);
 				insertConstructor(cw);
@@ -185,7 +181,7 @@ public abstract class FieldAccess {
 			access.fields = fields.toArray(new Field[fields.size()]);
 			return access;
 		} catch (Throwable t) {
-			throw new RuntimeException("创建访问类失败: " + accessClassName, t);
+			throw new IllegalStateException("创建访问类失败: " + accessClassName, t);
 		}
 	}
 

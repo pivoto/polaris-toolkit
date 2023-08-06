@@ -1,7 +1,12 @@
 package io.polaris.core.lang;
 
+import io.polaris.core.asm.AsmTypeSignatures;
+import io.polaris.core.compiler.MemoryClassLoader;
 import io.polaris.core.compiler.MemoryCompiler;
+import io.polaris.core.log.ILogger;
 import com.squareup.javapoet.*;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
 
 import javax.lang.model.element.Modifier;
 import java.io.StringWriter;
@@ -10,11 +15,14 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static org.objectweb.asm.Opcodes.*;
+
 /**
  * @author Qt
  * @since 1.8
  */
 public class TypeRefs {
+	private static final ILogger log = ILogger.of(TypeRefs.class);
 	private static final AtomicLong seq = new AtomicLong(0);
 	private static final Map<String, Type> refs = new ConcurrentHashMap<>();
 
@@ -210,10 +218,26 @@ public class TypeRefs {
 		return refs.computeIfAbsent(typeName.toString(), s -> createType(typeName));
 	}
 
-	private static Type createType(TypeName typeName) {
+	static Type createType(TypeName typeName) {
+		String packageName = TypeRef.class.getPackage().getName();
+		String simpleName = TypeRef.class.getSimpleName() + "$$" + seq.incrementAndGet();
+		TypeRef<?> ref = null;
 		try {
-			String packageName = TypeRef.class.getPackage().getName();
-			String simpleName = TypeRef.class.getSimpleName() + "$$" + seq.incrementAndGet();
+			ref = createTypeRefByAsm(typeName, packageName, simpleName);
+		} catch (Exception e) {
+			log.error("", e);
+			try {
+				ref = createTypeRefByJdk(typeName, packageName, simpleName);
+			} catch (Exception ex) {
+				e.addSuppressed(ex);
+				throw e;
+			}
+		}
+		return ref.getType();
+	}
+
+	static TypeRef<?> createTypeRefByJdk(TypeName typeName, String packageName, String simpleName) {
+		try {
 			JavaFile javaFile = JavaFile.builder(packageName,
 				TypeSpec.classBuilder(simpleName)
 					.addModifiers(Modifier.PUBLIC)
@@ -223,8 +247,35 @@ public class TypeRefs {
 			javaFile.writeTo(sw);
 			MemoryCompiler memoryCompiler = MemoryCompiler.getInstance();
 			Class<?> c = memoryCompiler.compile(packageName + "." + simpleName, sw.toString());
-			TypeRef ref = (TypeRef) c.newInstance();
-			return ref.getType();
+			TypeRef<?> ref = (TypeRef<?>) c.newInstance();
+			return ref;
+		} catch (Exception e) {
+			throw new IllegalStateException(e.getMessage(), e);
+		}
+	}
+
+	static TypeRef<?> createTypeRefByAsm(TypeName typeName, String packageName, String simpleName) {
+		try {
+			String typeRefClassName = TypeRef.class.getName().replace('.', '/');
+			ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+			classWriter.visit(V1_8, ACC_PUBLIC + ACC_SUPER, packageName.replace('.', '/') + "/" + simpleName,
+				"L" + typeRefClassName + "<" + AsmTypeSignatures.toAsmTypeSignature(typeName) + ">;", typeRefClassName,
+				null);
+			{
+				MethodVisitor methodVisitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+				methodVisitor.visitCode();
+				methodVisitor.visitVarInsn(ALOAD, 0);
+				methodVisitor.visitMethodInsn(INVOKESPECIAL, typeRefClassName, "<init>", "()V", false);
+				methodVisitor.visitInsn(RETURN);
+				methodVisitor.visitMaxs(1, 1);
+				methodVisitor.visitEnd();
+			}
+			classWriter.visitEnd();
+			byte[] byteArray = classWriter.toByteArray();
+			MemoryClassLoader loader = MemoryClassLoader.getInstance();
+			loader.add(packageName + "." + simpleName, byteArray);
+			Class<?> c = loader.loadClass(packageName + "." + simpleName);
+			return (TypeRef<?>) c.newInstance();
 		} catch (Exception e) {
 			throw new IllegalStateException(e.getMessage(), e);
 		}

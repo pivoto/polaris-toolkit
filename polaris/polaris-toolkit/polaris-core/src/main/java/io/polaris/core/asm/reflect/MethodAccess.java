@@ -81,10 +81,10 @@ public abstract class MethodAccess {
 	 *
 	 * @param type Must not be a primitive type, or void.
 	 */
-	static public MethodAccess get(Class type) {
+	public static MethodAccess get(Class type) {
 		boolean isInterface = type.isInterface();
 		if (!isInterface && type.getSuperclass() == null && type != Object.class) {
-			throw new IllegalArgumentException("The type must not be an interface, a primitive type, or void.");
+			throw new IllegalArgumentException("不支持基本数据类型或void类型");
 		}
 
 		ArrayList<Method> methods = new ArrayList<Method>();
@@ -109,11 +109,7 @@ public abstract class MethodAccess {
 			returnTypes[i] = method.getReturnType();
 		}
 
-		String className = type.getName();
-		String accessClassName = className + "MethodAccess";
-		if (accessClassName.startsWith("java.")) {
-			accessClassName = "javax." + accessClassName.substring(5);
-		}
+		String accessClassName = AccessClassLoader.buildAccessClassName(type, MethodAccess.class);
 
 		Class accessClass;
 		AccessClassLoader loader = AccessClassLoader.get(type);
@@ -121,11 +117,11 @@ public abstract class MethodAccess {
 			accessClass = loader.loadAccessClass(accessClassName);
 			if (accessClass == null) {
 				String accessClassNameInternal = accessClassName.replace('.', '/');
-				String classNameInternal = className.replace('.', '/');
+				String classNameInternal = type.getName().replace('.', '/');
 
 				ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
 				MethodVisitor mv;
-				cw.visit(V1_1, ACC_PUBLIC + ACC_SUPER, accessClassNameInternal, null,
+				cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, accessClassNameInternal, null,
 					MethodAccess.class.getName().replace('.', '/'),
 					null);
 				{
@@ -292,11 +288,11 @@ public abstract class MethodAccess {
 			access.returnTypes = returnTypes;
 			return access;
 		} catch (Throwable t) {
-			throw new RuntimeException("Error constructing method access class: " + accessClassName, t);
+			throw new IllegalStateException("Error constructing method access class: " + accessClassName, t);
 		}
 	}
 
-	static private void addDeclaredMethodsToList(Class type, ArrayList<Method> methods) {
+	private static void addDeclaredMethodsToList(Class type, ArrayList<Method> methods) {
 		Method[] declaredMethods = type.getDeclaredMethods();
 		for (int i = 0, n = declaredMethods.length; i < n; i++) {
 			Method method = declaredMethods[i];
@@ -309,7 +305,7 @@ public abstract class MethodAccess {
 		}
 	}
 
-	static private void recursiveAddInterfaceMethodsToList(Class interfaceType, ArrayList<Method> methods) {
+	private static void recursiveAddInterfaceMethodsToList(Class interfaceType, ArrayList<Method> methods) {
 		addDeclaredMethodsToList(interfaceType, methods);
 		for (Class nextInterface : interfaceType.getInterfaces()) {
 			recursiveAddInterfaceMethodsToList(nextInterface, methods);

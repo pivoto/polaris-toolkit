@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2016-9-7 alex
- */
-
 package io.polaris.validation.validator;
 
 import io.polaris.validation.Regexp;

@@ -1,5 +1,6 @@
 package io.polaris.core.service.impl;
 
+import io.polaris.core.log.ILogger;
 import io.polaris.core.service.ITestService;
 import io.polaris.core.service.ServiceDefault;
 import io.polaris.core.service.ServiceProperty;
@@ -9,10 +10,10 @@ import lombok.extern.slf4j.Slf4j;
  * @author Qt
  * @since 1.8
  */
-@Slf4j
 @ServiceDefault(-100)
 @ServiceProperty(name = "key", value = "test9")
 public class Test9Service implements ITestService {
+	private static final ILogger log = ILogger.of(Test9Service.class);
 
 	private ITestService service;
 

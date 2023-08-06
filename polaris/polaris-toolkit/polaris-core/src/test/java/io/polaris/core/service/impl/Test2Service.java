@@ -1,5 +1,6 @@
 package io.polaris.core.service.impl;
 
+import io.polaris.core.log.ILogger;
 import io.polaris.core.service.ITestService;
 import io.polaris.core.service.ServiceProperty;
 import lombok.extern.slf4j.Slf4j;
@@ -8,9 +9,9 @@ import lombok.extern.slf4j.Slf4j;
  * @author Qt
  * @since 1.8
  */
-@Slf4j
 @ServiceProperty(name = "key", value = "test2")
 public class Test2Service implements ITestService {
+	private static final ILogger log = ILogger.of(ITestService.class);
 	@Override
 	public void call() {
 		log.info("called in {}", this.getClass().getName());

@@ -2,6 +2,7 @@ package io.polaris.core.datacarrier;
 
 import io.polaris.core.datacarrier.consumer.BulkConsumeDriver;
 import io.polaris.core.datacarrier.consumer.IConsumer;
+import io.polaris.core.log.ILogger;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
@@ -9,8 +10,8 @@ import org.junit.Test;
  * @author Qt
  * @since 1.8
  */
-@Slf4j
 public class DataCarrierTest {
+	private static final ILogger log = ILogger.of(DataCarrierTest.class);
 
 	@Test
 	public void testBlockingProduce() throws IllegalAccessException {

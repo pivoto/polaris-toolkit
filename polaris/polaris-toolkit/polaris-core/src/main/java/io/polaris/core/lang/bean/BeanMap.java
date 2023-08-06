@@ -2,6 +2,7 @@ package io.polaris.core.lang.bean;
 
 import io.polaris.core.converter.ConverterRegistry;
 import io.polaris.core.lang.Objs;
+import io.polaris.core.log.ILogger;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -19,7 +20,7 @@ import java.util.function.Function;
  * @since 1.8
  */
 public class BeanMap<T> extends AbstractMap<String, Object> implements Map<String, Object> {
-
+	private static final ILogger log = ILogger.of(BeanMap.class);
 	protected final Map<String, Function<Object, Object>> getters;
 	protected final Map<String, BiConsumer<Object, Object>> setters;
 	protected final Map<String, Type> types;
@@ -29,34 +30,36 @@ public class BeanMap<T> extends AbstractMap<String, Object> implements Map<Strin
 	protected final BiFunction<Object, Type, Object> converter;
 	protected final Function<String, Object> fallbackGetter;
 	protected final BiConsumer<String, Object> fallbackSetter;
+	protected final boolean ignoreUnknownKeys;
 
 	public BeanMap(T bean) {
-		this(bean, null, false, null, null, null);
+		this(bean, null, null, null, null, true, false);
 	}
 
 	public BeanMap(T bean
 		, BiFunction<Object, Type, Object> converter
 		, Function<String, Object> fallbackGetter
 		, BiConsumer<String, Object> fallbackSetter) {
-		this(bean, null, true, converter, fallbackGetter, fallbackSetter);
+		this(bean, null, converter, fallbackGetter, fallbackSetter, true, true);
 	}
 
 	public BeanMap(T bean, Class<?> beanType
 		, BiFunction<Object, Type, Object> converter
 		, Function<String, Object> fallbackGetter
 		, BiConsumer<String, Object> fallbackSetter) {
-		this(bean, beanType, true, converter, fallbackGetter, fallbackSetter);
+		this(bean, beanType, converter, fallbackGetter, fallbackSetter, true, true);
 	}
 
-	public BeanMap(T bean, Class<?> beanType, boolean compilable
+	public BeanMap(T bean, Class<?> beanType
 		, BiFunction<Object, Type, Object> converter
-		, Function<String, Object> fallbackGetter
-		, BiConsumer<String, Object> fallbackSetter) {
+		, Function<String, Object> fallbackGetter, BiConsumer<String, Object> fallbackSetter
+		, boolean ignoreUnknownKeys, boolean compilable) {
 		beanType = beanType != null ? beanType : bean.getClass();
 		converter = converter != null ? converter : (o, t) -> ConverterRegistry.INSTANCE.convert(t, o);
 		this.bean = bean;
 		this.beanType = beanType;
 		this.compilable = compilable;
+		this.ignoreUnknownKeys = ignoreUnknownKeys;
 		this.converter = converter;
 		this.fallbackGetter = fallbackGetter;
 		this.fallbackSetter = fallbackSetter;
@@ -152,6 +155,12 @@ public class BeanMap<T> extends AbstractMap<String, Object> implements Map<Strin
 		} else {
 			if (fallbackSetter != null) {
 				fallbackSetter.accept(key, value);
+			} else {
+				if (!ignoreUnknownKeys) {
+					throw new IllegalArgumentException("未知属性：" + key);
+				} else {
+					log.warn("未知属性：{}.{}", bean.getClass().getCanonicalName(), key);
+				}
 			}
 		}
 		return old;
@@ -160,7 +169,7 @@ public class BeanMap<T> extends AbstractMap<String, Object> implements Map<Strin
 
 	@Override
 	public void putAll(Map<? extends String, ?> m) {
-		m.forEach((k, v) -> put(k, v));
+		m.forEach(this::put);
 	}
 
 

@@ -1,6 +1,8 @@
 package io.polaris.core.compiler;
 
 
+import io.polaris.core.io.IO;
+import io.polaris.core.log.ILogger;
 import io.polaris.core.string.Strings;
 
 import javax.annotation.Nullable;
@@ -21,7 +23,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 1.8
  */
 public class MemoryClassLoader extends URLClassLoader {
-	private final Map<String, MemoryJavaFileObject> classes = new HashMap<>();
+	private static final ILogger log = ILogger.of(MemoryClassLoader.class);
+//	private static final String memoryClassBytesCacheDir = System.getProperty("java.memory.bytecode.tmpdir");
+	private final Map<String, MemoryJavaFileObject> classes = new ConcurrentHashMap<>();
 	private final String classPath;
 	private final Set<String> classPaths = new LinkedHashSet<>();
 
@@ -60,6 +64,21 @@ public class MemoryClassLoader extends URLClassLoader {
 		return Collections.unmodifiableCollection(classes.values());
 	}
 
+//	public static void writeMemoryClassBytesCacheFile(String className, byte[] bytes) {
+//		if (Strings.isNotBlank(memoryClassBytesCacheDir)) {
+//			try {
+//				File file = new File(memoryClassBytesCacheDir + "/" + className.replace('.', '/') + ".class");
+//				log.debug("缓存动态生成类的字节码：{}", file.getAbsolutePath());
+//				File dir = file.getParentFile();
+//				if (!dir.exists()) {
+//					dir.mkdirs();
+//				}
+//				IO.writeBytes(file, bytes);
+//			} catch (Throwable e) {
+//				log.error("", e);
+//			}
+//		}
+//	}
 
 	@Override
 	protected Class<?> findClass(final String className) throws ClassNotFoundException {
@@ -79,18 +98,28 @@ public class MemoryClassLoader extends URLClassLoader {
 
 	public void addIfAbsent(String className, byte[] classBytes) {
 		classes.putIfAbsent(className, new MemoryJavaFileObject(className, classBytes));
+//		MemoryJavaFileObject old = classes.putIfAbsent(className, new MemoryJavaFileObject(className, classBytes));
+//		if (old == null) {
+//			writeMemoryClassBytesCacheFile(className, classBytes);
+//		}
 	}
 
 	public void add(String className, byte[] classBytes) {
 		classes.put(className, new MemoryJavaFileObject(className, classBytes));
+//		writeMemoryClassBytesCacheFile(className, classBytes);
 	}
 
 	public void addIfAbsent(final String className, MemoryJavaFileObject file) {
 		classes.putIfAbsent(className, file);
+//		MemoryJavaFileObject old = classes.putIfAbsent(className, file);
+//		if (old == null) {
+//			writeMemoryClassBytesCacheFile(className, file.getByteCode());
+//		}
 	}
 
 	public void add(final String className, MemoryJavaFileObject file) {
 		classes.put(className, file);
+//		writeMemoryClassBytesCacheFile(className, file.getByteCode());
 	}
 
 	@Override

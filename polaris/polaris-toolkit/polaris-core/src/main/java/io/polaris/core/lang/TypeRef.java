@@ -4,6 +4,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 /**
+ * @param <T> 泛型参数，构造器中依赖泛型参数获取子类泛型变量的实参
  * @author Qt
  * @since 1.8
  */

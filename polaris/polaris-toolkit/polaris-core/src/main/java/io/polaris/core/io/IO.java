@@ -249,6 +249,7 @@ public class IO {
 		FileInputStream in = null;
 		FileOutputStream out = null;
 		try {
+			mkdirParent(dest);
 			in = new FileInputStream(src);
 			out = new FileOutputStream(dest);
 			int i = copy(in, out);
@@ -260,7 +261,22 @@ public class IO {
 		}
 	}
 
+
+	public static void writeBytes(File file, byte[] bytes) throws IOException {
+		mkdirParent(file);
+		try (BufferedOutputStream out = IO.getOutputStream(file);) {
+			out.write(bytes);
+		}
+	}
+
+	public static void writeBytes(OutputStream out, byte[]... bytesArray) throws IOException {
+		for (byte[] bytes : bytesArray) {
+			out.write(bytes);
+		}
+	}
+
 	public static void writeString(File file, Charset charset, String content) throws IOException {
+		mkdirParent(file);
 		try (BufferedOutputStream out = IO.getOutputStream(file);) {
 			out.write(content.getBytes(charset));
 		}
@@ -272,5 +288,18 @@ public class IO {
 			writer.write(content);
 		}
 		writer.flush();
+	}
+
+	public static void mkdir(File dir) {
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
+	}
+
+	public static void mkdirParent(File file) {
+		File dir = file.getParentFile();
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
 	}
 }

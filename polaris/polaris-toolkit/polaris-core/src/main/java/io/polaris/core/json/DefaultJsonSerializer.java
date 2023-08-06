@@ -105,7 +105,7 @@ public class DefaultJsonSerializer implements JsonSerializer {
 				return sb.toString();
 			}
 			if (Beans.isBeanClass(value.getClass())) {
-				BeanMap<?> beanMap = Beans.asBeanMap(value);
+				BeanMap<?> beanMap = Beans.newBeanMap(value);
 				sb.append("{");
 				Set<String> keys = beanMap.keySet();
 				Iterator<String> iter = keys.iterator();

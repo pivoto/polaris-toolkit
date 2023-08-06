@@ -1,15 +1,13 @@
 package io.polaris.core.asm.reflect;
 
+import io.polaris.core.compiler.MemoryClassLoader;
 import io.polaris.core.map.Maps;
-import io.polaris.core.map.SoftHashMap;
 
-import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -17,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @see <a href="https://github.com/EsotericSoftware/reflectasm">https://github.com/EsotericSoftware/reflectasm</a>
  * @since 1.8,  Aug 04, 2023
  */
+@SuppressWarnings("all")
 class AccessClassLoader extends ClassLoader {
 	private static final Map<ClassLoader, AccessClassLoader> accessClassLoaders = Maps.newSoftMap(new ConcurrentHashMap<>());
 	// Fast-path for classes loaded in the same ClassLoader as this class.
@@ -25,10 +24,21 @@ class AccessClassLoader extends ClassLoader {
 	private static volatile Method defineClassMethod;
 
 	private final Set<String> localClassNames = Collections.newSetFromMap(new ConcurrentHashMap<>());
+	private static final Map<String, Class<?>> baseClasses = new ConcurrentHashMap<>();
+
+	static {
+		registerBaseClass(ReflectiveAccess.class
+			, MethodAccess.class
+			, ConstructorAccess.class
+			, PublicConstructorAccess.class
+			, FieldAccess.class
+		);
+	}
 
 	private AccessClassLoader(ClassLoader parent) {
 		super(parent);
 	}
+
 
 	/** Returns null if the access class has not yet been defined. */
 	Class loadAccessClass(String name) {
@@ -50,17 +60,9 @@ class AccessClassLoader extends ClassLoader {
 
 	protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
 		// These classes come from the classloader that loaded AccessClassLoader.
-		if (name.equals(FieldAccess.class.getName())) {
-			return FieldAccess.class;
-		}
-		if (name.equals(MethodAccess.class.getName())) {
-			return MethodAccess.class;
-		}
-		if (name.equals(ConstructorAccess.class.getName())) {
-			return ConstructorAccess.class;
-		}
-		if (name.equals(PublicConstructorAccess.class.getName())) {
-			return PublicConstructorAccess.class;
+		Class<?> c = baseClasses.get(name);
+		if (c != null) {
+			return c;
 		}
 		// All other classes come from the classloader that loaded the type we are accessing.
 		return super.loadClass(name, resolve);
@@ -78,7 +80,7 @@ class AccessClassLoader extends ClassLoader {
 	}
 
 
-	static boolean areInSameRuntimeClassLoader(Class type1, Class type2) {
+	public static boolean areInSameRuntimeClassLoader(Class type1, Class type2) {
 		if (type1.getPackage() != type2.getPackage()) {
 			return false;
 		}
@@ -94,13 +96,29 @@ class AccessClassLoader extends ClassLoader {
 		return loader1 == loader2;
 	}
 
-	private	static  ClassLoader getParentClassLoader(Class type) {
+	static void registerBaseClass(Class<?>... classes) {
+		for (Class<?> c : classes) {
+			baseClasses.put(c.getName(), c);
+		}
+	}
+
+	static String buildAccessClassName(Class<?> type, Class<?> baseAccessClass) {
+		String className = type.getName();
+		String accessClassName = className + "$$" + baseAccessClass.getSimpleName() + "$";
+		if (accessClassName.startsWith("java.")) {
+			accessClassName = "javax." + accessClassName.substring(5);
+		}
+		return accessClassName;
+	}
+
+	private static ClassLoader getParentClassLoader(Class type) {
 		ClassLoader parent = type.getClassLoader();
 		if (parent == null) {
 			parent = ClassLoader.getSystemClassLoader();
 		}
 		return parent;
 	}
+
 
 	private static Method getDefineClassMethod() throws Exception {
 		if (defineClassMethod == null) {
@@ -132,7 +150,7 @@ class AccessClassLoader extends ClassLoader {
 			return selfContextAccessClassLoader;
 		}
 		// 2. normal search:
-		return accessClassLoaders.computeIfAbsent(parent, k-> new AccessClassLoader(parent));
+		return accessClassLoaders.computeIfAbsent(parent, k -> new AccessClassLoader(parent));
 	}
 
 

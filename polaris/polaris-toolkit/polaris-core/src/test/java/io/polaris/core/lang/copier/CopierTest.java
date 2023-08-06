@@ -1,4 +1,4 @@
-package io.polaris.core.object;
+package io.polaris.core.lang.copier;
 
 import io.polaris.core.lang.copier.Copiers;
 import io.polaris.core.lang.copier.CopyOptions;

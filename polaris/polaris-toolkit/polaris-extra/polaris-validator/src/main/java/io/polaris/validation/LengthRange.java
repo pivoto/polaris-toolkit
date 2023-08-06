@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2016-9-8 alex
- */
-
 package io.polaris.validation;
 
 import io.polaris.validation.validator.LengthRangeValidator;
