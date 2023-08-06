@@ -25,6 +25,7 @@
 	<properties>
 		<revision>2.0.3-SNAPSHOT</revision>
 		<maven.compiler.verbose>false</maven.compiler.verbose>
+		<maven.compiler.useIncrementalCompilation>false</maven.compiler.useIncrementalCompilation>
 		<dependency.bytebuddy.version>1.12.23</dependency.bytebuddy.version>
 		<dependency.asm.version>9.4</dependency.asm.version>
 		<dependency.javassist.version>3.29.2-GA</dependency.javassist.version>

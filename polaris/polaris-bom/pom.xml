@@ -51,6 +51,7 @@
 		<maven.compiler.fork>false</maven.compiler.fork>
 		<maven.compiler.verbose>false</maven.compiler.verbose>
 		<maven.compiler.failOnWarning>false</maven.compiler.failOnWarning>
+		<maven.compiler.useIncrementalCompilation>false</maven.compiler.useIncrementalCompilation>
 		<assembly.appendAssemblyId>true</assembly.appendAssemblyId>
 		<assembly.skipAssembly>false</assembly.skipAssembly>
 
@@ -58,7 +59,7 @@
 		<maven.tomcat.version>2.2</maven.tomcat.version>
 
 		<maven.lombok.version>1.18.20</maven.lombok.version>
-		<maven.groovy.version>2.5.14</maven.groovy.version>
+		<maven.groovy.version>2.5.22</maven.groovy.version>
 
 		<dependency.polaris.version>${revision}</dependency.polaris.version>
 		<dependency.spring-boot.version>2.3.10.RELEASE</dependency.spring-boot.version>
@@ -71,8 +72,8 @@
 		<dependency.jmh.version>1.21</dependency.jmh.version>
 		<dependency.junit-jupiter.version>5.8.1</dependency.junit-jupiter.version>
 		<dependency.junit.version>4.13.2</dependency.junit.version>
-		<dependency.h2.version>1.4.200</dependency.h2.version>
-		<dependency.hsqldb.version>2.5.1</dependency.hsqldb.version>
+		<dependency.h2.version>2.2.220</dependency.h2.version>
+		<dependency.hsqldb.version>2.7.1</dependency.hsqldb.version>
 		<dependency.mockito.version>3.5.13</dependency.mockito.version>
 		<dependency.mybatis-spring.version>2.1.4</dependency.mybatis-spring.version>
 	</properties>
@@ -472,6 +473,7 @@
 						<verbose>${maven.compiler.verbose}</verbose>
 						<failOnWarning>${maven.compiler.failOnWarning}</failOnWarning>
 						<failOnError>${maven.compiler.failOnError}</failOnError>
+						<useIncrementalCompilation>${maven.compiler.useIncrementalCompilation}</useIncrementalCompilation>
 					</configuration>
 				</plugin>
 
@@ -700,7 +702,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-assembly-plugin</artifactId>
-					<version>3.1.0</version>
+					<version>3.1.1</version>
 					<configuration>
 						<appendAssemblyId>${assembly.appendAssemblyId}</appendAssemblyId>
 						<skipAssembly>${assembly.skipAssembly}</skipAssembly>
@@ -1328,7 +1330,7 @@
 						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-assembly-plugin</artifactId>
-							<version>3.1.0</version>
+							<version>3.1.1</version>
 							<configuration>
 								<appendAssemblyId>true</appendAssemblyId>
 								<skipAssembly>${assembly.skipAssembly}</skipAssembly>
