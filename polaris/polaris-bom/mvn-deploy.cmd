@@ -1,2 +1,2 @@
-mvn clean deploy -P repos-oss
+call mvn clean deploy -P repos-oss
 pause

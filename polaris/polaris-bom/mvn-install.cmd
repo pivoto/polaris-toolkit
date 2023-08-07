@@ -1,2 +1,2 @@
-mvn clean install -P repos-oss
+call mvn clean install -P repos-oss
 pause
