@@ -350,7 +350,6 @@
 						<updatePomFile>true</updatePomFile>
 						<outputDirectory>${project.build.directory}</outputDirectory>
 						<flattenedPomFilename>.flattened-pom.xml</flattenedPomFilename>
-
 					</configuration>
 					<executions>
 						<execution>
@@ -574,7 +573,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-shade-plugin</artifactId>
-					<version>3.2.4</version>
+					<version>3.5.0</version>
 				</plugin>
 
 				<plugin>
