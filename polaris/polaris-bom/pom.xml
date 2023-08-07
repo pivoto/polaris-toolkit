@@ -25,7 +25,7 @@
 	</modules>
 
 	<properties>
-		<revision>2.0.9-SNAPSHOT</revision>
+		<revision>2.0.9</revision>
 		<start-class></start-class>
 		<java.version>1.8</java.version>
 		<file.encoding>UTF-8</file.encoding>
@@ -628,8 +628,8 @@
 					</configuration>
 					<executions>
 						<execution>
-							<id>javadoc-package</id>
-							<phase>package</phase>
+							<id>site-doc</id>
+							<phase>site</phase>
 							<goals>
 								<goal>aggregate-jar</goal>
 							</goals>
@@ -642,7 +642,7 @@
 							</goals>
 						</execution>
 						<execution>
-							<id>javadoc-site-test</id>
+							<id>site-test-doc</id>
 							<phase>site</phase>
 							<goals>
 								<goal>test-aggregate</goal>
