@@ -1,5 +1,5 @@
 @echo off
-rem mvn versions:set -DnewVersion=2.0.3-SNAPSHOT
-mvn versions:set -DnewVersion=2.0.3
-mvn versions:commit
+rem call mvn versions:set -DnewVersion=2.0.4-SNAPSHOT
+call mvn versions:set -DnewVersion=2.0.4-SNAPSHOT
+call mvn versions:commit
 pause
