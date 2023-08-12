@@ -5,6 +5,7 @@ import io.polaris.core.jdbc.dbv.model.Index;
 import io.polaris.core.jdbc.dbv.model.PrimaryKey;
 import io.polaris.core.jdbc.dbv.model.Table;
 import io.polaris.core.string.Strings;
+import io.polaris.core.tuple.Tuple2;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -78,13 +79,9 @@ public class DbvExp {
 		copy(idxSheet, config.getTableRowTemplate(), 0, idxSheet, blankRow, 0, 'Z' - 'A');
 		XSSFRow row = idxSheet.getRow(blankRow);
 		row.getCell(config.getTableColName()).setCellValue(table.getTableName());
-		String label = Strings.coalesce(table.getRemarks(), "");
-		String remarks = "";
-		int labelSplitIdx = label.indexOf('\n');
-		if (labelSplitIdx > 0) {
-			remarks = label.substring(labelSplitIdx + 1);
-			label = label.substring(0, labelSplitIdx);
-		}
+		Tuple2<String, String> tuple = DbCommentSplits.split(table.getRemarks());
+		String label = tuple.getFirst();
+		String remarks = tuple.getSecond();
 		row.getCell(config.getTableColLabel()).setCellValue(label);
 		row.getCell(config.getTableColLink()).setCellFormula("HYPERLINK(\"#'\"&D" + (blankRow + 1) + "&\"'!A1\",\"====>>\")");
 		row.getCell(config.getTableColRemark()).setCellValue(remarks);
@@ -119,13 +116,9 @@ public class DbvExp {
 			sheet.getRow(iRow).getCell(config.getColumnColSeq()).setCellType(CellType.NUMERIC);
 			sheet.getRow(iRow).getCell(config.getColumnColSeq()).setCellValue(++colNum);
 			sheet.getRow(iRow).getCell(config.getColumnColName()).setCellValue(col.getColumnName());
-			String columnLabel = Strings.coalesce(col.getRemarks(), col.getColumnName());
-			String columnRemark = "";
-			int columnLabelSplitIdx = columnLabel.indexOf('\n');
-			if (columnLabelSplitIdx > 0) {
-				columnRemark = columnLabel.substring(columnLabelSplitIdx + 1);
-				columnLabel = columnLabel.substring(0, columnLabelSplitIdx);
-			}
+			Tuple2<String, String> tuple = DbCommentSplits.split(Strings.coalesce(col.getRemarks(), col.getColumnName()));
+			String columnLabel = tuple.getFirst();
+			String columnRemark = tuple.getSecond();
 			sheet.getRow(iRow).getCell(config.getColumnColLabel()).setCellValue(columnLabel);
 
 			String columnType = col.getColumnType();

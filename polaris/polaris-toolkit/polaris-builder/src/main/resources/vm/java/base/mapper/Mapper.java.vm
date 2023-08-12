@@ -104,22 +104,75 @@ public interface ${table.javaClassName}${env.mapperClassSuffix}{
 	 * @return 影响记录数
 	 */
 	int insert(${table.javaClassName}${env.entityClassSuffix} entity);
+	/**
+	 * 新增记录
+	 *
+	 * @param entity 记录对象
+	 * @return 影响记录数
+	 */
+	int insert(Map<String,Object> entity);
 
 	/**
-	 * 修改记录,按入参修改所有列
+	 * 新增记录,只处理入参的非空字段对应的列
+	 *
+	 * @param entity 记录对象
+	 * @return 影响记录数
+	 */
+	int insertSelective(${table.javaClassName}${env.entityClassSuffix} entity);
+	/**
+	 * 新增记录,只处理入参的非空字段对应的列
+	 *
+	 * @param entity 记录对象
+	 * @return 影响记录数
+	 */
+	int insertSelective(Map<String,Object> entity);
+
+	/**
+	 * 按主键条件修改记录,按入参修改所有列
 	 *
 	 * @param entity 记录对象
 	 * @return 影响记录数
 	 */
 	int update(${table.javaClassName}${env.entityClassSuffix} entity);
+	/**
+	 * 按主键条件修改记录,按入参修改所有列
+	 *
+	 * @param entity 记录对象
+	 * @return 影响记录数
+	 */
+	int update(Map<String,Object> entity);
 
 	/**
-	 * 修改记录,只修改入参的非空字段对应的列
+	 * 按主键条件修改记录,只修改入参的非空字段对应的列
 	 *
 	 * @param entity 记录对象
 	 * @return 影响记录数
 	 */
 	int updateSelective(${table.javaClassName}${env.entityClassSuffix} entity);
+
+	/**
+	 * 按主键条件修改记录,只修改入参的非空字段对应的列
+	 *
+	 * @param entity 记录对象
+	 * @return 影响记录数
+	 */
+	int updateSelective(Map<String,Object> entity);
+
+	/**
+	 * 根据查询条件修改多行记录, 只修改值参数<code>${dollar}updateValues</code>中的非空字段对应的列
+	 *
+	 * @param entity 记录对象
+	 * @return 影响记录数
+	 */
+	int updateMultiple(${table.javaClassName}${env.entityClassSuffix} entity);
+
+	/**
+	 * 根据查询条件修改多行记录, 只修改值参数<code>${dollar}updateValues</code>中的非空字段对应的列
+	 *
+	 * @param entity 记录对象
+	 * @return 影响记录数
+	 */
+	int updateMultiple(Map<String,Object> entity);
 
 	/**
 	 * 删除记录

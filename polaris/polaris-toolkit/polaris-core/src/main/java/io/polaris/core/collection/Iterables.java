@@ -299,7 +299,7 @@ public class Iterables {
 	}
 
 	public static <E> boolean isEmpty(Collection<E> array) {
-		return array == null || array.size() == 0;
+		return array == null || array.isEmpty();
 	}
 
 	public static <E> boolean isEmpty(E[] array) {
@@ -307,7 +307,7 @@ public class Iterables {
 	}
 
 	public static <E> boolean isNotEmpty(Collection<E> array) {
-		return array != null && array.size() > 0;
+		return array != null && !array.isEmpty();
 	}
 
 	public static <E> boolean isNotEmpty(E[] array) {

@@ -19,8 +19,9 @@ import java.util.function.Function;
  * @author Qt
  * @since 1.8
  */
-public class BeanMap<T> extends AbstractMap<String, Object> implements Map<String, Object> {
+public class BeanMap<T> extends AbstractMap<String, Object> implements IBeanMap<T>, Map<String, Object> {
 	private static final ILogger log = ILogger.of(BeanMap.class);
+	protected final BeanMetadata metadata;
 	protected final Map<String, Function<Object, Object>> getters;
 	protected final Map<String, BiConsumer<Object, Object>> setters;
 	protected final Map<String, Type> types;
@@ -56,6 +57,18 @@ public class BeanMap<T> extends AbstractMap<String, Object> implements Map<Strin
 		, boolean ignoreUnknownKeys, boolean compilable) {
 		beanType = beanType != null ? beanType : bean.getClass();
 		converter = converter != null ? converter : (o, t) -> ConverterRegistry.INSTANCE.convert(t, o);
+		if (fallbackGetter == null) {
+			if (bean instanceof Map) {
+				//noinspection unchecked
+				fallbackGetter = (k) -> ((Map<String, Object>) bean).get(k);
+			}
+		}
+		if (fallbackSetter == null) {
+			if (bean instanceof Map) {
+				//noinspection unchecked
+				fallbackSetter = (k, v) -> ((Map<String, Object>) bean).put(k, v);
+			}
+		}
 		this.bean = bean;
 		this.beanType = beanType;
 		this.compilable = compilable;
@@ -64,6 +77,7 @@ public class BeanMap<T> extends AbstractMap<String, Object> implements Map<Strin
 		this.fallbackGetter = fallbackGetter;
 		this.fallbackSetter = fallbackSetter;
 		BeanMetadata metadata = this.getBeanMetadata(beanType);
+		this.metadata = metadata;
 		this.types = metadata.types();
 		this.getters = metadata.getters();
 		this.setters = metadata.setters();
@@ -114,9 +128,34 @@ public class BeanMap<T> extends AbstractMap<String, Object> implements Map<Strin
 	}
 
 
+	@Override
+	public <V> V copyToBean(V bean) {
+		BeanMap<V> map = new BeanMap<>(bean);
+		map.putAll(this);
+		return map.getBean();
+	}
+
+	@Override
+	public Map<String, Object> copyToMap(Map<String, Object> map) {
+		map.putAll(this);
+		return map;
+	}
+
+	@Override
+	public Map<String, Object> copyToMap() {
+		return copyToMap(new HashMap<>());
+	}
+
+	@Override
+	public String toString() {
+		return bean.toString();
+	}
+
+	@Override
 	public T getBean() {
 		return bean;
 	}
+
 
 	public Class<?> getBeanType() {
 		return beanType;

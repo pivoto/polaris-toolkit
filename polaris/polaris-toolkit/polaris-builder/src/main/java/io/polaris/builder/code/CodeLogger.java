@@ -1,86 +1,60 @@
 package io.polaris.builder.code;
 
-import io.polaris.core.string.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.polaris.core.log.ILogger;
+import io.polaris.core.log.StdoutLogger;
 
 /**
  * @author Qt
  * @since 1.8
  */
 public class CodeLogger {
-	private static final Logger log = LoggerFactory.getLogger("code.builder");
-	private static boolean withStd;
+	private static final ILogger stdLog;
+	private static final ILogger slf4jLog;
+	private static ILogger log;
+
+	static {
+		slf4jLog = ILogger.of("code.builder" );
+		if (slf4jLog instanceof StdoutLogger) {
+			stdLog = slf4jLog;
+		} else {
+			stdLog = new StdoutLogger("code.builder" );
+		}
+		log = slf4jLog;
+	}
 
 	public static void withStd(boolean withStd) {
-		CodeLogger.withStd = withStd;
+		CodeLogger.log = withStd ? CodeLogger.stdLog : CodeLogger.slf4jLog;
 	}
 
 	public static void debug(String format, Object... arguments) {
-		if (withStd) {
-			System.out.println(Strings.format(format, arguments));
-		} else {
-			log.debug(format, arguments);
-		}
+		log.debug(format, arguments);
 	}
 
 	public static void debug(String msg, Throwable t) {
-		if (withStd) {
-			System.out.println(msg);
-			t.printStackTrace(System.err);
-		} else {
-			log.debug(msg, t);
-		}
+		log.debug(msg, t);
 	}
 
 	public static void info(String format, Object... arguments) {
-		if (withStd) {
-			System.out.println(Strings.format(format, arguments));
-		} else {
-			log.info(format, arguments);
-		}
+		log.info(format, arguments);
 	}
 
 	public static void info(String msg, Throwable t) {
-		if (withStd) {
-			System.out.println(msg);
-			t.printStackTrace(System.err);
-		} else {
-			log.info(msg, t);
-		}
+		log.info(msg, t);
 	}
 
 	public static void warn(String format, Object... arguments) {
-		if (withStd) {
-			System.out.println(Strings.format(format, arguments));
-		} else {
-			log.warn(format, arguments);
-		}
+		log.warn(format, arguments);
 	}
 
 	public static void warn(String msg, Throwable t) {
-		if (withStd) {
-			System.out.println(msg);
-			t.printStackTrace(System.err);
-		} else {
-			log.warn(msg, t);
-		}
+		log.warn(msg, t);
 	}
 
 	public static void error(String format, Object... arguments) {
-		if (withStd) {
-			System.out.println(Strings.format(format, arguments));
-		} else {
-			log.error(format, arguments);
-		}
+		log.error(format, arguments);
 	}
 
 	public static void error(String msg, Throwable t) {
-		if (withStd) {
-			System.out.println(msg);
-			t.printStackTrace(System.err);
-		} else {
-			log.error(msg, t);
-		}
+		log.error(msg, t);
 	}
 }

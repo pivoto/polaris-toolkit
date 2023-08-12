@@ -85,7 +85,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix}Impl implements ${pk
 		// String id = UUID.randomUUID().toString().replace("-", "");
 		Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}, "参数对象[${table.javaClassName}${env.entityClassSuffix}]不能为空");
 #foreach($col in $table.pkColumns)
-#if(${col.javaType}=='String')
+#if(${col.javaClassType}=='String')
 		//Assert.hasText(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 #else
 		//Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
@@ -93,7 +93,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix}Impl implements ${pk
 #end
 #foreach($col in $table.normalColumns)
 #if(!${col.nullable})
-#if(${col.javaType}=='String')
+#if(${col.javaClassType}=='String')
 		Assert.hasText(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 #else
 		Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "字段[#if($col.label)$col.label#else$col.name#end]不能为空");
@@ -104,11 +104,35 @@ public class ${table.javaClassName}${env.serviceClassSuffix}Impl implements ${pk
 	}
 
 	@Override
+	public int insertSelective(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix}) {
+		log.info("新增表记录: ${table.name}");
+		// String id = UUID.randomUUID().toString().replace("-", "");
+		Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}, "参数对象[${table.javaClassName}${env.entityClassSuffix}]不能为空");
+#foreach($col in $table.pkColumns)
+#if(${col.javaClassType}=='String')
+		//Assert.hasText(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
+#else
+		//Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
+#end
+#end
+#foreach($col in $table.normalColumns)
+#if(!${col.nullable})
+#if(${col.javaClassType}=='String')
+		Assert.hasText(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "字段[#if($col.label)$col.label#else$col.name#end]不能为空");
+#else
+		Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "字段[#if($col.label)$col.label#else$col.name#end]不能为空");
+#end
+#end
+#end
+		return mapper.insertSelective(${table.javaVariableName}${env.entityClassSuffix});
+	}
+
+	@Override
 	public int delete(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix}) {
 		log.info("根据主键删除表记录: ${table.name}");
 		Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}, "参数对象[${table.javaClassName}${env.entityClassSuffix}]不能为空");
 #foreach($col in $table.pkColumns)
-#if(${col.javaType}=='String')
+#if(${col.javaClassType}=='String')
 		Assert.hasText(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 #else
 		Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
@@ -123,7 +147,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix}Impl implements ${pk
 		Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}, "参数对象[${table.javaClassName}${env.entityClassSuffix}]不能为空");
 #foreach($col in $table.columns)
 #if(!${col.nullable})
-#if(${col.javaType}=='String')
+#if(${col.javaClassType}=='String')
 		Assert.hasText(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 #else
 		Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "字段[#if($col.label)$col.label#else$col.name#end]不能为空");
@@ -138,7 +162,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix}Impl implements ${pk
 		log.info("根据主键更新表记录: ${table.name}");
 		Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}, "参数对象[${table.javaClassName}${env.entityClassSuffix}]不能为空");
 #foreach($col in $table.pkColumns)
-#if(${col.javaType}=='String')
+#if(${col.javaClassType}=='String')
 		Assert.hasText(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 #else
 		Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
@@ -152,7 +176,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix}Impl implements ${pk
 		log.info("根据主键查询表记录: ${table.name}");
 		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
 #foreach($col in $table.pkColumns)
-#if(${col.javaType}=='String')
+#if(${col.javaClassType}=='String')
 		Assert.hasText(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 #else
 		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");

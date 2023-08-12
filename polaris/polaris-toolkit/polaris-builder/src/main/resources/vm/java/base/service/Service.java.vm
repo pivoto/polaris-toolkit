@@ -112,7 +112,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	 * @return 当前页对象
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public List<${table.javaClassName}${env.entityClassSuffix}> getPage(${table.javaClassName}${env.entityClassSuffix} param, com.jcfc.bf.core.data.domain.Page page) {
+	public List<${table.javaClassName}${env.entityClassSuffix}> getPage(${table.javaClassName}${env.entityClassSuffix} param, io.polaris.bf.core.data.domain.Page page) {
 		if (page == null) {
 			return mapper.getAll(param);
 		}
@@ -129,7 +129,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	 * @return 当前页对象
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public List<${table.javaClassName}${env.entityClassSuffix}> getPage(Map<String,Object> param, com.jcfc.bf.core.data.domain.Page page) {
+	public List<${table.javaClassName}${env.entityClassSuffix}> getPage(Map<String,Object> param, io.polaris.bf.core.data.domain.Page page) {
 		if (page == null) {
 			return mapper.getAll(param);
 		}
@@ -246,6 +246,35 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 			#end
 		#end
 		return mapper.insert(${table.javaVariableName}${env.entityClassSuffix});
+	}
+
+	/**
+	 * 新增一条记录
+	 *
+	 * @param ${table.javaVariableName}${env.entityClassSuffix} 记录对象
+	 * @return 影响记录数
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public int insertSelective(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix}) {
+		log.info("新增表记录: ${table.name}");
+		Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}, "参数对象[${table.javaClassName}${env.entityClassSuffix}]不能为空");
+		#foreach($col in $table.pkColumns)
+			#if(${col.javaClassType}=='String')
+		Assert.hasText(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
+			#else
+		Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
+			#end
+		#end
+		#foreach($col in $table.normalColumns)
+			#if(!${col.nullable})
+				#if(${col.javaClassType}=='String')
+		Assert.hasText(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "字段[#if($col.label)$col.label#else$col.name#end]不能为空");
+				#else
+		Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}.get${col.javaClassName}(), "字段[#if($col.label)$col.label#else$col.name#end]不能为空");
+				#end
+			#end
+		#end
+		return mapper.insertSelective(${table.javaVariableName}${env.entityClassSuffix});
 	}
 
 	/**

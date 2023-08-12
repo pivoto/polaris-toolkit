@@ -78,6 +78,14 @@ public interface I${table.javaClassName}${env.serviceClassSuffix} {
 	int insert(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix});
 
 	/**
+	 * 新增一条记录
+	 *
+	 * @param ${table.javaVariableName}${env.entityClassSuffix} 记录对象
+	 * @return 影响记录数
+	 */
+	int insertSelective(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix});
+
+	/**
 	 * 根据主键列，删除一条记录
 	 *
 	 * @param ${table.javaVariableName}${env.entityClassSuffix} 记录对象

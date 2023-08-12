@@ -8,9 +8,9 @@ import lombok.experimental.Accessors;
 import $name;
 #end
 import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
-import com.jcfc.bf.core.context.domain.ExchangeDto;
-import com.jcfc.bf.core.data.domain.Page;
-import com.jcfc.bf.core.data.consts.Dml;
+import io.polaris.bf.core.context.domain.ExchangeDto;
+import io.polaris.bf.core.data.domain.Page;
+import io.polaris.bf.core.data.consts.Dml;
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.validation.Valid;
 import javax.validation.constraints.*;

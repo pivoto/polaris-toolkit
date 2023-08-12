@@ -1,5 +1,6 @@
 package io.polaris.core.lang;
 
+import io.polaris.core.collection.Iterables;
 import io.polaris.core.collection.ObjectArrays;
 import io.polaris.core.collection.comparator.Comparators;
 import io.polaris.core.io.Serializations;
@@ -57,12 +58,12 @@ public class Objs {
 	/** @see Objects#toString(Object) */
 	@Nullable
 	public static String toString(Object o) {
-		return Objects.toString(o, null);
+		return toString(o, null);
 	}
 
 	/** @see Objects#toString(Object, String) */
 	public static String toString(Object o, String nullDefault) {
-		return (o != null) ? o.toString() : nullDefault;
+		return (o != null) ? Iterables.toArrayString(o) : nullDefault;
 	}
 
 	/** @see Objects#compare(Object, Object, Comparator) */

@@ -28,10 +28,13 @@ public class StdoutLogger implements ILogger {
 			return;
 		}
 		String delimiter = " ";
+		long tid = Thread.currentThread().getId();
 		if (arguments != null && arguments.length > 0) {
-			System.out.println(Dates.YYYY_MM_DD_HH_MM_SS_SSS.format(Instant.now()) + delimiter + level + delimiter + name + delimiter + Strings.format(msg, arguments));
+			System.out.println(Dates.YYYY_MM_DD_HH_MM_SS_SSS.format(Instant.now()) + delimiter + level + delimiter
+				+ "[" + tid + "]" + delimiter + name + delimiter + Strings.format(msg, arguments));
 		} else {
-			System.out.println(Dates.YYYY_MM_DD_HH_MM_SS_SSS.format(Instant.now()) + delimiter + level + delimiter + name + delimiter + msg);
+			System.out.println(Dates.YYYY_MM_DD_HH_MM_SS_SSS.format(Instant.now()) + delimiter + level + delimiter
+				+ "[" + tid + "]" + delimiter + name + delimiter + msg);
 		}
 		if (t != null) {
 			t.printStackTrace();

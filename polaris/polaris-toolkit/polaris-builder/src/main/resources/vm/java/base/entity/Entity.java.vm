@@ -45,6 +45,13 @@ public class ${table.javaClassName}${env.entityClassSuffix} implements Serializa
 
 	/** 查询SQL的ORDER BY子句内容(各排序字段) */
 	@Schema(hidden = true)
-	private transient String orderByClause;
+	@Getter
+	@Setter
+	private transient String v${dollar}orderBy;
+	/** 更新SQL的SET值内容 */
+	@Schema(hidden = true)
+	@Getter
+	@Setter
+	private transient ${table.javaClassName}${env.entityClassSuffix} v${dollar}updateValues;
 
 }

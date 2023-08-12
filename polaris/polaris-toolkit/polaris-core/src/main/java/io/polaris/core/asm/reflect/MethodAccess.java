@@ -18,6 +18,8 @@ public abstract class MethodAccess {
 	private String[] methodNames;
 	private Class[][] parameterTypes;
 	private Class[] returnTypes;
+	private java.lang.reflect.Type[][] genericParameterTypes;
+	private java.lang.reflect.Type[] genericReturnTypes;
 
 	public abstract Object invoke(Object object, int methodIndex, Object... args);
 
@@ -72,8 +74,16 @@ public abstract class MethodAccess {
 		return parameterTypes;
 	}
 
+	public java.lang.reflect.Type[][] getGenericParameterTypes() {
+		return genericParameterTypes;
+	}
+
 	public Class[] getReturnTypes() {
 		return returnTypes;
+	}
+
+	public java.lang.reflect.Type[] getGenericReturnTypes() {
+		return genericReturnTypes;
 	}
 
 	/**
@@ -101,11 +111,15 @@ public abstract class MethodAccess {
 		int n = methods.size();
 		String[] methodNames = new String[n];
 		Class[][] parameterTypes = new Class[n][];
+		java.lang.reflect.Type[][] genericParameterTypes = new java.lang.reflect.Type[n][];
+		java.lang.reflect.Type[] genericReturnTypes = new java.lang.reflect.Type[n];
 		Class[] returnTypes = new Class[n];
 		for (int i = 0; i < n; i++) {
 			Method method = methods.get(i);
 			methodNames[i] = method.getName();
+			genericParameterTypes[i] = method.getGenericParameterTypes();
 			parameterTypes[i] = method.getParameterTypes();
+			genericReturnTypes[i] = method.getGenericReturnType();
 			returnTypes[i] = method.getReturnType();
 		}
 
@@ -285,7 +299,9 @@ public abstract class MethodAccess {
 			MethodAccess access = (MethodAccess) accessClass.newInstance();
 			access.methodNames = methodNames;
 			access.parameterTypes = parameterTypes;
+			access.genericParameterTypes = genericParameterTypes;
 			access.returnTypes = returnTypes;
+			access.genericReturnTypes = genericReturnTypes;
 			return access;
 		} catch (Throwable t) {
 			throw new IllegalStateException("Error constructing method access class: " + accessClassName, t);

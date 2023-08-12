@@ -15,6 +15,7 @@
 	<package name="com.jcfc.stdk" mapping="io.polaris"/>
 	<package name="com.jcfc" mapping="io.polaris"/>
 	<package name="stdk-annotation-processor" mapping="polaris-annotation-processor"/>
+	<package name="stdk-core-annotation-processor" mapping="polaris-core-	annotation-processor"/>
 
 	<change>
 		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-builder/src</src>
@@ -23,6 +24,10 @@
 	<change>
 		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-core/src</src>
 		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-core/src</dest>
+	</change>
+	<change>
+		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-core-annotation-processor/src</src>
+		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-core-annotation-processor/src</dest>
 	</change>
 	<change>
 		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-extra-validator/src</src>
@@ -45,16 +50,8 @@
 		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-crypto/src</dest>
 	</change>
 	<change>
-		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-annotation-processor/stdk-annotation-processor-core/src</src>
-		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-annotation-processor/polaris-annotation-processor-core/src</dest>
-	</change>
-	<change>
-		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-annotation-processor/stdk-annotation-processor-service/src</src>
-		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-annotation-processor/polaris-annotation-processor-service/src</dest>
-	</change>
-	<change>
-		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-annotation-processor/stdk-annotation-processor-test/src</src>
-		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-annotation-processor/polaris-annotation-processor-test/src</dest>
+		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-demo/src</src>
+		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-demo/src</dest>
 	</change>
 
 </changes>

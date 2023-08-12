@@ -2,6 +2,7 @@
 package ${pkgPrefix}${env.entityPackage.replace('/','.')};
 
 import cn.org.atool.fluent.mybatis.annotation.FluentMybatis;
+import cn.org.atool.fluent.mybatis.annotation.NotField;
 import cn.org.atool.fluent.mybatis.annotation.TableField;
 import cn.org.atool.fluent.mybatis.annotation.TableId;
 import cn.org.atool.fluent.mybatis.base.RichEntity;
@@ -56,6 +57,15 @@ public class ${table.javaClassName}${env.entityClassSuffix} extends RichEntity i
 	@TableField("$!{col.name}")
 	private ${col.javaTypeSimpleName} ${col.javaVariableName};
 #end
+
+	/** 查询SQL的ORDER BY子句内容(各排序字段) */
+	@Schema(hidden = true)
+	@NotField
+	private transient String v${dollar}orderBy;
+	/** 更新SQL的SET值内容 */
+	@Schema(hidden = true)
+	@NotField
+	private transient ${table.javaClassName}${env.entityClassSuffix} v${dollar}updateValues;
 
 	@Override
 	public final Class entityClass() {

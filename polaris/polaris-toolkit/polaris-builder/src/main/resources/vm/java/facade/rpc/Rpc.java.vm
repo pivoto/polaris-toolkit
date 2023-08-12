@@ -9,12 +9,14 @@ import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassN
 import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassName}${env.rpcGetOutputClassSuffix};
 import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassName}${env.rpcListOutputClassSuffix};
 
-import com.jcfc.bf.common.map.BeanMap;
-import com.jcfc.bf.core.context.domain.ExchangeDto;
-import com.jcfc.bf.core.data.consts.Dml;
-import com.jcfc.bf.core.data.domain.Page;
-import com.jcfc.bf.core.data.domain.QueryDto;
-import com.jcfc.bf.core.rpc.annotation.RpcService;
+import io.polaris.core.lang.bean.Beans;
+import io.polaris.core.lang.bean.IBeanMap;
+import io.polaris.bf.common.map.BeanMaps;
+import io.polaris.bf.core.context.domain.ExchangeDto;
+import io.polaris.bf.core.data.consts.Dml;
+import io.polaris.bf.core.data.domain.Page;
+import io.polaris.bf.core.data.domain.QueryDto;
+import io.polaris.bf.core.rpc.annotation.RpcService;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
@@ -43,17 +45,17 @@ public class ${table.javaClassName}${env.rpcClassSuffix}{
 		Dml type = input.getType();
 		switch (type) {
 			case INSERT: {
-				${table.javaClassName}${env.entityClassSuffix} entity = BeanMap.of(input.getParam()).copyToBean(new ${table.javaClassName}${env.entityClassSuffix}());
-				${table.javaVariableName}${env.serviceClassSuffix}.insert(entity);
+				${table.javaClassName}${env.entityClassSuffix} entity = BeanMaps.of(input.getParam()).copyToBean(new ${table.javaClassName}${env.entityClassSuffix}());
+				${table.javaVariableName}${env.serviceClassSuffix}.insertSelective(entity);
 				break;
 			}
 			case UPDATE: {
-				${table.javaClassName}${env.entityClassSuffix} entity = BeanMap.of(input.getParam()).copyToBean(new ${table.javaClassName}${env.entityClassSuffix}());
+				${table.javaClassName}${env.entityClassSuffix} entity = BeanMaps.of(input.getParam()).copyToBean(new ${table.javaClassName}${env.entityClassSuffix}());
 				${table.javaVariableName}${env.serviceClassSuffix}.updateSelective(entity);
 				break;
 			}
 			case DELETE: {
-				${table.javaClassName}${env.entityClassSuffix} entity = BeanMap.of(input.getParam()).copyToBean(new ${table.javaClassName}${env.entityClassSuffix}());
+				${table.javaClassName}${env.entityClassSuffix} entity = BeanMaps.of(input.getParam()).copyToBean(new ${table.javaClassName}${env.entityClassSuffix}());
 				${table.javaVariableName}${env.serviceClassSuffix}.delete(entity);
 				break;
 			}
@@ -66,7 +68,7 @@ public class ${table.javaClassName}${env.rpcClassSuffix}{
 	@RpcService(code = "$!{env.rpcCodePrefix}${table.javaClassName}Get", name = "单行数据查询")
 	public ${table.javaClassName}${env.rpcGetOutputClassSuffix} doGet(${table.javaClassName}${env.rpcGetInputClassSuffix} input) {
 		${table.javaClassName}${env.entityClassSuffix} entity = ${table.javaVariableName}${env.serviceClassSuffix}.getUnique(
-			BeanMap.of(input.getParam()).copyToBean(new ${table.javaClassName}${env.entityClassSuffix}())
+			BeanMaps.of(input.getParam()).copyToBean(new ${table.javaClassName}${env.entityClassSuffix}())
 		);
 		${table.javaClassName}${env.rpcGetOutputClassSuffix} output = new ${table.javaClassName}${env.rpcGetOutputClassSuffix}();
 		output.setEntity(entity);
@@ -76,7 +78,7 @@ public class ${table.javaClassName}${env.rpcClassSuffix}{
 	@RpcService(code = "$!{env.rpcCodePrefix}${table.javaClassName}List", name = "列表数据查询")
 	public ${table.javaClassName}${env.rpcListOutputClassSuffix} doList(${table.javaClassName}${env.rpcListInputClassSuffix} input) {
 		${table.javaClassName}${env.rpcListOutputClassSuffix} output = new ${table.javaClassName}${env.rpcListOutputClassSuffix}();
-		${table.javaClassName}${env.entityClassSuffix} param = BeanMap.of(input.getParam()).copyToBean(new ${table.javaClassName}${env.entityClassSuffix}());
+		${table.javaClassName}${env.entityClassSuffix} param = BeanMaps.of(input.getParam()).copyToBean(new ${table.javaClassName}${env.entityClassSuffix}());
 		Page page = input.getPage();
 		List<${table.javaClassName}${env.entityClassSuffix}> list = ${table.javaVariableName}${env.serviceClassSuffix}.getPage(param, page);
 		output.setPage(page);

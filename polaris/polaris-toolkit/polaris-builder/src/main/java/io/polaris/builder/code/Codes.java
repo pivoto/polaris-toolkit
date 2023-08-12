@@ -7,12 +7,12 @@ import io.polaris.builder.code.config.ConfigColumn;
 import io.polaris.builder.code.config.TypeMapping;
 import io.polaris.builder.code.reader.impl.JdbcTablesReader;
 import io.polaris.builder.dbv.cfg.DatabaseCfg;
+import io.polaris.core.concurrent.Executors;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author Qt
@@ -28,7 +28,75 @@ public class Codes {
 		generate(code);
 	}
 
+	public static void generate(Class<?> clazz, int concurrent) throws IOException {
+		Code code = clazz.getAnnotation(Code.class);
+		if (!clazz.isAnnotationPresent(Code.class)) {
+			throw new IllegalArgumentException();
+		}
+		generate(code, concurrent);
+	}
+
+	public static void generate(Code code, int concurrent) throws IOException {
+		if (concurrent <= 1) {
+			generate(code);
+		} else {
+			ThreadPoolExecutor pool = Executors.create(concurrent, "CodeGenerator" );
+			CountDownLatch latch = new CountDownLatch(concurrent);
+			try {
+				final List<IOException> errors = Collections.synchronizedList(new ArrayList<>());
+				List<Table>[] tables = new List[concurrent];
+				{
+					int n = 0;
+					for (Table table : code.tables()) {
+						int idx = (n++) % concurrent;
+						(tables[idx] == null ? tables[idx] = new ArrayList<>() : tables[idx]).add(table);
+					}
+				}
+				for (List<Table> list : tables) {
+					if (list != null && !list.isEmpty()) {
+						Table[] array = list.toArray(new Table[list.size()]);
+						pool.execute(() -> {
+							try {
+								generate(code, array);
+							} catch (IOException e) {
+								errors.add(e);
+							} finally {
+								latch.countDown();
+							}
+						});
+					}
+				}
+				for (; ; ) {
+					try {
+						latch.await();
+						break;
+					} catch (InterruptedException e) {
+					}
+				}
+				int errCount = errors.size();
+				if (errCount > 0) {
+					IOException e = errors.get(0);
+					for (int idx = 1; idx < errCount; idx++) {
+						e.addSuppressed(errors.get(idx));
+					}
+					throw e;
+				}
+			} finally {
+				Executors.shutdown(pool);
+			}
+		}
+	}
+
 	public static void generate(Code code) throws IOException {
+		Table[] tables = code.tables();
+		generate(code, tables);
+	}
+
+	@SuppressWarnings("AlibabaMethodTooLong" )
+	public static void generate(Code code, Table[] tables) throws IOException {
+		if (tables.length == 0) {
+			return;
+		}
 		Map<String, String> property = new LinkedHashMap<>();
 		{
 			DefaultProperty defaultProperty = code.annotationType().getAnnotation(DefaultProperty.class);
@@ -86,8 +154,8 @@ public class Codes {
 			;
 		}
 
-		for (Table table : code.tables()) {
-			Set<ConfigColumn> columns   = new HashSet<>();
+		for (Table table : tables) {
+			Set<ConfigColumn> columns = new HashSet<>();
 			for (Column column : table.columns()) {
 				columns.add(new ConfigColumn(column.name(), column.javaType()));
 			}
@@ -112,7 +180,6 @@ public class Codes {
 		cfg.setJdbcUsername(code.jdbcUsername());
 		cfg.setJdbcPassword(code.jdbcPassword());
 		generator.tablesReader(new JdbcTablesReader(cfg));
-
 
 		generator.generate();
 	}

@@ -1,5 +1,6 @@
 package io.polaris.builder.changer;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -12,17 +13,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
  * @author Qt
  * @since 1.8
  */
+@Slf4j
 public class ChangerRunner {
 	public static void main(String[] args) throws IOException, DocumentException, NoSuchAlgorithmException {
 		if (args.length == 0) {
@@ -104,58 +102,62 @@ public class ChangerRunner {
 	}
 
 
-	public static void change(InputStream in) throws DocumentException, IOException, NoSuchAlgorithmException {
+	public static void change(InputStream in) throws DocumentException {
 		SAXReader reader = new SAXReader();
 		Document doc = reader.read(in);
 		Element root = doc.getRootElement();
 		ChangerDto parent = parse(root);
 		List<Element> changes = root.elements("change");
 		for (Element change : changes) {
-			ChangerDto dto = parse(change);
-			dto.mergeFrom(parent);
+			try {
+				ChangerDto dto = parse(change);
+				dto.mergeFrom(parent);
 
-			Changer pc = new Changer();
-			pc.setCharset(dto.getCharset());
-			pc.setSrcRoot(new File(dto.getSrc()));
-			pc.setDestRoot(new File(dto.getDest()));
-			if (dto.getCopyAll() != null) {
-				pc.setCopyAll(dto.getCopyAll());
-			}
-			if (dto.getIncludeFilename() != null) {
-				pc.setIncludeFileName(dto.getIncludeFilename());
-			}
-			String extensions = dto.getExtensions();
-			if (extensions != null && extensions.length() > 0) {
-				String[] arr = extensions.split("[,;|\\s]+");
-				for (String s : arr) {
-					if (s.trim().length() > 0) {
-						pc.addExtension(s.trim());
+				Changer pc = new Changer();
+				pc.setCharset(dto.getCharset());
+				pc.setSrcRoot(new File(dto.getSrc()));
+				pc.setDestRoot(new File(dto.getDest()));
+				if (dto.getCopyAll() != null) {
+					pc.setCopyAll(dto.getCopyAll());
+				}
+				if (dto.getIncludeFilename() != null) {
+					pc.setIncludeFileName(dto.getIncludeFilename());
+				}
+				String extensions = dto.getExtensions();
+				if (extensions != null && extensions.length() > 0) {
+					String[] arr = extensions.split("[,;|\\s]+");
+					for (String s : arr) {
+						if (s.trim().length() > 0) {
+							pc.addExtension(s.trim());
+						}
 					}
 				}
-			}
-			Set<String> namePatterns = dto.getNamePatterns();
-			if (namePatterns != null) {
-				for (String namePattern : namePatterns) {
-					if (namePattern.trim().length() > 0) {
-						pc.addNamePatterns(Pattern.compile(namePattern.trim()));
+				Set<String> namePatterns = dto.getNamePatterns();
+				if (namePatterns != null) {
+					for (String namePattern : namePatterns) {
+						if (namePattern.trim().length() > 0) {
+							pc.addNamePatterns(Pattern.compile(namePattern.trim()));
+						}
 					}
 				}
-			}
-			Set<String> sourcePaths = dto.getSourcePaths();
-			if (sourcePaths != null) {
-				for (String path : sourcePaths) {
-					if (path.trim().length() > 0) {
-						pc.addSourcePath(path.trim());
+				Set<String> sourcePaths = dto.getSourcePaths();
+				if (sourcePaths != null) {
+					for (String path : sourcePaths) {
+						if (path.trim().length() > 0) {
+							pc.addSourcePath(path.trim());
+						}
 					}
 				}
-			}
-			Map<String, String> packageMapping = dto.getPackageMapping();
-			if (packageMapping != null) {
-				packageMapping.forEach((k, v) -> pc.addMapping(k, v));
-			}
+				Map<String, String> packageMapping = dto.getPackageMapping();
+				if (packageMapping != null) {
+					packageMapping.forEach((k, v) -> pc.addMapping(k, v));
+				}
 
-			// execute
-			pc.execute();
+				// execute
+				pc.execute();
+			} catch (Exception e) {
+				log.error("", e);
+			}
 		}
 
 	}

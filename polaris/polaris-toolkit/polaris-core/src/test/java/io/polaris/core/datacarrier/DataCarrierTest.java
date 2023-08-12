@@ -4,7 +4,7 @@ import io.polaris.core.datacarrier.consumer.BulkConsumeDriver;
 import io.polaris.core.datacarrier.consumer.IConsumer;
 import io.polaris.core.log.ILogger;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Qt

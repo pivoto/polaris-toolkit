@@ -18,7 +18,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>cn.pivoto.polaris.toolkit</groupId>
-			<artifactId>polaris-annotation-processor-service</artifactId>
+			<artifactId>polaris-core-annotation-processor</artifactId>
 		</dependency>
 
 		<!-- 只依赖日志、JSR标准等基础库，不依赖其他功能扩展库 -->
@@ -26,10 +26,6 @@
 			<groupId>com.google.code.findbugs</groupId>
 			<artifactId>jsr305</artifactId>
 			<version>3.0.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.squareup</groupId>
@@ -48,11 +44,18 @@
 			<artifactId>asm-util</artifactId>
 		</dependency>
 
+		<!-- region provided -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<!-- endregion provided -->
 
 		<!-- region test -->
 		<dependency>

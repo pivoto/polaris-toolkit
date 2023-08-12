@@ -3,12 +3,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="${pkgPrefix}${env.mapperPackage}.${table.javaClassName}${env.mapperClassSuffix}">
 	<resultMap id="${table.javaVariableName}${env.entityClassSuffix}Map" type="${pkgPrefix}${env.entityPackage}.${table.javaClassName}${env.entityClassSuffix}">
-		#foreach($col in ${table.pkColumns})
-			<id column="$col.name" property="${col.javaVariableName}" />
-		#end
-		#foreach($col in $table.normalColumns)
-			<result column="$col.name" property="${col.javaVariableName}" />
-		#end
+	#foreach($col in ${table.pkColumns})
+		<id column="${col.name}" property="${col.javaVariableName}" />
+	#end
+	#foreach($col in $table.normalColumns)
+		<result column="${col.name}" property="${col.javaVariableName}" />
+	#end
 	</resultMap>
 
 	<sql id="selectClause">
@@ -22,31 +22,75 @@
 		<where>
 #foreach($col in $table.pkColumns)
 #if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
-			<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
-				AND $col.name = #{$col.javaVariableName}
+##			<if test="${col.javaVariableName} != null and ${col.javaVariableName} != ''">
+##				AND ${col.name} = #{${col.javaVariableName}}
+##			</if>
+			<if test="${col.javaVariableName} != null">
+				<if test="@io.polaris.core.lang.Objs@isNotEmpty(${col.javaVariableName})">
+					<choose>
+						<when test="${col.javaVariableName}.getClass().isArray()">
+							AND ${col.name} in (
+							<foreach collection="${col.javaVariableName}" item="item" separator=",">
+								#{item}
+							</foreach>
+							)
+						</when>
+						<when test="${col.javaVariableName} instanceof java.lang.Iterable">
+							AND ${col.name} in (
+							<foreach collection="${col.javaVariableName}" item="item" separator=",">
+								#{item}
+							</foreach>
+							)
+						</when>
+						<when test="${col.javaVariableName}.startsWith('%') or ${col.javaVariableName}.endsWith('%')">AND PRINCIPAL_TYPE like #{${col.javaVariableName}}</when>
+						<otherwise>AND ${col.name} = #{${col.javaVariableName}}</otherwise>
+					</choose>
+				</if>
 			</if>
 #else
-			<if test="$col.javaVariableName != null">
-				AND $col.name = #{$col.javaVariableName}
+			<if test="${col.javaVariableName} != null">
+				AND ${col.name} = #{${col.javaVariableName}}
 			</if>
 #end
 #end
 #foreach($col in $table.normalColumns)
 #if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
-			<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
-				AND $col.name = #{$col.javaVariableName}
+##			<if test="${col.javaVariableName} != null and ${col.javaVariableName} != ''">
+##				AND ${col.name} = #{${col.javaVariableName}}
+##			</if>
+			<if test="${col.javaVariableName} != null">
+				<if test="@io.polaris.core.lang.Objs@isNotEmpty(${col.javaVariableName})">
+					<choose>
+						<when test="${col.javaVariableName}.getClass().isArray()">
+							AND ${col.name} in (
+							<foreach collection="${col.javaVariableName}" item="item" separator=",">
+								#{item}
+							</foreach>
+							)
+						</when>
+						<when test="${col.javaVariableName} instanceof java.lang.Iterable">
+							AND ${col.name} in (
+							<foreach collection="${col.javaVariableName}" item="item" separator=",">
+								#{item}
+							</foreach>
+							)
+						</when>
+						<when test="${col.javaVariableName}.startsWith('%') or ${col.javaVariableName}.endsWith('%')">AND PRINCIPAL_TYPE like #{${col.javaVariableName}}</when>
+						<otherwise>AND ${col.name} = #{${col.javaVariableName}}</otherwise>
+					</choose>
+				</if>
 			</if>
 #else
-			<if test="$col.javaVariableName != null">
-				AND $col.name = #{$col.javaVariableName}
+			<if test="${col.javaVariableName} != null">
+				AND ${col.name} = #{${col.javaVariableName}}
 			</if>
 #end
 #end
 		</where>
 	</sql>
 	<sql id="orderClause">
-		<if test="orderByClause != null and orderByClause != ''">
-			ORDER BY ${orderByClause}
+		<if test="v${dollar}orderBy != null and v${dollar}orderBy != ''">
+			ORDER BY ${dollar}{v${dollar}orderBy}
 		</if>
 	</sql>
 
@@ -70,7 +114,7 @@
 		<include refid="selectClause"/>
 		<where>
 #foreach($col in $table.pkColumns)
-				AND $col.name = #{$col.javaVariableName}
+				AND ${col.name} = #{${col.javaVariableName}}
 #end
 		</where>
 	</select>
@@ -86,26 +130,49 @@
 		)
 	</insert>
 
+	<insert id="insertSelective" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}"#if(${config['mysql.useGeneratedKeys']} == 'true') useGeneratedKeys="true" keyProperty="${table.pkColumns[0].javaVariableName}"#end>
+		INSERT INTO ${table.name}(
+			${empty}#foreach($col in ${table.pkColumns})${col.name}#if(${foreach.hasNext}),#set($tmp=${foreach.count} % 5)#if($tmp == 0)${lf}${tab}${tab}${tab}#end#end#end
+#foreach($col in $table.normalColumns)
+#if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
+			<if test="${col.javaVariableName} != null and ${col.javaVariableName} != ''">,${col.name}</if>
+#else
+			<if test="${col.javaVariableName} != null">,${col.name}</if>
+#end
+#end
+		)
+		VALUES(
+			${empty}#foreach($col in ${table.pkColumns})#{${col.javaVariableName},jdbcType=${col.jdbcType}}#if(${foreach.hasNext}),#set($tmp=${foreach.count} % 5)#if($tmp == 0)${lf}${tab}${tab}${tab}#end#end#end
+#foreach($col in $table.normalColumns)
+#if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
+			<if test="${col.javaVariableName} != null and ${col.javaVariableName} != ''">,#{${col.javaVariableName}}</if>
+#else
+			<if test="${col.javaVariableName} != null">,#{${col.javaVariableName}}</if>
+	#end
+#end
+		)
+	</insert>
+
 	<update id="update" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}">
 		UPDATE ${table.name}
 			<trim prefix="SET" suffixOverrides=",">
 #foreach($col in $table.pkColumns)
-					$col.name = #{$col.javaVariableName},
+					${col.name} = #{${col.javaVariableName}},
 #end
 #foreach($col in $table.normalColumns)
-					$col.name = #{$col.javaVariableName},
+					${col.name} = #{${col.javaVariableName}},
 #end
 			</trim>
 		WHERE
 			<trim prefix="" suffixOverrides="AND">
 #foreach($col in $table.pkColumns)
 #if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
-			<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
-				$col.name = #{$col.javaVariableName} AND
+			<if test="${col.javaVariableName} != null and ${col.javaVariableName} != ''">
+				${col.name} = #{${col.javaVariableName}} AND
 			</if>
 #else
-			<if test="$col.javaVariableName != null">
-				$col.name = #{$col.javaVariableName} AND
+			<if test="${col.javaVariableName} != null">
+				${col.name} = #{${col.javaVariableName}} AND
 			</if>
 #end
 #end
@@ -117,23 +184,23 @@
 			<trim prefix="SET" suffixOverrides=",">
 #foreach($col in $table.pkColumns)
 #if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
-				<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
-					$col.name = #{$col.javaVariableName},
+				<if test="${col.javaVariableName} != null and ${col.javaVariableName} != ''">
+					${col.name} = #{${col.javaVariableName}},
 				</if>
 #else
-				<if test="$col.javaVariableName != null">
-					$col.name = #{$col.javaVariableName},
+				<if test="${col.javaVariableName} != null">
+					${col.name} = #{${col.javaVariableName}},
 				</if>
 #end
 #end
 #foreach($col in $table.normalColumns)
 #if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
-				<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
-					$col.name = #{$col.javaVariableName},
+				<if test="${col.javaVariableName} != null and ${col.javaVariableName} != ''">
+					${col.name} = #{${col.javaVariableName}},
 				</if>
 #else
-				<if test="$col.javaVariableName != null">
-					$col.name = #{$col.javaVariableName},
+				<if test="${col.javaVariableName} != null">
+					${col.name} = #{${col.javaVariableName}},
 				</if>
 #end
 #end
@@ -142,16 +209,48 @@
 			<trim prefix="" suffixOverrides="AND">
 #foreach($col in $table.pkColumns)
 #if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
-			<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
-				$col.name = #{$col.javaVariableName} AND
+			<if test="${col.javaVariableName} != null and ${col.javaVariableName} != ''">
+				${col.name} = #{${col.javaVariableName}} AND
 			</if>
 #else
-			<if test="$col.javaVariableName != null">
-				$col.name = #{$col.javaVariableName} AND
+			<if test="${col.javaVariableName} != null">
+				${col.name} = #{${col.javaVariableName}} AND
 			</if>
 #end
 #end
 			</trim>
+	</update>
+
+
+	<update id="updateMultiple" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}">
+		UPDATE ${table.name}
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="v${dollar}updateValues != null">
+#foreach($col in $table.pkColumns)
+	#if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
+				<if test="v${dollar}updateValues.${col.javaVariableName} != null and v${dollar}updateValues.${col.javaVariableName} != ''">
+					${col.name} = #{v${dollar}updateValues.${col.javaVariableName}},
+				</if>
+	#else
+				<if test="v${dollar}updateValues.${col.javaVariableName} != null">
+					${col.name} = #{v${dollar}updateValues.${col.javaVariableName}},
+				</if>
+	#end
+#end
+#foreach($col in $table.normalColumns)
+	#if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
+					<if test="v${dollar}updateValues.${col.javaVariableName} != null and v${dollar}updateValues.${col.javaVariableName} != ''">
+						${col.name} = #{v${dollar}updateValues.${col.javaVariableName}},
+					</if>
+	#else
+					<if test="v${dollar}updateValues.${col.javaVariableName} != null">
+						${col.name} = #{v${dollar}updateValues.${col.javaVariableName}},
+					</if>
+	#end
+#end
+			</if>
+		</trim>
+		<include refid="whereClause"/>
 	</update>
 
 	<delete id="delete" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}">
@@ -160,12 +259,12 @@
 			<trim prefix="" suffixOverrides="AND">
 #foreach($col in $table.pkColumns)
 #if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
-			<if test="$col.javaVariableName != null and $col.javaVariableName != ''">
-				$col.name = #{$col.javaVariableName} AND
+			<if test="${col.javaVariableName} != null and ${col.javaVariableName} != ''">
+				${col.name} = #{${col.javaVariableName}} AND
 			</if>
 #else
-			<if test="$col.javaVariableName != null">
-				$col.name = #{$col.javaVariableName} AND
+			<if test="${col.javaVariableName} != null">
+				${col.name} = #{${col.javaVariableName}} AND
 			</if>
 #end
 #end

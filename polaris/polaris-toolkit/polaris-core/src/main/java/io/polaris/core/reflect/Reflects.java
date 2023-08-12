@@ -395,7 +395,6 @@ public class Reflects {
 	 * @param withSupers           是否包括父类或接口的方法列表
 	 * @param withMethodFromObject 是否包括Object中的方法
 	 * @return
-	 * @
 	 */
 	public static Method[] getMethodsDirectly(Class<?> beanClass, boolean withSupers, boolean withMethodFromObject) {
 		if (beanClass.isInterface()) {

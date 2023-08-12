@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+				 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+				 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
 		<groupId>cn.pivoto.polaris</groupId>
 		<artifactId>polaris-bom-base</artifactId>
@@ -12,13 +12,14 @@
 	<artifactId>polaris-toolkit</artifactId>
 	<version>2.0.4-SNAPSHOT</version>
 	<modules>
-		<module>polaris-annotation-processor</module>
 		<module>polaris-logging</module>
 		<module>polaris-logging-test</module>
+		<module>polaris-core-annotation-processor</module>
 		<module>polaris-core</module>
 		<module>polaris-extra</module>
 		<module>polaris-builder</module>
 		<module>polaris-all</module>
+		<module>polaris-demo</module>
 	</modules>
 	<packaging>pom</packaging>
 
@@ -55,17 +56,17 @@
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<artifactId>polaris-core-annotation-processor</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-core</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-builder</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit</groupId>
-				<artifactId>polaris-annotation-processor-service</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -149,4 +150,23 @@
 		</dependencies>
 	</dependencyManagement>
 
+	<profiles>
+		<profile>
+			<id>jdk8</id>
+			<activation>
+				<jdk>(1.4,8]</jdk>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>cn.pivoto.jdk</groupId>
+					<artifactId>tools</artifactId>
+					<version>1.8</version>
+					<!--<scope>provided</scope>-->
+					<scope>system</scope>
+					<systemPath>${java.home}/../lib/tools.jar</systemPath>
+					<optional>true</optional>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
 </project>

@@ -36,5 +36,9 @@
 			<groupId>cn.pivoto.polaris.toolkit</groupId>
 			<artifactId>polaris-web</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>cn.pivoto.polaris.toolkit</groupId>
+			<artifactId>polaris-crypto</artifactId>
+		</dependency>
 	</dependencies>
 </project>

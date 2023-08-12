@@ -1,7 +1,9 @@
 package io.polaris.builder.code.dto;
 
 import io.polaris.builder.code.config.ConfigColumn;
+import io.polaris.builder.dbv.DbCommentSplits;
 import io.polaris.core.string.Strings;
+import io.polaris.core.tuple.Tuple2;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
@@ -74,15 +76,9 @@ public class TableDto implements Serializable {
 	 */
 	public void prepare4Java(Function<String, String> tableNameTrimmer, Function<String, String> columnNameTrimmer, Map<String, ConfigColumn> columnMap) {
 		{
-			String columnLabel = Strings.coalesce(this.comment, "");
-			String columnRemark = "";
-			int columnLabelSplitIdx = columnLabel.indexOf('\n');
-			if (columnLabelSplitIdx > 0) {
-				columnRemark = columnLabel.substring(columnLabelSplitIdx + 1);
-				columnLabel = columnLabel.substring(0, columnLabelSplitIdx);
-			}
-			this.label = columnLabel.trim();
-			this.remark = columnRemark.trim();
+			Tuple2<String, String> tuple = DbCommentSplits.split(this.comment);
+			this.label = tuple.getFirst();
+			this.remark = tuple.getSecond();
 		}
 		if (columns == null) {
 			columns = new ArrayList<>();

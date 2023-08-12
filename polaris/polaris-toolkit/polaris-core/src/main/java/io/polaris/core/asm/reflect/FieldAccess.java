@@ -20,6 +20,7 @@ public abstract class FieldAccess {
 	private String[] fieldNames;
 	private Class[] fieldTypes;
 	private Field[] fields;
+	private java.lang.reflect.Type[] fieldGenericTypes;
 
 	public int getIndex(String fieldName) {
 		for (int i = 0, n = fieldNames.length; i < n; i++) {
@@ -53,6 +54,10 @@ public abstract class FieldAccess {
 
 	public Class[] getFieldTypes() {
 		return fieldTypes;
+	}
+
+	public java.lang.reflect.Type[] getFieldGenericTypes() {
+		return fieldGenericTypes;
 	}
 
 	public int getFieldCount() {
@@ -131,9 +136,11 @@ public abstract class FieldAccess {
 
 		String[] fieldNames = new String[fields.size()];
 		Class[] fieldTypes = new Class[fields.size()];
+		java.lang.reflect.Type[] fieldGenericTypes = new Class[fields.size()];
 		for (int i = 0, n = fieldNames.length; i < n; i++) {
 			fieldNames[i] = fields.get(i).getName();
 			fieldTypes[i] = fields.get(i).getType();
+			fieldGenericTypes[i] = fields.get(i).getGenericType();
 		}
 
 		String accessClassName = AccessClassLoader.buildAccessClassName(type, FieldAccess.class);
@@ -178,6 +185,7 @@ public abstract class FieldAccess {
 			FieldAccess access = (FieldAccess) accessClass.newInstance();
 			access.fieldNames = fieldNames;
 			access.fieldTypes = fieldTypes;
+			access.fieldGenericTypes = fieldGenericTypes;
 			access.fields = fields.toArray(new Field[fields.size()]);
 			return access;
 		} catch (Throwable t) {
