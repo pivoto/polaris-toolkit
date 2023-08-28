@@ -40,7 +40,7 @@ public class Codes {
 		if (concurrent <= 1) {
 			generate(code);
 		} else {
-			ThreadPoolExecutor pool = Executors.create(concurrent, "CodeGenerator" );
+			ThreadPoolExecutor pool = Executors.create(concurrent, "CodeGenerator");
 			CountDownLatch latch = new CountDownLatch(concurrent);
 			try {
 				final List<IOException> errors = Collections.synchronizedList(new ArrayList<>());
@@ -92,7 +92,7 @@ public class Codes {
 		generate(code, tables);
 	}
 
-	@SuppressWarnings("AlibabaMethodTooLong" )
+	@SuppressWarnings("AlibabaMethodTooLong")
 	public static void generate(Code code, Table[] tables) throws IOException {
 		if (tables.length == 0) {
 			return;
@@ -120,8 +120,8 @@ public class Codes {
 
 		Template[] templates = code.templates();
 		{
-			DefaultTemplate defaultTemplate = code.annotationType().getAnnotation(DefaultTemplate.class);
 			if (templates.length == 0) {
+				DefaultTemplate defaultTemplate = code.annotationType().getAnnotation(DefaultTemplate.class);
 				templates = defaultTemplate.value();
 			}
 		}

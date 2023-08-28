@@ -98,9 +98,19 @@ public @interface Code {
 	String columnSuffix() default "_";
 
 	/**
-	 * 模板配置，未配置时使用默认
+	 * 自定义模板配置，未配置时使用默认
 	 */
 	Template[] templates() default {};
+
+	/**
+	 * 附加的模板配置，在默认模板外追加别的模板，如使用自定义模板，则忽略此配置
+	 */
+	Template[] additionalTemplates() default {};
+
+	/**
+	 * 排除默认模板中指定模板路径的使用，如使用自定义模板，则忽略此配置
+	 */
+	String[] excludeTemplatePaths() default {};
 
 	/**
 	 * Jdbc连接驱动

@@ -1,6 +1,10 @@
 package io.polaris.core.annotation.processing;
 
+import io.polaris.core.annotation.Access;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Map;
 import java.util.Set;
@@ -18,4 +22,12 @@ public class DemoBean {
 	private Map<String,Object> map;
 	private Set<String> set;
 
+
+	@Setter(AccessLevel.NONE)
+	@Access.ExcludeSetter
+	private Object noSetter;
+
+	@Getter(AccessLevel.NONE)
+	@Access.ExcludeGetter
+	private Object noGetter;
 }

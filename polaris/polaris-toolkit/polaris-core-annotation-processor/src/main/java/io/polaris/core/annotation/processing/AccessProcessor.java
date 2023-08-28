@@ -1,5 +1,6 @@
 package io.polaris.core.annotation.processing;
 
+import io.polaris.core.annotation.Access;
 import com.squareup.javapoet.*;
 
 import javax.annotation.processing.RoundEnvironment;
@@ -12,17 +13,14 @@ import javax.lang.model.element.TypeElement;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 /**
  * @author Qt
  * @see CodeBlock 代码块生成语句的占位符说明
  * @since 1.8
  */
-@SupportedAnnotationTypes(value = {"io.polaris.core.annotation.processing.Access"})
+@SupportedAnnotationTypes(value = {"io.polaris.core.annotation.Access"})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class AccessProcessor extends BaseProcessor {
 	@Override
@@ -125,10 +123,24 @@ public class AccessProcessor extends BaseProcessor {
 						ClassName.get(Map.class), ClassName.get(String.class), ClassName.get(Type.class)),
 					"types", Modifier.FINAL, Modifier.PRIVATE).build()
 			)
+			.addField(
+				FieldSpec.builder(ParameterizedTypeName.get(
+						ClassName.get(BiFunction.class), ClassName.get(Object.class), ClassName.get(Type.class), ClassName.get(Object.class)),
+					"converter", Modifier.FINAL, Modifier.PRIVATE).build()
+			)
 			.addMethod(
 				MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC)
 					.addParameter(ParameterSpec.builder(beanInfo.getBeanTypeName(), "bean", Modifier.FINAL).build())
+					.addStatement("this(bean, (o,t)->$T.INSTANCE.convert(t,o))", ClassName.get("io.polaris.core.converter","ConverterRegistry"))
+					.build()
+			)
+			.addMethod(
+				MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC)
+					.addParameter(ParameterSpec.builder(beanInfo.getBeanTypeName(), "bean", Modifier.FINAL).build())
+					.addParameter(ParameterSpec.builder(ParameterizedTypeName.get(
+						ClassName.get(BiFunction.class), ClassName.get(Object.class), ClassName.get(Type.class), ClassName.get(Object.class)), "converter", Modifier.FINAL).build())
 					.addStatement("this.bean = bean")
+					.addStatement("this.converter = converter")
 					.addStatement("this.getters = new $T()", TypeName.get(HashMap.class))
 					.addStatement("this.setters = new $T()", TypeName.get(HashMap.class))
 					.addStatement("this.types = new $T()", TypeName.get(HashMap.class))
@@ -154,24 +166,33 @@ public class AccessProcessor extends BaseProcessor {
 				.addModifiers(Modifier.PRIVATE);
 
 			for (AccessBeanInfo.FieldInfo field : beanInfo.getFields()) {
-				methodBuilder.addCode(CodeBlock.builder()
-						.beginControlFlow("")
+				CodeBlock.Builder getterSetterCode = CodeBlock.builder().beginControlFlow("");
+				boolean accessGetter = field.isAccessGetter();
+				boolean accessSetter = field.isAccessSetter();
+				if (!accessGetter && !accessSetter) {
+					// ignore field
+					continue;
+				}
+				if (accessGetter) {
+					getterSetterCode
 						.addStatement("$T getter = () -> this.bean.$L()",
 							ParameterizedTypeName.get(ClassName.get(Supplier.class),
 								ClassName.get(Object.class)
 							),
 							field.getGetterName()
 						)
-						.addStatement("this.getters.put($S,getter)", field.getFieldName())
-						.addStatement("$T setter = o-> this.bean.$L(($T)o)",
+						.addStatement("this.getters.put($S,getter)", field.getFieldName());
+				}
+				if (accessSetter) {
+					getterSetterCode.addStatement("$T setter = o-> this.bean.$L(($T)o)",
 							ParameterizedTypeName.get(ClassName.get(Consumer.class),
 								ClassName.get(Object.class)
 							),
 							field.getSetterName(), field.getTypeName().box()
 						)
-						.addStatement("this.setters.put($S,setter)", field.getFieldName())
-						.endControlFlow()
-						.build())
+						.addStatement("this.setters.put($S,setter)", field.getFieldName());
+				}
+				methodBuilder
 					.addCode(CodeBlock.builder()
 						.beginControlFlow("try")
 						.addStatement("$T t = $T.class.getDeclaredField($S).getGenericType()", ClassName.get(Type.class),
@@ -180,6 +201,7 @@ public class AccessProcessor extends BaseProcessor {
 						.nextControlFlow("catch($T ignored)", ClassName.get(Exception.class))
 						.endControlFlow()
 						.build())
+					.addCode(getterSetterCode.endControlFlow().build())
 				;
 			}
 			classBuilder.addMethod(methodBuilder.build());
@@ -199,7 +221,20 @@ public class AccessProcessor extends BaseProcessor {
 				.addModifiers(Modifier.PUBLIC)
 				.returns(ClassName.get(Object.class))
 				.addParameter(ParameterSpec.builder(ClassName.get(Object.class), "key").build())
-				.addStatement("return this.getters.get((String)key).get()")
+				.addCode(CodeBlock.builder()
+					.beginControlFlow("if (!(key instanceof String))")
+					.addStatement("return null")
+					.endControlFlow()
+					.build())
+				.addStatement("$T supplier = this.getters.get((String) key)",ParameterizedTypeName.get(ClassName.get(Supplier.class),
+					ClassName.get(Object.class)
+				))
+				.addCode(CodeBlock.builder()
+					.beginControlFlow("if (supplier == null)")
+					.addStatement("return null")
+					.endControlFlow()
+					.build())
+				.addStatement("return supplier.get()")
 				.build());
 		}
 		{
@@ -209,6 +244,7 @@ public class AccessProcessor extends BaseProcessor {
 				.returns(ClassName.get(Object.class))
 				.addParameter(ParameterSpec.builder(ClassName.get(String.class), "key").build())
 				.addParameter(ParameterSpec.builder(ClassName.get(Object.class), "value").build())
+				.addStatement("value = this.converter.apply(value, this.types.get(key))")
 				.addStatement("Object old = this.get(key)")
 				.addStatement("this.setters.get(key).accept(value)")
 				.addStatement("return old")
@@ -225,7 +261,7 @@ public class AccessProcessor extends BaseProcessor {
 							WildcardTypeName.subtypeOf(ClassName.get(String.class)), WildcardTypeName.subtypeOf(ClassName.get(Object.class)))
 						, "m").build()
 				)
-				.addStatement("m.forEach((k, v) -> setters.get(k).accept(v))")
+				.addStatement("m.forEach((k, v) -> put(k,v))")
 				.build());
 		}
 		{

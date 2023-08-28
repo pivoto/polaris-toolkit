@@ -23,7 +23,7 @@ import java.util.Properties;
  */
 public abstract class BaseProcessor extends AbstractProcessor {
 
-	public static final String PROPERTIES_PATH = "polaris-core- annotation-processor.properties";
+	public static final String PROPERTIES_PATH = "polaris-core-annotation-processor.properties";
 	/** 用于在编译器打印消息的组件 */
 	protected Messager messager;
 	/** 语法树 */

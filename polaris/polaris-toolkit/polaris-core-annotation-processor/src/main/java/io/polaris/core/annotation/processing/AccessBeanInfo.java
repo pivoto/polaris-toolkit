@@ -1,6 +1,6 @@
 package io.polaris.core.annotation.processing;
 
-import io.polaris.core.annotation.processing.Access;
+import io.polaris.core.annotation.Access;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 import lombok.Data;
@@ -98,8 +98,8 @@ public class AccessBeanInfo {
 						fieldInfo.declaredClassName = declaredClassName;
 						fieldInfo.fieldName = fieldName;
 						fieldInfo.typeName = typeName;
-						fieldInfo.getterName = Utils.toGetterName(fieldName, typeName);
-						fieldInfo.setterName = Utils.toSetterName(fieldName);
+						fieldInfo.getterName = AnnotationProcessorUtils.toGetterName(fieldName, typeName);
+						fieldInfo.setterName = AnnotationProcessorUtils.toSetterName(fieldName);
 
 
 						if (excludeFieldSet.contains(fieldName)) {

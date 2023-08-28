@@ -81,6 +81,7 @@ class CriteriaParserTest {
 		PreparedSql sql = sqlNode.asPreparedSql();
 		System.out.println(sql.getText());
 		System.out.println(sql.getBindings());
+
 	}
 
 }

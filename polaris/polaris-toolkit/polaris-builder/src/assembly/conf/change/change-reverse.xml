@@ -29,23 +29,23 @@
 	</change>
 	<change>
 		<src>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-validator/src</src>
-		<dest>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-extra-validator/src</dest>
+		<dest>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-validator/src</dest>
 	</change>
 	<change>
 		<src>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-bytecode/src</src>
-		<dest>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-extra-bytecode/src</dest>
+		<dest>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-bytecode/src</dest>
 	</change>
 	<change>
 		<src>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-web/src</src>
-		<dest>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-extra-web/src</dest>
+		<dest>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-web/src</dest>
 	</change>
 	<change>
 		<src>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-image/src</src>
-		<dest>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-extra-image/src</dest>
+		<dest>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-image/src</dest>
 	</change>
 	<change>
 		<src>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-crypto/src</src>
-		<dest>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-extra-crypto/src</dest>
+		<dest>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-crypto/src</dest>
 	</change>
 	<change>
 		<src>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-demo/src</src>

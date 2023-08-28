@@ -15,7 +15,7 @@
 	<package name="com.jcfc.stdk" mapping="io.polaris"/>
 	<package name="com.jcfc" mapping="io.polaris"/>
 	<package name="stdk-annotation-processor" mapping="polaris-annotation-processor"/>
-	<package name="stdk-core-annotation-processor" mapping="polaris-core-	annotation-processor"/>
+	<package name="stdk-core-annotation-processor" mapping="polaris-core-annotation-processor"/>
 
 	<change>
 		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-builder/src</src>
@@ -30,23 +30,23 @@
 		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-core-annotation-processor/src</dest>
 	</change>
 	<change>
-		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-extra-validator/src</src>
+		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-validator/src</src>
 		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-validator/src</dest>
 	</change>
 	<change>
-		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-extra-bytecode/src</src>
+		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-bytecode/src</src>
 		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-bytecode/src</dest>
 	</change>
 	<change>
-		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-extra-web/src</src>
+		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-web/src</src>
 		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-web/src</dest>
 	</change>
 	<change>
-		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-extra-image/src</src>
+		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-image/src</src>
 		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-image/src</dest>
 	</change>
 	<change>
-		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-extra-crypto/src</src>
+		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-crypto/src</src>
 		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-crypto/src</dest>
 	</change>
 	<change>
