@@ -50,6 +50,10 @@
 		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-crypto/src</dest>
 	</change>
 	<change>
+		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-mybatis/src</src>
+		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-mybatis/src</dest>
+	</change>
+	<change>
 		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-demo/src</src>
 		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-demo/src</dest>
 	</change>

@@ -6,79 +6,169 @@ import io.polaris.core.jdbc.sql.PreparedSql;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * @author Qt
  * @since 1.8,  Aug 11, 2023
  */
-public class ContainerNode implements SqlNode {
+public class ContainerNode implements SqlNode, Cloneable {
+	public static final ContainerNode EMPTY = new ContainerNode(Collections.emptyList());
 	/** 是否跳过语句块 */
 	private boolean skip = false;
 	private List<SqlNode> subset = new ArrayList<>();
+	private final SqlNode delimiter;
+	private final SqlNode prefix;
+	private final SqlNode suffix;
+
+	public ContainerNode(SqlNode delimiter, SqlNode prefix, SqlNode suffix) {
+		this.delimiter = delimiter;
+		this.prefix = prefix;
+		this.suffix = suffix;
+	}
+
+	public ContainerNode(SqlNode delimiter, SqlNode prefix) {
+		this(delimiter, prefix, null);
+	}
+
+	public ContainerNode(SqlNode delimiter) {
+		this(delimiter, null, null);
+	}
+
+	public ContainerNode() {
+		this(null, null, null);
+	}
+
+	private ContainerNode(List<SqlNode> subset) {
+		this(null, null, null);
+		this.subset = subset;
+	}
 
 	@Override
 	public boolean isContainerNode() {
 		return true;
 	}
 
-
-	public boolean skip() {
-		return skip;
+	@Override
+	public boolean isSkipped() {
+		return skip || subset.isEmpty();
 	}
 
+	@Override
 	public void skip(boolean skip) {
 		this.skip = skip;
 	}
 
 	@Override
 	public PreparedSql asPreparedSql() {
-		if (skip()) {
+		if (isSkipped()) {
 			return PreparedSql.EMPTY;
 		}
+		boolean first = true;
 		StringBuilder text = new StringBuilder();
 		List<Object> list = new ArrayList<>();
 		for (SqlNode node : subset) {
-			if (node instanceof ContainerNode) {
-				if (((ContainerNode) node).skip()) {
-					continue;
-				}
+			if (node.isSkipped()) {
+				continue;
 			}
-			PreparedSql sql = node.asPreparedSql();
-			text.append(sql.getText());
-			List<Object> bindings = sql.getBindings();
-			if (bindings != null) {
-				list.addAll(bindings);
+			if (first) {
+				first = false;
+				addToPreparedSql(text, list, prefix);
+			} else {
+				addToPreparedSql(text, list, delimiter);
 			}
+			addToPreparedSql(text, list, node);
+		}
+		if (!first) {
+			addToPreparedSql(text, list, suffix);
 		}
 		return new PreparedSql(text.toString(), list);
 	}
 
+	private void addToPreparedSql(StringBuilder sb, List<Object> list, SqlNode node) {
+		if (node == null) {
+			return;
+		}
+		PreparedSql sql = node.asPreparedSql();
+		String text = sql.getText();
+		if (text != null) {
+			sb.append(text);
+		}
+		List<Object> bindings = sql.getBindings();
+		if (bindings != null) {
+			list.addAll(bindings);
+		}
+	}
+
 	@Override
 	public BoundSql asBoundSql(VarNameGenerator generator, String openVarToken, String closeVarToken) {
-		if (skip()) {
+		if (isSkipped()) {
 			return BoundSql.EMPTY;
 		}
+		boolean first = true;
 		StringBuilder text = new StringBuilder();
 		Map<String, Object> map = new LinkedHashMap<>();
 		for (SqlNode node : subset) {
-			if (node instanceof ContainerNode) {
-				if (((ContainerNode) node).skip()) {
-					continue;
-				}
+			if (node.isSkipped()) {
+				continue;
 			}
-			BoundSql sql = node.asBoundSql(generator, openVarToken, closeVarToken);
-			text.append(sql.getText());
-			Map<String, Object> bindings = sql.getBindings();
-			if (bindings != null) {
-				map.putAll(bindings);
+			if (first) {
+				first = false;
+				addToBoundSql(generator, openVarToken, closeVarToken, text, map, prefix);
+			} else {
+				addToBoundSql(generator, openVarToken, closeVarToken, text, map, delimiter);
 			}
+			addToBoundSql(generator, openVarToken, closeVarToken, text, map, node);
+		}
+		if (!first) {
+			addToBoundSql(generator, openVarToken, closeVarToken, text, map, suffix);
 		}
 		return new BoundSql(text.toString(), map);
 	}
 
+	private static void addToBoundSql(VarNameGenerator generator, String openVarToken, String closeVarToken, StringBuilder sb, Map<String, Object> map, SqlNode node) {
+		if (node == null) {
+			return;
+		}
+		BoundSql sql = node.asBoundSql(generator, openVarToken, closeVarToken);
+		String text = sql.getText();
+		if (text != null) {
+			sb.append(text);
+		}
+		Map<String, Object> bindings = sql.getBindings();
+		if (bindings != null) {
+			map.putAll(bindings);
+		}
+	}
+
+	@Override
+	public ContainerNode copy() {
+		return copy(true);
+	}
+
+	@Override
+	public ContainerNode copy(boolean withVarValue) {
+		ContainerNode clone = new ContainerNode();
+		clone.skip = this.skip;
+		for (int i = 0; i < this.subset.size(); i++) {
+			clone.subset.add(this.subset.get(i).copy(withVarValue));
+		}
+		return clone;
+	}
+
+	@Override
+	public ContainerNode clone() {
+		return copy(true);
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return subset.isEmpty();
+	}
+
 	@Override
 	public List<SqlNode> subset() {
-		return subset;
+		return Collections.unmodifiableList(subset);
 	}
 
 	@Override
@@ -116,7 +206,89 @@ public class ContainerNode implements SqlNode {
 	}
 
 	@Override
-	public boolean removeFirstNode(Predicate<SqlNode> predicate) {
+	public void visitSubsetWritable(Consumer<SqlNodeOp> visitor) {
+		int size = subset.size();
+		for (int i = 0; i < size; ) {
+			SqlNode node = subset.get(i);
+			SqlNodeOp op = new SqlNodeOp(node);
+
+			if (node instanceof ContainerNode) {
+				boolean empty = ((ContainerNode) node).subset.isEmpty();
+				if (!empty) {
+					((ContainerNode) node).visitSubsetWritable(visitor);
+					if (((ContainerNode) node).subset.isEmpty()) {
+						// 被清空子项
+						subset.remove(i);
+						size--;
+						continue;
+					}
+				}
+			} else {
+				visitor.accept(op);
+				if (op.isDeleted()) {
+					subset.remove(i);
+					size--;
+					continue;
+				} else if (op.isReplaced()) {
+					subset.set(i, op.getReplaced());
+				}
+			}
+			i++;
+		}
+	}
+
+	@Override
+	public void visitSubset(Consumer<SqlNode> visitor) {
+		for (int i = 0, n = subset.size(); i < n; i++) {
+			SqlNode node = subset.get(i);
+			if (node instanceof ContainerNode) {
+				((ContainerNode) node).visitSubset(visitor);
+			} else {
+				visitor.accept(node);
+			}
+		}
+	}
+
+	@Override
+	public boolean replaceFirstSub(Predicate<SqlNode> predicate, Supplier<SqlNode> supplier) {
+		for (int i = 0, n = subset.size(); i < n; i++) {
+			SqlNode node = subset.get(i);
+			if (predicate.test(node)) {
+				subset.set(i, supplier.get());
+				return true;
+			} else {
+				if (node instanceof ContainerNode) {
+					boolean rs = node.replaceFirstSub(predicate, supplier);
+					if (rs) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public int replaceAllSubs(Predicate<SqlNode> predicate, Supplier<SqlNode> supplier) {
+		int count = 0;
+		for (int i = 0, n = subset.size(); i < n; ) {
+			SqlNode node = subset.get(i);
+			if (predicate.test(node)) {
+				subset.set(i, supplier.get());
+				count++;
+				n--;
+			} else {
+				if (node instanceof ContainerNode) {
+					count += ((ContainerNode) node).replaceAllSubs(predicate, supplier);
+				}
+				i++;
+			}
+		}
+		return count;
+	}
+
+	@Override
+	public boolean removeFirstSub(Predicate<SqlNode> predicate) {
 		for (int i = subset.size() - 1; i >= 0; i--) {
 			SqlNode node = subset.get(i);
 			if (predicate.test(node)) {
@@ -124,7 +296,7 @@ public class ContainerNode implements SqlNode {
 				return true;
 			} else {
 				if (node instanceof ContainerNode) {
-					boolean rs = ((ContainerNode) node).removeFirstNode(predicate);
+					boolean rs = ((ContainerNode) node).removeFirstSub(predicate);
 					if (rs) {
 						return true;
 					}
@@ -136,39 +308,40 @@ public class ContainerNode implements SqlNode {
 	}
 
 	@Override
-	public boolean removeAllNodes(Predicate<SqlNode> predicate) {
+	public int removeAllSubs(Predicate<SqlNode> predicate) {
 		int count = 0;
-		for (int i = subset.size() - 1; i >= 0; i--) {
+		for (int i = 0, n = subset.size(); i < n; ) {
 			SqlNode node = subset.get(i);
-
 			if (predicate.test(node)) {
 				subset.remove(i);
 				count++;
+				n--;
 			} else {
 				if (node instanceof ContainerNode) {
-					((ContainerNode) node).removeAllNodes(predicate);
+					((ContainerNode) node).removeAllSubs(predicate);
 					count++;
 				}
+				i++;
 			}
 		}
-		return count > 0;
+		return count;
 	}
 
 	@Override
-	public void clearSkippedNodes() {
-		removeAllNodes(node -> node instanceof ContainerNode && ((ContainerNode) node).skip);
+	public void clearSkippedSubs() {
+		removeAllSubs(node -> node instanceof ContainerNode && ((ContainerNode) node).skip);
 	}
 
 	@Override
 	public boolean containsVarName(String key) {
 		for (int i = 0, n = subset.size(); i < n; i++) {
 			SqlNode node = subset.get(i);
-			if (node instanceof VarNode) {
-				if (Objects.equals(((VarNode) node).getVarName(), key)) {
+			if (node.isVarNode()) {
+				if (Objects.equals(node.getVarName(), key)) {
 					return true;
 				}
-			} else if (node instanceof ContainerNode) {
-				if (((ContainerNode) node).containsVarName(key)) {
+			} else if (node.isContainerNode()) {
+				if (node.containsVarName(key)) {
 					return true;
 				}
 			}
@@ -177,37 +350,44 @@ public class ContainerNode implements SqlNode {
 	}
 
 	@Override
-	public void visitNode(Consumer<SqlNode> visitor) {
-		for (int i = 0, n = subset.size(); i < n; i++) {
-			SqlNode node = subset.get(i);
-			if (node instanceof ContainerNode) {
-				((ContainerNode) node).visitNode(visitor);
-			} else {
-				visitor.accept(node);
-			}
-		}
-	}
-
-	@Override
-	public void bindVarValues(Map<String, Object> params) {
-		bindVarValues(params, true);
-	}
-
-	@Override
-	public void bindVarValues(Map<String, Object> params, boolean ignoreNull) {
-		visitNode(node -> {
-			if (node instanceof VarNode) {
-				VarNode varNode = (VarNode) node;
-				Object param = params.get(varNode.getVarName());
+	public void bindSubsetVarValues(Map<String, Object> params, boolean ignoreNull) {
+		visitSubset(node -> {
+			if (node.isVarNode()) {
+				Object param = params.get(node.getVarName());
 				if (param != null || !ignoreNull) {
-					varNode.bindVarValue(param);
+					node.bindVarValue(param);
 				}
 			}
 		});
 	}
 
 	@Override
-	public void skipIfMissingVarParameter() {
+	public void bindSubsetVarValue(String varName, Object varValue, boolean ignoreNull) {
+		if (ignoreNull && varValue == null) {
+			return;
+		}
+		visitSubset(node -> {
+			if (node.isVarNode()) {
+				if (Objects.equals(node.getVarName(), varName)) {
+					node.bindVarValue(varValue);
+				}
+			}
+		});
+	}
+
+	@Override
+	public void removeVarValue(String varName) {
+		visitSubset(node -> {
+			if (node.isVarNode()) {
+				if (Objects.equals(node.getVarName(), varName)) {
+					node.removeVarValue();
+				}
+			}
+		});
+	}
+
+	@Override
+	public void skipIfMissingVarValue() {
 		for (int i = subset.size() - 1; i >= 0; i--) {
 			SqlNode node = subset.get(i);
 			if (node.isVarNode()) {
@@ -216,7 +396,7 @@ public class ContainerNode implements SqlNode {
 					break;
 				}
 			} else if (node instanceof ContainerNode) {
-				((ContainerNode) node).skipIfMissingVarParameter();
+				((ContainerNode) node).skipIfMissingVarValue();
 			}
 		}
 	}

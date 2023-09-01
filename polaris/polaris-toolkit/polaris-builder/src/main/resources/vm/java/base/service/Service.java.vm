@@ -3,6 +3,7 @@ package ${pkgPrefix}${env.servicePackage.replace('/','.')};
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import lombok.*;
 import lombok.experimental.*;
 import lombok.extern.slf4j.*;
@@ -19,6 +20,9 @@ import org.springframework.util.Assert;
 import ${pkgPrefix}${env.mapperPackage.replace('/','.')}.${table.javaClassName}${env.mapperClassSuffix};
 import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
 
+import io.polaris.core.jdbc.sql.query.OrderBy;
+import io.polaris.core.jdbc.sql.query.Queries;
+import io.polaris.core.jdbc.sql.query.Pageable;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 
@@ -31,8 +35,17 @@ import com.github.pagehelper.PageHelper;
 @Slf4j
 @Service
 public class ${table.javaClassName}${env.serviceClassSuffix} {
-	@Autowired
-	private ${table.javaClassName}${env.mapperClassSuffix} mapper;
+
+	private final ${table.javaClassName}${env.mapperClassSuffix} mapper;
+
+	public ${table.javaClassName}${env.serviceClassSuffix}(@Autowired ${table.javaClassName}${env.mapperClassSuffix} mapper) {
+		this.mapper = mapper;
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public <V> V doTransactional(Function<${table.javaClassName}${env.mapperClassSuffix}, V> function) {
+		return function.apply(mapper);
+	}
 
 	/**
 	 * 查询满足条件的总数
@@ -43,7 +56,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Transactional(rollbackFor = Exception.class)
 	public int getCount(${table.javaClassName}${env.entityClassSuffix} param) {
 		log.info("查询表记录数: ${table.name}");
-		int count = mapper.getCount(param);
+		int count = mapper.countEntity(param);
 		return count;
 	}
 	/**
@@ -55,7 +68,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Transactional(rollbackFor = Exception.class)
 	public int getCount(Map<String,Object> param) {
 		log.info("查询表记录数: ${table.name}");
-		int count = mapper.getCount(param);
+		int count = mapper.countEntityByMap(param);
 		return count;
 	}
 
@@ -71,13 +84,13 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	public Page<${table.javaClassName}${env.entityClassSuffix}> getPage(${table.javaClassName}${env.entityClassSuffix} param, int pageNum, int pageSize) {
 		log.info("查询表结果集: ${table.name}");
 		Page<${table.javaClassName}${env.entityClassSuffix}> page = PageHelper.startPage(pageNum, pageSize, false);
-		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.getAll(param);
+		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.selectEntityList(param);
 		if(list instanceof Page){
 			page = (Page<${table.javaClassName}${env.entityClassSuffix}>) list;
 		}else{
 			page.addAll(list);
 		}
-		int total = mapper.getCount(param);
+		int total = mapper.countEntity(param);
 		page.setTotal(total);
 		return page;
 	}
@@ -93,13 +106,13 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	public Page<${table.javaClassName}${env.entityClassSuffix}> getPage(Map<String,Object> param, int pageNum, int pageSize) {
 		log.info("查询表结果集: ${table.name}");
 		Page<${table.javaClassName}${env.entityClassSuffix}> page = PageHelper.startPage(pageNum, pageSize, false);
-		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.getAll(param);
+		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.selectEntityListByMap(param);
 		if(list instanceof Page){
 			page = (Page<${table.javaClassName}${env.entityClassSuffix}>) list;
 		}else{
 			page.addAll(list);
 		}
-		int total = mapper.getCount(param);
+		int total = mapper.countEntityByMap(param);
 		page.setTotal(total);
 		return page;
 	}
@@ -112,13 +125,13 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	 * @return 当前页对象
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public List<${table.javaClassName}${env.entityClassSuffix}> getPage(${table.javaClassName}${env.entityClassSuffix} param, io.polaris.bf.core.data.domain.Page page) {
+	public List<${table.javaClassName}${env.entityClassSuffix}> getPage(${table.javaClassName}${env.entityClassSuffix} param, Pageable page) {
 		if (page == null) {
-			return mapper.getAll(param);
+			return mapper.selectEntityList(param);
 		}
-		Page<${table.javaClassName}${env.entityClassSuffix}> data = PageHelper.startPage(page.pageIdx, page.pageSize, true)
-			.doSelectPage(() -> mapper.getAll(param));
-		page.setRecordSize((int) data.getTotal());
+		Page<${table.javaClassName}${env.entityClassSuffix}> data = PageHelper.startPage(page.getPageNum(), page.getPageSize(), true)
+			.doSelectPage(() -> mapper.selectEntityList(param, page.getOrderBy()));
+		page.setTotal((int) data.getTotal());
 		return data;
 	}
 	/**
@@ -129,13 +142,13 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	 * @return 当前页对象
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public List<${table.javaClassName}${env.entityClassSuffix}> getPage(Map<String,Object> param, io.polaris.bf.core.data.domain.Page page) {
+	public List<${table.javaClassName}${env.entityClassSuffix}> getPage(Map<String,Object> param, Pageable page) {
 		if (page == null) {
-			return mapper.getAll(param);
+			return mapper.selectEntityListByMap(param);
 		}
-		Page<${table.javaClassName}${env.entityClassSuffix}> data = PageHelper.startPage(page.pageIdx, page.pageSize, true)
-			.doSelectPage(() -> mapper.getAll(param));
-		page.setRecordSize((int) data.getTotal());
+		Page<${table.javaClassName}${env.entityClassSuffix}> data = PageHelper.startPage(page.getPageNum(), page.getPageSize(), true)
+			.doSelectPage(() -> mapper.selectEntityListByMap(param, page.getOrderBy()));
+		page.setTotal((int) data.getTotal());
 		return data;
 	}
 
@@ -148,7 +161,8 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Transactional(rollbackFor = Exception.class)
 	public List<${table.javaClassName}${env.entityClassSuffix}> getLimitedList(${table.javaClassName}${env.entityClassSuffix} param, int maxCount) {
 		log.info("查询表结果集: ${table.name}");
-		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.getAll(param, new RowBounds(0, maxCount));
+		List<${table.javaClassName}${env.entityClassSuffix}> list = PageHelper.startPage(1, maxCount, false)
+			.doSelectPage(() -> mapper.selectEntityList(param));
 		return list;
 	}
 
@@ -161,7 +175,8 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Transactional(rollbackFor = Exception.class)
 	public List<${table.javaClassName}${env.entityClassSuffix}> getLimitedList(Map<String,Object> param, int maxCount) {
 		log.info("查询表结果集: ${table.name}");
-		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.getAll(param, new RowBounds(0, maxCount));
+		List<${table.javaClassName}${env.entityClassSuffix}> list = PageHelper.startPage(1, maxCount, false)
+			.doSelectPage(() -> mapper.selectEntityListByMap(param));
 		return list;
 	}
 
@@ -174,7 +189,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Transactional(rollbackFor = Exception.class)
 	public List<${table.javaClassName}${env.entityClassSuffix}> getList(${table.javaClassName}${env.entityClassSuffix} param) {
 		log.info("查询表结果集: ${table.name}");
-		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.getAll(param);
+		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.selectEntityList(param);
 		return list;
 	}
 	/**
@@ -186,7 +201,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Transactional(rollbackFor = Exception.class)
 	public List<${table.javaClassName}${env.entityClassSuffix}> getList(Map<String,Object> param) {
 		log.info("查询表结果集: ${table.name}");
-		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.getAll(param);
+		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.selectEntityListByMap(param);
 		return list;
 	}
 
@@ -201,7 +216,8 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Transactional(rollbackFor = Exception.class)
 	public List<${table.javaClassName}${env.entityClassSuffix}> getList(${table.javaClassName}${env.entityClassSuffix} param, int pageIndex, int pageSize) {
 		log.info("查询表结果集: ${table.name}");
-		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.getAll(param, new RowBounds(pageIndex * pageSize, pageSize));
+		List<${table.javaClassName}${env.entityClassSuffix}> list = PageHelper.startPage(pageIndex, pageSize, false)
+			.doSelectPage(() -> mapper.selectEntityList(param));
 		return list;
 	}
 	/**
@@ -215,7 +231,8 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Transactional(rollbackFor = Exception.class)
 	public List<${table.javaClassName}${env.entityClassSuffix}> getList(Map<String,Object> param, int pageIndex, int pageSize) {
 		log.info("查询表结果集: ${table.name}");
-		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.getAll(param, new RowBounds(pageIndex * pageSize, pageSize));
+		List<${table.javaClassName}${env.entityClassSuffix}> list = PageHelper.startPage(pageIndex, pageSize, false)
+			.doSelectPage(() -> mapper.selectEntityListByMap(param));
 		return list;
 	}
 
@@ -226,7 +243,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	 * @return 影响记录数
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public int insert(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix}) {
+	public int insertEntire(${table.javaClassName}${env.entityClassSuffix} ${table.javaVariableName}${env.entityClassSuffix}) {
 		log.info("新增表记录: ${table.name}");
 		Assert.notNull(${table.javaVariableName}${env.entityClassSuffix}, "参数对象[${table.javaClassName}${env.entityClassSuffix}]不能为空");
 		#foreach($col in $table.pkColumns)
@@ -245,7 +262,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 				#end
 			#end
 		#end
-		return mapper.insert(${table.javaVariableName}${env.entityClassSuffix});
+		return mapper.insertEntity(${table.javaVariableName}${env.entityClassSuffix}, true);
 	}
 
 	/**
@@ -274,7 +291,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 				#end
 			#end
 		#end
-		return mapper.insertSelective(${table.javaVariableName}${env.entityClassSuffix});
+		return mapper.insertEntity(${table.javaVariableName}${env.entityClassSuffix});
 	}
 
 	/**
@@ -294,7 +311,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 			#end
 		#end
-		return mapper.delete(${table.javaVariableName}Entity);
+		return mapper.deleteEntityById(${table.javaVariableName}Entity);
 	}
 
 	/**
@@ -304,7 +321,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	 * @return 影响记录数
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public int update(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
+	public int updateEntire(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
 		log.info("根据主键更新表记录: ${table.name}");
 		Assert.notNull(${table.javaVariableName}Entity, "参数对象[${table.javaClassName}Entity]不能为空");
 		#foreach($col in $table.columns)
@@ -316,7 +333,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 				#end
 			#end
 		#end
-		return mapper.update(${table.javaVariableName}Entity);
+		return mapper.updateEntityById(${table.javaVariableName}Entity, true);
 	}
 
 	/**
@@ -336,7 +353,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 			#end
 		#end
-		return mapper.updateSelective(${table.javaVariableName}Entity);
+		return mapper.updateEntityById(${table.javaVariableName}Entity);
 	}
 
 	/**
@@ -356,7 +373,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		Assert.notNull(${table.javaVariableName}Entity.get${col.javaClassName}(), "主键字段[#if($col.label)$col.label#else$col.name#end]不能为空");
 			#end
 		#end
-		return mapper.getById(${table.javaVariableName}Entity);
+		return mapper.selectEntityById(${table.javaVariableName}Entity);
 	}
 
 	/**
@@ -368,7 +385,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Transactional(rollbackFor = Exception.class)
 	public ${table.javaClassName}Entity getUnique(${table.javaClassName}Entity ${table.javaVariableName}Entity) {
 		log.info("查询表的唯一结果集: ${table.name}");
-		return mapper.getUnique(${table.javaVariableName}Entity);
+		return mapper.selectEntity(${table.javaVariableName}Entity);
 	}
 
 }

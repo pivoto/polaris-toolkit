@@ -519,6 +519,10 @@ public class SqlStatement {
 			sb.append(")");
 			return sb.toString();
 		}
+
+		public boolean hasConditions() {
+			return !conditions.isEmpty();
+		}
 	}
 
 
@@ -569,6 +573,10 @@ public class SqlStatement {
 			}
 			sb.append(")");
 			return sb.toString();
+		}
+
+		public boolean hasConditions() {
+			return !conditions.isEmpty();
 		}
 	}
 

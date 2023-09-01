@@ -253,8 +253,12 @@ public class Reflects {
 		return toGetterOrSetterName(setter.method().getName());
 	}
 
-	public static <T, R> String getPropertyName(SerializableFunction<T, R> getter) {
+	public static <T, R> String getPropertyName(GetterFunction<T, R> getter) {
 		return toGetterOrSetterName(getter.method().getName());
+	}
+
+	public static <T, R> String getPropertyName(SetterFunction<T, R> setter) {
+		return toGetterOrSetterName(setter.method().getName());
 	}
 
 	public static void setAccessible(AccessibleObject accessibleObject) {

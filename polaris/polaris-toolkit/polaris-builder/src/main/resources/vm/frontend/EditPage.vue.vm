@@ -1,0 +1,318 @@
+#parse("/vm/include.vm")
+<template>
+	<div class="dialog-container" ref="refDiv" v-draggable v-resizable v-maximizable>
+		<el-dialog title="数据新增" v-model="state.show" width="75%">
+			<el-form ref="refForm" v-loading="state.loading.formLoading" :rules="state.rules" :model="state.form"
+							 label-width="90px">
+				<v-row :gutter="5">
+#foreach($col in $table.columns)
+	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
+					<v-col class="mb5" :span="12">
+						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+							<el-date-picker v-model="state.form.${col.javaVariableName}" placeholder="${col.label}"
+								clearable :readonly="props.readonly" :disabled="props.readonly" style="width: 200px;"
+								type="datetime" value-format="x" format="YYYY-MM-DD HH:mm:ss"/>
+						</el-form-item>
+					</v-col>
+	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT')
+					<v-col class="mb5" :span="12">
+						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+							<el-input-number v-model="state.form.${col.javaVariableName}" placeholder="${col.label}" clearable
+								:precision="0" :readonly="props.readonly" :disabled="props.readonly" style="width: 200px;"/>
+						</el-form-item>
+					</v-col>
+	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
+					<v-col class="mb5" :span="12">
+						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+							<el-input-number v-model="state.form.${col.javaVariableName}" placeholder="${col.label}" clearable
+								:precision="${col.decimalDigits}" :readonly="props.readonly" :disabled="props.readonly" style="width: 200px;" />
+						</el-form-item>
+					</v-col>
+	#else
+		#if(${col.name.toLowerCase().endsWith('_sts')})
+					<v-col class="mb5" :span="12">
+						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+							<el-switch v-model="state.form.${col.javaVariableName}" width="60"
+								:active-value="'A'" :inactive-value="'I'" inline-prompt
+								active-text="生效" inactive-text="失效"
+								clearable :readonly="props.readonly" :disabled="props.readonly" style="width: 200px;">
+							</el-switch>
+						</el-form-item>
+					</v-col>
+		#else
+					<v-col class="mb5" :span="12">
+						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+							<el-input v-model="state.form.${col.javaVariableName}" placeholder="${col.label}"
+								clearable :readonly="props.readonly" :disabled="props.readonly" style="width: 200px;"></el-input>
+						</el-form-item>
+					</v-col>
+		#end
+	#end
+#end
+				</v-row>
+			</el-form>
+			<template #footer>
+				<div class="dialog-footer">
+					<template v-if="props.readonly">
+						<el-button icon="EleCircleCloseFilled" type="primary" @click="onCancel()">关闭</el-button>
+					</template>
+					<template v-else>
+						<el-button icon="EleCircleCheckFilled" type="primary" @click="onSubmit()">提交</el-button>
+						<el-button icon="EleCircleCloseFilled" type="primary" @click="onCancel()">取消</el-button>
+					</template>
+				</div>
+			</template>
+		</el-dialog>
+	</div>
+</template>
+<script lang="ts">
+export default {
+	name: "EditRole"
+}
+</script>
+<script setup lang="ts">
+import {
+	computed, watch, provide, inject, nextTick,
+	defineComponent, getCurrentInstance,
+	onMounted, onActivated, onDeactivated, onUnmounted,
+	reactive, ref, shallowReactive, shallowRef, toRefs, PropType
+} from "vue";
+import type {FormInstance, FormRules} from 'element-plus'
+import type {RuleItem, ValidateError, ValidateFieldsError} from 'async-validator';
+
+import VRow from '/@/components/page/VRow.vue'
+import VCol from '/@/components/page/VCol.vue'
+import msg, {error} from "/@/common/core/msg";
+import {formatDate} from "/@/common/core/date";
+import {apiw} from "/@/common/api";
+import {PromiseResult} from "/@/common/core/utils";
+import ApiOutput from "/@/common/api/ApiOutput";
+
+const props = defineProps({
+	show: {
+		type: Boolean,
+		required: false,
+		default: true
+	},
+	readonly: {
+		type: Boolean,
+		required: false,
+		default: true
+	},
+	data: {
+		type: Object as PropType<ParamType>,
+		required: true,
+	}
+});
+
+const emits = defineEmits<{
+	(e: 'update:show', show: boolean): void,
+}>();
+
+type ParamType = {
+#foreach($col in $table.pkColumns)
+	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
+	${col.javaVariableName}#if(${col.nullable})?#end: number,
+	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT')
+	${col.javaVariableName}#if(${col.nullable})?#end: number,
+	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
+	${col.javaVariableName}#if(${col.nullable})?#end: number,
+	#else
+	${col.javaVariableName}#if(${col.nullable})?#end: string,
+	#end
+#end
+}
+type FormType = {
+#foreach($col in $table.columns)
+	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
+	${col.javaVariableName}?: number,
+	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT')
+	${col.javaVariableName}?: number,
+	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
+	${col.javaVariableName}?: number,
+	#else
+	${col.javaVariableName}?: string,
+	#end
+#end
+}
+type StateType = {
+	show: boolean,
+	loading: {
+		formLoading: boolean,
+	},
+	form: FormType,
+	rules: FormRules<FormType>,
+};
+
+const instance = getCurrentInstance();
+const proxy = instance?.proxy;
+const refDiv = shallowRef<HTMLElement | null>(null);
+const refForm = ref<FormInstance>()
+const state = reactive<StateType>({
+	show: props.show,
+	loading: {
+		formLoading: false,
+	},
+	form: {},
+	rules: {
+#foreach($col in $table.columns)
+	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
+	#if(!${col.nullable})
+		${col.javaVariableName}: {
+			validator: (rule, value, callback) => {
+				if (value == null) {
+					return new Error('不能为空');
+				}
+				callback();
+			}
+		},
+	#end
+	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT' || ${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
+	#if(!${col.nullable})
+		${col.javaVariableName}: {
+			validator: (rule, value, callback) => {
+				if (value == null) {
+					return new Error('不能为空');
+				}
+				callback();
+			}
+		},
+	#end
+	#else
+	#if(!${col.nullable})
+		${col.javaVariableName}: {
+			validator: (rule, value, callback) => {
+				if (/^\s*$/.test(value)) {
+					return new Error('不能为空');
+				}
+				if (/\s+/.test(value)) {
+					callback(new Error('不能有空格'))
+				}
+				callback();
+			}
+		},
+	#end
+	#end
+#end
+	}
+});
+
+watch(() => props.show, (nv, ov) => state.show = nv);
+watch(() => state.show, (nv, ov) => {
+	if (props.show != nv) {
+		emits('update:show', nv)
+	}
+})
+
+watch(() => props.data, (nv, ov) => {
+	onFetchInitData(props.data)
+})
+
+function updateShow(show: boolean) {
+	state.show = show;
+	emits('update:show', show);
+}
+
+function openDialog() {
+	updateShow(true)
+}
+
+function closeDialog() {
+	updateShow(false)
+}
+
+async function onFetchInitData(param: ParamType) {
+	console.log('onFetchInitData', param)
+	if (!param.tenantId || !param.roleId) {
+		return;
+	}
+	state.loading.formLoading = true;
+	try {
+		//let rs = await mockInitData(param);
+		let rs = await apiw({
+			method: 'post',
+			url: '/api/$!{env.rpcCodePrefix}${table.javaClassName}Get',
+			headers: {},
+			data: {
+				param: param
+			}
+		});
+		if (rs.hasError()) {
+			msg.error(rs.error && rs.error.message || '查询失败')
+			return;
+		}
+		if (!rs.data?.isSuccess()) {
+			msg.error(rs.data?.getErrMessage() || '查询失败:' + rs.data?.getErrCode())
+			return;
+		}
+		state.form = rs.data?.getData().entity;
+	} finally {
+		state.loading.formLoading = false;
+	}
+}
+
+function onSubmit() {
+	refForm.value.validate(async (isValid: boolean, invalidFields: ValidateFieldsError) => {
+		if (isValid) {
+			//let rs = await mockSubmitData();
+			let rs = await apiw({
+				method: 'post',
+				url: '/api/$!{env.rpcCodePrefix}${table.javaClassName}Dml',
+				headers: {},
+				data: {
+					type: 'UPDATE',
+					param: state.form
+				}
+			});
+			console.log(rs.data, rs.error)
+			if (rs.hasError()) {
+				msg.error(rs.error && rs.error.message || '提交失败！')
+				return;
+			}
+			if (!rs.data?.isSuccess()) {
+				msg.error(rs.data?.getErrMessage() || '提交失败！' + rs.data?.getErrCode())
+				return;
+			}
+			msg.success('提交成功！')
+			closeDialog()
+		} else {
+			console.log(invalidFields)
+			let err = '表单校验失败！';
+			for (let key in invalidFields) {
+				let errors: ValidateError[] = invalidFields[key];
+				for (let i = 0; i < errors.length; i++) {
+					err += '<br>' + errors[i].field + '：' + errors[i].message
+				}
+			}
+			msg.error(err, {dangerouslyUseHTMLString: true} as any);
+		}
+	});
+}
+
+function onCancel() {
+	closeDialog()
+}
+
+function mockSubmitData(): Promise<PromiseResult<ApiOutput | null, any>> {
+	let data = {};
+	return new Promise<PromiseResult<ApiOutput | null, any>>((resolve, reject) => {
+		setTimeout(() => {
+			resolve(new PromiseResult(new ApiOutput(data), null))
+		}, Math.round(100 + Math.random() * 1000));
+	})
+}
+
+function mockInitData(param: ParamType): Promise<PromiseResult<ApiOutput | null, any>> {
+	let data = {
+		entity: {...param}
+	};
+	return new Promise<PromiseResult<ApiOutput | null, any>>((resolve, reject) => {
+		setTimeout(() => {
+			resolve(new PromiseResult(new ApiOutput(data), null))
+		}, Math.round(100 + Math.random() * 1000));
+	})
+}
+
+</script>
+<style lang="scss">
+</style>

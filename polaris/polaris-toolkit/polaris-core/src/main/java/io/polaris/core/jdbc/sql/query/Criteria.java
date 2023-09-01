@@ -1,14 +1,19 @@
 package io.polaris.core.jdbc.sql.query;
 
 import io.polaris.core.collection.Iterables;
+import io.polaris.core.jdbc.ColumnMeta;
+import io.polaris.core.jdbc.TableMeta;
+import io.polaris.core.jdbc.TableMetaKit;
+import io.polaris.core.lang.Objs;
+import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.string.Strings;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Qt
@@ -17,13 +22,19 @@ import java.util.List;
 @Getter
 @Setter
 @EqualsAndHashCode
-@NoArgsConstructor
 public class Criteria {
-	private CriteriaRelation relation;
+	private Relation relation;
 	private List<Criteria> subset = null;
 
 	private String field;
 	private Criterion criterion;
+
+	public Criteria() {
+	}
+
+	public static Criteria newCriteria() {
+		return new Criteria();
+	}
 
 
 	public boolean isValid() {
@@ -48,7 +59,7 @@ public class Criteria {
 	}
 
 
-	public Criteria relation(CriteriaRelation relation) {
+	public Criteria relation(Relation relation) {
 		this.relation = relation;
 		return this;
 	}

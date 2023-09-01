@@ -137,6 +137,10 @@ public class Iterables {
 		return c;
 	}
 
+	public static <E> E[] copyOf(E[] array) {
+		return Arrays.copyOf(array, array.length);
+	}
+
 	public static <S, T> Iterator<T> convert(Iterator<S> iterator, Function<S, T> converter) {
 		return new Iterator<T>() {
 			@Override

@@ -16,13 +16,13 @@ import java.util.*;
  */
 public class SqlParser {
 
-	public static SqlNode parse(String sql) {
+	public static ContainerNode parse(String sql) {
 		return parse(sql, '$', '#', '{', '}');
 	}
 
-	public static SqlNode parse(String sql, char directSymbol, char preparedSymbol
+	public static ContainerNode parse(String sql, char directSymbol, char preparedSymbol
 		, char openSymbol, char closeSymbol) {
-		SqlNode root = new ContainerNode();
+		ContainerNode root = new ContainerNode();
 
 		char[] src = sql.toCharArray();
 		int len = sql.length();
@@ -56,7 +56,7 @@ public class SqlParser {
 							text.setLength(0);
 						}
 						text.append(src, i, idx - i + 1);
-						root.addNode(new ReplacedVarNode(text.substring(2, text.length() - 1).trim()));
+						root.addNode(new MixedNode(text.substring(2, text.length() - 1).trim()));
 						text.setLength(0);
 						i = idx;
 					}
@@ -74,7 +74,7 @@ public class SqlParser {
 							text.setLength(0);
 						}
 						text.append(src, i, idx - i + 1);
-						root.addNode(new PreparedVarNode(text.substring(2, text.length() - 1).trim()));
+						root.addNode(new DynamicNode(text.substring(2, text.length() - 1).trim()));
 						text.setLength(0);
 						i = idx;
 					}

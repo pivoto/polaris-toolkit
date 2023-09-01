@@ -8,4 +8,11 @@ public interface VarNameGenerator {
 
 	String generate();
 
+	static VarNameGenerator newInstance() {
+		return new DefaultVarNameGenerator();
+	}
+
+	static VarNameGenerator newInstance(String prefix) {
+		return new DefaultVarNameGenerator(prefix);
+	}
 }

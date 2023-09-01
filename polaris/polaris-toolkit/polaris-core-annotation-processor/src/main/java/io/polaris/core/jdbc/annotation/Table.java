@@ -10,11 +10,18 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Table {
-	String name() default "";
+	String value();
+
+	String alias() default "";
 
 	String schema() default "";
 
 	String catalog() default "";
 
 	String metaSuffix() default "Meta";
+
+	boolean sqlGenerated() default true;
+
+	String sqlSuffix() default "Sql";
+
 }

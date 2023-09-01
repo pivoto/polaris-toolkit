@@ -25,7 +25,7 @@
 	</modules>
 
 	<properties>
-		<revision>2.0.10-SNAPSHOT</revision>
+		<revision>2.0.11-SNAPSHOT</revision>
 		<start-class></start-class>
 		<java.version>1.8</java.version>
 		<file.encoding>UTF-8</file.encoding>
@@ -54,6 +54,8 @@
 		<maven.compiler.useIncrementalCompilation>false</maven.compiler.useIncrementalCompilation>
 		<assembly.appendAssemblyId>true</assembly.appendAssemblyId>
 		<assembly.skipAssembly>false</assembly.skipAssembly>
+		<groups>important | fast | light</groups>
+		<excludedGroups>local,slow,heavy</excludedGroups>
 
 		<maven.jetty.version>9.2.2.v20140723</maven.jetty.version>
 		<maven.tomcat.version>2.2</maven.tomcat.version>
@@ -70,7 +72,7 @@
 		<dependency.slf4j.version>1.7.36</dependency.slf4j.version>
 		<!--<dependency.slf4j.version>2.0.5</dependency.slf4j.version>-->
 		<dependency.jmh.version>1.21</dependency.jmh.version>
-		<dependency.junit-jupiter.version>5.8.1</dependency.junit-jupiter.version>
+		<dependency.junit-jupiter.version>5.9.1</dependency.junit-jupiter.version>
 		<dependency.junit.version>4.13.2</dependency.junit.version>
 		<dependency.h2.version>2.2.220</dependency.h2.version>
 		<dependency.hsqldb.version>2.7.1</dependency.hsqldb.version>
@@ -758,8 +760,10 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.22.2</version>
+					<version>3.1.2</version>
 					<configuration>
+						<groups>${groups}</groups>
+						<excludedGroups>${excludedGroups}</excludedGroups>
 						<includes>
 							<include>**/Test*.java</include>
 							<include>**/*Test.java</include>
@@ -767,15 +771,28 @@
 							<include>**/*TestCase.java</include>
 						</includes>
 					</configuration>
+					<dependencies>
+						<dependency>
+							<groupId>org.junit.jupiter</groupId>
+							<artifactId>junit-jupiter-engine</artifactId>
+							<version>${dependency.junit-jupiter.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>org.junit.vintage</groupId>
+							<artifactId>junit-vintage-engine</artifactId>
+							<version>${dependency.junit-jupiter.version}</version>
+						</dependency>
+					</dependencies>
 				</plugin>
 
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>cobertura-maven-plugin</artifactId>
-					<version>2.6</version>
+					<version>2.7</version>
 					<configuration>
-						<format>xml</format>
+						<!--<format>xml</format>-->
 						<format>html</format>
+						<quiet>true</quiet>
 					</configuration>
 					<executions>
 						<execution>

@@ -18,6 +18,10 @@ public class DelegateMap<K, V> implements Map<K, V> {
 		this.raw = raw;
 	}
 
+	@Override
+	public String toString() {
+		return raw.toString();
+	}
 
 	@Override
 	public int size() {

@@ -29,10 +29,6 @@ public class Assertions {
 		throw new AssertionException(message, t);
 	}
 
-	public static void fail(String message, Object expected, Object actual) throws AssertionException {
-		throw new AssertionException(message, expected, actual);
-	}
-
 	static String buildPrefix(String message) throws AssertionException {
 		return (Strings.isNotBlank(message) ? message + " ==> " : "");
 	}

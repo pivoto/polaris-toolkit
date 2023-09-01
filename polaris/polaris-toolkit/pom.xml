@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>cn.pivoto.polaris</groupId>
 		<artifactId>polaris-bom-base</artifactId>
-		<version>2.0.9</version>
+		<version>2.0.10</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cn.pivoto.polaris.toolkit</groupId>
@@ -104,6 +104,11 @@
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-image</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<artifactId>polaris-mybatis</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 

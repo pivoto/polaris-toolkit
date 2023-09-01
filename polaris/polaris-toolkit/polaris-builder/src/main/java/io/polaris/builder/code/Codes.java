@@ -122,7 +122,24 @@ public class Codes {
 		{
 			if (templates.length == 0) {
 				DefaultTemplate defaultTemplate = code.annotationType().getAnnotation(DefaultTemplate.class);
-				templates = defaultTemplate.value();
+				List<Template> list = new ArrayList<>();
+				String[] excludeTemplatePaths = code.excludeTemplatePaths();
+				if (excludeTemplatePaths.length == 0) {
+					list.addAll(Arrays.asList(defaultTemplate.value()));
+				} else {
+					loop:
+					for (Template template : defaultTemplate.value()) {
+						String path = template.path();
+						for (String excludeTemplatePath : excludeTemplatePaths) {
+							if (path.equals(excludeTemplatePath)) {
+								continue loop;
+							}
+						}
+						list.add(template);
+					}
+				}
+				list.addAll(Arrays.asList(code.additionalTemplates()));
+				templates = list.toArray(new Template[0]);
 			}
 		}
 

@@ -20,6 +20,26 @@ import java.util.stream.Collectors;
  */
 public class ObjectArrays extends PrimitiveArrays {
 
+	public static List<Object> toList(Object array) {
+		List<Object> c = new ArrayList<>();
+		int len = Array.getLength(array);
+		for (int i = 0; i < len; i++) {
+			Object next = Array.get(array, i);
+			c.add(next);
+		}
+		return c;
+	}
+
+	public static Set<Object> toSet(Object array) {
+		Set<Object> c = new HashSet<>();
+		int len = Array.getLength(array);
+		for (int i = 0; i < len; i++) {
+			Object next = Array.get(array, i);
+			c.add(next);
+		}
+		return c;
+	}
+
 
 	/**
 	 * 数组是否为空
@@ -1848,7 +1868,7 @@ public class ObjectArrays extends PrimitiveArrays {
 	 * @author FengBaoheng
 	 */
 	public static <T extends Comparable<? super T>> boolean isSorted(T[] array) {
-		return isSortedASC(array);
+		return isSortedAsc(array);
 	}
 
 
@@ -1860,7 +1880,7 @@ public class ObjectArrays extends PrimitiveArrays {
 	 * @return 数组是否升序
 	 * @author FengBaoheng
 	 */
-	public static <T extends Comparable<? super T>> boolean isSortedASC(T[] array) {
+	public static <T extends Comparable<? super T>> boolean isSortedAsc(T[] array) {
 		if (array == null) {
 			return false;
 		}
@@ -1882,7 +1902,7 @@ public class ObjectArrays extends PrimitiveArrays {
 	 * @return 数组是否降序
 	 * @author FengBaoheng
 	 */
-	public static <T extends Comparable<? super T>> boolean isSortedDESC(T[] array) {
+	public static <T extends Comparable<? super T>> boolean isSortedDesc(T[] array) {
 		if (array == null) {
 			return false;
 		}

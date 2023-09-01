@@ -225,7 +225,7 @@ public class Types {
 
 
 	/**
-	 * 获得Type对应的原始类，如果无法获取原始类，返回null
+	 * 获得Type对应的原始类，如果无法获取原始类，返回Object.class
 	 */
 	@Nonnull
 	public static Class<?> getClass(@Nonnull Type type) {

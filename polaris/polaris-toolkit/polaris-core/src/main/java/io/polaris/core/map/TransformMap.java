@@ -43,6 +43,12 @@ public class TransformMap<K, V> implements Map<K, V> {
 		return valueTransformer==null? (V) value :valueTransformer.apply(value);
 	}
 
+
+	@Override
+	public String toString() {
+		return raw.toString();
+	}
+
 	@Override
 	public int size() {
 		return raw.size();

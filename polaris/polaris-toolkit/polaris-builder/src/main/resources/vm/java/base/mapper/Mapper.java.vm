@@ -1,6 +1,8 @@
 #parse("/vm/include.vm")
 package ${pkgPrefix}${env.mapperPackage.replace('/','.')};
 
+import io.polaris.mybatis.mapper.*;
+
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +19,19 @@ import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}$
  * @since ${current.date}
  */
 @Mapper
-public interface ${table.javaClassName}${env.mapperClassSuffix}{
+public interface ${table.javaClassName}${env.mapperClassSuffix} extends
+	EntityInsertMapper<${table.javaClassName}${env.entityClassSuffix}>,
+	EntityDeleteByIdMapper<${table.javaClassName}${env.entityClassSuffix}>,
+	EntityDeleteByAnyMapper<${table.javaClassName}${env.entityClassSuffix}>,
+	EntityUpdateByIdMapper<${table.javaClassName}${env.entityClassSuffix}>,
+	EntityUpdateByAnyMapper<${table.javaClassName}${env.entityClassSuffix}>,
+	EntityCountMapper<${table.javaClassName}${env.entityClassSuffix}>,
+	EntitySelectMapper<${table.javaClassName}${env.entityClassSuffix}>,
+	EntitySelectListMapper<${table.javaClassName}${env.entityClassSuffix}>,
+	InsertStatementMapper,
+	DeleteStatementMapper,
+	UpdateStatementMapper,
+	SelectStatementMapper<${table.javaClassName}${env.entityClassSuffix}> {
 
 	/**
 	 * 查询总数
@@ -25,14 +39,14 @@ public interface ${table.javaClassName}${env.mapperClassSuffix}{
 	 * @param param 查询条件对象
 	 * @return 总数
 	 */
-	int getCount(${table.javaClassName}${env.entityClassSuffix} param);
+	int doCount(${table.javaClassName}${env.entityClassSuffix} param);
 	/**
 	 * 查询总数
 	 *
 	 * @param param 查询条件对象
 	 * @return 总数
 	 */
-	int getCount(Map<String,Object> param);
+	int doCount(Map<String,Object> param);
 
 	/**
 	 * 查询所有数据,返回{@link List}对象列表
@@ -40,14 +54,14 @@ public interface ${table.javaClassName}${env.mapperClassSuffix}{
 	 * @param param 查询条件对象
 	 * @return 结果对象列表
 	 */
-	List<${table.javaClassName}${env.entityClassSuffix}> getAll(${table.javaClassName}${env.entityClassSuffix} param);
+	List<${table.javaClassName}${env.entityClassSuffix}> doGetAll(${table.javaClassName}${env.entityClassSuffix} param);
 	/**
 	 * 查询所有数据,返回{@link List}对象列表
 	 *
 	 * @param param 查询条件对象
 	 * @return 结果对象列表
 	 */
-	List<${table.javaClassName}${env.entityClassSuffix}> getAll(Map<String,Object> param);
+	List<${table.javaClassName}${env.entityClassSuffix}> doGetAll(Map<String,Object> param);
 
 	/**
 	 * 分页查询所有数据,返回{@link List}对象列表
@@ -56,7 +70,7 @@ public interface ${table.javaClassName}${env.mapperClassSuffix}{
 	 * @param rowBounds 分页条件
 	 * @return 结果对象列表
 	 */
-	List<${table.javaClassName}${env.entityClassSuffix}> getAll(${table.javaClassName}${env.entityClassSuffix} param, RowBounds rowBounds);
+	List<${table.javaClassName}${env.entityClassSuffix}> doGetAll(${table.javaClassName}${env.entityClassSuffix} param, RowBounds rowBounds);
 
 	/**
 	 * 分页查询所有数据,返回{@link List}对象列表
@@ -65,7 +79,7 @@ public interface ${table.javaClassName}${env.mapperClassSuffix}{
 	 * @param rowBounds 分页条件
 	 * @return 结果对象列表
 	 */
-	List<${table.javaClassName}${env.entityClassSuffix}> getAll(Map<String,Object> param, RowBounds rowBounds);
+	List<${table.javaClassName}${env.entityClassSuffix}> doGetAll(Map<String,Object> param, RowBounds rowBounds);
 
 	/**
 	 * 根据条件查询唯一结果
@@ -73,14 +87,14 @@ public interface ${table.javaClassName}${env.mapperClassSuffix}{
 	 * @param param 查询条件对象
 	 * @return 结果对象
 	 */
-	${table.javaClassName}${env.entityClassSuffix} getUnique(${table.javaClassName}${env.entityClassSuffix} param);
+	${table.javaClassName}${env.entityClassSuffix} doGetUnique(${table.javaClassName}${env.entityClassSuffix} param);
 	/**
 	 * 根据条件查询唯一结果
 	 *
 	 * @param param 查询条件对象
 	 * @return 结果对象
 	 */
-	${table.javaClassName}${env.entityClassSuffix} getUnique(Map<String,Object> param);
+	${table.javaClassName}${env.entityClassSuffix} doGetUnique(Map<String,Object> param);
 
 	/**
 	 * 根据主键列查询对象
@@ -88,14 +102,14 @@ public interface ${table.javaClassName}${env.mapperClassSuffix}{
 	 * @param param 查询条件对象
 	 * @return 结果对象
 	 */
-	${table.javaClassName}${env.entityClassSuffix} getById(${table.javaClassName}${env.entityClassSuffix} param);
+	${table.javaClassName}${env.entityClassSuffix} doGetById(${table.javaClassName}${env.entityClassSuffix} param);
 	/**
 	 * 根据主键列查询对象
 	 *
 	 * @param param 查询条件对象
 	 * @return 结果对象
 	 */
-	${table.javaClassName}${env.entityClassSuffix} getById(Map<String,Object> param);
+	${table.javaClassName}${env.entityClassSuffix} doGetById(Map<String,Object> param);
 
 	/**
 	 * 新增记录
@@ -103,14 +117,14 @@ public interface ${table.javaClassName}${env.mapperClassSuffix}{
 	 * @param entity 记录对象
 	 * @return 影响记录数
 	 */
-	int insert(${table.javaClassName}${env.entityClassSuffix} entity);
+	int doInsert(${table.javaClassName}${env.entityClassSuffix} entity);
 	/**
 	 * 新增记录
 	 *
 	 * @param entity 记录对象
 	 * @return 影响记录数
 	 */
-	int insert(Map<String,Object> entity);
+	int doInsert(Map<String,Object> entity);
 
 	/**
 	 * 新增记录,只处理入参的非空字段对应的列
@@ -118,14 +132,14 @@ public interface ${table.javaClassName}${env.mapperClassSuffix}{
 	 * @param entity 记录对象
 	 * @return 影响记录数
 	 */
-	int insertSelective(${table.javaClassName}${env.entityClassSuffix} entity);
+	int doInsertSelective(${table.javaClassName}${env.entityClassSuffix} entity);
 	/**
 	 * 新增记录,只处理入参的非空字段对应的列
 	 *
 	 * @param entity 记录对象
 	 * @return 影响记录数
 	 */
-	int insertSelective(Map<String,Object> entity);
+	int doInsertSelective(Map<String,Object> entity);
 
 	/**
 	 * 按主键条件修改记录,按入参修改所有列
@@ -133,14 +147,14 @@ public interface ${table.javaClassName}${env.mapperClassSuffix}{
 	 * @param entity 记录对象
 	 * @return 影响记录数
 	 */
-	int update(${table.javaClassName}${env.entityClassSuffix} entity);
+	int doUpdate(${table.javaClassName}${env.entityClassSuffix} entity);
 	/**
 	 * 按主键条件修改记录,按入参修改所有列
 	 *
 	 * @param entity 记录对象
 	 * @return 影响记录数
 	 */
-	int update(Map<String,Object> entity);
+	int doUpdate(Map<String,Object> entity);
 
 	/**
 	 * 按主键条件修改记录,只修改入参的非空字段对应的列
@@ -148,7 +162,7 @@ public interface ${table.javaClassName}${env.mapperClassSuffix}{
 	 * @param entity 记录对象
 	 * @return 影响记录数
 	 */
-	int updateSelective(${table.javaClassName}${env.entityClassSuffix} entity);
+	int doUpdateSelective(${table.javaClassName}${env.entityClassSuffix} entity);
 
 	/**
 	 * 按主键条件修改记录,只修改入参的非空字段对应的列
@@ -156,7 +170,7 @@ public interface ${table.javaClassName}${env.mapperClassSuffix}{
 	 * @param entity 记录对象
 	 * @return 影响记录数
 	 */
-	int updateSelective(Map<String,Object> entity);
+	int doUpdateSelective(Map<String,Object> entity);
 
 	/**
 	 * 根据查询条件修改多行记录, 只修改值参数<code>${dollar}updateValues</code>中的非空字段对应的列
@@ -164,7 +178,7 @@ public interface ${table.javaClassName}${env.mapperClassSuffix}{
 	 * @param entity 记录对象
 	 * @return 影响记录数
 	 */
-	int updateMultiple(${table.javaClassName}${env.entityClassSuffix} entity);
+	int doUpdateMultiple(${table.javaClassName}${env.entityClassSuffix} entity);
 
 	/**
 	 * 根据查询条件修改多行记录, 只修改值参数<code>${dollar}updateValues</code>中的非空字段对应的列
@@ -172,7 +186,7 @@ public interface ${table.javaClassName}${env.mapperClassSuffix}{
 	 * @param entity 记录对象
 	 * @return 影响记录数
 	 */
-	int updateMultiple(Map<String,Object> entity);
+	int doUpdateMultiple(Map<String,Object> entity);
 
 	/**
 	 * 删除记录
@@ -180,7 +194,7 @@ public interface ${table.javaClassName}${env.mapperClassSuffix}{
 	 * @param entity 记录对象
 	 * @return 影响记录数
 	 */
-	int delete(${table.javaClassName}${env.entityClassSuffix} entity);
+	int doDelete(${table.javaClassName}${env.entityClassSuffix} entity);
 
 }
 

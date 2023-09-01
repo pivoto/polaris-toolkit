@@ -9,10 +9,10 @@ import java.util.*;
  */
 public abstract class VarNode implements SqlNode {
 	/** 绑定变量名 */
-	private final String varName;
+	protected final String varName;
 	/** 绑定变量值 */
-	private Object varValue;
-	private List<Object> varValues;
+	protected Object varValue;
+	protected List<Object> varValues;
 
 	public VarNode(String varName) {
 		this.varName = varName;
@@ -29,7 +29,7 @@ public abstract class VarNode implements SqlNode {
 	}
 
 	@Override
-	public void removeVarParameter() {
+	public void removeVarValue() {
 		varValue = null;
 		varValues = null;
 	}
@@ -49,6 +49,7 @@ public abstract class VarNode implements SqlNode {
 		this.varValues = new ArrayList<>();
 		addVarValuesToList(param, this.varValues);
 	}
+
 
 	private void addVarValuesToList(Object varValue, List<Object> list) {
 		if (varValue == null) {

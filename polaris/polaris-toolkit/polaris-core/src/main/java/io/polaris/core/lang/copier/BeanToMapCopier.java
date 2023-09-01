@@ -37,7 +37,7 @@ public class BeanToMapCopier<T> extends BaseCopier<T, Map> {
 			BeanMap<T> sourceMap = Beans.newBeanMap(source, actualEditable);
 			sourceMap.forEach((name, value) -> {
 				try {
-					name = super.editName(name);
+					name = super.editKey(name);
 					if (name == null) {
 						return;
 					}

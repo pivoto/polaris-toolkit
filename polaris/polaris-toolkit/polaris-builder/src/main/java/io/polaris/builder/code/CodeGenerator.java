@@ -116,7 +116,8 @@ public class CodeGenerator {
 					CodeLogger.error("找不到表信息：[{}]", tableConfig.getName());
 					continue;
 				}
-
+				table.setCatalog(catalogName);
+				table.setSchema(schemaName);
 				readTables(group, tableConfig, table);
 			}
 		} finally {

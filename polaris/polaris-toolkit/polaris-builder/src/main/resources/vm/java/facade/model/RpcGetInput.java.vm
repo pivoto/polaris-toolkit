@@ -27,11 +27,15 @@ public class ${table.javaClassName}${env.rpcGetInputClassSuffix} extends Exchang
 
 	@Data
 	public static class Param{
-	#foreach($col in $table.columns)
+#foreach($col in $table.columns)
 		/** #if(${col.label})$!{col.label}#else$!{col.name}#end */
 		@Schema(description = "#if(${col.label})$!{col.label}#else$!{col.name}#end")
+	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
+		private ${col.javaTypeSimpleName}[] ${col.javaVariableName};
+	#else
 		private ${col.javaTypeSimpleName} ${col.javaVariableName};
 	#end
+#end
 	}
 
 }

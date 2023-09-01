@@ -254,13 +254,13 @@ public class Validations {
 
 	private static <T> String buildMessage(Set<ConstraintViolation<T>> violationSet) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("规则验证失败！");
+		sb.append("参数规则验证失败！");
 		for (ConstraintViolation<T> violation : violationSet) {
 			String errorMsg = violation.getMessage();
 			String path = violation.getPropertyPath().toString();
 			sb.append("\n");
 			if (Strings.isNotBlank(path)) {
-				sb.append("参数属性[").append(path).append("]：");
+				sb.append("属性[").append(path).append("]：");
 			}
 			sb.append(errorMsg).append("！");
 		}

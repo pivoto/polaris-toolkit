@@ -38,6 +38,7 @@ import static io.polaris.builder.code.annotation.Template.*;
 	@Property(key = "rpcListOutputClassSuffix", value = "ListOutput"),
 	@Property(key = "mapperDir", value = "mapper"),
 	@Property(key = "webDir", value = "src/main/resources/META-INF/resources"),
+	@Property(key = "frontendDir", value = "src/frontend"),
 })
 @DefaultTemplate({
 	@Template(path = VM_PATH_ENTITY, filename = FILENAME_ENTITY, dirname = DIRNAME_ENTITY),
@@ -53,6 +54,11 @@ import static io.polaris.builder.code.annotation.Template.*;
 	@Template(path = VM_PATH_RPC_LIST_INPUT, filename = FILENAME_RPC_LIST_INPUT, dirname = DIRNAME_MODEL),
 	@Template(path = VM_PATH_RPC_GET_OUTPUT, filename = FILENAME_RPC_GET_OUTPUT, dirname = DIRNAME_MODEL),
 	@Template(path = VM_PATH_RPC_LIST_OUTPUT, filename = FILENAME_RPC_LIST_OUTPUT, dirname = DIRNAME_MODEL),
+
+	@Template(path = VM_PATH_FRONTEND_ROUTES, filename = FILENAME_FRONTEND_ROUTES, dirname = DIRNAME_FRONTEND),
+	@Template(path = VM_PATH_FRONTEND_LIST_PAGE, filename = FILENAME_FRONTEND_LIST_PAGE, dirname = DIRNAME_FRONTEND),
+	@Template(path = VM_PATH_FRONTEND_ADD_PAGE, filename = FILENAME_FRONTEND_ADD_PAGE, dirname = DIRNAME_FRONTEND),
+	@Template(path = VM_PATH_FRONTEND_EDIT_PAGE, filename = FILENAME_FRONTEND_EDIT_PAGE, dirname = DIRNAME_FRONTEND),
 })
 @DefaultMapping({
 	@Mapping(jdbcType = "TIMESTAMP", javaType = "java.util.Date")
@@ -110,7 +116,12 @@ public @interface Code {
 	/**
 	 * 排除默认模板中指定模板路径的使用，如使用自定义模板，则忽略此配置
 	 */
-	String[] excludeTemplatePaths() default {};
+	String[] excludeTemplatePaths() default {
+		VM_PATH_FRONTEND_ROUTES,
+		VM_PATH_FRONTEND_LIST_PAGE,
+		VM_PATH_FRONTEND_ADD_PAGE,
+		VM_PATH_FRONTEND_EDIT_PAGE,
+	};
 
 	/**
 	 * Jdbc连接驱动

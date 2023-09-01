@@ -1,0 +1,15 @@
+#parse("/vm/include.vm")
+import {RouteRecordRaw} from 'vue-router';
+import {join} from '/@/router/toolkit';
+
+let routes: Array<RouteRecordRaw> = [
+	{
+		path: 'list${table.javaClassName}',
+		component: () => import('./List${table.javaClassName}.vue'),
+		meta: {
+			icon: 'EleGrid',
+		},
+	},
+]
+export default routes
+

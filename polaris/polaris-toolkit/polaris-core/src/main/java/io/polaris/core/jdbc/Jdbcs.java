@@ -1,5 +1,7 @@
 package io.polaris.core.jdbc;
 
+import io.polaris.core.jdbc.sql.PreparedSql;
+import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.map.Maps;
 import io.polaris.core.string.Strings;
@@ -114,6 +116,12 @@ public class Jdbcs {
 	}
 
 
+	public static <T> T query(Connection conn, SqlNode sqlNode,
+							  QueryCallback<T> queryCallback) throws SQLException {
+		PreparedSql sql = sqlNode.asPreparedSql();
+		return query(conn, sql.getText(), (Object) sql.getBindings(), queryCallback);
+	}
+
 	public static <T> T query(Connection conn, String sql, Iterable<?> parameters,
 							  QueryCallback<T> queryCallback) throws SQLException {
 		return query(conn, sql, (Object) parameters, queryCallback);
@@ -183,6 +191,11 @@ public class Jdbcs {
 		return query(conn, sql, parameters, new UniqueQueryCallback());
 	}
 
+	public static int update(Connection conn, SqlNode sql) throws SQLException {
+		PreparedSql preparedSql = sql.asPreparedSql();
+		return update(conn, preparedSql.getText(), (Object) preparedSql.getBindings());
+	}
+
 	public static int update(Connection conn, String sql) throws SQLException {
 		return update(conn, sql, (Object) null);
 	}
@@ -242,12 +255,21 @@ public class Jdbcs {
 		throws ArrayIndexOutOfBoundsException, IllegalArgumentException, SQLException {
 		if (parameters.getClass().isArray()) {
 			for (int i = 0; i < java.lang.reflect.Array.getLength(parameters); i++) {
-				pstmt.setObject(i + 1, Array.get(parameters, i));
+				Object o = Array.get(parameters, i);
+				if (o == null) {
+					pstmt.setNull(i + 1, Types.VARCHAR);
+				} else {
+					pstmt.setObject(i + 1, o);
+				}
 			}
 		} else if (parameters instanceof Iterable<?>) {
 			int i = 1;
 			for (Object o : (Iterable<?>) parameters) {
-				pstmt.setObject(i, o);
+				if (o == null) {
+					pstmt.setNull(i, Types.VARCHAR);
+				} else {
+					pstmt.setObject(i, o);
+				}
 				i++;
 			}
 		}
@@ -285,7 +307,7 @@ public class Jdbcs {
 	 * @author Qt
 	 * @since 1.8
 	 */
-	public static class DefaultQueryCallback implements QueryCallback<List<Map<String, Object>>> {
+	static class DefaultQueryCallback implements QueryCallback<List<Map<String, Object>>> {
 		@Override
 		public List<Map<String, Object>> visit(ResultSet rs) throws SQLException {
 			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
@@ -307,7 +329,7 @@ public class Jdbcs {
 	 * @author Qt
 	 * @since 1.8
 	 */
-	public static class UniqueQueryCallback implements QueryCallback<Object> {
+	static class UniqueQueryCallback implements QueryCallback<Object> {
 		@Override
 		public Object visit(ResultSet rs) throws SQLException {
 			Object o = null;
@@ -322,7 +344,7 @@ public class Jdbcs {
 	 * @author Qt
 	 * @since 1.8
 	 */
-	public static class UniqueRowQueryCallback implements QueryCallback<Map<String, Object>> {
+	static class UniqueRowQueryCallback implements QueryCallback<Map<String, Object>> {
 		@Override
 		public Map<String, Object> visit(ResultSet rs) throws SQLException {
 			ResultSetMetaData meta = rs.getMetaData();

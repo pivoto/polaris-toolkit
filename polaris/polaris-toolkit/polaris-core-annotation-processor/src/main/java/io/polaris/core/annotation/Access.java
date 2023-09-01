@@ -25,6 +25,14 @@ public @interface Access {
 
 	String mapSuffix() default "Map";
 
+	boolean getters() default false;
+
+	String gettersSuffix() default "Getters";
+
+	boolean setters() default false;
+
+	String settersSuffix() default "Setters";
+
 	String[] excludeFields() default {};
 
 	String[] excludeSetters() default {};

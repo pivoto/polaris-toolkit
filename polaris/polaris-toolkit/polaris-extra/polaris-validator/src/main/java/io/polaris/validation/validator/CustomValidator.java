@@ -17,22 +17,18 @@ public class CustomValidator implements ConstraintValidator<CustomValidated, Obj
 	private Class<? extends CustomValidation> clazz;
 	private Class<? extends Payload>[] payload;
 	private String[] arguments;
+	private CustomValidation customValidation;
 
 	@Override
 	public void initialize(CustomValidated constraintAnnotation) {
 		clazz = constraintAnnotation.value();
 		payload = constraintAnnotation.payload();
 		arguments = constraintAnnotation.arguments();
-	}
 
-	@Override
-	public boolean isValid(Object value, ConstraintValidatorContext context) {
 		CustomValidation customValidation = null;
-		if (customValidation == null) {
-			try {
-				customValidation = clazz.newInstance();
-			} catch (ReflectiveOperationException e) {
-			}
+		try {
+			customValidation = clazz.newInstance();
+		} catch (ReflectiveOperationException e) {
 		}
 		if (customValidation == null) {
 			try {
@@ -41,6 +37,11 @@ public class CustomValidator implements ConstraintValidator<CustomValidated, Obj
 			} catch (ReflectiveOperationException e) {
 			}
 		}
+		this.customValidation = customValidation;
+	}
+
+	@Override
+	public boolean isValid(Object value, ConstraintValidatorContext context) {
 		if (customValidation != null) {
 			return customValidation.isValid(context, value, arguments);
 		}

@@ -20,13 +20,10 @@
 
 	<sql id="whereClause">
 		<where>
-#foreach($col in $table.pkColumns)
+#foreach($col in $table.columns)
 #if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
-##			<if test="${col.javaVariableName} != null and ${col.javaVariableName} != ''">
-##				AND ${col.name} = #{${col.javaVariableName}}
-##			</if>
 			<if test="${col.javaVariableName} != null">
-				<if test="@io.polaris.core.lang.Objs@isNotEmpty(${col.javaVariableName})">
+				<if test="@io.polaris.mybatis.support.MybatisToolkit@isNotEmpty(${col.javaVariableName})">
 					<choose>
 						<when test="${col.javaVariableName}.getClass().isArray()">
 							AND ${col.name} in (
@@ -42,75 +39,76 @@
 							</foreach>
 							)
 						</when>
-						<when test="${col.javaVariableName}.startsWith('%') or ${col.javaVariableName}.endsWith('%')">AND PRINCIPAL_TYPE like #{${col.javaVariableName}}</when>
+						<when test="@io.polaris.mybatis.support.MybatisToolkit@isLikeString(${col.javaVariableName})">AND ${col.name} like #{${col.javaVariableName}}</when>
 						<otherwise>AND ${col.name} = #{${col.javaVariableName}}</otherwise>
 					</choose>
 				</if>
 			</if>
 #else
+
+	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
+			<if test="${col.javaVariableName} != null">
+				<choose>
+					<when test="${col.javaVariableName}.getClass().isArray()">
+						<if test="${col.javaVariableName}.length > 0 and ${col.javaVariableName}[0] != null">
+							AND ${col.name} >= #{${col.javaVariableName}[0]}
+						</if>
+						<if test="${col.javaVariableName}.length > 1 and ${col.javaVariableName}[1] != null">
+							AND ${col.name} &lt;= #{${col.javaVariableName}[1]}
+						</if>
+					</when>
+					<otherwise>AND ${col.name} = #{${col.javaVariableName}}</otherwise>
+				</choose>
+			</if>
+	#else
 			<if test="${col.javaVariableName} != null">
 				AND ${col.name} = #{${col.javaVariableName}}
+				<choose>
+					<when test="${col.javaVariableName}.getClass().isArray()">
+						AND ${col.name} in (
+						<foreach collection="${col.javaVariableName}" item="item" separator=",">
+							#{item}
+						</foreach>
+						)
+					</when>
+					<when test="${col.javaVariableName} instanceof java.lang.Iterable">
+						AND ${col.name} in (
+						<foreach collection="${col.javaVariableName}" item="item" separator=",">
+							#{item}
+						</foreach>
+						)
+					</when>
+					<otherwise>AND ${col.name} = #{${col.javaVariableName}}</otherwise>
+				</choose>
 			</if>
-#end
-#end
-#foreach($col in $table.normalColumns)
-#if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
-##			<if test="${col.javaVariableName} != null and ${col.javaVariableName} != ''">
-##				AND ${col.name} = #{${col.javaVariableName}}
-##			</if>
-			<if test="${col.javaVariableName} != null">
-				<if test="@io.polaris.core.lang.Objs@isNotEmpty(${col.javaVariableName})">
-					<choose>
-						<when test="${col.javaVariableName}.getClass().isArray()">
-							AND ${col.name} in (
-							<foreach collection="${col.javaVariableName}" item="item" separator=",">
-								#{item}
-							</foreach>
-							)
-						</when>
-						<when test="${col.javaVariableName} instanceof java.lang.Iterable">
-							AND ${col.name} in (
-							<foreach collection="${col.javaVariableName}" item="item" separator=",">
-								#{item}
-							</foreach>
-							)
-						</when>
-						<when test="${col.javaVariableName}.startsWith('%') or ${col.javaVariableName}.endsWith('%')">AND PRINCIPAL_TYPE like #{${col.javaVariableName}}</when>
-						<otherwise>AND ${col.name} = #{${col.javaVariableName}}</otherwise>
-					</choose>
-				</if>
-			</if>
-#else
-			<if test="${col.javaVariableName} != null">
-				AND ${col.name} = #{${col.javaVariableName}}
-			</if>
+	#end
 #end
 #end
 		</where>
 	</sql>
 	<sql id="orderClause">
-		<if test="v${dollar}orderBy != null and v${dollar}orderBy != ''">
+		<if test="@io.polaris.mybatis.support.MybatisToolkit@hasProperty(_parameter, 'v${dollar}orderBy')">
 			ORDER BY ${dollar}{v${dollar}orderBy}
 		</if>
 	</sql>
 
-	<select id="getCount" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}" resultType="int">
+	<select id="doCount" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}" resultType="int">
 		SELECT COUNT(*) FROM ${table.name}
 		<include refid="whereClause"/>
 	</select>
 
-	<select id="getUnique" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}" resultMap="${table.javaVariableName}${env.entityClassSuffix}Map">
+	<select id="doGetUnique" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}" resultMap="${table.javaVariableName}${env.entityClassSuffix}Map">
 		<include refid="selectClause"/>
 		<include refid="whereClause"/>
 	</select>
 
-	<select id="getAll" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}" resultMap="${table.javaVariableName}${env.entityClassSuffix}Map">
+	<select id="doGetAll" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}" resultMap="${table.javaVariableName}${env.entityClassSuffix}Map">
 		<include refid="selectClause"/>
 		<include refid="whereClause"/>
 		<include refid="orderClause"/>
 	</select>
 
-	<select id="getById" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}" resultMap="${table.javaVariableName}${env.entityClassSuffix}Map">
+	<select id="doGetById" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}" resultMap="${table.javaVariableName}${env.entityClassSuffix}Map">
 		<include refid="selectClause"/>
 		<where>
 #foreach($col in $table.pkColumns)
@@ -119,7 +117,7 @@
 		</where>
 	</select>
 
-	<insert id="insert" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}"#if(${config['mysql.useGeneratedKeys']} == 'true') useGeneratedKeys="true" keyProperty="${table.pkColumns[0].javaVariableName}"#end>
+	<insert id="doInsert" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}"#if(${config['mysql.useGeneratedKeys']} == 'true') useGeneratedKeys="true" keyProperty="${table.pkColumns[0].javaVariableName}"#end>
 		INSERT INTO ${table.name}(
 			${empty}#foreach($col in ${table.pkColumns})${col.name}#if(${foreach.hasNext}),#set($tmp=${foreach.count} % 5)#if($tmp == 0)${lf}${tab}${tab}${tab}#end#end#end,
 			${empty}#foreach($col in $table.normalColumns)${col.name}#if(${foreach.hasNext}),#set($tmp=${foreach.count} % 5)#if($tmp == 0)${lf}${tab}${tab}${tab}#end#end#end
@@ -130,7 +128,7 @@
 		)
 	</insert>
 
-	<insert id="insertSelective" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}"#if(${config['mysql.useGeneratedKeys']} == 'true') useGeneratedKeys="true" keyProperty="${table.pkColumns[0].javaVariableName}"#end>
+	<insert id="doInsertSelective" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}"#if(${config['mysql.useGeneratedKeys']} == 'true') useGeneratedKeys="true" keyProperty="${table.pkColumns[0].javaVariableName}"#end>
 		INSERT INTO ${table.name}(
 			${empty}#foreach($col in ${table.pkColumns})${col.name}#if(${foreach.hasNext}),#set($tmp=${foreach.count} % 5)#if($tmp == 0)${lf}${tab}${tab}${tab}#end#end#end
 #foreach($col in $table.normalColumns)
@@ -153,7 +151,7 @@
 		)
 	</insert>
 
-	<update id="update" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}">
+	<update id="doUpdate" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}">
 		UPDATE ${table.name}
 			<trim prefix="SET" suffixOverrides=",">
 #foreach($col in $table.pkColumns)
@@ -179,7 +177,7 @@
 			</trim>
 	</update>
 
-	<update id="updateSelective" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}">
+	<update id="doUpdateSelective" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}">
 		UPDATE ${table.name}
 			<trim prefix="SET" suffixOverrides=",">
 #foreach($col in $table.pkColumns)
@@ -222,10 +220,10 @@
 	</update>
 
 
-	<update id="updateMultiple" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}">
+	<update id="doUpdateMultiple" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}">
 		UPDATE ${table.name}
 		<trim prefix="SET" suffixOverrides=",">
-			<if test="v${dollar}updateValues != null">
+			<if test="@io.polaris.mybatis.support.MybatisToolkit@hasProperty(_parameter, 'v${dollar}updateValues')">
 #foreach($col in $table.pkColumns)
 	#if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
 				<if test="v${dollar}updateValues.${col.javaVariableName} != null and v${dollar}updateValues.${col.javaVariableName} != ''">
@@ -253,7 +251,7 @@
 		<include refid="whereClause"/>
 	</update>
 
-	<delete id="delete" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}">
+	<delete id="doDelete" parameterType="${pkgPrefix}entity.${table.javaClassName}${env.entityClassSuffix}">
 		DELETE FROM ${table.name}
 		WHERE
 			<trim prefix="" suffixOverrides="AND">

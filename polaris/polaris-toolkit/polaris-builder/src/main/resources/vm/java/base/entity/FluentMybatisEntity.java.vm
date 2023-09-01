@@ -1,6 +1,9 @@
 #parse("/vm/include.vm")
 package ${pkgPrefix}${env.entityPackage.replace('/','.')};
 
+import io.polaris.core.jdbc.annotation.Table;
+import io.polaris.core.jdbc.annotation.Column;
+import io.polaris.core.jdbc.annotation.Id;
 import cn.org.atool.fluent.mybatis.annotation.FluentMybatis;
 import cn.org.atool.fluent.mybatis.annotation.NotField;
 import cn.org.atool.fluent.mybatis.annotation.TableField;
@@ -37,6 +40,7 @@ import ${name.trim()};
 @NoArgsConstructor
 @Builder
 @FluentMybatis(table = "$!{table.name}", dbType = DbType.ORACLE, useDao = false)
+@Table(value = "$!{table.name}")
 public class ${table.javaClassName}${env.entityClassSuffix} extends RichEntity implements Serializable#if(${env.entityExtInterface})
 	#set($env.entityExtInterfaceArr=${env.entityExtInterface.split(',')})
 	#foreach($name in ${env.entityExtInterfaceArr}), ${name.trim().substring(1 + ${name.trim().lastIndexOf(".")})}#end
@@ -47,6 +51,8 @@ public class ${table.javaClassName}${env.entityClassSuffix} extends RichEntity i
 #foreach($col in $table.pkColumns)
 	/** 主键字段: #if(${col.label})$!{col.name} $!{col.label}#else$!{col.name}#end */
 	@Schema(description = "#if(${col.label})$!{col.label}#else$!{col.name}#end")
+	@Id
+	@Column(value = "$!{col.name}")
 	@TableId(value = "$!{col.name}", auto = false, before = true)
 	private ${col.javaTypeSimpleName} ${col.javaVariableName};
 #end
@@ -55,16 +61,19 @@ public class ${table.javaClassName}${env.entityClassSuffix} extends RichEntity i
 	/** #if(${col.label})$!{col.name} $!{col.label}#else$!{col.name}#end */
 	@Schema(description = "#if(${col.label})$!{col.label}#else$!{col.name}#end")
 	@TableField("$!{col.name}")
+	@Column(value = "$!{col.name}")
 	private ${col.javaTypeSimpleName} ${col.javaVariableName};
 #end
 
 	/** 查询SQL的ORDER BY子句内容(各排序字段) */
 	@Schema(hidden = true)
 	@NotField
+	@Column(ignored = true)
 	private transient String v${dollar}orderBy;
 	/** 更新SQL的SET值内容 */
 	@Schema(hidden = true)
 	@NotField
+	@Column(ignored = true)
 	private transient ${table.javaClassName}${env.entityClassSuffix} v${dollar}updateValues;
 
 	@Override

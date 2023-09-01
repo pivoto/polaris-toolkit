@@ -18,12 +18,16 @@ import java.util.List;
 @EqualsAndHashCode
 @NoArgsConstructor
 public class Criterion {
-	private CriteriaRelation relation;
+	private Relation relation;
 	private List<Criterion> subset = null;
 
-	private CriteriaOperator operator = CriteriaOperator.EQ;
+	private Operator operator = Operator.EQ;
 	private Object value;
 	private String reference;
+
+	public static Criterion newCriterion() {
+		return new Criterion();
+	}
 
 	public boolean isValid() {
 		if (!Iterables.isEmpty(subset)) {
@@ -35,7 +39,7 @@ public class Criterion {
 		return false;
 	}
 
-	public Criterion operator(CriteriaOperator operator) {
+	public Criterion operator(Operator operator) {
 		this.operator = operator;
 		return this;
 	}
@@ -50,7 +54,7 @@ public class Criterion {
 		return this;
 	}
 
-	public Criterion relation(CriteriaRelation relation) {
+	public Criterion relation(Relation relation) {
 		this.relation = relation;
 		return this;
 	}
@@ -71,7 +75,6 @@ public class Criterion {
 		}
 		return this;
 	}
-
 
 
 }

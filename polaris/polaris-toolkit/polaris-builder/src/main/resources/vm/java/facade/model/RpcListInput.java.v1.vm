@@ -1,0 +1,68 @@
+#parse("/vm/include.vm")
+package ${pkgPrefixFacade}${env.modelPackage.replace('/','.')};
+
+import java.io.Serializable;
+import lombok.*;
+import lombok.experimental.Accessors;
+#foreach($name in $table.columnJavaTypes)
+import $name;
+#end
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
+import io.polaris.bf.core.context.domain.ExchangeDto;
+import io.polaris.bf.core.data.domain.Page;
+import io.polaris.bf.core.data.consts.Dml;
+import io.swagger.v3.oas.annotations.media.Schema;
+import javax.validation.Valid;
+import javax.validation.constraints.*;
+import java.util.StringJoiner;
+
+/**
+ * $!{table.name}
+ * $!{table.comment}
+ * @author $!{env.author}
+ * @since ${current.date}
+ */
+@Data
+public class ${table.javaClassName}${env.rpcListInputClassSuffix} extends ExchangeDto{
+	@Schema(description = "分页信息")
+	private Page page = new Page();
+	@Schema(description = "查询参数")
+	@Valid
+	private Param param = new Param();
+
+	@Data
+	public static class Param{
+#foreach($col in $table.columns)
+		/** #if(${col.label})$!{col.label}#else$!{col.name}#end */
+		@Schema(description = "#if(${col.label})$!{col.label}#else$!{col.name}#end")
+	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
+		private ${col.javaTypeSimpleName}[] ${col.javaVariableName};
+	#else
+		private ${col.javaTypeSimpleName} ${col.javaVariableName};
+	#end
+#end
+		/** 查询SQL的ORDER BY子句内容(各排序字段) */
+		@Schema(hidden = true)
+		private transient String v${dollar}orderBy;
+
+		public void setV${dollar}orderBy(String value) {
+			StringJoiner joiner = new StringJoiner(",");
+			if (value != null) {
+				String[] arr = value.toString().split(",");
+				for (String s : arr) {
+					String str = s.trim();
+					String lowerCase = str.toLowerCase();
+					if (lowerCase.endsWith("desc")) {
+						joiner.add(StringCases.camelToUnderlineCase(str.substring(0, str.length() - 4).trim()) + " desc");
+					} else if (lowerCase.endsWith("asc")) {
+						joiner.add(StringCases.camelToUnderlineCase(str.substring(0, str.length() - 4).trim()) + " asc");
+					} else {
+						joiner.add(StringCases.camelToUnderlineCase(str.substring(0, str.length() - 4).trim()) + " asc");
+					}
+				}
+			}
+			this.v${dollar}orderBy = joiner.toString();
+		}
+	}
+
+}

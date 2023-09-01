@@ -715,7 +715,7 @@ public class Strings {
 		return joiner.toString();
 	}
 
-	public static String join(CharSequence delimiter, Iterable<CharSequence> arr) {
+	public static String join(CharSequence delimiter, Iterable<? extends CharSequence> arr) {
 		StringJoiner joiner = new StringJoiner(delimiter);
 		for (CharSequence s : arr) {
 			if (isBlank(s)) {
@@ -727,7 +727,7 @@ public class Strings {
 	}
 
 	public static String join(CharSequence delimiter, CharSequence prefix, CharSequence suffix,
-							  Iterable<CharSequence> arr) {
+							  Iterable<? extends CharSequence> arr) {
 		StringJoiner joiner = new StringJoiner(delimiter, prefix, suffix);
 		for (CharSequence s : arr) {
 			if (isBlank(s)) {

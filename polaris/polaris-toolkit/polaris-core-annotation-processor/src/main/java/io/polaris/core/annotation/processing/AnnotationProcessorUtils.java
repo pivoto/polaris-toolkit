@@ -1,9 +1,10 @@
 package io.polaris.core.annotation.processing;
 
 import io.polaris.core.annotation.Internal;
-import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.*;
 
 import java.beans.Introspector;
+import java.util.List;
 
 /**
  * @author Qt
@@ -158,4 +159,33 @@ public class AnnotationProcessorUtils {
 		return sb.toString();
 	}
 
+
+	public static TypeName rawType(TypeName typeName) {
+		if (typeName.isPrimitive() || typeName.isBoxedPrimitive() || typeName == TypeName.OBJECT || typeName == TypeName.VOID) {
+			return typeName;
+		}
+		if (typeName instanceof ClassName) {
+			return typeName;
+		}
+		if (typeName instanceof ParameterizedTypeName) {
+			return ((ParameterizedTypeName) typeName).rawType;
+		}
+		if (typeName instanceof ArrayTypeName) {
+			TypeName componentType = ((ArrayTypeName) typeName).componentType;
+			return ArrayTypeName.of(rawType(componentType));
+		}
+		if (typeName instanceof WildcardTypeName) {
+			List<TypeName> upperBounds = ((WildcardTypeName) typeName).upperBounds;
+			if (!upperBounds.isEmpty()) {
+				return rawType(upperBounds.get(0));
+			}
+		}
+		if (typeName instanceof TypeVariableName) {
+			List<TypeName> bounds = ((TypeVariableName) typeName).bounds;
+			if (!bounds.isEmpty()) {
+				return rawType(bounds.get(0));
+			}
+		}
+		return ClassName.OBJECT;
+	}
 }

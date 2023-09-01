@@ -24,6 +24,7 @@ import java.util.Properties;
 public abstract class BaseProcessor extends AbstractProcessor {
 
 	public static final String PROPERTIES_PATH = "polaris-core-annotation-processor.properties";
+	protected ProcessingEnvironment env;
 	/** 用于在编译器打印消息的组件 */
 	protected Messager messager;
 	/** 语法树 */
@@ -41,6 +42,7 @@ public abstract class BaseProcessor extends AbstractProcessor {
 
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv) {
+		this.env = processingEnv;
 		this.messager = processingEnv.getMessager();
 		this.trees = JavacTrees.instance(processingEnv);
 		Context context = ((JavacProcessingEnvironment) processingEnv).getContext();

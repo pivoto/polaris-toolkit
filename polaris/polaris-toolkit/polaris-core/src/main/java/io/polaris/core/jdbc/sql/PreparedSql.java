@@ -14,7 +14,6 @@ import java.util.List;
  * @since 1.8,  Aug 12, 2023
  */
 @EqualsAndHashCode
-@ToString
 @Getter
 @Setter
 public class PreparedSql {
@@ -28,5 +27,10 @@ public class PreparedSql {
 	public PreparedSql(String text, List<Object> bindings) {
 		this.text = text;
 		this.bindings = bindings;
+	}
+
+	@Override
+	public String toString() {
+		return text + "\nbindings: " + bindings;
 	}
 }

@@ -1,6 +1,7 @@
 package io.polaris.core.annotation.processing;
 
 import io.polaris.core.annotation.Access;
+import io.polaris.core.jdbc.annotation.Table;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;

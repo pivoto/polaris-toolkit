@@ -9,6 +9,9 @@ import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassN
 import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassName}${env.rpcGetOutputClassSuffix};
 import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassName}${env.rpcListOutputClassSuffix};
 
+import io.polaris.core.jdbc.sql.query.OrderBy;
+import io.polaris.core.jdbc.sql.query.Queries;
+import io.polaris.core.jdbc.sql.query.Pageable;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.lang.bean.IBeanMap;
 import io.polaris.bf.common.map.BeanMaps;
@@ -17,6 +20,7 @@ import io.polaris.bf.core.data.consts.Dml;
 import io.polaris.bf.core.data.domain.Page;
 import io.polaris.bf.core.data.domain.QueryDto;
 import io.polaris.bf.core.rpc.annotation.RpcService;
+import io.polaris.bf.core.rpc.oas.annotation.OpenApi;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
@@ -40,6 +44,7 @@ public class ${table.javaClassName}${env.rpcClassSuffix}{
 	}
 
 	@RpcService(code = "$!{env.rpcCodePrefix}${table.javaClassName}Dml", name = "数据操作")
+	@OpenApi(inputSchema = ${table.javaClassName}${env.rpcDmlInputClassSuffix}.class, outputSchema = ExchangeDto.class)
 	public ExchangeDto doDml(${table.javaClassName}${env.rpcDmlInputClassSuffix} input) {
 		Assert.notNull(input.getType(), "操作类型不能为空");
 		Dml type = input.getType();
@@ -66,6 +71,7 @@ public class ${table.javaClassName}${env.rpcClassSuffix}{
 
 
 	@RpcService(code = "$!{env.rpcCodePrefix}${table.javaClassName}Get", name = "单行数据查询")
+	@OpenApi(inputSchema = ${table.javaClassName}${env.rpcGetInputClassSuffix}.class, outputSchema = ${table.javaClassName}${env.rpcGetOutputClassSuffix}.class)
 	public ${table.javaClassName}${env.rpcGetOutputClassSuffix} doGet(${table.javaClassName}${env.rpcGetInputClassSuffix} input) {
 		${table.javaClassName}${env.entityClassSuffix} entity = ${table.javaVariableName}${env.serviceClassSuffix}.getUnique(
 			BeanMaps.of(input.getParam()).copyToBean(new ${table.javaClassName}${env.entityClassSuffix}())
@@ -76,10 +82,15 @@ public class ${table.javaClassName}${env.rpcClassSuffix}{
 	}
 
 	@RpcService(code = "$!{env.rpcCodePrefix}${table.javaClassName}List", name = "列表数据查询")
+	@OpenApi(inputSchema = ${table.javaClassName}${env.rpcListInputClassSuffix}.class, outputSchema = ${table.javaClassName}${env.rpcListOutputClassSuffix}.class)
 	public ${table.javaClassName}${env.rpcListOutputClassSuffix} doList(${table.javaClassName}${env.rpcListInputClassSuffix} input) {
 		${table.javaClassName}${env.rpcListOutputClassSuffix} output = new ${table.javaClassName}${env.rpcListOutputClassSuffix}();
-		${table.javaClassName}${env.entityClassSuffix} param = BeanMaps.of(input.getParam()).copyToBean(new ${table.javaClassName}${env.entityClassSuffix}());
 		Page page = input.getPage();
+		Map<String, Object> param = BeanMaps.of(input.getParam());
+		if (page.getOrderBy()==null) {
+			OrderBy orderBy = Queries.newOrderBy(input.getParam().getV${dollar}orderBy());
+			page.setOrderBy(orderBy);
+		}
 		List<${table.javaClassName}${env.entityClassSuffix}> list = ${table.javaVariableName}${env.serviceClassSuffix}.getPage(param, page);
 		output.setPage(page);
 		output.setList(list);
@@ -87,10 +98,14 @@ public class ${table.javaClassName}${env.rpcClassSuffix}{
 	}
 
 	@RpcService(code = "$!{env.rpcCodePrefix}${table.javaClassName}Query", name = "通用数据查询")
+	@OpenApi(inputSchema = QueryDto.class, outputSchema = ${table.javaClassName}${env.rpcListOutputClassSuffix}.class)
 	public ${table.javaClassName}${env.rpcListOutputClassSuffix} doQuery(QueryDto input) {
 		${table.javaClassName}${env.rpcListOutputClassSuffix} output = new ${table.javaClassName}${env.rpcListOutputClassSuffix}();
 		Page page = input.getPage();
 		Map<String, Object> param = input.getParam().getSqlParamMap();
+		if (page.getOrderBy()==null) {
+			page.setOrderBy(input.getParam().toOrderBy());
+		}
 		List<${table.javaClassName}${env.entityClassSuffix}> list = ${table.javaVariableName}${env.serviceClassSuffix}.getPage(param, page);
 		output.setPage(page);
 		output.setList(list);

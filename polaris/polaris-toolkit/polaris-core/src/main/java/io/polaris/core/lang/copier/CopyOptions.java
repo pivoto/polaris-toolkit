@@ -34,13 +34,12 @@ public class CopyOptions {
 	/** 是否覆盖目标值，如果不覆盖，会先读取目标对象的值，非null则写，否则忽略。如果覆盖，则不判断直接写 */
 	private boolean override = true;
 	/** 属性属性编辑器，用于自定义属性转换规则，例如驼峰转下划线等 */
-	private Function<String, String> nameEditor;
+	private Function<String, String> keyMapping;
 	/** 属性值编辑器，用于自定义属性值转换规则，例如null转""等 */
 	private BiFunction<String, Object, Object> valueEditor;
 	/** 需要忽略的属性名 */
-	private Set<String> ignoreNames;
+	private Set<String> ignoreKeys;
 	/** 属性过滤器，断言通过的属性才会被复制。<br> 断言参数中Field为源对象的属性对象,如果不存在则使用目标对象，Object为源对象的对应值 */
-	@SuppressWarnings("rawtypes")
 	private TernaryFunction<String, Type, Object, Boolean> filter;
 	/** 自定义类型转换器 */
 	private BiFunction<Type, Object, Object> converter = (type, value) -> {
@@ -95,8 +94,8 @@ public class CopyOptions {
 	}
 
 	/** 源对象和目标对象都是Map 时, 需要忽略的源对象Map key */
-	public CopyOptions ignoreNames(String... names) {
-		this.ignoreNames = Iterables.asCollection(HashSet::new, names);
+	public CopyOptions ignoreKeys(String... keys) {
+		this.ignoreKeys = Iterables.asCollection(HashSet::new, keys);
 		return this;
 	}
 
@@ -123,19 +122,19 @@ public class CopyOptions {
 	}
 
 	/** 属性名映射 */
-	public CopyOptions nameMapping(Map<String, String> fieldMapping) {
-		return nameEditor((key -> fieldMapping.getOrDefault(key, key)));
+	public CopyOptions keyMapping(Map<String, String> keyMapping) {
+		return keyMapping((key -> keyMapping.getOrDefault(key, key)));
 	}
 
-	/** 属性名编辑器 */
-	public CopyOptions nameEditor(Function<String, String> nameEditor) {
-		this.nameEditor = nameEditor;
+	/** 属性名映射 */
+	public CopyOptions keyMapping(Function<String, String> keyMapping) {
+		this.keyMapping = keyMapping;
 		return this;
 	}
 
 	/** 属性值编辑器 */
-	public CopyOptions valueEditor(BiFunction<String, Object, Object> propertyValueEditor) {
-		this.valueEditor = propertyValueEditor;
+	public CopyOptions valueEditor(BiFunction<String, Object, Object> valueEditor) {
+		this.valueEditor = valueEditor;
 		return this;
 	}
 

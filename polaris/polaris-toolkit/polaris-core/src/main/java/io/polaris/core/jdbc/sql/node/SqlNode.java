@@ -5,9 +5,9 @@ import io.polaris.core.jdbc.sql.PreparedSql;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * @author Qt
@@ -21,20 +21,40 @@ public interface SqlNode {
 
 
 	default BoundSql asBoundSql() {
-		return asBoundSql("#{", "}" );
+		return asBoundSql("#{", "}");
+	}
+
+	default BoundSql asBoundSql(VarNameGenerator generator) {
+		return asBoundSql(generator,"#{", "}");
 	}
 
 	default BoundSql asBoundSql(String openVarToken, String closeVarToken) {
-		AtomicInteger index = new AtomicInteger();
-		VarNameGenerator generator = () -> "_" + (index.getAndIncrement());
-		return asBoundSql(generator, openVarToken, closeVarToken);
+		return asBoundSql(VarNameGenerator.newInstance(), openVarToken, closeVarToken);
 	}
+
+	default SqlNode copy() {
+		return copy(true);
+	}
+
+	SqlNode copy(boolean withVarValue);
 
 	default boolean isContainerNode() {
 		return false;
 	}
 
-	default void skipIfMissingVarParameter() {
+	default boolean isSkipped() {
+		return false;
+	}
+
+	default void skip(boolean skip) {
+		throw new UnsupportedOperationException();
+	}
+
+	default void skipIfMissingVarValue() {
+		throw new UnsupportedOperationException();
+	}
+
+	default boolean isEmpty() {
 		throw new UnsupportedOperationException();
 	}
 
@@ -45,7 +65,6 @@ public interface SqlNode {
 	default void addNode(SqlNode sqlNode) {
 		throw new UnsupportedOperationException();
 	}
-
 
 	default void addNode(int i, SqlNode sqlNode) {
 		throw new UnsupportedOperationException();
@@ -59,39 +78,71 @@ public interface SqlNode {
 		throw new UnsupportedOperationException();
 	}
 
+	default void visitSubsetWritable(Consumer<SqlNodeOp> visitor) {
+		throw new UnsupportedOperationException();
+	}
 
-	default boolean removeFirstNode(Predicate<SqlNode> predicate) {
+	default void visitSubset(Consumer<SqlNode> visitor) {
+		throw new UnsupportedOperationException();
+	}
+
+	default boolean replaceFirstSub(Predicate<SqlNode> predicate, Supplier<SqlNode> supplier) {
+		throw new UnsupportedOperationException();
+	}
+
+	default int replaceAllSubs(Predicate<SqlNode> predicate, Supplier<SqlNode> supplier) {
+		throw new UnsupportedOperationException();
+	}
+
+	default boolean removeFirstSub(Predicate<SqlNode> predicate) {
 		throw new UnsupportedOperationException();
 	}
 
 
-	default boolean removeAllNodes(Predicate<SqlNode> predicate) {
+	default int removeAllSubs(Predicate<SqlNode> predicate) {
 		throw new UnsupportedOperationException();
 	}
 
-	default void clearSkippedNodes() {
+	default void clearSkippedSubs() {
 		throw new UnsupportedOperationException();
 	}
-
 
 	default boolean containsVarName(String key) {
 		throw new UnsupportedOperationException();
 	}
 
-	default void visitNode(Consumer<SqlNode> visitor) {
+
+	default void bindSubsetVarValues(Map<String, Object> params) {
+		bindSubsetVarValues(params, true);
+	}
+
+
+	default void bindSubsetVarValues(Map<String, Object> params, boolean ignoreNull) {
 		throw new UnsupportedOperationException();
 	}
 
-	default void bindVarValues(Map<String, Object> params) {
-		bindVarValues(params, true);
+	default void bindSubsetVarValue(String varName, Object varValue) {
+		bindSubsetVarValue(varName, varValue, true);
 	}
 
-
-	default void bindVarValues(Map<String, Object> params, boolean ignoreNull) {
+	default void bindSubsetVarValue(String varName, Object varValue, boolean ignoreNull) {
 		throw new UnsupportedOperationException();
 	}
+
+	default void removeVarValue(String varName) {
+		throw new UnsupportedOperationException();
+	}
+
 
 	default boolean isVarNode() {
+		return false;
+	}
+
+	default boolean isMixedNode() {
+		return false;
+	}
+
+	default boolean isDynamicNode() {
 		return false;
 	}
 
@@ -103,7 +154,7 @@ public interface SqlNode {
 		throw new UnsupportedOperationException();
 	}
 
-	default void removeVarParameter() {
+	default void removeVarValue() {
 		throw new UnsupportedOperationException();
 	}
 

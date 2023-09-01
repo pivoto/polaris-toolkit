@@ -5,6 +5,7 @@ package io.polaris.core.consts;
  * @since 1.8
  */
 public interface StdConsts {
+	Object[] EMPTY_ARRAY = new Object[0];
 
 	String UTF_8 = "UTF-8";
 	String STANDARD_DELIMITER = SymbolConsts.COMMA;

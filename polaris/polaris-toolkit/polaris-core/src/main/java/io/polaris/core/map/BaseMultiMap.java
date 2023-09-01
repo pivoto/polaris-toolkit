@@ -17,6 +17,11 @@ public abstract class BaseMultiMap<K, V, E extends Collection<V>> implements Mul
 	}
 
 	@Override
+	public String toString() {
+		return raw.toString();
+	}
+
+	@Override
 	public E putAll(K key, V[] values) {
 		return putAll(key, Arrays.asList(values));
 	}

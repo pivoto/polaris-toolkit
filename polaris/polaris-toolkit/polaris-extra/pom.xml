@@ -19,6 +19,7 @@
 		<module>polaris-web</module>
 		<module>polaris-crypto</module>
 		<module>polaris-image</module>
+		<module>polaris-mybatis</module>
 		<module>polaris-git</module>
 	</modules>
 	<properties>

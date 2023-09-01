@@ -25,21 +25,21 @@ public abstract class BaseCopier<S, T> implements Copier<T> {
 			options.getConverter().apply(targetType, value) : value;
 	}
 
-	protected Object editValue(String fieldName, Object fieldValue) {
+	protected Object editValue(String key, Object value) {
 		return (options.getValueEditor() != null) ?
-			options.getValueEditor().apply(fieldName, fieldValue) : fieldValue;
+			options.getValueEditor().apply(key, value) : value;
 	}
 
-	protected String editName(String name) {
-		return (options.getNameEditor() != null) ?
-			options.getNameEditor().apply(name) : name;
+	protected String editKey(String key) {
+		return (options.getKeyMapping() != null) ?
+			options.getKeyMapping().apply(key) : key;
 	}
 
-	protected boolean filter(String name, Type type, Object value) {
-		return options.getFilter() == null || Boolean.TRUE.equals(options.getFilter().apply(name, type, value));
+	protected boolean filter(String key, Type type, Object value) {
+		return options.getFilter() == null || Boolean.TRUE.equals(options.getFilter().apply(key, type, value));
 	}
 
-	protected boolean isIgnore(String name){
-		return options.getIgnoreNames() != null && options.getIgnoreNames().contains(name);
+	protected boolean isIgnore(String key) {
+		return options.getIgnoreKeys() != null && options.getIgnoreKeys().contains(key);
 	}
 }

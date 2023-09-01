@@ -260,7 +260,7 @@ public class Objs {
 	 * @return 是否为空，如果类型不支持，返回true
 	 */
 	public static boolean isNotEmpty(Object obj) {
-		return false == isEmpty(obj);
+		return !isEmpty(obj);
 	}
 
 	/**

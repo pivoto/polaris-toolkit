@@ -24,6 +24,8 @@ public class AccessBeanInfo {
 	private boolean accessFields = false;
 	private boolean accessFluent = false;
 	private boolean accessMap = false;
+	private boolean accessGetters = false;
+	private boolean accessSetters = false;
 	private Set<String> excludeFieldSet;
 	private Set<String> excludeSetterSet;
 	private Set<String> excludeGetterSet;
@@ -32,6 +34,8 @@ public class AccessBeanInfo {
 	private ClassName fluentClassName;
 	private ClassName fieldsClassName;
 	private ClassName mapClassName;
+	private ClassName gettersClassName;
+	private ClassName settersClassName;
 	private List<FieldInfo> fields = new ArrayList<>();
 
 	public AccessBeanInfo(TypeElement element) {
@@ -47,6 +51,8 @@ public class AccessBeanInfo {
 		this.accessFields = access.fields();
 		this.accessFluent = access.fluent();
 		this.accessMap = access.map();
+		this.accessGetters = access.getters();
+		this.accessSetters = access.setters();
 
 		excludeFieldSet = new HashSet<>();
 		for (String s : access.excludeFields()) {
@@ -63,6 +69,8 @@ public class AccessBeanInfo {
 		String fluentSuffix = access.fluentSuffix();
 		String fieldsSuffix = access.fieldsSuffix();
 		String mapSuffix = access.mapSuffix();
+		String gettersSuffix = access.gettersSuffix();
+		String settersSuffix = access.settersSuffix();
 
 		this.beanTypeName = TypeName.get(element.asType());
 		this.beanClassName = ClassName.get(element);
@@ -72,6 +80,8 @@ public class AccessBeanInfo {
 		this.fluentClassName = ClassName.get(beanClassName.packageName(), simpleName + fluentSuffix);
 		this.fieldsClassName = ClassName.get(beanClassName.packageName(), simpleName + fieldsSuffix);
 		this.mapClassName = ClassName.get(beanClassName.packageName(), simpleName + mapSuffix);
+		this.gettersClassName = ClassName.get(beanClassName.packageName(), simpleName + gettersSuffix);
+		this.settersClassName = ClassName.get(beanClassName.packageName(), simpleName + settersSuffix);
 
 		visitFieldElement(element);
 	}
@@ -98,6 +108,7 @@ public class AccessBeanInfo {
 						fieldInfo.declaredClassName = declaredClassName;
 						fieldInfo.fieldName = fieldName;
 						fieldInfo.typeName = typeName;
+						fieldInfo.rawTypeName =AnnotationProcessorUtils.rawType(typeName);
 						fieldInfo.getterName = AnnotationProcessorUtils.toGetterName(fieldName, typeName);
 						fieldInfo.setterName = AnnotationProcessorUtils.toSetterName(fieldName);
 
@@ -141,6 +152,7 @@ public class AccessBeanInfo {
 		private ClassName declaredClassName;
 		private String fieldName;
 		private TypeName typeName;
+		private TypeName rawTypeName;
 		private boolean accessGetter = true;
 		private boolean accessSetter = true;
 		private boolean accessField = true;

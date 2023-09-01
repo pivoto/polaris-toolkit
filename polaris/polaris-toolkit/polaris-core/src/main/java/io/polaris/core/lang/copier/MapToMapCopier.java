@@ -38,7 +38,7 @@ public class MapToMapCopier extends BaseCopier<Map, Map> {
 
 					JavaType<Object> javaType = JavaType.of(this.targetType);
 					if (key instanceof String) {
-						final String keyStr = super.editName(key.toString());
+						final String keyStr = super.editKey(key.toString());
 						if (keyStr == null) {
 							return;
 						}

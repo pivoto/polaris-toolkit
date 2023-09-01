@@ -4,7 +4,6 @@ import io.polaris.core.consts.SymbolConsts;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import java.util.Collections;
 import java.util.Map;
@@ -14,7 +13,6 @@ import java.util.Map;
  * @since 1.8,  Aug 12, 2023
  */
 @EqualsAndHashCode
-@ToString
 @Getter
 @Setter
 public class BoundSql {
@@ -28,5 +26,10 @@ public class BoundSql {
 	public BoundSql(String text, Map<String, Object> bindings) {
 		this.text = text;
 		this.bindings = bindings;
+	}
+
+	@Override
+	public String toString() {
+		return text + "\nbindings: " + bindings;
 	}
 }

@@ -50,7 +50,7 @@ public class MapToBeanCopier<T> extends BaseCopier<Map, T> {
 					if (k == null) {
 						return;
 					}
-					String name = super.editName(k.toString());
+					String name = super.editKey(k.toString());
 					if (name == null) {
 						return;
 					}

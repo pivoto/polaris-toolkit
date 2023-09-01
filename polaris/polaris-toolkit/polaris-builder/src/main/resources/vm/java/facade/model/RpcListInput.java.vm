@@ -14,6 +14,7 @@ import io.polaris.bf.core.data.consts.Dml;
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
+import java.util.StringJoiner;
 
 /**
  * $!{table.name}
@@ -31,11 +32,19 @@ public class ${table.javaClassName}${env.rpcListInputClassSuffix} extends Exchan
 
 	@Data
 	public static class Param{
-	#foreach($col in $table.columns)
+#foreach($col in $table.columns)
 		/** #if(${col.label})$!{col.label}#else$!{col.name}#end */
 		@Schema(description = "#if(${col.label})$!{col.label}#else$!{col.name}#end")
+	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
+		private ${col.javaTypeSimpleName}[] ${col.javaVariableName};
+	#else
 		private ${col.javaTypeSimpleName} ${col.javaVariableName};
 	#end
+#end
+		/** 查询SQL的ORDER BY子句内容(各排序字段) */
+		@Schema(hidden = true)
+		private transient String v${dollar}orderBy;
+
 	}
 
 }

@@ -1,5 +1,7 @@
 package io.polaris.core.regex;
 
+import io.polaris.core.map.Maps;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;

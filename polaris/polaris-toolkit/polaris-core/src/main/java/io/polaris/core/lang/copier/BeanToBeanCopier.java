@@ -49,7 +49,7 @@ public class BeanToBeanCopier<S, T> extends BaseCopier<S, T> {
 
 			sourceMap.forEach((name, value) -> {
 				try {
-					name = super.editName(name);
+					name = super.editKey(name);
 					if (name == null) {
 						return;
 					}

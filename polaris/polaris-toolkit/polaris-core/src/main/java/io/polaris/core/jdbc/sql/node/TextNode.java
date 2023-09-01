@@ -2,18 +2,14 @@ package io.polaris.core.jdbc.sql.node;
 
 import io.polaris.core.jdbc.sql.BoundSql;
 import io.polaris.core.jdbc.sql.PreparedSql;
-import io.polaris.core.tuple.Tuple2;
-import io.polaris.core.tuple.Tuples;
 
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Qt
  * @since 1.8,  Aug 11, 2023
  */
-public class TextNode implements SqlNode {
+public class TextNode implements SqlNode, Cloneable {
 	/** SQL语句块 */
 	private String text;
 
@@ -28,12 +24,33 @@ public class TextNode implements SqlNode {
 
 	@Override
 	public PreparedSql asPreparedSql() {
+		if (text.length() == 0) {
+			return PreparedSql.EMPTY;
+		}
 		return new PreparedSql(text, Collections.emptyList());
 	}
 
 	@Override
 	public BoundSql asBoundSql(VarNameGenerator generator, String openVarToken, String closeVarToken) {
+		if (text.length() == 0) {
+			return BoundSql.EMPTY;
+		}
 		return new BoundSql(text, Collections.emptyMap());
+	}
+
+	@Override
+	public TextNode copy() {
+		return copy(true);
+	}
+
+	@Override
+	public TextNode copy(boolean withVarValue) {
+		return new TextNode(this.text);
+	}
+
+	@Override
+	public TextNode clone() {
+		return copy(true);
 	}
 
 	@Override

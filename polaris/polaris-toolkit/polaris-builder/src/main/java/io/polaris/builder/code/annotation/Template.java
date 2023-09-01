@@ -27,6 +27,11 @@ public @interface Template {
 	String VM_PATH_RPC_GET_OUTPUT = "/vm/java/facade/model/RpcGetOutput.java.vm";
 	String VM_PATH_RPC_LIST_OUTPUT = "/vm/java/facade/model/RpcListOutput.java.vm";
 
+	String VM_PATH_FRONTEND_ROUTES = "/vm/frontend/routes.ts.vm";
+	String VM_PATH_FRONTEND_LIST_PAGE = "/vm/frontend/ListPage.vue.vm";
+	String VM_PATH_FRONTEND_ADD_PAGE = "/vm/frontend/AddPage.vue.vm";
+	String VM_PATH_FRONTEND_EDIT_PAGE = "/vm/frontend/EditPage.vue.vm";
+
 	String FILENAME_EXAMPLE = "${table.javaClassName}.example.txt";
 	String FILENAME_ENTITY = "${table.javaClassName}${env.entityClassSuffix}.java";
 	String FILENAME_MAPPER = "${table.javaClassName}${env.mapperClassSuffix}.java";
@@ -40,6 +45,11 @@ public @interface Template {
 	String FILENAME_RPC_GET_OUTPUT = "${table.javaClassName}${env.rpcGetOutputClassSuffix}.java";
 	String FILENAME_RPC_LIST_OUTPUT = "${table.javaClassName}${env.rpcListOutputClassSuffix}.java";
 
+	String FILENAME_FRONTEND_ROUTES = "routes.ts";
+	String FILENAME_FRONTEND_LIST_PAGE = "List${table.javaClassName}.vue";
+	String FILENAME_FRONTEND_ADD_PAGE = "Add${table.javaClassName}.vue";
+	String FILENAME_FRONTEND_EDIT_PAGE = "Edit${table.javaClassName}.vue";
+
 	String DIRNAME_EXAMPLE = "/";
 	String DIRNAME_ENTITY = "${env.srcDir}/${table.javaPackageDir}/${env.basePackage.replace('.','/')}/${env.entityPackage.replace('.','/')}";
 	String DIRNAME_MAPPER = "${env.srcDir}/${table.javaPackageDir}/${env.basePackage.replace('.','/')}/${env.mapperPackage.replace('.','/')}";
@@ -49,6 +59,7 @@ public @interface Template {
 	String DIRNAME_RPC = "${env.srcDir}/${table.javaPackageDir}/${env.facadePackage.replace('.','/')}//${env.rpcPackage.replace('.','/')}";
 	String DIRNAME_MODEL = "${env.srcDir}/${table.javaPackageDir}/${env.facadePackage.replace('.','/')}/${env.modelPackage.replace('.','/')}";
 
+	String DIRNAME_FRONTEND = "${env.frontendDir}/${table.xmlName}";
 	/**
 	 * 模板路径，绝对路径或类路径的相对路径
 	 */

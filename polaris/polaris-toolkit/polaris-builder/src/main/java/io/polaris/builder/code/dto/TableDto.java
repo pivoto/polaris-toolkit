@@ -38,6 +38,10 @@ public class TableDto implements Serializable {
 	private List<ColumnDto> columns = new ArrayList<>();
 
 
+	@XStreamOmitField
+	private String catalog = "";
+	@XStreamOmitField
+	private String schema = "";
 	/** 主键列 */
 	@ToString.Exclude
 	@XStreamOmitField

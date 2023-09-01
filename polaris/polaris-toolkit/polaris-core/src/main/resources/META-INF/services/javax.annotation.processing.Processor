@@ -1,1 +1,2 @@
 io.polaris.core.annotation.processing.AccessProcessor
+io.polaris.core.jdbc.annotation.processing.JdbcAnnotationProcessor

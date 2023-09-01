@@ -10,6 +10,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -40,6 +41,12 @@ public class AccessProcessor extends BaseProcessor {
 			if (beanInfo.isAccessFields()) {
 				generateFieldsClass(beanInfo);
 			}
+			if (beanInfo.isAccessGetters()) {
+				generateGettersClass(beanInfo);
+			}
+			if (beanInfo.isAccessSetters()) {
+				generateSettersClass(beanInfo);
+			}
 			if (beanInfo.isAccessMap()) {
 				generateMapClass(beanInfo);
 			}
@@ -62,6 +69,19 @@ public class AccessProcessor extends BaseProcessor {
 				);
 			}
 		}
+
+		JavaFile javaFile = JavaFile.builder(className.packageName(), classBuilder.build()).build();
+		try {
+			javaFile.writeTo(filer);
+		} catch (IOException t) {
+			messager.printMessage(Diagnostic.Kind.ERROR, t.toString());
+		}
+	}
+
+	private void generateGettersClass(AccessBeanInfo beanInfo) {
+		ClassName className = beanInfo.getGettersClassName();
+		TypeSpec.Builder classBuilder = TypeSpec.classBuilder(className)
+			.addModifiers(Modifier.PUBLIC);
 		for (AccessBeanInfo.FieldInfo field : beanInfo.getFields()) {
 			if (field.isAccessGetter()) {
 				classBuilder.addField(
@@ -74,6 +94,19 @@ public class AccessProcessor extends BaseProcessor {
 				);
 			}
 		}
+		JavaFile javaFile = JavaFile.builder(className.packageName(), classBuilder.build()).build();
+		try {
+			javaFile.writeTo(filer);
+		} catch (IOException t) {
+			messager.printMessage(Diagnostic.Kind.ERROR, t.toString());
+		}
+	}
+
+	private void generateSettersClass(AccessBeanInfo beanInfo) {
+		ClassName className = beanInfo.getSettersClassName();
+		TypeSpec.Builder classBuilder = TypeSpec.classBuilder(className)
+			.addModifiers(Modifier.PUBLIC);
+
 		for (AccessBeanInfo.FieldInfo field : beanInfo.getFields()) {
 			if (field.isAccessSetter()) {
 				classBuilder.addField(
@@ -91,7 +124,7 @@ public class AccessProcessor extends BaseProcessor {
 		try {
 			javaFile.writeTo(filer);
 		} catch (IOException t) {
-			t.printStackTrace();
+			messager.printMessage(Diagnostic.Kind.ERROR, t.toString());
 		}
 	}
 
@@ -131,7 +164,7 @@ public class AccessProcessor extends BaseProcessor {
 			.addMethod(
 				MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC)
 					.addParameter(ParameterSpec.builder(beanInfo.getBeanTypeName(), "bean", Modifier.FINAL).build())
-					.addStatement("this(bean, (o,t)->$T.INSTANCE.convert(t,o))", ClassName.get("io.polaris.core.converter","ConverterRegistry"))
+					.addStatement("this(bean, (o,t)->$T.INSTANCE.convert(t,o))", ClassName.get("io.polaris.core.converter", "ConverterRegistry"))
 					.build()
 			)
 			.addMethod(
@@ -226,7 +259,7 @@ public class AccessProcessor extends BaseProcessor {
 					.addStatement("return null")
 					.endControlFlow()
 					.build())
-				.addStatement("$T supplier = this.getters.get((String) key)",ParameterizedTypeName.get(ClassName.get(Supplier.class),
+				.addStatement("$T supplier = this.getters.get((String) key)", ParameterizedTypeName.get(ClassName.get(Supplier.class),
 					ClassName.get(Object.class)
 				))
 				.addCode(CodeBlock.builder()
@@ -372,7 +405,7 @@ public class AccessProcessor extends BaseProcessor {
 		try {
 			javaFile.writeTo(filer);
 		} catch (IOException t) {
-			t.printStackTrace();
+			messager.printMessage(Diagnostic.Kind.ERROR, t.toString());
 		}
 	}
 
@@ -492,7 +525,7 @@ public class AccessProcessor extends BaseProcessor {
 		try {
 			javaFile.writeTo(filer);
 		} catch (IOException t) {
-			t.printStackTrace();
+			messager.printMessage(Diagnostic.Kind.ERROR, t.toString());
 		}
 	}
 
