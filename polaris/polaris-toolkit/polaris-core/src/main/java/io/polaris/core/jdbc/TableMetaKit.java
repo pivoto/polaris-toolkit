@@ -58,7 +58,7 @@ public class TableMetaKit {
 				String table = (String) reflectiveAccess.getField(null, "TABLE");
 				String alias = (String) reflectiveAccess.getField(null, "ALIAS");
 				Map<String, ColumnMeta> columns = (Map<String, ColumnMeta>) reflectiveAccess.getField(null, "COLUMNS");
-				return TableMeta.builder().table(table).alias(alias).columns(columns).schema(schema).catalog(catalog).build();
+				return TableMeta.builder().entityClass(entityClass).table(table).alias(alias).columns(columns).schema(schema).catalog(catalog).build();
 			}
 		} catch (Throwable e) {
 			log.error("", e);
@@ -112,7 +112,7 @@ public class TableMetaKit {
 			}
 			targetClass = targetClass.getSuperclass();
 		} while (targetClass != null && targetClass != Object.class);
-		return TableMeta.builder().table(annotation.value()).columns(Collections.unmodifiableMap(columns))
+		return TableMeta.builder().entityClass(entityClass).table(annotation.value()).columns(Collections.unmodifiableMap(columns))
 			.schema(annotation.schema()).catalog(annotation.catalog()).build();
 	}
 

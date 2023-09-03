@@ -210,7 +210,7 @@ public class MapperProviders {
 			if (version) {
 				val = val == null ? 1L : ((Number) val).longValue() + 1;
 			} else if (primaryKey) {
-				// skip set
+				// 不更新主键值
 				continue;
 			}
 			if (val != null) {

@@ -83,7 +83,7 @@ public class PatternExpression extends BaseExpression {
 	}
 
 	@Override
-	protected TernaryFunction<SqlNode, SqlNode[], Object[], ContainerNode> newBuilder() {
+	protected TernaryFunction<SqlNode, SqlNode[], Object[], ContainerNode> buildFunction() {
 		return (baseSource, extSources, bindings) -> {
 			if (hasRefBase && baseSource == null) {
 				// 缺Sql块

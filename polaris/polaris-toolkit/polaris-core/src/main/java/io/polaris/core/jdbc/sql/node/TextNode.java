@@ -18,6 +18,11 @@ public class TextNode implements SqlNode, Cloneable {
 	}
 
 	@Override
+	public String toString() {
+		return asPreparedSql().getText();
+	}
+
+	@Override
 	public String getText() {
 		return text;
 	}

@@ -44,6 +44,12 @@ public class TableEntitySegment<S extends TableEntitySegment<S>> extends TableSe
 		return toSqlNode(true);
 	}
 
+
+	@Override
+	public TableMeta getTableMeta() {
+		return tableMeta;
+	}
+
 	@Override
 	public String getTableAlias() {
 		return Strings.coalesce(this.alias, this.tableMeta.getAlias());

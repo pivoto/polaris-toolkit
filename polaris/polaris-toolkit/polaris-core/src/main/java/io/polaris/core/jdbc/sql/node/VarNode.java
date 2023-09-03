@@ -19,6 +19,11 @@ public abstract class VarNode implements SqlNode {
 	}
 
 	@Override
+	public String toString() {
+		return asPreparedSql().getText();
+	}
+
+	@Override
 	public boolean isVarNode() {
 		return true;
 	}

@@ -1,9 +1,11 @@
 package io.polaris.core.jdbc.sql.statement.segment;
 
+import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.statement.BaseSegment;
 import io.polaris.core.jdbc.sql.statement.SqlNodeBuilder;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -20,6 +22,16 @@ public abstract class TableSegment<S extends TableSegment<S>> extends BaseSegmen
 	@Override
 	public SqlNode toSqlNode() {
 		return toSqlNode(true);
+	}
+
+	/**
+	 * 只支持{@linkplain TableEntitySegment}类型，否则返回 null
+	 *
+	 * @return
+	 */
+	@Nullable
+	public TableMeta getTableMeta() {
+		return null;
 	}
 
 	public abstract String getTableAlias();

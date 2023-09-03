@@ -30,6 +30,6 @@ public class BoundSql {
 
 	@Override
 	public String toString() {
-		return text + "\nbindings: " + bindings;
+		return text + "\n" + bindings;
 	}
 }

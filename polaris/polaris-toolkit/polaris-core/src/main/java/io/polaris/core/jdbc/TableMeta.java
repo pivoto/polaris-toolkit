@@ -4,6 +4,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -14,18 +17,24 @@ import java.util.Map;
 @ToString
 @EqualsAndHashCode
 public class TableMeta {
+	private final Class<?> entityClass;
 	private final String schema;
 	private final String catalog;
 	private final String table;
 	private final String alias;
 	private final Map<String, ColumnMeta> columns;
+	private final Map<String, ColumnMeta> pkColumns;
 
-	public TableMeta(String schema, String catalog, String table, String alias, Map<String, ColumnMeta> columns) {
+	public TableMeta(Class<?> entityClass, String schema, String catalog, String table, String alias, Map<String, ColumnMeta> columns) {
+		this.entityClass = entityClass;
 		this.schema = schema;
 		this.catalog = catalog;
 		this.table = table;
 		this.alias = alias;
 		this.columns = columns;
+		Map<String, ColumnMeta> pkColumns = new HashMap<>();
+		columns.forEach(pkColumns::put);
+		this.pkColumns = Collections.unmodifiableMap(pkColumns);
 	}
 
 	public static Builder builder() {
@@ -33,6 +42,7 @@ public class TableMeta {
 	}
 
 	public static final class Builder {
+		private Class<?> entityClass;
 		private String schema;
 		private String catalog;
 		private String table;
@@ -43,14 +53,19 @@ public class TableMeta {
 		}
 
 		public TableMeta build() {
-			return new TableMeta(schema, catalog, table, alias, columns);
+			return new TableMeta(entityClass, schema, catalog, table, alias, columns);
 		}
 
+		public Builder entityClass(Class<?> entityClass) {
+			this.entityClass = entityClass;
+			return this;
+		}
 
 		public Builder schema(String schema) {
 			this.schema = schema;
 			return this;
 		}
+
 
 		public Builder catalog(String catalog) {
 			this.catalog = catalog;

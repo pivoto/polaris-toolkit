@@ -6,7 +6,6 @@ import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.string.Hex;
 
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.BiFunction;
 
 /**
  * @author Qt
@@ -14,17 +13,17 @@ import java.util.function.BiFunction;
  */
 public abstract class BaseExpression implements Expression {
 	private static final AtomicLong seq = new AtomicLong();
-	private final TernaryFunction<SqlNode,SqlNode[], Object[], ContainerNode> builder;
+	private final TernaryFunction<SqlNode,SqlNode[], Object[], ContainerNode> function;
 
-	public BaseExpression(TernaryFunction<SqlNode,SqlNode[], Object[], ContainerNode> builder) {
-		this.builder = builder;
+	public BaseExpression(TernaryFunction<SqlNode,SqlNode[], Object[], ContainerNode> function) {
+		this.function = function;
 	}
 
 	public BaseExpression() {
-		this.builder = newBuilder();
+		this.function = buildFunction();
 	}
 
-	protected TernaryFunction<SqlNode,SqlNode[], Object[], ContainerNode> newBuilder() {
+	protected TernaryFunction<SqlNode,SqlNode[], Object[], ContainerNode> buildFunction() {
 		throw new UnsupportedOperationException();
 	}
 
@@ -34,6 +33,6 @@ public abstract class BaseExpression implements Expression {
 
 	@Override
 	public SqlNode toSqlNode(SqlNode baseSource, SqlNode[] extSources, Object... bindings) {
-		return builder.apply(baseSource, extSources, bindings);
+		return function.apply(baseSource, extSources, bindings);
 	}
 }

@@ -1,15 +1,25 @@
 package io.polaris.core.jdbc.sql.statement;
 
 import io.polaris.core.annotation.AnnotationProcessing;
-import io.polaris.core.jdbc.sql.node.*;
+import io.polaris.core.jdbc.ColumnMeta;
+import io.polaris.core.jdbc.TableMeta;
+import io.polaris.core.jdbc.sql.node.ContainerNode;
+import io.polaris.core.jdbc.sql.node.SqlNode;
+import io.polaris.core.jdbc.sql.node.SqlNodes;
+import io.polaris.core.jdbc.sql.node.TextNode;
 import io.polaris.core.jdbc.sql.statement.segment.ColumnSegment;
 import io.polaris.core.jdbc.sql.statement.segment.TableEntitySegment;
 import io.polaris.core.jdbc.sql.statement.segment.TableSegment;
+import io.polaris.core.lang.bean.Beans;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
+
+import static io.polaris.core.lang.Objs.isNotEmpty;
 
 /**
  * @author Qt
@@ -101,7 +111,7 @@ public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement
 				} else {
 					if (columnValue == null) {
 						sql.addNode(SqlNodes.mixed(column.getColumnName(), null));
-					}else{
+					} else {
 						sql.addNode(SqlNodes.dynamic(column.getColumnName(), columnValue));
 					}
 				}
@@ -124,7 +134,9 @@ public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement
 					sql.addNode(SqlNodes.LF);
 				}
 				sql.addNode(SqlNodes.ON_DUPLICATE_KEY_UPDATE);
+				sql.addNode(SqlNodes.LF);
 			} else {
+				sql.addNode(SqlNodes.LF);
 				sql.addNode(SqlNodes.COMMA);
 			}
 			String columnName = column.getColumnName();
@@ -135,7 +147,7 @@ public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement
 			} else {
 				if (columnValue == null) {
 					sql.addNode(SqlNodes.mixed(columnName, null));
-				}else{
+				} else {
 					sql.addNode(SqlNodes.dynamic(columnName, columnValue));
 				}
 			}
@@ -149,6 +161,34 @@ public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement
 
 	public S enableUpdateByDuplicateKey(boolean enabled) {
 		this.enableUpdateByDuplicateKey = enabled;
+		return getThis();
+	}
+
+	public S withEntity(Object entity) {
+		return withEntity(entity, Statements.DEFAULT_PREDICATE_EXCLUDE_NULLS);
+	}
+
+	public S withEntity(Object entity, Predicate<String> includeEntityNulls) {
+		TableMeta tableMeta = table.getTableMeta();
+		if (tableMeta != null) {
+			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, tableMeta.getEntityClass());
+
+			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
+				String name = entry.getKey();
+				ColumnMeta meta = entry.getValue();
+				boolean insertable = meta.isInsertable() || meta.isCreateTime() || meta.isUpdateTime();
+				if (!insertable) {
+					continue;
+				}
+				Object val = Statements.getValForInsert(entityMap, meta);
+				if (meta.isVersion()) {
+					val = val == null ? 1L : ((Number) val).longValue() + 1;
+				}
+				if (isNotEmpty(val) || includeEntityNulls.test(name)) {
+					this.column(name, val);
+				}
+			}
+		}
 		return getThis();
 	}
 

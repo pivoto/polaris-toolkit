@@ -31,6 +31,6 @@ public class PreparedSql {
 
 	@Override
 	public String toString() {
-		return text + "\nbindings: " + bindings;
+		return text + "\n" + bindings;
 	}
 }

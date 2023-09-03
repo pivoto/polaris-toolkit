@@ -129,20 +129,20 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		return end();
 	}
 
-	public S apply(String function, TableField[] extFields, Object... bindings) {
-		return apply(PatternExpression.of(function), extFields, bindings);
+	public S apply(String functionPattern, TableField[] extFields, Object... bindings) {
+		return apply(PatternExpression.of(functionPattern), extFields, bindings);
 	}
 
-	public S apply(String function, TableField... extFields) {
-		return apply(PatternExpression.of(function), extFields);
+	public S apply(String functionPattern, TableField... extFields) {
+		return apply(PatternExpression.of(functionPattern), extFields);
 	}
 
-	public S apply(String function) {
-		return apply(PatternExpression.of(function), StdConsts.EMPTY_ARRAY);
+	public S apply(String functionPattern) {
+		return apply(PatternExpression.of(functionPattern), StdConsts.EMPTY_ARRAY);
 	}
 
-	public S apply(String function, Object[] bindings) {
-		return apply(PatternExpression.of(function), bindings);
+	public S apply(String functionPattern, Object[] bindings) {
+		return apply(PatternExpression.of(functionPattern), bindings);
 	}
 
 	public S apply(Expression function, TableField[] extFields, Object... bindings) {
@@ -164,8 +164,8 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		return getThis();
 	}
 
-	public S apply(String function, int tableIndex, String field) {
-		return apply(function, TableField.of(tableIndex, field));
+	public S apply(String functionPattern, int tableIndex, String field) {
+		return apply(functionPattern, TableField.of(tableIndex, field));
 	}
 
 	public S apply(Expression function, int tableIndex, String field) {
@@ -173,24 +173,24 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 	}
 
 
-	public S apply(String function, String tableAlias, String field) {
-		return apply(function, TableField.of(tableAlias, field));
+	public S apply(String functionPattern, String tableAlias, String field) {
+		return apply(functionPattern, TableField.of(tableAlias, field));
 	}
 
 	public S apply(Expression function, String tableAlias, String field) {
 		return apply(function, TableField.of(tableAlias, field));
 	}
 
-	public <T, R> S apply(String function, int tableIndex, GetterFunction<T, R> field) {
-		return apply(function, TableField.of(tableIndex, field));
+	public <T, R> S apply(String functionPattern, int tableIndex, GetterFunction<T, R> field) {
+		return apply(functionPattern, TableField.of(tableIndex, field));
 	}
 
 	public <T, R> S apply(Expression function, int tableIndex, GetterFunction<T, R> field) {
 		return apply(function, TableField.of(tableIndex, field));
 	}
 
-	public <T, R> S apply(String function, String tableAlias, GetterFunction<T, R> field) {
-		return apply(function, TableField.of(tableAlias, field));
+	public <T, R> S apply(String functionPattern, String tableAlias, GetterFunction<T, R> field) {
+		return apply(functionPattern, TableField.of(tableAlias, field));
 	}
 
 	public <T, R> S apply(Expression function, String tableAlias, GetterFunction<T, R> field) {

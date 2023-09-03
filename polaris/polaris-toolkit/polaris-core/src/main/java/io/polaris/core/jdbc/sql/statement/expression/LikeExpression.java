@@ -20,7 +20,7 @@ public class LikeExpression extends BaseExpression {
 	}
 
 	@Override
-	protected TernaryFunction<SqlNode,SqlNode[], Object[], ContainerNode> newBuilder() {
+	protected TernaryFunction<SqlNode,SqlNode[], Object[], ContainerNode> buildFunction() {
 		return (baseSource,extSources, bindings) -> {
 			ContainerNode container = new ContainerNode();
 			container.addNode(baseSource);

@@ -8,6 +8,7 @@ import io.polaris.core.jdbc.sql.node.TextNode;
  * @author Qt
  * @since 1.8,  Aug 23, 2023
  */
+@FunctionalInterface
 public interface Expression {
 	SqlNode toSqlNode(SqlNode baseSource, SqlNode[] extSources, Object[] bindings);
 
@@ -27,5 +28,6 @@ public interface Expression {
 	default SqlNode toSqlNode(SqlNode source, Object[] bindings) {
 		return toSqlNode(source, null, bindings);
 	}
+
 
 }

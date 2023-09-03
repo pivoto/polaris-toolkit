@@ -99,6 +99,7 @@ public class JoinSegment<O extends SelectStatement<O>, S extends JoinSegment<O, 
 		return (T) (where = Objs.defaultIfNull(where, this::buildWhere));
 	}
 
+
 	public S selectAll() {
 		SelectSegment<S, ?> segment = buildSelect().column(SymbolConsts.ASTERISK);
 		selects.add(segment);

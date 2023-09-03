@@ -15,6 +15,7 @@ import java.io.Serializable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.Accessors;
+import lombok.experimental.FieldNameConstants;
 #foreach($name in $table.columnJavaTypes)
 import $name;
 #end
@@ -41,6 +42,7 @@ import ${name.trim()};
 @Builder
 @FluentMybatis(table = "$!{table.name}", dbType = DbType.ORACLE, useDao = false)
 @Table(value = "$!{table.name}")
+@FieldNameConstants
 public class ${table.javaClassName}${env.entityClassSuffix} extends RichEntity implements Serializable#if(${env.entityExtInterface})
 	#set($env.entityExtInterfaceArr=${env.entityExtInterface.split(',')})
 	#foreach($name in ${env.entityExtInterfaceArr}), ${name.trim().substring(1 + ${name.trim().lastIndexOf(".")})}#end

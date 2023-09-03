@@ -1,6 +1,7 @@
 package io.polaris.core.jdbc.sql.statement;
 
 import io.polaris.core.jdbc.annotation.Column;
+import io.polaris.core.jdbc.annotation.Id;
 import io.polaris.core.jdbc.annotation.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +20,7 @@ import lombok.experimental.FieldNameConstants;
 @Builder
 @FieldNameConstants
 public class DemoEntity {
+	@Id
 	private Long id;
 	private String name;
 	private Double score;

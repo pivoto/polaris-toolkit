@@ -2,19 +2,24 @@ package io.polaris.core.jdbc.sql.statement.segment;
 
 
 import io.polaris.core.annotation.AnnotationProcessing;
+import io.polaris.core.jdbc.ColumnMeta;
+import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
 import io.polaris.core.jdbc.sql.node.TextNode;
 import io.polaris.core.jdbc.sql.statement.BaseSegment;
 import io.polaris.core.jdbc.sql.statement.Segment;
-import io.polaris.core.jdbc.sql.statement.SelectStatement;
 import io.polaris.core.jdbc.sql.statement.SqlNodeBuilder;
+import io.polaris.core.jdbc.sql.statement.Statements;
+import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.reflect.GetterFunction;
 import io.polaris.core.reflect.Reflects;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * @author Qt
@@ -53,7 +58,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 	}
 
 	@AnnotationProcessing
-	protected void addCriterion(CriterionSegment<S, ?> criterion){
+	protected void addCriterion(CriterionSegment<S, ?> criterion) {
 		this.criteria.add(criterion);
 	}
 
@@ -95,6 +100,42 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 			}
 		}
 		return containerNode;
+	}
+
+	public S byEntity(Object entity) {
+		TableMeta tableMeta = table.getTableMeta();
+		if (tableMeta != null) {
+			Statements.addWhereSqlByEntity(this, entity, tableMeta);
+		}
+		return getThis();
+	}
+
+	public S byEntity(Object entity, Predicate<String> includeWhereNulls) {
+		TableMeta tableMeta = table.getTableMeta();
+		if (tableMeta != null) {
+			Statements.addWhereSqlByEntity(this, entity, tableMeta, includeWhereNulls);
+		}
+		return getThis();
+	}
+
+	public S byEntityId(Object entity) {
+		TableMeta tableMeta = table.getTableMeta();
+		if (tableMeta != null) {
+			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, tableMeta.getEntityClass());
+			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
+				String name = entry.getKey();
+				ColumnMeta meta = entry.getValue();
+				if (meta.isPrimaryKey() || meta.isVersion()) {
+					Object val = entityMap.get(name);
+					if (val == null) {
+						this.column(name).isNull();
+					} else {
+						this.column(name).eq(val);
+					}
+				}
+			}
+		}
+		return getThis();
 	}
 
 	public S andRaw(String raw) {

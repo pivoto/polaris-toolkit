@@ -45,6 +45,11 @@ public class ContainerNode implements SqlNode, Cloneable {
 	}
 
 	@Override
+	public String toString() {
+		return asPreparedSql().getText();
+	}
+
+	@Override
 	public boolean isContainerNode() {
 		return true;
 	}
