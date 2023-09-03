@@ -19,43 +19,43 @@
 
 	<change>
 		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-builder/src</src>
-		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-builder/src</dest>
+		<dest>D:/xcode/me/@@/awesome/code/dev/polaris-toolkit/polaris-builder/src</dest>
 	</change>
 	<change>
 		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-core/src</src>
-		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-core/src</dest>
+		<dest>D:/xcode/me/@@/awesome/code/dev/polaris-toolkit/polaris-core/src</dest>
 	</change>
 	<change>
 		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-core-annotation-processor/src</src>
-		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-core-annotation-processor/src</dest>
+		<dest>D:/xcode/me/@@/awesome/code/dev/polaris-toolkit/polaris-core-annotation-processor/src</dest>
 	</change>
 	<change>
 		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-validator/src</src>
-		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-validator/src</dest>
+		<dest>D:/xcode/me/@@/awesome/code/dev/polaris-toolkit/polaris-extra/polaris-validator/src</dest>
 	</change>
 	<change>
 		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-bytecode/src</src>
-		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-bytecode/src</dest>
+		<dest>D:/xcode/me/@@/awesome/code/dev/polaris-toolkit/polaris-extra/polaris-bytecode/src</dest>
 	</change>
 	<change>
 		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-web/src</src>
-		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-web/src</dest>
+		<dest>D:/xcode/me/@@/awesome/code/dev/polaris-toolkit/polaris-extra/polaris-web/src</dest>
 	</change>
 	<change>
 		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-image/src</src>
-		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-image/src</dest>
+		<dest>D:/xcode/me/@@/awesome/code/dev/polaris-toolkit/polaris-extra/polaris-image/src</dest>
 	</change>
 	<change>
 		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-crypto/src</src>
-		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-crypto/src</dest>
+		<dest>D:/xcode/me/@@/awesome/code/dev/polaris-toolkit/polaris-extra/polaris-crypto/src</dest>
 	</change>
 	<change>
 		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-extra/stdk-mybatis/src</src>
-		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-extra/polaris-mybatis/src</dest>
+		<dest>D:/xcode/me/@@/awesome/code/dev/polaris-toolkit/polaris-extra/polaris-mybatis/src</dest>
 	</change>
 	<change>
 		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-demo/src</src>
-		<dest>D:/xcode/me/@@/awesome/code/dev/coding/polaris/polaris-toolkit/polaris-demo/src</dest>
+		<dest>D:/xcode/me/@@/awesome/code/dev/polaris-toolkit/polaris-demo/src</dest>
 	</change>
 
 </changes>
