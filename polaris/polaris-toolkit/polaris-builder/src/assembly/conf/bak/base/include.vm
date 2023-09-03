@@ -1,5 +1,0 @@
-#set($dollar='$')
-#set($empty='')
-#set($tab='	')
-#set($lf='
-')
