@@ -15,10 +15,7 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;
 
@@ -223,6 +220,19 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 		ClassName classNameAnd = sqlClassName.nestedClass("And");
 		ClassName classNameOr = sqlClassName.nestedClass("Or");
 
+		/* Set<String> keywords = new HashSet<>();
+		keywords.add("columnDiscovery");
+		keywords.add("buildSelect");
+		keywords.add("buildWhere");
+		keywords.add("buildGroupBy");
+		keywords.add("buildOrderBy");
+		keywords.add("toCountSqlNode");
+		keywords.add("toSqlNode");
+		keywords.add("select");
+		keywords.add("where");
+		keywords.add("groupBy");
+		keywords.add("having");
+		keywords.add("orderBy"); */
 		// select
 		{
 			TypeSpec.Builder nestedBuilder = TypeSpec.classBuilder(classNameSelect)

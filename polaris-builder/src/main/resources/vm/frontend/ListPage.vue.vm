@@ -17,7 +17,7 @@
 	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
 					<v-col>
 						<el-form-item label="${col.label}">
-							<el-input-number v-model="state.form.${col.javaVariableName}" placeholder="${col.label}"
+							<el-input-number v-model="state.form.queryForm.${col.javaVariableName}" placeholder="请输入${col.label}"
 								:precision="2" clearable style="width: 200px;" />
 						</el-form-item>
 					</v-col>
@@ -25,7 +25,7 @@
 		#if(${col.name.toLowerCase().endsWith('_sts')})
 					<v-col>
 						<el-form-item label="${col.label}">
-							<el-select v-model="state.form.queryForm.${col.javaVariableName}" clearable placeholder="${col.label}" style="max-width: 200px">
+							<el-select v-model="state.form.queryForm.${col.javaVariableName}" clearable placeholder="请输入${col.label}" style="max-width: 200px">
 								<el-option v-for="item in [{value:'A',label:'生效'},{value:'I',label:'失效'}]"
 									:key="item.value" :label="item.label" :value="item.value as any">
 									<el-tag effect="dark" size="small" :type="''" v-if="item.value=='A'">生效</el-tag>
@@ -37,7 +37,7 @@
 		#else
 					<v-col>
 						<el-form-item label="${col.label}">
-							<el-input v-model="state.form.queryForm.${col.javaVariableName}" placeholder="${col.label}"
+							<el-input v-model="state.form.queryForm.${col.javaVariableName}" placeholder="请输入${col.label}"
 									clearable style="max-width: 180px;">
 							</el-input>
 						</el-form-item>
@@ -67,24 +67,31 @@
 			@update:sort="onUpdateSortField"
 		>
 			<template #bar>
+				<el-button-group>
 				<el-button v-auth="'view'" size="small" type="primary" icon="EleView" @click="onOpenViewDialog()">查看</el-button>
 				<el-button v-auth="'add'" size="small" type="primary" icon="EleDocumentAdd" @click="onOpenAddDialog()">新增</el-button>
 				<el-button v-auth="'edit'" size="small" type="primary" icon="EleEdit" @click="onOpenEditDialog()">修改</el-button>
 				<el-button v-auth="'delete'" size="small" type="primary" icon="EleDelete" @click="onDeleteRecord()">删除</el-button>
+				<el-button v-auth="'export'" size="small" type="primary" icon="EleDownload" @click="onExportRecord()">导出</el-button>
+				</el-button-group>
 			</template>
 			<template #default>
 				<el-table-column type="index" label="序号" width="50" fixed header-align="center"></el-table-column>
 #foreach($col in $table.columns)
 	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
-				<el-table-column prop="${col.javaVariableName}" label="${col.label}" sortable show-overflow-tooltip :formatter="tableColumnFormatTime"></el-table-column>
+				<el-table-column prop="${col.javaVariableName}" label="${col.label}" sortable show-overflow-tooltip header-align="center" :formatter="tableColumnFormatTime"></el-table-column>
 	#else
 		#if(${col.name.toLowerCase().endsWith('_sts')})
-				<el-table-column prop="${col.javaVariableName}" label="${col.label}" show-overflow-tooltip header-align="center">
+				<el-table-column prop="${col.javaVariableName}" label="${col.label}" show-overflow-tooltip header-align="center" align="center">
 					<template #default="scope">
 						<el-tag effect="dark" size="small" :type="''" v-if="scope.row.${col.javaVariableName}=='A'">生效</el-tag>
 						<el-tag effect="dark" size="small" :type="'danger'" v-else>失效</el-tag>
 					</template>
 				</el-table-column>
+		#elseif(${col.javaVariableName.equals('crtUser')})
+				<el-table-column prop="${col.javaVariableName}" label="${col.label}" sortable show-overflow-tooltip header-align="center" :formatter="tableColumnFormatCrtUser"></el-table-column>
+		#elseif(${col.javaVariableName.equals('uptUser')})
+				<el-table-column prop="${col.javaVariableName}" label="${col.label}" sortable show-overflow-tooltip header-align="center" :formatter="tableColumnFormatUptUser"></el-table-column>
 		#else
 				<el-table-column prop="${col.javaVariableName}" label="${col.label}" sortable show-overflow-tooltip header-align="center"></el-table-column>
 		#end
@@ -117,6 +124,10 @@ import {
 	reactive, ref, shallowReactive, shallowRef, toRefs
 } from "vue";
 import type {ExtractPropTypes} from 'vue';
+import type {TableColumnCtx} from 'element-plus'
+import type {FormInstance, FormRules} from 'element-plus'
+import type {RuleItem, ValidateError, ValidateFieldsError} from 'async-validator';
+
 import VQueryPanel from '/@/components/page/VQueryPanel.vue'
 import VTablePanel from '/@/components/page/VTablePanel.vue'
 import VRow from '/@/components/page/VRow.vue'
@@ -126,8 +137,9 @@ import SvgIcon from "/@/components/icon/SvgIcon.vue";
 import Add${table.javaClassName} from './Add${table.javaClassName}.vue';
 import Edit${table.javaClassName} from './Edit${table.javaClassName}.vue';
 import msg from "/@/common/core/msg";
+import * as validation from "/@/common/core/validation";
 import {formatDate} from "/@/common/core/date";
-import {apiw} from "/@/common/api";
+import {apix} from "/@/common/api";
 import {PromiseResult} from "/@/common/core/utils";
 import ApiOutput from "/@/common/api/ApiOutput";
 
@@ -156,9 +168,15 @@ interface StateType {
 		queryFormCache?: any,
 		queryFormInit: any,
 		queryForm: any,
+		queryOrderBy?: string,
 	}
 }
 
+const Fields = {
+#foreach($col in $table.columns)
+	${col.javaVariableName}: '${col.label}',
+#end
+};
 const refDiv = shallowRef<HTMLElement>();
 const refAddDialog = ref();
 const refEditDialog = ref();
@@ -224,25 +242,22 @@ async function doFetchData() {
 			page: {
 				pageIdx: state.page.pageIdx,
 				pageSize: state.page.pageSize,
+				orderBy: state.form.queryOrderBy,
 			}
 		}
 		//let rs = await mockTableData(input.page.pageIdx, input.page.pageSize);
-		let rs = await apiw({
+		let rs = await apix({
 			method: 'post',
-			url: '/api/$!{env.rpcCodePrefix}${table.javaClassName}Query',
+			url: '/api/$!{env.rpcCodePrefix}${table.javaClassName}List',
 			headers: {},
 			data: input
 		});
-		console.log(rs.data, rs.error)
+		console.log(rs.output, rs.error)
 		if (rs.hasError()) {
-			msg.error(rs.error && rs.error.message || '查询失败!')
+			msg.error(rs.getErrMessage() || '查询失败！')
 			return;
 		}
-		if (!rs.data?.isSuccess()) {
-			msg.error(rs.data?.getErrMessage() || '查询失败!' + rs.data?.getErrCode())
-			return;
-		}
-		let output = rs.data?.getData();
+		let output = rs.output;
 		state.records.rows = output.list;
 		state.records.total = output.page.recordSize || output.list.length;
 		state.page.pageIdx = output.page?.pageNum || state.page.pageIdx
@@ -260,7 +275,7 @@ function onTableRefresh() {
 // 更新排序字段
 function onUpdateSortField(sortFields: string) {
 	console.log('update sort field:', sortFields)
-	state.form.queryForm.v${dollar}orderBy = sortFields
+	state.form.queryOrderBy = sortFields
 	doFetchData()
 }
 
@@ -271,8 +286,14 @@ function onUpdateCurrentRow(currentRow: any, oldCurrentRow: any) {
 }
 
 // 格式化日期字段
-function tableColumnFormatTime(row: any, column: any, cellValue: any, index: any) {
+function tableColumnFormatTime(row: any, column: TableColumnCtx<any>, cellValue: any, index: any) {
 	return cellValue && formatDate(new Date(cellValue), 'yyyy-MM-dd HH:mm:ss.SSS')
+}
+function tableColumnFormatCrtUser(row: any, column: TableColumnCtx<any>, cellValue: any, index: any) {
+	return row.crtUserName || (cellValue=='0'?'(SYS)':'('+cellValue+')');
+}
+function tableColumnFormatUptUser(row: any, column: TableColumnCtx<any>, cellValue: any, index: any) {
+	return row.uptUserName || (cellValue=='0'?'(SYS)':'('+cellValue+')');
 }
 
 
@@ -317,22 +338,18 @@ function onDeleteRecord(row?: any){
 		.then(async (d)=>{
 			console.log(d)
 			//let rs = await mockSubmitData();
-			let rs = await apiw({
+			let rs = await apix({
 				method: 'post',
 				url: '/api/$!{env.rpcCodePrefix}${table.javaClassName}Dml',
 				headers: {},
 				data: {
 					type: 'DELETE',
-					param: row
+					entity: row
 				}
 			});
-			console.log(rs.data, rs.error)
+			console.log(rs.output, rs.error)
 			if (rs.hasError()) {
-				msg.error(rs.error && rs.error.message || '数据删除失败')
-				return;
-			}
-			if (!rs.data?.isSuccess()) {
-				msg.error(rs.data?.getErrMessage() || '数据删除失败：' + rs.data?.getErrCode())
+				msg.error(rs.getErrMessage() || '数据删除失败！')
 				return;
 			}
 			msg.success('数据删除成功');
@@ -346,8 +363,63 @@ function onDeleteRecord(row?: any){
 				msg.error('数据删除失败：'+e);
 			}
 	})
-};
+}
+// 导出数据
+function onExportRecord(){
+	let queryFormCache = state.form.queryFormCache;
+	if (!queryFormCache) {
+		msg.warn('缺少查询条件！请先做查询操作');
+		return;
+	}
 
+	msg.confirm(`确认导出所有记录，是否继续?`,'提示','warning')
+		.then(async (d)=>{
+			state.loading.tableLoading = true;
+			try {
+				let input = {
+					param: {
+						...state.form.queryFormCache,
+					},
+					page: {
+						pageIdx: state.page.pageIdx,
+						pageSize: state.page.pageSize,
+						orderBy: state.form.queryOrderBy,
+					}
+				}
+				let rs = await apix({
+					method: 'post',
+					url: '/api/$!{env.rpcCodePrefix}${table.javaClassName}ListExport',
+					headers: {},
+					data: input
+				});
+				console.log(rs.output, rs.error)
+				if (rs.hasError()) {
+					msg.error(rs.getErrMessage() || '查询导出失败！')
+					return;
+				}
+				let output = rs.output;
+				let cmisDownload = output.cmis_download;
+				if (cmisDownload && cmisDownload.fileurl){
+					if (cmisDownload.filename){
+						msg.success('请下载导出结果文件：'+cmisDownload.filename);
+					}
+					window.open(cmisDownload.fileurl)
+				}else{
+					msg.warn('无结果文件，请确认导出接口是否正确！')
+				}
+			} finally {
+				state.loading.tableLoading = false;
+			}
+		}).catch((e)=>{
+			if (e == 'cancel' || e == 'close'){
+				console.warn(e)
+				msg.warn('取消导出操作')
+			}else{
+				console.error(e)
+				msg.error('导出操作失败：'+e);
+			}
+	})
+}
 // 页面加载时
 onMounted(() => {
 	doFetchData();

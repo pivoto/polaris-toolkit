@@ -7,6 +7,9 @@ import io.polaris.core.jdbc.sql.PreparedSql;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 class QueriesTest {
@@ -83,5 +86,4 @@ class QueriesTest {
 		System.out.println(sql.getBindings());
 
 	}
-
 }

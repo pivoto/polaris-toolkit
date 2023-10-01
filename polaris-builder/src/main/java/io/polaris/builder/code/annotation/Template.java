@@ -15,12 +15,17 @@ public @interface Template {
 
 	String VM_PATH_EXAMPLE = "/vm/example.txt.vm";
 	String VM_PATH_ENTITY = "/vm/java/base/entity/Entity.java.vm";
+	String VM_PATH_ENTITY_COMPLEX = "/vm/java/base/entity/EntityComplex.java.vm";
 	String VM_PATH_ENTITY_FLUENT_MYBATIS = "/vm/java/base/entity/FluentMybatisEntity.java.vm";
 	String VM_PATH_MAPPER = "/vm/java/base/mapper/Mapper.java.vm";
+	String VM_PATH_MAPPER_COMPLEX = "/vm/java/base/mapper/MapperComplex.java.vm";
 	String VM_PATH_SERVICE = "/vm/java/base/service/Service.java.vm";
+	String VM_PATH_SERVICE_EXPORTABLE = "/vm/java/base/service/ServiceExportable.java.vm";
 	String VM_PATH_MAPPER_XML = "/vm/resources/Mapper.xml.vm";
+	String VM_PATH_MAPPER_COMPLEX_XML = "/vm/resources/MapperComplex.xml.vm";
 	String VM_PATH_CONTROLLER = "/vm/java/facade/controller/Controller.java.vm";
 	String VM_PATH_RPC = "/vm/java/facade/rpc/Rpc.java.vm";
+	String VM_PATH_RPC_EXPORTABLE = "/vm/java/facade/rpc/RpcExportable.java.vm";
 	String VM_PATH_RPC_DML_INPUT = "/vm/java/facade/model/RpcDmlInput.java.vm";
 	String VM_PATH_RPC_GET_INPUT = "/vm/java/facade/model/RpcGetInput.java.vm";
 	String VM_PATH_RPC_LIST_INPUT = "/vm/java/facade/model/RpcListInput.java.vm";

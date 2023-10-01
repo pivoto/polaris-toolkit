@@ -43,9 +43,9 @@ public class ${table.javaClassName}${env.rpcListInputClassSuffix} extends Exchan
 #end
 		/** 查询SQL的ORDER BY子句内容(各排序字段) */
 		@Schema(hidden = true)
-		private transient String v${dollar}orderBy;
+		private transient String sqlOrderBy;
 
-		public void setV${dollar}orderBy(String value) {
+		public void setSqlOrderBy(String value) {
 			StringJoiner joiner = new StringJoiner(",");
 			if (value != null) {
 				String[] arr = value.toString().split(",");
@@ -61,7 +61,7 @@ public class ${table.javaClassName}${env.rpcListInputClassSuffix} extends Exchan
 					}
 				}
 			}
-			this.v${dollar}orderBy = joiner.toString();
+			this.sqlOrderBy = joiner.toString();
 		}
 	}
 

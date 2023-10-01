@@ -19,17 +19,17 @@ public interface EntityDeleteByAnyMapper<E> extends EntityMapper<E> {
 
 	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.deleteEntityByAny)
 	int deleteEntityByAny(@Param(EntityMapperKeys.WHERE) E entity
-		, @Param(EntityMapperKeys.WHERE_NULLS_KEYS) boolean includeWhereNulls
+		, @Param(EntityMapperKeys.WHERE_NULLS_INCLUDE) boolean includeWhereNulls
 		, @Param(EntityMapperKeys.WHERE_NULLS_KEYS) Set<String> whereNullsFields);
 
 	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.deleteEntityByAny)
 	int deleteEntityByMap(@Param(EntityMapperKeys.WHERE) Map<String, Object> entity
-		, @Param(EntityMapperKeys.WHERE_NULLS_KEYS) boolean includeWhereNulls
+		, @Param(EntityMapperKeys.WHERE_NULLS_INCLUDE) boolean includeWhereNulls
 		, @Param(EntityMapperKeys.WHERE_NULLS_KEYS) Set<String> whereNullsFields);
 
 	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.deleteEntityByAny)
 	int deleteEntityByCriteria(@Param(EntityMapperKeys.WHERE) Criteria criteria
-		, @Param(EntityMapperKeys.WHERE_NULLS_KEYS) boolean includeWhereNulls
+		, @Param(EntityMapperKeys.WHERE_NULLS_INCLUDE) boolean includeWhereNulls
 		, @Param(EntityMapperKeys.WHERE_NULLS_KEYS) Set<String> whereNullsFields);
 
 

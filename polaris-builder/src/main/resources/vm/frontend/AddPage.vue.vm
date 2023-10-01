@@ -5,30 +5,33 @@
 			<el-form ref="refForm" :rules="state.rules" :model="state.form" label-width="90px">
 				<v-row :gutter="5">
 #foreach($col in $table.columns)
-	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
-					<v-col class="mb5" :span="12">
+	#if(${col.javaVariableName.equals('crtUser')} || ${col.javaVariableName.equals('uptUser')}
+		|| ${col.javaVariableName.equals('crtDt')} || ${col.javaVariableName.equals('uptDt')})
+## ignore
+	#elseif(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
+					<v-col class="mb5" :lg="8" :xl="8">
 						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
-							<el-date-picker v-model="state.form.${col.javaVariableName}" placeholder="${col.label}" clearable
+							<el-date-picker v-model="state.form.${col.javaVariableName}" placeholder="请输入${col.label}" clearable
 								type="datetime" value-format="x" format="YYYY-MM-DD HH:mm:ss" style="width: 200px;"/>
 						</el-form-item>
 					</v-col>
 	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT')
-					<v-col class="mb5" :span="12">
+					<v-col class="mb5" :lg="8" :xl="8">
 						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
-							<el-input-number v-model="state.form.${col.javaVariableName}" placeholder="${col.label}" clearable
+							<el-input-number v-model="state.form.${col.javaVariableName}" placeholder="请输入${col.label}" clearable
 								:precision="0" style="width: 200px;" />
 						</el-form-item>
 					</v-col>
 	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
-					<v-col class="mb5" :span="12">
+					<v-col class="mb5" :lg="8" :xl="8">
 						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
-							<el-input-number v-model="state.form.${col.javaVariableName}" placeholder="${col.label}" clearable
+							<el-input-number v-model="state.form.${col.javaVariableName}" placeholder="请输入${col.label}" clearable
 								:precision="${col.decimalDigits}" style="width: 200px;" />
 						</el-form-item>
 					</v-col>
 	#else
 		#if(${col.name.toLowerCase().endsWith('_sts')})
-					<v-col class="mb5" :span="12">
+					<v-col class="mb5" :lg="8" :xl="8">
 						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
 							<el-switch v-model="state.form.${col.javaVariableName}" width="60"
 								:active-value="'A'" :inactive-value="'I'" inline-prompt
@@ -36,9 +39,9 @@
 						</el-form-item>
 					</v-col>
 		#else
-					<v-col class="mb5" :span="12">
+					<v-col class="mb5" :lg="8" :xl="8">
 						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
-							<el-input v-model="state.form.${col.javaVariableName}" placeholder="${col.label}" clearable style="width: 200px;"></el-input>
+							<el-input v-model="state.form.${col.javaVariableName}" placeholder="请输入${col.label}" clearable style="width: 200px;"></el-input>
 						</el-form-item>
 					</v-col>
 		#end
@@ -73,11 +76,11 @@ import type {RuleItem, ValidateError, ValidateFieldsError} from 'async-validator
 import VRow from '/@/components/page/VRow.vue'
 import VCol from '/@/components/page/VCol.vue'
 import msg, {error} from "/@/common/core/msg";
+import * as validation from "/@/common/core/validation";
 import {formatDate} from "/@/common/core/date";
-import {apiw} from "/@/common/api";
+import {apix} from "/@/common/api";
 import {PromiseResult} from "/@/common/core/utils";
 import ApiOutput from "/@/common/api/ApiOutput";
-
 
 const props = defineProps({
 	show: {
@@ -109,7 +112,11 @@ type StateType = {
 	form: FormType,
 	rules: FormRules<FormType>,
 };
-
+const Fields = {
+#foreach($col in $table.columns)
+	${col.javaVariableName}: '${col.label}',
+#end
+};
 const instance = getCurrentInstance();
 const proxy = instance?.proxy;
 const refDiv = shallowRef<HTMLElement | null>(null);
@@ -119,57 +126,59 @@ const state = reactive<StateType>({
 	form: {
 #foreach($col in $table.columns)
 	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
-	${col.javaVariableName}: #if(${col.nullable}) null #else 0 #end,
+		${col.javaVariableName}: #if(${col.nullable}) null #else 0 #end,
 	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT' || ${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
-	${col.javaVariableName}: #if(${col.nullable}) null #else 0 #end,
+		${col.javaVariableName}: #if(${col.nullable}) null #else 0 #end,
 	#else
-	${col.javaVariableName}: #if(${col.nullable}) null #else '' #end,
+		${col.javaVariableName}: #if(${col.nullable}) null #else '' #end,
 	#end
 #end
 	},
-	rules: {
+	rules: {},
+});
+const requiredNumberValidator:()=>RuleItem = ()=>{
+	return {
+		validator: (rule, value, callback) => {
+				if (value == null || /^\s*$/.test(value)) {
+					return new Error('不能为空');
+				}
+			callback();
+		}
+	};
+}
+const requiredStringValidator:()=>RuleItem = ()=>{
+	return {
+		validator: (rule, value, callback) => {
+			if (/^\s*$/.test(value)) {
+				return new Error('不能为空');
+			}
+			if (/\s+/.test(value)) {
+				return new Error('不能有空格')
+			}
+			callback();
+		}
+	};
+}
+{
 #foreach($col in $table.columns)
-	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
-	#if(!${col.nullable})
-		${col.javaVariableName}: {
-			validator: (rule, value, callback) => {
-				if (value == null) {
-					return new Error('不能为空');
-				}
-				callback();
-			}
-		},
-	#end
+	#if(${col.javaVariableName.equals('crtUser')} || ${col.javaVariableName.equals('uptUser')}
+	|| ${col.javaVariableName.equals('crtDt')} || ${col.javaVariableName.equals('uptDt')})
+## ignore
+	#elseif(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
+		#if(!${col.nullable})
+	state.rules.${col.javaVariableName} = [requiredNumberValidator()];
+		#end
 	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT' || ${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
-	#if(!${col.nullable})
-		${col.javaVariableName}: {
-			validator: (rule, value, callback) => {
-				if (value == null) {
-					return new Error('不能为空');
-				}
-				callback();
-			}
-		},
-	#end
+		#if(!${col.nullable})
+	state.rules.${col.javaVariableName} = [requiredNumberValidator()];
+		#end
 	#else
-	#if(!${col.nullable})
-		${col.javaVariableName}: {
-			validator: (rule, value, callback) => {
-				if (/^\s*$/.test(value)) {
-					return new Error('不能为空');
-				}
-				if (/\s+/.test(value)) {
-					callback(new Error('不能有空格'))
-				}
-				callback();
-			}
-		},
-	#end
+		#if(!${col.nullable})
+	state.rules.${col.javaVariableName} = [requiredStringValidator()];
+		#end
 	#end
 #end
-	}
-});
-
+}
 watch(() => props.show, (nv, ov) => state.show = nv);
 watch(() => state.show, (nv, ov) => {
 	if (props.show != nv) {
@@ -191,41 +200,25 @@ function closeDialog() {
 }
 
 function onSubmit() {
-	refForm.value.validate(async (isValid: boolean, invalidFields: ValidateFieldsError) => {
-		if (isValid) {
-			//let rs = await mockSubmitData();
-			let rs = await apiw({
-				method: 'post',
-				url: '/api/$!{env.rpcCodePrefix}${table.javaClassName}Dml',
-				headers: {},
-				data: {
-					type: 'INSERT',
-					param: state.form
-				}
-			});
-			console.log(rs.data, rs.error)
-			if (rs.hasError()) {
-				msg.error(rs.error && rs.error.message || '提交失败！')
-				return;
+	validation.validateForm(refForm.value, Fields, async ()=>{
+		//let rs = await mockSubmitData();
+		let rs = await apix({
+			method: 'post',
+			url: '/api/$!{env.rpcCodePrefix}${table.javaClassName}Dml',
+			headers: {},
+			data: {
+				type: 'INSERT',
+				entity: state.form
 			}
-			if (!rs.data?.isSuccess()) {
-				msg.error(rs.data?.getErrMessage() || '提交失败！' + rs.data?.getErrCode())
-				return;
-			}
-			msg.success('提交成功！')
-			closeDialog()
-		}else{
-			console.log(invalidFields)
-			let err = '表单校验失败！';
-			for (let key in invalidFields) {
-				let errors: ValidateError[] = invalidFields[key];
-				for (let i = 0; i < errors.length; i++) {
-					err += '<br>' + errors[i].field + '：' + errors[i].message
-				}
-			}
-			msg.error(err, {dangerouslyUseHTMLString: true} as any);
+		});
+		console.log(rs.output, rs.error)
+		if (rs.hasError()) {
+			msg.error(rs.getErrMessage() || '提交失败！')
+			return;
 		}
-	});
+		msg.success('提交成功！')
+		closeDialog()
+		});
 }
 
 function onCancel() {

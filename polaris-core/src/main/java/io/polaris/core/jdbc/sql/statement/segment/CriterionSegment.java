@@ -286,6 +286,9 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 	}
 
 	public O eq(Object value) {
+		if (value == null) {
+			return isNull();
+		}
 		this.expression = new ExpressionSegment<>(this.expression, LogicalExpression.EQ.getExpression(), value);
 		return end();
 	}
@@ -305,6 +308,9 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 	}
 
 	public O ne(Object value) {
+		if (value == null) {
+			return notNull();
+		}
 		this.expression = new ExpressionSegment<>(this.expression, LogicalExpression.NE.getExpression(), value);
 		return end();
 	}

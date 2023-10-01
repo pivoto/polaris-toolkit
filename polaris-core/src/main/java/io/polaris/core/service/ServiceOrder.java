@@ -13,5 +13,8 @@ public @interface ServiceOrder {
 
 	int value() default 0;
 
+	int HIGHEST = Integer.MIN_VALUE;
+
+	int LOWEST = Integer.MAX_VALUE;
 }
 

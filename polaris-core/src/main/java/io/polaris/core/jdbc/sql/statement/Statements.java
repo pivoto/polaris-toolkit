@@ -14,10 +14,8 @@ import io.polaris.core.string.Strings;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Array;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static io.polaris.core.lang.Objs.isNotEmpty;
@@ -201,23 +199,16 @@ public class Statements {
 	public static Date[] extractDateRange(Object val) {
 		Date[] range = new Date[2];
 		// 两个元素的日期类字段特殊处理，认为是日期范围条件
+		Object[] couple = new Object[2];
 		if (val instanceof Iterable) {
 			Iterator<?> iter = ((Iterable<?>) val).iterator();
 			if (iter.hasNext()) {
 				Object next = iter.next();
-				if (next == null || next instanceof Date) {
-					range[0] = (Date) next;
-				} else {
-					return null;
-				}
+				couple[0] = next;
 			}
 			if (iter.hasNext()) {
 				Object next = iter.next();
-				if (next == null || next instanceof Date) {
-					range[1] = (Date) next;
-				} else {
-					return null;
-				}
+				couple[1] = next;
 			}
 			if (iter.hasNext()) {
 				return null;
@@ -227,16 +218,18 @@ public class Statements {
 			if (len == 2) {
 				Object start = Array.get(val, 0);
 				Object end = Array.get(val, 1);
-				if (start == null || start instanceof Date) {
-					range[0] = (Date) start;
-				}
-				if (end == null || end instanceof Date) {
-					range[1] = (Date) end;
-				}
+				couple[0] = start;
+				couple[1] = end;
 			} else {
 				return null;
 			}
 		}
+
+		if (couple[0] == null && couple[1] == null) {
+			return null;
+		}
+		range[0] = ConverterRegistry.INSTANCE.convertQuietly(Date.class, couple[0]);
+		range[1] = ConverterRegistry.INSTANCE.convertQuietly(Date.class, couple[1]);
 		if (range[0] == null && range[1] == null) {
 			return null;
 		}
@@ -265,8 +258,9 @@ public class Statements {
 	private static void addWhereSqlByColumnValue(WhereSegment<?, ?> where, ColumnMeta meta
 		, Object val, Predicate<String> includeWhereNulls) {
 		if (isNotEmpty(val)) {
+			Class<?> fieldType = meta.getFieldType();
 			// 日期字段
-			if (Date.class.isAssignableFrom(meta.getFieldType())) {
+			if (Date.class.isAssignableFrom(fieldType)) {
 				Date[] range = extractDateRange(val);
 				if (range != null) {
 					if (range[0] != null) {
@@ -280,28 +274,39 @@ public class Statements {
 				}
 			}
 			// 文本字段
-			else if (String.class.isAssignableFrom(meta.getFieldType())) {
+			else if (String.class.isAssignableFrom(fieldType)) {
 				if (val instanceof String && (((String) val).startsWith("%") || ((String) val).endsWith("%"))) {
 					where.column(meta.getFieldName()).like((String) val);
 					// 完成条件绑定
 					return;
 				}
 			}
-
 			if (val instanceof Collection) {
-				where.column(meta.getFieldName()).in((Collection) val);
+				List<Object> list = new ArrayList<>((Collection<?>) val);
+				where.column(meta.getFieldName()).in(convertListElements(list, o->ConverterRegistry.INSTANCE.convertQuietly(fieldType, o)));
 			} else if (val instanceof Iterable) {
-				where.column(meta.getFieldName()).in(Iterables.asList((Iterable) val));
+				List<Object> list = Iterables.asCollection(ArrayList::new, (Iterable<Object>) val);
+				where.column(meta.getFieldName()).in(convertListElements(list, o->ConverterRegistry.INSTANCE.convertQuietly(fieldType, o)));
 			} else if (val instanceof Iterator) {
-				where.column(meta.getFieldName()).in(Iterables.asList((Iterator) val));
+				List<Object> list = Iterables.asCollection(ArrayList::new, (Iterator<Object>) val);
+				where.column(meta.getFieldName()).in(convertListElements(list, o->ConverterRegistry.INSTANCE.convertQuietly(fieldType, o)));
 			} else if (val.getClass().isArray()) {
-				where.column(meta.getFieldName()).in(ObjectArrays.toList(val));
+				List<Object> list = ObjectArrays.toList(val);
+				where.column(meta.getFieldName()).in(convertListElements(list, o->ConverterRegistry.INSTANCE.convertQuietly(fieldType, o)));
 			} else {
-				where.column(meta.getFieldName()).eq(val);
+				where.column(meta.getFieldName()).eq(ConverterRegistry.INSTANCE.convertQuietly(fieldType, val));
 			}
 		} else if (includeWhereNulls.test(meta.getFieldName())) {
 			where.column(meta.getFieldName()).isNull();
 		}
 	}
 
+	private static List<Object> convertListElements(List<Object> list, Function<Object,Object> converter){
+		int size = list.size();
+		for (int i = 0; i < size; i++) {
+			Object o = list.get(i);
+			list.set(i, converter.apply(o));
+		}
+		return list;
+	}
 }

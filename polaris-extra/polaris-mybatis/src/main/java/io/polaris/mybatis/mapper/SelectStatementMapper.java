@@ -24,7 +24,7 @@ public interface SelectStatementMapper<R> {
 
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
-	List<R> selectListBySql(@Param(EntityMapperKeys.SELECT) SelectStatement<?> statement);
+	List<R> selectEntityListBySql(@Param(EntityMapperKeys.SELECT) SelectStatement<?> statement);
 
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
@@ -50,14 +50,14 @@ public interface SelectStatementMapper<R> {
 		return countBySql(statement);
 	}
 
-	default List<R> selectListBySql(SelectStatement<?> statement, Criteria criteria, OrderBy orderBy) {
+	default List<R> selectEntityListBySql(SelectStatement<?> statement, Criteria criteria, OrderBy orderBy) {
 		if (criteria != null) {
 			statement.where(criteria);
 		}
 		if (orderBy != null) {
 			statement.orderBy(orderBy);
 		}
-		return selectListBySql(statement);
+		return selectEntityListBySql(statement);
 	}
 
 	default R selectEntityBySql(SelectStatement<?> statement, Criteria criteria, OrderBy orderBy) {

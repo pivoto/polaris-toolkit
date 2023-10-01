@@ -24,7 +24,11 @@ class ValidationsTest {
 		B b = new B();
 		b.setBigDecimal(new BigDecimal("3.14"));
 		b.setDoubleVal(123d);
-
+		ValidationResult validationResult = Validations.validateQuietly(b
+			, violationSet -> violationSet.stream().collect(
+				StringBuilder::new, (s, v) -> s.append(v.getMessage()).append("！"), (s0, s1) -> s0.append(s1)).toString()
+		);
+		System.out.println(validationResult);
 		Validations.validate(b);
 
 	}

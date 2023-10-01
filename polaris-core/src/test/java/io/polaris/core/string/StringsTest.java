@@ -5,6 +5,9 @@ import io.polaris.core.reflect.Reflects;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 class StringsTest {
 
 	@Test
@@ -20,5 +23,16 @@ class StringsTest {
 	void test02() {
 		System.out.printf("[%s]%n", Strings.trimStart("xxxabcxxx", 'x'));
 		System.out.printf("[%s]%n", Strings.trimEnd("xxxabcxxx", 'x'));
+	}
+
+
+	@Test
+	void test03() {
+		Map<String,String> map = new HashMap<>();
+		map.put("ctx.aaa","aaa123");
+		map.put("ctx.bbb","bbb123");
+		System.out.println(Strings.resolvePlaceholders("aaa ${ctx.aaa:/}", map::get));
+		System.out.println(Strings.resolvePlaceholders("aaa ${ctx.ccc:${ctx.bbb:/}}", map::get));
+		System.out.println(Strings.resolvePlaceholders("aaa ${ctx.ccc:${ctx.ddd:/}}", map::get));
 	}
 }

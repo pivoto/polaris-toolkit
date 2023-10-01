@@ -17,7 +17,7 @@ public interface EntitySelectMapper<E> extends EntityMapper<E> {
 
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityById)
-	E selectEntityById(@Param(EntityMapperKeys.WHERE) E entity);
+	E selectEntityById(@Param(EntityMapperKeys.ENTITY) E entity);
 
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)

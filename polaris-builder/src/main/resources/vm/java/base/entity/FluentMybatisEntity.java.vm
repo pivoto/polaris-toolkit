@@ -43,6 +43,7 @@ import ${name.trim()};
 @FluentMybatis(table = "$!{table.name}", dbType = DbType.ORACLE, useDao = false)
 @Table(value = "$!{table.name}")
 @FieldNameConstants
+@SuppressWarnings("PMD")
 public class ${table.javaClassName}${env.entityClassSuffix} extends RichEntity implements Serializable#if(${env.entityExtInterface})
 	#set($env.entityExtInterfaceArr=${env.entityExtInterface.split(',')})
 	#foreach($name in ${env.entityExtInterfaceArr}), ${name.trim().substring(1 + ${name.trim().lastIndexOf(".")})}#end
@@ -71,12 +72,12 @@ public class ${table.javaClassName}${env.entityClassSuffix} extends RichEntity i
 	@Schema(hidden = true)
 	@NotField
 	@Column(ignored = true)
-	private transient String v${dollar}orderBy;
+	private transient String sqlOrderBy;
 	/** 更新SQL的SET值内容 */
 	@Schema(hidden = true)
 	@NotField
 	@Column(ignored = true)
-	private transient ${table.javaClassName}${env.entityClassSuffix} v${dollar}updateValues;
+	private transient ${table.javaClassName}${env.entityClassSuffix} sqlUpdateValues;
 
 	@Override
 	public final Class entityClass() {

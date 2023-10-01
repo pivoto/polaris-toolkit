@@ -14,6 +14,7 @@ import io.polaris.bf.core.data.consts.Dml;
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
+import io.polaris.validation.group.*;
 
 /**
  * $!{table.name}
@@ -28,15 +29,6 @@ public class ${table.javaClassName}${env.rpcDmlInputClassSuffix} extends Exchang
 	@NotNull(message = "操作类型不能为空")
 	private Dml type;
 	@Valid
-	private Param param;
-
-	@Data
-	public static class Param{
-	#foreach($col in $table.columns)
-		/** #if(${col.label})$!{col.label}#else$!{col.name}#end */
-		@Schema(description = "#if(${col.label})$!{col.label}#else$!{col.name}#end")
-		private ${col.javaTypeSimpleName} ${col.javaVariableName};
-	#end
-	}
+	private ${table.javaClassName}${env.entityClassSuffix} entity;
 
 }

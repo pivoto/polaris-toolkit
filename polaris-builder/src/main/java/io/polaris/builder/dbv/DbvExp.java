@@ -219,28 +219,28 @@ public class DbvExp {
 			if (cellStyle != null) {
 				sheetCell.setCellStyle(cellStyle);
 			}
-			int cellType = tplSheetCell.getCellType();
+			CellType cellType = tplSheetCell.getCellType();
 			sheetCell.setCellType(cellType);
 			switch (cellType) {
-				case Cell.CELL_TYPE_STRING:
+				case STRING:
 					sheetCell.setCellValue(tplSheetCell.getStringCellValue());
 					break;
-				case Cell.CELL_TYPE_BOOLEAN:
+				case BOOLEAN:
 					sheetCell.setCellValue(tplSheetCell.getBooleanCellValue());
 					break;
-				case Cell.CELL_TYPE_NUMERIC:
+				case NUMERIC:
 					sheetCell.setCellValue(tplSheetCell.getNumericCellValue());
 					break;
-				case Cell.CELL_TYPE_ERROR:
+				case ERROR:
 					sheetCell.setCellValue(tplSheetCell.getErrorCellValue());
 					break;
-				case Cell.CELL_TYPE_FORMULA:
+				case FORMULA:
 					String cellFormula = tplSheetCell.getCellFormula();
 					if (cellFormula != null) {
 						sheetCell.setCellFormula(cellFormula);
 					}
 					break;
-				case Cell.CELL_TYPE_BLANK:
+				case BLANK:
 					break;
 				default:
 					break;

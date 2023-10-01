@@ -8,6 +8,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.FieldNameConstants;
 import java.io.Serializable;
+
+import javax.validation.Valid;
+import javax.validation.constraints.*;
+import io.polaris.validation.group.*;
+
 #foreach($name in $table.columnJavaTypes)
 import $name;
 #end
@@ -15,6 +20,12 @@ import $name;
 	#set($env.entityExtInterfaceArr=${env.entityExtInterface.split(',')})
 	#foreach($name in ${env.entityExtInterfaceArr})
 import ${name.trim()};
+	 #if(${name.endsWith('.TranslatedCreatable')})
+		 #set($env.entityExtInterfaceTranslatedCreatable=true)
+	 #end
+	 #if(${name.endsWith('.TranslatedUpdatable')})
+		 #set($env.entityExtInterfaceTranslatedUpdatable=true)
+	 #end
 	#end
 #end
 /**
@@ -27,8 +38,12 @@ import ${name.trim()};
 @Setter
 @EqualsAndHashCode
 @ToString
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Table(value = "$!{table.name}")
 @FieldNameConstants
+@SuppressWarnings("PMD")
 public class ${table.javaClassName}${env.entityClassSuffix} implements Serializable#if(${env.entityExtInterface})
 	#set($env.entityExtInterfaceArr=${env.entityExtInterface.split(',')})
 	#foreach($name in ${env.entityExtInterfaceArr}), ${name.trim().substring(1 + ${name.trim().lastIndexOf(".")})}#end
@@ -41,6 +56,11 @@ public class ${table.javaClassName}${env.entityClassSuffix} implements Serializa
 	@Schema(description = "#if(${col.label})$!{col.label}#else$!{col.name}#end")
 	@Id
 	@Column(value = "$!{col.name}")
+	#if(${col.javaClassType}=='String')
+	@NotEmpty(groups = {Create.class, Update.class, Delete.class, Retrieve.class}, message = "#if($col.label)$col.label#else$col.name#end[${col.javaVariableName}]不能为空")
+	#else
+	@NotNull(groups = {Create.class, Update.class, Delete.class, Retrieve.class}, message = "#if($col.label)$col.label#else$col.name#end[${col.javaVariableName}]不能为空")
+	#end
 	private ${col.javaTypeSimpleName} ${col.javaVariableName};
 #end
 
@@ -48,20 +68,27 @@ public class ${table.javaClassName}${env.entityClassSuffix} implements Serializa
 	/** #if(${col.label})$!{col.name} $!{col.label}#else$!{col.name}#end */
 	@Schema(description = "#if(${col.label})$!{col.label}#else$!{col.name}#end")
 	@Column(value = "$!{col.name}")
+	#if(!${col.nullable})
+		#if(${col.javaClassType}=='String')
+	@NotEmpty(groups = {Create.class, UpdateEntire.class}, message = "#if($col.label)$col.label#else$col.name#end[${col.javaVariableName}]不能为空")
+		#else
+	@NotNull(groups = {Create.class, UpdateEntire.class}, message = "#if($col.label)$col.label#else$col.name#end[${col.javaVariableName}]不能为空")
+		#end
+	#end
 	private ${col.javaTypeSimpleName} ${col.javaVariableName};
 #end
 
-	/** 查询SQL的ORDER BY子句内容(各排序字段) */
-	@Schema(hidden = true)
+#if(${env.entityExtInterfaceTranslatedCreatable})
+	@Column(ignored = true)
 	@Getter
 	@Setter
+	private transient String crtUserName;
+#end
+#if(${env.entityExtInterfaceTranslatedUpdatable})
 	@Column(ignored = true)
-	private transient String v${dollar}orderBy;
-	/** 更新SQL的SET值内容 */
-	@Schema(hidden = true)
 	@Getter
 	@Setter
-	@Column(ignored = true)
-	private transient ${table.javaClassName}${env.entityClassSuffix} v${dollar}updateValues;
+	private transient String uptUserName;
+#end
 
 }

@@ -1,7 +1,7 @@
 package io.polaris.mybatis.interceptor;
 
 import io.polaris.core.reflect.Reflects;
-import io.polaris.mybatis.support.SqlParsers;
+import io.polaris.mybatis.util.SqlParsers;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.executor.statement.BaseStatementHandler;
 import org.apache.ibatis.executor.statement.RoutingStatementHandler;

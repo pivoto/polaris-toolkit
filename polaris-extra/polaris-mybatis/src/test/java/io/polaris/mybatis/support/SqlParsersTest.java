@@ -2,6 +2,7 @@ package io.polaris.mybatis.support;
 
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.string.Strings;
+import io.polaris.mybatis.util.SqlParsers;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.schema.Table;
 import org.apache.ibatis.mapping.BoundSql;
@@ -12,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 class SqlParsersTest {

@@ -20,7 +20,8 @@ import java.util.regex.Pattern;
 public class Strings {
 
 	private static final ThreadLocal<Map<String, String>> resolvedKeysLocal = new ThreadLocal<>();
-	private static Pattern patternPlaceholder = Pattern.compile("\\$\\{([\\w\\.\\-:]+)\\}");
+	private static Pattern patternPlaceholder = Pattern.compile("\\$\\{([\\w\\.\\-]+(?::([^${}]*))?)\\}");
+	private static final String patternPlaceholderSeparator = "\\Q:\\E";
 	private static Pattern patternDigits = Pattern.compile("(?<!\\\\)\\{(\\d+)\\}");
 	private static Pattern patternEmpty = Pattern.compile("(?<!\\\\)\\{\\}");
 
@@ -31,7 +32,7 @@ public class Strings {
 		long b = byteSize % 1024;
 		long k = byteSize / 1024;
 		if (k == 0) {
-			return b + "B";
+			return b + "B" ;
 		}
 		long m = k / 1024;
 		k = k % 1024;
@@ -75,12 +76,18 @@ public class Strings {
 		return sb.toString();
 	}
 
+	public static String repeat(char ch, int count) {
+		char[] chars = new char[count];
+		Arrays.fill(chars, ch);
+		return new String(chars);
+	}
+
 	public static String repeat(String str, int count) {
 		if (str == null) {
 			return null;
 		}
 		if (count <= 0) {
-			return "";
+			return "" ;
 		}
 		if (count == 1) {
 			return str;
@@ -146,7 +153,7 @@ public class Strings {
 
 
 	public static String uuid() {
-		return UUID.randomUUID().toString().replace("-", "");
+		return UUID.randomUUID().toString().replace("-" , "");
 	}
 
 	public static String ulid() {
@@ -157,7 +164,7 @@ public class Strings {
 	 * 标准化标识符，非法字符替换为下划线
 	 */
 	public static String normalize(String name) {
-		return name == null ? "" : name.trim().replaceAll("\\W", "_");
+		return name == null ? "" : name.trim().replaceAll("\\W" , "_");
 	}
 
 	/**
@@ -215,7 +222,7 @@ public class Strings {
 	 * @return
 	 */
 	public static String resolvePlaceholders(String origin, Function<String, String> getter) {
-		return resolvePlaceholders(origin, patternPlaceholder, "\\Q:\\E", getter);
+		return resolvePlaceholders(origin, patternPlaceholder, patternPlaceholderSeparator, getter);
 	}
 
 	public static String resolvePlaceholders(String origin, Pattern placeholderPattern, String placeholderSeparator, Function<String, String> getter) {
@@ -235,7 +242,7 @@ public class Strings {
 				String placeholder = matcher.group(1);
 				String[] arr = placeholder.split(placeholderSeparator, 2);
 				String k = arr[0].trim();
-				String defVal = arr.length > 1 ? arr[1].trim() : "";
+				String defVal = arr.length > 1 ? arr[1].trim() : "" ;
 				String v = null;
 				if (resovedKeys.containsKey(k)) {
 					v = resovedKeys.get(k);
@@ -247,7 +254,7 @@ public class Strings {
 				if (v == null) {
 					v = defVal;
 				}
-				v = v.replace("\\", "\\\\").replace("$", "\\$");
+				v = v.replace("\\" , "\\\\").replace("$" , "\\$");
 				matcher.appendReplacement(sb, v);
 			}
 			matcher.appendTail(sb);
@@ -266,7 +273,7 @@ public class Strings {
 
 	public static String filter(CharSequence str, Predicate<Character> filter) {
 		if (str == null || filter == null) {
-			return Objects.toString(str,"");
+			return Objects.toString(str, "");
 		}
 		int len = str.length();
 		StringBuilder sb = new StringBuilder(len);
@@ -286,7 +293,7 @@ public class Strings {
 
 	public static String removePrefix(CharSequence str, CharSequence prefix) {
 		if (isEmpty(str) || isEmpty(prefix)) {
-			return Objects.toString(str,"");
+			return Objects.toString(str, "");
 		}
 		String str1 = str.toString();
 		if (str1.startsWith(prefix.toString())) {
@@ -297,7 +304,7 @@ public class Strings {
 
 	public static String removeSuffix(CharSequence str, CharSequence suffix) {
 		if (isEmpty(str) || isEmpty(suffix)) {
-			return Objects.toString(str,"");
+			return Objects.toString(str, "");
 		}
 		String str1 = str.toString();
 		if (str1.endsWith(suffix.toString())) {
@@ -308,7 +315,7 @@ public class Strings {
 
 	public static String trimToEmpty(String str) {
 		if (str == null) {
-			return "";
+			return "" ;
 		}
 		return str.trim();
 	}
@@ -502,7 +509,7 @@ public class Strings {
 	}
 
 
-	@SuppressWarnings({"StatementWithEmptyBody", "AliControlFlowStatementWithoutBraces"})
+	@SuppressWarnings({"StatementWithEmptyBody" , "AliControlFlowStatementWithoutBraces"})
 	public static int indexOfIgnoreCase(char[] source, int sourceOffset, int sourceCount
 		, char[] target, int targetOffset, int targetCount, int fromIndex) {
 		if (fromIndex >= sourceCount) {
@@ -741,7 +748,7 @@ public class Strings {
 	public static String format(String msg, Object... args) {
 		if (msg == null || msg.isEmpty()) {
 			if (args.length == 0) {
-				return "";
+				return "" ;
 			}
 			StringBuilder sb = new StringBuilder();
 			sb.append(args[0]);
@@ -759,7 +766,7 @@ public class Strings {
 		while (matcher.find()) {
 			int i = Integer.parseInt(matcher.group(1));
 			bitSet.set(i);
-			matcher.appendReplacement(sb, String.valueOf(i < args.length ? args[i] : null).replace("\\", "\\\\").replace("$", "\\$"));
+			matcher.appendReplacement(sb, String.valueOf(i < args.length ? args[i] : null).replace("\\" , "\\\\").replace("$" , "\\$"));
 		}
 		matcher.appendTail(sb);
 		msg = sb.toString();
@@ -772,7 +779,7 @@ public class Strings {
 				while (bitSet.get(i)) {
 					i++;
 				}
-				matcher.appendReplacement(sb, String.valueOf(i < args.length ? args[i] : null).replace("\\", "\\\\").replace("$", "\\$"));
+				matcher.appendReplacement(sb, String.valueOf(i < args.length ? args[i] : null).replace("\\" , "\\\\").replace("$" , "\\$"));
 				bitSet.set(i);
 			}
 			matcher.appendTail(sb);
