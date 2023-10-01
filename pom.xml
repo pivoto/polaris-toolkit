@@ -2,16 +2,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 				 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 				 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<parent>
-		<groupId>cn.pivoto.polaris</groupId>
-		<artifactId>polaris-bom-base</artifactId>
-		<version>2.0.10</version>
-	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cn.pivoto.polaris.toolkit</groupId>
 	<artifactId>polaris-toolkit</artifactId>
 	<version>2.0.4-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<name>polaris-toolkit</name>
+	<url>https://www.pivoto.cn</url>
+	<description>pivoto</description>
+	<organization>
+		<name>pivoto</name>
+		<url>https://www.pivoto.cn</url>
+	</organization>
 	<modules>
+		<module>polaris-build-tools</module>
 		<module>polaris-logging</module>
 		<module>polaris-logging-test</module>
 		<module>polaris-core-annotation-processor</module>
@@ -21,36 +26,167 @@
 		<module>polaris-all</module>
 		<module>polaris-demo</module>
 	</modules>
-	<packaging>pom</packaging>
 
 	<properties>
+		<start-class></start-class>
+		<java.version>1.8</java.version>
+		<file.encoding>UTF-8</file.encoding>
+		<resource.delimiter>@</resource.delimiter>
+		<!--<resource.delimiter>#{*}</resource.delimiter>-->
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<maven.compiler.verbose>false</maven.compiler.verbose>
 		<maven.compiler.useIncrementalCompilation>false</maven.compiler.useIncrementalCompilation>
+		<project.build.sourceEncoding>${file.encoding}</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>${file.encoding}</project.reporting.outputEncoding>
+		<project.dependencies.scope.provided>provided</project.dependencies.scope.provided>
+		<project.profiles.dir>src/profiles</project.profiles.dir>
+		<project.activeProfile>dev</project.activeProfile>
+		<project.resources.profile>s${project.profiles.dir}/${project.activeProfile}/resources</project.resources.profile>
+		<project.resources.ext>src/ext/resources</project.resources.ext>
+		<project.resources.addition>src/main/config</project.resources.addition>
+		<project.testResources.addition>src/test/config</project.testResources.addition>
+
+		<maven.test.skip>false</maven.test.skip>
+		<maven.install.skip>false</maven.install.skip>
+		<maven.deploy.skip>false</maven.deploy.skip>
+		<skipTests>true</skipTests>
+		<checkstyle.skip>true</checkstyle.skip>
+		<findbugs.skip>true</findbugs.skip>
+		<pmd.skip>true</pmd.skip>
+		<package.dependencyDirectory>libs</package.dependencyDirectory>
+		<includeScope>runtime</includeScope>
+		<maven.clean.failOnError>false</maven.clean.failOnError>
+		<maven.compiler.failOnError>true</maven.compiler.failOnError>
+		<maven.compiler.fork>false</maven.compiler.fork>
+		<maven.compiler.verbose>false</maven.compiler.verbose>
+		<maven.compiler.failOnWarning>false</maven.compiler.failOnWarning>
+		<maven.compiler.useIncrementalCompilation>false</maven.compiler.useIncrementalCompilation>
+		<assembly.appendAssemblyId>true</assembly.appendAssemblyId>
+		<assembly.skipAssembly>false</assembly.skipAssembly>
+		<groups>important | fast | light</groups>
+		<excludedGroups>local,slow,heavy</excludedGroups>
+
+		<maven.jetty.version>9.2.2.v20140723</maven.jetty.version>
+		<maven.tomcat.version>2.2</maven.tomcat.version>
+
+		<maven.lombok.version>1.18.20</maven.lombok.version>
+		<maven.groovy.version>2.5.22</maven.groovy.version>
+
+		<dependency.toolkit.version>${project.version}</dependency.toolkit.version>
+		<dependency.spring-boot.version>2.3.10.RELEASE</dependency.spring-boot.version>
+		<dependency.spring-cloud.version>Hoxton.SR10</dependency.spring-cloud.version>
+		<dependency.log4j2.version>2.20.0</dependency.log4j2.version>
+		<dependency.slf4j.version>1.7.36</dependency.slf4j.version>
+		<!--<dependency.slf4j.version>2.0.5</dependency.slf4j.version>-->
+		<dependency.disruptor.version>3.4.4</dependency.disruptor.version>
+		<dependency.junit-jupiter.version>5.9.1</dependency.junit-jupiter.version>
+		<dependency.junit.version>4.13.2</dependency.junit.version>
+		<dependency.h2.version>2.2.220</dependency.h2.version>
+		<dependency.hsqldb.version>2.7.1</dependency.hsqldb.version>
+		<dependency.powermock.version>2.0.7</dependency.powermock.version>
+		<dependency.mockito.version>3.5.13</dependency.mockito.version>
+		<dependency.jmh.version>1.21</dependency.jmh.version>
+
 		<dependency.bytebuddy.version>1.12.23</dependency.bytebuddy.version>
 		<dependency.asm.version>9.4</dependency.asm.version>
 		<dependency.javassist.version>3.29.2-GA</dependency.javassist.version>
 		<dependency.reflectasm.version>1.11.9</dependency.reflectasm.version>
 		<dependency.javapoet.version>1.13.0</dependency.javapoet.version>
+		<dependency.mybatis-spring.version>2.1.4</dependency.mybatis-spring.version>
 	</properties>
 
 	<dependencies>
+		<!-- region BuildTools -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 		</dependency>
-		<dependency>
+		<!--<dependency>
 			<groupId>org.codehaus.groovy</groupId>
 			<artifactId>groovy-all</artifactId>
 			<type>pom</type>
 			<scope>provided</scope>
+		</dependency>-->
+		<!-- endregion BuildTools -->
+
+		<!-- region TestFramework -->
+		<dependency>
+			<groupId>org.openjdk.jmh</groupId>
+			<artifactId>jmh-core</artifactId>
+			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.openjdk.jmh</groupId>
+			<artifactId>jmh-generator-annprocess</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-params</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-inline</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- endregion -->
 	</dependencies>
 
 	<dependencyManagement>
 		<dependencies>
+			<!-- region Modules -->
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-all</artifactId>
+				<type>pom</type>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<artifactId>polaris-build-tools</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<artifactId>polaris-logging</artifactId>
+				<type>pom</type>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<artifactId>polaris-logging-test</artifactId>
 				<type>pom</type>
 				<version>${project.version}</version>
 			</dependency>
@@ -67,18 +203,6 @@
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-builder</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit</groupId>
-				<artifactId>polaris-logging</artifactId>
-				<type>pom</type>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit</groupId>
-				<artifactId>polaris-logging-test</artifactId>
-				<type>pom</type>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -111,7 +235,139 @@
 				<artifactId>polaris-mybatis</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			<!-- endregion -->
 
+			<!-- region BuildTools -->
+			<dependency>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok</artifactId>
+				<version>${maven.lombok.version}</version>
+				<scope>provided</scope>
+				<optional>true</optional>
+			</dependency>
+			<dependency>
+				<groupId>org.codehaus.groovy</groupId>
+				<artifactId>groovy-all</artifactId>
+				<version>${maven.groovy.version}</version>
+				<type>pom</type>
+				<exclusions>
+					<exclusion>
+						<artifactId>groovy-test-junit5</artifactId>
+						<groupId>org.codehaus.groovy</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>groovy-test</artifactId>
+						<groupId>org.codehaus.groovy</groupId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<!-- endregion BuildTools -->
+
+			<!-- region log -->
+			<dependency>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-bom</artifactId>
+				<version>${dependency.log4j2.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.lmax</groupId>
+				<artifactId>disruptor</artifactId>
+				<version>${dependency.disruptor.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${dependency.slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>jcl-over-slf4j</artifactId>
+				<version>${dependency.slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>jul-to-slf4j</artifactId>
+				<version>${dependency.slf4j.version}</version>
+			</dependency>
+			<!-- endregion log -->
+
+			<!-- region TestFramework -->
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-simple</artifactId>
+				<version>${dependency.slf4j.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.openjdk.jmh</groupId>
+				<artifactId>jmh-core</artifactId>
+				<version>${dependency.jmh.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.openjdk.jmh</groupId>
+				<artifactId>jmh-generator-annprocess</artifactId>
+				<version>${dependency.jmh.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.junit</groupId>
+				<artifactId>junit-bom</artifactId>
+				<version>${dependency.junit-jupiter.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<scope>test</scope>
+				<version>${dependency.junit.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.powermock</groupId>
+				<artifactId>powermock-module-junit4</artifactId>
+				<version>${dependency.powermock.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.powermock</groupId>
+				<artifactId>powermock-api-mockito2</artifactId>
+				<version>${dependency.powermock.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-core</artifactId>
+				<scope>test</scope>
+				<version>${dependency.mockito.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-inline</artifactId>
+				<version>${dependency.mockito.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-junit-jupiter</artifactId>
+				<version>${dependency.mockito.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.hsqldb</groupId>
+				<artifactId>hsqldb</artifactId>
+				<scope>test</scope>
+				<version>${dependency.hsqldb.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.h2database</groupId>
+				<artifactId>h2</artifactId>
+				<scope>test</scope>
+				<version>${dependency.h2.version}</version>
+			</dependency>
+			<!-- endregion -->
+
+			<!-- region bytecode -->
 			<dependency>
 				<groupId>com.esotericsoftware</groupId>
 				<artifactId>reflectasm</artifactId>
@@ -152,8 +408,1034 @@
 				<artifactId>asm-util</artifactId>
 				<version>${dependency.asm.version}</version>
 			</dependency>
+			<!-- endregion bytecode -->
+
+			<!-- region mybatis -->
+			<dependency>
+				<groupId>org.mybatis.spring.boot</groupId>
+				<artifactId>mybatis-spring-boot-starter</artifactId>
+				<version>${dependency.mybatis-spring.version}</version>
+			</dependency>
+			<!-- endregion mybatis -->
 		</dependencies>
 	</dependencyManagement>
+
+	<build>
+		<defaultGoal>install</defaultGoal>
+		<finalName>${project.artifactId}-${project.version}</finalName>
+
+		<resources>
+			<resource>
+				<directory>src/main/java</directory>
+				<includes>
+					<include>**/*</include>
+				</includes>
+				<excludes>
+					<exclude>**/*.java</exclude>
+					<exclude>README.md</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>**/*</include>
+				</includes>
+				<excludes>
+					<exclude>README.md</exclude>
+					<exclude>.gitkeep*</exclude>
+					<exclude>**/*.yml</exclude>
+					<exclude>**/*.yaml</exclude>
+					<exclude>**/*.properties</exclude>
+					<exclude>*.xml</exclude>
+				</excludes>
+				<filtering>false</filtering>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>**/*.yml</include>
+					<include>**/*.yaml</include>
+					<include>**/*.properties</include>
+					<include>*.xml</include>
+				</includes>
+				<filtering>true</filtering>
+			</resource>
+			<resource>
+				<directory>${project.resources.addition}</directory>
+				<includes>
+					<include>**/*</include>
+				</includes>
+			</resource>
+		</resources>
+
+		<testResources>
+			<testResource>
+				<directory>src/test/java</directory>
+				<includes>
+					<include>**/*</include>
+				</includes>
+				<excludes>
+					<exclude>**/*.java</exclude>
+					<exclude>README.md</exclude>
+					<exclude>.gitkeep*</exclude>
+				</excludes>
+			</testResource>
+			<testResource>
+				<directory>src/test/resources</directory>
+				<includes>
+					<include>**/*</include>
+				</includes>
+				<excludes>
+					<exclude>README.md</exclude>
+					<exclude>.gitkeep*</exclude>
+					<exclude>**/*.yml</exclude>
+					<exclude>**/*.yaml</exclude>
+					<exclude>**/*.properties</exclude>
+					<exclude>*.xml</exclude>
+				</excludes>
+				<filtering>false</filtering>
+			</testResource>
+			<testResource>
+				<directory>src/test/resources</directory>
+				<includes>
+					<include>**/*.yml</include>
+					<include>**/*.yaml</include>
+					<include>**/*.properties</include>
+					<include>*.xml</include>
+				</includes>
+				<filtering>true</filtering>
+			</testResource>
+			<testResource>
+				<directory>${project.testResources.addition}</directory>
+				<includes>
+					<include>**/*</include>
+				</includes>
+			</testResource>
+		</testResources>
+
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-help-plugin</artifactId>
+					<version>3.2.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>versions-maven-plugin</artifactId>
+					<version>2.8.1</version>
+				</plugin>
+				<!-- mvn -N io.takari:maven:wrapper -Dmaven=3.5.4 -->
+				<plugin>
+					<groupId>io.takari</groupId>
+					<artifactId>maven</artifactId>
+					<version>0.6.1</version>
+				</plugin>
+				<!-- mvn wrapper:wrapper -DmavenVersion=x -->
+				<!--<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-wrapper-plugin</artifactId>
+					<version>3.0.2</version>
+				</plugin>-->
+				<!--<plugin>
+					<groupId>com.rimerosolutions.maven.plugins</groupId>
+					<artifactId>wrapper-maven-plugin</artifactId>
+					<version>0.0.5</version>
+				</plugin>-->
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>exec-maven-plugin</artifactId>
+					<version>1.6.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>flatten-maven-plugin</artifactId>
+					<version>1.2.5</version>
+					<configuration>
+						<!-- oss,ossrh,bom,defaults,clean,fatjar,resolveCiFriendliesOnly -->
+						<flattenMode>resolveCiFriendliesOnly</flattenMode>
+						<updatePomFile>true</updatePomFile>
+						<outputDirectory>${project.build.directory}</outputDirectory>
+						<flattenedPomFilename>.flattened-pom.xml</flattenedPomFilename>
+					</configuration>
+					<executions>
+						<execution>
+							<id>flatten</id>
+							<phase>process-resources</phase>
+							<goals>
+								<goal>flatten</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>flatten.clean</id>
+							<phase>clean</phase>
+							<goals>
+								<goal>clean</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.flywaydb</groupId>
+					<artifactId>flyway-maven-plugin</artifactId>
+					<version>6.4.4</version>
+				</plugin>
+				<plugin>
+					<groupId>pl.project13.maven</groupId>
+					<artifactId>git-commit-id-plugin</artifactId>
+					<version>3.0.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.johnzon</groupId>
+					<artifactId>johnzon-maven-plugin</artifactId>
+					<version>1.2.8</version>
+				</plugin>
+				<plugin>
+					<groupId>org.jooq</groupId>
+					<artifactId>jooq-codegen-maven</artifactId>
+					<version>3.13.5</version>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>xml-maven-plugin</artifactId>
+					<version>1.0.2</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-eclipse-plugin</artifactId>
+					<version>2.10</version>
+					<configuration>
+						<addGroupIdToProjectName>true</addGroupIdToProjectName>
+						<downloadSources>true</downloadSources>
+						<downloadJavadocs>true</downloadJavadocs>
+						<additionalProjectnatures>
+							<projectnature>org.eclipse.jdt.groovy.core.groovyNature</projectnature>
+						</additionalProjectnatures>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.eclipse.jetty</groupId>
+					<artifactId>jetty-maven-plugin</artifactId>
+					<version>${maven.jetty.version}</version>
+					<configuration>
+						<reload>manual</reload>
+						<stopPort>9009</stopPort>
+						<httpConnector>
+							<port>9001</port>
+						</httpConnector>
+						<webAppConfig>
+							<contextPath>/</contextPath>
+						</webAppConfig>
+						<systemProperties>
+							<systemProperty>
+								<name>spring.profiles.active</name>
+								<value>dev</value>
+							</systemProperty>
+						</systemProperties>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.tomcat.maven</groupId>
+					<artifactId>tomcat7-maven-plugin</artifactId>
+					<version>${maven.tomcat.version}</version>
+					<configuration>
+						<port>9001</port>
+						<path>/</path>
+						<uriEncoding>${project.build.sourceEncoding}</uriEncoding>
+						<systemProperties>
+							<systemProperty>
+								<name>spring.profiles.active</name>
+								<value>dev</value>
+							</systemProperty>
+						</systemProperties>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>3.1.0</version>
+					<configuration>
+						<failOnError>${maven.clean.failOnError}</failOnError>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>build-helper-maven-plugin</artifactId>
+					<version>3.2.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.8.1</version>
+					<configuration>
+						<source>${maven.compiler.source}</source>
+						<target>${maven.compiler.target}</target>
+						<encoding>${project.build.sourceEncoding}</encoding>
+						<parameters>true</parameters>
+						<fork>${maven.compiler.fork}</fork>
+						<verbose>${maven.compiler.verbose}</verbose>
+						<failOnWarning>${maven.compiler.failOnWarning}</failOnWarning>
+						<failOnError>${maven.compiler.failOnError}</failOnError>
+						<useIncrementalCompilation>${maven.compiler.useIncrementalCompilation}</useIncrementalCompilation>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.projectlombok</groupId>
+					<artifactId>lombok-maven-plugin</artifactId>
+					<version>1.18.20.0</version>
+					<configuration>
+						<encoding>${project.build.sourceEncoding}</encoding>
+					</configuration>
+					<executions>
+						<execution>
+							<id>generate-sources</id>
+							<phase>generate-sources</phase>
+							<goals>
+								<goal>delombok</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>generate-test-sources</id>
+							<phase>generate-test-sources</phase>
+							<goals>
+								<goal>testDelombok</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>3.1.0</version>
+					<configuration>
+						<encoding>${project.build.sourceEncoding}</encoding>
+						<overwrite>true</overwrite>
+						<useDefaultDelimiters>false</useDefaultDelimiters>
+						<delimiters>
+							<!-- $保留为系统或环境变量使用 -->
+							<!--<delimiter>${*}</delimiter>-->
+							<delimiter>${resource.delimiter}</delimiter>
+						</delimiters>
+					</configuration>
+					<executions>
+						<execution>
+							<id>copy-resources</id>
+							<phase>process-resources</phase>
+							<goals>
+								<goal>copy-resources</goal>
+							</goals>
+							<configuration>
+								<overwrite>true</overwrite>
+								<outputDirectory>${project.build.outputDirectory}</outputDirectory>
+								<resources>
+									<resource>
+										<directory>${project.resources.profile}</directory>
+									</resource>
+								</resources>
+							</configuration>
+						</execution>
+						<execution>
+							<id>copy-ext</id>
+							<!-- 针对Processor注解配置, 打包前加入,否则会自循环失败 -->
+							<phase>prepare-package</phase>
+							<goals>
+								<goal>copy-resources</goal>
+							</goals>
+							<configuration>
+								<overwrite>true</overwrite>
+								<outputDirectory>${project.build.outputDirectory}</outputDirectory>
+								<resources>
+									<resource>
+										<directory>${project.resources.ext}</directory>
+									</resource>
+								</resources>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>3.2.1</version>
+					<configuration>
+						<attach>true</attach>
+					</configuration>
+					<executions>
+						<execution>
+							<id>attach-sources</id>
+							<phase>package</phase>
+							<goals>
+								<goal>jar-no-fork</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-shade-plugin</artifactId>
+					<version>3.5.0</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>3.2.0</version>
+					<configuration>
+						<skipIfEmpty>false</skipIfEmpty>
+						<excludes>
+							<exclude>rebel.xml</exclude>
+							<exclude>.gitkeep*</exclude>
+						</excludes>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>3.1.2</version>
+					<configuration>
+						<outputDirectory>${project.build.directory}/${package.dependencyDirectory}</outputDirectory>
+						<overWriteReleases>false</overWriteReleases>
+						<overWriteSnapshots>false</overWriteSnapshots>
+						<overWriteIfNewer>true</overWriteIfNewer>
+						<!-- 表示是否不包含间接依赖的包 -->
+						<excludeTransitive>false</excludeTransitive>
+						<!-- 表示复制的jar文件去掉版本信息 -->
+						<stripVersion>false</stripVersion>
+						<!-- 表示是否建立依赖包的maven风格的目录结构 -->
+						<useRepositoryLayout>false</useRepositoryLayout>
+						<prependGroupId>true</prependGroupId>
+						<includeScope>${includeScope}</includeScope>
+					</configuration>
+					<executions>
+						<execution>
+							<id>copy</id>
+							<phase>package</phase>
+							<goals>
+								<goal>copy-dependencies</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>3.2.0</version>
+					<configuration>
+						<!--<additionalparam>-Xdoclint:none</additionalparam>-->
+						<doclint>none</doclint>
+					</configuration>
+					<executions>
+						<execution>
+							<id>javadoc-site-jar</id>
+							<phase>site</phase>
+							<goals>
+								<goal>aggregate-jar</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>javadoc-site</id>
+							<phase>site</phase>
+							<goals>
+								<goal>aggregate</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>javadoc-site-test</id>
+							<phase>site</phase>
+							<goals>
+								<goal>test-aggregate</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-gpg-plugin</artifactId>
+					<version>1.6</version>
+					<executions>
+						<execution>
+							<phase>verify</phase>
+							<goals>
+								<goal>sign</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-install-plugin</artifactId>
+					<version>2.5.2</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<version>2.8.2</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-war-plugin</artifactId>
+					<version>3.2.3</version>
+					<configuration>
+						<archive>
+							<manifest>
+								<mainClass>${start-class}</mainClass>
+								<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+							</manifest>
+						</archive>
+						<!--<warName>${project.artifactId}</warName>-->
+						<warName>${project.build.finalName}</warName>
+						<failOnMissingWebXml>false</failOnMissingWebXml>
+						<packagingExcludes>
+							**/rebel.xml,
+							**/.gitkeep
+						</packagingExcludes>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>3.1.1</version>
+					<configuration>
+						<appendAssemblyId>${assembly.appendAssemblyId}</appendAssemblyId>
+						<skipAssembly>${assembly.skipAssembly}</skipAssembly>
+						<archive>
+							<manifest>
+								<mainClass>${start-class}</mainClass>
+							</manifest>
+						</archive>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>native2ascii-maven-plugin</artifactId>
+					<version>2.0.1</version>
+					<executions>
+						<execution>
+							<phase>process-resources</phase>
+							<goals>
+								<goal>resources</goal>
+							</goals>
+							<configuration>
+								<encoding>${project.build.sourceEncoding}</encoding>
+								<includes>
+									<include>**/*.properties</include>
+								</includes>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-enforcer-plugin</artifactId>
+					<version>3.0.0-M3</version>
+					<executions>
+						<execution>
+							<id>enforce-versions</id>
+							<goals>
+								<goal>enforce</goal>
+							</goals>
+							<configuration>
+								<fail>false</fail>
+								<rules>
+									<requireJavaVersion>
+										<version>${maven.compiler.source}</version>
+									</requireJavaVersion>
+								</rules>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>3.1.2</version>
+					<configuration>
+						<groups>${groups}</groups>
+						<excludedGroups>${excludedGroups}</excludedGroups>
+						<includes>
+							<include>**/Test*.java</include>
+							<include>**/*Test.java</include>
+							<include>**/*Tests.java</include>
+							<include>**/*TestCase.java</include>
+						</includes>
+					</configuration>
+					<dependencies>
+						<dependency>
+							<groupId>org.junit.jupiter</groupId>
+							<artifactId>junit-jupiter-engine</artifactId>
+							<version>${dependency.junit-jupiter.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>org.junit.vintage</groupId>
+							<artifactId>junit-vintage-engine</artifactId>
+							<version>${dependency.junit-jupiter.version}</version>
+						</dependency>
+					</dependencies>
+				</plugin>
+
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>cobertura-maven-plugin</artifactId>
+					<version>2.7</version>
+					<configuration>
+						<!--<format>xml</format>-->
+						<format>html</format>
+						<quiet>true</quiet>
+					</configuration>
+					<executions>
+						<execution>
+							<phase>test</phase>
+							<goals>
+								<goal>cobertura</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<plugin>
+					<groupId>org.jetbrains.kotlin</groupId>
+					<artifactId>kotlin-maven-plugin</artifactId>
+					<version>1.3.72</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-antrun-plugin</artifactId>
+					<version>3.0.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-failsafe-plugin</artifactId>
+					<version>2.22.2</version>
+					<configuration>
+						<includes>
+							<include>**/IT*.java</include>
+							<include>**/*IT.java</include>
+							<include>**/*ITCase.java</include>
+						</includes>
+					</configuration>
+					<executions>
+						<execution>
+							<goals>
+								<goal>integration-test</goal>
+								<goal>verify</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-invoker-plugin</artifactId>
+					<version>3.2.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-site-plugin</artifactId>
+					<version>3.4</version>
+					<configuration>
+						<locales>zh_CN,en</locales>
+						<outputDirectory>${project.build.directory}/site</outputDirectory>
+						<outputEncoding>${project.build.sourceEncoding}</outputEncoding>
+						<inputEncoding>${project.build.sourceEncoding}</inputEncoding>
+						<port>9999</port>
+					</configuration>
+				</plugin>
+
+				<!-- region check -->
+				<!-- findbugs 静态分析工具 -->
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>findbugs-maven-plugin</artifactId>
+					<version>3.0.5</version>
+					<configuration>
+						<skip>${findbugs.skip}</skip>
+						<failOnError>false</failOnError>
+						<xmlOutput>true</xmlOutput>
+						<findbugsXmlOutput>true</findbugsXmlOutput>
+					</configuration>
+					<executions>
+						<execution>
+							<phase>compile</phase>
+							<goals>
+								<goal>findbugs</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<!-- 代码风格检查 -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-checkstyle-plugin</artifactId>
+					<version>3.1.2</version>
+					<configuration>
+						<skip>${checkstyle.skip}</skip>
+						<failsOnError>true</failsOnError>
+						<failOnViolation>true</failOnViolation>
+						<logViolationsToConsole>true</logViolationsToConsole>
+						<encoding>${project.build.sourceEncoding}</encoding>
+						<consoleOutput>true</consoleOutput>
+						<configLocation>checkstyle/checkstyle.xml</configLocation>
+					</configuration>
+					<dependencies>
+						<dependency>
+							<groupId>cn.pivoto.polaris.toolkit</groupId>
+							<artifactId>polaris-build-tools</artifactId>
+							<version>${project.version}</version>
+						</dependency>
+					</dependencies>
+					<executions>
+						<execution>
+							<phase>validate</phase>
+							<goals>
+								<goal>checkstyle</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<!-- pmd Java程序代码检查工具 -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-pmd-plugin</artifactId>
+					<version>3.8</version>
+					<configuration>
+						<skip>${pmd.skip}</skip>
+						<failOnViolation>false</failOnViolation>
+						<printFailingErrors>true</printFailingErrors>
+						<rulesets>
+							<ruleset>rulesets/java/ali-comment.xml</ruleset>
+							<ruleset>rulesets/java/ali-concurrent.xml</ruleset>
+							<ruleset>rulesets/java/ali-constant.xml</ruleset>
+							<ruleset>rulesets/java/ali-exception.xml</ruleset>
+							<ruleset>rulesets/java/ali-flowcontrol.xml</ruleset>
+							<ruleset>rulesets/java/ali-naming.xml</ruleset>
+							<ruleset>rulesets/java/ali-oop.xml</ruleset>
+							<ruleset>rulesets/java/ali-orm.xml</ruleset>
+							<ruleset>rulesets/java/ali-other.xml</ruleset>
+							<ruleset>rulesets/java/ali-set.xml</ruleset>
+						</rulesets>
+					</configuration>
+					<dependencies>
+						<dependency>
+							<!-- 需要使用阿里的一些xml文件，因此需要这里增加p3c的依赖 -->
+							<groupId>com.alibaba.p3c</groupId>
+							<artifactId>p3c-pmd</artifactId>
+							<version>1.3.0</version>
+						</dependency>
+					</dependencies>
+				</plugin>
+				<!-- endregion-->
+			</plugins>
+		</pluginManagement>
+
+		<plugins>
+			<!--<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>flatten-maven-plugin</artifactId>
+			</plugin>-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-help-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>active-profiles</goal>
+						</goals>
+						<phase>compile</phase>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>versions-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>io.takari</groupId>
+				<artifactId>maven</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-eclipse-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.tomcat.maven</groupId>
+				<artifactId>tomcat7-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-clean-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>native2ascii-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+			</plugin>
+			<!-- region check -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+			</plugin>
+			<!-- endregion -->
+		</plugins>
+	</build>
+
+	<reporting>
+		<excludeDefaults>true</excludeDefaults>
+		<outputDirectory>${project.build.directory}/site/${project.artifactId}</outputDirectory>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<configuration>
+					<check>
+						<branchRate>85</branchRate>
+						<lineRate>85</lineRate>
+						<haltOnFailure>true</haltOnFailure>
+						<totalBranchRate>85</totalBranchRate>
+						<totalLineRate>85</totalLineRate>
+						<packageLineRate>85</packageLineRate>
+						<packageBranchRate>85</packageBranchRate>
+						<regexes>
+							<regex>
+								<pattern>todo.*</pattern>
+								<branchRate>90</branchRate>
+								<lineRate>80</lineRate>
+							</regex>
+						</regexes>
+					</check>
+					<instrumentation>
+						<ignores>
+							<ignore>todo.*</ignore>
+						</ignores>
+						<excludes>
+							<exclude>todo/**/*.class</exclude>
+						</excludes>
+					</instrumentation>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<reportSets>
+					<reportSet><!-- by default, id = "default" -->
+						<reports><!-- select non-aggregate reports -->
+							<report>javadoc</report>
+							<report>test-javadoc</report>
+						</reports>
+					</reportSet>
+					<reportSet><!-- aggregate reportSet, to define in poms having modules -->
+						<id>aggregate</id>
+						<inherited>false</inherited><!-- don't run aggregate in child modules -->
+						<reports>
+							<report>aggregate</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+
+			<!-- 项目信息过滤 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>2.6</version>
+				<reportSets>
+					<reportSet>
+						<reports>
+							<!-- index一定要生成,否则链接问题 -->
+							<report>index</report>
+							<report>dependencies</report>
+							<report>project-team</report>
+							<report>issue-tracking</report>
+							<report>license</report>
+							<report>scm</report>
+							<report>cim</report>
+							<report>modules</report>
+							<report>plugins</report>
+							<report>help</report>
+							<report>summary</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+			<!-- 单元测试 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
+			<!-- 源码查看生成 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jxr-plugin</artifactId>
+				<version>3.0.0</version>
+				<configuration>
+				</configuration>
+			</plugin>
+			<!-- taglist报表 生成标注上@todo或TODO的项目的列表 -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>taglist-maven-plugin</artifactId>
+				<version>2.4</version>
+			</plugin>
+		</plugins>
+	</reporting>
+
+	<developers>
+		<developer>
+			<name>Qt</name>
+			<email>kylinmania@163.com</email>
+			<url>https://www.pivoto.cn/</url>
+			<roles>
+				<role>software engineer</role>
+			</roles>
+			<timezone>8</timezone>
+		</developer>
+	</developers>
+
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0</url>
+		</license>
+	</licenses>
+
+	<ciManagement>
+		<system>continuum</system>
+		<url>http://www.pivoto.cn</url>
+		<notifiers>
+			<notifier>
+				<type>mail</type>
+				<sendOnError>true</sendOnError>
+				<sendOnFailure>true</sendOnFailure>
+				<sendOnSuccess>true</sendOnSuccess>
+				<sendOnWarning>false</sendOnWarning>
+				<configuration>
+					<address>kylinmania@163.com</address>
+				</configuration>
+			</notifier>
+		</notifiers>
+	</ciManagement>
+
+	<issueManagement>
+		<system>issue</system>
+		<url>http://www.pivoto.cn</url>
+	</issueManagement>
+
+	<distributionManagement>
+		<!-- mvn site:deploy 部署的位置 -->
+		<site>
+			<id>local</id>
+			<name>filesystem</name>
+			<url>file:${project.basedir}/site</url>
+		</site>
+		<repository>
+			<id>me</id>
+			<name>me</name>
+			<url>http://localhost:8081/repository/maven-releases/</url>
+		</repository>
+		<snapshotRepository>
+			<id>me</id>
+			<name>me</name>
+			<url>http://localhost:8081/repository/maven-snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+	<scm>
+		<connection>scm:git:git@github.com:pivoto/polaris.git</connection>
+		<developerConnection>scm:git:git@github.com:pivoto/polaris.git</developerConnection>
+		<url>git@github.com:pivoto/polaris.git</url>
+	</scm>
 
 	<profiles>
 		<profile>
@@ -173,5 +1455,616 @@
 				</dependency>
 			</dependencies>
 		</profile>
+		<!-- region development -->
+		<profile>
+			<id>dev</id>
+			<properties>
+				<maven.test.skip>false</maven.test.skip>
+				<skipTests>true</skipTests>
+				<project.activeProfile>dev</project.activeProfile>
+			</properties>
+		</profile>
+		<!-- endregion -->
+		<!-- region Unit Testing -->
+		<profile>
+			<id>sut</id>
+			<properties>
+				<maven.test.skip>false</maven.test.skip>
+				<skipTests>false</skipTests>
+				<project.activeProfile>sut</project.activeProfile>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>cobertura-maven-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<!-- endregion -->
+		<!-- region Integration Testing -->
+		<profile>
+			<id>sit</id>
+			<properties>
+				<maven.test.skip>false</maven.test.skip>
+				<skipTests>true</skipTests>
+				<project.activeProfile>sit</project.activeProfile>
+			</properties>
+		</profile>
+		<!-- endregion -->
+		<!-- region User  Testing -->
+		<profile>
+			<id>uat</id>
+			<properties>
+				<maven.test.skip>false</maven.test.skip>
+				<skipTests>true</skipTests>
+				<project.activeProfile>uat</project.activeProfile>
+			</properties>
+		</profile>
+		<!-- endregion -->
+		<!-- region prepared/quasi production -->
+		<profile>
+			<id>pre</id>
+			<properties>
+				<maven.test.skip>true</maven.test.skip>
+				<skipTests>true</skipTests>
+				<project.activeProfile>pre</project.activeProfile>
+			</properties>
+		</profile>
+		<!-- endregion -->
+		<!-- region production -->
+		<profile>
+			<id>pro</id>
+			<properties>
+				<maven.test.skip>true</maven.test.skip>
+				<skipTests>true</skipTests>
+				<project.activeProfile>pro</project.activeProfile>
+			</properties>
+		</profile>
+		<!-- endregion -->
+
+		<!-- region src-groovy -->
+		<profile>
+			<id>src-groovy</id>
+			<activation>
+				<file>
+					<exists>src/main/groovy</exists>
+				</file>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>org.codehaus.groovy</groupId>
+					<artifactId>groovy-all</artifactId>
+					<type>pom</type>
+				</dependency>
+			</dependencies>
+			<build>
+				<resources>
+					<resource>
+						<directory>src/main/groovy</directory>
+						<includes>
+							<include>**/*</include>
+						</includes>
+						<excludes>
+							<exclude>**/*.groovy</exclude>
+							<exclude>README.md</exclude>
+							<exclude>.gitkeep*</exclude>
+						</excludes>
+					</resource>
+				</resources>
+				<testResources>
+					<testResource>
+						<directory>src/test/groovy</directory>
+						<includes>
+							<include>**/*</include>
+						</includes>
+						<excludes>
+							<exclude>**/*.groovy</exclude>
+							<exclude>README.md</exclude>
+							<exclude>.gitkeep*</exclude>
+						</excludes>
+					</testResource>
+				</testResources>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.gmavenplus</groupId>
+						<artifactId>gmavenplus-plugin</artifactId>
+						<version>1.13.1</version>
+						<configuration>
+
+						</configuration>
+						<dependencies>
+							<dependency>
+								<groupId>org.codehaus.groovy</groupId>
+								<artifactId>groovy</artifactId>
+								<version>${maven.groovy.version}</version>
+								<scope>runtime</scope>
+								<type>pom</type>
+							</dependency>
+						</dependencies>
+						<executions>
+							<execution>
+								<goals>
+									<goal>addSources</goal>
+									<goal>addTestSources</goal>
+									<goal>generateStubs</goal>
+									<goal>compile</goal>
+									<goal>generateTestStubs</goal>
+									<goal>compileTests</goal>
+									<goal>removeStubs</goal>
+									<goal>removeTestStubs</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<!--
+		<profile>
+			<id>src-groovy-eclipse</id>
+			<dependencies>
+				<dependency>
+					<groupId>org.codehaus.groovy</groupId>
+					<artifactId>groovy-all</artifactId>
+					<type>pom</type>
+				</dependency>
+			</dependencies>
+			<build>
+				<resources>
+					<resource>
+						<directory>src/main/groovy</directory>
+						<includes>
+							<include>**/*</include>
+						</includes>
+						<excludes>
+							<exclude>**/*.groovy</exclude>
+							<exclude>README.md</exclude>
+							<exclude>.gitkeep*</exclude>
+						</excludes>
+					</resource>
+				</resources>
+				<testResources>
+					<testResource>
+						<directory>src/test/groovy</directory>
+						<includes>
+							<include>**/*</include>
+						</includes>
+						<excludes>
+							<exclude>**/*.groovy</exclude>
+							<exclude>README.md</exclude>
+							<exclude>.gitkeep*</exclude>
+						</excludes>
+					</testResource>
+				</testResources>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>build-helper-maven-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+					</plugin>
+				</plugins>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.codehaus.mojo</groupId>
+							<artifactId>build-helper-maven-plugin</artifactId>
+							<version>3.2.0</version>
+							<executions>
+								<execution>
+									<id>add-source</id>
+									<phase>generate-sources</phase>
+									<goals>
+										<goal>add-source</goal>
+									</goals>
+									<configuration>
+										<sources>
+											<source>src/main/java</source>
+											<source>src/main/groovy</source>
+										</sources>
+									</configuration>
+								</execution>
+								<execution>
+									<id>add-test-source</id>
+									<phase>generate-test-sources</phase>
+									<goals>
+										<goal>add-test-source</goal>
+									</goals>
+									<configuration>
+										<sources>
+											<source>src/test/java</source>
+											<source>src/test/groovy</source>
+										</sources>
+									</configuration>
+								</execution>
+							</executions>
+						</plugin>
+						<plugin>
+							<groupId>org.codehaus.groovy</groupId>
+							<artifactId>groovy-eclipse-compiler</artifactId>
+							<version>3.7.0</version>
+							<extensions>true</extensions>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-compiler-plugin</artifactId>
+							<version>3.8.0</version>
+							<configuration>
+								<source>${maven.compiler.source}</source>
+								<target>${maven.compiler.target}</target>
+								<encoding>${project.build.sourceEncoding}</encoding>
+								<useIncrementalCompilation>false</useIncrementalCompilation>
+								<compilerId>groovy-eclipse-compiler</compilerId>
+								<fork>${maven.compiler.fork}</fork>
+								<verbose>${maven.compiler.verbose}</verbose>
+								<failOnWarning>${maven.compiler.failOnWarning}</failOnWarning>
+								<failOnError>${maven.compiler.failOnError}</failOnError>
+								<compilerArguments>
+									<parameters/>
+									<javaAgentClass>lombok.launch.Agent</javaAgentClass>
+									<indy/>
+									&lt;!&ndash;<configScript>config.groovy</configScript>&ndash;&gt;
+								</compilerArguments>
+							</configuration>
+							<dependencies>
+								<dependency>
+									<groupId>org.codehaus.groovy</groupId>
+									<artifactId>groovy-eclipse-compiler</artifactId>
+									<version>3.7.0</version>
+								</dependency>
+								<dependency>
+									<groupId>org.codehaus.groovy</groupId>
+									<artifactId>groovy-eclipse-batch</artifactId>
+									<version>3.0.8-01</version>
+								</dependency>
+								<dependency>
+									<groupId>org.projectlombok</groupId>
+									<artifactId>lombok</artifactId>
+									<version>1.18.20</version>
+								</dependency>
+							</dependencies>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+		</profile>
+		-->
+		<!-- endregion -->
+
+		<!-- region package-run -->
+		<profile>
+			<id>package-run</id>
+			<build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-jar-plugin</artifactId>
+							<version>3.2.0</version>
+							<configuration>
+								<skipIfEmpty>false</skipIfEmpty>
+								<archive>
+									<manifest>
+										<mainClass>${start-class}</mainClass>
+										<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+									</manifest>
+								</archive>
+								<excludes>
+									<exclude>rebel.xml</exclude>
+									<exclude>.gitkeep*</exclude>
+								</excludes>
+							</configuration>
+							<executions>
+								<execution>
+									<id>package-jar</id>
+									<phase>package</phase>
+									<goals>
+										<goal>jar</goal>
+									</goals>
+								</execution>
+								<execution>
+									<id>package-run-jar</id>
+									<phase>package</phase>
+									<goals>
+										<goal>jar</goal>
+									</goals>
+									<configuration>
+										<classifier>run</classifier>
+										<skipIfEmpty>true</skipIfEmpty>
+										<archive>
+											<manifest>
+												<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+												<addClasspath>true</addClasspath>
+												<classpathPrefix>${package.dependencyDirectory}/</classpathPrefix>
+												<mainClass>${start-class}</mainClass>
+											</manifest>
+										</archive>
+									</configuration>
+								</execution>
+							</executions>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-assembly-plugin</artifactId>
+							<version>3.1.1</version>
+							<configuration>
+								<appendAssemblyId>true</appendAssemblyId>
+								<skipAssembly>${assembly.skipAssembly}</skipAssembly>
+								<archive>
+									<manifest>
+										<mainClass>${start-class}</mainClass>
+									</manifest>
+								</archive>
+							</configuration>
+							<executions>
+								<execution>
+									<id>jar-with-dependencies</id>
+									<phase>package</phase>
+									<goals>
+										<goal>single</goal>
+									</goals>
+									<configuration>
+										<descriptorRefs>
+											<descriptorRef>jar-with-dependencies</descriptorRef>
+										</descriptorRefs>
+									</configuration>
+								</execution>
+							</executions>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+		</profile>
+		<!-- endregion -->
+
+		<!-- region ide-idea -->
+		<profile>
+			<id>ide-idea</id>
+			<activation>
+				<property>
+					<name>idea.version</name>
+				</property>
+			</activation>
+			<properties>
+				<project.dependencies.scope.provided>compile</project.dependencies.scope.provided>
+				<maven.test.skip>false</maven.test.skip>
+				<skipTests>true</skipTests>
+			</properties>
+		</profile>
+		<!-- endregion -->
+
+		<!-- region repos-me -->
+		<profile>
+			<id>repos-me</id>
+			<repositories>
+				<repository>
+					<id>me</id>
+					<name>me</name>
+					<url>http://localhost:8081/repository/maven-public/</url>
+					<releases>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+					</snapshots>
+				</repository>
+			</repositories>
+			<pluginRepositories>
+				<pluginRepository>
+					<id>me</id>
+					<name>me</name>
+					<url>http://localhost:8081/repository/maven-public/</url>
+					<releases>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+					</snapshots>
+				</pluginRepository>
+			</pluginRepositories>
+			<distributionManagement>
+				<repository>
+					<id>me</id>
+					<name>me</name>
+					<url>http://localhost:8081/repository/maven-releases/</url>
+				</repository>
+				<snapshotRepository>
+					<id>me</id>
+					<name>me</name>
+					<url>http://localhost:8081/repository/maven-snapshots/</url>
+				</snapshotRepository>
+			</distributionManagement>
+		</profile>
+		<!-- endregion -->
+
+		<!-- region repos-ext -->
+		<profile>
+			<id>repos-ext</id>
+			<!-- 使用第三方镜像仓库 -->
+			<repositories>
+				<repository>
+					<id>aliyun</id>
+					<name>aliyun</name>
+					<url>http://maven.aliyun.com/nexus/content/groups/public</url>
+					<releases>
+						<enabled>true</enabled>
+						<checksumPolicy>warn</checksumPolicy>
+						<updatePolicy>always</updatePolicy>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<checksumPolicy>warn</checksumPolicy>
+						<updatePolicy>always</updatePolicy>
+					</snapshots>
+				</repository>
+				<repository>
+					<id>jcenter</id>
+					<name>jcenter</name>
+					<url>http://jcenter.bintray.com</url>
+					<releases>
+						<enabled>true</enabled>
+						<checksumPolicy>warn</checksumPolicy>
+						<updatePolicy>always</updatePolicy>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<checksumPolicy>warn</checksumPolicy>
+						<updatePolicy>always</updatePolicy>
+					</snapshots>
+				</repository>
+				<repository>
+					<id>Atlassian 3rd-P Old Repository</id>
+					<name>Atlassian 3rd-P Old Repository</name>
+					<url>https://maven.atlassian.com/3rdparty</url>
+					<releases>
+						<enabled>true</enabled>
+						<checksumPolicy>warn</checksumPolicy>
+						<updatePolicy>always</updatePolicy>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<checksumPolicy>warn</checksumPolicy>
+						<updatePolicy>always</updatePolicy>
+					</snapshots>
+				</repository>
+			</repositories>
+			<pluginRepositories>
+				<pluginRepository>
+					<id>aliyun</id>
+					<name>aliyun</name>
+					<url>http://maven.aliyun.com/nexus/content/groups/public</url>
+					<releases>
+						<enabled>true</enabled>
+						<checksumPolicy>warn</checksumPolicy>
+						<updatePolicy>always</updatePolicy>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<checksumPolicy>warn</checksumPolicy>
+						<updatePolicy>always</updatePolicy>
+					</snapshots>
+				</pluginRepository>
+				<pluginRepository>
+					<id>bintray</id>
+					<name>Groovy Bintray</name>
+					<url>https://dl.bintray.com/groovy/maven</url>
+					<releases>
+						<enabled>true</enabled>
+						<checksumPolicy>warn</checksumPolicy>
+						<updatePolicy>always</updatePolicy>
+					</releases>
+					<snapshots>
+						<enabled>false</enabled>
+					</snapshots>
+				</pluginRepository>
+			</pluginRepositories>
+		</profile>
+		<!-- endregion -->
+
+		<!-- region repos-oss -->
+		<profile>
+			<id>repos-oss</id>
+			<build>
+				<plugins>
+					<!-- Source -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<version>3.2.1</version>
+						<configuration>
+							<attach>true</attach>
+						</configuration>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<phase>package</phase>
+								<goals>
+									<goal>jar-no-fork</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<!-- Javadoc -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>3.2.0</version>
+						<configuration>
+							<attach>true</attach>
+							<doclint>none</doclint>
+						</configuration>
+						<executions>
+							<execution>
+								<id>javadoc-package</id>
+								<phase>package</phase>
+								<goals>
+									<goal>aggregate-jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<!-- GPG -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-deploy-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<groupId>org.sonatype.plugins</groupId>
+						<artifactId>nexus-staging-maven-plugin</artifactId>
+						<version>1.6.7</version>
+						<extensions>true</extensions>
+						<configuration>
+							<serverId>oss</serverId>
+							<!--<nexusUrl>https://oss.sonatype.org/</nexusUrl>-->
+							<nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+							<autoReleaseAfterClose>true</autoReleaseAfterClose>
+							<autoDropAfterRelease>true</autoDropAfterRelease>
+							<showReleased>true</showReleased>
+							<!-- 不发布时配置为true -->
+							<!--<skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>-->
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+			<distributionManagement>
+				<!--<snapshotRepository>
+					<id>oss</id>
+					<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+				</snapshotRepository>
+				<repository>
+					<id>oss</id>
+					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+				</repository>-->
+				<snapshotRepository>
+					<id>oss</id>
+					<url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+				</snapshotRepository>
+				<repository>
+					<id>oss</id>
+					<url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+				</repository>
+			</distributionManagement>
+		</profile>
+		<!-- endregion -->
 	</profiles>
 </project>
