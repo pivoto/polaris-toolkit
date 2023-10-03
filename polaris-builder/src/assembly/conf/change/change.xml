@@ -22,6 +22,10 @@
 		<dest>D:/xcode/me/@@/awesome/code/dev/polaris-toolkit/polaris-builder/src</dest>
 	</change>
 	<change>
+		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-build-tools/src</src>
+		<dest>D:/xcode/me/@@/awesome/code/dev/polaris-toolkit/polaris-build-tools/src</dest>
+	</change>
+	<change>
 		<src>D:/xcode/jcfc/plat/base/jcfc-stdk/stdk-core/src</src>
 		<dest>D:/xcode/me/@@/awesome/code/dev/polaris-toolkit/polaris-core/src</dest>
 	</change>
