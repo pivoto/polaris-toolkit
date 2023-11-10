@@ -195,7 +195,12 @@
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
-				<artifactId>polaris-builder</artifactId>
+				<artifactId>polaris-builder-core</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<artifactId>polaris-builder-resource</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

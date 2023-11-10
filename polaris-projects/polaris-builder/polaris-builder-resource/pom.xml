@@ -4,19 +4,14 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
 		<groupId>cn.pivoto.polaris.toolkit</groupId>
-		<artifactId>polaris-projects</artifactId>
+		<artifactId>polaris-builder</artifactId>
 		<version>2.0.4</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-
-	<artifactId>polaris-builder</artifactId>
-	<packaging>pom</packaging>
-	<modules>
-		<module>polaris-builder-core</module>
-		<module>polaris-builder-resource</module>
-		<module>polaris-builder-assembly</module>
-	</modules>
+	<artifactId>polaris-builder-resource</artifactId>
 
 	<properties>
 	</properties>
+
+
 </project>
