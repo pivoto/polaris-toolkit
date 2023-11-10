@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cn.pivoto.polaris.toolkit</groupId>
 	<artifactId>polaris-toolkit</artifactId>
-	<version>3.1.0</version>
+	<version>3.1.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>polaris-toolkit</name>
@@ -21,6 +21,7 @@
 	</modules>
 
 	<properties>
+		<project.polaris.revision>3.1.1-SNAPSHOT</project.polaris.revision>
 		<start-class></start-class>
 		<java.version>1.8</java.version>
 		<file.encoding>UTF-8</file.encoding>
@@ -35,7 +36,7 @@
 		<project.dependencies.scope.provided>provided</project.dependencies.scope.provided>
 		<project.profiles.dir>src/profiles</project.profiles.dir>
 		<project.activeProfile>dev</project.activeProfile>
-		<project.resources.profile>s${project.profiles.dir}/${project.activeProfile}/resources</project.resources.profile>
+		<project.resources.profile>${project.profiles.dir}/${project.activeProfile}/resources</project.resources.profile>
 		<project.resources.ext>src/ext/resources</project.resources.ext>
 		<project.resources.addition>src/main/config</project.resources.addition>
 		<project.testResources.addition>src/test/config</project.testResources.addition>
@@ -66,7 +67,6 @@
 		<maven.lombok.version>1.18.20</maven.lombok.version>
 		<maven.groovy.version>2.5.22</maven.groovy.version>
 
-		<dependency.toolkit.version>${project.version}</dependency.toolkit.version>
 		<dependency.spring-boot.version>2.3.10.RELEASE</dependency.spring-boot.version>
 		<dependency.spring-cloud.version>Hoxton.SR10</dependency.spring-cloud.version>
 		<dependency.log4j2.version>2.20.0</dependency.log4j2.version>
@@ -164,74 +164,74 @@
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-all</artifactId>
 				<type>pom</type>
-				<version>${project.version}</version>
+				<version>${project.polaris.revision}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-plugins-build-tools</artifactId>
-				<version>${project.version}</version>
+				<version>${project.polaris.revision}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-logging</artifactId>
 				<type>pom</type>
-				<version>${project.version}</version>
+				<version>${project.polaris.revision}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-logging-test</artifactId>
 				<type>pom</type>
-				<version>${project.version}</version>
+				<version>${project.polaris.revision}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-core-apt</artifactId>
-				<version>${project.version}</version>
+				<version>${project.polaris.revision}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-core</artifactId>
-				<version>${project.version}</version>
+				<version>${project.polaris.revision}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-builder-core</artifactId>
-				<version>${project.version}</version>
+				<version>${project.polaris.revision}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-builder-resource</artifactId>
-				<version>${project.version}</version>
+				<version>${project.polaris.revision}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-validator</artifactId>
-				<version>${project.version}</version>
+				<version>${project.polaris.revision}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-bytecode</artifactId>
-				<version>${project.version}</version>
+				<version>${project.polaris.revision}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-web</artifactId>
-				<version>${project.version}</version>
+				<version>${project.polaris.revision}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-crypto</artifactId>
-				<version>${project.version}</version>
+				<version>${project.polaris.revision}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-image</artifactId>
-				<version>${project.version}</version>
+				<version>${project.polaris.revision}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-mybatis</artifactId>
-				<version>${project.version}</version>
+				<version>${project.polaris.revision}</version>
 			</dependency>
 			<!-- endregion -->
 
@@ -525,7 +525,7 @@
 					<artifactId>versions-maven-plugin</artifactId>
 					<version>2.8.1</version>
 				</plugin>
-				<!-- mvn -N io.takari:maven:wrapper -Dmaven=3.5.4 -->
+				<!-- mvn -N io.takari:maven:wrapper -Dmaven=3.9.5 -->
 				<plugin>
 					<groupId>io.takari</groupId>
 					<artifactId>maven</artifactId>
@@ -1951,7 +1951,7 @@
 						<version>3.2.1</version>
 						<configuration>
 							<attach>true</attach>
-							<excludes>**/*</excludes>
+							<!--<excludes>**/*</excludes>-->
 						</configuration>
 						<executions>
 							<execution>
@@ -1962,7 +1962,7 @@
 								</goals>
 								<configuration>
 									<excludes>
-										<exclude>**/*</exclude>
+										<!--<exclude>**/*</exclude>-->
 										<exclude>rebel.xml</exclude>
 										<exclude>.gitkeep*</exclude>
 									</excludes>

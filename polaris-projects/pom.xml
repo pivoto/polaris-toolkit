@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>cn.pivoto.polaris.toolkit</groupId>
 		<artifactId>polaris-toolkit</artifactId>
-		<version>3.1.0</version>
+		<version>3.1.1-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
@@ -89,7 +89,7 @@
 						<dependency>
 							<groupId>cn.pivoto.polaris.toolkit</groupId>
 							<artifactId>polaris-plugins-build-tools</artifactId>
-							<version>${project.version}</version>
+							<version>${project.polaris.revision}</version>
 						</dependency>
 					</dependencies>
 					<executions>

@@ -1,6 +1,9 @@
 @echo off
+
 set goal=%*
 if "%goal%" == "" set goal=clean install
 echo goal: %goal%
-call mvn -P repos-oss  %goal% -DskipTests
+
+call mvn -f ../pom.xml -Dmaven.test.skip=true -P repos-jcfc,withDoc  %goal%
+
 pause

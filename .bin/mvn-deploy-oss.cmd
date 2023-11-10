@@ -2,5 +2,7 @@
 set goal=%*
 if "%goal%" == "" set goal=clean deploy
 echo goal: %goal%
-call mvn -P repos-oss  %goal% -DskipTests
+
+call mvn -f ../pom.xml -DskipTests -P repos-oss %goal%
+
 pause
