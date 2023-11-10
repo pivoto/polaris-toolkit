@@ -370,7 +370,7 @@ public class Reflects {
 		}
 	}
 
-	public static String toMethodKey(Method method) {
+	private static String toMethodKey(Method method) {
 		final StringBuilder sb = new StringBuilder();
 		sb.append(method.getName()).append("(");
 		Class<?>[] parameters = method.getParameterTypes();

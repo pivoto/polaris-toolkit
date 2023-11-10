@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cn.pivoto.polaris.toolkit</groupId>
 	<artifactId>polaris-toolkit</artifactId>
-	<version>3.0.1</version>
+	<version>3.1.0</version>
 	<packaging>pom</packaging>
 
 	<name>polaris-toolkit</name>
@@ -1795,6 +1795,61 @@
 					<id>me</id>
 					<name>me</name>
 					<url>http://localhost:8081/repository/maven-snapshots/</url>
+				</snapshotRepository>
+			</distributionManagement>
+		</profile>
+		<!-- endregion -->
+
+		<!-- region repos-jcfc -->
+		<profile>
+			<id>repos-jcfc</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<repositories>
+				<repository>
+					<id>jcfc</id>
+					<name>jcfc</name>
+					<url>http://repository.jcfc.cn/repository/jenkins-group</url>
+					<releases>
+						<enabled>true</enabled>
+						<checksumPolicy>warn</checksumPolicy>
+						<updatePolicy>always</updatePolicy>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<checksumPolicy>warn</checksumPolicy>
+						<updatePolicy>always</updatePolicy>
+					</snapshots>
+				</repository>
+			</repositories>
+			<pluginRepositories>
+				<pluginRepository>
+					<id>jcfc</id>
+					<name>jcfc</name>
+					<url>http://repository.jcfc.cn/repository/jenkins-group</url>
+					<releases>
+						<enabled>true</enabled>
+						<checksumPolicy>warn</checksumPolicy>
+						<updatePolicy>always</updatePolicy>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<checksumPolicy>warn</checksumPolicy>
+						<updatePolicy>always</updatePolicy>
+					</snapshots>
+				</pluginRepository>
+			</pluginRepositories>
+			<distributionManagement>
+				<repository>
+					<id>jcfc</id>
+					<name>jcfc-releases</name>
+					<url>http://repository.jcfc.cn/repository/releases</url>
+				</repository>
+				<snapshotRepository>
+					<id>jcfc</id>
+					<name>jcfc-snapshots</name>
+					<url>http://repository.jcfc.cn/repository/snapshots</url>
 				</snapshotRepository>
 			</distributionManagement>
 		</profile>
