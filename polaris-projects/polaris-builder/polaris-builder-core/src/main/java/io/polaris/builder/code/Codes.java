@@ -9,8 +9,10 @@ import io.polaris.builder.code.reader.impl.JdbcTablesReader;
 import io.polaris.builder.dbv.cfg.DatabaseCfg;
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.concurrent.Executors;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 
 import java.io.IOException;
+import java.lang.reflect.AnnotatedElement;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -23,25 +25,20 @@ import java.util.function.Function;
 public class Codes {
 
 	public static void generate(Class<?> clazz, String... targets) throws IOException {
-		Code code = clazz.getAnnotation(Code.class);
-		if (!clazz.isAnnotationPresent(Code.class)) {
-			throw new IllegalArgumentException();
-		}
-		generate(code, targets);
+		Metadata metadata = parse(clazz);
+		generate(metadata, targets);
 	}
 
 	public static void generate(Class<?> clazz, int concurrent) throws IOException {
-		Code code = clazz.getAnnotation(Code.class);
-		if (!clazz.isAnnotationPresent(Code.class)) {
-			throw new IllegalArgumentException();
-		}
-		generate(code, concurrent);
+		Metadata metadata = parse(clazz);
+		generate(metadata, concurrent);
 	}
 
-	public static void generate(Code code, int concurrent) throws IOException {
+	private static void generate(Metadata metadata, int concurrent) throws IOException {
 		if (concurrent <= 1) {
-			generate(code);
+			generate(metadata);
 		} else {
+			CodeConfiguration code = metadata.codeConfiguration;
 			ThreadPoolExecutor pool = Executors.create(concurrent, "CodeGenerator");
 			CountDownLatch latch = new CountDownLatch(concurrent);
 			try {
@@ -59,7 +56,7 @@ public class Codes {
 						Table[] array = list.toArray(new Table[list.size()]);
 						pool.execute(() -> {
 							try {
-								generate(code, array);
+								generate(metadata, array);
 							} catch (IOException e) {
 								errors.add(e);
 							} finally {
@@ -89,21 +86,25 @@ public class Codes {
 		}
 	}
 
-	public static void generate(Code code, String... targets) throws IOException {
+	private static void generate(Metadata metadata, String... targets) throws IOException {
+		CodeConfiguration code = metadata.codeConfiguration;
 		Table[] tables = code.tables();
-		generate(code, tables, targets);
+		generate(metadata, tables, targets);
 	}
 
 	@SuppressWarnings("AlibabaMethodTooLong")
-	public static void generate(Code code, Table[] tables, String... targets) throws IOException {
+	private static void generate(Metadata metadata, Table[] tables, String... targets) throws IOException {
 		if (tables.length == 0) {
 			return;
 		}
+		CodeConfiguration code = metadata.codeConfiguration;
 		Map<String, String> property = new LinkedHashMap<>();
 		{
-			DefaultProperty defaultProperty = code.annotationType().getAnnotation(DefaultProperty.class);
-			for (Property p : defaultProperty.value()) {
-				property.put(p.key(), p.value());
+			DefaultProperty defaultProperty = metadata.defaultProperty;
+			if (defaultProperty != null) {
+				for (Property p : defaultProperty.value()) {
+					property.put(p.key(), p.value());
+				}
 			}
 			for (Property p : code.property()) {
 				property.put(p.key(), p.value());
@@ -114,34 +115,42 @@ public class Codes {
 			for (Mapping mapping : code.mapping()) {
 				mappings.add(new TypeMapping(mapping.jdbcType(), mapping.javaType()));
 			}
-			DefaultMapping defaultMapping = code.annotationType().getAnnotation(DefaultMapping.class);
-			for (Mapping mapping : defaultMapping.value()) {
-				mappings.add(new TypeMapping(mapping.jdbcType(), mapping.javaType()));
+			DefaultMapping defaultMapping = metadata.defaultMapping;
+			if (defaultMapping != null) {
+				for (Mapping mapping : defaultMapping.value()) {
+					mappings.add(new TypeMapping(mapping.jdbcType(), mapping.javaType()));
+				}
 			}
 		}
 
 		Template[] templates = code.templates();
 		{
 			if (templates.length == 0) {
-				DefaultTemplate defaultTemplate = code.annotationType().getAnnotation(DefaultTemplate.class);
-				List<Template> list = new ArrayList<>();
-				String[] excludeTemplatePaths = code.excludeTemplatePaths();
-				if (excludeTemplatePaths.length == 0) {
-					list.addAll(Arrays.asList(defaultTemplate.value()));
-				} else {
-					loop:
-					for (Template template : defaultTemplate.value()) {
-						String path = template.path();
-						for (String excludeTemplatePath : excludeTemplatePaths) {
-							if (path.equals(excludeTemplatePath)) {
-								continue loop;
+				DefaultTemplate defaultTemplate = metadata.defaultTemplate;
+				if (defaultTemplate != null) {
+
+					List<Template> list = new ArrayList<>();
+					String[] excludeTemplatePaths = metadata.defaultTemplateExcludedPaths == null ? new String[0] : metadata.defaultTemplateExcludedPaths.value();
+					if (excludeTemplatePaths.length == 0) {
+						list.addAll(Arrays.asList(defaultTemplate.value()));
+					} else {
+						loop:
+						for (Template template : defaultTemplate.value()) {
+							String path = template.path();
+							for (String excludeTemplatePath : excludeTemplatePaths) {
+								if (path.equals(excludeTemplatePath)) {
+									continue loop;
+								}
 							}
+							list.add(template);
 						}
-						list.add(template);
 					}
+					DefaultTemplateAdditional defaultTemplateAdditional = metadata.defaultTemplateAdditional;
+					if (defaultTemplateAdditional != null) {
+						list.addAll(Arrays.asList(defaultTemplateAdditional.value()));
+					}
+					templates = list.toArray(new Template[0]);
 				}
-				list.addAll(Arrays.asList(code.additionalTemplates()));
-				templates = list.toArray(new Template[0]);
 			}
 		}
 
@@ -234,4 +243,27 @@ public class Codes {
 		return new CodeGenerator();
 	}
 
+	private static Metadata parse(AnnotatedElement element) {
+		Metadata metadata = new Metadata();
+		metadata.codeConfiguration = AnnotatedElementUtils.findMergedAnnotation(element, CodeConfiguration.class);
+		if (metadata.codeConfiguration == null) {
+			throw new IllegalArgumentException("配置缺失：@CodeConfiguration");
+		}
+
+		metadata.defaultProperty = AnnotatedElementUtils.findMergedAnnotation(element, DefaultProperty.class);
+		metadata.defaultTemplate = AnnotatedElementUtils.findMergedAnnotation(element, DefaultTemplate.class);
+		metadata.defaultMapping = AnnotatedElementUtils.findMergedAnnotation(element, DefaultMapping.class);
+		metadata.defaultTemplateAdditional = AnnotatedElementUtils.findMergedAnnotation(element, DefaultTemplateAdditional.class);
+		metadata.defaultTemplateExcludedPaths = AnnotatedElementUtils.findMergedAnnotation(element, DefaultTemplateExcludedPaths.class);
+		return metadata;
+	}
+
+	static class Metadata {
+		CodeConfiguration codeConfiguration;
+		DefaultProperty defaultProperty;
+		DefaultTemplate defaultTemplate;
+		DefaultMapping defaultMapping;
+		DefaultTemplateAdditional defaultTemplateAdditional;
+		DefaultTemplateExcludedPaths defaultTemplateExcludedPaths;
+	}
 }

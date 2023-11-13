@@ -1,6 +1,6 @@
 package io.polaris.builder.code;
 
-import io.polaris.builder.code.annotation.Code;
+import io.polaris.builder.code.annotation.CodeWithDefaults;
 import io.polaris.builder.code.annotation.Column;
 import io.polaris.builder.code.annotation.Property;
 import io.polaris.builder.code.annotation.Table;
@@ -27,7 +27,7 @@ public class TmcBrmCode {
 	}
 
 
-	@Code(
+	@CodeWithDefaults(
 		outDir = "${sys['project.dir']}",
 		jdbcDriver = "oracle.jdbc.OracleDriver",
 		jdbcUrl = "jdbc:oracle:thin:@localhost:1521/cmisdb",

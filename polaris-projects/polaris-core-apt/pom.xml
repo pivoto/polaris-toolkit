@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>cn.pivoto.polaris.toolkit</groupId>
 		<artifactId>polaris-projects</artifactId>
-		<version>3.1.1-SNAPSHOT</version>
+		<version>3.1.1</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>polaris-core-apt</artifactId>
@@ -22,6 +22,12 @@
 			<groupId>com.squareup</groupId>
 			<artifactId>javapoet</artifactId>
 			<version>${dependency.javapoet.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>cn.pivoto.jdk</groupId>
+			<artifactId>tools</artifactId>
+			<version>1.8</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 

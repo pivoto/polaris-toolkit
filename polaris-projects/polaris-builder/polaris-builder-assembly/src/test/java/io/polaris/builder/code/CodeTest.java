@@ -1,15 +1,13 @@
 package io.polaris.builder.code;
 
-import io.polaris.builder.code.annotation.Code;
-import io.polaris.builder.code.annotation.Property;
-import io.polaris.builder.code.annotation.Table;
-import io.polaris.builder.code.annotation.Template;
+import io.polaris.builder.code.annotation.*;
 import io.polaris.builder.code.config.CodeEnv;
 import io.polaris.builder.code.config.ConfigParser;
 import io.polaris.builder.code.config.TypeMapping;
 import io.polaris.core.collection.Iterables;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 
 import java.math.BigDecimal;
 import java.sql.Types;
@@ -47,8 +45,14 @@ public class CodeTest {
 		Codes.generate(Config.class);
 	}
 
+	@Test
+	void test01() {
+		System.out.println(AnnotatedElementUtils.findMergedAnnotation(Config.class, CodeConfiguration.class));
+		System.out.println(AnnotatedElementUtils.findMergedAnnotation(Config.class, DefaultTemplateExcludedPaths.class));
+		System.out.println(AnnotatedElementUtils.findMergedAnnotation(Config.class, DefaultTemplateAdditional.class));
+	}
 
-	@Code(
+	@CodeWithDefaults(
 		outDir = "D:/xcode/jcfc/base/basic/tmc/tmc-rm",
 		jdbcDriver = "oracle.jdbc.OracleDriver",
 		jdbcUrl = "jdbc:oracle:thin:@localhost:1521/cmisdb",

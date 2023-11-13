@@ -1,5 +1,7 @@
 package io.polaris.builder.code.annotation;
 
+import org.springframework.core.annotation.AliasFor;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -65,59 +67,77 @@ import static io.polaris.builder.code.annotation.Template.*;
 @DefaultMapping({
 	@Mapping(jdbcType = "TIMESTAMP", javaType = "java.util.Date")
 })
-public @interface Code {
+@DefaultTemplateExcludedPaths({})
+@DefaultTemplateAdditional({})
+@CodeConfiguration(
+	jdbcUrl = "",
+	jdbcUsername = "",
+	jdbcPassword = ""
+)
+public @interface CodeWithDefaults {
 
 	/**
 	 * 代码生成器的输出日志输出到标准输出流
 	 */
+	@AliasFor(annotation = CodeConfiguration.class, value = "logWithStd")
 	boolean logWithStd() default true;
 
 	/**
 	 * 生成文件的输出目录
 	 */
+	@AliasFor(annotation = CodeConfiguration.class, value = "outDir")
 	String outDir() default ".";
 
 	/**
 	 * 模板全局属性配置，优先高于默认配置
 	 */
+	@AliasFor(annotation = CodeConfiguration.class, value = "property")
 	Property[] property() default {};
 
 	/**
 	 * Jdbc类型与Java类型的自定义映射
 	 */
+	@AliasFor(annotation = CodeConfiguration.class, value = "mapping")
 	Mapping[] mapping() default {};
 
 	/**
 	 * 需要截断的表名前缀
 	 */
+	@AliasFor(annotation = CodeConfiguration.class, value = "tablePrefix")
 	String tablePrefix() default "_,t_,tbl_";
 
 	/** 需要截断的表名后缀 */
+	@AliasFor(annotation = CodeConfiguration.class, value = "tableSuffix")
 	String tableSuffix() default "_,_bak,_tmp";
 
 	/**
 	 * 需要截断的列名前缀
 	 */
+	@AliasFor(annotation = CodeConfiguration.class, value = "columnPrefix")
 	String columnPrefix() default "_";
 
 	/**
 	 * 需要截断的列名后缀
 	 */
+	@AliasFor(annotation = CodeConfiguration.class, value = "columnSuffix")
 	String columnSuffix() default "_";
 
 	/**
 	 * 自定义模板配置，未配置时使用默认
 	 */
+	@AliasFor(annotation = CodeConfiguration.class, value = "templates")
 	Template[] templates() default {};
 
 	/**
 	 * 附加的模板配置，在默认模板外追加别的模板，如使用自定义模板，则忽略此配置
 	 */
+	@AliasFor(annotation = DefaultTemplateAdditional.class, value = "value")
 	Template[] additionalTemplates() default {};
 
 	/**
 	 * 排除默认模板中指定模板路径的使用，如使用自定义模板，则忽略此配置
 	 */
+	@AliasFor(annotation = DefaultTemplateExcludedPaths.class, value = "value")
 	String[] excludeTemplatePaths() default {
 		VM_PATH_FRONTEND_ROUTES,
 		VM_PATH_FRONTEND_LIST_PAGE,
@@ -128,26 +148,31 @@ public @interface Code {
 	/**
 	 * Jdbc连接驱动
 	 */
+	@AliasFor(annotation = CodeConfiguration.class, value = "jdbcDriver")
 	String jdbcDriver() default "";
 
 	/**
 	 * Jdbc连接URL
 	 */
+	@AliasFor(annotation = CodeConfiguration.class, value = "jdbcUrl")
 	String jdbcUrl();
 
 	/**
 	 * Jdbc连接User
 	 */
+	@AliasFor(annotation = CodeConfiguration.class, value = "jdbcUsername")
 	String jdbcUsername();
 
 	/**
 	 * Jdbc连接Password
 	 */
+	@AliasFor(annotation = CodeConfiguration.class, value = "jdbcPassword")
 	String jdbcPassword();
 
 
 	/**
 	 * 需要生成代码的表名及其配置
 	 */
+	@AliasFor(annotation = CodeConfiguration.class, value = "tables")
 	Table[] tables() default {};
 }

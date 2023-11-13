@@ -28,7 +28,7 @@ public class TmcRmCodeFront {
 	}
 
 
-	@Code(
+	@CodeWithDefaults(
 		outDir = "${sys['project.dir']}",
 		jdbcDriver = "oracle.jdbc.OracleDriver",
 		jdbcUrl = "jdbc:oracle:thin:@localhost:1521/cmisdb",
@@ -81,7 +81,7 @@ public class TmcRmCodeFront {
 	public static class SrmConfig {
 	}
 
-	@Code(
+	@CodeWithDefaults(
 		outDir = "${sys['project.dir']}",
 		jdbcDriver = "oracle.jdbc.OracleDriver",
 		jdbcUrl = "jdbc:oracle:thin:@localhost:1521/cmisdb",
