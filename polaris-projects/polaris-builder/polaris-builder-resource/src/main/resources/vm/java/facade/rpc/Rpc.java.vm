@@ -24,8 +24,6 @@ import io.polaris.bf.core.data.domain.QueryDto;
 import io.polaris.bf.core.rpc.annotation.RpcService;
 import io.polaris.bf.core.rpc.oas.annotation.OpenApi;
 import io.polaris.sdk.tmc.brm.session.AppSessions;
-import io.polaris.sdk.tmc.common.entity.Creatable;
-import io.polaris.sdk.tmc.common.entity.Updatable;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
@@ -101,19 +99,19 @@ public class ${table.javaClassName}${env.rpcClassSuffix}{
 		return output;
 	}
 
-	@RpcService(active = Bool.FALSE, code = "$!{env.rpcCodePrefix}${table.javaClassName}Query", name = "通用数据查询")
-	@OpenApi(inputSchema = QueryDto.class, outputSchema = ${table.javaClassName}${env.rpcListOutputClassSuffix}.class)
-	public ${table.javaClassName}${env.rpcListOutputClassSuffix} doQuery(QueryDto input) {
-		${table.javaClassName}${env.rpcListOutputClassSuffix} output = new ${table.javaClassName}${env.rpcListOutputClassSuffix}();
-		Page page = input.getPage();
-		Map<String, Object> param = input.getParam().getSqlParamMap();
-		if (page.getOrderBy()==null) {
-			page.setOrderBy(input.getParam().toOrderBy());
-		}
-		List<${table.javaClassName}${env.entityClassSuffix}> list = ${table.javaVariableName}${env.serviceClassSuffix}.getPage(param, page);
-		output.setPage(page);
-		output.setList(list);
-		return output;
-	}
+//	@RpcService(active = Bool.FALSE, code = "$!{env.rpcCodePrefix}${table.javaClassName}Query", name = "通用数据查询")
+//	@OpenApi(inputSchema = QueryDto.class, outputSchema = ${table.javaClassName}${env.rpcListOutputClassSuffix}.class)
+//	public ${table.javaClassName}${env.rpcListOutputClassSuffix} doQuery(QueryDto input) {
+//		${table.javaClassName}${env.rpcListOutputClassSuffix} output = new ${table.javaClassName}${env.rpcListOutputClassSuffix}();
+//		Page page = input.getPage();
+//		Map<String, Object> param = input.getParam().getSqlParamMap();
+//		if (page.getOrderBy()==null) {
+//			page.setOrderBy(input.getParam().toOrderBy());
+//		}
+//		List<${table.javaClassName}${env.entityClassSuffix}> list = ${table.javaVariableName}${env.serviceClassSuffix}.getPage(param, page);
+//		output.setPage(page);
+//		output.setList(list);
+//		return output;
+//	}
 }
 

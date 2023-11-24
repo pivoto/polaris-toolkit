@@ -32,8 +32,6 @@ import io.polaris.mybatis.util.MybatisToolkit;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.polaris.sdk.tmc.brm.session.AppSessions;
-import io.polaris.sdk.tmc.common.entity.Creatable;
-import io.polaris.sdk.tmc.common.entity.Updatable;
 import io.polaris.sdk.tmc.brm.cache.BrmCaches;
 
 /**
@@ -283,7 +281,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Transactional(rollbackFor = Exception.class)
 	public int insertEntire(${table.javaClassName}${env.entityClassSuffix} entity) {
 		log.info("新增表[${table.name}]记录.entity={}", entity);
-		AppSessions.fillCreatable((Creatable)entity);
+		AppSessions.fillCreatable(entity);
 		Validations.validate(entity, Create.class);
 		return mapper.insertEntity(entity, true);
 	}
@@ -297,7 +295,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Transactional(rollbackFor = Exception.class)
 	public int insertSelective(${table.javaClassName}${env.entityClassSuffix} entity) {
 		log.info("新增表[${table.name}]记录.entity={}", entity);
-		AppSessions.fillCreatable((Creatable)entity);
+		AppSessions.fillCreatable(entity);
 		Validations.validate(entity, Create.class);
 		return mapper.insertEntity(entity);
 	}
@@ -324,7 +322,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Transactional(rollbackFor = Exception.class)
 	public int updateEntire(${table.javaClassName}${env.entityClassSuffix} entity) {
 		log.info("根据主键更新表[${table.name}]记录.entity={}", entity);
-		AppSessions.fillUpdatable((Updatable)entity);
+		AppSessions.fillUpdatable(entity);
 		Validations.validate(entity, UpdateEntire.class);
 		return mapper.updateEntityById(entity, true);
 	}
@@ -338,7 +336,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Transactional(rollbackFor = Exception.class)
 	public int updateSelective(${table.javaClassName}${env.entityClassSuffix} entity) {
 		log.info("根据主键更新表[${table.name}]记录.entity={}", entity);
-		AppSessions.fillUpdatable((Updatable)entity);
+		AppSessions.fillUpdatable(entity);
 		Validations.validate(entity, Update.class);
 		return mapper.updateEntityById(entity);
 	}
