@@ -83,7 +83,7 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 		if (!sql.isEmpty()) {
 			sql.addNode(SqlNodes.LF);
 		}
-		sql.addNodes(SqlNodes.ON, this.on.toSqlNode());
+		sql.addNodes(SqlNodes.ON, SqlNodes.LEFT_PARENTHESIS, this.on.toSqlNode(), SqlNodes.RIGHT_PARENTHESIS);
 	}
 
 	private void sqlUpdate(ContainerNode sql) {
