@@ -27,7 +27,7 @@ import static io.polaris.core.lang.Objs.isNotEmpty;
 public class Statements {
 
 	public static final Predicate<String> DEFAULT_PREDICATE_EXCLUDE_NULLS = name -> false;
-	public static final String DEFAULT_TABLE_ALIAS = "T";
+	public static final String DEFAULT_TABLE_ALIAS = "T" ;
 
 	public static TableMeta getTableMeta(String entityClassName) {
 		try {
@@ -241,7 +241,10 @@ public class Statements {
 	}
 
 	public static void addWhereSqlByEntity(WhereSegment<?, ?> where, Object entity, TableMeta tableMeta, Predicate<String> includeWhereNulls) {
-		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, tableMeta.getEntityClass());
+		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
+			(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
+				? Beans.newBeanMap(entity, tableMeta.getEntityClass())
+				: Beans.newBeanMap(entity));
 		addWhereSqlByEntity(where, entityMap, tableMeta, includeWhereNulls);
 	}
 
@@ -283,25 +286,25 @@ public class Statements {
 			}
 			if (val instanceof Collection) {
 				List<Object> list = new ArrayList<>((Collection<?>) val);
-				where.column(meta.getFieldName()).in(convertListElements(list, o->ConverterRegistry.INSTANCE.convertQuietly(fieldType, o)));
+				where.column(meta.getFieldName()).in(convertListElements(list, o -> ConverterRegistry.INSTANCE.convertQuietly(fieldType, o)));
 			} else if (val instanceof Iterable) {
 				List<Object> list = Iterables.asCollection(ArrayList::new, (Iterable<Object>) val);
-				where.column(meta.getFieldName()).in(convertListElements(list, o->ConverterRegistry.INSTANCE.convertQuietly(fieldType, o)));
+				where.column(meta.getFieldName()).in(convertListElements(list, o -> ConverterRegistry.INSTANCE.convertQuietly(fieldType, o)));
 			} else if (val instanceof Iterator) {
 				List<Object> list = Iterables.asCollection(ArrayList::new, (Iterator<Object>) val);
-				where.column(meta.getFieldName()).in(convertListElements(list, o->ConverterRegistry.INSTANCE.convertQuietly(fieldType, o)));
+				where.column(meta.getFieldName()).in(convertListElements(list, o -> ConverterRegistry.INSTANCE.convertQuietly(fieldType, o)));
 			} else if (val.getClass().isArray()) {
 				List<Object> list = ObjectArrays.toList(val);
-				where.column(meta.getFieldName()).in(convertListElements(list, o->ConverterRegistry.INSTANCE.convertQuietly(fieldType, o)));
+				where.column(meta.getFieldName()).in(convertListElements(list, o -> ConverterRegistry.INSTANCE.convertQuietly(fieldType, o)));
 			} else {
-				where.column(meta.getFieldName()).eq((Object)ConverterRegistry.INSTANCE.convertQuietly(fieldType, val));
+				where.column(meta.getFieldName()).eq((Object) ConverterRegistry.INSTANCE.convertQuietly(fieldType, val));
 			}
 		} else if (includeWhereNulls.test(meta.getFieldName())) {
 			where.column(meta.getFieldName()).isNull();
 		}
 	}
 
-	private static List<Object> convertListElements(List<Object> list, Function<Object,Object> converter){
+	private static List<Object> convertListElements(List<Object> list, Function<Object, Object> converter) {
 		int size = list.size();
 		for (int i = 0; i < size; i++) {
 			Object o = list.get(i);
