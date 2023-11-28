@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-#VER=3.1.3-SNAPSHOT
-VER=3.1.3-SNAPSHOT
+#VER=3.1.4-SNAPSHOT
+VER=3.1.3
 mvn -f ../pom.xml versions:set -DnewVersion=${VER}
 mvn -f ../pom.xml versions:commit
 sed -i -r -e  "s/<project.polaris.revision>.+<\/project.polaris.revision>/<project.polaris.revision>${VER}<\/project.polaris.revision>/g" ../pom.xml
