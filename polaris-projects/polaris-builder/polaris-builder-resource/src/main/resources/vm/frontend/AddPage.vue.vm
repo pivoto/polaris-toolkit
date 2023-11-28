@@ -1,62 +1,60 @@
 #parse("/vm/include.vm")
 <template>
-	<div class="dialog-container" ref="refDiv" v-draggable v-resizable="{onresize:onResize}" v-maximizable="{onresize:onResize}">
-		<el-dialog title="数据新增" v-model="state.show" width="75%">
-			<el-form ref="refForm" :rules="state.rules" :model="state.form" label-width="90px">
-				<v-row :gutter="5">
+	<v-dialog width="75%" ref="refDialog" v-model="vShow" :title="'数据新增'" @resize="onResize">
+		<el-form ref="refForm" :rules="vFormRules" :model="vFormData" label-width="90px">
+			<v-row :gutter="5">
 #foreach($col in $table.columns)
 	#if(${col.javaVariableName.equals('crtUser')} || ${col.javaVariableName.equals('uptUser')}
-		|| ${col.javaVariableName.equals('crtDt')} || ${col.javaVariableName.equals('uptDt')})
-## ignore
+	|| ${col.javaVariableName.equals('crtDt')} || ${col.javaVariableName.equals('uptDt')})
+		## ignore
 	#elseif(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
-					<v-col class="mb5" :span="colSpan">
-						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
-							<el-date-picker v-model="state.form.${col.javaVariableName}" placeholder="请输入${col.label}" clearable
-								type="datetime" value-format="x" format="YYYY-MM-DD HH:mm:ss" style="width: 200px;"/>
-						</el-form-item>
-					</v-col>
-	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT')
-					<v-col class="mb5" :span="colSpan">
-						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
-							<el-input-number v-model="state.form.${col.javaVariableName}" placeholder="请输入${col.label}" clearable
-								:precision="0" style="width: 200px;" />
-						</el-form-item>
-					</v-col>
-	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
-					<v-col class="mb5" :span="colSpan">
-						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
-							<el-input-number v-model="state.form.${col.javaVariableName}" placeholder="请输入${col.label}" clearable
-								:precision="${col.decimalDigits}" style="width: 200px;" />
-						</el-form-item>
-					</v-col>
-	#else
+				<v-col class="mb5" :width="vWinWidth">
+					<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+						<el-date-picker v-model="vFormData.${col.javaVariableName}" placeholder="请输入${col.label}" clearable
+							type="datetime" value-format="x" format="YYYY-MM-DD HH:mm:ss" style="width: 200px;"/>
+					</el-form-item>
+				</v-col>
+#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT')
+				<v-col class="mb5" :width="vWinWidth">
+					<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+						<el-input-number v-model="vFormData.${col.javaVariableName}" placeholder="请输入${col.label}" clearable
+							:precision="0" style="width: 200px;" />
+					</el-form-item>
+				</v-col>
+#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
+				<v-col class="mb5" :width="vWinWidth">
+					<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+						<el-input-number v-model="vFormData.${col.javaVariableName}" placeholder="请输入${col.label}" clearable
+							:precision="${col.decimalDigits}" style="width: 200px;" />
+					</el-form-item>
+				</v-col>
+#else
 		#if(${col.name.toLowerCase().endsWith('_sts')})
-					<v-col class="mb5" :span="colSpan">
-						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
-							<el-switch v-model="state.form.${col.javaVariableName}" width="60"
-								:active-value="'A'" :inactive-value="'I'" inline-prompt
-								active-text="生效" inactive-text="失效"></el-switch>
-						</el-form-item>
-					</v-col>
-		#else
-					<v-col class="mb5" :span="colSpan">
-						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
-							<el-input v-model="state.form.${col.javaVariableName}" placeholder="请输入${col.label}" clearable style="width: 200px;"></el-input>
-						</el-form-item>
-					</v-col>
-		#end
+				<v-col class="mb5" :width="vWinWidth">
+					<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+						<el-switch v-model="vFormData.${col.javaVariableName}" width="60"
+							:active-value="'A'" :inactive-value="'I'" inline-prompt
+							active-text="生效" inactive-text="失效"></el-switch>
+					</el-form-item>
+				</v-col>
+	#else
+				<v-col class="mb5" :width="vWinWidth">
+					<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+						<el-input v-model="vFormData.${col.javaVariableName}" placeholder="请输入${col.label}" clearable style="width: 200px;"></el-input>
+					</el-form-item>
+				</v-col>
+	#end
 	#end
 #end
-				</v-row>
-			</el-form>
-			<template #footer>
-				<div class="dialog-footer">
-					<el-button icon="EleCircleCheckFilled" type="primary" @click="onSubmit()">提交</el-button>
-					<el-button icon="EleCircleCloseFilled" type="primary" @click="onCancel()">取消</el-button>
-				</div>
-			</template>
-		</el-dialog>
-	</div>
+			</v-row>
+		</el-form>
+		<template #footer>
+			<div class="dialog-footer">
+				<el-button icon="EleCircleCheckFilled" type="primary" @click="onSubmit()">提交</el-button>
+				<el-button icon="EleCircleCloseFilled" type="primary" @click="onCancel()">取消</el-button>
+			</div>
+		</template>
+	</v-dialog>
 </template>
 <script lang="ts">
 export default {
@@ -68,26 +66,33 @@ import {
 	computed, watch, provide, inject, nextTick,
 	defineComponent, getCurrentInstance,
 	onMounted, onActivated, onDeactivated, onUnmounted,
-	reactive, ref, shallowReactive, shallowRef, toRefs, PropType
+	reactive, ref, shallowReactive, shallowRef, toRefs, unref
 } from "vue";
+import type {
+	PropType, ShallowRef, Ref, ComputedRef, ShallowReactive,
+	ComponentInternalInstance, ComponentPublicInstance
+} from 'vue';
 import type {FormInstance, FormRules} from 'element-plus'
 import type {RuleItem, ValidateError, ValidateFieldsError} from 'async-validator';
 
-import VRow from '/@/components/page/VRow.vue'
-import VCol from '/@/components/page/VCol.vue'
+import VDialog from '/@/components/page/VDialog.vue';
+import VRow from '/@/components/page/VRow.vue';
+import VCol from '/@/components/page/VCol.vue';
+import SvgIcon from "/@/components/icon/SvgIcon.vue";
+
 import msg, {error} from "/@/common/core/msg";
 import * as validation from "/@/common/core/validation";
 import {formatDate} from "/@/common/core/date";
-import {apix} from "/@/common/api";
+import {apix,post,postx} from "/@/common/api";
 import {PromiseResult} from "/@/common/core/utils";
 import ApiOutput from "/@/common/api/ApiOutput";
 
-const props = defineProps({
-	show: {
-		type: Boolean,
-		required: false,
-		default: true
-	},
+interface Props {
+	show: boolean,
+}
+
+const props = withDefaults(defineProps<Props>(), {
+	show: true,
 });
 
 const emits = defineEmits<{
@@ -98,22 +103,18 @@ const emits = defineEmits<{
 type FormType = {
 #foreach($col in $table.columns)
 	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
-	${col.javaVariableName}#if(${col.nullable})?#end: number,
+		${col.javaVariableName}#if(${col.nullable})?#end: number,
 	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT')
-	${col.javaVariableName}#if(${col.nullable})?#end: number,
-	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
-	${col.javaVariableName}#if(${col.nullable})?#end: number,
-	#else
+	//${col.javaVariableName}#if(${col.nullable})?#end: number,
 	${col.javaVariableName}#if(${col.nullable})?#end: string,
+	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
+	//${col.javaVariableName}#if(${col.nullable})?#end: number,
+	${col.javaVariableName}#if(${col.nullable})?#end: string,
+	#else
+		${col.javaVariableName}#if(${col.nullable})?#end: string,
 	#end
 #end
 }
-type StateType = {
-	show: boolean,
-	form: FormType,
-	rules: FormRules<FormType>,
-	winWidth: number,
-};
 const Fields = {
 #foreach($col in $table.columns)
 	${col.javaVariableName}: '${col.label}',
@@ -121,25 +122,25 @@ const Fields = {
 };
 const instance = getCurrentInstance();
 const proxy = instance?.proxy;
-const refDiv = shallowRef<HTMLElement | null>(null);
-const refForm = ref<FormInstance>()
-const state = reactive<StateType>({
-	show: props.show,
-	form: {
+const refDialog = ref() as Ref<InstanceType<typeof VDialog>>;
+const refForm = ref<FormInstance>() as Ref<FormInstance>;
+const vWinWidth = ref(document.documentElement.clientWidth * 0.75);
+const vBodyHeight = ref(document.documentElement.clientHeight * 0.75);
+const vShow = ref(props.show);
+const vParamSync = ref(false);
+const vLoadingForm = ref(false);
+const vFormData = ref<FormType>({
 #foreach($col in $table.columns)
 	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
 		${col.javaVariableName}: #if(${col.nullable}) undefined #else 0 #end,
-	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT' || ${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
+#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT' || ${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
 		${col.javaVariableName}: #if(${col.nullable}) undefined #else 0 #end,
-	#else
+#else
 		${col.javaVariableName}: #if(${col.nullable}) undefined #else '' #end,
-	#end
 #end
-	},
-	rules: {},
-	winWidth: document.documentElement.clientWidth * 0.8,
+#end
 });
-const colSpan = computed<number>(()=>Math.min(Math.max(1,Math.round(350*24/state.winWidth)),24));
+const vFormRules = ref<FormRules<FormType>>({});
 
 const requiredNumberValidator:()=>RuleItem = ()=>{
 	return {
@@ -168,37 +169,38 @@ const requiredStringValidator:()=>RuleItem = ()=>{
 #foreach($col in $table.columns)
 	#if(${col.javaVariableName.equals('crtUser')} || ${col.javaVariableName.equals('uptUser')}
 	|| ${col.javaVariableName.equals('crtDt')} || ${col.javaVariableName.equals('uptDt')})
-## ignore
+		## ignore
 	#elseif(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
 		#if(!${col.nullable})
-	state.rules.${col.javaVariableName} = [requiredNumberValidator()];
+	vFormRules.value.${col.javaVariableName} = [requiredNumberValidator()];
 		#end
 	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT' || ${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
 		#if(!${col.nullable})
-	state.rules.${col.javaVariableName} = [requiredNumberValidator()];
+	vFormRules.value.${col.javaVariableName} = [requiredNumberValidator()];
 		#end
 	#else
 		#if(!${col.nullable})
-	state.rules.${col.javaVariableName} = [requiredStringValidator()];
+	vFormRules.value.${col.javaVariableName} = [requiredStringValidator()];
 		#end
 	#end
 #end
 }
 
-watch(() => props.show, (nv, ov) => state.show = nv);
-watch(() => state.show, (nv, ov) => {
+watch(() => props.show, (nv, ov) => vShow.value = nv);
+watch(() => vShow.value, (nv, ov) => {
 	if (props.show != nv) {
 		emits('update:show', nv)
 	}
 })
 
-function onResize(widthType:WinWidthType, dialog:HTMLElement,header:HTMLElement,body:HTMLElement){
-	state.winWidth = dialog.clientWidth;
-	console.log('onResize', widthType, dialog.clientWidth, dialog.clientHeight);
+function onResize(width: number, height: number, bodyHeight: number) {
+	console.log('onResize', arguments)
+	vWinWidth.value = width;
+	vBodyHeight.value = bodyHeight;
 }
 
 function updateShow(show: boolean) {
-	state.show = show;
+	vShow.value = show;
 	emits('update:show', show);
 }
 
@@ -219,7 +221,7 @@ function onSubmit() {
 			headers: {},
 			data: {
 				type: 'INSERT',
-				entity: state.form
+				entity: vFormData.value
 			}
 		});
 		console.log(rs.output, rs.error)

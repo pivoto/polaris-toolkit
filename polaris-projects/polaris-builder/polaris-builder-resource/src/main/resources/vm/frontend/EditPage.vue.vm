@@ -1,90 +1,87 @@
 #parse("/vm/include.vm")
 <template>
-	<div class="dialog-container" ref="refDiv" v-draggable v-resizable="{onresize:onResize}" v-maximizable="{onresize:onResize}">
-		<el-dialog :title="props.readonly?'数据查看':'数据编辑'" v-model="state.show" width="75%">
-			<el-form ref="refForm" v-loading="state.loading.formLoading" :rules="state.rules" :model="state.form"
-							 label-width="90px">
-				<v-row :gutter="5">
+	<v-dialog width="75%" ref="refDialog" v-model="vShow" :title="props.readonly?'数据查看':'数据编辑'" @resize="onResize">
+		<el-form ref="refForm" v-loading="vLoadingForm" :rules="vFormRules" :model="vFormData" label-width="90px">
+			<v-row :gutter="5">
 #foreach($col in $table.columns)
 	#if(${col.javaVariableName.equals('crtUser')} || ${col.javaVariableName.equals('uptUser')}
-		|| ${col.javaVariableName.equals('crtDt')} || ${col.javaVariableName.equals('uptDt')}
-		|| ${col.primary})
+	|| ${col.javaVariableName.equals('crtDt')} || ${col.javaVariableName.equals('uptDt')}
+	|| ${col.primary})
 		#set($env.editPageColReadonly='readonly disabled')
 	#else
 		#set($env.editPageColReadonly=':readonly="props.readonly" :disabled="props.readonly"')
 	#end
 	#if(${env.entityExtInterface.contains('.TranslatedCreatable')} && ${col.javaVariableName.equals('crtUser')})
-					<v-col class="mb5" :span="colSpan">
-						<el-form-item label="${col.label}" prop="crtUserName">
-							<el-input v-model="state.form.crtUserName" placeholder="请输入${col.label}"
-								clearable ${env.editPageColReadonly} style="width: 200px;"></el-input>
-						</el-form-item>
-					</v-col>
-	#elseif(${env.entityExtInterface.contains('.TranslatedUpdatable')} && ${col.javaVariableName.equals('uptUser')})
-					<v-col class="mb5" :span="colSpan">
-						<el-form-item label="${col.label}" prop="uptUserName">
-							<el-input v-model="state.form.uptUserName" placeholder="请输入${col.label}"
-								clearable ${env.editPageColReadonly} style="width: 200px;"></el-input>
-						</el-form-item>
-					</v-col>
-	#elseif(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
-					<v-col class="mb5" :span="colSpan">
-						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
-							<el-date-picker v-model="state.form.${col.javaVariableName}" placeholder="请输入${col.label}"
-								clearable ${env.editPageColReadonly} style="width: 200px;"
-								type="datetime" value-format="x" format="YYYY-MM-DD HH:mm:ss"/>
-						</el-form-item>
-					</v-col>
-	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT')
-					<v-col class="mb5" :span="colSpan">
-						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
-							<el-input-number v-model="state.form.${col.javaVariableName}" placeholder="请输入${col.label}" clearable
-								:precision="0" ${env.editPageColReadonly} style="width: 200px;"/>
-						</el-form-item>
-					</v-col>
-	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
-					<v-col class="mb5" :span="colSpan">
-						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
-							<el-input-number v-model="state.form.${col.javaVariableName}" placeholder="请输入${col.label}" clearable
-								:precision="${col.decimalDigits}" ${env.editPageColReadonly} style="width: 200px;" />
-						</el-form-item>
-					</v-col>
-	#else
+				<v-col class="mb5" :width="vWinWidth">
+					<el-form-item label="${col.label}" prop="crtUserName">
+						<el-input v-model="vFormData.crtUserName" placeholder="请输入${col.label}"
+							clearable ${env.editPageColReadonly} style="width: 200px;"></el-input>
+					</el-form-item>
+				</v-col>
+#elseif(${env.entityExtInterface.contains('.TranslatedUpdatable')} && ${col.javaVariableName.equals('uptUser')})
+				<v-col class="mb5" :width="vWinWidth">
+					<el-form-item label="${col.label}" prop="uptUserName">
+						<el-input v-model="vFormData.uptUserName" placeholder="请输入${col.label}"
+							clearable ${env.editPageColReadonly} style="width: 200px;"></el-input>
+					</el-form-item>
+				</v-col>
+#elseif(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
+				<v-col class="mb5" :width="vWinWidth">
+					<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+						<el-date-picker v-model="vFormData.${col.javaVariableName}" placeholder="请输入${col.label}"
+							clearable ${env.editPageColReadonly} style="width: 200px;"
+							type="datetime" value-format="x" format="YYYY-MM-DD HH:mm:ss"/>
+					</el-form-item>
+				</v-col>
+#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT')
+				<v-col class="mb5" :width="vWinWidth">
+					<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+						<el-input-number v-model="vFormData.${col.javaVariableName}" placeholder="请输入${col.label}" clearable
+							:precision="0" ${env.editPageColReadonly} style="width: 200px;"/>
+					</el-form-item>
+				</v-col>
+#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
+				<v-col class="mb5" :width="vWinWidth">
+					<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+						<el-input-number v-model="vFormData.${col.javaVariableName}" placeholder="请输入${col.label}" clearable
+							:precision="${col.decimalDigits}" ${env.editPageColReadonly} style="width: 200px;" />
+					</el-form-item>
+				</v-col>
+#else
 		#if(${col.name.toLowerCase().endsWith('_sts')})
-					<v-col class="mb5" :span="colSpan">
-						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
-							<el-switch v-model="state.form.${col.javaVariableName}" width="60"
-								:active-value="'A'" :inactive-value="'I'" inline-prompt
-								active-text="生效" inactive-text="失效"
-								clearable ${env.editPageColReadonly} style="width: 200px;">
-							</el-switch>
-						</el-form-item>
-					</v-col>
-		#else
-					<v-col class="mb5" :span="colSpan">
-						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
-							<el-input v-model="state.form.${col.javaVariableName}" placeholder="请输入${col.label}"
-								clearable ${env.editPageColReadonly} style="width: 200px;"></el-input>
-						</el-form-item>
-					</v-col>
-		#end
+				<v-col class="mb5" :width="vWinWidth">
+					<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+						<el-switch v-model="vFormData.${col.javaVariableName}" width="60"
+							:active-value="'A'" :inactive-value="'I'" inline-prompt
+							active-text="生效" inactive-text="失效"
+							clearable ${env.editPageColReadonly} style="width: 200px;">
+						</el-switch>
+					</el-form-item>
+				</v-col>
+	#else
+				<v-col class="mb5" :width="vWinWidth">
+					<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+						<el-input v-model="vFormData.${col.javaVariableName}" placeholder="请输入${col.label}"
+							clearable ${env.editPageColReadonly} style="width: 200px;"></el-input>
+					</el-form-item>
+				</v-col>
+	#end
 	#end
 #end
-				</v-row>
-			</el-form>
-			<template #footer>
-				<div class="dialog-footer">
-					<template v-if="props.readonly">
-						<el-button icon="EleCircleCloseFilled" type="primary" @click="onCancel()">关闭</el-button>
-					</template>
-					<template v-else>
-						<el-button icon="EleCircleCheckFilled" type="primary" @click="onSubmit()">提交</el-button>
-						<el-button icon="EleCircleCloseFilled" type="primary" @click="onCancel()">取消</el-button>
-					</template>
-				</div>
-			</template>
-		</el-dialog>
-	</div>
+			</v-row>
+		</el-form>
+		<template #footer>
+			<div class="dialog-footer">
+				<template v-if="props.readonly">
+					<el-button icon="EleCircleCloseFilled" type="primary" @click="onCancel()">关闭</el-button>
+				</template>
+				<template v-else>
+					<el-button icon="EleCircleCheckFilled" type="primary" @click="onSubmit()">提交</el-button>
+					<el-button icon="EleCircleCloseFilled" type="primary" @click="onCancel()">取消</el-button>
+				</template>
+			</div>
+		</template>
+	</v-dialog>
 </template>
 <script lang="ts">
 export default {
@@ -96,59 +93,50 @@ import {
 	computed, watch, provide, inject, nextTick,
 	defineComponent, getCurrentInstance,
 	onMounted, onActivated, onDeactivated, onUnmounted,
-	reactive, ref, shallowReactive, shallowRef, toRefs, PropType
+	reactive, ref, shallowReactive, shallowRef, toRefs, unref
 } from "vue";
+import type {
+	PropType, ShallowRef, Ref, ComputedRef, ShallowReactive,
+	ComponentInternalInstance, ComponentPublicInstance
+} from 'vue';
 import type {FormInstance, FormRules} from 'element-plus'
 import type {RuleItem, ValidateError, ValidateFieldsError} from 'async-validator';
 
-import VRow from '/@/components/page/VRow.vue'
-import VCol from '/@/components/page/VCol.vue'
+import VDialog from '/@/components/page/VDialog.vue';
+import VRow from '/@/components/page/VRow.vue';
+import VCol from '/@/components/page/VCol.vue';
+import SvgIcon from "/@/components/icon/SvgIcon.vue";
+
 import msg, {error} from "/@/common/core/msg";
 import * as validation from "/@/common/core/validation";
 import {formatDate} from "/@/common/core/date";
-import {apix} from "/@/common/api";
+import {apix,post,postx} from "/@/common/api";
 import {PromiseResult} from "/@/common/core/utils";
 import ApiOutput from "/@/common/api/ApiOutput";
 
-const props = defineProps({
-	show: {
-		type: Boolean,
-		required: false,
-		default: true
-	},
-	readonly: {
-		type: Boolean,
-		required: false,
-		default: true
-	},
-	data: {
-		type: Object as PropType<ParamType>,
-		required: true,
-	}
-});
-
-const emits = defineEmits<{
-	(e: 'update:show', show: boolean): void,
-	(e: 'afterSubmit'): void,
-}>();
+interface Props {
+	show: boolean,
+	readonly?: boolean,
+	data: ParamType,
+}
 
 type ParamType = {
 #foreach($col in $table.pkColumns)
 	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
-	${col.javaVariableName}#if(${col.nullable})?#end: number,
+		${col.javaVariableName}#if(${col.nullable})?#end: number,
 	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT')
-	${col.javaVariableName}#if(${col.nullable})?#end: number,
+		${col.javaVariableName}#if(${col.nullable})?#end: number,
 	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
-	${col.javaVariableName}#if(${col.nullable})?#end: number,
+		${col.javaVariableName}#if(${col.nullable})?#end: number,
 	#else
-	${col.javaVariableName}#if(${col.nullable})?#end: string,
+		${col.javaVariableName}#if(${col.nullable})?#end: string,
 	#end
 #end
 }
 type FormType = {
 #foreach($col in $table.columns)
 	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
-	${col.javaVariableName}?: number,
+		${col.javaVariableName}?: number,
 	#elseif(${env.entityExtInterface.contains('.TranslatedCreatable')} && ${col.javaVariableName.equals('crtUser')})
 	crtUser?: string,
 	crtUserName?: string,
@@ -156,23 +144,42 @@ type FormType = {
 	uptUser?: string,
 	uptUserName?: string,
 	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT')
-	${col.javaVariableName}?: number,
-	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
-	${col.javaVariableName}?: number,
-	#else
+	//${col.javaVariableName}?: number,
 	${col.javaVariableName}?: string,
+	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
+	//${col.javaVariableName}?: number,
+	${col.javaVariableName}?: string,
+	#else
+		${col.javaVariableName}?: string,
 	#end
 #end
 }
-type StateType = {
-	show: boolean,
-	loading: {
-		formLoading: boolean,
-	},
-	form: FormType,
-	rules: FormRules<FormType>,
-	winWidth: number,
-};
+
+##const props = defineProps({
+##	show: {
+##		type: Boolean,
+##		required: false,
+##		default: true
+##	},
+##	readonly: {
+##		type: Boolean,
+##		required: false,
+##		default: true
+##	},
+##	data: {
+##		type: Object as PropType<ParamType>,
+##		required: true,
+##	}
+##});
+const props = withDefaults(defineProps<Props>(), {
+	show: true,
+	readonly: true,
+});
+
+const emits = defineEmits<{
+	(e: 'update:show', show: boolean): void,
+	(e: 'afterSubmit'): void,
+}>();
 
 const Fields = {
 #foreach($col in $table.columns)
@@ -181,18 +188,15 @@ const Fields = {
 };
 const instance = getCurrentInstance();
 const proxy = instance?.proxy;
-const refDiv = shallowRef<HTMLElement | null>(null);
-const refForm = ref<FormInstance>()
-const state = reactive<StateType>({
-	show: props.show,
-	loading: {
-		formLoading: false,
-	},
-	form: {},
-	rules: {},
-	winWidth: document.documentElement.clientWidth * 0.8,
-});
-const colSpan = computed<number>(()=>Math.min(Math.max(1,Math.round(350*24/state.winWidth)),24));
+const refDialog = ref() as Ref<InstanceType<typeof VDialog>>;
+const refForm = ref<FormInstance>() as Ref<FormInstance>;
+const vWinWidth = ref(document.documentElement.clientWidth * 0.75);
+const vBodyHeight = ref(document.documentElement.clientHeight * 0.75);
+const vShow = ref(props.show);
+const vParamSync = ref(false);
+const vLoadingForm = ref(false);
+const vFormData = ref<FormType>({});
+const vFormRules = ref<FormRules<FormType>>({});
 
 const requiredNumberValidator:()=>RuleItem = ()=>{
 	return {
@@ -221,41 +225,50 @@ const requiredStringValidator:()=>RuleItem = ()=>{
 #foreach($col in $table.columns)
 	#if(${col.javaVariableName.equals('crtUser')} || ${col.javaVariableName.equals('uptUser')}
 	|| ${col.javaVariableName.equals('crtDt')} || ${col.javaVariableName.equals('uptDt')})
-## ignore
+		## ignore
 	#elseif(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
 		#if(!${col.nullable})
-	state.rules.${col.javaVariableName} = [requiredNumberValidator()];
+	vFormRules.value.${col.javaVariableName} = [requiredNumberValidator()];
 		#end
 	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT' || ${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
 		#if(!${col.nullable})
-	state.rules.${col.javaVariableName} = [requiredNumberValidator()];
+	vFormRules.value.${col.javaVariableName} = [requiredNumberValidator()];
 		#end
 	#else
 		#if(!${col.nullable})
-	state.rules.${col.javaVariableName} = [requiredStringValidator()];
+	vFormRules.value.${col.javaVariableName} = [requiredStringValidator()];
 		#end
 	#end
 #end
 }
 
-watch(() => props.show, (nv, ov) => state.show = nv);
-watch(() => state.show, (nv, ov) => {
+watch(() => props.show, (nv, ov) => {
+	vShow.value = nv;
+	if (props.show){
+		onFetchInitData(props.data)
+	}
+});
+watch(() => vShow.value, (nv, ov) => {
 	if (props.show != nv) {
 		emits('update:show', nv)
 	}
 })
 
 watch(() => props.data, (nv, ov) => {
-	onFetchInitData(props.data)
+	vParamSync.value = false;
+	if (props.show){
+		onFetchInitData(props.data)
+	}
 })
 
-function onResize(widthType:WinWidthType, dialog:HTMLElement,header:HTMLElement,body:HTMLElement){
-	state.winWidth = dialog.clientWidth;
-	console.log('onResize', widthType, dialog.clientWidth, dialog.clientHeight);
+function onResize(width: number, height: number, bodyHeight: number) {
+	console.log('onResize', arguments)
+	vWinWidth.value = width;
+	vBodyHeight.value = bodyHeight;
 }
 
 function updateShow(show: boolean) {
-	state.show = show;
+	vShow.value = show;
 	emits('update:show', show);
 }
 
@@ -269,12 +282,15 @@ function closeDialog() {
 
 async function onFetchInitData(param: ParamType) {
 	console.log('onFetchInitData', param)
+	if (vParamSync.value){
+		return;
+	}
 #foreach($col in $table.pkColumns)
 	if (!param.${col.javaVariableName}){
 		return;
 	}
 #end
-	state.loading.formLoading = true;
+	vLoadingForm.value = true;
 	try {
 		//let rs = await mockInitData(param);
 		let rs = await apix({
@@ -285,9 +301,9 @@ async function onFetchInitData(param: ParamType) {
 				param: {
 #foreach($col in $table.pkColumns)
 	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
-					${col.javaVariableName} : [param.${col.javaVariableName},param.${col.javaVariableName}],
+		${col.javaVariableName} : [param.${col.javaVariableName},param.${col.javaVariableName}],
 	#else
-					${col.javaVariableName} : param.${col.javaVariableName},
+		${col.javaVariableName} : param.${col.javaVariableName},
 	#end
 #end
 				}
@@ -297,9 +313,10 @@ async function onFetchInitData(param: ParamType) {
 			msg.error(rs.getErrMessage() || '查询失败！')
 			return;
 		}
-		state.form = rs.output.entity;
+		vParamSync.value = true;
+		vFormData.value = {...rs.output.entity||{}};
 	} finally {
-		state.loading.formLoading = false;
+		vLoadingForm.value = false;
 	}
 }
 
@@ -312,7 +329,7 @@ function onSubmit() {
 			headers: {},
 			data: {
 				type: 'UPDATE',
-				entity: state.form
+				entity: vFormData.value
 			}
 		});
 		console.log(rs.output, rs.error)

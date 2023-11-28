@@ -89,14 +89,10 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 
 #if(${env.entityExtInterfaceTranslatedCreatable})
 	@Column(ignored = true)
-	@Getter
-	@Setter
 	private transient String crtUserName;
 #end
 #if(${env.entityExtInterfaceTranslatedUpdatable})
 	@Column(ignored = true)
-	@Getter
-	@Setter
 	private transient String uptUserName;
 #end
 

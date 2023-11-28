@@ -2,13 +2,13 @@
 <template>
 	<div ref="refDiv">
 		<v-query-panel title="查询">
-			<el-form :model="state.form.queryForm" label-width="100px" class="">
+			<el-form :model="vQueryForm.queryForm" label-width="100px" class="">
 				<v-row class="mb10">
 #foreach($col in $table.columns)
 	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
 					<v-col>
 						<el-form-item label="${col.label}">
-							<el-date-picker v-model="state.form.queryForm.${col.javaVariableName}"
+							<el-date-picker v-model="vQueryForm.queryForm.${col.javaVariableName}"
 								type="datetimerange" value-format="x" format="YYYY-MM-DD HH:mm:ss"
 								range-separator="~" start-placeholder="起始时间" end-placeholder="截止时间"
 								style="max-width: 200px"></el-date-picker>
@@ -17,7 +17,7 @@
 	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
 					<v-col>
 						<el-form-item label="${col.label}">
-							<el-input-number v-model="state.form.queryForm.${col.javaVariableName}" placeholder="请输入${col.label}"
+							<el-input-number v-model="vQueryForm.queryForm.${col.javaVariableName}" placeholder="请输入${col.label}"
 								:precision="2" clearable style="width: 200px;" />
 						</el-form-item>
 					</v-col>
@@ -25,7 +25,7 @@
 		#if(${col.name.toLowerCase().endsWith('_sts')})
 					<v-col>
 						<el-form-item label="${col.label}">
-							<el-select v-model="state.form.queryForm.${col.javaVariableName}" clearable placeholder="请输入${col.label}" style="max-width: 200px">
+							<el-select v-model="vQueryForm.queryForm.${col.javaVariableName}" clearable placeholder="请输入${col.label}" style="max-width: 200px">
 								<el-option v-for="item in [{value:'A',label:'生效'},{value:'I',label:'失效'}]"
 									:key="item.value" :label="item.label" :value="item.value as any">
 									<el-tag effect="dark" size="small" :type="''" v-if="item.value=='A'">生效</el-tag>
@@ -37,14 +37,13 @@
 		#else
 					<v-col>
 						<el-form-item label="${col.label}">
-							<el-input v-model="state.form.queryForm.${col.javaVariableName}" placeholder="请输入${col.label}"
+							<el-input v-model="vQueryForm.queryForm.${col.javaVariableName}" placeholder="请输入${col.label}"
 									clearable style="max-width: 180px;">
 							</el-input>
 						</el-form-item>
 					</v-col>
 		#end
 	#end
-
 #end
 				</v-row>
 				<v-row>
@@ -58,10 +57,11 @@
 				</v-row>
 			</el-form>
 		</v-query-panel>
-		<v-table-panel title="数据列表" :loading="state.loading.tableLoading"
-			:records="state.records.rows" :total="state.records.total"
-			v-model:page-num="state.page.pageIdx"
-			v-model:page-size="state.page.pageSize"
+		<v-table-panel title="数据列表" :loading="vLoadingTable"
+			:records="vTableRecords.rows" :total="vTableRecords.total"
+			:empty-text="vQueryForm.queryFormCache?'':'请输入条件并查询数据'"
+			v-model:page-num="vTablePage.pageIdx"
+			v-model:page-size="vTablePage.pageSize"
 			@refresh="onTableRefresh"
 			@update:current="onUpdateCurrentRow"
 			@update:sort="onUpdateSortField"
@@ -107,9 +107,9 @@
 			</template>
 		</v-table-panel>
 
-		<Add${table.javaClassName} ref="refAddDialog" v-model:show="state.show.addDialog" @after-submit="onTableRefresh"/>
-		<Edit${table.javaClassName} ref="refEditDialog" :readonly="state.records.editReadonly"
-			:data="state.records.editParam" v-model:show="state.show.editDialog" @after-submit="onTableRefresh"/>
+		<Add${table.javaClassName} ref="refAddDialog" v-model:show="vShowAddDialog" @after-submit="onTableRefresh"/>
+		<Edit${table.javaClassName} ref="refEditDialog" :readonly="vTableRecords.editReadonly"
+			:data="vTableRecords.editParam" v-model:show="vShowEditDialog" @after-submit="onTableRefresh"/>
 	</div>
 </template>
 <script lang="ts">
@@ -122,9 +122,12 @@ import {
 	computed, watch, provide, inject, nextTick,
 	defineComponent, getCurrentInstance,
 	onMounted, onActivated, onDeactivated, onUnmounted,
-	reactive, ref, shallowReactive, shallowRef, toRefs
+	reactive, ref, shallowReactive, shallowRef, toRefs, unref
 } from "vue";
-import type {ExtractPropTypes} from 'vue';
+import type {
+	ExtractPropTypes,PropType,ShallowRef,Ref,ComputedRef,ShallowReactive,
+	ComponentInternalInstance,ComponentPublicInstance
+} from 'vue';
 import type {TableColumnCtx} from 'element-plus'
 import type {FormInstance, FormRules} from 'element-plus'
 import type {RuleItem, ValidateError, ValidateFieldsError} from 'async-validator';
@@ -140,38 +143,10 @@ import Edit${table.javaClassName} from './Edit${table.javaClassName}.vue';
 import msg from "/@/common/core/msg";
 import * as validation from "/@/common/core/validation";
 import {formatDate} from "/@/common/core/date";
-import {apix} from "/@/common/api";
+import {apix,post,postx} from "/@/common/api";
 import {PromiseResult} from "/@/common/core/utils";
 import ApiOutput from "/@/common/api/ApiOutput";
 
-
-interface StateType {
-	show: {
-		addDialog: boolean,
-		editDialog: boolean,
-	},
-	page: {
-		pageIdx: number,
-		pageSize: number,
-	};
-	records: {
-		total: number,
-		rows: any[],
-		currentRow?: any,
-		editParam: any,
-		editReadonly: boolean,
-	};
-	loading: {
-		tableLoading: boolean,
-		tenantLoading: boolean,
-	},
-	form: {
-		queryFormCache?: any,
-		queryFormInit: any,
-		queryForm: any,
-		queryOrderBy?: string,
-	}
-}
 
 const Fields = {
 #foreach($col in $table.columns)
@@ -181,76 +156,82 @@ const Fields = {
 const FieldsLike = {
 #foreach($col in $table.columns)
 	#if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
-	${col.javaVariableName}: '${col.label}',
+		${col.javaVariableName}: '${col.label}',
 	#end
 #end
 };
 const refDiv = shallowRef<HTMLElement>();
-const refAddDialog = ref();
-const refEditDialog = ref();
-
-const state = reactive<StateType>({
-	show: {
-		addDialog: false,
-		editDialog: false,
-	},
-	page: {
+const refAddDialog = ref() as Ref<InstanceType<typeof Add${table.javaClassName}>>;
+const refEditDialog = ref() as Ref<InstanceType<typeof Edit${table.javaClassName}>>;
+const vLoadingTable = ref(false);
+const vShowAddDialog = ref(false);
+const vShowEditDialog = ref(false);
+const vTablePage = ref<{
+		pageIdx: number,
+		pageSize: number,
+	}>({
 		pageSize: 20,
 		pageIdx: 1,
-	},
-	records: {
+	});
+const vTableRecords = ref<{
+		total: number,
+		rows: any[],
+		currentRow?: any,
+		editParam: any,
+		editReadonly: boolean,
+	}>({
 		total: 0,
 		rows: [],
 		editParam:{},
 		editReadonly:true,
-	},
-	loading: {
-		tableLoading: false,
-		tenantLoading: false,
-	},
-	form: {
+	});
+const vQueryForm = ref<{
+		queryFormCache?: any,
+		queryFormInit: any,
+		queryForm: any,
+		queryOrderBy?: string,
+	}>({
 		queryFormInit: {},
 		queryForm: {},
-	},
-});
+	});
 
-watch(() => state.page, () => {
+watch(() => vTablePage.value, () => {
 	doFetchData();
 }, {deep: true})
 
 function doClear() {
-	state.form.queryForm = {...state.form.queryFormInit}
+	vQueryForm.value.queryForm = {...vQueryForm.value.queryFormInit}
 }
 
 function doQuery() {
-	// if (!state.form.queryForm.tenantId) {
+	// if (!vQueryForm.value.queryForm.tenantId) {
 	// 	msg.message('请选择租户', 'error')
 	// 	return;
 	// }
-	state.page.pageIdx = 1
-	state.form.queryFormCache = {
-		...state.form.queryForm
+	vTablePage.value.pageIdx = 1
+	vQueryForm.value.queryFormCache = {
+		...vQueryForm.value.queryForm
 	};
 	doFetchData();
 }
 
 // 调用接口查询
 async function doFetchData() {
-	let queryFormCache = state.form.queryFormCache;
+	let queryFormCache = vQueryForm.value.queryFormCache;
 	if (!queryFormCache) {
 		return;
 	}
-	state.loading.tableLoading = true;
+	vLoadingTable.value = true;
 	try {
-		state.records.rows = [];
+		vTableRecords.value.rows = [];
 		let input = {
 			param: {
-				...state.form.queryFormCache,
+				...vQueryForm.value.queryFormCache,
 			},
 			page: {
-				pageIdx: state.page.pageIdx,
-				pageSize: state.page.pageSize,
-				orderBy: state.form.queryOrderBy,
+				pageIdx: vTablePage.value.pageIdx,
+				pageSize: vTablePage.value.pageSize,
+				orderBy: vQueryForm.value.queryOrderBy,
 			}
 		}
 		for (let key in FieldsLike) {
@@ -271,12 +252,12 @@ async function doFetchData() {
 			return;
 		}
 		let output = rs.output;
-		state.records.rows = output.list;
-		state.records.total = output.page.recordSize || output.list.length;
-		state.page.pageIdx = output.page?.pageNum || state.page.pageIdx
-		state.page.pageSize = output.page?.pageSize || state.page.pageSize
+		vTableRecords.value.rows = output.list;
+		vTableRecords.value.total = output.page.recordSize || output.list.length;
+		vTablePage.value.pageIdx = output.page?.pageNum || vTablePage.value.pageIdx
+		vTablePage.value.pageSize = output.page?.pageSize || vTablePage.value.pageSize
 	} finally {
-		state.loading.tableLoading = false;
+		vLoadingTable.value = false;
 	}
 }
 
@@ -288,14 +269,14 @@ function onTableRefresh() {
 // 更新排序字段
 function onUpdateSortField(sortFields: string) {
 	console.log('update sort field:', sortFields)
-	state.form.queryOrderBy = sortFields
+	vQueryForm.value.queryOrderBy = sortFields
 	doFetchData()
 }
 
 // 更新选择记录行
 function onUpdateCurrentRow(currentRow: any, oldCurrentRow: any) {
 	console.log('update current row:', currentRow, oldCurrentRow)
-	state.records.currentRow = currentRow;
+	vTableRecords.value.currentRow = currentRow;
 }
 
 // 格式化日期字段
@@ -312,37 +293,37 @@ function tableColumnFormatUptUser(row: any, column: TableColumnCtx<any>, cellVal
 
 // 打开新增弹窗
 function onOpenAddDialog() {
-	state.show.addDialog = true;
+	vShowAddDialog.value = true;
 }
 // 打开查看弹窗
 function onOpenViewDialog(row?: any){
-	row = row || state.records.currentRow
+	row = row || vTableRecords.value.currentRow
 	if (!row){
 		msg.error('请选择数据行')
 		return;
 	}
-	state.records.editReadonly = true;
-	state.records.editParam = {
+	vTableRecords.value.editReadonly = true;
+	vTableRecords.value.editParam = {
 		... row
 	}
-	state.show.editDialog = true;
+	vShowEditDialog.value = true;
 }
 // 打开修改弹窗
 function onOpenEditDialog(row?: any){
-	row = row || state.records.currentRow
+	row = row || vTableRecords.value.currentRow
 	if (!row){
 		msg.error('请选择数据行')
 		return;
 	}
-	state.records.editReadonly = false;
-	state.records.editParam = {
+	vTableRecords.value.editReadonly = false;
+	vTableRecords.value.editParam = {
 		... row
 	}
-	state.show.editDialog = true;
+	vShowEditDialog.value = true;
 }
 // 删除数据
 function onDeleteRecord(row?: any){
-	row = row || state.records.currentRow
+	row = row || vTableRecords.value.currentRow
 	if (!row){
 		msg.error('请选择数据行')
 		return;
@@ -379,7 +360,7 @@ function onDeleteRecord(row?: any){
 }
 // 导出数据
 function onExportRecord(){
-	let queryFormCache = state.form.queryFormCache;
+	let queryFormCache = vQueryForm.value.queryFormCache;
 	if (!queryFormCache) {
 		msg.warn('缺少查询条件！请先做查询操作');
 		return;
@@ -387,16 +368,16 @@ function onExportRecord(){
 
 	msg.confirm(`确认导出所有记录，是否继续?`,'提示','warning')
 		.then(async (d)=>{
-			state.loading.tableLoading = true;
+			vLoadingTable.value = true;
 			try {
 				let input = {
 					param: {
-						...state.form.queryFormCache,
+						...vQueryForm.value.queryFormCache,
 					},
 					page: {
-						pageIdx: state.page.pageIdx,
-						pageSize: state.page.pageSize,
-						orderBy: state.form.queryOrderBy,
+						pageIdx: vTablePage.value.pageIdx,
+						pageSize: vTablePage.value.pageSize,
+						orderBy: vQueryForm.value.queryOrderBy,
 					}
 				}
 				let rs = await apix({
@@ -421,7 +402,7 @@ function onExportRecord(){
 					msg.warn('无结果文件，请确认导出接口是否正确！')
 				}
 			} finally {
-				state.loading.tableLoading = false;
+				vLoadingTable.value = false;
 			}
 		}).catch((e)=>{
 			if (e == 'cancel' || e == 'close'){
@@ -451,7 +432,8 @@ function mockSubmitData(): Promise<PromiseResult<ApiOutput | null, any>> {
 // mock 数据
 function mockTableData(pageIdx: number, pageSize: number): Promise<PromiseResult<ApiOutput | null, any>> {
 	let data = {
-		list: [], page: {
+		list: [] as any[],
+		page: {
 			recordSize: 0, pageIdx: pageIdx, pageSize: pageSize,
 		},
 	};
@@ -462,12 +444,12 @@ function mockTableData(pageIdx: number, pageSize: number): Promise<PromiseResult
 			data.list.push({
 #foreach($col in $table.columns)
 	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
-				${col.javaVariableName}: new Date().getTime(),
+		${col.javaVariableName}: new Date().getTime(),
 	#else
 		#if(${col.name.toLowerCase().endsWith('_sts')})
-				${col.javaVariableName}: ['A', 'I'][Math.floor(Math.random() * 2)],
+			${col.javaVariableName}: ['A', 'I'][Math.floor(Math.random() * 2)],
 		#else
-				${col.javaVariableName}: 'Data' + (Math.round(Math.random() * 1000)),
+			${col.javaVariableName}: 'Data' + (Math.round(Math.random() * 1000)),
 		#end
 	#end
 #end
