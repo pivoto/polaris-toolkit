@@ -53,17 +53,17 @@ public class CodeTest {
 	}
 
 	@CodeWithDefaults(
-		outDir = "D:/xcode/jcfc/base/basic/tmc/tmc-rm",
+		outDir = "D:/xcode/jcfc/base/basic/jtc/jtc-rm",
 		jdbcDriver = "oracle.jdbc.OracleDriver",
 		jdbcUrl = "jdbc:oracle:thin:@localhost:1521/cmisdb",
 		jdbcUsername = "basesv", jdbcPassword = "basesv",
 		tables = {
-			@Table(schema = "BASESV", name = "SRM_BIT_POS", javaPackage = "io.polaris.tmc.rm.srm"),
+			@Table(schema = "BASESV", name = "SRM_BIT_POS", javaPackage = "io.polaris.jtc.rm.srm"),
 		},
 		property = {
 			@Property(key = "author", value = "Qt"),
 			@Property(key = "mapperClassSuffix", value = "Mapper"),
-			@Property(key = "entityExtInterface", value = "io.polaris.sdk.tmc.common.entity.TranslatedCreatable, io.polaris.sdk.tmc.common.entity.TranslatedUpdatable"),
+			@Property(key = "entityExtInterface", value = "io.polaris.sdk.common.entity.TranslatedCreatable, io.polaris.sdk.common.entity.TranslatedUpdatable"),
 		},
 		templates = {
 			//@Template(path = Template.VM_PATH_EXAMPLE, filename = Template.FILENAME_EXAMPLE, dirname = Template.DIRNAME_EXAMPLE),
