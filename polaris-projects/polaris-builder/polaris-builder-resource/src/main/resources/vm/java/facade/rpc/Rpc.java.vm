@@ -49,7 +49,7 @@ public class ${table.javaClassName}${env.rpcClassSuffix}{
 
 	@RpcService(active = Bool.FALSE, code = "$!{env.rpcCodePrefix}${table.javaClassName}Dml", name = "数据操作")
 	@OpenApi(inputSchema = ${table.javaClassName}${env.rpcDmlInputClassSuffix}.class, outputSchema = ExchangeDto.class)
-	public ExchangeDto doDml(@Valid ${table.javaClassName}${env.rpcDmlInputClassSuffix} input) {
+	public ExchangeDto do$!{env.rpcCodePrefix}${table.javaClassName}Dml(@Valid ${table.javaClassName}${env.rpcDmlInputClassSuffix} input) {
 		Assertions.assertNotNull(input.getType(), "操作类型不能为空");
 		Dml type = input.getType();
 		${table.javaClassName}${env.entityClassSuffix} entity = input.getEntity();
@@ -74,7 +74,7 @@ public class ${table.javaClassName}${env.rpcClassSuffix}{
 
 	@RpcService(active = Bool.FALSE, code = "$!{env.rpcCodePrefix}${table.javaClassName}Get", name = "单行数据查询")
 	@OpenApi(inputSchema = ${table.javaClassName}${env.rpcGetInputClassSuffix}.class, outputSchema = ${table.javaClassName}${env.rpcGetOutputClassSuffix}.class)
-	public ${table.javaClassName}${env.rpcGetOutputClassSuffix} doGet(@Valid ${table.javaClassName}${env.rpcGetInputClassSuffix} input) {
+	public ${table.javaClassName}${env.rpcGetOutputClassSuffix} do$!{env.rpcCodePrefix}${table.javaClassName}Get(@Valid ${table.javaClassName}${env.rpcGetInputClassSuffix} input) {
 		${table.javaClassName}${env.entityClassSuffix} entity = ${table.javaVariableName}${env.serviceClassSuffix}.getUnique(
 			BeanMaps.of(input.getParam()).copyToBean(new ${table.javaClassName}${env.entityClassSuffix}())
 		);
@@ -85,7 +85,7 @@ public class ${table.javaClassName}${env.rpcClassSuffix}{
 
 	@RpcService(active = Bool.FALSE, code = "$!{env.rpcCodePrefix}${table.javaClassName}List", name = "列表数据查询")
 	@OpenApi(inputSchema = ${table.javaClassName}${env.rpcListInputClassSuffix}.class, outputSchema = ${table.javaClassName}${env.rpcListOutputClassSuffix}.class)
-	public ${table.javaClassName}${env.rpcListOutputClassSuffix} doList(@Valid ${table.javaClassName}${env.rpcListInputClassSuffix} input) {
+	public ${table.javaClassName}${env.rpcListOutputClassSuffix} do$!{env.rpcCodePrefix}${table.javaClassName}List(@Valid ${table.javaClassName}${env.rpcListInputClassSuffix} input) {
 		${table.javaClassName}${env.rpcListOutputClassSuffix} output = new ${table.javaClassName}${env.rpcListOutputClassSuffix}();
 		Page page = input.getPage();
 		Map<String, Object> param = BeanMaps.of(input.getParam());
@@ -101,7 +101,7 @@ public class ${table.javaClassName}${env.rpcClassSuffix}{
 
 //	@RpcService(active = Bool.FALSE, code = "$!{env.rpcCodePrefix}${table.javaClassName}Query", name = "通用数据查询")
 //	@OpenApi(inputSchema = QueryDto.class, outputSchema = ${table.javaClassName}${env.rpcListOutputClassSuffix}.class)
-//	public ${table.javaClassName}${env.rpcListOutputClassSuffix} doQuery(QueryDto input) {
+//	public ${table.javaClassName}${env.rpcListOutputClassSuffix} do$!{env.rpcCodePrefix}${table.javaClassName}Query(QueryDto input) {
 //		${table.javaClassName}${env.rpcListOutputClassSuffix} output = new ${table.javaClassName}${env.rpcListOutputClassSuffix}();
 //		Page page = input.getPage();
 //		Map<String, Object> param = input.getParam().getSqlParamMap();
