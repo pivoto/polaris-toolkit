@@ -20,10 +20,10 @@ import $name;
 	#set($env.entityExtInterfaceArr=${env.entityExtInterface.split(',')})
 	#foreach($name in ${env.entityExtInterfaceArr})
 import ${name.trim()};
-	 #if(${name.endsWith('.TranslatedCreatable')})
+	 #if(${name.endsWith('.Creatable')} || ${name.endsWith('.TranslatedCreatable')})
 		 #set($env.entityExtInterfaceTranslatedCreatable=true)
 	 #end
-	 #if(${name.endsWith('.TranslatedUpdatable')})
+	 #if(${name.endsWith('.Updatable')} || ${name.endsWith('.TranslatedUpdatable')})
 		 #set($env.entityExtInterfaceTranslatedUpdatable=true)
 	 #end
 	#end
@@ -90,10 +90,37 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 #if(${env.entityExtInterfaceTranslatedCreatable})
 	@Column(ignored = true)
 	private transient String crtUserName;
+	@Column(ignored = true)
+	private transient String crtUserRealName;
 #end
 #if(${env.entityExtInterfaceTranslatedUpdatable})
 	@Column(ignored = true)
 	private transient String uptUserName;
+	@Column(ignored = true)
+	private transient String uptUserRealName;
+#end
+
+#if(${env.entityExtInterfaceTranslatedCreatable})
+	public boolean hasTranslatedCrtUser(){
+		return true;
+	}
+	public boolean hasTranslatedCrtUserName(){
+		return true;
+	}
+	public boolean hasTranslatedCrtUserRealName(){
+		return true;
+	}
+#end
+#if(${env.entityExtInterfaceTranslatedUpdatable})
+	public boolean hasTranslatedUptUser(){
+		return true;
+	}
+	public boolean hasTranslatedUptUserName(){
+		return true;
+	}
+	public boolean hasTranslatedUptUserRealName(){
+		return true;
+	}
 #end
 
 }

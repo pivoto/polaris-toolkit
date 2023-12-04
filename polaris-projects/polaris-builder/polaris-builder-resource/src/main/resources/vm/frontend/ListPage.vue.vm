@@ -2,29 +2,52 @@
 <template>
 	<div ref="refDiv">
 		<v-query-panel title="查询">
-			<el-form :model="vQueryForm.queryForm" label-width="100px" class="">
+			<el-form ref="refForm" :model="vQueryForm.queryForm" :rules="vQueryForm.queryFormRules" label-width="100px" class="">
 				<v-row class="mb10">
 #foreach($col in $table.columns)
 	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
 					<v-col>
-						<el-form-item label="${col.label}">
+						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
 							<el-date-picker v-model="vQueryForm.queryForm.${col.javaVariableName}"
 								type="datetimerange" value-format="x" format="YYYY-MM-DD HH:mm:ss"
 								range-separator="~" start-placeholder="起始时间" end-placeholder="截止时间"
 								style="max-width: 200px"></el-date-picker>
 						</el-form-item>
 					</v-col>
-	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
+	#elseif(${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT')
 					<v-col>
-						<el-form-item label="${col.label}">
+						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
 							<el-input-number v-model="vQueryForm.queryForm.${col.javaVariableName}" placeholder="请输入${col.label}"
-								:precision="2" clearable style="width: 200px;" />
+								:precision="0" clearable style="width: 200px;" />
+						</el-form-item>
+					</v-col>
+	#elseif(${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
+					<v-col>
+						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+							<el-input-number v-model="vQueryForm.queryForm.${col.javaVariableName}" placeholder="请输入${col.label}"
+								:precision="${col.decimalDigits}" clearable style="width: 200px;" />
+						</el-form-item>
+					</v-col>
+	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' )
+					<v-col>
+						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+							<el-input v-model="vQueryForm.queryForm.${col.javaVariableName}" placeholder="请输入${col.label}"
+									clearable style="max-width: 180px;">
+							</el-input>
+						</el-form-item>
+					</v-col>
+	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'BIGINT')
+					<v-col>
+						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+							<el-input v-model="vQueryForm.queryForm.${col.javaVariableName}" placeholder="请输入${col.label}"
+									clearable style="max-width: 180px;">
+							</el-input>
 						</el-form-item>
 					</v-col>
 	#else
 		#if(${col.name.toLowerCase().endsWith('_sts')})
 					<v-col>
-						<el-form-item label="${col.label}">
+						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
 							<el-select v-model="vQueryForm.queryForm.${col.javaVariableName}" clearable placeholder="请输入${col.label}" style="max-width: 200px">
 								<el-option v-for="item in [{value:'A',label:'生效'},{value:'I',label:'失效'}]"
 									:key="item.value" :label="item.label" :value="item.value as any">
@@ -36,7 +59,7 @@
 					</v-col>
 		#else
 					<v-col>
-						<el-form-item label="${col.label}">
+						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
 							<el-input v-model="vQueryForm.queryForm.${col.javaVariableName}" placeholder="请输入${col.label}"
 									clearable style="max-width: 180px;">
 							</el-input>
@@ -148,6 +171,27 @@ import {PromiseResult} from "/@/common/core/utils";
 import ApiOutput from "/@/common/api/ApiOutput";
 
 
+type EntityType = {
+#foreach($col in $table.pkColumns)
+	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
+		${col.javaVariableName}#if(${col.nullable})?#end: number,
+#elseif(${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT')
+		${col.javaVariableName}#if(${col.nullable})?#end: number,
+#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'BIGINT')
+		${col.javaVariableName}#if(${col.nullable})?#end: string,
+#elseif(${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
+		${col.javaVariableName}#if(${col.nullable})?#end: number,
+#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL')
+		${col.javaVariableName}#if(${col.nullable})?#end: string,
+#else
+		${col.javaVariableName}#if(${col.nullable})?#end: string,
+#end
+#end
+}
+interface FormType extends Partial<Omit<EntityType,'crtDt'|'uptDt'>> {
+	[key:string]: any,
+}
+
 const Fields = {
 #foreach($col in $table.columns)
 	${col.javaVariableName}: '${col.label}',
@@ -161,6 +205,7 @@ const FieldsLike = {
 #end
 };
 const refDiv = shallowRef<HTMLElement>();
+const refForm = ref<FormInstance>() as Ref<FormInstance>;
 const refAddDialog = ref() as Ref<InstanceType<typeof Add${table.javaClassName}>>;
 const refEditDialog = ref() as Ref<InstanceType<typeof Edit${table.javaClassName}>>;
 const vLoadingTable = ref(false);
@@ -175,8 +220,8 @@ const vTablePage = ref<{
 	});
 const vTableRecords = ref<{
 		total: number,
-		rows: any[],
-		currentRow?: any,
+		rows: EntityType[],
+		currentRow?: EntityType,
 		editParam: any,
 		editReadonly: boolean,
 	}>({
@@ -186,15 +231,35 @@ const vTableRecords = ref<{
 		editReadonly:true,
 	});
 const vQueryForm = ref<{
-		queryFormCache?: any,
-		queryFormInit: any,
-		queryForm: any,
+		queryFormCache?: FormType,
+		queryFormInit: FormType,
+		queryForm: FormType,
+		queryFormRules: FormRules<FormType>,
 		queryOrderBy?: string,
 	}>({
 		queryFormInit: {},
 		queryForm: {},
+		queryFormRules: {},
 	});
 
+// validators
+{
+	function buildNumberValidator():RuleItem{
+		return {
+			validator: (rule, value, callback) => {
+				if (value != null && !/^\d*$/.test(value)) {
+					return new Error('必须是数值格式');
+				}
+				callback();
+			}
+		};
+	}
+#foreach($col in $table.columns)
+	#if(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT' || ${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
+	vQueryForm.value.queryFormRules.${col.javaVariableName} = [buildNumberValidator()];
+	#end
+#end
+}
 watch(() => vTablePage.value, () => {
 	doFetchData();
 }, {deep: true})
@@ -208,11 +273,13 @@ function doQuery() {
 	// 	msg.message('请选择租户', 'error')
 	// 	return;
 	// }
-	vTablePage.value.pageIdx = 1
-	vQueryForm.value.queryFormCache = {
-		...vQueryForm.value.queryForm
-	};
-	doFetchData();
+	validation.validateForm(refForm.value, Fields, async ()=>{
+		vTablePage.value.pageIdx = 1
+		vQueryForm.value.queryFormCache = {
+			...vQueryForm.value.queryForm
+		};
+		doFetchData();
+	});
 }
 
 // 调用接口查询
@@ -356,7 +423,7 @@ function onDeleteRecord(row?: any){
 				console.error(e)
 				msg.error('数据删除失败：'+e);
 			}
-	})
+		})
 }
 // 导出数据
 function onExportRecord(){
