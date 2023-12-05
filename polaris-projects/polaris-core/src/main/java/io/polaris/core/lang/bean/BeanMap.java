@@ -32,29 +32,30 @@ public class BeanMap<T> extends AbstractMap<String, Object> implements IBeanMap<
 	protected final Function<String, Object> fallbackGetter;
 	protected final BiConsumer<String, Object> fallbackSetter;
 	protected final boolean ignoreUnknownKeys;
+	protected final boolean warnUnknownKeys;
 
 	public BeanMap(T bean) {
-		this(bean, null, null, null, null, true, false);
+		this(bean, null, null, null, null, true, true, false);
 	}
 
 	public BeanMap(T bean
 		, BiFunction<Object, Type, Object> converter
 		, Function<String, Object> fallbackGetter
 		, BiConsumer<String, Object> fallbackSetter) {
-		this(bean, null, converter, fallbackGetter, fallbackSetter, true, true);
+		this(bean, null, converter, fallbackGetter, fallbackSetter, true, true, false);
 	}
 
 	public BeanMap(T bean, Class<?> beanType
 		, BiFunction<Object, Type, Object> converter
 		, Function<String, Object> fallbackGetter
 		, BiConsumer<String, Object> fallbackSetter) {
-		this(bean, beanType, converter, fallbackGetter, fallbackSetter, true, true);
+		this(bean, beanType, converter, fallbackGetter, fallbackSetter, true, true, false);
 	}
 
 	public BeanMap(T bean, Class<?> beanType
 		, BiFunction<Object, Type, Object> converter
 		, Function<String, Object> fallbackGetter, BiConsumer<String, Object> fallbackSetter
-		, boolean ignoreUnknownKeys, boolean compilable) {
+		, boolean ignoreUnknownKeys, boolean compilable, boolean warnUnknownKeys) {
 		beanType = beanType != null ? beanType : bean.getClass();
 		converter = converter != null ? converter : (o, t) -> ConverterRegistry.INSTANCE.convert(t, o);
 		if (fallbackGetter == null) {
@@ -72,6 +73,7 @@ public class BeanMap<T> extends AbstractMap<String, Object> implements IBeanMap<
 		this.bean = bean;
 		this.beanType = beanType;
 		this.compilable = compilable;
+		this.warnUnknownKeys = warnUnknownKeys;
 		this.ignoreUnknownKeys = ignoreUnknownKeys;
 		this.converter = converter;
 		this.fallbackGetter = fallbackGetter;
@@ -95,7 +97,7 @@ public class BeanMap<T> extends AbstractMap<String, Object> implements IBeanMap<
 			BeanInfo beanInfo = Introspector.getBeanInfo(clazz);
 			for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
 				String name = pd.getName();
-				if (Objs.equals("class", name)) {
+				if (Objs.equals("class" , name)) {
 					continue;
 				}
 				Method readMethod = pd.getReadMethod();
@@ -197,8 +199,8 @@ public class BeanMap<T> extends AbstractMap<String, Object> implements IBeanMap<
 			} else {
 				if (!ignoreUnknownKeys) {
 					throw new IllegalArgumentException("未知属性：" + key);
-				} else {
-					log.warn("未知属性：{}.{}", bean.getClass().getCanonicalName(), key);
+				} else if (warnUnknownKeys) {
+					log.warn("未知属性：{}.{}" , bean.getClass().getCanonicalName(), key);
 				}
 			}
 		}

@@ -18,6 +18,7 @@ import java.util.function.Function;
 @Getter
 public class BeanMapBuilder<T> {
 	private boolean compilable = true;
+	private boolean warnUnknownKeys = false;
 	private boolean ignoreUnknownKeys = true;
 	private T bean;
 	private Class<?> beanType;
@@ -33,7 +34,7 @@ public class BeanMapBuilder<T> {
 	}
 
 	public BeanMap<T> build() {
-		return new BeanMap<>(bean, beanType, converter, fallbackGetter, fallbackSetter, ignoreUnknownKeys, compilable);
+		return new BeanMap<>(bean, beanType, converter, fallbackGetter, fallbackSetter, ignoreUnknownKeys, compilable, warnUnknownKeys);
 	}
 
 
