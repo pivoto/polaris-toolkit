@@ -146,7 +146,11 @@ public class JdbcTypes {
 		Class c = javaTypes.get(type);
 		if (c == BigDecimal.class) {
 			if (decimalDigits == 0) {
-				c = Long.class;
+				if (columnSize<=9){
+					c = Integer.class;
+				}else {
+					c = Long.class;
+				}
 			}
 		}
 		return c;

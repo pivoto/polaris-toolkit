@@ -161,4 +161,22 @@ public class TableDto implements Serializable {
 		return SerializationUtils.clone(this);
 	}
 
+
+	public boolean containsColumnName(String columnName){
+		for (ColumnDto column : columns) {
+			if (column.getName().equals(columnName)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean containsColumnVariableName(String columnVariableName){
+		for (ColumnDto column : columns) {
+			if (column.getJavaVariableName().equals(columnVariableName)){
+				return true;
+			}
+		}
+		return false;
+	}
 }

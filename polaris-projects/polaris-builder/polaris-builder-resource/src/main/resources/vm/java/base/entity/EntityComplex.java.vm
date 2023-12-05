@@ -88,16 +88,32 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 #end
 
 #if(${env.entityExtInterfaceTranslatedCreatable})
+	#if(!$table.containsColumnVariableName('crtUser'))
+	@Column(ignored = true)
+	private transient Long crtUser;
+	#end
+	#if(!$table.containsColumnVariableName('crtUserName'))
 	@Column(ignored = true)
 	private transient String crtUserName;
+	#end
+	#if(!$table.containsColumnVariableName('crtUserName'))
 	@Column(ignored = true)
 	private transient String crtUserRealName;
+	#end
 #end
 #if(${env.entityExtInterfaceTranslatedUpdatable})
+	#if(!$table.containsColumnVariableName('uptUser'))
+	@Column(ignored = true)
+	private transient Long uptUser;
+	#end
+	#if(!$table.containsColumnVariableName('crtUserName'))
 	@Column(ignored = true)
 	private transient String uptUserName;
+	#end
+	#if(!$table.containsColumnVariableName('crtUserName'))
 	@Column(ignored = true)
 	private transient String uptUserRealName;
+#end
 #end
 
 	/** 查询SQL的ORDER BY子句内容(各排序字段) */
