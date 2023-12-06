@@ -96,7 +96,7 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 	@Column(ignored = true)
 	private transient String crtUserName;
 	#end
-	#if(!$table.containsColumnVariableName('crtUserName'))
+	#if(!$table.containsColumnVariableName('crtUserRealName'))
 	@Column(ignored = true)
 	private transient String crtUserRealName;
 	#end
@@ -110,7 +110,7 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 	@Column(ignored = true)
 	private transient String uptUserName;
 	#end
-	#if(!$table.containsColumnVariableName('crtUserName'))
+	#if(!$table.containsColumnVariableName('uptUserRealName'))
 	@Column(ignored = true)
 	private transient String uptUserRealName;
 #end

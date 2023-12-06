@@ -5,6 +5,8 @@
 			<v-row :gutter="5">
 #foreach($col in $table.columns)
 	#if(${col.javaVariableName.equals('crtUser')} || ${col.javaVariableName.equals('uptUser')}
+	|| ${col.javaVariableName.equals('crtUserName')} || ${col.javaVariableName.equals('uptUserName')}
+	|| ${col.javaVariableName.equals('crtUserRealName')} || ${col.javaVariableName.equals('uptUserRealName')}
 	|| ${col.javaVariableName.equals('crtDt')} || ${col.javaVariableName.equals('uptDt')}
 	|| ${col.primary})
 		#set($env.editPageColReadonly='readonly disabled')
@@ -12,19 +14,23 @@
 		#set($env.editPageColReadonly=':readonly="props.readonly" :disabled="props.readonly"')
 	#end
 	#if(${env.entityExtInterface.contains('Creatable')} && ${col.javaVariableName.equals('crtUser')})
+	#if(!$table.containsColumnVariableName('crtUserName'))
 				<v-col class="mb5" :width="vWinWidth">
 					<el-form-item label="${col.label}" prop="crtUserName">
 						<el-input v-model="vFormData.crtUserName" placeholder="请输入${col.label}"
 							clearable ${env.editPageColReadonly} style="width: 200px;"></el-input>
 					</el-form-item>
 				</v-col>
+	#end
 #elseif(${env.entityExtInterface.contains('Updatable')} && ${col.javaVariableName.equals('uptUser')})
+	#if(!$table.containsColumnVariableName('uptUserName'))
 				<v-col class="mb5" :width="vWinWidth">
 					<el-form-item label="${col.label}" prop="uptUserName">
 						<el-input v-model="vFormData.uptUserName" placeholder="请输入${col.label}"
 							clearable ${env.editPageColReadonly} style="width: 200px;"></el-input>
 					</el-form-item>
 				</v-col>
+	#end
 #elseif(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
 				<v-col class="mb5" :width="vWinWidth">
 					<el-form-item label="${col.label}" prop="${col.javaVariableName}">

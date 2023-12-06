@@ -112,9 +112,13 @@
 					</template>
 				</el-table-column>
 		#elseif(${col.javaVariableName.equals('crtUser')})
+			#if(!$table.containsColumnVariableName('crtUserName'))
 				<el-table-column prop="${col.javaVariableName}" label="${col.label}" sortable show-overflow-tooltip header-align="center" :formatter="tableColumnFormatCrtUser"></el-table-column>
+			#end
 		#elseif(${col.javaVariableName.equals('uptUser')})
+			#if(!$table.containsColumnVariableName('uptUserName'))
 				<el-table-column prop="${col.javaVariableName}" label="${col.label}" sortable show-overflow-tooltip header-align="center" :formatter="tableColumnFormatUptUser"></el-table-column>
+			#end
 		#else
 				<el-table-column prop="${col.javaVariableName}" label="${col.label}" sortable show-overflow-tooltip header-align="center"></el-table-column>
 		#end
