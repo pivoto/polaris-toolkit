@@ -76,7 +76,15 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 #foreach($col in $table.normalColumns)
 	/** #if(${col.label})$!{col.name} $!{col.label}#else$!{col.name}#end */
 	@Schema(description = "#if(${col.label})$!{col.label}#else$!{col.name}#end")
+	#if(${col.javaVariableName}=='crtDt')
+	@Column(value = "$!{col.name}", updatable = false, createTime = true)
+	#elseif(${col.javaVariableName}=='crtUser' || ${col.javaVariableName}=='crtUserName' || ${col.javaVariableName}=='crtUserRealName')
+	@Column(value = "$!{col.name}", updatable = false)
+	#elseif(${col.javaVariableName}=='uptDt')
+	@Column(value = "$!{col.name}", updateTime = true)
+	#else
 	@Column(value = "$!{col.name}")
+	#end
 	#if(!${col.nullable})
 		#if(${col.javaClassType}=='String')
 	@NotEmpty(groups = {Create.class, UpdateEntire.class}, message = "#if($col.label)$col.label#else$col.name#end[${col.javaVariableName}]不能为空")
