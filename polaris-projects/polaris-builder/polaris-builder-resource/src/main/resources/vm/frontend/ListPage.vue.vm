@@ -1,7 +1,7 @@
 #parse("/vm/include.vm")
 <template>
 	<div ref="refDiv">
-		<v-query-panel title="查询">
+		<v-query-panel title="查询区">
 			<el-form ref="refForm" :model="vQueryForm.queryForm" :rules="vQueryForm.queryFormRules" label-width="100px" class="">
 				<v-row class="mb10">
 #foreach($col in $table.columns)
@@ -80,7 +80,7 @@
 				</v-row>
 			</el-form>
 		</v-query-panel>
-		<v-table-panel title="数据列表" :loading="vLoadingTable"
+		<v-table-panel title="数据集" :loading="vLoadingTable"
 			:records="vTableRecords.rows" :total="vTableRecords.total"
 			:empty-text="vQueryForm.queryFormCache?'':'请输入条件并查询数据'"
 			v-model:page-num="vTablePage.pageIdx"

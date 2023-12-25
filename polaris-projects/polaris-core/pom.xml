@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>cn.pivoto.polaris.toolkit</groupId>
 		<artifactId>polaris-projects</artifactId>
-		<version>3.1.6</version>
+		<version>3.1.7-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
@@ -26,6 +26,8 @@
 			<artifactId>jsr305</artifactId>
 			<version>3.0.2</version>
 		</dependency>
+
+		<!-- region shade jar -->
 		<dependency>
 			<groupId>com.squareup</groupId>
 			<artifactId>javapoet</artifactId>
@@ -42,6 +44,7 @@
 			<groupId>org.ow2.asm</groupId>
 			<artifactId>asm-util</artifactId>
 		</dependency>
+		<!-- endregion shade jar-->
 
 		<!-- region provided -->
 		<dependency>

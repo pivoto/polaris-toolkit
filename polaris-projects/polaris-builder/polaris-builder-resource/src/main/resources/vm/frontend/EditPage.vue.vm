@@ -1,6 +1,6 @@
 #parse("/vm/include.vm")
 <template>
-	<v-dialog width="75%" ref="refDialog" v-model="vShow" :title="props.readonly?'数据查看':'数据编辑'" @resize="onResize">
+	<v-dialog width="75%" ref="refDialog" v-model="vShow" :title="props.readonly?'数据查看':'数据修改'" @resize="onResize">
 		<el-form ref="refForm" v-loading="vLoadingForm" :rules="vFormRules" :model="vFormData" label-width="90px">
 			<v-row :gutter="5">
 #foreach($col in $table.columns)
