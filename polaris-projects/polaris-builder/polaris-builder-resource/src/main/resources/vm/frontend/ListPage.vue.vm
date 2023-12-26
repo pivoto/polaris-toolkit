@@ -177,18 +177,18 @@ import ApiOutput from "/@/common/api/ApiOutput";
 
 type EntityType = {
 #foreach($col in $table.pkColumns)
-	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
-		${col.javaVariableName}#if(${col.nullable})?#end: number,
+#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
+	${col.javaVariableName}#if(${col.nullable})?#end: number,
 #elseif(${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT')
-		${col.javaVariableName}#if(${col.nullable})?#end: number,
+	${col.javaVariableName}#if(${col.nullable})?#end: number,
 #elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'BIGINT')
-		${col.javaVariableName}#if(${col.nullable})?#end: string,
+	${col.javaVariableName}#if(${col.nullable})?#end: string,
 #elseif(${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
-		${col.javaVariableName}#if(${col.nullable})?#end: number,
+	${col.javaVariableName}#if(${col.nullable})?#end: number,
 #elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL')
-		${col.javaVariableName}#if(${col.nullable})?#end: string,
+	${col.javaVariableName}#if(${col.nullable})?#end: string,
 #else
-		${col.javaVariableName}#if(${col.nullable})?#end: string,
+	${col.javaVariableName}#if(${col.nullable})?#end: string,
 #end
 #end
 }
@@ -204,7 +204,7 @@ const Fields = {
 const FieldsLike = {
 #foreach($col in $table.columns)
 	#if(${col.jdbcType} == 'VARCHAR' || ${col.jdbcType} == 'CHAR')
-		${col.javaVariableName}: '${col.label}',
+	${col.javaVariableName}: '${col.label}',
 	#end
 #end
 };
@@ -515,12 +515,12 @@ function mockTableData(pageIdx: number, pageSize: number): Promise<PromiseResult
 			data.list.push({
 #foreach($col in $table.columns)
 	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
-		${col.javaVariableName}: new Date().getTime(),
+				${col.javaVariableName}: new Date().getTime(),
 	#else
 		#if(${col.name.toLowerCase().endsWith('_sts')})
-			${col.javaVariableName}: ['A', 'I'][Math.floor(Math.random() * 2)],
+				${col.javaVariableName}: ['A', 'I'][Math.floor(Math.random() * 2)],
 		#else
-			${col.javaVariableName}: 'Data' + (Math.round(Math.random() * 1000)),
+				${col.javaVariableName}: 'Data' + (Math.round(Math.random() * 1000)),
 		#end
 	#end
 #end

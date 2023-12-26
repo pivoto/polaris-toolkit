@@ -4,47 +4,47 @@
 		<el-form ref="refForm" :rules="vFormRules" :model="vFormData" label-width="90px">
 			<v-row :gutter="5">
 #foreach($col in $table.columns)
-	#if(${col.javaVariableName.equals('crtUser')} || ${col.javaVariableName.equals('uptUser')}
+#if(${col.javaVariableName.equals('crtUser')} || ${col.javaVariableName.equals('uptUser')}
 	|| ${col.javaVariableName.equals('crtUserName')} || ${col.javaVariableName.equals('uptUserName')}
 	|| ${col.javaVariableName.equals('crtUserRealName')} || ${col.javaVariableName.equals('uptUserRealName')}
 	|| ${col.javaVariableName.equals('crtDt')} || ${col.javaVariableName.equals('uptDt')})
-		## ignore
-	#elseif(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
-				<v-col class="mb5" :width="vWinWidth">
+## ignore
+#elseif(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
+				<v-col class="mb5">
 					<el-form-item label="${col.label}" prop="${col.javaVariableName}">
 						<el-date-picker v-model="vFormData.${col.javaVariableName}" placeholder="请输入${col.label}" clearable
 							type="datetime" value-format="x" format="YYYY-MM-DD HH:mm:ss" style="width: 200px;"/>
 					</el-form-item>
 				</v-col>
 #elseif(${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT')
-				<v-col class="mb5" :width="vWinWidth">
+				<v-col class="mb5">
 					<el-form-item label="${col.label}" prop="${col.javaVariableName}">
 						<el-input-number v-model="vFormData.${col.javaVariableName}" placeholder="请输入${col.label}" clearable
 							:precision="0" style="width: 200px;" />
 					</el-form-item>
 				</v-col>
 #elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'BIGINT')
-				<v-col class="mb5" :width="vWinWidth">
+				<v-col class="mb5">
 					<el-form-item label="${col.label}" prop="${col.javaVariableName}">
 						<el-input v-model="vFormData.${col.javaVariableName}" placeholder="请输入${col.label}" clearable style="width: 200px;"></el-input>
 					</el-form-item>
 				</v-col>
 #elseif(${col.jdbcType} == 'FLOAT' || ${col.jdbcType} == 'DOUBLE')
-				<v-col class="mb5" :width="vWinWidth">
+				<v-col class="mb5">
 					<el-form-item label="${col.label}" prop="${col.javaVariableName}">
 						<el-input-number v-model="vFormData.${col.javaVariableName}" placeholder="请输入${col.label}" clearable
 							:precision="${col.decimalDigits}" style="width: 200px;" />
 					</el-form-item>
 				</v-col>
 #elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL')
-				<v-col class="mb5" :width="vWinWidth">
+				<v-col class="mb5">
 					<el-form-item label="${col.label}" prop="${col.javaVariableName}">
 						<el-input v-model="vFormData.${col.javaVariableName}" placeholder="请输入${col.label}" clearable style="width: 200px;"></el-input>
 					</el-form-item>
 				</v-col>
 #else
-		#if(${col.name.toLowerCase().endsWith('_sts')})
-				<v-col class="mb5" :width="vWinWidth">
+	#if(${col.name.toLowerCase().endsWith('_sts')})
+				<v-col class="mb5">
 					<el-form-item label="${col.label}" prop="${col.javaVariableName}">
 						<el-switch v-model="vFormData.${col.javaVariableName}" width="60"
 							:active-value="'A'" :inactive-value="'I'" inline-prompt
@@ -52,13 +52,13 @@
 					</el-form-item>
 				</v-col>
 	#else
-				<v-col class="mb5" :width="vWinWidth">
+				<v-col class="mb5">
 					<el-form-item label="${col.label}" prop="${col.javaVariableName}">
 						<el-input v-model="vFormData.${col.javaVariableName}" placeholder="请输入${col.label}" clearable style="width: 200px;"></el-input>
 					</el-form-item>
 				</v-col>
 	#end
-	#end
+#end
 #end
 			</v-row>
 		</el-form>
@@ -117,17 +117,17 @@ const emits = defineEmits<{
 type FormType = {
 #foreach($col in $table.columns)
 	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
-		${col.javaVariableName}#if(${col.nullable})?#end: number,
+	${col.javaVariableName}#if(${col.nullable})?#end: number,
 	#elseif(${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT')
-		${col.javaVariableName}#if(${col.nullable})?#end: number,
+	${col.javaVariableName}#if(${col.nullable})?#end: number,
 	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'BIGINT')
-		${col.javaVariableName}#if(${col.nullable})?#end: string,
+	${col.javaVariableName}#if(${col.nullable})?#end: string,
 	#elseif(${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
-		${col.javaVariableName}#if(${col.nullable})?#end: number,
+	${col.javaVariableName}#if(${col.nullable})?#end: number,
 	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL')
-		${col.javaVariableName}#if(${col.nullable})?#end: string,
+	${col.javaVariableName}#if(${col.nullable})?#end: string,
 	#else
-		${col.javaVariableName}#if(${col.nullable})?#end: string,
+	${col.javaVariableName}#if(${col.nullable})?#end: string,
 	#end
 #end
 }
@@ -147,18 +147,18 @@ const vParamSync = ref(false);
 const vLoadingForm = ref(false);
 const vFormData = ref<FormType>({
 #foreach($col in $table.columns)
-	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
-		${col.javaVariableName}: #if(${col.nullable}) undefined #else 0 #end,
+#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
+	${col.javaVariableName}: #if(${col.nullable}) undefined #else 0 #end,
 #elseif(${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT')
-		${col.javaVariableName}: #if(${col.nullable}) undefined #else 0 #end,
+	${col.javaVariableName}: #if(${col.nullable}) undefined #else 0 #end,
 #elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'BIGINT')
-		${col.javaVariableName}: #if(${col.nullable}) undefined #else '0' #end,
+	${col.javaVariableName}: #if(${col.nullable}) undefined #else '0' #end,
 #elseif(${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
-		${col.javaVariableName}: #if(${col.nullable}) undefined #else 0 #end,
+	${col.javaVariableName}: #if(${col.nullable}) undefined #else 0 #end,
 #elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL')
-		${col.javaVariableName}: #if(${col.nullable}) undefined #else '0' #end,
+	${col.javaVariableName}: #if(${col.nullable}) undefined #else '0' #end,
 #else
-		${col.javaVariableName}: #if(${col.nullable}) undefined #else '' #end,
+	${col.javaVariableName}: #if(${col.nullable}) undefined #else '' #end,
 #end
 #end
 });
@@ -192,7 +192,7 @@ const vFormRules = ref<FormRules<FormType>>({});
 #foreach($col in $table.columns)
 	#if(${col.javaVariableName.equals('crtUser')} || ${col.javaVariableName.equals('uptUser')}
 	|| ${col.javaVariableName.equals('crtDt')} || ${col.javaVariableName.equals('uptDt')})
-		## ignore
+## ignore
 	#elseif(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
 		#if(!${col.nullable})
 	vFormRules.value.${col.javaVariableName} = [buildRequiredNumberValidator()];
