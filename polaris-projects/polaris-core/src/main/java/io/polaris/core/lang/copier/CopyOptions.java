@@ -1,7 +1,7 @@
 package io.polaris.core.lang.copier;
 
 import io.polaris.core.collection.Iterables;
-import io.polaris.core.converter.ConverterRegistry;
+import io.polaris.core.converter.Converters;
 import io.polaris.core.function.TernaryFunction;
 import lombok.Getter;
 
@@ -46,7 +46,7 @@ public class CopyOptions {
 		if (value == null) {
 			return null;
 		}
-		Object rs = ConverterRegistry.INSTANCE.convertQuietly(type, value);
+		Object rs = Converters.convertQuietly(type, value);
 		if (rs == null) {
 			if (type instanceof Class) {
 				PropertyEditor editor = PropertyEditorManager.findEditor((Class<?>) type);

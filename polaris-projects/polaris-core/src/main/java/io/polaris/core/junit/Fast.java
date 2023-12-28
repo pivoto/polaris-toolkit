@@ -12,6 +12,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Tag(UnitTestTags.fast)
+@Tag(TagNames.fast)
 public @interface Fast {
 }

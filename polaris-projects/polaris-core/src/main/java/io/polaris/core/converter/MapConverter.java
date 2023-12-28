@@ -108,7 +108,7 @@ public class MapConverter<K, V> extends AbstractConverter<Map<K, V>> {
 	}
 
 	private void convertMapToMap(Map<?, ?> srcMap, Map<K, V> targetMap) {
-		srcMap.forEach((key, value) -> targetMap.put(ConverterRegistry.INSTANCE.convert(this.keyType, key),
-			ConverterRegistry.INSTANCE.convert(this.valueType, value)));
+		srcMap.forEach((key, value) -> targetMap.put(Converters.convert(this.keyType, key),
+			Converters.convert(this.valueType, value)));
 	}
 }

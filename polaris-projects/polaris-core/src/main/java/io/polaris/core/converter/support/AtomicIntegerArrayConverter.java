@@ -1,7 +1,7 @@
 package io.polaris.core.converter.support;
 
 import io.polaris.core.converter.AbstractSimpleConverter;
-import io.polaris.core.converter.ConverterRegistry;
+import io.polaris.core.converter.Converters;
 import io.polaris.core.lang.JavaType;
 
 import java.util.concurrent.atomic.AtomicIntegerArray;
@@ -20,6 +20,6 @@ public class AtomicIntegerArrayConverter extends AbstractSimpleConverter<AtomicI
 
 	@Override
 	protected AtomicIntegerArray doConvert(Object value, JavaType<AtomicIntegerArray> targetType) {
-		return new AtomicIntegerArray(ConverterRegistry.INSTANCE.convert(int[].class, value));
+		return new AtomicIntegerArray(Converters.convert(int[].class, value));
 	}
 }

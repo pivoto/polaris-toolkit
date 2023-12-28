@@ -1,7 +1,7 @@
 package io.polaris.core.converter.support;
 
 import io.polaris.core.converter.AbstractSimpleConverter;
-import io.polaris.core.converter.ConverterRegistry;
+import io.polaris.core.converter.Converters;
 import io.polaris.core.lang.JavaType;
 
 import java.util.concurrent.atomic.AtomicLongArray;
@@ -20,6 +20,6 @@ public class AtomicLongArrayConverter extends AbstractSimpleConverter<AtomicLong
 
 	@Override
 	protected AtomicLongArray doConvert(Object value, JavaType<AtomicLongArray> targetType) {
-		return new AtomicLongArray(ConverterRegistry.INSTANCE.convert(long[].class, value));
+		return new AtomicLongArray(Converters.convert(long[].class, value));
 	}
 }

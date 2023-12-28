@@ -3,7 +3,7 @@ package io.polaris.core.collection;
 import io.polaris.core.assertion.Assertions;
 import io.polaris.core.collection.comparator.Comparators;
 import io.polaris.core.consts.SymbolConsts;
-import io.polaris.core.converter.ConverterRegistry;
+import io.polaris.core.converter.Converters;
 import io.polaris.core.lang.Objs;
 import io.polaris.core.random.Randoms;
 import io.polaris.core.string.Strings;
@@ -453,7 +453,7 @@ public class ObjectArrays extends PrimitiveArrays {
 		Object newEleArr = newElements;
 		// 如果 已有数组的元素类型是 原始类型，则需要转换 新元素数组 为该类型，避免ArrayStoreException
 		if (originComponentType.isPrimitive()) {
-			newEleArr = ConverterRegistry.INSTANCE.convert(array.getClass(), newElements);
+			newEleArr = Converters.convert(array.getClass(), newElements);
 		}
 		final Object result = Array.newInstance(originComponentType, Math.max(len, index) + newElements.length);
 		System.arraycopy(array, 0, result, 0, Math.min(len, index));

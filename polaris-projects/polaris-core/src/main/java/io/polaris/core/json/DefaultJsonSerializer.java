@@ -1,6 +1,6 @@
 package io.polaris.core.json;
 
-import io.polaris.core.converter.ConverterRegistry;
+import io.polaris.core.converter.Converters;
 import io.polaris.core.date.Dates;
 import io.polaris.core.lang.bean.BeanMap;
 import io.polaris.core.lang.bean.Beans;
@@ -139,7 +139,7 @@ public class DefaultJsonSerializer implements JsonSerializer {
 			String content = "JSON.parse(input)";
 			Object rs = engine.eval(content, json);
 			Object javaObject = toJavaObject(rs);
-			return ConverterRegistry.INSTANCE.convert(type, javaObject);
+			return Converters.convert(type, javaObject);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

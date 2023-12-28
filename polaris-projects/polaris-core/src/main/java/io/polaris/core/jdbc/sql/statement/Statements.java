@@ -2,7 +2,7 @@ package io.polaris.core.jdbc.sql.statement;
 
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.collection.ObjectArrays;
-import io.polaris.core.converter.ConverterRegistry;
+import io.polaris.core.converter.Converters;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.TableMetaKit;
@@ -163,13 +163,14 @@ public class Statements {
 		Object val = entityMap.get(meta.getFieldName());
 		if (val == null) {
 			if (meta.isCreateTime() || meta.isUpdateTime()) {
-				val = ConverterRegistry.INSTANCE.convertQuietly(meta.getFieldType(), new Date());
+				Object value = new Date();
+				val = Converters.convertQuietly(meta.getFieldType(), value);
 			}
 		}
 		if (val == null) {
 			String insertDefault = meta.getInsertDefault();
 			if (Strings.isNotBlank(insertDefault)) {
-				val = ConverterRegistry.INSTANCE.convertQuietly(meta.getFieldType(), insertDefault);
+				val = Converters.convertQuietly(meta.getFieldType(), insertDefault);
 			}
 		}
 		return val;
@@ -180,13 +181,14 @@ public class Statements {
 		Object val = entityMap.get(meta.getFieldName());
 		if (val == null) {
 			if (meta.isUpdateTime()) {
-				val = ConverterRegistry.INSTANCE.convertQuietly(meta.getFieldType(), new Date());
+				Object value = new Date();
+				val = Converters.convertQuietly(meta.getFieldType(), value);
 			}
 		}
 		if (val == null) {
 			String updateDefault = meta.getUpdateDefault();
 			if (Strings.isNotBlank(updateDefault)) {
-				val = ConverterRegistry.INSTANCE.convertQuietly(meta.getFieldType(), updateDefault);
+				val = Converters.convertQuietly(meta.getFieldType(), updateDefault);
 			}
 		}
 		return val;
@@ -228,8 +230,8 @@ public class Statements {
 		if (couple[0] == null && couple[1] == null) {
 			return null;
 		}
-		range[0] = ConverterRegistry.INSTANCE.convertQuietly(Date.class, couple[0]);
-		range[1] = ConverterRegistry.INSTANCE.convertQuietly(Date.class, couple[1]);
+		range[0] = Converters.convertQuietly(Date.class, couple[0]);
+		range[1] = Converters.convertQuietly(Date.class, couple[1]);
 		if (range[0] == null && range[1] == null) {
 			return null;
 		}
@@ -286,18 +288,18 @@ public class Statements {
 			}
 			if (val instanceof Collection) {
 				List<Object> list = new ArrayList<>((Collection<?>) val);
-				where.column(meta.getFieldName()).in(convertListElements(list, o -> ConverterRegistry.INSTANCE.convertQuietly(fieldType, o)));
+				where.column(meta.getFieldName()).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
 			} else if (val instanceof Iterable) {
 				List<Object> list = Iterables.asCollection(ArrayList::new, (Iterable<Object>) val);
-				where.column(meta.getFieldName()).in(convertListElements(list, o -> ConverterRegistry.INSTANCE.convertQuietly(fieldType, o)));
+				where.column(meta.getFieldName()).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
 			} else if (val instanceof Iterator) {
 				List<Object> list = Iterables.asCollection(ArrayList::new, (Iterator<Object>) val);
-				where.column(meta.getFieldName()).in(convertListElements(list, o -> ConverterRegistry.INSTANCE.convertQuietly(fieldType, o)));
+				where.column(meta.getFieldName()).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
 			} else if (val.getClass().isArray()) {
 				List<Object> list = ObjectArrays.toList(val);
-				where.column(meta.getFieldName()).in(convertListElements(list, o -> ConverterRegistry.INSTANCE.convertQuietly(fieldType, o)));
+				where.column(meta.getFieldName()).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
 			} else {
-				where.column(meta.getFieldName()).eq((Object) ConverterRegistry.INSTANCE.convertQuietly(fieldType, val));
+				where.column(meta.getFieldName()).eq((Object) Converters.convertQuietly(fieldType, val));
 			}
 		} else if (includeWhereNulls.test(meta.getFieldName())) {
 			where.column(meta.getFieldName()).isNull();

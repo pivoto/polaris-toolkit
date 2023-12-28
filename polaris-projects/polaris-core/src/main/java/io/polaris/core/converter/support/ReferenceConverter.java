@@ -1,7 +1,7 @@
 package io.polaris.core.converter.support;
 
 import io.polaris.core.converter.AbstractSimpleConverter;
-import io.polaris.core.converter.ConverterRegistry;
+import io.polaris.core.converter.Converters;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.Types;
 
@@ -36,7 +36,7 @@ public class ReferenceConverter<T extends Reference> extends AbstractSimpleConve
 		Object targetValue = null;
 		final Type paramType = targetType.getActualType(Reference.class, 0);
 		if (!Types.isUnknown(paramType)) {
-			targetValue = ConverterRegistry.INSTANCE.convert(paramType, value);
+			targetValue = Converters.convert(paramType, value);
 		}
 		if (targetValue == null) {
 			targetValue = value;

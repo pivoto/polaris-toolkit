@@ -12,6 +12,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Tag(UnitTestTags.heavy)
+@Tag(TagNames.heavy)
 public @interface Heavy {
 }

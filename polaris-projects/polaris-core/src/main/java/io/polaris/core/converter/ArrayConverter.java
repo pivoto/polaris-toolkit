@@ -192,6 +192,6 @@ public class ArrayConverter<T> extends AbstractConverter<T[]> {
 	}
 
 	private Object convertComponentType(Object value) {
-		return ConverterRegistry.INSTANCE.convert(this.targetComponentType, value, null);
+		return Converters.convert(this.targetComponentType, value, null);
 	}
 }

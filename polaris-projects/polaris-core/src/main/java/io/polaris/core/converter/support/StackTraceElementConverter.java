@@ -1,7 +1,7 @@
 package io.polaris.core.converter.support;
 
 import io.polaris.core.converter.AbstractSimpleConverter;
-import io.polaris.core.converter.ConverterRegistry;
+import io.polaris.core.converter.Converters;
 import io.polaris.core.lang.JavaType;
 
 import java.util.Map;
@@ -23,10 +23,14 @@ public class StackTraceElementConverter extends AbstractSimpleConverter<StackTra
 		if (value instanceof Map) {
 			final Map<?, ?> map = (Map<?, ?>) value;
 
-			final String declaringClass = ConverterRegistry.INSTANCE.convertQuietly(String.class, map.get("className"));
-			final String methodName = ConverterRegistry.INSTANCE.convertQuietly(String.class, map.get("methodName"));
-			final String fileName = ConverterRegistry.INSTANCE.convertQuietly(String.class, map.get("fileName"));
-			final Integer lineNumber = ConverterRegistry.INSTANCE.convertQuietly(Integer.class, map.get("lineNumber"));
+			Object value4 = map.get("className");
+			final String declaringClass = Converters.convertQuietly(String.class, value4);
+			Object value3 = map.get("methodName");
+			final String methodName = Converters.convertQuietly(String.class, value3);
+			Object value2 = map.get("fileName");
+			final String fileName = Converters.convertQuietly(String.class, value2);
+			Object value1 = map.get("lineNumber");
+			final Integer lineNumber = Converters.convertQuietly(Integer.class, value1);
 
 			return new StackTraceElement(declaringClass, methodName, fileName, lineNumber == null ? 0 : lineNumber);
 		}

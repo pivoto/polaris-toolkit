@@ -1,6 +1,6 @@
 package io.polaris.mybatis.type;
 
-import io.polaris.core.converter.ConverterRegistry;
+import io.polaris.core.converter.Converters;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.type.*;
 
@@ -32,7 +32,7 @@ public class DynamicTimeTypeHandler extends BaseTypeHandler<Object> {
 		} else if (parameter instanceof Number) {
 			ps.setTime(i, new Time(((Number) parameter).longValue()));
 		} else {
-			Date date = ConverterRegistry.INSTANCE.convert(Date.class, parameter);
+			Date date = Converters.convert(Date.class, parameter);
 			ps.setTime(i, new Time(date.getTime()));
 		}
 	}

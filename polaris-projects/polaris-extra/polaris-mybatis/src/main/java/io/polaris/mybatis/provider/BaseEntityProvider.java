@@ -1,6 +1,6 @@
 package io.polaris.mybatis.provider;
 
-import io.polaris.core.converter.ConverterRegistry;
+import io.polaris.core.converter.Converters;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.TableMetaKit;
@@ -145,13 +145,14 @@ public class BaseEntityProvider {
 			}
 			if (val == null) {
 				if (meta.isUpdateTime()) {
-					val = ConverterRegistry.INSTANCE.convertQuietly(meta.getFieldType(), new Date());
+					Object value = new Date();
+					val = Converters.convertQuietly(meta.getFieldType(), value);
 				}
 			}
 			if (val == null) {
 				String updateDefault = meta.getUpdateDefault();
 				if (Strings.isNotBlank(updateDefault)) {
-					val = ConverterRegistry.INSTANCE.convertQuietly(meta.getFieldType(), updateDefault);
+					val = Converters.convertQuietly(meta.getFieldType(), updateDefault);
 				}
 			}
 			if (version) {
@@ -425,7 +426,7 @@ public class BaseEntityProvider {
 					where.append(", ");
 				}
 				where.append("#{").append(key).append(i).append("}");
-				map.put(key + i, ConverterRegistry.INSTANCE.convertQuietly(fieldType, next));
+				map.put(key + i, Converters.convertQuietly(fieldType, next));
 				i++;
 			}
 			where.append(" ) ");
@@ -447,13 +448,13 @@ public class BaseEntityProvider {
 					where.append(", ");
 				}
 				where.append("#{").append(key).append(i).append("}");
-				map.put(key + i, ConverterRegistry.INSTANCE.convertQuietly(fieldType, next));
+				map.put(key + i, Converters.convertQuietly(fieldType, next));
 			}
 			where.append(" ) ");
 			sql.where(where.toString());
 		} else {
 			sql.where(columnName + " = #{" + key + "} ");
-			map.put(key, ConverterRegistry.INSTANCE.convertQuietly(fieldType, val));
+			map.put(key, Converters.convertQuietly(fieldType, val));
 		}
 	}
 

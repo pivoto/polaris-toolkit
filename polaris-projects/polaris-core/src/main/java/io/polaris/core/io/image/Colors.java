@@ -1,7 +1,7 @@
 package io.polaris.core.io.image;
 
 import io.polaris.core.collection.ObjectArrays;
-import io.polaris.core.converter.ConverterRegistry;
+import io.polaris.core.converter.Converters;
 import io.polaris.core.random.Randoms;
 import io.polaris.core.string.Strings;
 
@@ -111,9 +111,9 @@ public class Colors {
 			final List<String> rgb = Strings.splitToList(colorName, ",");
 			if (3 == rgb.size()) {
 
-				final Integer r = ConverterRegistry.INSTANCE.convert(int.class, rgb.get(0));
-				final Integer g = ConverterRegistry.INSTANCE.convert(int.class, rgb.get(1));
-				final Integer b = ConverterRegistry.INSTANCE.convert(int.class, rgb.get(2));
+				final Integer r = Converters.convert(int.class, rgb.get(0));
+				final Integer g = Converters.convert(int.class, rgb.get(1));
+				final Integer b = Converters.convert(int.class, rgb.get(2));
 				if (false == ObjectArrays.hasNull(r, g, b)) {
 					return new Color(r, g, b);
 				}

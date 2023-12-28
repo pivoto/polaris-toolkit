@@ -4,7 +4,7 @@ package io.polaris.core.junit;
  * @author Qt
  * @since 1.8,  Aug 31, 2023
  */
-public interface UnitTestTags {
+public interface TagNames {
 
 	String slow = "slow";
 	String fast = "fast";

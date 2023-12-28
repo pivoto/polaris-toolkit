@@ -31,7 +31,7 @@ public class BeanConverter<T> extends AbstractConverter<T> {
 
 	public BeanConverter(JavaType<T> beanType, CopyOptions copyOptions) {
 		this.targetType = beanType;
-		this.copyOptions = copyOptions.converter((t, s) -> ConverterRegistry.INSTANCE.convert(t, s));
+		this.copyOptions = copyOptions.converter((t, s) -> Converters.convert(t, s));
 	}
 
 	@Override

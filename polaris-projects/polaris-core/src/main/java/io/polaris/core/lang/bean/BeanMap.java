@@ -1,6 +1,6 @@
 package io.polaris.core.lang.bean;
 
-import io.polaris.core.converter.ConverterRegistry;
+import io.polaris.core.converter.Converters;
 import io.polaris.core.lang.Objs;
 import io.polaris.core.log.ILogger;
 
@@ -57,7 +57,7 @@ public class BeanMap<T> extends AbstractMap<String, Object> implements IBeanMap<
 		, Function<String, Object> fallbackGetter, BiConsumer<String, Object> fallbackSetter
 		, boolean ignoreUnknownKeys, boolean compilable, boolean warnUnknownKeys) {
 		beanType = beanType != null ? beanType : bean.getClass();
-		converter = converter != null ? converter : (o, t) -> ConverterRegistry.INSTANCE.convert(t, o);
+		converter = converter != null ? converter : (o, t) -> Converters.convert(t, o);
 		if (fallbackGetter == null) {
 			if (bean instanceof Map) {
 				//noinspection unchecked

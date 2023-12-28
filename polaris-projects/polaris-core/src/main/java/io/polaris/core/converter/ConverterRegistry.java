@@ -10,8 +10,7 @@ import io.polaris.core.service.Service;
 import io.polaris.core.service.ServiceLoader;
 import io.polaris.core.ulid.Ulid;
 
-import java.beans.PropertyEditor;
-import java.beans.PropertyEditorManager;
+import javax.annotation.Nullable;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Type;
@@ -33,112 +32,133 @@ import java.util.concurrent.atomic.*;
  * @since 1.8
  */
 @SuppressWarnings({"all"})
-public enum ConverterRegistry {
-
-	INSTANCE;
-
+public class ConverterRegistry {
 	private static final ILogger log = ILogger.of(ConverterRegistry.class);
-	private final Map<Type, Converter<?>> defaultConverters = new ConcurrentHashMap<>();
+	private static final Map<Type, Converter<?>> standardConverters = new ConcurrentHashMap<>();
+	private static final Map<Type, Converter<?>> serviceConverters = new ConcurrentHashMap<>();
 	private final Map<Type, Converter<?>> customConverters = new ConcurrentHashMap<>();
 
-	ConverterRegistry() {
-		initDefaults();
-		loadCustom();
+	static {
+		initStandard();
+		loadServices();
 	}
 
-	private void loadCustom() {
+	ConverterRegistry() {
+	}
+
+	private static void initStandard() {
+		// 原始类型转换器
+		standardConverters.put(int.class, new PrimitiveConverter(int.class));
+		standardConverters.put(long.class, new PrimitiveConverter(long.class));
+		standardConverters.put(byte.class, new PrimitiveConverter(byte.class));
+		standardConverters.put(short.class, new PrimitiveConverter(short.class));
+		standardConverters.put(float.class, new PrimitiveConverter(float.class));
+		standardConverters.put(double.class, new PrimitiveConverter(double.class));
+		standardConverters.put(char.class, new PrimitiveConverter(char.class));
+		standardConverters.put(boolean.class, new PrimitiveConverter(boolean.class));
+
+		// 包装类转换器
+		standardConverters.put(Number.class, new NumberConverter(Number.class));
+		standardConverters.put(Integer.class, new NumberConverter(Integer.class));
+		standardConverters.put(AtomicInteger.class, new NumberConverter(AtomicInteger.class));
+		standardConverters.put(Long.class, new NumberConverter(Long.class));
+		standardConverters.put(LongAdder.class, new NumberConverter(LongAdder.class));
+		standardConverters.put(AtomicLong.class, new NumberConverter(AtomicLong.class));
+		standardConverters.put(Byte.class, new NumberConverter(Byte.class));
+		standardConverters.put(Short.class, new NumberConverter(Short.class));
+		standardConverters.put(Float.class, new NumberConverter(Float.class));
+		standardConverters.put(Double.class, new NumberConverter(Double.class));
+		standardConverters.put(DoubleAdder.class, new NumberConverter(DoubleAdder.class));
+		standardConverters.put(BigDecimal.class, new NumberConverter(BigDecimal.class));
+		standardConverters.put(BigInteger.class, new NumberConverter(BigInteger.class));
+
+		standardConverters.put(Character.class, new CharacterConverter());
+		standardConverters.put(Boolean.class, new BooleanConverter());
+		standardConverters.put(AtomicBoolean.class, new AtomicBooleanConverter());
+		standardConverters.put(CharSequence.class, new StringConverter());
+		standardConverters.put(String.class, new StringConverter());
+
+		// URI and URL
+		standardConverters.put(URI.class, new URIConverter());
+		standardConverters.put(URL.class, new URLConverter());
+
+		// 日期时间
+		standardConverters.put(Calendar.class, new CalendarConverter());
+		standardConverters.put(java.util.Date.class, new DateConverter(java.util.Date.class));
+		standardConverters.put(java.sql.Date.class, new DateConverter(java.sql.Date.class));
+		standardConverters.put(java.sql.Time.class, new DateConverter(java.sql.Time.class));
+		standardConverters.put(java.sql.Timestamp.class, new DateConverter(java.sql.Timestamp.class));
+
+		// 日期时间 JDK8+
+		standardConverters.put(TemporalAccessor.class, new TemporalAccessorConverter(Instant.class));
+		standardConverters.put(Instant.class, new TemporalAccessorConverter(Instant.class));
+		standardConverters.put(LocalDateTime.class, new TemporalAccessorConverter(LocalDateTime.class));
+		standardConverters.put(LocalDate.class, new TemporalAccessorConverter(LocalDate.class));
+		standardConverters.put(LocalTime.class, new TemporalAccessorConverter(LocalTime.class));
+		standardConverters.put(ZonedDateTime.class, new TemporalAccessorConverter(ZonedDateTime.class));
+		standardConverters.put(OffsetDateTime.class, new TemporalAccessorConverter(OffsetDateTime.class));
+		standardConverters.put(OffsetTime.class, new TemporalAccessorConverter(OffsetTime.class));
+		standardConverters.put(DayOfWeek.class, new TemporalAccessorConverter(DayOfWeek.class));
+		standardConverters.put(Month.class, new TemporalAccessorConverter(Month.class));
+		standardConverters.put(MonthDay.class, new TemporalAccessorConverter(MonthDay.class));
+		standardConverters.put(Year.class, new TemporalAccessorConverter(MonthDay.class));
+		standardConverters.put(YearMonth.class, new TemporalAccessorConverter(MonthDay.class));
+		standardConverters.put(Period.class, new PeriodConverter());
+		standardConverters.put(ChronoPeriod.class, new PeriodConverter());
+		standardConverters.put(Duration.class, new DurationConverter());
+
+		// Reference
+		standardConverters.put(WeakReference.class, new ReferenceConverter(WeakReference.class));
+		standardConverters.put(SoftReference.class, new ReferenceConverter(SoftReference.class));
+		standardConverters.put(AtomicReference.class, new AtomicReferenceConverter());
+
+		//AtomicXXXArray
+		standardConverters.put(AtomicIntegerArray.class, new AtomicIntegerArrayConverter());
+		standardConverters.put(AtomicLongArray.class, new AtomicLongArrayConverter());
+
+		// 其它类型
+		standardConverters.put(Class.class, new ClassConverter());
+		standardConverters.put(TimeZone.class, new TimeZoneConverter());
+		standardConverters.put(Locale.class, new LocaleConverter());
+		standardConverters.put(Charset.class, new CharsetConverter());
+		standardConverters.put(Path.class, new PathConverter());
+		standardConverters.put(Currency.class, new CurrencyConverter());
+		standardConverters.put(UUID.class, new UUIDConverter());
+		standardConverters.put(Ulid.class, new UlidConverter());
+		standardConverters.put(StackTraceElement.class, new StackTraceElementConverter());
+		standardConverters.put(Optional.class, new OptionalConverter());
+	}
+
+	private static void loadServices() {
 		for (Service<Converter> service : ServiceLoader.of(Converter.class)) {
 			try {
 				Class<? extends Converter> converterClass = service.getServiceClass();
-				Converter converter = service.newInstance();
+				Converter<?> converter = service.newInstance();
 				Type actualType = JavaType.of(converterClass).getActualType(Converter.class, 0);
-				customConverters.putIfAbsent(actualType, converter);
+				serviceConverters.putIfAbsent(actualType, converter);
 			} catch (Exception ignore) {
 			}
 		}
 	}
 
-	private void initDefaults() {
-		// 原始类型转换器
-		defaultConverters.put(int.class, new PrimitiveConverter(int.class));
-		defaultConverters.put(long.class, new PrimitiveConverter(long.class));
-		defaultConverters.put(byte.class, new PrimitiveConverter(byte.class));
-		defaultConverters.put(short.class, new PrimitiveConverter(short.class));
-		defaultConverters.put(float.class, new PrimitiveConverter(float.class));
-		defaultConverters.put(double.class, new PrimitiveConverter(double.class));
-		defaultConverters.put(char.class, new PrimitiveConverter(char.class));
-		defaultConverters.put(boolean.class, new PrimitiveConverter(boolean.class));
 
-		// 包装类转换器
-		defaultConverters.put(Number.class, new NumberConverter(Number.class));
-		defaultConverters.put(Integer.class, new NumberConverter(Integer.class));
-		defaultConverters.put(AtomicInteger.class, new NumberConverter(AtomicInteger.class));
-		defaultConverters.put(Long.class, new NumberConverter(Long.class));
-		defaultConverters.put(LongAdder.class, new NumberConverter(LongAdder.class));
-		defaultConverters.put(AtomicLong.class, new NumberConverter(AtomicLong.class));
-		defaultConverters.put(Byte.class, new NumberConverter(Byte.class));
-		defaultConverters.put(Short.class, new NumberConverter(Short.class));
-		defaultConverters.put(Float.class, new NumberConverter(Float.class));
-		defaultConverters.put(Double.class, new NumberConverter(Double.class));
-		defaultConverters.put(DoubleAdder.class, new NumberConverter(DoubleAdder.class));
-		defaultConverters.put(BigDecimal.class, new NumberConverter(BigDecimal.class));
-		defaultConverters.put(BigInteger.class, new NumberConverter(BigInteger.class));
+	@Nullable
+	public <T> Converter<T> getConverter(Type type) {
+		Converter<T> converter = (Converter<T>) customConverters.get(type);
+		if (converter != null) {
+			return converter;
+		}
+		converter = (Converter<T>) serviceConverters.get(type);
+		if (converter != null) {
+			return converter;
+		}
+		converter = (Converter<T>) standardConverters.get(type);
+		return converter;
+	}
 
-		defaultConverters.put(Character.class, new CharacterConverter());
-		defaultConverters.put(Boolean.class, new BooleanConverter());
-		defaultConverters.put(AtomicBoolean.class, new AtomicBooleanConverter());
-		defaultConverters.put(CharSequence.class, new StringConverter());
-		defaultConverters.put(String.class, new StringConverter());
-
-		// URI and URL
-		defaultConverters.put(URI.class, new URIConverter());
-		defaultConverters.put(URL.class, new URLConverter());
-
-		// 日期时间
-		defaultConverters.put(Calendar.class, new CalendarConverter());
-		defaultConverters.put(java.util.Date.class, new DateConverter(java.util.Date.class));
-		defaultConverters.put(java.sql.Date.class, new DateConverter(java.sql.Date.class));
-		defaultConverters.put(java.sql.Time.class, new DateConverter(java.sql.Time.class));
-		defaultConverters.put(java.sql.Timestamp.class, new DateConverter(java.sql.Timestamp.class));
-
-		// 日期时间 JDK8+
-		defaultConverters.put(TemporalAccessor.class, new TemporalAccessorConverter(Instant.class));
-		defaultConverters.put(Instant.class, new TemporalAccessorConverter(Instant.class));
-		defaultConverters.put(LocalDateTime.class, new TemporalAccessorConverter(LocalDateTime.class));
-		defaultConverters.put(LocalDate.class, new TemporalAccessorConverter(LocalDate.class));
-		defaultConverters.put(LocalTime.class, new TemporalAccessorConverter(LocalTime.class));
-		defaultConverters.put(ZonedDateTime.class, new TemporalAccessorConverter(ZonedDateTime.class));
-		defaultConverters.put(OffsetDateTime.class, new TemporalAccessorConverter(OffsetDateTime.class));
-		defaultConverters.put(OffsetTime.class, new TemporalAccessorConverter(OffsetTime.class));
-		defaultConverters.put(DayOfWeek.class, new TemporalAccessorConverter(DayOfWeek.class));
-		defaultConverters.put(Month.class, new TemporalAccessorConverter(Month.class));
-		defaultConverters.put(MonthDay.class, new TemporalAccessorConverter(MonthDay.class));
-		defaultConverters.put(Year.class, new TemporalAccessorConverter(MonthDay.class));
-		defaultConverters.put(YearMonth.class, new TemporalAccessorConverter(MonthDay.class));
-		defaultConverters.put(Period.class, new PeriodConverter());
-		defaultConverters.put(ChronoPeriod.class, new PeriodConverter());
-		defaultConverters.put(Duration.class, new DurationConverter());
-
-		// Reference
-		defaultConverters.put(WeakReference.class, new ReferenceConverter(WeakReference.class));
-		defaultConverters.put(SoftReference.class, new ReferenceConverter(SoftReference.class));
-		defaultConverters.put(AtomicReference.class, new AtomicReferenceConverter());
-
-		//AtomicXXXArray
-		defaultConverters.put(AtomicIntegerArray.class, new AtomicIntegerArrayConverter());
-		defaultConverters.put(AtomicLongArray.class, new AtomicLongArrayConverter());
-
-		// 其它类型
-		defaultConverters.put(Class.class, new ClassConverter());
-		defaultConverters.put(TimeZone.class, new TimeZoneConverter());
-		defaultConverters.put(Locale.class, new LocaleConverter());
-		defaultConverters.put(Charset.class, new CharsetConverter());
-		defaultConverters.put(Path.class, new PathConverter());
-		defaultConverters.put(Currency.class, new CurrencyConverter());
-		defaultConverters.put(UUID.class, new UUIDConverter());
-		defaultConverters.put(Ulid.class, new UlidConverter());
-		defaultConverters.put(StackTraceElement.class, new StackTraceElementConverter());
-		defaultConverters.put(Optional.class, new OptionalConverter());
+	public <T> Converter<T> getConverterOrDefault(Type type, Converter<T> defaults) {
+		Converter<T> converter = getConverter(type);
+		return converter != null ? converter : defaults;
 	}
 
 	public void addConvert(Type type, Class<? extends Converter<?>> converterClass) {
@@ -147,36 +167,6 @@ public enum ConverterRegistry {
 
 	public void addConvert(Type type, Converter<?> converter) {
 		customConverters.put(type, converter);
-	}
-
-	public <T> Converter<T> getDefaultConverter(Type type) {
-		return (Converter<T>) defaultConverters.get(type);
-	}
-
-	public <T> Converter<T> getConverter(Type type) {
-		return (Converter<T>) customConverters.getOrDefault(type, defaultConverters.get(type));
-	}
-
-	public <T> Converter<T> getConverterOrDefault(Type type, Converter<T> defaults) {
-		return (Converter<T>) customConverters.getOrDefault(type, defaultConverters.getOrDefault(type, defaults));
-	}
-
-	public <T> T convert(Type type, Object value) {
-		if (value == null) {
-			return null;
-		}
-		return convert(type, value, null);
-	}
-
-	public <T> T convert(Type type, Type valueType, Object value) {
-		return convert(type, valueType, value, null);
-	}
-
-	public <T> T convert(Type type, Object value, T defaultValue) {
-		if (value == null) {
-			return defaultValue;
-		}
-		return convert(type, value.getClass(), value, defaultValue);
 	}
 
 	public <T> T convert(Type type, Type valueType, Object value, T defaultValue) {
@@ -244,7 +234,7 @@ public enum ConverterRegistry {
 		}
 
 		if (type instanceof Class) {
-			return convertByPropertyEditor((Class) type, value, defaultValue);
+			return Converters.convertByPropertyEditor((Class) type, value, defaultValue);
 		}
 		if (clazz.isInstance(value)) {
 			return (T) value;
@@ -252,22 +242,23 @@ public enum ConverterRegistry {
 		return clazz.cast(value);
 	}
 
-	public <T> T convertQuietly(Type type, Object value) {
-		if (value == null) {
-			return null;
-		}
-		return convertQuietly(type, value.getClass(), value, null);
+
+	public <T> T convert(Type type, Type valueType, Object value) {
+		return convert(type, valueType, value, null);
 	}
 
-	public <T> T convertQuietly(Type type, Type valueType, Object value) {
-		return convertQuietly(type, valueType, value, null);
-	}
-
-	public <T> T convertQuietly(Type type, Object value, T defaultValue) {
+	public <T> T convert(Type type, Object value, T defaultValue) {
 		if (value == null) {
 			return defaultValue;
 		}
-		return convertQuietly(type, value.getClass(), value, defaultValue);
+		return convert(type, value.getClass(), value, defaultValue);
+	}
+
+	public <T> T convert(Type type, Object value) {
+		if (value == null) {
+			return null;
+		}
+		return convert(type, value, null);
 	}
 
 	public <T> T convertQuietly(Type type, Type valueType, Object value, T defaultValue) {
@@ -282,15 +273,21 @@ public enum ConverterRegistry {
 		}
 	}
 
-	public <T> T convertByPropertyEditor(Class type, Object value, T defaultValue) {
-		PropertyEditor sourceEditor = PropertyEditorManager.findEditor(value.getClass());
-		PropertyEditor targetEditor = PropertyEditorManager.findEditor(type);
-		if (sourceEditor != null && targetEditor != null) {
-			sourceEditor.setValue(value);
-			targetEditor.setAsText(sourceEditor.getAsText());
-			return (T) targetEditor.getValue();
-		}
-		return defaultValue;
+	public <T> T convertQuietly(Type type, Type valueType, Object value) {
+		return convertQuietly(type, valueType, value, null);
 	}
 
+	public <T> T convertQuietly(Type type, Object value, T defaultValue) {
+		if (value == null) {
+			return defaultValue;
+		}
+		return convertQuietly(type, value.getClass(), value, defaultValue);
+	}
+
+	public <T> T convertQuietly(Type type, Object value) {
+		if (value == null) {
+			return null;
+		}
+		return convertQuietly(type, value.getClass(), value, null);
+	}
 }

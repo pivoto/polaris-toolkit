@@ -79,7 +79,8 @@ public class CollectionConverter<T extends Collection<E>, E> extends AbstractCon
 			if (value.getClass().isArray()) {
 				int length = Array.getLength(value);
 				for (int i = 0; i < length; i++) {
-					c.add(ConverterRegistry.INSTANCE.convert(elementType, Array.get(value, i)));
+					Object value1 = Array.get(value, i);
+					c.add(Converters.convert(elementType, value1));
 				}
 			} else if (value instanceof CharSequence) {
 				try {
@@ -97,13 +98,13 @@ public class CollectionConverter<T extends Collection<E>, E> extends AbstractCon
 				}
 				splitCharSequence((CharSequence) value, c);
 			} else {
-				c.add(ConverterRegistry.INSTANCE.convert(elementType, value));
+				c.add(Converters.convert(elementType, value));
 			}
 		}
 		if (iter != null) {
 			while (iter.hasNext()) {
 				Object next = iter.next();
-				c.add(ConverterRegistry.INSTANCE.convert(elementType, next));
+				c.add(Converters.convert(elementType, next));
 			}
 		}
 		return c;
@@ -136,7 +137,7 @@ public class CollectionConverter<T extends Collection<E>, E> extends AbstractCon
 		}
 		if (end > begin) {
 			for (String s : value.subSequence(begin, end).toString().trim().split(SymbolConsts.COMMA)) {
-				c.add(ConverterRegistry.INSTANCE.convert(elementType, s));
+				c.add(Converters.convert(elementType, s));
 			}
 		} else {
 			c.add(null);
