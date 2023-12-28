@@ -1,9 +1,11 @@
 package io.polaris.core.jdbc;
 
+import io.polaris.core.jdbc.impl.DefaultQueryCallback;
+import io.polaris.core.jdbc.impl.UniqueQueryCallback;
+import io.polaris.core.jdbc.impl.UniqueRowQueryCallback;
 import io.polaris.core.jdbc.sql.PreparedSql;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.map.Maps;
 import io.polaris.core.string.Strings;
 
 import javax.naming.Context;
@@ -303,59 +305,4 @@ public class Jdbcs {
 		}
 	}
 
-	/**
-	 * @author Qt
-	 * @since 1.8
-	 */
-	static class DefaultQueryCallback implements QueryCallback<List<Map<String, Object>>> {
-		@Override
-		public List<Map<String, Object>> visit(ResultSet rs) throws SQLException {
-			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-
-			ResultSetMetaData meta = rs.getMetaData();
-			int cnt = meta.getColumnCount();
-			while (rs.next()) {
-				Map<String, Object> map = Maps.newUpperCaseLinkedHashMap();
-				for (int i = 1; i <= cnt; i++) {
-					map.put(meta.getColumnLabel(i).toUpperCase(), rs.getObject(i));
-				}
-				list.add(map);
-			}
-			return list;
-		}
-	}
-
-	/**
-	 * @author Qt
-	 * @since 1.8
-	 */
-	static class UniqueQueryCallback implements QueryCallback<Object> {
-		@Override
-		public Object visit(ResultSet rs) throws SQLException {
-			Object o = null;
-			if (rs.next()) {
-				o = rs.getObject(1);
-			}
-			return o;
-		}
-	}
-
-	/**
-	 * @author Qt
-	 * @since 1.8
-	 */
-	static class UniqueRowQueryCallback implements QueryCallback<Map<String, Object>> {
-		@Override
-		public Map<String, Object> visit(ResultSet rs) throws SQLException {
-			ResultSetMetaData meta = rs.getMetaData();
-			int cnt = meta.getColumnCount();
-			Map<String, Object> map = Maps.newUpperCaseLinkedHashMap();
-			if (rs.next()) {
-				for (int i = 1; i <= cnt; i++) {
-					map.put(meta.getColumnLabel(i).toUpperCase(), rs.getObject(i));
-				}
-			}
-			return map;
-		}
-	}
 }
