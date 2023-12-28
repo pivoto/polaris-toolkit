@@ -40,14 +40,14 @@ public class Types {
 	}
 
 	public static boolean isPrimitive(Class<?> clazz) {
-		if (null == clazz) {
+		if (clazz == null) {
 			return false;
 		}
 		return clazz.isPrimitive();
 	}
 
 	public static boolean isPrimitiveWrapper(Class<?> clazz) {
-		if (null == clazz) {
+		if (clazz == null) {
 			return false;
 		}
 		return wrapperPrimitiveTypes.containsKey(clazz);

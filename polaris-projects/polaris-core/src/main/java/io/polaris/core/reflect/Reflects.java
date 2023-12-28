@@ -579,7 +579,7 @@ public class Reflects {
 	}
 
 	public static <T> T newInstance(String className) throws ReflectiveOperationException {
-		return (T) Class.forName(className).newInstance();
+		return (T) newInstance(Class.forName(className));
 	}
 
 	public static <T> T newInstance(Class<T> clazz, Object... params) throws ReflectiveOperationException {
@@ -605,7 +605,11 @@ public class Reflects {
 		throw new NoSuchMethodException();
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <T> T newInstanceIfPossible(Class<T> type) {
+		if (Types.isPrimitiveWrapper(type)) {
+			type = Types.getPrimitiveClassByWrapper(type);
+		}
 		if (type.isPrimitive()) {
 			return (T) Types.getDefaultValue(type);
 		}
