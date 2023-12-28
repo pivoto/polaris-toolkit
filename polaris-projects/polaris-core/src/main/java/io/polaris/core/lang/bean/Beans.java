@@ -150,11 +150,11 @@ public class Beans {
 
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	static void setPathProperty(Object o, Deque<String> properties, Object val) {
+	static void setPathProperty(Object obj, Deque<String> properties, Object val) {
 		String property = properties.pollLast();
-		Object matrix = o;
+		Object matrix = obj;
 		if (!properties.isEmpty()) {
-			matrix = getPathProperty(o, properties);
+			matrix = getPathProperty(obj, properties);
 		}
 		try {
 			if (matrix != null) {
@@ -178,8 +178,8 @@ public class Beans {
 	}
 
 	@SuppressWarnings({"rawtypes"})
-	static Object getPathProperty(Object o, Deque<String> properties) {
-		Object val = o;
+	static Object getPathProperty(Object obj, Deque<String> properties) {
+		Object val = obj;
 		for (String property : properties) {
 			try {
 				Object matrix = val;

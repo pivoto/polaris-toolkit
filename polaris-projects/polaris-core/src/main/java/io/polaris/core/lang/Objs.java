@@ -539,7 +539,7 @@ public class Objs {
 	 * @param object 被检查对象，{@code null}返回{@code false}
 	 * @return 是否为基本类型
 	 */
-	public static boolean isBasicType(Object object) {
+	public static boolean isPrimitiveOrWrapper(Object object) {
 		if (null == object) {
 			return false;
 		}

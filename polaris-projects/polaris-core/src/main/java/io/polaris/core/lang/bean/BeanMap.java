@@ -2,6 +2,7 @@ package io.polaris.core.lang.bean;
 
 import io.polaris.core.converter.Converters;
 import io.polaris.core.lang.Objs;
+import io.polaris.core.lang.Types;
 import io.polaris.core.log.ILogger;
 
 import java.beans.BeanInfo;
@@ -33,6 +34,7 @@ public class BeanMap<T> extends AbstractMap<String, Object> implements IBeanMap<
 	protected final BiConsumer<String, Object> fallbackSetter;
 	protected final boolean ignoreUnknownKeys;
 	protected final boolean warnUnknownKeys;
+	protected final Map<String, Object> rawMap;
 
 	public BeanMap(T bean) {
 		this(bean, null, null, null, null, true, true, false);
@@ -78,11 +80,26 @@ public class BeanMap<T> extends AbstractMap<String, Object> implements IBeanMap<
 		this.converter = converter;
 		this.fallbackGetter = fallbackGetter;
 		this.fallbackSetter = fallbackSetter;
-		BeanMetadata metadata = this.getBeanMetadata(beanType);
-		this.metadata = metadata;
-		this.types = metadata.types();
-		this.getters = metadata.getters();
-		this.setters = metadata.setters();
+
+		if (bean instanceof Map) {
+			this.rawMap = ((Map<String, Object>) bean);
+		} else {
+			this.rawMap = null;
+		}
+
+		if (this.rawMap != null
+			|| beanType.isArray() || beanType.isPrimitive() || Types.isPrimitiveWrapper(beanType)) {
+			this.metadata = null;
+			this.types = Collections.emptyMap();
+			this.getters = Collections.emptyMap();
+			this.setters = Collections.emptyMap();
+		} else {
+			BeanMetadata metadata = this.getBeanMetadata(beanType);
+			this.metadata = metadata;
+			this.types = metadata.types();
+			this.getters = metadata.getters();
+			this.setters = metadata.setters();
+		}
 	}
 
 
@@ -97,7 +114,7 @@ public class BeanMap<T> extends AbstractMap<String, Object> implements IBeanMap<
 			BeanInfo beanInfo = Introspector.getBeanInfo(clazz);
 			for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
 				String name = pd.getName();
-				if (Objs.equals("class" , name)) {
+				if (Objs.equals("class", name)) {
 					continue;
 				}
 				Method readMethod = pd.getReadMethod();
@@ -169,6 +186,9 @@ public class BeanMap<T> extends AbstractMap<String, Object> implements IBeanMap<
 
 	@Override
 	public Object get(Object key) {
+		if (this.rawMap != null) {
+			return this.rawMap.get(key);
+		}
 		if (key instanceof String) {
 			Function<Object, Object> function = getters.get(key);
 			if (function != null) {
@@ -183,6 +203,9 @@ public class BeanMap<T> extends AbstractMap<String, Object> implements IBeanMap<
 
 	@Override
 	public Object put(String key, Object value) {
+		if (this.rawMap != null) {
+			return this.rawMap.put(key, value);
+		}
 		Object old = get(key);
 		BiConsumer<Object, Object> consumer = setters.get(key);
 		if (consumer != null) {
@@ -200,7 +223,7 @@ public class BeanMap<T> extends AbstractMap<String, Object> implements IBeanMap<
 				if (!ignoreUnknownKeys) {
 					throw new IllegalArgumentException("未知属性：" + key);
 				} else if (warnUnknownKeys) {
-					log.warn("未知属性：{}.{}" , bean.getClass().getCanonicalName(), key);
+					log.warn("未知属性：{}.{}", bean.getClass().getCanonicalName(), key);
 				}
 			}
 		}
@@ -210,32 +233,51 @@ public class BeanMap<T> extends AbstractMap<String, Object> implements IBeanMap<
 
 	@Override
 	public void putAll(Map<? extends String, ?> m) {
+		if (this.rawMap != null) {
+			this.rawMap.putAll(m);
+			return;
+		}
 		m.forEach(this::put);
 	}
 
 
 	@Override
 	public int size() {
+		if (this.rawMap != null) {
+			return this.rawMap.size();
+		}
 		return getters.size();
 	}
 
 	@Override
 	public boolean isEmpty() {
+		if (this.rawMap != null) {
+			return this.rawMap.isEmpty();
+		}
 		return getters.isEmpty();
 	}
 
 	@Override
 	public boolean containsKey(Object key) {
+		if (this.rawMap != null) {
+			return this.rawMap.containsKey(key);
+		}
 		return getters.containsKey(key);
 	}
 
 	@Override
 	public Set<String> keySet() {
+		if (this.rawMap != null) {
+			return this.rawMap.keySet();
+		}
 		return getters.keySet();
 	}
 
 	@Override
 	public Collection<Object> values() {
+		if (this.rawMap != null) {
+			return this.rawMap.values();
+		}
 		List<Object> values = new ArrayList<>(getters.size());
 		for (Entry<String, Function<Object, Object>> e : getters.entrySet()) {
 			values.add(e.getValue().apply(bean));
@@ -245,6 +287,9 @@ public class BeanMap<T> extends AbstractMap<String, Object> implements IBeanMap<
 
 	@Override
 	public Set<Map.Entry<String, Object>> entrySet() {
+		if (this.rawMap != null) {
+			return this.rawMap.entrySet();
+		}
 		Set<Map.Entry<String, Object>> set = new HashSet<>();
 		for (Entry<String, Function<Object, Object>> e : getters.entrySet()) {
 			String key = e.getKey();
@@ -272,6 +317,9 @@ public class BeanMap<T> extends AbstractMap<String, Object> implements IBeanMap<
 
 	@Override
 	public boolean containsValue(Object value) {
+		if (this.rawMap != null) {
+			return this.rawMap.containsValue(value);
+		}
 		for (Entry<String, Function<Object, Object>> entry : getters.entrySet()) {
 			Function<Object, Object> function = entry.getValue();
 			Object obj1 = function.apply(bean);
@@ -284,11 +332,18 @@ public class BeanMap<T> extends AbstractMap<String, Object> implements IBeanMap<
 
 	@Override
 	public Object remove(Object key) {
+		if (this.rawMap != null) {
+			return this.rawMap.remove(key);
+		}
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void clear() {
+		if (this.rawMap != null) {
+			this.rawMap.clear();
+			return;
+		}
 		throw new UnsupportedOperationException();
 	}
 

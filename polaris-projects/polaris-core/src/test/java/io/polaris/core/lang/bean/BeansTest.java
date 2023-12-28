@@ -26,7 +26,7 @@ public class BeansTest {
 	}
 
 	@Test
-	void test02() throws  Exception {
+	void test02() throws Exception {
 		Class<BeanMetadata> metadataClass = BeanMetadatas.getMetadataClass(Bean01.class);
 		BeanMetadata iMetadata = metadataClass.newInstance();
 		System.out.println(iMetadata.types());
@@ -35,11 +35,11 @@ public class BeansTest {
 	}
 
 	@Test
-	void test01() throws  Exception {
+	void test01() throws Exception {
 		Bean01 o = new Bean01();
 		new BeanMap(o);
 		long time = Times.millsTime(1000, () -> {
-		BeanMap beanMap = new BeanMap(o);
+			BeanMap beanMap = new BeanMap(o);
 		});
 		System.out.println("time: " + time);
 	}
