@@ -141,20 +141,20 @@ public class Beans {
 	}
 
 	public static Object getPathProperty(Object o, String property) {
-		return getProperty(o, parseProperty(property));
+		return getPathProperty(o, parseProperty(property));
 	}
 
 	public static void setPathProperty(Object o, String property, Object val) {
-		setProperty(o, parseProperty(property), val);
+		setPathProperty(o, parseProperty(property), val);
 	}
 
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	static void setProperty(Object o, Deque<String> properties, Object val) {
+	static void setPathProperty(Object o, Deque<String> properties, Object val) {
 		String property = properties.pollLast();
 		Object matrix = o;
 		if (!properties.isEmpty()) {
-			matrix = getProperty(o, properties);
+			matrix = getPathProperty(o, properties);
 		}
 		try {
 			if (matrix != null) {
@@ -178,7 +178,7 @@ public class Beans {
 	}
 
 	@SuppressWarnings({"rawtypes"})
-	static Object getProperty(Object o, Deque<String> properties) {
+	static Object getPathProperty(Object o, Deque<String> properties) {
 		Object val = o;
 		for (String property : properties) {
 			try {
@@ -208,7 +208,7 @@ public class Beans {
 		return val;
 	}
 
-	static Deque<String> parseProperty(String property) {
+	public static Deque<String> parseProperty(String property) {
 		char[] charArray = property.toCharArray();
 		StringBuilder sb = new StringBuilder();
 		boolean escape = false;
