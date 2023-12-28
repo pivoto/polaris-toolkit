@@ -5,6 +5,8 @@ import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.TypeRef;
 import io.polaris.core.lang.Types;
 import io.polaris.core.log.ILogger;
+import io.polaris.core.map.CaseCamelMap;
+import io.polaris.core.map.CaseInsensitiveMap;
 import io.polaris.core.map.Maps;
 import io.polaris.core.reflect.Reflects;
 import lombok.AllArgsConstructor;
@@ -23,11 +25,17 @@ import java.util.function.Function;
  * @author Qt
  * @since 1.8,  Dec 28, 2023
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class MetaObject<T> {
+	public static final int INIT = 0;
+	public static final int PARSING = 1;
+	public static final int READY = 2;
+	public static final int CASE_INSENSITIVE = 1;
+	public static final int CASE_CAMEL = 2;
 	private static final ILogger log = ILogger.of(MetaObject.class);
 	private static final Map<JavaType<?>, MetaObject<?>> CACHE = Maps.newWeakKeyMap(new ConcurrentHashMap<>());
 	private final JavaType<T> beanType;
-	private int state = 0;
+	private int state = INIT;
 
 	private boolean isBasic;
 	private boolean isPrimitive;
@@ -41,39 +49,16 @@ public class MetaObject<T> {
 	private MetaObject<?> keyType;
 	private MetaObject<?> elementType;
 	private Map<String, Accessor> properties;
+	private Map<String, Accessor> propertiesCaseInsensitive;
+	private Map<String, Accessor> propertiesCaseCamel;
 
-
-	@SuppressWarnings("unchecked")
-	public static <T> MetaObject<T> of(JavaType<T> beanType) {
-		MetaObject<T> metaObject = (MetaObject<T>) CACHE.computeIfAbsent(beanType, k -> new MetaObject<>(beanType));
-		if (metaObject.state == 0) {
-			synchronized (metaObject) {
-				if (metaObject.state == 0) {
-					metaObject.parse();
-				}
-			}
-		}
-		return metaObject;
-	}
-
-	public static <T> MetaObject<T> of(Class<T> beanType) {
-		return of(JavaType.of(beanType));
-	}
-
-	public static <T> MetaObject<T> of(TypeRef<T> beanType) {
-		return of(JavaType.of(beanType));
-	}
-
-	public static <T> MetaObject<T> of(Type beanType) {
-		return of(JavaType.of(beanType));
-	}
 
 	private MetaObject(JavaType<T> beanType) {
 		this.beanType = beanType;
 	}
 
 	private void parse() {
-		state = 1;
+		state = PARSING;
 		try {
 			Class<T> rawClass = beanType.getRawClass();
 			if (rawClass.isPrimitive()) {
@@ -100,6 +85,9 @@ public class MetaObject<T> {
 				int size = types.size();
 				if (size > 0) {
 					this.properties = new HashMap<>(size * 2);
+					this.propertiesCaseInsensitive = new CaseInsensitiveMap<>(new HashMap<>(size * 2), true);
+					this.propertiesCaseCamel = new CaseCamelMap<>(new HashMap<>(size * 2));
+
 					Map<String, Function<Object, Object>> getterMethods = metadata.getters();
 					Map<String, BiConsumer<Object, Object>> setterMethods = metadata.setters();
 					for (Map.Entry<String, Type> entry : types.entrySet()) {
@@ -107,24 +95,70 @@ public class MetaObject<T> {
 						MetaObject<?> meta = MetaObject.of(JavaType.of(entry.getValue()));
 						Function<Object, Object> getterMethod = getterMethods.get(key);
 						BiConsumer<Object, Object> setterMethod = setterMethods.get(key);
-						properties.put(key, new Accessor(meta, getterMethod, setterMethod));
+						Accessor accessor = new Accessor(meta, getterMethod, setterMethod);
+						properties.put(key, accessor);
+						propertiesCaseInsensitive.put(key, accessor);
+						propertiesCaseCamel.put(key, accessor);
 					}
+					this.properties = Collections.unmodifiableMap(this.properties);
+					this.propertiesCaseInsensitive = Collections.unmodifiableMap(this.propertiesCaseInsensitive);
+					this.propertiesCaseCamel = Collections.unmodifiableMap(this.propertiesCaseCamel);
 					this.isBean = true;
 				} else {
 					this.isBasic = true;
 				}
 			}
 		} finally {
-			state = 2;
+			state = READY;
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> MetaObject<T> of(JavaType<T> beanType) {
+		MetaObject<T> metaObject = (MetaObject<T>) CACHE.computeIfAbsent(beanType, k -> new MetaObject<>(beanType));
+		if (metaObject.state == INIT) {
+			synchronized (metaObject) {
+				if (metaObject.state == INIT) {
+					metaObject.parse();
+				}
+			}
+		}
+		return metaObject;
+	}
+
+	public static <T> MetaObject<T> of(Class<T> beanType) {
+		return of(JavaType.of(beanType));
+	}
+
+	public static <T> MetaObject<T> of(TypeRef<T> beanType) {
+		return of(JavaType.of(beanType));
+	}
+
+	public static <T> MetaObject<T> of(Type beanType) {
+		return of(JavaType.of(beanType));
+	}
+
+	public static int buildPropertyCaseModel(boolean caseInsensitive, boolean caseCamel) {
+		return 0 | (caseInsensitive ? CASE_INSENSITIVE : 0) | (caseCamel ? CASE_CAMEL : 0);
+	}
+
+	public static boolean isCaseInsensitive(int propertyCaseModel) {
+		return (CASE_INSENSITIVE & propertyCaseModel) != 0;
+	}
+
+	public static boolean isCaseCamel(int propertyCaseModel) {
+		return (CASE_CAMEL & propertyCaseModel) != 0;
 	}
 
 	public T newInstance() {
 		return Reflects.newInstanceIfPossible(this.beanType.getRawClass());
 	}
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
 	public Object getPropertyOrSetDefault(@Nonnull T o, @Nonnull String property) {
+		return getPropertyOrSetDefault(o, 0, property);
+	}
+
+	public Object getPropertyOrSetDefault(@Nonnull T o, int propertyCaseModel, @Nonnull String property) {
 		if (isBasic || isEnum) {
 			log.warn("不支持的属性：{}:{}", beanType.getTypeName(), property);
 			return null;
@@ -196,8 +230,18 @@ public class MetaObject<T> {
 		}
 		Accessor accessor = properties.get(property);
 		if (accessor == null || accessor.getter == null || accessor.setter == null) {
-			log.warn("不支持的属性：{}:{}", beanType.getTypeName(), property);
-			return null;
+			if (isCaseInsensitive(propertyCaseModel)) {
+				accessor = propertiesCaseInsensitive.get(property);
+			}
+			if (accessor == null || accessor.getter == null || accessor.setter == null) {
+				if (isCaseCamel(propertyCaseModel)) {
+					accessor = propertiesCaseCamel.get(property);
+				}
+			}
+			if (accessor == null || accessor.getter == null || accessor.setter == null) {
+				log.warn("不支持的属性：{}:{}", beanType.getTypeName(), property);
+				return null;
+			}
 		}
 		Object val = accessor.getter.apply(o);
 		if (val == null) {
@@ -207,8 +251,11 @@ public class MetaObject<T> {
 		return val;
 	}
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
 	public Object setProperty(@Nonnull T o, @Nonnull String property, Object val) {
+		return setProperty(o, 0, property, val);
+	}
+
+	public Object setProperty(@Nonnull T o, int propertyCaseModel, @Nonnull String property, Object val) {
 		if (isBasic || isEnum) {
 			log.warn("不支持的属性：{}:{}", beanType.getTypeName(), property);
 			return null;
@@ -264,14 +311,28 @@ public class MetaObject<T> {
 		}
 		Accessor accessor = properties.get(property);
 		if (accessor == null || accessor.setter == null) {
-			log.warn("不支持的属性：{}:{}", beanType.getTypeName(), property);
-			return null;
+			if (isCaseInsensitive(propertyCaseModel)) {
+				accessor = propertiesCaseInsensitive.get(property);
+			}
+			if (accessor == null || accessor.setter == null) {
+				if (isCaseCamel(propertyCaseModel)) {
+					accessor = propertiesCaseCamel.get(property);
+				}
+			}
+			if (accessor == null || accessor.setter == null) {
+				log.warn("不支持的属性：{}:{}", beanType.getTypeName(), property);
+				return null;
+			}
 		}
 		accessor.setter.accept(o, val = Converters.convertQuietly(accessor.meta.beanType, val));
 		return val;
 	}
 
 	public MetaObject<?> getProperty(@Nonnull String property) {
+		return getProperty(0, property);
+	}
+
+	public MetaObject<?> getProperty(int propertyCaseModel, @Nonnull String property) {
 		if (isBasic || isEnum) {
 			log.warn("不支持的属性：{}:{}", beanType.getTypeName(), property);
 			return null;
@@ -281,14 +342,27 @@ public class MetaObject<T> {
 		}
 		Accessor accessor = properties.get(property);
 		if (accessor == null) {
-			log.warn("不支持的属性：{}:{}", beanType.getTypeName(), property);
-			return null;
+			if (isCaseInsensitive(propertyCaseModel)) {
+				accessor = propertiesCaseInsensitive.get(property);
+			}
+			if (accessor == null) {
+				if (isCaseCamel(propertyCaseModel)) {
+					accessor = propertiesCaseCamel.get(property);
+				}
+			}
+			if (accessor == null) {
+				log.warn("不支持的属性：{}:{}", beanType.getTypeName(), property);
+				return null;
+			}
 		}
 		return accessor.meta;
 	}
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
 	public Object getProperty(@Nonnull T o, @Nonnull String property) {
+		return getProperty(o, 0, property);
+	}
+
+	public Object getProperty(@Nonnull T o, int propertyCaseModel, @Nonnull String property) {
 		if (isBasic || isEnum) {
 			log.warn("不支持的属性：{}:{}", beanType.getTypeName(), property);
 			return null;
@@ -336,15 +410,27 @@ public class MetaObject<T> {
 		}
 		Accessor accessor = properties.get(property);
 		if (accessor == null || accessor.getter == null) {
-			log.warn("不支持的属性：{}:{}", beanType.getTypeName(), property);
-			return null;
+			if (isCaseInsensitive(propertyCaseModel)) {
+				accessor = propertiesCaseInsensitive.get(property);
+			}
+			if (accessor == null || accessor.getter == null) {
+				if (isCaseCamel(propertyCaseModel)) {
+					accessor = propertiesCaseCamel.get(property);
+				}
+			}
+			if (accessor == null || accessor.getter == null) {
+				log.warn("不支持的属性：{}:{}", beanType.getTypeName(), property);
+				return null;
+			}
 		}
 		return accessor.getter.apply(o);
 	}
 
-	/** 是否有属性值 */
-	@SuppressWarnings({"rawtypes", "unchecked"})
 	public boolean hasProperty(@Nonnull T o, @Nonnull String property) {
+		return hasProperty(o, 0, property);
+	}
+
+	public boolean hasProperty(@Nonnull T o, int propertyCaseModel, @Nonnull String property) {
 		if (isBasic || isEnum) {
 			return false;
 		}
@@ -389,46 +475,62 @@ public class MetaObject<T> {
 		}
 		Accessor accessor = properties.get(property);
 		if (accessor == null || accessor.getter == null) {
-			return false;
+			if (isCaseInsensitive(propertyCaseModel)) {
+				accessor = propertiesCaseInsensitive.get(property);
+			}
+			if (accessor == null || accessor.getter == null) {
+				if (isCaseCamel(propertyCaseModel)) {
+					accessor = propertiesCaseCamel.get(property);
+				}
+			}
+			if (accessor == null || accessor.getter == null) {
+				return false;
+			}
 		}
 		return accessor.getter.apply(o) != null;
 	}
 
 
 	public Object getPathProperty(@Nonnull T o, @Nonnull String property) {
-		return getPathProperty(o, Beans.parseProperty(property));
+		return getPathProperty(o, 0, Beans.parseProperty(property));
+	}
+
+	public Object getPathProperty(@Nonnull T o, int propertyCaseModel, @Nonnull String property) {
+		return getPathProperty(o, propertyCaseModel, Beans.parseProperty(property));
 	}
 
 	public Object setPathProperty(@Nonnull T o, @Nonnull String property, Object val) {
-		return setPathProperty(o, Beans.parseProperty(property), val);
+		return setPathProperty(o, 0, Beans.parseProperty(property), val);
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	private Object setPathProperty(@Nonnull T o, Deque<String> properties, Object val) {
+	public Object setPathProperty(@Nonnull T o, int propertyCaseModel, @Nonnull String property, Object val) {
+		return setPathProperty(o, propertyCaseModel, Beans.parseProperty(property), val);
+	}
+
+	private Object setPathProperty(@Nonnull T o, int propertyCaseModel, Deque<String> properties, Object val) {
 		if (val == null) {
 			return null;
 		}
 		String property = properties.pollLast();
 		if (properties.isEmpty()) {
-			return setProperty(o, property, val);
+			return setProperty(o, propertyCaseModel, property, val);
 		}
-		PropertyInfo info = getRequiredPathProperty(o, properties);
+		PropertyInfo info = getRequiredPathProperty(o, propertyCaseModel, properties);
 		if (info == null) {
 			return null;
 		}
 		if (info.propertyMeta.isArray) {
 			return setArrayElement(info, property, info.propertyMeta.elementType, val);
 		} else {
-			return info.propertyMeta.setProperty(info.propertyObj, property, val);
+			return info.propertyMeta.setProperty(info.propertyObj, propertyCaseModel, property, val);
 		}
 	}
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
-	private Object getPathProperty(T obj, Deque<String> properties) {
+	private Object getPathProperty(T obj, int propertyCaseModel, Deque<String> properties) {
 		Object target = obj;
 		MetaObject meta = this;
 		for (String property : properties) {
-			target = meta.getProperty(target, property);
+			target = meta.getProperty(target, propertyCaseModel, property);
 			if (target == null) {
 				break;
 			}
@@ -437,11 +539,10 @@ public class MetaObject<T> {
 		return target;
 	}
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
-	private PropertyInfo getRequiredPathProperty(T obj, Deque<String> properties) {
+	private PropertyInfo getRequiredPathProperty(T obj, int propertyCaseModel, Deque<String> properties) {
 		PropertyInfo info = new PropertyInfo("", obj, this, null, null);
 		for (String property : properties) {
-			Object propVal = info.propertyMeta.getPropertyOrSetDefault(info.propertyObj, property);
+			Object propVal = info.propertyMeta.getPropertyOrSetDefault(info.propertyObj, propertyCaseModel, property);
 			MetaObject propMeta = info.propertyMeta.getProperty(property);
 			if (propVal == null) {
 				propVal = setArrayElement(info, property, propMeta, null);
@@ -459,9 +560,9 @@ public class MetaObject<T> {
 	}
 
 
-	private Object setArrayElement(PropertyInfo info, String property, MetaObject propMeta, Object propVal) {
+	private Object setArrayElement(PropertyInfo info, String indexProperty, MetaObject propMeta, Object propVal) {
 		if (info.parentMeta != null && info.propertyMeta.isArray) {
-			int idx = Integer.parseInt(property);
+			int idx = Integer.parseInt(indexProperty);
 			Object array = extendArrayLength(info, idx + 1);
 			if (propVal == null) {
 				propVal = propMeta.newInstance();
@@ -507,39 +608,4 @@ public class MetaObject<T> {
 		private BiConsumer<Object, Object> setter;
 	}
 
-	public JavaType<T> getBeanType() {
-		return beanType;
-	}
-
-	public boolean isBasic() {
-		return isBasic;
-	}
-
-	public boolean isPrimitive() {
-		return isPrimitive;
-	}
-
-	public boolean isPrimitiveWrapper() {
-		return isPrimitiveWrapper;
-	}
-
-	public boolean isEnum() {
-		return isEnum;
-	}
-
-	public boolean isArray() {
-		return isArray;
-	}
-
-	public boolean isMap() {
-		return isMap;
-	}
-
-	public boolean isCollection() {
-		return isCollection;
-	}
-
-	public boolean isBean() {
-		return isBean;
-	}
 }

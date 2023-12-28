@@ -1,8 +1,8 @@
 package io.polaris.core.jdbc;
 
-import io.polaris.core.jdbc.impl.DefaultQueryCallback;
-import io.polaris.core.jdbc.impl.UniqueQueryCallback;
-import io.polaris.core.jdbc.impl.UniqueRowQueryCallback;
+import io.polaris.core.jdbc.impl.MapListQueryCallback;
+import io.polaris.core.jdbc.impl.UniqueValueQueryCallback;
+import io.polaris.core.jdbc.impl.UniqueMapQueryCallback;
 import io.polaris.core.jdbc.sql.PreparedSql;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.log.ILogger;
@@ -118,29 +118,27 @@ public class Jdbcs {
 	}
 
 
-	public static <T> T query(Connection conn, SqlNode sqlNode,
-							  QueryCallback<T> queryCallback) throws SQLException {
+	public static <T> T query(Connection conn, SqlNode sqlNode
+		, QueryCallback<T> queryCallback) throws SQLException {
 		PreparedSql sql = sqlNode.asPreparedSql();
 		return query(conn, sql.getText(), (Object) sql.getBindings(), queryCallback);
 	}
 
-	public static <T> T query(Connection conn, String sql, Iterable<?> parameters,
-							  QueryCallback<T> queryCallback) throws SQLException {
+	public static <T> T query(Connection conn, String sql, Iterable<?> parameters
+		, QueryCallback<T> queryCallback) throws SQLException {
 		return query(conn, sql, (Object) parameters, queryCallback);
 	}
 
-	public static <T> T query(Connection conn, String sql, Object[] parameters,
-							  QueryCallback<T> queryCallback) throws SQLException {
+	public static <T> T query(Connection conn, String sql, Object[] parameters
+		, QueryCallback<T> queryCallback) throws SQLException {
 		return query(conn, sql, (Object) parameters, queryCallback);
 	}
 
-	public static <T> T query(Connection conn, String sql, QueryCallback<T> queryCallback)
-		throws SQLException {
+	public static <T> T query(Connection conn, String sql, QueryCallback<T> queryCallback) throws SQLException {
 		return query(conn, sql, (Object) null, queryCallback);
 	}
 
-	public static <T> List<T> query(Connection conn, String sql, RowMapper<T> mapper)
-		throws SQLException {
+	public static <T> List<T> query(Connection conn, String sql, RowMapper<T> mapper) throws SQLException {
 		return query(conn, sql, (Object) null, rs -> {
 			List<T> list = new ArrayList<>();
 			while (rs.next()) {
@@ -150,47 +148,40 @@ public class Jdbcs {
 		});
 	}
 
-	public static List<Map<String, Object>> queryForList(Connection conn, String sql)
-		throws SQLException {
-		return query(conn, sql, (Object) null, new DefaultQueryCallback());
+	public static List<Map<String, Object>> queryForList(Connection conn, String sql) throws SQLException {
+		return query(conn, sql, (Object) null, new MapListQueryCallback());
 	}
 
-	public static List<Map<String, Object>> queryForList(Connection conn, String sql,
-														 Iterable<?> parameters) throws SQLException {
-		return query(conn, sql, parameters, new DefaultQueryCallback());
+	public static List<Map<String, Object>> queryForList(Connection conn, String sql, Iterable<?> parameters) throws SQLException {
+		return query(conn, sql, parameters, new MapListQueryCallback());
 	}
 
-	public static List<Map<String, Object>> queryForList(Connection conn, String sql,
-														 Object[] parameters) throws SQLException {
-		return query(conn, sql, parameters, new DefaultQueryCallback());
+	public static List<Map<String, Object>> queryForList(Connection conn, String sql, Object[] parameters) throws SQLException {
+		return query(conn, sql, parameters, new MapListQueryCallback());
 	}
 
 	public static Map<String, Object> queryForMap(Connection conn, String sql) throws SQLException {
-		return query(conn, sql, (Object) null, new UniqueRowQueryCallback());
+		return query(conn, sql, (Object) null, new UniqueMapQueryCallback());
 	}
 
-	public static Map<String, Object> queryForMap(Connection conn, String sql,
-												  Iterable<?> parameters) throws SQLException {
-		return query(conn, sql, parameters, new UniqueRowQueryCallback());
+	public static Map<String, Object> queryForMap(Connection conn, String sql, Iterable<?> parameters) throws SQLException {
+		return query(conn, sql, parameters, new UniqueMapQueryCallback());
 	}
 
-	public static Map<String, Object> queryForMap(Connection conn, String sql, Object[] parameters)
-		throws SQLException {
-		return query(conn, sql, parameters, new UniqueRowQueryCallback());
+	public static Map<String, Object> queryForMap(Connection conn, String sql, Object[] parameters) throws SQLException {
+		return query(conn, sql, parameters, new UniqueMapQueryCallback());
 	}
 
 	public static Object queryForObject(Connection conn, String sql) throws SQLException {
-		return query(conn, sql, (Object) null, new UniqueQueryCallback());
+		return query(conn, sql, (Object) null, new UniqueValueQueryCallback());
 	}
 
-	public static Object queryForObject(Connection conn, String sql, Iterable<?> parameters)
-		throws SQLException {
-		return query(conn, sql, parameters, new UniqueQueryCallback());
+	public static Object queryForObject(Connection conn, String sql, Iterable<?> parameters) throws SQLException {
+		return query(conn, sql, parameters, new UniqueValueQueryCallback());
 	}
 
-	public static Object queryForObject(Connection conn, String sql, Object[] parameters)
-		throws SQLException {
-		return query(conn, sql, parameters, new UniqueQueryCallback());
+	public static Object queryForObject(Connection conn, String sql, Object[] parameters) throws SQLException {
+		return query(conn, sql, parameters, new UniqueValueQueryCallback());
 	}
 
 	public static int update(Connection conn, SqlNode sql) throws SQLException {
@@ -202,8 +193,7 @@ public class Jdbcs {
 		return update(conn, sql, (Object) null);
 	}
 
-	public static int update(Connection conn, String sql, Iterable<?> parameters)
-		throws SQLException {
+	public static int update(Connection conn, String sql, Iterable<?> parameters) throws SQLException {
 		return update(conn, sql, (Object) parameters);
 	}
 
@@ -212,8 +202,7 @@ public class Jdbcs {
 	}
 
 	@SuppressWarnings("unchecked")
-	static <T> T query(Connection conn, String sql, Object parameters, QueryCallback<T> queryCallback)
-		throws SQLException {
+	static <T> T query(Connection conn, String sql, Object parameters, QueryCallback<T> queryCallback) throws SQLException {
 		if (conn == null) {
 			throw new SQLException("没有得到数据库连接！");
 		}
@@ -232,7 +221,7 @@ public class Jdbcs {
 			if (queryCallback != null) {
 				return queryCallback.visit(rs);
 			} else {
-				return (T) new DefaultQueryCallback().visit(rs);
+				return (T) new MapListQueryCallback().visit(rs);
 			}
 		} catch (SQLException e) {
 			log.error("查询方法执行异常，语句：" + sql);

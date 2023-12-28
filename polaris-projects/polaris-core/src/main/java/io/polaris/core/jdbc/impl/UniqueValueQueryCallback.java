@@ -9,7 +9,7 @@ import java.sql.SQLException;
  * @author Qt
  * @since 1.8
  */
-public class UniqueQueryCallback implements QueryCallback<Object> {
+public class UniqueValueQueryCallback implements QueryCallback<Object> {
 	@Override
 	public Object visit(ResultSet rs) throws SQLException {
 		Object o = null;
