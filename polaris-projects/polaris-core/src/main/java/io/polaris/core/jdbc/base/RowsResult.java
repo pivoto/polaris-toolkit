@@ -1,4 +1,4 @@
-package io.polaris.core.jdbc;
+package io.polaris.core.jdbc.base;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

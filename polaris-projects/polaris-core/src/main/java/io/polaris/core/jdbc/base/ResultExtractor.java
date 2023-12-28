@@ -1,4 +1,4 @@
-package io.polaris.core.jdbc;
+package io.polaris.core.jdbc.base;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -7,7 +7,7 @@ import java.sql.SQLException;
  * @author Qt
  * @since 1.8
  */
-public interface QueryCallback<T> {
+public interface ResultExtractor<T> {
 
 	T visit(ResultSet rs) throws SQLException;
 

@@ -1,7 +1,7 @@
 package io.polaris.core.jdbc.dbv;
 
 import io.polaris.core.jdbc.Jdbcs;
-import io.polaris.core.jdbc.RowMapper;
+import io.polaris.core.jdbc.base.RowMapper;
 import io.polaris.core.jdbc.dbv.model.*;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.string.Strings;

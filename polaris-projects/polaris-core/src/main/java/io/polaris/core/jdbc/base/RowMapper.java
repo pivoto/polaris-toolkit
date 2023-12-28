@@ -1,4 +1,4 @@
-package io.polaris.core.jdbc;
+package io.polaris.core.jdbc.base;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

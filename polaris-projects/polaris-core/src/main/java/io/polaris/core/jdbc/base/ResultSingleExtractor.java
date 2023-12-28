@@ -1,6 +1,4 @@
-package io.polaris.core.jdbc.impl;
-
-import io.polaris.core.jdbc.QueryCallback;
+package io.polaris.core.jdbc.base;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,7 +7,7 @@ import java.sql.SQLException;
  * @author Qt
  * @since 1.8
  */
-public class UniqueValueQueryCallback implements QueryCallback<Object> {
+public class ResultSingleExtractor implements ResultExtractor<Object> {
 	@Override
 	public Object visit(ResultSet rs) throws SQLException {
 		Object o = null;

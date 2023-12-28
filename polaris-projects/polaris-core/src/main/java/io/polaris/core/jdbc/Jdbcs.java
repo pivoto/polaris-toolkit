@@ -1,8 +1,6 @@
 package io.polaris.core.jdbc;
 
-import io.polaris.core.jdbc.impl.MapListQueryCallback;
-import io.polaris.core.jdbc.impl.UniqueValueQueryCallback;
-import io.polaris.core.jdbc.impl.UniqueMapQueryCallback;
+import io.polaris.core.jdbc.base.*;
 import io.polaris.core.jdbc.sql.PreparedSql;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.log.ILogger;
@@ -12,7 +10,6 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
-import java.lang.reflect.Array;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,19 +20,27 @@ import java.util.Properties;
  * @author Qt
  * @since 1.8
  */
+@SuppressWarnings({"unused"})
 public class Jdbcs {
 	private static final ILogger log = ILogger.of(Jdbcs.class);
+	private static int defaultFetchSize = 100;
+
+	public static void setDefaultFetchSize(int fetchSize) {
+		Jdbcs.defaultFetchSize = fetchSize;
+	}
+
+	public static int getDefaultFetchSize() {
+		return Jdbcs.defaultFetchSize;
+	}
 
 	public static DataSource getDataSource(String jndiName) throws SQLException {
 		try {
 			Context ctx = new InitialContext();
-			DataSource ds = (DataSource) ctx.lookup(jndiName);
-			return ds;
+			return (DataSource) ctx.lookup(jndiName);
 		} catch (NamingException e) {
 			try {
-				DataSource ds = (DataSource) ((Context) new InitialContext().lookup("java:comp/env"))
+				return (DataSource) ((Context) new InitialContext().lookup("java:comp/env"))
 					.lookup(jndiName);
-				return ds;
 			} catch (Exception e1) {
 				throw new SQLException("Can't lookup " + jndiName);
 			}
@@ -58,8 +63,7 @@ public class Jdbcs {
 		} catch (ClassNotFoundException e) {
 			throw new IllegalArgumentException("找不到驱动：" + driver);
 		}
-		Connection conn = DriverManager.getConnection(url, info);
-		return conn;
+		return DriverManager.getConnection(url, info);
 	}
 
 	public static Connection getConnection(String url, Properties info) throws SQLException {
@@ -105,41 +109,45 @@ public class Jdbcs {
 
 	public static <R extends AutoCloseable> void close(R r) {
 		try {
-			r.close();
+			if (r != null) {
+				r.close();
+			}
 		} catch (Exception ignored) {
 		}
 	}
 
 	public static void close(Connection connection) {
 		try {
-			connection.close();
+			if (connection != null) {
+				connection.close();
+			}
 		} catch (Exception ignored) {
 		}
 	}
 
 
 	public static <T> T query(Connection conn, SqlNode sqlNode
-		, QueryCallback<T> queryCallback) throws SQLException {
+		, ResultExtractor<T> resultExtractor) throws SQLException {
 		PreparedSql sql = sqlNode.asPreparedSql();
-		return query(conn, sql.getText(), (Object) sql.getBindings(), queryCallback);
+		return query(conn, sql.getText(), buildStatementSetting(sql.getBindings()), resultExtractor);
 	}
 
 	public static <T> T query(Connection conn, String sql, Iterable<?> parameters
-		, QueryCallback<T> queryCallback) throws SQLException {
-		return query(conn, sql, (Object) parameters, queryCallback);
+		, ResultExtractor<T> resultExtractor) throws SQLException {
+		return query(conn, sql, buildStatementSetting(parameters), resultExtractor);
 	}
 
 	public static <T> T query(Connection conn, String sql, Object[] parameters
-		, QueryCallback<T> queryCallback) throws SQLException {
-		return query(conn, sql, (Object) parameters, queryCallback);
+		, ResultExtractor<T> resultExtractor) throws SQLException {
+		return query(conn, sql, buildStatementSetting(parameters), resultExtractor);
 	}
 
-	public static <T> T query(Connection conn, String sql, QueryCallback<T> queryCallback) throws SQLException {
-		return query(conn, sql, (Object) null, queryCallback);
+	public static <T> T query(Connection conn, String sql, ResultExtractor<T> resultExtractor) throws SQLException {
+		return query(conn, sql, (PreparedStatementSetting) null, resultExtractor);
 	}
 
 	public static <T> List<T> query(Connection conn, String sql, RowMapper<T> mapper) throws SQLException {
-		return query(conn, sql, (Object) null, rs -> {
+		return query(conn, sql, (PreparedStatementSetting) null, rs -> {
 			List<T> list = new ArrayList<>();
 			while (rs.next()) {
 				list.add(mapper.map(rs));
@@ -148,134 +156,153 @@ public class Jdbcs {
 		});
 	}
 
+
 	public static List<Map<String, Object>> queryForList(Connection conn, String sql) throws SQLException {
-		return query(conn, sql, (Object) null, new MapListQueryCallback());
+		return query(conn, sql, (PreparedStatementSetting) null, new ResultMapListExtractor());
 	}
 
 	public static List<Map<String, Object>> queryForList(Connection conn, String sql, Iterable<?> parameters) throws SQLException {
-		return query(conn, sql, parameters, new MapListQueryCallback());
+		return query(conn, sql, buildStatementSetting(parameters), new ResultMapListExtractor());
 	}
 
 	public static List<Map<String, Object>> queryForList(Connection conn, String sql, Object[] parameters) throws SQLException {
-		return query(conn, sql, parameters, new MapListQueryCallback());
+		return query(conn, sql, buildStatementSetting(parameters), new ResultMapListExtractor());
+	}
+
+	public static <T> List<T> queryForList(Connection conn, String sql, Class<T> beanType) throws SQLException {
+		return query(conn, sql, (PreparedStatementSetting) null, new ResultBeanListExtractor<>(beanType));
+	}
+
+	public static <T> List<T> queryForList(Connection conn, String sql, Iterable<?> parameters, Class<T> beanType) throws SQLException {
+		return query(conn, sql, buildStatementSetting(parameters), new ResultBeanListExtractor<>(beanType));
+	}
+
+	public static <T> List<T> queryForList(Connection conn, String sql, Object[] parameters, Class<T> beanType) throws SQLException {
+		return query(conn, sql, buildStatementSetting(parameters), new ResultBeanListExtractor<>(beanType));
+	}
+
+	public static <T> List<T> queryForList(Connection conn, String sql, BeanMapping<T> mapping) throws SQLException {
+		return query(conn, sql, (PreparedStatementSetting) null, new ResultBeanMappingListExtractor<>(mapping));
+	}
+
+	public static <T> List<T> queryForList(Connection conn, String sql, Iterable<?> parameters, BeanMapping<T> mapping) throws SQLException {
+		return query(conn, sql, buildStatementSetting(parameters), new ResultBeanMappingListExtractor<>(mapping));
+	}
+
+	public static <T> List<T> queryForList(Connection conn, String sql, Object[] parameters, BeanMapping<T> mapping) throws SQLException {
+		return query(conn, sql, buildStatementSetting(parameters), new ResultBeanMappingListExtractor<>(mapping));
 	}
 
 	public static Map<String, Object> queryForMap(Connection conn, String sql) throws SQLException {
-		return query(conn, sql, (Object) null, new UniqueMapQueryCallback());
+		return query(conn, sql, (PreparedStatementSetting) null, new ResultMapExtractor());
 	}
 
 	public static Map<String, Object> queryForMap(Connection conn, String sql, Iterable<?> parameters) throws SQLException {
-		return query(conn, sql, parameters, new UniqueMapQueryCallback());
+		return query(conn, sql, buildStatementSetting(parameters), new ResultMapExtractor());
 	}
 
 	public static Map<String, Object> queryForMap(Connection conn, String sql, Object[] parameters) throws SQLException {
-		return query(conn, sql, parameters, new UniqueMapQueryCallback());
+		return query(conn, sql, buildStatementSetting(parameters), new ResultMapExtractor());
+	}
+
+	public static <T> T queryForObject(Connection conn, String sql, Class<T> beanType) throws SQLException {
+		return query(conn, sql, (PreparedStatementSetting) null, new ResultBeanExtractor<>(beanType));
+	}
+
+	public static <T> T queryForObject(Connection conn, String sql, Iterable<?> parameters, Class<T> beanType) throws SQLException {
+		return query(conn, sql, parameters, new ResultBeanExtractor<>(beanType));
+	}
+
+	public static <T> T queryForObject(Connection conn, String sql, Object[] parameters, Class<T> beanType) throws SQLException {
+		return query(conn, sql, parameters, new ResultBeanExtractor<>(beanType));
+	}
+
+	public static <T> T queryForObject(Connection conn, String sql, BeanMapping<T> mapping) throws SQLException {
+		return query(conn, sql, (PreparedStatementSetting) null, new ResultBeanMappingExtractor<>(mapping));
+	}
+
+	public static <T> T queryForObject(Connection conn, String sql, Iterable<?> parameters, BeanMapping<T> mapping) throws SQLException {
+		return query(conn, sql, parameters, new ResultBeanMappingExtractor<>(mapping));
+	}
+
+	public static <T> T queryForObject(Connection conn, String sql, Object[] parameters, BeanMapping<T> mapping) throws SQLException {
+		return query(conn, sql, parameters, new ResultBeanMappingExtractor<>(mapping));
 	}
 
 	public static Object queryForObject(Connection conn, String sql) throws SQLException {
-		return query(conn, sql, (Object) null, new UniqueValueQueryCallback());
+		return query(conn, sql, (PreparedStatementSetting) null, new ResultSingleExtractor());
 	}
 
 	public static Object queryForObject(Connection conn, String sql, Iterable<?> parameters) throws SQLException {
-		return query(conn, sql, parameters, new UniqueValueQueryCallback());
+		return query(conn, sql, buildStatementSetting(parameters), new ResultSingleExtractor());
 	}
 
 	public static Object queryForObject(Connection conn, String sql, Object[] parameters) throws SQLException {
-		return query(conn, sql, parameters, new UniqueValueQueryCallback());
+		return query(conn, sql, buildStatementSetting(parameters), new ResultSingleExtractor());
 	}
 
 	public static int update(Connection conn, SqlNode sql) throws SQLException {
 		PreparedSql preparedSql = sql.asPreparedSql();
-		return update(conn, preparedSql.getText(), (Object) preparedSql.getBindings());
+		return update(conn, preparedSql.getText(), buildStatementSetting(preparedSql.getBindings()));
 	}
 
 	public static int update(Connection conn, String sql) throws SQLException {
-		return update(conn, sql, (Object) null);
+		return update(conn, sql, (PreparedStatementSetting) null);
 	}
 
 	public static int update(Connection conn, String sql, Iterable<?> parameters) throws SQLException {
-		return update(conn, sql, (Object) parameters);
+		return update(conn, sql, buildStatementSetting(parameters));
 	}
 
 	public static int update(Connection conn, String sql, Object[] parameters) throws SQLException {
-		return update(conn, sql, (Object) parameters);
+		return update(conn, sql, buildStatementSetting(parameters));
 	}
 
-	@SuppressWarnings("unchecked")
-	static <T> T query(Connection conn, String sql, Object parameters, QueryCallback<T> queryCallback) throws SQLException {
+	@SuppressWarnings({"unchecked", "SqlSourceToSinkFlow"})
+	public static <T> T query(Connection conn, String sql, PreparedStatementSetting statementSetting, ResultExtractor<T> resultExtractor) throws SQLException {
 		if (conn == null) {
 			throw new SQLException("没有得到数据库连接！");
 		}
 		Statement stmt = null;
 		ResultSet rs = null;
 		try {
-			if (parameters != null) {
+			if (statementSetting != null) {
 				PreparedStatement pstmt = conn.prepareStatement(sql);
 				stmt = pstmt;
-				setParameter(pstmt, parameters);
+				stmt.setFetchSize(defaultFetchSize);
+				statementSetting.set(pstmt);
 				rs = pstmt.executeQuery();
 			} else {
 				stmt = conn.createStatement();
+				stmt.setFetchSize(defaultFetchSize);
 				rs = stmt.executeQuery(sql);
 			}
-			if (queryCallback != null) {
-				return queryCallback.visit(rs);
+			if (resultExtractor != null) {
+				return resultExtractor.visit(rs);
 			} else {
-				return (T) new MapListQueryCallback().visit(rs);
+				return (T) new ResultMapListExtractor().visit(rs);
 			}
 		} catch (SQLException e) {
 			log.error("查询方法执行异常，语句：" + sql);
 			throw e;
 		} finally {
-			if (rs != null) {
-				try {
-					rs.close();
-				} catch (SQLException se) {
-				}
-			}
-			if (stmt != null) {
-				try {
-					stmt.close();
-				} catch (SQLException se) {
-				}
-			}
+			close(rs);
+			close(stmt);
 		}
 	}
 
-	static void setParameter(PreparedStatement pstmt, Object parameters)
-		throws ArrayIndexOutOfBoundsException, IllegalArgumentException, SQLException {
-		if (parameters.getClass().isArray()) {
-			for (int i = 0; i < java.lang.reflect.Array.getLength(parameters); i++) {
-				Object o = Array.get(parameters, i);
-				if (o == null) {
-					pstmt.setNull(i + 1, Types.VARCHAR);
-				} else {
-					pstmt.setObject(i + 1, o);
-				}
-			}
-		} else if (parameters instanceof Iterable<?>) {
-			int i = 1;
-			for (Object o : (Iterable<?>) parameters) {
-				if (o == null) {
-					pstmt.setNull(i, Types.VARCHAR);
-				} else {
-					pstmt.setObject(i, o);
-				}
-				i++;
-			}
-		}
-	}
 
-	static int update(Connection conn, String sql, Object parameters) throws SQLException {
+	@SuppressWarnings("SqlSourceToSinkFlow")
+	public static int update(Connection conn, String sql, PreparedStatementSetting setting) throws SQLException {
 		if (conn == null) {
 			throw new SQLException("没有得到数据库连接！");
 		}
 		Statement stmt = null;
 		try {
-			if (parameters != null) {
+			if (setting != null) {
 				PreparedStatement pstmt = conn.prepareStatement(sql);
 				stmt = pstmt;
-				setParameter(pstmt, parameters);
+				setting.set(pstmt);
 				return pstmt.executeUpdate();
 			} else {
 				stmt = conn.createStatement();
@@ -285,13 +312,35 @@ public class Jdbcs {
 			log.error("更新方法执行异常，语句：" + sql);
 			throw e;
 		} finally {
-			if (stmt != null) {
-				try {
-					stmt.close();
-				} catch (SQLException se) {
+			close(stmt);
+		}
+	}
+
+	public static PreparedStatementSetting buildStatementSetting(Iterable<?> parameters) {
+		return st -> {
+			int i = 1;
+			for (Object o : parameters) {
+				if (o == null) {
+					st.setNull(i, Types.VARCHAR);
+				} else {
+					st.setObject(i, o);
+				}
+				i++;
+			}
+		};
+	}
+
+	public static PreparedStatementSetting buildStatementSetting(Object[] parameters) {
+		return st -> {
+			for (int i = 0; i < parameters.length; i++) {
+				Object o = parameters[i];
+				if (o == null) {
+					st.setNull(i + 1, Types.VARCHAR);
+				} else {
+					st.setObject(i + 1, o);
 				}
 			}
-		}
+		};
 	}
 
 }

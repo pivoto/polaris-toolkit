@@ -5,10 +5,10 @@ import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.TypeRef;
 import io.polaris.core.lang.Types;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.map.CaseCamelMap;
 import io.polaris.core.map.CaseInsensitiveMap;
 import io.polaris.core.map.Maps;
 import io.polaris.core.reflect.Reflects;
+import io.polaris.core.string.StringCases;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -50,7 +50,6 @@ public class MetaObject<T> {
 	private MetaObject<?> elementType;
 	private Map<String, Accessor> properties;
 	private Map<String, Accessor> propertiesCaseInsensitive;
-	private Map<String, Accessor> propertiesCaseCamel;
 
 
 	private MetaObject(JavaType<T> beanType) {
@@ -86,7 +85,6 @@ public class MetaObject<T> {
 				if (size > 0) {
 					this.properties = new HashMap<>(size * 2);
 					this.propertiesCaseInsensitive = new CaseInsensitiveMap<>(new HashMap<>(size * 2), true);
-					this.propertiesCaseCamel = new CaseCamelMap<>(new HashMap<>(size * 2));
 
 					Map<String, Function<Object, Object>> getterMethods = metadata.getters();
 					Map<String, BiConsumer<Object, Object>> setterMethods = metadata.setters();
@@ -98,11 +96,9 @@ public class MetaObject<T> {
 						Accessor accessor = new Accessor(meta, getterMethod, setterMethod);
 						properties.put(key, accessor);
 						propertiesCaseInsensitive.put(key, accessor);
-						propertiesCaseCamel.put(key, accessor);
 					}
 					this.properties = Collections.unmodifiableMap(this.properties);
 					this.propertiesCaseInsensitive = Collections.unmodifiableMap(this.propertiesCaseInsensitive);
-					this.propertiesCaseCamel = Collections.unmodifiableMap(this.propertiesCaseCamel);
 					this.isBean = true;
 				} else {
 					this.isBasic = true;
@@ -139,7 +135,7 @@ public class MetaObject<T> {
 	}
 
 	public static int buildPropertyCaseModel(boolean caseInsensitive, boolean caseCamel) {
-		return 0 | (caseInsensitive ? CASE_INSENSITIVE : 0) | (caseCamel ? CASE_CAMEL : 0);
+		return (caseInsensitive ? CASE_INSENSITIVE : 0) | (caseCamel ? CASE_CAMEL : 0);
 	}
 
 	public static boolean isCaseInsensitive(int propertyCaseModel) {
@@ -235,7 +231,13 @@ public class MetaObject<T> {
 			}
 			if (accessor == null || accessor.getter == null || accessor.setter == null) {
 				if (isCaseCamel(propertyCaseModel)) {
-					accessor = propertiesCaseCamel.get(property);
+					String propertyCamelCase = StringCases.underlineToCamelCase(property);
+					accessor = properties.get(propertyCamelCase);
+					if (accessor == null || accessor.getter == null || accessor.setter == null) {
+						if (isCaseInsensitive(propertyCaseModel)) {
+							accessor = propertiesCaseInsensitive.get(propertyCamelCase);
+						}
+					}
 				}
 			}
 			if (accessor == null || accessor.getter == null || accessor.setter == null) {
@@ -316,7 +318,13 @@ public class MetaObject<T> {
 			}
 			if (accessor == null || accessor.setter == null) {
 				if (isCaseCamel(propertyCaseModel)) {
-					accessor = propertiesCaseCamel.get(property);
+					String propertyCamelCase = StringCases.underlineToCamelCase(property);
+					accessor = properties.get(propertyCamelCase);
+					if (accessor == null || accessor.setter == null) {
+						if (isCaseInsensitive(propertyCaseModel)) {
+							accessor = propertiesCaseInsensitive.get(propertyCamelCase);
+						}
+					}
 				}
 			}
 			if (accessor == null || accessor.setter == null) {
@@ -347,7 +355,13 @@ public class MetaObject<T> {
 			}
 			if (accessor == null) {
 				if (isCaseCamel(propertyCaseModel)) {
-					accessor = propertiesCaseCamel.get(property);
+					String propertyCamelCase = StringCases.underlineToCamelCase(property);
+					accessor = properties.get(propertyCamelCase);
+					if (accessor == null) {
+						if (isCaseInsensitive(propertyCaseModel)) {
+							accessor = propertiesCaseInsensitive.get(propertyCamelCase);
+						}
+					}
 				}
 			}
 			if (accessor == null) {
@@ -356,6 +370,18 @@ public class MetaObject<T> {
 			}
 		}
 		return accessor.meta;
+	}
+
+	public MetaObject<?> getPathProperty(int propertyCaseModel, @Nonnull String property) {
+		Deque<String> properties = Beans.parseProperty(property);
+		MetaObject meta = this;
+		for (String key : properties) {
+			meta = meta.getProperty(propertyCaseModel, key);
+			if (meta == null) {
+				break;
+			}
+		}
+		return meta;
 	}
 
 	public Object getProperty(@Nonnull T o, @Nonnull String property) {
@@ -415,7 +441,13 @@ public class MetaObject<T> {
 			}
 			if (accessor == null || accessor.getter == null) {
 				if (isCaseCamel(propertyCaseModel)) {
-					accessor = propertiesCaseCamel.get(property);
+					String propertyCamelCase = StringCases.underlineToCamelCase(property);
+					accessor = properties.get(propertyCamelCase);
+					if (accessor == null || accessor.getter == null) {
+						if (isCaseInsensitive(propertyCaseModel)) {
+							accessor = propertiesCaseInsensitive.get(propertyCamelCase);
+						}
+					}
 				}
 			}
 			if (accessor == null || accessor.getter == null) {
@@ -480,7 +512,13 @@ public class MetaObject<T> {
 			}
 			if (accessor == null || accessor.getter == null) {
 				if (isCaseCamel(propertyCaseModel)) {
-					accessor = propertiesCaseCamel.get(property);
+					String propertyCamelCase = StringCases.underlineToCamelCase(property);
+					accessor = properties.get(propertyCamelCase);
+					if (accessor == null || accessor.getter == null) {
+						if (isCaseInsensitive(propertyCaseModel)) {
+							accessor = propertiesCaseInsensitive.get(propertyCamelCase);
+						}
+					}
 				}
 			}
 			if (accessor == null || accessor.getter == null) {
@@ -534,7 +572,7 @@ public class MetaObject<T> {
 			if (target == null) {
 				break;
 			}
-			meta = meta.getProperty(property);
+			meta = meta.getProperty(propertyCaseModel,property);
 		}
 		return target;
 	}
@@ -543,7 +581,7 @@ public class MetaObject<T> {
 		PropertyInfo info = new PropertyInfo("", obj, this, null, null);
 		for (String property : properties) {
 			Object propVal = info.propertyMeta.getPropertyOrSetDefault(info.propertyObj, propertyCaseModel, property);
-			MetaObject propMeta = info.propertyMeta.getProperty(property);
+			MetaObject propMeta = info.propertyMeta.getProperty(propertyCaseModel,property);
 			if (propVal == null) {
 				propVal = setArrayElement(info, property, propMeta, null);
 				if (propVal == null) {
@@ -586,6 +624,50 @@ public class MetaObject<T> {
 			}
 		}
 		return info.propertyObj;
+	}
+
+	public JavaType<T> getBeanType() {
+		return beanType;
+	}
+
+	public boolean isBasic() {
+		return isBasic;
+	}
+
+	public boolean isPrimitive() {
+		return isPrimitive;
+	}
+
+	public boolean isPrimitiveWrapper() {
+		return isPrimitiveWrapper;
+	}
+
+	public boolean isEnum() {
+		return isEnum;
+	}
+
+	public boolean isArray() {
+		return isArray;
+	}
+
+	public boolean isMap() {
+		return isMap;
+	}
+
+	public boolean isCollection() {
+		return isCollection;
+	}
+
+	public boolean isBean() {
+		return isBean;
+	}
+
+	public MetaObject<?> getKeyType() {
+		return keyType;
+	}
+
+	public MetaObject<?> getElementType() {
+		return elementType;
 	}
 
 	@AllArgsConstructor

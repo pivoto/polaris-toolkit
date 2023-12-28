@@ -1,6 +1,5 @@
-package io.polaris.core.jdbc.impl;
+package io.polaris.core.jdbc.base;
 
-import io.polaris.core.jdbc.QueryCallback;
 import io.polaris.core.lang.bean.MetaObject;
 
 import java.sql.ResultSet;
@@ -13,15 +12,15 @@ import java.util.List;
  * @author Qt
  * @since 1.8
  */
-public class BeanQueryCallback<T> implements QueryCallback<List<T>> {
+public class ResultBeanListExtractor<T> implements ResultExtractor<List<T>> {
 	private final MetaObject<T> metaObject;
 	private final int propertyCaseModel;
 
-	public BeanQueryCallback(Class<T> beanType) {
+	public ResultBeanListExtractor(Class<T> beanType) {
 		this(beanType, true, true);
 	}
 
-	public BeanQueryCallback(Class<T> beanType, boolean caseInsensitive, boolean caseCamel) {
+	public ResultBeanListExtractor(Class<T> beanType, boolean caseInsensitive, boolean caseCamel) {
 		this.metaObject = MetaObject.of(beanType);
 		this.propertyCaseModel = MetaObject.buildPropertyCaseModel(caseInsensitive, caseCamel);
 	}
