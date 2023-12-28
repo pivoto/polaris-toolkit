@@ -1,5 +1,7 @@
 package io.polaris.core.converter;
 
+import io.polaris.core.annotation.AnnotationProcessing;
+
 import javax.annotation.Nullable;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
@@ -46,6 +48,7 @@ public class Converters {
 		return getDefaultRegistry().convert(type, value, defaultValue);
 	}
 
+	@AnnotationProcessing
 	public static <T> T convert(Type type, Object value) {
 		return getDefaultRegistry().convert(type, value);
 	}

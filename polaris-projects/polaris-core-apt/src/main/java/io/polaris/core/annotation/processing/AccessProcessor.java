@@ -164,7 +164,7 @@ public class AccessProcessor extends BaseProcessor {
 			.addMethod(
 				MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC)
 					.addParameter(ParameterSpec.builder(beanInfo.getBeanTypeName(), "bean", Modifier.FINAL).build())
-					.addStatement("this(bean, (o,t)->$T.INSTANCE.convert(t,o))", ClassName.get("io.polaris.core.converter", "ConverterRegistry"))
+					.addStatement("this(bean, (o,t)->$T.convert(t,o))", ClassName.get("io.polaris.core.converter", "Converters"))
 					.build()
 			)
 			.addMethod(
