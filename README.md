@@ -14,8 +14,9 @@
 
 ## 计划
 
-- [ ] jdbc工具库开发，优化Jdbc执行类设计，增加SelectStatement对SQL查询的集合操作支持
+- [x] jdbc工具库开发，优化Jdbc执行类设计，增加SelectStatement对SQL查询的集合操作支持
 - [ ] 优化代码生成器设计，提供更通用的配置方法，提升性能
+- [ ] 工具类扩展：spring-boot-starter
 
 
 ## 变更
