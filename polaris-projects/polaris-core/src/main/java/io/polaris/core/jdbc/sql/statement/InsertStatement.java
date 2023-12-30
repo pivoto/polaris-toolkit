@@ -8,7 +8,6 @@ import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
 import io.polaris.core.jdbc.sql.node.TextNode;
 import io.polaris.core.jdbc.sql.statement.segment.ColumnSegment;
-import io.polaris.core.jdbc.sql.statement.segment.TableEntitySegment;
 import io.polaris.core.jdbc.sql.statement.segment.TableSegment;
 import io.polaris.core.lang.bean.Beans;
 
@@ -35,14 +34,12 @@ public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement
 
 	@AnnotationProcessing
 	public InsertStatement(Class<?> entityClass) {
-		this.table = buildTable(entityClass, null);
+		this.table = TableSegment.fromEntity(entityClass, null);
 	}
 
-	@AnnotationProcessing
-	protected TableSegment<?> buildTable(Class<?> entityClass, String alias) {
-		return new TableEntitySegment<>(entityClass, alias);
+	public static InsertStatement<?> of(Class<?> entityClass){
+		return new InsertStatement<>(entityClass);
 	}
-
 
 	@Override
 	public SqlNode toSqlNode() {

@@ -17,4 +17,7 @@ public class LargeInExpression extends LargeInOrNotExpression {
 		super(limit, SqlNodes.IN, SqlNodes.OR);
 	}
 
+	public static LargeInExpression of(int limit) {
+		return new LargeInExpression(limit);
+	}
 }

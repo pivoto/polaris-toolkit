@@ -568,6 +568,44 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		return end();
 	}
 
+	public <E> O inLarge(Collection<E> value) {
+		this.expression = new ExpressionSegment<>(this.expression, LargeInExpression.DEFAULT, value);
+		return end();
+	}
+
+	public <E> O inLarge(Collection<E> value, Predicate<Collection<E>> predicate) {
+		if (predicate.test(value)) {
+			inLarge(value);
+		}
+		return end();
+	}
+
+	public <E> O inLarge(Collection<E> value, boolean predicate) {
+		if (predicate) {
+			inLarge(value);
+		}
+		return end();
+	}
+
+	public <E> O inLarge(Collection<E> value, int limit) {
+		this.expression = new ExpressionSegment<>(this.expression, LargeInExpression.of(limit), value);
+		return end();
+	}
+
+	public <E> O inLarge(Collection<E> value, int limit, Predicate<Collection<E>> predicate) {
+		if (predicate.test(value)) {
+			inLarge(value, limit);
+		}
+		return end();
+	}
+
+	public <E> O inLarge(Collection<E> value, int limit, boolean predicate) {
+		if (predicate) {
+			inLarge(value, limit);
+		}
+		return end();
+	}
+
 	public <E> O notIn(Collection<E> value) {
 		if (value.size() < 1000) {
 			this.expression = new ExpressionSegment<>(this.expression, LogicalExpression.NOT_IN.getExpression(), value);
@@ -587,6 +625,45 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 	public <E> O notIn(Collection<E> value, boolean predicate) {
 		if (predicate) {
 			notIn(value);
+		}
+		return end();
+	}
+
+
+	public <E> O notInLarge(Collection<E> value) {
+		this.expression = new ExpressionSegment<>(this.expression, LargeNotInExpression.DEFAULT, value);
+		return end();
+	}
+
+	public <E> O notInLarge(Collection<E> value, Predicate<Collection<E>> predicate) {
+		if (predicate.test(value)) {
+			notInLarge(value);
+		}
+		return end();
+	}
+
+	public <E> O notInLarge(Collection<E> value, boolean predicate) {
+		if (predicate) {
+			notInLarge(value);
+		}
+		return end();
+	}
+
+	public <E> O notInLarge(Collection<E> value, int limit) {
+		this.expression = new ExpressionSegment<>(this.expression, LargeNotInExpression.of(limit), value);
+		return end();
+	}
+
+	public <E> O notInLarge(Collection<E> value, int limit, Predicate<Collection<E>> predicate) {
+		if (predicate.test(value)) {
+			notInLarge(value, limit);
+		}
+		return end();
+	}
+
+	public <E> O notInLarge(Collection<E> value, int limit, boolean predicate) {
+		if (predicate) {
+			notInLarge(value, limit);
 		}
 		return end();
 	}

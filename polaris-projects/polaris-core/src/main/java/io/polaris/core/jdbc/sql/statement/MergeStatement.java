@@ -38,15 +38,11 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 		if (Strings.isBlank(alias)) {
 			throw new IllegalArgumentException("未指定别名");
 		}
-		this.table = buildTable(entityClass, alias);
+		this.table = TableSegment.fromEntity(entityClass, alias);
 	}
 
-	protected TableSegment<?> buildTable(Class<?> entityClass, String alias) {
-		return new TableEntitySegment<>(entityClass, alias);
-	}
-
-	protected TableSegment<?> buildView(SelectStatement<?> select, String alias) {
-		return new TableViewSegment<>(select, alias);
+	public static MergeStatement<?> of(Class<?> entityClass, String alias) {
+		return new MergeStatement<>(entityClass, alias);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -177,7 +173,15 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 		return withEntity(entity, Statements.DEFAULT_PREDICATE_EXCLUDE_NULLS);
 	}
 
+	public S withEntity(Object entity, boolean updateWhenMatched, boolean insertWhenNotMatched) {
+		return withEntity(entity, Statements.DEFAULT_PREDICATE_EXCLUDE_NULLS, updateWhenMatched, insertWhenNotMatched);
+	}
+
 	public S withEntity(Object entity, Predicate<String> includeEntityNulls) {
+		return withEntity(entity, includeEntityNulls, true, true);
+	}
+
+	public S withEntity(Object entity, Predicate<String> includeEntityNulls, boolean updateWhenMatched, boolean insertWhenNotMatched) {
 		TableMeta tableMeta = table.getTableMeta();
 		if (tableMeta != null) {
 			if (tableMeta.getColumns().values().stream().noneMatch(ColumnMeta::isPrimaryKey)) {
@@ -206,36 +210,40 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 					this.on().column(name).eq(TableField.of(usingAlias, name));
 				}
 			}
-			this.updateWhenMatched();
-			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
-				String name = entry.getKey();
-				ColumnMeta meta = entry.getValue();
-				boolean updatable = meta.isUpdatable() || meta.isVersion() || meta.isUpdateTime();
-				if (!updatable || meta.isPrimaryKey()) {
-					continue;
-				}
-				Object val = Statements.getValForUpdate(entityMap, meta);
-				if (meta.isVersion()) {
-					val = val == null ? 1L : ((Number) val).longValue() + 1;
-				}
-				if (isNotEmpty(val) || includeEntityNulls.test(name)) {
-					this.update(name, val);
+			this.updateWhenMatched(updateWhenMatched);
+			if (updateWhenMatched) {
+				for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
+					String name = entry.getKey();
+					ColumnMeta meta = entry.getValue();
+					boolean updatable = meta.isUpdatable() || meta.isVersion() || meta.isUpdateTime();
+					if (!updatable || meta.isPrimaryKey()) {
+						continue;
+					}
+					Object val = Statements.getValForUpdate(entityMap, meta);
+					if (meta.isVersion()) {
+						val = val == null ? 1L : ((Number) val).longValue() + 1;
+					}
+					if (isNotEmpty(val) || includeEntityNulls.test(name)) {
+						this.update(name, val);
+					}
 				}
 			}
-			this.insertWhenNotMatched();
-			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
-				String name = entry.getKey();
-				ColumnMeta meta = entry.getValue();
-				boolean insertable = meta.isInsertable() || meta.isCreateTime() || meta.isUpdateTime();
-				if (!insertable) {
-					continue;
-				}
-				Object val = Statements.getValForInsert(entityMap, meta);
-				if (meta.isVersion()) {
-					val = val == null ? 1L : ((Number) val).longValue() + 1;
-				}
-				if (isNotEmpty(val) || includeEntityNulls.test(name)) {
-					this.insert(name, val);
+			this.insertWhenNotMatched(insertWhenNotMatched);
+			if (insertWhenNotMatched) {
+				for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
+					String name = entry.getKey();
+					ColumnMeta meta = entry.getValue();
+					boolean insertable = meta.isInsertable() || meta.isCreateTime() || meta.isUpdateTime();
+					if (!insertable) {
+						continue;
+					}
+					Object val = Statements.getValForInsert(entityMap, meta);
+					if (meta.isVersion()) {
+						val = val == null ? 1L : ((Number) val).longValue() + 1;
+					}
+					if (isNotEmpty(val) || includeEntityNulls.test(name)) {
+						this.insert(name, val);
+					}
 				}
 			}
 		}
@@ -243,12 +251,12 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 	}
 
 	public S using(SelectStatement<?> select, String alias) {
-		this.using = buildView(select, alias);
+		this.using = TableSegment.fromSelect(select, alias);
 		return getThis();
 	}
 
 	public S using(Class<?> entityClass, String alias) {
-		this.using = buildTable(entityClass, alias);
+		this.using = TableSegment.fromEntity(entityClass, alias);
 		return getThis();
 	}
 
@@ -258,12 +266,20 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 	}
 
 	public S updateWhenMatched() {
-		this.updateWhenMatched = true;
-		return getThis();
+		return this.updateWhenMatched(true);
 	}
 
 	public S insertWhenNotMatched() {
-		this.insertWhenNotMatched = true;
+		return this.insertWhenNotMatched(true);
+	}
+
+	public S updateWhenMatched(boolean enabled) {
+		this.updateWhenMatched = enabled;
+		return getThis();
+	}
+
+	public S insertWhenNotMatched(boolean enabled) {
+		this.insertWhenNotMatched = enabled;
 		return getThis();
 	}
 

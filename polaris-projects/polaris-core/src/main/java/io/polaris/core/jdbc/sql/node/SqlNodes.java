@@ -50,6 +50,14 @@ public interface SqlNodes {
 	TextNode WHEN_MATCHED_THEN = new TextNode("WHEN MATCHED THEN ");
 	TextNode WHEN_NOT_MATCHED_THEN = new TextNode("WHEN NOT MATCHED THEN ");
 	TextNode ON_DUPLICATE_KEY_UPDATE = new TextNode("ON DUPLICATE KEY UPDATE ");
+	TextNode UNION = new TextNode("UNION");
+	TextNode UNION_ALL = new TextNode("UNION ALL");
+	TextNode INTERSECT = new TextNode("INTERSECT");
+	TextNode INTERSECT_ALL = new TextNode("INTERSECT ALL");
+	TextNode MINUS = new TextNode("MINUS");
+	TextNode MINUS_ALL = new TextNode("MINUS ALL");
+	TextNode EXCEPT = new TextNode("EXCEPT");
+	TextNode EXCEPT_ALL = new TextNode("EXCEPT ALL");
 
 
 	static ContainerNode group(SqlNode... sqlNodes) {

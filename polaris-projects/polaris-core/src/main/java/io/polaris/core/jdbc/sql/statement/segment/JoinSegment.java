@@ -34,7 +34,7 @@ public class JoinSegment<O extends Segment<O>, S extends JoinSegment<O, S>> exte
 	public JoinSegment(O owner, TextNode conj, Class<?> entityClass, String alias) {
 		this.owner = owner;
 		this.conj = conj;
-		this.table = buildTable(entityClass, alias);
+		this.table = TableSegment.fromEntity(entityClass, alias);
 		this.tableAccessible = fetchTableAccessible();
 	}
 
@@ -42,7 +42,7 @@ public class JoinSegment<O extends Segment<O>, S extends JoinSegment<O, S>> exte
 	public JoinSegment(O owner, TextNode conj, SelectStatement<?> select, String alias) {
 		this.owner = owner;
 		this.conj = conj;
-		this.table = buildView(select, alias);
+		this.table = TableSegment.fromSelect(select, alias);
 		this.tableAccessible = fetchTableAccessible();
 	}
 
@@ -59,16 +59,6 @@ public class JoinSegment<O extends Segment<O>, S extends JoinSegment<O, S>> exte
 	@Override
 	public TableAccessible getTableAccessible() {
 		return tableAccessible;
-	}
-
-	@SuppressWarnings({"unchecked"})
-	protected <T extends TableSegment<T>> T buildTable(Class<?> entityClass, String alias) {
-		return (T) new TableEntitySegment<>(entityClass, alias);
-	}
-
-	@SuppressWarnings("unchecked")
-	protected <T extends TableSegment<T>> T buildView(SelectStatement<?> select, String alias) {
-		return (T) new TableViewSegment<>(select, alias);
 	}
 
 	@AnnotationProcessing

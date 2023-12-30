@@ -1,5 +1,6 @@
 package io.polaris.core.jdbc.sql.node;
 
+import io.polaris.core.annotation.AnnotationProcessing;
 import io.polaris.core.jdbc.sql.BoundSql;
 import io.polaris.core.jdbc.sql.PreparedSql;
 
@@ -9,6 +10,7 @@ import java.util.Collections;
  * @author Qt
  * @since 1.8,  Aug 11, 2023
  */
+@AnnotationProcessing
 public class TextNode implements SqlNode, Cloneable {
 	/** SQL语句块 */
 	private String text;

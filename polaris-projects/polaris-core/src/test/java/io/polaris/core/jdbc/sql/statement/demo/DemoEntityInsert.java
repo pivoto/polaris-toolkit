@@ -15,12 +15,6 @@ public class DemoEntityInsert extends InsertStatement<DemoEntityInsert> {
 		super(DemoEntity.class);
 	}
 
-//	@Override
-//	protected DemoEntityTableSegment buildTable(Class<?> entityClass, String alias) {
-//		return new DemoEntityTableSegment(alias);
-//	}
-
-
 	public DemoEntityInsert id(Object value) {
 		return super.column("id", value);
 	}

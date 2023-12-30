@@ -11,7 +11,6 @@ import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.Queries;
 import io.polaris.core.jdbc.sql.statement.segment.AndSegment;
 import io.polaris.core.jdbc.sql.statement.segment.ColumnSegment;
-import io.polaris.core.jdbc.sql.statement.segment.TableEntitySegment;
 import io.polaris.core.jdbc.sql.statement.segment.TableSegment;
 import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.bean.Beans;
@@ -44,8 +43,12 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 
 	@AnnotationProcessing
 	public UpdateStatement(Class<?> entityClass, String alias) {
-		this.table = buildTable(entityClass, alias);
+		this.table = TableSegment.fromEntity(entityClass, alias);
 		this.columnDiscovery = columnDiscovery();
+	}
+
+	public static UpdateStatement<?> of(Class<?> entityClass, String alias) {
+		return new UpdateStatement<>(entityClass, alias);
 	}
 
 	private Function<String, String> columnDiscovery() {
@@ -59,10 +62,6 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 			}
 			return col;
 		};
-	}
-
-	protected TableSegment<?> buildTable(Class<?> entityClass, String alias) {
-		return new TableEntitySegment<>(entityClass, alias);
 	}
 
 	@AnnotationProcessing

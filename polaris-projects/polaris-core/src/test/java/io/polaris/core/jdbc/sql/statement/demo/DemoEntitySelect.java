@@ -17,10 +17,6 @@ public class DemoEntitySelect extends SelectStatement<DemoEntitySelect> {
 		super(DemoEntity.class, alias);
 	}
 
-//	@Override
-//	protected DemoEntityTableSegment buildTable(Class<?> entityClass, String alias) {
-//		return new DemoEntityTableSegment(alias);
-//	}
 
 	@Override
 	protected DemoEntityColSegment<DemoEntitySelect> buildSelect() {

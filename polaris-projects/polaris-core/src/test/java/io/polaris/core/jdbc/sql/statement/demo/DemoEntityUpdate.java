@@ -19,11 +19,6 @@ public class DemoEntityUpdate extends UpdateStatement<DemoEntityUpdate> {
 		super(DemoEntity.class, alias);
 	}
 
-//	@Override
-//	protected DemoEntityTableSegment buildTable(Class<?> entityClass, String alias) {
-//		return new DemoEntityTableSegment(alias);
-//	}
-
 	@Override
 	protected DemoEntityAndSegment<DemoEntityUpdate> buildWhere() {
 		return new DemoEntityAndSegment<>(getThis(), getTable());

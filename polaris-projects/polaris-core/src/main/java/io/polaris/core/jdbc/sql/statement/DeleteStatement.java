@@ -32,8 +32,12 @@ public class DeleteStatement<S extends DeleteStatement<S>> extends BaseStatement
 
 	@AnnotationProcessing
 	public DeleteStatement(Class<?> entityClass, String alias) {
-		this.table = buildTable(entityClass, alias);
+		this.table = TableSegment.fromEntity(entityClass, alias);
 		this.columnDiscovery = columnDiscovery();
+	}
+
+	public static DeleteStatement<?> of(Class<?> entityClass, String alias){
+		return new DeleteStatement<>(entityClass, alias);
 	}
 
 	private Function<String, String> columnDiscovery() {
@@ -47,14 +51,6 @@ public class DeleteStatement<S extends DeleteStatement<S>> extends BaseStatement
 			}
 			return col;
 		};
-	}
-
-	protected TableSegment<?> buildTable(Class<?> entityClass, String alias) {
-		return new TableEntitySegment<>(entityClass, alias);
-	}
-
-	protected TableSegment<?> buildView(SelectStatement<?> select, String alias) {
-		return new TableViewSegment<>(select, alias);
 	}
 
 	@AnnotationProcessing

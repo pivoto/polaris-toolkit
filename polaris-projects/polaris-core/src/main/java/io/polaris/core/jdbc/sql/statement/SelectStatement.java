@@ -39,7 +39,6 @@ public class SelectStatement<S extends SelectStatement<S>> extends BaseStatement
 	private final List<OrderBy> orderByList = new ArrayList<>();
 	private boolean quotaSelectAlias = false;
 
-	// todo 嵌套语句逻辑待实现
 	/** 外部嵌套层的源表（适用于子查询，exists子句等情况） */
 	private TableAccessible nestedTableAccessible;
 
@@ -50,13 +49,30 @@ public class SelectStatement<S extends SelectStatement<S>> extends BaseStatement
 
 	@AnnotationProcessing
 	public SelectStatement(Class<?> entityClass, String alias) {
-		this.table = buildTable(entityClass, alias);
+		this.table = TableSegment.fromEntity(entityClass, alias);
 		this.columnDiscovery = columnDiscovery();
 	}
 
 	public SelectStatement(SelectStatement<?> select, String alias) {
-		this.table = buildView(select, alias);
+		this.table = TableSegment.fromSelect(select, alias);
 		this.columnDiscovery = columnDiscovery();
+	}
+
+	public SelectStatement(SetOpsStatement<?> select, String alias) {
+		this.table = TableSegment.fromSetOps(select, alias);
+		this.columnDiscovery = columnDiscovery();
+	}
+
+	public static SelectStatement<?> of(Class<?> entityClass, String alias) {
+		return new SelectStatement<>(entityClass, alias);
+	}
+
+	public static SelectStatement<?> of(SelectStatement<?> select, String alias) {
+		return new SelectStatement<>(select, alias);
+	}
+
+	public static SelectStatement<?> of(SetOpsStatement<?> select, String alias) {
+		return new SelectStatement<>(select, alias);
 	}
 
 	private Function<String, String> columnDiscovery() {
@@ -83,14 +99,6 @@ public class SelectStatement<S extends SelectStatement<S>> extends BaseStatement
 			}
 			return col;
 		};
-	}
-
-	protected TableSegment<?> buildTable(Class<?> entityClass, String alias) {
-		return new TableEntitySegment<>(entityClass, alias);
-	}
-
-	protected TableSegment<?> buildView(SelectStatement<?> select, String alias) {
-		return new TableViewSegment<>(select, alias);
 	}
 
 	@AnnotationProcessing
@@ -129,7 +137,6 @@ public class SelectStatement<S extends SelectStatement<S>> extends BaseStatement
 
 	@Override
 	public SqlNode toSqlNode() {
-		// todo 考虑支持集合 union、intersect、minus
 		ContainerNode sql = new ContainerNode();
 		sqlSelect(sql);
 		sqlFrom(sql);
@@ -502,6 +509,7 @@ public class SelectStatement<S extends SelectStatement<S>> extends BaseStatement
 		return select(Reflects.getPropertyName(getter));
 	}
 
+	@AnnotationProcessing
 	public S select(String field) {
 		SelectSegment<S, ?> segment = buildSelect().column(field);
 		selects.add(segment);
@@ -512,6 +520,7 @@ public class SelectStatement<S extends SelectStatement<S>> extends BaseStatement
 		return select(Reflects.getPropertyName(getter), alias);
 	}
 
+	@AnnotationProcessing
 	public S select(String field, String alias) {
 		SelectSegment<S, ?> segment = buildSelect().column(field);
 		segment.alias(alias);

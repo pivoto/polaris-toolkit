@@ -13,10 +13,6 @@ public class DemoEntityOrderBySegment<O extends Segment<O>> extends OrderBySegme
 		super(owner, table);
 	}
 
-
-
-
-
 	public DemoEntityOrderBySegment<O> id() {
 		return column("id");
 	}
