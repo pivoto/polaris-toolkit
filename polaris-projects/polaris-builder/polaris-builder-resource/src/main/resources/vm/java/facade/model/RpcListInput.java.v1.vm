@@ -43,7 +43,7 @@ public class ${table.javaClassName}${env.rpcListInputClassSuffix} extends Exchan
 #end
 		/** 查询SQL的ORDER BY子句内容(各排序字段) */
 		@Schema(hidden = true)
-		private transient String sqlOrderBy;
+		private String sqlOrderBy;
 
 		public void setSqlOrderBy(String value) {
 			StringJoiner joiner = new StringJoiner(",");

@@ -98,29 +98,29 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 #if(${env.entityExtInterfaceTranslatedCreatable})
 	#if(!$table.containsColumnVariableName('crtUser'))
 	@Column(ignored = true)
-	private transient Long crtUser;
+	private Long crtUser;
 	#end
 	#if(!$table.containsColumnVariableName('crtUserName'))
 	@Column(ignored = true)
-	private transient String crtUserName;
+	private String crtUserName;
 	#end
 	#if(!$table.containsColumnVariableName('crtUserRealName'))
 	@Column(ignored = true)
-	private transient String crtUserRealName;
+	private String crtUserRealName;
 	#end
 #end
 #if(${env.entityExtInterfaceTranslatedUpdatable})
 	#if(!$table.containsColumnVariableName('uptUser'))
 	@Column(ignored = true)
-	private transient Long uptUser;
+	private Long uptUser;
 	#end
 	#if(!$table.containsColumnVariableName('crtUserName'))
 	@Column(ignored = true)
-	private transient String uptUserName;
+	private String uptUserName;
 	#end
 	#if(!$table.containsColumnVariableName('uptUserRealName'))
 	@Column(ignored = true)
-	private transient String uptUserRealName;
+	private String uptUserRealName;
 #end
 #end
 

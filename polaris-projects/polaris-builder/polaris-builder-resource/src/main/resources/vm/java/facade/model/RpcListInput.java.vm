@@ -28,6 +28,6 @@ public class ${table.javaClassName}${env.rpcListInputClassSuffix} extends ${tabl
 	private Page page = new Page();
 	/** 查询SQL的ORDER BY子句内容(各排序字段) */
 	@Schema(hidden = true)
-	private transient String sqlOrderBy;
+	private String sqlOrderBy;
 
 }

@@ -72,12 +72,12 @@ public class ${table.javaClassName}${env.entityClassSuffix} extends RichEntity i
 	@Schema(hidden = true)
 	@NotField
 	@Column(ignored = true)
-	private transient String sqlOrderBy;
+	private String sqlOrderBy;
 	/** 更新SQL的SET值内容 */
 	@Schema(hidden = true)
 	@NotField
 	@Column(ignored = true)
-	private transient ${table.javaClassName}${env.entityClassSuffix} sqlUpdateValues;
+	private ${table.javaClassName}${env.entityClassSuffix} sqlUpdateValues;
 
 	@Override
 	public final Class entityClass() {
