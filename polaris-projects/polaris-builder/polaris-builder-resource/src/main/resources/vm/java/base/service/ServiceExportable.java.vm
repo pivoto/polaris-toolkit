@@ -85,10 +85,14 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		return new ExcelConfig()
 			.withFileName(fileName)
 #foreach($col in $table.columns)
-			#if(${env.entityExtInterface.contains('.TranslatedCreatable')} && ${col.javaVariableName.equals('crtUser')})
+			#if(!$table.containsColumnVariableName('crtUserName') && ${col.javaVariableName.equals('crtUser')})
 			.withColumn("crtUserName", "#if(${col.label})${col.label}#else${col.name}#end")
-			#elseif(${env.entityExtInterface.contains('.TranslatedUpdatable')} && ${col.javaVariableName.equals('uptUser')})
+			#elseif(!$table.containsColumnVariableName('crtUserRealName') && ${col.javaVariableName.equals('crtUser')})
+			.withColumn("crtUserRealName", "#if(${col.label})${col.label}#else${col.name}#end")
+			#elseif(!$table.containsColumnVariableName('uptUserName') && ${col.javaVariableName.equals('uptUser')})
 			.withColumn("uptUserName", "#if(${col.label})${col.label}#else${col.name}#end")
+			#elseif(!$table.containsColumnVariableName('uptUserRealName') && ${col.javaVariableName.equals('uptUser')})
+			.withColumn("uptUserRealName", "#if(${col.label})${col.label}#else${col.name}#end")
 			#else
 			.withColumn("${col.javaVariableName}", "#if(${col.label})${col.label}#else${col.name}#end")
 			#end

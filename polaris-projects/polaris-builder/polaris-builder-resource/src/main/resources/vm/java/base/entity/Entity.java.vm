@@ -20,12 +20,6 @@ import $name;
 	#set($env.entityExtInterfaceArr=${env.entityExtInterface.split(',')})
 	#foreach($name in ${env.entityExtInterfaceArr})
 import ${name.trim()};
-	 #if(${name.endsWith('.Creatable')} || ${name.endsWith('.TranslatedCreatable')})
-		 #set($env.entityExtInterfaceTranslatedCreatable=true)
-	 #end
-	 #if(${name.endsWith('.Updatable')} || ${name.endsWith('.TranslatedUpdatable')})
-		 #set($env.entityExtInterfaceTranslatedUpdatable=true)
-	 #end
 	#end
 #end
 #if(${env.entityExtSuperClass})
@@ -95,56 +89,41 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 	private ${col.javaTypeSimpleName} ${col.javaVariableName};
 #end
 
-#if(${env.entityExtInterfaceTranslatedCreatable})
-	#if(!$table.containsColumnVariableName('crtUser'))
+#if(!$table.containsColumnVariableName('crtUser'))
+	#if($table.containsColumnVariableName('crtUserName'))
 	@Column(ignored = true)
 	private Long crtUser;
 	#end
-	#if(!$table.containsColumnVariableName('crtUserName'))
+#end
+#if(!$table.containsColumnVariableName('crtUserName'))
+	#if($table.containsColumnVariableName('crtUser'))
 	@Column(ignored = true)
 	private String crtUserName;
 	#end
-	#if(!$table.containsColumnVariableName('crtUserRealName'))
+#end
+#if(!$table.containsColumnVariableName('crtUserRealName'))
+	#if($table.containsColumnVariableName('crtUser') || $table.containsColumnVariableName('crtUserName'))
 	@Column(ignored = true)
 	private String crtUserRealName;
 	#end
 #end
-#if(${env.entityExtInterfaceTranslatedUpdatable})
-	#if(!$table.containsColumnVariableName('uptUser'))
+#if(!$table.containsColumnVariableName('uptUser'))
+	#if($table.containsColumnVariableName('uptUserName'))
 	@Column(ignored = true)
 	private Long uptUser;
 	#end
-	#if(!$table.containsColumnVariableName('crtUserName'))
+#end
+#if(!$table.containsColumnVariableName('uptUserName'))
+	#if($table.containsColumnVariableName('uptUser'))
 	@Column(ignored = true)
 	private String uptUserName;
 	#end
-	#if(!$table.containsColumnVariableName('uptUserRealName'))
+#end
+#if(!$table.containsColumnVariableName('uptUserRealName'))
+	#if($table.containsColumnVariableName('uptUser') || $table.containsColumnVariableName('uptUserName'))
 	@Column(ignored = true)
 	private String uptUserRealName;
-#end
-#end
-
-#if(${env.entityExtInterfaceTranslatedCreatable})
-	public boolean hasTranslatedCrtUser(){
-		return true;
-	}
-	public boolean hasTranslatedCrtUserName(){
-		return true;
-	}
-	public boolean hasTranslatedCrtUserRealName(){
-		return true;
-	}
-#end
-#if(${env.entityExtInterfaceTranslatedUpdatable})
-	public boolean hasTranslatedUptUser(){
-		return true;
-	}
-	public boolean hasTranslatedUptUserName(){
-		return true;
-	}
-	public boolean hasTranslatedUptUserRealName(){
-		return true;
-	}
+	#end
 #end
 
 }

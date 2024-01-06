@@ -67,7 +67,7 @@ public class JtcRmCodeFront {
 			@Property(key = "modelPackage", value = "model.nature"),
 			@Property(key = "rpcPackage", value = "rpc.nature"),
 			@Property(key = "frontendDir", value = "srm"),
-			@Property(key = "entityExtInterface", value = "io.polaris.sdk.common.entity.TranslatedCreatable, io.polaris.sdk.common.entity.TranslatedUpdatable"),
+			@Property(key = "entityExtInterface", value = "io.polaris.sdk.common.entity.Creatable, io.polaris.sdk.common.entity.Updatable"),
 		},
 		templates = {
 			@Template(path = VM_PATH_FRONTEND_ROUTES, filename = FILENAME_FRONTEND_ROUTES, dirname = DIRNAME_FRONTEND),
@@ -129,7 +129,7 @@ public class JtcRmCodeFront {
 			@Property(key = "modelPackage", value = "model.nature"),
 			@Property(key = "rpcPackage", value = "rpc.nature"),
 			@Property(key = "frontendDir", value = "brm"),
-			@Property(key = "entityExtInterface", value = "io.polaris.sdk.common.entity.TranslatedCreatable, io.polaris.sdk.common.entity.TranslatedUpdatable"),
+			@Property(key = "entityExtInterface", value = "io.polaris.sdk.common.entity.Creatable, io.polaris.sdk.common.entity.Updatable"),
 		},
 		templates = {
 			@Template(path = VM_PATH_FRONTEND_ROUTES, filename = FILENAME_FRONTEND_ROUTES, dirname = DIRNAME_FRONTEND),

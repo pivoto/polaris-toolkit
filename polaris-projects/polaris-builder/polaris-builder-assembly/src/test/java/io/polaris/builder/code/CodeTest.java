@@ -63,7 +63,7 @@ public class CodeTest {
 		property = {
 			@Property(key = "author", value = "Qt"),
 			@Property(key = "mapperClassSuffix", value = "Mapper"),
-			@Property(key = "entityExtInterface", value = "io.polaris.sdk.common.entity.TranslatedCreatable, io.polaris.sdk.common.entity.TranslatedUpdatable"),
+			@Property(key = "entityExtInterface", value = "io.polaris.sdk.common.entity.Creatable, io.polaris.sdk.common.entity.Updatable"),
 		},
 		templates = {
 			//@Template(path = Template.VM_PATH_EXAMPLE, filename = Template.FILENAME_EXAMPLE, dirname = Template.DIRNAME_EXAMPLE),
