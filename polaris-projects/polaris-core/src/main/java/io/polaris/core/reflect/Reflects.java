@@ -16,9 +16,23 @@ import java.util.function.Predicate;
  * @author Qt
  * @since 1.8
  */
+@SuppressWarnings({"unchecked", "unused", "rawtypes"})
 public class Reflects {
+	public static final String TO_STRING = "toString";
+	public static final String HASH_CODE = "hashCode";
+	public static final String EQUALS = "equals";
+	public static final String GET_CLASS = "getClass";
+	public static final String CLONE = "clone";
+	public static final String FINALIZE = "finalize";
+	public static final String WAIT = "wait";
+	public static final String NOTIFY = "notify";
+	public static final String NOTIFY_ALL = "notifyAll";
+	public static final String SET = "set";
+	public static final String IS = "is";
+	public static final String GET = "get";
+	public static final String ANNOTATION_TYPE = "annotationType";
 	public static final String MAIN_METHOD = "main";
-	public static final Class[] MAIN_METHOD_ARGS = {String[].class};
+	public static final Class<?>[] MAIN_METHOD_ARGS = {String[].class};
 	private static final Map<Class<?>, Constructor<?>[]> CONSTRUCTORS_CACHE = Maps.newWeakKeyMap(new ConcurrentHashMap<>());
 	private static final Map<Class<?>, Field[]> FIELDS_CACHE = Maps.newWeakKeyMap(new ConcurrentHashMap<>());
 	private static final Map<Class<?>, Method[]> METHODS_CACHE = Maps.newWeakKeyMap(new ConcurrentHashMap<>());
@@ -53,7 +67,7 @@ public class Reflects {
 	 * @param parameterizedSuperType 泛型基类
 	 * @param obj                    目标类
 	 * @param index                  位置
-	 * @return
+	 * @return 泛型实参
 	 */
 	public static Class findParameterizedType(Class parameterizedSuperType, Object obj, int index) {
 		return findParameterizedType(parameterizedSuperType, obj.getClass(), index);
@@ -65,7 +79,7 @@ public class Reflects {
 	 * @param parameterizedSuperType 泛型基类
 	 * @param targetClass            目标类
 	 * @param index                  位置
-	 * @return
+	 * @return 泛型实参
 	 */
 	public static Class findParameterizedType(Class parameterizedSuperType, Class targetClass, int index) {
 		if (parameterizedSuperType == targetClass || !parameterizedSuperType.isAssignableFrom(targetClass)) {
@@ -112,6 +126,7 @@ public class Reflects {
 	}
 
 
+	@SuppressWarnings("DuplicatedCode")
 	static Deque<ParameterizedType> findParameterizedTypes(Class parameterizedSuperType, Class targetClass) {
 		Deque<ParameterizedType> q = new ArrayDeque<>();
 		// region search
@@ -141,25 +156,23 @@ public class Reflects {
 			}
 			//interfaces
 			Type[] genericInterfaces = that.getGenericInterfaces();
-			if (genericInterfaces != null && genericInterfaces.length > 0) {
-				for (Type genericInterface : genericInterfaces) {
-					if (parameterizedSuperType == genericInterface) {
+			for (Type genericInterface : genericInterfaces) {
+				if (parameterizedSuperType == genericInterface) {
+					break search;
+				}
+				if (genericInterface instanceof ParameterizedType) {
+					Type rawType = ((ParameterizedType) genericInterface).getRawType();
+					if (parameterizedSuperType == rawType) {
+						q.offerLast((ParameterizedType) genericInterface);
 						break search;
-					}
-					if (genericInterface instanceof ParameterizedType) {
-						Type rawType = ((ParameterizedType) genericInterface).getRawType();
-						if (parameterizedSuperType == rawType) {
-							q.offerLast((ParameterizedType) genericInterface);
-							break search;
-						} else if (rawType instanceof Class && parameterizedSuperType.isAssignableFrom((Class) rawType)) {
-							that = (Class) rawType;
-							q.offerLast((ParameterizedType) genericInterface);
-							continue search;
-						}
-					} else if (genericInterface instanceof Class && parameterizedSuperType.isAssignableFrom((Class) genericInterface)) {
-						that = (Class) genericInterface;
+					} else if (rawType instanceof Class && parameterizedSuperType.isAssignableFrom((Class) rawType)) {
+						that = (Class) rawType;
+						q.offerLast((ParameterizedType) genericInterface);
 						continue search;
 					}
+				} else if (genericInterface instanceof Class && parameterizedSuperType.isAssignableFrom((Class) genericInterface)) {
+					that = (Class) genericInterface;
+					continue search;
 				}
 			}
 			// never or error
@@ -232,9 +245,9 @@ public class Reflects {
 	}
 
 	private static String toGetterOrSetterName(String name) {
-		if (name.startsWith("get") || name.startsWith("set")) {
+		if (name.startsWith(GET) || name.startsWith(SET)) {
 			name = name.substring(3);
-		} else if (name.startsWith("is")) {
+		} else if (name.startsWith(IS)) {
 			name = name.substring(2);
 		}
 		return Introspector.decapitalize(name);
@@ -279,7 +292,7 @@ public class Reflects {
 		}
 		for (Constructor<?> constructor : constructors) {
 			pts = constructor.getParameterTypes();
-			if (Iterables.isMatchAll(pts, parameterTypes, (c1, c2) -> c1.isAssignableFrom(c2))) {
+			if (Iterables.isMatchAll(pts, parameterTypes, Class::isAssignableFrom)) {
 				setAccessible(constructor);
 				return (Constructor<T>) constructor;
 			}
@@ -302,6 +315,7 @@ public class Reflects {
 		return FIELDS_CACHE.computeIfAbsent(beanClass, (c) -> getFieldsDirectly(beanClass, true));
 	}
 
+	@SuppressWarnings({"UseBulkOperation", "ManualArrayToCollectionCopy"})
 	public static Field[] getFieldsDirectly(Class<?> beanClass, boolean withSuperClassFields) {
 		Class<?> searchType = beanClass;
 		List<Field> list = new ArrayList<>();
@@ -316,7 +330,7 @@ public class Reflects {
 	}
 
 	public static Field[] getFields(Class<?> beanClass, Predicate<Field> fieldFilter) {
-		return Arrays.stream(getFields(beanClass)).filter(fieldFilter).toArray(i -> new Field[i]);
+		return Arrays.stream(getFields(beanClass)).filter(fieldFilter).toArray(Field[]::new);
 	}
 
 	public static Field getField(Class<?> beanClass, String name) {
@@ -398,7 +412,7 @@ public class Reflects {
 	 * @param beanClass            类或接口
 	 * @param withSupers           是否包括父类或接口的方法列表
 	 * @param withMethodFromObject 是否包括Object中的方法
-	 * @return
+	 * @return methods
 	 */
 	public static Method[] getMethodsDirectly(Class<?> beanClass, boolean withSupers, boolean withMethodFromObject) {
 		if (beanClass.isInterface()) {
@@ -429,7 +443,7 @@ public class Reflects {
 	}
 
 	public static Method[] getMethods(Class<?> clazz, Predicate<Method> filter) {
-		return Arrays.stream(getMethods(clazz)).filter(filter).toArray(l -> new Method[l]);
+		return Arrays.stream(getMethods(clazz)).filter(filter).toArray(Method[]::new);
 	}
 
 	public static Set<String> getMethodNames(Class<?> clazz) {
@@ -480,7 +494,7 @@ public class Reflects {
 		}
 		for (Method method : methods) {
 			if (method.getName().equalsIgnoreCase(methodName)) {
-				if (Iterables.isMatchAll(method.getParameterTypes(), paramTypes, (c1, c2) -> c1.isAssignableFrom(c2))) {
+				if (Iterables.isMatchAll(method.getParameterTypes(), paramTypes, Class::isAssignableFrom)) {
 					return method;
 				}
 			}
@@ -491,49 +505,49 @@ public class Reflects {
 	public static boolean isGetterMethod(Method method) {
 		return method != null && method.getParameterCount() == 0 && method.getName().length() > 2
 			&&
-			(method.getName().startsWith("is") && method.getReturnType() == boolean.class
-				|| method.getName().startsWith("get") && method.getReturnType() != void.class)
+			(method.getName().startsWith(IS) && method.getReturnType() == boolean.class
+				|| method.getName().startsWith(GET) && method.getReturnType() != void.class)
 			;
 	}
 
 	public static boolean isSetterMethod(Method method) {
 		return method != null && method.getParameterCount() == 1
-			&& method.getName().length() > 3 && method.getName().startsWith("set");
+			&& method.getName().length() > 3 && method.getName().startsWith(SET);
 	}
 
 	public static boolean isEqualsMethod(Method method) {
-		if (method == null || method.getParameterCount() != 1 || !"equals".equals(method.getName())) {
+		if (method == null || method.getParameterCount() != 1 || !EQUALS.equals(method.getName())) {
 			return false;
 		}
 		return (method.getParameterTypes()[0] == Object.class);
 	}
 
 	public static boolean isHashCodeMethod(Method method) {
-		return method != null && "hashCode".equals(method.getName()) && method.getParameterCount() == 0;
+		return method != null && HASH_CODE.equals(method.getName()) && method.getParameterCount() == 0;
 	}
 
 	public static boolean isToStringMethod(Method method) {
-		return method != null && "toString".equals(method.getName()) && method.getParameterCount() == 0;
+		return method != null && TO_STRING.equals(method.getName()) && method.getParameterCount() == 0;
 	}
 
 	public static boolean isGetClassMethod(Method method) {
-		return method != null && "getClass".equals(method.getName()) && method.getParameterCount() == 0;
+		return method != null && GET_CLASS.equals(method.getName()) && method.getParameterCount() == 0;
 	}
 
 	public static boolean isCloneMethod(Method method) {
-		return method != null && "clone".equals(method.getName()) && method.getParameterCount() == 0;
+		return method != null && CLONE.equals(method.getName()) && method.getParameterCount() == 0;
 	}
 
 	public static boolean isNotifyMethod(Method method) {
-		return method != null && "notify".equals(method.getName()) && method.getParameterCount() == 0;
+		return method != null && NOTIFY.equals(method.getName()) && method.getParameterCount() == 0;
 	}
 
 	public static boolean isNotifyAllMethod(Method method) {
-		return method != null && "notifyAll".equals(method.getName()) && method.getParameterCount() == 0;
+		return method != null && NOTIFY_ALL.equals(method.getName()) && method.getParameterCount() == 0;
 	}
 
 	public static boolean isWaitMethod(Method method) {
-		return method != null && "wait".equals(method.getName()) &&
+		return method != null && WAIT.equals(method.getName()) &&
 			(
 				method.getParameterCount() == 0
 					|| method.getParameterCount() == 1 && method.getParameterTypes()[0] == long.class
@@ -542,7 +556,11 @@ public class Reflects {
 	}
 
 	public static boolean isFinalizeMethod(Method method) {
-		return method != null && "finalize".equals(method.getName()) && method.getParameterCount() == 0;
+		return method != null && FINALIZE.equals(method.getName()) && method.getParameterCount() == 0;
+	}
+
+	public boolean isAnnotationTypeMethod(Method method) {
+		return method != null && ANNOTATION_TYPE.equals(method.getName()) && method.getParameterCount() == 0;
 	}
 
 	public static boolean isObjectDeclaredMethod(Method method) {
@@ -690,6 +708,9 @@ public class Reflects {
 
 	public <T> T invoke(Class clazz, String methodName, Class[] paramTypes, Object[] paramValues) throws ReflectiveOperationException {
 		Method method = Reflects.getMethod(clazz, methodName, paramTypes);
+		if (method == null) {
+			return null;
+		}
 		if (Modifier.isStatic(method.getModifiers())) {
 			return (T) Reflects.invoke(null, method, paramValues);
 		}
@@ -746,17 +767,17 @@ public class Reflects {
 	private static Class doLoadClass(String name, ClassLoader classLoader) throws ClassNotFoundException {
 		Class<?> clazz;
 		if (name.endsWith("[]")) {
-			// xxx[]
+			// xx[]
 			final String elementClassName = name.substring(0, name.length() - 2);
 			final Class<?> elementClass = loadClass(elementClassName, classLoader);
 			clazz = Array.newInstance(elementClass, 0).getClass();
 		} else if (name.startsWith("[L") && name.endsWith(";")) {
-			// [Lxxx;
+			// [Lxx;
 			final String elementName = name.substring(2, name.length() - 1);
 			final Class<?> elementClass = loadClass(elementName, classLoader);
 			clazz = Array.newInstance(elementClass, 0).getClass();
 		} else if (name.startsWith("[")) {
-			// [[I , [[Lxxx;
+			// [[I , [[Lxx;
 			final String elementName = name.substring(1);
 			final Class<?> elementClass = loadClass(elementName, classLoader);
 			clazz = Array.newInstance(elementClass, 0).getClass();
