@@ -43,7 +43,7 @@ public class ConverterRegistry {
 		loadServices();
 	}
 
-	ConverterRegistry() {
+	public ConverterRegistry() {
 	}
 
 	private static void initStandard() {
