@@ -1,4 +1,4 @@
-package io.polaris.core.lang;
+package io.polaris.core.lang.annotation;
 
 import io.polaris.core.tuple.Tuple2;
 
@@ -13,36 +13,35 @@ import java.util.Set;
 
 /**
  * @author Qt
- * @since 1.8,  Nov 12, 2023
+ * @since 1.8,  Jan 06, 2024
  */
 @SuppressWarnings("ALL")
-public class Annotations {
+class RawAnnotations {
 
-
-	public static <A extends Annotation> A get(AnnotatedElement element, Class<A> annotationType) {
+	public static <A extends Annotation> A getAnnotation(AnnotatedElement element, Class<A> annotationType) {
 		// directly
 		A rs = element.getAnnotation(annotationType);
 		if (rs != null) {
 			return rs;
 		}
 		// indirectly
-		rs = seekByAnnotation(element, annotationType);
+		rs = seekByHierarchyAnnotation(element, annotationType);
 		if (rs != null) {
 			return rs;
 		}
 
 		if (element instanceof Class) {
-			rs = seekByClass((Class<?>) element, annotationType);
+			rs = seekByHierarchyClass((Class<?>) element, annotationType);
 			return rs;
 		} else if (element instanceof Method) {
-			return seekByMethod((Method) element, annotationType);
+			return seekByHierarchyMethod((Method) element, annotationType);
 		} else if (element instanceof Parameter) {
 			Executable executable = ((Parameter) element).getDeclaringExecutable();
 			if (executable instanceof Method) {
 				Parameter[] parameters = executable.getParameters();
 				for (int i = 0; i < parameters.length; i++) {
 					if (parameters[i] == element) {
-						return seekByParameter(((Parameter) element), (Method) executable, i, annotationType);
+						return seekByHierarchyParameter(((Parameter) element), (Method) executable, i, annotationType);
 					}
 				}
 			}
@@ -51,9 +50,9 @@ public class Annotations {
 	}
 
 
-	private static <A extends Annotation> A seekByAnnotation(AnnotatedElement element, Class<A> annotationType) {
+	private static <A extends Annotation> A seekByHierarchyAnnotation(AnnotatedElement element, Class<A> annotationType) {
 		Set<AnnotatedElement> visited = new HashSet<>();
-		AnnotatedElement[] candidates = getAnnotationCandidates(new AnnotatedElement[]{element}, visited);
+		AnnotatedElement[] candidates = getHierarchyAnnotationCandidates(new AnnotatedElement[]{element}, visited);
 		while (candidates.length > 0) {
 			for (AnnotatedElement candidate : candidates) {
 				A rs = candidate.getAnnotation(annotationType);
@@ -61,14 +60,14 @@ public class Annotations {
 					return rs;
 				}
 			}
-			candidates = getAnnotationCandidates(candidates, visited);
+			candidates = getHierarchyAnnotationCandidates(candidates, visited);
 		}
 		return null;
 	}
 
-	private static <A extends Annotation> A seekByClass(Class<?> element, Class<A> annotationType) {
+	private static <A extends Annotation> A seekByHierarchyClass(Class<?> element, Class<A> annotationType) {
 		Set<AnnotatedElement> visited = new LinkedHashSet<>();
-		Tuple2<Class<?>, Class<?>[]> classCandidates = getClassCandidates(element, null, visited);
+		Tuple2<Class<?>, Class<?>[]> classCandidates = getHierarchyClassCandidates(element, null, visited);
 		Class<?> superclass = classCandidates.getFirst();
 		Class<?>[] interfaces = classCandidates.getSecond();
 		if ((superclass == null || superclass == Object.class) && interfaces.length == 0) {
@@ -80,7 +79,7 @@ public class Annotations {
 				if (rs != null) {
 					return rs;
 				}
-				rs = seekByAnnotation(superclass, annotationType);
+				rs = seekByHierarchyAnnotation(superclass, annotationType);
 				if (rs != null) {
 					return rs;
 				}
@@ -90,24 +89,24 @@ public class Annotations {
 				if (rs != null) {
 					return rs;
 				}
-				rs = seekByAnnotation(anInterface, annotationType);
+				rs = seekByHierarchyAnnotation(anInterface, annotationType);
 				if (rs != null) {
 					return rs;
 				}
 			}
 
 			// next level
-			classCandidates = getClassCandidates(superclass, interfaces, visited);
+			classCandidates = getHierarchyClassCandidates(superclass, interfaces, visited);
 			superclass = classCandidates.getFirst();
 			interfaces = classCandidates.getSecond();
 		}
 		return null;
 	}
 
-	private static <A extends Annotation> A seekByMethod(Method element, Class<A> annotationType) {
+	private static <A extends Annotation> A seekByHierarchyMethod(Method element, Class<A> annotationType) {
 		Class<?> declaringClass = element.getDeclaringClass();
 		Set<AnnotatedElement> visited = new LinkedHashSet<>();
-		Tuple2<Class<?>, Class<?>[]> classCandidates = getClassCandidates(declaringClass, null, visited);
+		Tuple2<Class<?>, Class<?>[]> classCandidates = getHierarchyClassCandidates(declaringClass, null, visited);
 		Class<?> superclass = classCandidates.getFirst();
 		Class<?>[] interfaces = classCandidates.getSecond();
 		if ((superclass == null || superclass == Object.class) && interfaces.length == 0) {
@@ -121,7 +120,7 @@ public class Annotations {
 					if (rs != null) {
 						return rs;
 					}
-					rs = seekByAnnotation(method, annotationType);
+					rs = seekByHierarchyAnnotation(method, annotationType);
 					if (rs != null) {
 						return rs;
 					}
@@ -135,7 +134,7 @@ public class Annotations {
 					if (rs != null) {
 						return rs;
 					}
-					rs = seekByAnnotation(method, annotationType);
+					rs = seekByHierarchyAnnotation(method, annotationType);
 					if (rs != null) {
 						return rs;
 					}
@@ -144,17 +143,17 @@ public class Annotations {
 			}
 
 			// next level
-			classCandidates = getClassCandidates(superclass, interfaces, visited);
+			classCandidates = getHierarchyClassCandidates(superclass, interfaces, visited);
 			superclass = classCandidates.getFirst();
 			interfaces = classCandidates.getSecond();
 		}
 		return null;
 	}
 
-	private static <A extends Annotation> A seekByParameter(Parameter element, Method declaringMethod, int position, Class<A> annotationType) {
+	private static <A extends Annotation> A seekByHierarchyParameter(Parameter element, Method declaringMethod, int position, Class<A> annotationType) {
 		Class<?> declaringClass = declaringMethod.getDeclaringClass();
 		Set<AnnotatedElement> visited = new LinkedHashSet<>();
-		Tuple2<Class<?>, Class<?>[]> classCandidates = getClassCandidates(declaringClass, null, visited);
+		Tuple2<Class<?>, Class<?>[]> classCandidates = getHierarchyClassCandidates(declaringClass, null, visited);
 		Class<?> superclass = classCandidates.getFirst();
 		Class<?>[] interfaces = classCandidates.getSecond();
 		if ((superclass == null || superclass == Object.class) && interfaces.length == 0) {
@@ -171,7 +170,7 @@ public class Annotations {
 					if (rs != null) {
 						return rs;
 					}
-					rs = seekByAnnotation(parameter, annotationType);
+					rs = seekByHierarchyAnnotation(parameter, annotationType);
 					if (rs != null) {
 						return rs;
 					}
@@ -187,7 +186,7 @@ public class Annotations {
 					if (rs != null) {
 						return rs;
 					}
-					rs = seekByAnnotation(parameter, annotationType);
+					rs = seekByHierarchyAnnotation(parameter, annotationType);
 					if (rs != null) {
 						return rs;
 					}
@@ -195,14 +194,14 @@ public class Annotations {
 				}
 			}
 			// next level
-			classCandidates = getClassCandidates(superclass, interfaces, visited);
+			classCandidates = getHierarchyClassCandidates(superclass, interfaces, visited);
 			superclass = classCandidates.getFirst();
 			interfaces = classCandidates.getSecond();
 		}
 		return null;
 	}
 
-	private static AnnotatedElement[] getAnnotationCandidates(AnnotatedElement[] candidates, Set<AnnotatedElement> visited) {
+	private static AnnotatedElement[] getHierarchyAnnotationCandidates(AnnotatedElement[] candidates, Set<AnnotatedElement> visited) {
 		Set<AnnotatedElement> candidateSet = new LinkedHashSet<>();
 		for (AnnotatedElement candidate : candidates) {
 			Annotation[] annotations = candidate.getAnnotations();
@@ -220,7 +219,7 @@ public class Annotations {
 		return candidates;
 	}
 
-	private static Tuple2<Class<?>, Class<?>[]> getClassCandidates(Class<?> superclass, Class<?>[] interfaces, Set<AnnotatedElement> visited) {
+	private static Tuple2<Class<?>, Class<?>[]> getHierarchyClassCandidates(Class<?> superclass, Class<?>[] interfaces, Set<AnnotatedElement> visited) {
 		Set<Class<?>> candidates = new LinkedHashSet<>();
 		if (interfaces == null) {
 			// first level
@@ -259,25 +258,25 @@ public class Annotations {
 	}
 
 
-	public static <A extends Annotation> A[] getRepeatable(AnnotatedElement element, Class<A> annotationType) {
+	public static <A extends Annotation> A[] getRepeatableAnnotation(AnnotatedElement element, Class<A> annotationType) {
 		A[] rs = element.getAnnotationsByType(annotationType);
 		if (rs.length == 0) {
 			// indirectly
 			{
-				A[] arr = seekRepeatableByAnnotation(element, annotationType);
+				A[] arr = seekRepeatableByHierarchyAnnotation(element, annotationType);
 				if (arr != null && arr.length > 0) {
 					return arr;
 				}
 			}
 
 			if (element instanceof Class) {
-				A[] arr = seekRepeatableByClass((Class<?>) element, annotationType);
+				A[] arr = seekRepeatableByHierarchyClass((Class<?>) element, annotationType);
 				if (arr != null && arr.length > 0) {
 					return arr;
 				}
 
 			} else if (element instanceof Method) {
-				A[] arr = seekRepeatableByMethod((Method) element, annotationType);
+				A[] arr = seekRepeatableByHierarchyMethod((Method) element, annotationType);
 				if (arr != null && arr.length > 0) {
 					return arr;
 				}
@@ -287,7 +286,7 @@ public class Annotations {
 					Parameter[] parameters = executable.getParameters();
 					for (int i = 0; i < parameters.length; i++) {
 						if (parameters[i] == element) {
-							A[] arr = seekRepeatableByParameter(((Parameter) element), (Method) executable, i, annotationType);
+							A[] arr = seekRepeatableByHierarchyParameter(((Parameter) element), (Method) executable, i, annotationType);
 							if (arr != null && arr.length > 0) {
 								return arr;
 							}
@@ -300,9 +299,9 @@ public class Annotations {
 		return rs;
 	}
 
-	private static <A extends Annotation> A[] seekRepeatableByAnnotation(AnnotatedElement element, Class<A> annotationType) {
+	private static <A extends Annotation> A[] seekRepeatableByHierarchyAnnotation(AnnotatedElement element, Class<A> annotationType) {
 		Set<AnnotatedElement> visited = new HashSet<>();
-		AnnotatedElement[] candidates = getAnnotationCandidates(new AnnotatedElement[]{element}, visited);
+		AnnotatedElement[] candidates = getHierarchyAnnotationCandidates(new AnnotatedElement[]{element}, visited);
 		while (candidates.length > 0) {
 			for (AnnotatedElement candidate : candidates) {
 				A[] rs = candidate.getAnnotationsByType(annotationType);
@@ -310,14 +309,14 @@ public class Annotations {
 					return rs;
 				}
 			}
-			candidates = getAnnotationCandidates(candidates, visited);
+			candidates = getHierarchyAnnotationCandidates(candidates, visited);
 		}
 		return null;
 	}
 
-	private static <A extends Annotation> A[] seekRepeatableByClass(Class<?> element, Class<A> annotationType) {
+	private static <A extends Annotation> A[] seekRepeatableByHierarchyClass(Class<?> element, Class<A> annotationType) {
 		Set<AnnotatedElement> visited = new LinkedHashSet<>();
-		Tuple2<Class<?>, Class<?>[]> classCandidates = getClassCandidates(element, null, visited);
+		Tuple2<Class<?>, Class<?>[]> classCandidates = getHierarchyClassCandidates(element, null, visited);
 		Class<?> superclass = classCandidates.getFirst();
 		Class<?>[] interfaces = classCandidates.getSecond();
 		if ((superclass == null || superclass == Object.class) && interfaces.length == 0) {
@@ -329,7 +328,7 @@ public class Annotations {
 				if (rs != null && rs.length > 0) {
 					return rs;
 				}
-				rs = seekRepeatableByAnnotation(superclass, annotationType);
+				rs = seekRepeatableByHierarchyAnnotation(superclass, annotationType);
 				if (rs != null && rs.length > 0) {
 					return rs;
 				}
@@ -339,24 +338,24 @@ public class Annotations {
 				if (rs != null && rs.length > 0) {
 					return rs;
 				}
-				rs = seekRepeatableByAnnotation(anInterface, annotationType);
+				rs = seekRepeatableByHierarchyAnnotation(anInterface, annotationType);
 				if (rs != null && rs.length > 0) {
 					return rs;
 				}
 			}
 
 			// next level
-			classCandidates = getClassCandidates(superclass, interfaces, visited);
+			classCandidates = getHierarchyClassCandidates(superclass, interfaces, visited);
 			superclass = classCandidates.getFirst();
 			interfaces = classCandidates.getSecond();
 		}
 		return null;
 	}
 
-	private static <A extends Annotation> A[] seekRepeatableByMethod(Method element, Class<A> annotationType) {
+	private static <A extends Annotation> A[] seekRepeatableByHierarchyMethod(Method element, Class<A> annotationType) {
 		Class<?> declaringClass = element.getDeclaringClass();
 		Set<AnnotatedElement> visited = new LinkedHashSet<>();
-		Tuple2<Class<?>, Class<?>[]> classCandidates = getClassCandidates(declaringClass, null, visited);
+		Tuple2<Class<?>, Class<?>[]> classCandidates = getHierarchyClassCandidates(declaringClass, null, visited);
 		Class<?> superclass = classCandidates.getFirst();
 		Class<?>[] interfaces = classCandidates.getSecond();
 		if ((superclass == null || superclass == Object.class) && interfaces.length == 0) {
@@ -370,7 +369,7 @@ public class Annotations {
 					if (rs != null && rs.length > 0) {
 						return rs;
 					}
-					rs = seekRepeatableByAnnotation(method, annotationType);
+					rs = seekRepeatableByHierarchyAnnotation(method, annotationType);
 					if (rs != null && rs.length > 0) {
 						return rs;
 					}
@@ -384,7 +383,7 @@ public class Annotations {
 					if (rs != null && rs.length > 0) {
 						return rs;
 					}
-					rs = seekRepeatableByAnnotation(method, annotationType);
+					rs = seekRepeatableByHierarchyAnnotation(method, annotationType);
 					if (rs != null && rs.length > 0) {
 						return rs;
 					}
@@ -393,7 +392,7 @@ public class Annotations {
 			}
 
 			// next level
-			classCandidates = getClassCandidates(superclass, interfaces, visited);
+			classCandidates = getHierarchyClassCandidates(superclass, interfaces, visited);
 			superclass = classCandidates.getFirst();
 			interfaces = classCandidates.getSecond();
 		}
@@ -401,10 +400,10 @@ public class Annotations {
 	}
 
 
-	private static <A extends Annotation> A[] seekRepeatableByParameter(Parameter element, Method declaringMethod, int position, Class<A> annotationType) {
+	private static <A extends Annotation> A[] seekRepeatableByHierarchyParameter(Parameter element, Method declaringMethod, int position, Class<A> annotationType) {
 		Class<?> declaringClass = declaringMethod.getDeclaringClass();
 		Set<AnnotatedElement> visited = new LinkedHashSet<>();
-		Tuple2<Class<?>, Class<?>[]> classCandidates = getClassCandidates(declaringClass, null, visited);
+		Tuple2<Class<?>, Class<?>[]> classCandidates = getHierarchyClassCandidates(declaringClass, null, visited);
 		Class<?> superclass = classCandidates.getFirst();
 		Class<?>[] interfaces = classCandidates.getSecond();
 		if ((superclass == null || superclass == Object.class) && interfaces.length == 0) {
@@ -421,7 +420,7 @@ public class Annotations {
 					if (rs != null && rs.length > 0) {
 						return rs;
 					}
-					rs = seekRepeatableByAnnotation(parameter, annotationType);
+					rs = seekRepeatableByHierarchyAnnotation(parameter, annotationType);
 					if (rs != null && rs.length > 0) {
 						return rs;
 					}
@@ -437,7 +436,7 @@ public class Annotations {
 					if (rs != null && rs.length > 0) {
 						return rs;
 					}
-					rs = seekRepeatableByAnnotation(parameter, annotationType);
+					rs = seekRepeatableByHierarchyAnnotation(parameter, annotationType);
 					if (rs != null && rs.length > 0) {
 						return rs;
 					}
@@ -445,7 +444,7 @@ public class Annotations {
 				}
 			}
 			// next level
-			classCandidates = getClassCandidates(superclass, interfaces, visited);
+			classCandidates = getHierarchyClassCandidates(superclass, interfaces, visited);
 			superclass = classCandidates.getFirst();
 			interfaces = classCandidates.getSecond();
 		}
