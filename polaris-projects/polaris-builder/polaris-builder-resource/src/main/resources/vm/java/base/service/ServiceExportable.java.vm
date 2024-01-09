@@ -35,8 +35,8 @@ import com.github.pagehelper.PageHelper;
 import io.polaris.bf.core.fs.domain.ExcelFileDto;
 import io.polaris.bf.core.fs.domain.FileDto;
 import io.polaris.bf.core.fs.excel.ExcelConfig;
-import io.polaris.sdk.brm.session.AppSessions;
-import io.polaris.sdk.brm.cache.BrmCaches;
+import io.polaris.jtc.brm.session.AppSessions;
+import io.polaris.jtc.brm.cache.BrmCaches;
 
 /**
  * $!{table.name}

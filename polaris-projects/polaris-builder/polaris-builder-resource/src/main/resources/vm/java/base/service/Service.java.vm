@@ -31,8 +31,8 @@ import io.polaris.core.jdbc.sql.query.Pageable;
 import io.polaris.mybatis.util.MybatisToolkit;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.polaris.sdk.brm.session.AppSessions;
-import io.polaris.sdk.brm.cache.BrmCaches;
+import io.polaris.jtc.brm.session.AppSessions;
+import io.polaris.jtc.brm.cache.BrmCaches;
 
 /**
  * $!{table.name}
