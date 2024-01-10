@@ -1,6 +1,6 @@
 @echo off
-REM set VER=3.1.10-SNAPSHOT
-set VER=3.1.10-SNAPSHOT
+REM set VER=3.1.11-SNAPSHOT
+set VER=3.1.10
 set GIT_BASH=D:\devel\shell\Git\bin\bash
 
 call mvn -f ../pom.xml versions:set -DnewVersion=%VER%
