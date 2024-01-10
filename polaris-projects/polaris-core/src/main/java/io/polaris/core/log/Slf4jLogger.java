@@ -1,5 +1,6 @@
 package io.polaris.core.log;
 
+import io.polaris.core.collection.ObjectArrays;
 import org.slf4j.Logger;
 
 /**
@@ -42,7 +43,7 @@ public class Slf4jLogger implements ILogger {
 
 	@Override
 	public void trace(String msg) {
-		trace(msg, ILogger.EMPTY, null);
+		trace(msg, ObjectArrays.EMPTY, null);
 	}
 
 	@Override
@@ -52,7 +53,7 @@ public class Slf4jLogger implements ILogger {
 
 	@Override
 	public void trace(String msg, Throwable t) {
-		trace(msg, ILogger.EMPTY, t);
+		trace(msg, ObjectArrays.EMPTY, t);
 	}
 
 	@Override
@@ -72,7 +73,7 @@ public class Slf4jLogger implements ILogger {
 
 	@Override
 	public void debug(String msg) {
-		debug(msg, ILogger.EMPTY, null);
+		debug(msg, ObjectArrays.EMPTY, null);
 	}
 
 	@Override
@@ -82,7 +83,7 @@ public class Slf4jLogger implements ILogger {
 
 	@Override
 	public void debug(String msg, Throwable t) {
-		debug(msg, ILogger.EMPTY, t);
+		debug(msg, ObjectArrays.EMPTY, t);
 	}
 
 	@Override
@@ -102,7 +103,7 @@ public class Slf4jLogger implements ILogger {
 
 	@Override
 	public void info(String msg) {
-		info(msg, ILogger.EMPTY, null);
+		info(msg, ObjectArrays.EMPTY, null);
 	}
 
 	@Override
@@ -112,7 +113,7 @@ public class Slf4jLogger implements ILogger {
 
 	@Override
 	public void info(String msg, Throwable t) {
-		info(msg, ILogger.EMPTY, t);
+		info(msg, ObjectArrays.EMPTY, t);
 	}
 
 	@Override
@@ -132,7 +133,7 @@ public class Slf4jLogger implements ILogger {
 
 	@Override
 	public void warn(String msg) {
-		warn(msg, ILogger.EMPTY, null);
+		warn(msg, ObjectArrays.EMPTY, null);
 	}
 
 	@Override
@@ -142,7 +143,7 @@ public class Slf4jLogger implements ILogger {
 
 	@Override
 	public void warn(String msg, Throwable t) {
-		warn(msg, ILogger.EMPTY, t);
+		warn(msg, ObjectArrays.EMPTY, t);
 	}
 
 	@Override
@@ -162,7 +163,7 @@ public class Slf4jLogger implements ILogger {
 
 	@Override
 	public void error(String msg) {
-		error(msg, ILogger.EMPTY, null);
+		error(msg, ObjectArrays.EMPTY, null);
 	}
 
 	@Override
@@ -172,7 +173,7 @@ public class Slf4jLogger implements ILogger {
 
 	@Override
 	public void error(String msg, Throwable t) {
-		error(msg, ILogger.EMPTY, t);
+		error(msg, ObjectArrays.EMPTY, t);
 	}
 
 

@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
  */
 public class ObjectArrays extends PrimitiveArrays {
 
+	public static final Object[] EMPTY = new Object[0];
+
 	public static List<Object> toList(Object array) {
 		List<Object> c = new ArrayList<>();
 		int len = Array.getLength(array);

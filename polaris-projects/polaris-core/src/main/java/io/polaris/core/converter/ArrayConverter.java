@@ -6,6 +6,7 @@ import io.polaris.core.io.Serializations;
 import io.polaris.core.json.JsonSerializer;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.log.ILogger;
+import io.polaris.core.log.ILoggers;
 import io.polaris.core.service.StatefulServiceLoader;
 
 import java.io.Serializable;
@@ -22,7 +23,7 @@ import java.util.Optional;
  * @since 1.8
  */
 public class ArrayConverter<T> extends AbstractConverter<T[]> {
-	private static final ILogger log = ILogger.of(ArrayConverter.class);
+	private static final ILogger log = ILoggers.of(ArrayConverter.class);
 	private final JavaType<T[]> targetType;
 	private final JavaType<T> targetComponentType;
 

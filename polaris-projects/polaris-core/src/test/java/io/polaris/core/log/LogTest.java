@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 public class LogTest {
 	@Test
 	void test01() {
-		ILogger log = ILogger.of(getClass());
+		ILogger log = ILoggers.of(getClass());
 		log.trace("test....");
 		log.debug("test....");
 		log.info("test....");

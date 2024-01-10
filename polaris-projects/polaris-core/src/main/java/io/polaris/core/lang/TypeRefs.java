@@ -5,6 +5,7 @@ import io.polaris.core.compiler.MemoryClassLoader;
 import io.polaris.core.compiler.MemoryCompiler;
 import io.polaris.core.log.ILogger;
 import com.squareup.javapoet.*;
+import io.polaris.core.log.ILoggers;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 
@@ -22,7 +23,7 @@ import static org.objectweb.asm.Opcodes.*;
  * @since 1.8
  */
 public class TypeRefs {
-	private static final ILogger log = ILogger.of(TypeRefs.class);
+	private static final ILogger log = ILoggers.of(TypeRefs.class);
 	private static final AtomicLong seq = new AtomicLong(0);
 	private static final Map<String, Type> refs = new ConcurrentHashMap<>();
 

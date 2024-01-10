@@ -1,12 +1,13 @@
 package io.polaris.core.service;
 
 import io.polaris.core.log.ILogger;
+import io.polaris.core.log.ILoggers;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
 class ServiceLoaderTest {
-	private static final ILogger log = ILogger.of(ServiceLoaderTest.class);
+	private static final ILogger log = ILoggers.of(ServiceLoaderTest.class);
 
 	@Test
 	void test01() {

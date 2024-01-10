@@ -4,6 +4,7 @@ import io.polaris.core.jdbc.base.*;
 import io.polaris.core.jdbc.sql.PreparedSql;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.log.ILogger;
+import io.polaris.core.log.ILoggers;
 import io.polaris.core.string.Strings;
 
 import javax.naming.Context;
@@ -22,7 +23,7 @@ import java.util.Properties;
  */
 @SuppressWarnings({"unused"})
 public class Jdbcs {
-	private static final ILogger log = ILogger.of(Jdbcs.class);
+	private static final ILogger log = ILoggers.of(Jdbcs.class);
 	private static int defaultFetchSize = 100;
 
 	public static void setDefaultFetchSize(int fetchSize) {

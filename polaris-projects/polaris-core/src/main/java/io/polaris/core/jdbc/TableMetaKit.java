@@ -6,6 +6,7 @@ import io.polaris.core.jdbc.annotation.Id;
 import io.polaris.core.jdbc.annotation.Table;
 import io.polaris.core.jdbc.annotation.processing.JdbcBeanInfo;
 import io.polaris.core.log.ILogger;
+import io.polaris.core.log.ILoggers;
 
 import java.io.ObjectStreamException;
 import java.lang.reflect.Field;
@@ -18,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 1.8,  Aug 20, 2023
  */
 public class TableMetaKit {
-	private static final ILogger log = ILogger.of(TableMetaKit.class);
+	private static final ILogger log = ILoggers.of(TableMetaKit.class);
 	private static final TableMetaKit instance = new TableMetaKit();
 	private final Map<Class<?>, TableMeta> cache = new ConcurrentHashMap<>();
 

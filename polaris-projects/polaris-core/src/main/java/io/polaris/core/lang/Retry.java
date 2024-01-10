@@ -1,6 +1,7 @@
 package io.polaris.core.lang;
 
 import io.polaris.core.log.ILogger;
+import io.polaris.core.log.ILoggers;
 
 import java.util.concurrent.Callable;
 
@@ -9,7 +10,7 @@ import java.util.concurrent.Callable;
  * @since 1.8
  */
 public class Retry {
-	private static final ILogger log = ILogger.of(Retry.class);
+	private static final ILogger log = ILoggers.of(Retry.class);
 
 
 	public static <T> T doRetry(Callable<T> callable, int retryTimes, long sleepTimeInMilliSecond,

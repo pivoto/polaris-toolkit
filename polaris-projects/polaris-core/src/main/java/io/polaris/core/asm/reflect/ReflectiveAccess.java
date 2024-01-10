@@ -3,6 +3,7 @@ package io.polaris.core.asm.reflect;
 import io.polaris.core.err.InvocationException;
 import io.polaris.core.lang.Types;
 import io.polaris.core.log.ILogger;
+import io.polaris.core.log.ILoggers;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.reflect.SerializableFunction;
 import io.polaris.core.tuple.Tuple2;
@@ -25,7 +26,7 @@ import static org.objectweb.asm.Opcodes.*;
  */
 @SuppressWarnings("all")
 public abstract class ReflectiveAccess<T> {
-	private static ILogger log = ILogger.of(ReflectiveAccess.class);
+	private static ILogger log = ILoggers.of(ReflectiveAccess.class);
 	private int constructorIndex = -1;
 	private Class[][] constructorParamTypes;
 	private Function<Object[], Object>[] constructors;

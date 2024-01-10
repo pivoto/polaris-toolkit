@@ -5,6 +5,7 @@ import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.TypeRef;
 import io.polaris.core.lang.Types;
 import io.polaris.core.log.ILogger;
+import io.polaris.core.log.ILoggers;
 import io.polaris.core.map.CaseInsensitiveMap;
 import io.polaris.core.map.Maps;
 import io.polaris.core.reflect.Reflects;
@@ -32,7 +33,7 @@ public class MetaObject<T> {
 	public static final int READY = 2;
 	public static final int CASE_INSENSITIVE = 1;
 	public static final int CASE_CAMEL = 2;
-	private static final ILogger log = ILogger.of(MetaObject.class);
+	private static final ILogger log = ILoggers.of(MetaObject.class);
 	private static final Map<JavaType<?>, MetaObject<?>> CACHE = Maps.newWeakKeyMap(new ConcurrentHashMap<>());
 	private final JavaType<T> beanType;
 	private int state = INIT;

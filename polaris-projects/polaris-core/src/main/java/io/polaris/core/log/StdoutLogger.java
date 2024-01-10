@@ -1,6 +1,8 @@
 package io.polaris.core.log;
 
+import io.polaris.core.collection.ObjectArrays;
 import io.polaris.core.date.Dates;
+import io.polaris.core.function.TriConsumer;
 import io.polaris.core.string.Strings;
 
 import java.time.Instant;
@@ -11,20 +13,33 @@ import java.time.Instant;
  */
 public class StdoutLogger implements ILogger {
 	private final String name;
-	private Level level;
+	private final Level level;
+	private TriConsumer<String, Object[], Throwable> printer;
 
 	public StdoutLogger(String name) {
 		this.name = name;
+		Level level;
 		try {
-			String level = System.getProperty("logger.level." + name);
-			this.level = Level.valueOf(Strings.coalesce(level, Level.DEBUG.name()).toLowerCase());
+			String levelStr = System.getProperty("logger.level." + name);
+			level = Level.valueOf(Strings.coalesce(levelStr, Level.DEBUG.name()).toLowerCase());
 		} catch (Throwable e) {
-			this.level = Level.DEBUG;
+			level = Level.DEBUG;
 		}
+		this.level = level;
+	}
+
+	public StdoutLogger(String name, Level level, TriConsumer<String, Object[], Throwable> printer) {
+		this.name = name;
+		this.level = level;
+		this.printer = printer;
 	}
 
 	private void print(Level level, String msg, Object[] arguments, Throwable t) {
 		if (this.level.ordinal() > level.ordinal()) {
+			return;
+		}
+		if (printer != null) {
+			printer.accept(msg, arguments, t);
 			return;
 		}
 		String delimiter = " ";
@@ -68,7 +83,7 @@ public class StdoutLogger implements ILogger {
 
 	@Override
 	public void trace(String msg) {
-		trace(msg, ILogger.EMPTY, null);
+		trace(msg, ObjectArrays.EMPTY, null);
 	}
 
 	@Override
@@ -78,7 +93,7 @@ public class StdoutLogger implements ILogger {
 
 	@Override
 	public void trace(String msg, Throwable t) {
-		trace(msg, ILogger.EMPTY, t);
+		trace(msg, ObjectArrays.EMPTY, t);
 	}
 
 	@Override
@@ -93,7 +108,7 @@ public class StdoutLogger implements ILogger {
 
 	@Override
 	public void debug(String msg) {
-		debug(msg, ILogger.EMPTY, null);
+		debug(msg, ObjectArrays.EMPTY, null);
 	}
 
 	@Override
@@ -103,7 +118,7 @@ public class StdoutLogger implements ILogger {
 
 	@Override
 	public void debug(String msg, Throwable t) {
-		debug(msg, ILogger.EMPTY, t);
+		debug(msg, ObjectArrays.EMPTY, t);
 	}
 
 	@Override
@@ -119,7 +134,7 @@ public class StdoutLogger implements ILogger {
 
 	@Override
 	public void info(String msg) {
-		info(msg, ILogger.EMPTY, null);
+		info(msg, ObjectArrays.EMPTY, null);
 	}
 
 	@Override
@@ -129,7 +144,7 @@ public class StdoutLogger implements ILogger {
 
 	@Override
 	public void info(String msg, Throwable t) {
-		info(msg, ILogger.EMPTY, t);
+		info(msg, ObjectArrays.EMPTY, t);
 	}
 
 	@Override
@@ -144,7 +159,7 @@ public class StdoutLogger implements ILogger {
 
 	@Override
 	public void warn(String msg) {
-		warn(msg, ILogger.EMPTY, null);
+		warn(msg, ObjectArrays.EMPTY, null);
 	}
 
 	@Override
@@ -154,7 +169,7 @@ public class StdoutLogger implements ILogger {
 
 	@Override
 	public void warn(String msg, Throwable t) {
-		warn(msg, ILogger.EMPTY, t);
+		warn(msg, ObjectArrays.EMPTY, t);
 	}
 
 	@Override
@@ -169,7 +184,7 @@ public class StdoutLogger implements ILogger {
 
 	@Override
 	public void error(String msg) {
-		error(msg, ILogger.EMPTY, null);
+		error(msg, ObjectArrays.EMPTY, null);
 	}
 
 	@Override
@@ -179,7 +194,7 @@ public class StdoutLogger implements ILogger {
 
 	@Override
 	public void error(String msg, Throwable t) {
-		error(msg, ILogger.EMPTY, t);
+		error(msg, ObjectArrays.EMPTY, t);
 	}
 
 

@@ -3,6 +3,7 @@ package io.polaris.core.jdbc.dbv;
 import io.polaris.core.jdbc.dbv.annotation.ColumnHandler;
 import io.polaris.core.jdbc.dbv.annotation.ColumnName;
 import io.polaris.core.log.ILogger;
+import io.polaris.core.log.ILoggers;
 import io.polaris.core.map.CaseInsensitiveMap;
 import lombok.Data;
 
@@ -18,7 +19,7 @@ import java.util.*;
  * @since 1.8
  */
 public class ResultSetFetcher {
-	private static final ILogger log = ILogger.of(ResultSetFetcher.class);
+	private static final ILogger log = ILoggers.of(ResultSetFetcher.class);
 	public static Map<String, Object> fetch(final ResultSet rs) throws SQLException {
 		final ResultSetMetaData meta = rs.getMetaData();
 		final int cnt = meta.getColumnCount();

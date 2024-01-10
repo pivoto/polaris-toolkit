@@ -1,6 +1,7 @@
 package io.polaris.janino;
 
 import io.polaris.core.log.ILogger;
+import io.polaris.core.log.ILoggers;
 import org.codehaus.commons.compiler.CompileException;
 import org.codehaus.commons.compiler.CompilerFactoryFactory;
 import org.codehaus.commons.compiler.IExpressionEvaluator;
@@ -74,7 +75,7 @@ public class JaninoTest {
 
 	@Test
 	void test07() {
-		ILogger log = ILogger.of(getClass());
+		ILogger log = ILoggers.of(getClass());
 		log.trace("test....");
 		log.debug("test....");
 		log.info("test....");

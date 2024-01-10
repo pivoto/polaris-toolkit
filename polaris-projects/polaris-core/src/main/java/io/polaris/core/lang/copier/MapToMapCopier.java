@@ -2,6 +2,7 @@ package io.polaris.core.lang.copier;
 
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.log.ILogger;
+import io.polaris.core.log.ILoggers;
 
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -12,7 +13,7 @@ import java.util.Map;
  */
 @SuppressWarnings("rawtypes")
 public class MapToMapCopier extends BaseCopier<Map, Map> {
-	private static final ILogger log = ILogger.of(MapToMapCopier.class);
+	private static final ILogger log = ILoggers.of(MapToMapCopier.class);
 
 	/**
 	 * @param source      来源Map

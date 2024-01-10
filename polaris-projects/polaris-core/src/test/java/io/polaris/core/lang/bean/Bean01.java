@@ -1,6 +1,7 @@
 package io.polaris.core.lang.bean;
 
 import io.polaris.core.log.ILogger;
+import io.polaris.core.log.ILoggers;
 import io.polaris.core.random.Randoms;
 import io.polaris.core.tuple.Tuple;
 import io.polaris.core.tuple.Tuples;
@@ -16,7 +17,7 @@ import java.util.*;
  */
 @Data
 public class Bean01 extends Bean01Parent{
-	private static final ILogger log = ILogger.of(Bean01.class);
+	private static final ILogger log = ILoggers.of(Bean01.class);
 	static String staticId;
 	String id;
 	String name;

@@ -1,8 +1,6 @@
 package io.polaris.core.log;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.spi.LocationAwareLogger;
+import io.polaris.core.collection.ObjectArrays;
 
 import java.util.StringJoiner;
 
@@ -24,14 +22,14 @@ public class Loggers {
 		DFT_NAME = joiner.toString();
 	}
 
-	public static LocationAwareLogger of() {
+	public static org.slf4j.spi.LocationAwareLogger of() {
 		return of(DFT_NAME);
 	}
 
-	public static LocationAwareLogger of(String name) {
-		Logger logger = LoggerFactory.getLogger(name);
-		if (logger instanceof LocationAwareLogger) {
-			return (LocationAwareLogger) logger;
+	public static org.slf4j.spi.LocationAwareLogger of(String name) {
+		org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(name);
+		if (logger instanceof org.slf4j.spi.LocationAwareLogger) {
+			return (org.slf4j.spi.LocationAwareLogger) logger;
 		}
 		return null;
 	}
@@ -43,13 +41,13 @@ public class Loggers {
 	}
 
 	public static void trace(String logName, String msg, Throwable t) {
-		trace(logName, msg, ILogger.EMPTY, t);
+		trace(logName, msg, ObjectArrays.EMPTY, t);
 	}
 
 	public static void trace(String logName, String msg, Object[] arguments, Throwable t) {
-		LocationAwareLogger log = of(logName);
+		org.slf4j.spi.LocationAwareLogger log = of(logName);
 		if (log != null && log.isTraceEnabled()) {
-			log.log(null, FQCN, LocationAwareLogger.TRACE_INT, msg, arguments, t);
+			log.log(null, FQCN, org.slf4j.spi.LocationAwareLogger.TRACE_INT, msg, arguments, t);
 		}
 	}
 
@@ -63,13 +61,13 @@ public class Loggers {
 	}
 
 	public static void debug(String logName, String msg, Throwable t) {
-		debug(logName, msg, ILogger.EMPTY, t);
+		debug(logName, msg, ObjectArrays.EMPTY, t);
 	}
 
 	public static void debug(String logName, String msg, Object[] arguments, Throwable t) {
-		LocationAwareLogger log = of(logName);
+		org.slf4j.spi.LocationAwareLogger log = of(logName);
 		if (log != null && log.isDebugEnabled()) {
-			log.log(null, FQCN, LocationAwareLogger.DEBUG_INT, msg, arguments, t);
+			log.log(null, FQCN, org.slf4j.spi.LocationAwareLogger.DEBUG_INT, msg, arguments, t);
 		}
 	}
 
@@ -83,13 +81,13 @@ public class Loggers {
 	}
 
 	public static void info(String logName, String msg, Throwable t) {
-		info(logName, msg, ILogger.EMPTY, t);
+		info(logName, msg, ObjectArrays.EMPTY, t);
 	}
 
 	public static void info(String logName, String msg, Object[] arguments, Throwable t) {
-		LocationAwareLogger log = of(logName);
+		org.slf4j.spi.LocationAwareLogger log = of(logName);
 		if (log != null && log.isInfoEnabled()) {
-			log.log(null, FQCN, LocationAwareLogger.INFO_INT, msg, arguments, t);
+			log.log(null, FQCN, org.slf4j.spi.LocationAwareLogger.INFO_INT, msg, arguments, t);
 		}
 	}
 
@@ -102,13 +100,13 @@ public class Loggers {
 	}
 
 	public static void warn(String logName, String msg, Throwable t) {
-		warn(logName, msg, ILogger.EMPTY, t);
+		warn(logName, msg, ObjectArrays.EMPTY, t);
 	}
 
 	public static void warn(String logName, String msg, Object[] arguments, Throwable t) {
-		LocationAwareLogger log = of(logName);
+		org.slf4j.spi.LocationAwareLogger log = of(logName);
 		if (log != null && log.isWarnEnabled()) {
-			log.log(null, FQCN, LocationAwareLogger.WARN_INT, msg, arguments, t);
+			log.log(null, FQCN, org.slf4j.spi.LocationAwareLogger.WARN_INT, msg, arguments, t);
 		}
 	}
 
@@ -121,13 +119,13 @@ public class Loggers {
 	}
 
 	public static void error(String logName, String msg, Throwable t) {
-		error(logName, msg, ILogger.EMPTY, t);
+		error(logName, msg, ObjectArrays.EMPTY, t);
 	}
 
 	public static void error(String logName, String msg, Object[] arguments, Throwable t) {
-		LocationAwareLogger log = of(logName);
+		org.slf4j.spi.LocationAwareLogger log = of(logName);
 		if (log != null && log.isErrorEnabled()) {
-			log.log(null, FQCN, LocationAwareLogger.ERROR_INT, msg, arguments, t);
+			log.log(null, FQCN, org.slf4j.spi.LocationAwareLogger.ERROR_INT, msg, arguments, t);
 		}
 	}
 
@@ -141,7 +139,7 @@ public class Loggers {
 	// region default log
 
 	public static void trace(String msg) {
-		trace(msg, ILogger.EMPTY, null);
+		trace(msg, ObjectArrays.EMPTY, null);
 	}
 
 	public static void trace(String msg, Object[] arguments) {
@@ -149,13 +147,13 @@ public class Loggers {
 	}
 
 	public static void trace(String msg, Throwable t) {
-		trace(msg, ILogger.EMPTY, t);
+		trace(msg, ObjectArrays.EMPTY, t);
 	}
 
 	public static void trace(String msg, Object[] arguments, Throwable t) {
-		LocationAwareLogger log = of();
+		org.slf4j.spi.LocationAwareLogger log = of();
 		if (log != null && log.isTraceEnabled()) {
-			log.log(null, FQCN, LocationAwareLogger.TRACE_INT, msg, arguments, t);
+			log.log(null, FQCN, org.slf4j.spi.LocationAwareLogger.TRACE_INT, msg, arguments, t);
 		}
 	}
 
@@ -164,7 +162,7 @@ public class Loggers {
 	}
 
 	public static void debug(String msg) {
-		debug(msg, ILogger.EMPTY, null);
+		debug(msg, ObjectArrays.EMPTY, null);
 	}
 
 	public static void debug(String msg, Object[] arguments) {
@@ -172,13 +170,13 @@ public class Loggers {
 	}
 
 	public static void debug(String msg, Throwable t) {
-		debug(msg, ILogger.EMPTY, t);
+		debug(msg, ObjectArrays.EMPTY, t);
 	}
 
 	public static void debug(String msg, Object[] arguments, Throwable t) {
-		LocationAwareLogger log = of();
+		org.slf4j.spi.LocationAwareLogger log = of();
 		if (log != null && log.isDebugEnabled()) {
-			log.log(null, FQCN, LocationAwareLogger.DEBUG_INT, msg, arguments, t);
+			log.log(null, FQCN, org.slf4j.spi.LocationAwareLogger.DEBUG_INT, msg, arguments, t);
 		}
 	}
 
@@ -187,7 +185,7 @@ public class Loggers {
 	}
 
 	public static void info(String msg) {
-		info(msg, ILogger.EMPTY, null);
+		info(msg, ObjectArrays.EMPTY, null);
 	}
 
 	public static void info(String msg, Object[] arguments) {
@@ -195,13 +193,13 @@ public class Loggers {
 	}
 
 	public static void info(String msg, Throwable t) {
-		info(msg, ILogger.EMPTY, t);
+		info(msg, ObjectArrays.EMPTY, t);
 	}
 
 	public static void info(String msg, Object[] arguments, Throwable t) {
-		LocationAwareLogger log = of();
+		org.slf4j.spi.LocationAwareLogger log = of();
 		if (log != null && log.isInfoEnabled()) {
-			log.log(null, FQCN, LocationAwareLogger.INFO_INT, msg, arguments, t);
+			log.log(null, FQCN, org.slf4j.spi.LocationAwareLogger.INFO_INT, msg, arguments, t);
 		}
 	}
 
@@ -210,7 +208,7 @@ public class Loggers {
 	}
 
 	public static void warn(String msg) {
-		warn(msg, ILogger.EMPTY, null);
+		warn(msg, ObjectArrays.EMPTY, null);
 	}
 
 	public static void warn(String msg, Object[] arguments) {
@@ -218,13 +216,13 @@ public class Loggers {
 	}
 
 	public static void warn(String msg, Throwable t) {
-		warn(msg, ILogger.EMPTY, t);
+		warn(msg, ObjectArrays.EMPTY, t);
 	}
 
 	public static void warn(String msg, Object[] arguments, Throwable t) {
-		LocationAwareLogger log = of();
+		org.slf4j.spi.LocationAwareLogger log = of();
 		if (log != null && log.isWarnEnabled()) {
-			log.log(null, FQCN, LocationAwareLogger.WARN_INT, msg, arguments, t);
+			log.log(null, FQCN, org.slf4j.spi.LocationAwareLogger.WARN_INT, msg, arguments, t);
 		}
 	}
 
@@ -233,7 +231,7 @@ public class Loggers {
 	}
 
 	public static void error(String msg) {
-		error(msg, ILogger.EMPTY, null);
+		error(msg, ObjectArrays.EMPTY, null);
 	}
 
 	public static void error(String msg, Object[] arguments) {
@@ -241,14 +239,14 @@ public class Loggers {
 	}
 
 	public static void error(String msg, Throwable t) {
-		error(msg, ILogger.EMPTY, t);
+		error(msg, ObjectArrays.EMPTY, t);
 	}
 
 
 	public static void error(String msg, Object[] arguments, Throwable t) {
-		LocationAwareLogger log = of();
+		org.slf4j.spi.LocationAwareLogger log = of();
 		if (log != null && log.isErrorEnabled()) {
-			log.log(null, FQCN, LocationAwareLogger.ERROR_INT, msg, arguments, t);
+			log.log(null, FQCN, org.slf4j.spi.LocationAwareLogger.ERROR_INT, msg, arguments, t);
 		}
 	}
 

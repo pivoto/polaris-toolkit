@@ -4,6 +4,7 @@ import io.polaris.core.jdbc.Jdbcs;
 import io.polaris.core.jdbc.base.RowMapper;
 import io.polaris.core.jdbc.dbv.model.*;
 import io.polaris.core.log.ILogger;
+import io.polaris.core.log.ILoggers;
 import io.polaris.core.string.Strings;
 
 import java.sql.DatabaseMetaData;
@@ -18,7 +19,7 @@ import java.util.List;
  * @since 1.8
  */
 public class Dbv {
-	private static final ILogger log = ILogger.of(Dbv.class);
+	private static final ILogger log = ILoggers.of(Dbv.class);
 
 	public static <T> List<T> read(ResultSet rs, List<T> list, final Class<? extends T> clazz)
 		throws InstantiationException, IllegalAccessException {

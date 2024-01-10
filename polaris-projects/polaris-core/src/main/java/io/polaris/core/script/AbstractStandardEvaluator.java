@@ -4,6 +4,7 @@ import io.polaris.core.cache.ICache;
 import io.polaris.core.cache.MapCache;
 import io.polaris.core.crypto.digest.Digests;
 import io.polaris.core.log.ILogger;
+import io.polaris.core.log.ILoggers;
 
 import javax.script.*;
 import java.util.Base64;
@@ -15,7 +16,7 @@ import java.util.Map;
  * @since 1.8
  */
 public abstract class AbstractStandardEvaluator implements Evaluator {
-	private static final ILogger log = ILogger.of(AbstractStandardEvaluator.class);
+	private static final ILogger log = ILoggers.of(AbstractStandardEvaluator.class);
 
 	public static final String OUT = "out";
 	public static final String ERR = "err";
