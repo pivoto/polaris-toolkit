@@ -6,28 +6,65 @@
 				<v-row class="mb10">
 #foreach($col in $table.columns)
 	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
-					<v-col-form-item type="datetimerange" label="${col.label}" prop="${col.javaVariableName}" v-model="vQueryForm.queryForm.${col.javaVariableName}"
-						clearable item-style="width: 200px;" :date-props="{rangeSeparator:'~',startPlaceholder:'起始时间',endPlaceholder:'截止时间'}" />
+					<v-col>
+						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+							<el-date-picker v-model="vQueryForm.queryForm.${col.javaVariableName}"
+								type="datetimerange" value-format="x" format="YYYY-MM-DD HH:mm:ss"
+								range-separator="~" start-placeholder="起始时间" end-placeholder="截止时间"
+								style="max-width: 200px"></el-date-picker>
+						</el-form-item>
+					</v-col>
 	#elseif(${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT')
-					<v-col-form-item type="number" label="${col.label}" prop="${col.javaVariableName}" v-model="vQueryForm.queryForm.${col.javaVariableName}"
-						clearable item-style="width: 200px;" :number-props="{precision:0}" />
+					<v-col>
+						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+							<el-input-number v-model="vQueryForm.queryForm.${col.javaVariableName}" placeholder="请输入${col.label}"
+								:precision="0" clearable style="width: 200px;" />
+						</el-form-item>
+					</v-col>
 	#elseif(${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
-					<v-col-form-item type="number" label="${col.label}" prop="${col.javaVariableName}" v-model="vQueryForm.queryForm.${col.javaVariableName}"
-						clearable item-style="width: 200px;" :number-props="{precision:${col.decimalDigits}}" />
+					<v-col>
+						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+							<el-input-number v-model="vQueryForm.queryForm.${col.javaVariableName}" placeholder="请输入${col.label}"
+								:precision="${col.decimalDigits}" clearable style="width: 200px;" />
+						</el-form-item>
+					</v-col>
 	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' )
-					<v-col-form-item type="input" label="${col.label}" prop="${col.javaVariableName}" v-model="vQueryForm.queryForm.${col.javaVariableName}"
-						clearable item-style="width: 180px;" />
+					<v-col>
+						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+							<el-input v-model="vQueryForm.queryForm.${col.javaVariableName}" placeholder="请输入${col.label}"
+									clearable style="max-width: 180px;">
+							</el-input>
+						</el-form-item>
+					</v-col>
 	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'BIGINT')
-					<v-col-form-item type="input" label="${col.label}" prop="${col.javaVariableName}" v-model="vQueryForm.queryForm.${col.javaVariableName}"
-						clearable item-style="width: 180px;" />
+					<v-col>
+						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+							<el-input v-model="vQueryForm.queryForm.${col.javaVariableName}" placeholder="请输入${col.label}"
+									clearable style="max-width: 180px;">
+							</el-input>
+						</el-form-item>
+					</v-col>
 	#else
 		#if(${col.name.toLowerCase().endsWith('_sts')})
-					<v-col-form-item type="select" label="${col.label}" prop="${col.javaVariableName}" v-model="vQueryForm.queryForm.${col.javaVariableName}"
-						clearable item-style="width: 200px;"
-						:data="[{value:'A',label:'生效',tag:{effect:'dark'}},{value:'I',label:'失效',tag:{effect:'dark',type:'danger'}}]" />
+					<v-col>
+						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+							<el-select v-model="vQueryForm.queryForm.${col.javaVariableName}" clearable placeholder="请输入${col.label}" style="max-width: 200px">
+								<el-option v-for="item in [{value:'A',label:'生效'},{value:'I',label:'失效'}]"
+									:key="item.value" :label="item.label" :value="item.value as any">
+									<el-tag effect="dark" size="small" :type="''" v-if="item.value=='A'">生效</el-tag>
+									<el-tag effect="dark" size="small" :type="'danger'" v-else>失效</el-tag>
+								</el-option>
+							</el-select>
+						</el-form-item>
+					</v-col>
 		#else
-					<v-col-form-item type="input" label="${col.label}" prop="${col.javaVariableName}" v-model="vQueryForm.queryForm.${col.javaVariableName}"
-						clearable item-style="width: 180px;" />
+					<v-col>
+						<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+							<el-input v-model="vQueryForm.queryForm.${col.javaVariableName}" placeholder="请输入${col.label}"
+									clearable style="max-width: 180px;">
+							</el-input>
+						</el-form-item>
+					</v-col>
 		#end
 	#end
 #end

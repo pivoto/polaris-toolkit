@@ -15,37 +15,76 @@
 #end
 #if(${env.entityExtInterface.contains('Creatable')} && ${col.javaVariableName.equals('crtUser')})
 	#if(!$table.containsColumnVariableName('crtUserName'))
-				<v-col-form-item type="input" label="${col.label}" prop="crtUserName" v-model="vFormData.crtUserName"
-					clearable ${env.editPageColReadonly} item-style="width: 200px;" />
+				<v-col class="mb5">
+					<el-form-item label="${col.label}" prop="crtUserName">
+						<el-input v-model="vFormData.crtUserName" placeholder="请输入${col.label}"
+							clearable ${env.editPageColReadonly} style="width: 200px;"></el-input>
+					</el-form-item>
+				</v-col>
 	#end
 #elseif(${env.entityExtInterface.contains('Updatable')} && ${col.javaVariableName.equals('uptUser')})
 	#if(!$table.containsColumnVariableName('uptUserName'))
-				<v-col-form-item type="input" label="${col.label}" prop="uptUserName" v-model="vFormData.crtUserName"
-					clearable ${env.editPageColReadonly} item-style="width: 200px;" />
+				<v-col class="mb5">
+					<el-form-item label="${col.label}" prop="uptUserName">
+						<el-input v-model="vFormData.uptUserName" placeholder="请输入${col.label}"
+							clearable ${env.editPageColReadonly} style="width: 200px;"></el-input>
+					</el-form-item>
+				</v-col>
 	#end
 #elseif(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
-				<v-col-form-item type="datetime" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
-					clearable ${env.editPageColReadonly} item-style="width: 200px;" />
+				<v-col class="mb5">
+					<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+						<el-date-picker v-model="vFormData.${col.javaVariableName}" placeholder="请输入${col.label}"
+							clearable ${env.editPageColReadonly} style="width: 200px;"
+							type="datetime" value-format="x" format="YYYY-MM-DD HH:mm:ss"/>
+					</el-form-item>
+				</v-col>
 #elseif(${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT')
-				<v-col-form-item type="number" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
-					clearable ${env.editPageColReadonly} item-style="width: 200px;" :number-props="{precision:0}"/>
+				<v-col class="mb5">
+					<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+						<el-input-number v-model="vFormData.${col.javaVariableName}" placeholder="请输入${col.label}" clearable
+							:precision="0" ${env.editPageColReadonly} style="width: 200px;"/>
+					</el-form-item>
+				</v-col>
 #elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'BIGINT')
-				<v-col-form-item type="input" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
-					clearable ${env.editPageColReadonly} item-style="width: 200px;" />
+				<v-col class="mb5">
+					<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+						<el-input v-model="vFormData.${col.javaVariableName}" placeholder="请输入${col.label}"
+							clearable ${env.editPageColReadonly} style="width: 200px;"></el-input>
+					</el-form-item>
+				</v-col>
 #elseif(${col.jdbcType} == 'FLOAT' || ${col.jdbcType} == 'DOUBLE')
-				<v-col-form-item type="number" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
-					clearable ${env.editPageColReadonly} item-style="width: 200px;" :number-props="{precision:${col.decimalDigits}}"/>
+				<v-col class="mb5">
+					<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+						<el-input-number v-model="vFormData.${col.javaVariableName}" placeholder="请输入${col.label}" clearable
+							:precision="${col.decimalDigits}" ${env.editPageColReadonly} style="width: 200px;" />
+					</el-form-item>
+				</v-col>
 #elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL')
-				<v-col-form-item type="input" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
-					clearable ${env.editPageColReadonly} item-style="width: 200px;" />
+				<v-col class="mb5">
+					<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+						<el-input v-model="vFormData.${col.javaVariableName}" placeholder="请输入${col.label}"
+							clearable ${env.editPageColReadonly} style="width: 200px;"></el-input>
+					</el-form-item>
+				</v-col>
 #else
 	#if(${col.name.toLowerCase().endsWith('_sts')})
-				<v-col-form-item type="switch" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
-					clearable ${env.editPageColReadonly}
-					:switch-props="{width:60,inlinePrompt:true,activeValue:'A',inactiveValue:'I',activeText:'生效',inactiveText:'失效'}" />
+				<v-col class="mb5">
+					<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+						<el-switch v-model="vFormData.${col.javaVariableName}" width="60"
+							:active-value="'A'" :inactive-value="'I'" inline-prompt
+							active-text="生效" inactive-text="失效"
+							clearable ${env.editPageColReadonly} style="width: 200px;">
+						</el-switch>
+					</el-form-item>
+				</v-col>
 	#else
-				<v-col-form-item type="input" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
-					clearable ${env.editPageColReadonly} item-style="width: 200px;" />
+				<v-col class="mb5">
+					<el-form-item label="${col.label}" prop="${col.javaVariableName}">
+						<el-input v-model="vFormData.${col.javaVariableName}" placeholder="请输入${col.label}"
+							clearable ${env.editPageColReadonly} style="width: 200px;"></el-input>
+					</el-form-item>
+				</v-col>
 	#end
 #end
 #end
@@ -86,7 +125,6 @@ import type {RuleItem, ValidateError, ValidateFieldsError} from 'async-validator
 import VDialog from '/@/components/page/VDialog.vue';
 import VRow from '/@/components/page/VRow.vue';
 import VCol from '/@/components/page/VCol.vue';
-import VColFormItem from '/@/components/page/VColFormItem.vue';
 import SvgIcon from "/@/components/icon/SvgIcon.vue";
 
 import msg, {error} from "/@/common/core/msg";
