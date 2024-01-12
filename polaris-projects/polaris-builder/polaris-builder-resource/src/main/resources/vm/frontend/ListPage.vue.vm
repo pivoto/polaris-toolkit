@@ -62,28 +62,24 @@
 				</el-button-group>
 			</template>
 			<template #default>
-				<el-table-column type="index" label="序号" width="50" fixed header-align="center"></el-table-column>
+				<v-table-col type="index" label="序号" width="50"/>
 #foreach($col in $table.columns)
 	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
-				<el-table-column prop="${col.javaVariableName}" label="${col.label}" sortable show-overflow-tooltip header-align="center" :formatter="tableColumnFormatTime"></el-table-column>
+				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center" format-time />
 	#else
 		#if(${col.name.toLowerCase().endsWith('_sts')})
-				<el-table-column prop="${col.javaVariableName}" label="${col.label}" show-overflow-tooltip header-align="center" align="center">
-					<template #default="scope">
-						<el-tag effect="dark" size="small" :type="''" v-if="scope.row.${col.javaVariableName}=='A'">生效</el-tag>
-						<el-tag effect="dark" size="small" :type="'danger'" v-else>失效</el-tag>
-					</template>
-				</el-table-column>
+				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center"
+					:dict="[{value:'A',label:'生效',tag:{effect:'dark'}},{value:'I',label:'失效',tag:{effect:'dark',type:'danger'}}]" />
 		#elseif(${col.javaVariableName.equals('crtUser')})
 			#if(!$table.containsColumnVariableName('crtUserName'))
-				<el-table-column prop="${col.javaVariableName}" label="${col.label}" sortable show-overflow-tooltip header-align="center" :formatter="tableColumnFormatCrtUser"></el-table-column>
+				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center" format-user="crtUserName" />
 			#end
 		#elseif(${col.javaVariableName.equals('uptUser')})
 			#if(!$table.containsColumnVariableName('uptUserName'))
-				<el-table-column prop="${col.javaVariableName}" label="${col.label}" sortable show-overflow-tooltip header-align="center" :formatter="tableColumnFormatUptUser"></el-table-column>
+				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center" format-user="uptUserName" />
 			#end
 		#else
-				<el-table-column prop="${col.javaVariableName}" label="${col.label}" sortable show-overflow-tooltip header-align="center"></el-table-column>
+				<v-table-col prop="${col.javaVariableName}" label="${col.label}" />
 		#end
 	#end
 #end
@@ -127,6 +123,7 @@ import VTablePanel from '/@/components/page/VTablePanel.vue';
 import VRow from '/@/components/page/VRow.vue';
 import VCol from '/@/components/page/VCol.vue';
 import VColFormItem from '/@/components/page/VColFormItem.vue';
+import VTableCol from '/@/components/page/VTableCol.vue';
 import SvgIcon from "/@/components/icon/SvgIcon.vue";
 
 import Add${table.javaClassName} from './Add${table.javaClassName}.vue';
