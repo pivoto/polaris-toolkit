@@ -1,11 +1,14 @@
 package io.polaris.core.string;
 
+import io.polaris.core.collection.Iterables;
 import io.polaris.core.collection.ObjectArrays;
 import io.polaris.core.collection.PrimitiveArrays;
+import io.polaris.core.consts.StdConsts;
 import io.polaris.core.lang.primitive.Chars;
 import io.polaris.core.ulid.UlidCreator;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -20,10 +23,10 @@ import java.util.regex.Pattern;
 public class Strings {
 
 	private static final ThreadLocal<Map<String, String>> resolvedKeysLocal = new ThreadLocal<>();
-	private static Pattern patternPlaceholder = Pattern.compile("\\$\\{([\\w\\.\\-]+(?::([^${}]*))?)\\}");
+	private static final Pattern patternPlaceholder = Pattern.compile("\\$\\{([\\w\\.\\-]+(?::([^${}]*))?)\\}");
 	private static final String patternPlaceholderSeparator = "\\Q:\\E";
-	private static Pattern patternDigits = Pattern.compile("(?<!\\\\)\\{(\\d+)\\}");
-	private static Pattern patternEmpty = Pattern.compile("(?<!\\\\)\\{\\}");
+	private static final Pattern patternDigits = Pattern.compile("(?<!\\\\)\\{(\\d+)\\}");
+	private static final Pattern patternEmpty = Pattern.compile("(?<!\\\\)\\{\\}");
 
 	/**
 	 * 字节大小值转为带单位的可读字符串
@@ -671,6 +674,46 @@ public class Strings {
 		return asCollection(ArrayList::new, str.split(","));
 	}
 
+	public static String[] tokenizeToArray(@Nullable String str, String delimiters) {
+		return tokenizeToArray(str, delimiters, true, true);
+	}
+	public static String[] tokenizeToArray(
+		@Nullable String str, String delimiters, boolean trimTokens, boolean ignoreEmptyTokens) {
+		return tokenizeToArray(str, delimiters, trimTokens, ignoreEmptyTokens, null);
+	}
+	public static String[] tokenizeToArray(
+		@Nullable String str, String delimiters, boolean trimTokens, boolean ignoreEmptyTokens, Function<String, String> converter) {
+		if (str == null) {
+			return StdConsts.EMPTY_STRING_ARRAY;
+		}StringTokenizer st = new StringTokenizer(str, delimiters);
+		List<String> tokens = new ArrayList<>();
+		while (st.hasMoreTokens()) {
+			String token = st.nextToken();
+			if (trimTokens) {
+				token = token.trim();
+			}
+			if (!ignoreEmptyTokens || !token.isEmpty()) {
+				if (converter != null) {
+					token = converter.apply(token);
+				}
+				tokens.add(token);
+			}
+		}
+		return toArray(tokens);
+	}
+	public static String[] toArray(@Nullable Collection<String> collection) {
+		if (collection == null || collection.isEmpty()) {
+			return StdConsts.EMPTY_STRING_ARRAY;
+		} else {
+			return collection.toArray(new String[0]);
+		}
+	}
+	public static String[] toArray(@Nullable Enumeration<String> enumeration) {
+		return (enumeration != null ? toArray(Collections.list(enumeration)) : StdConsts.EMPTY_STRING_ARRAY);
+	}
+	public static String[] toArray(@Nullable Iterator<String> iterator) {
+		return (iterator != null ? toArray(Iterables.asList(iterator)) : StdConsts.EMPTY_STRING_ARRAY);
+	}
 	public static <T extends Collection<String>> T asCollection(Supplier<T> supplier, String... args) {
 		T t = supplier.get();
 		for (String arg : args) {

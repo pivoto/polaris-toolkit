@@ -2,6 +2,7 @@ package io.polaris.core.collection;
 
 import io.polaris.core.assertion.Assertions;
 import io.polaris.core.collection.comparator.Comparators;
+import io.polaris.core.consts.StdConsts;
 import io.polaris.core.consts.SymbolConsts;
 import io.polaris.core.converter.Converters;
 import io.polaris.core.lang.Objs;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
  */
 public class ObjectArrays extends PrimitiveArrays {
 
-	public static final Object[] EMPTY = new Object[0];
+	public static final Object[] EMPTY = StdConsts.EMPTY_ARRAY;
 
 	public static List<Object> toList(Object array) {
 		List<Object> c = new ArrayList<>();
