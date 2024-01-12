@@ -35,7 +35,7 @@ public class Strings {
 		long b = byteSize % 1024;
 		long k = byteSize / 1024;
 		if (k == 0) {
-			return b + "B" ;
+			return b + "B";
 		}
 		long m = k / 1024;
 		k = k % 1024;
@@ -90,7 +90,7 @@ public class Strings {
 			return null;
 		}
 		if (count <= 0) {
-			return "" ;
+			return "";
 		}
 		if (count == 1) {
 			return str;
@@ -156,7 +156,7 @@ public class Strings {
 
 
 	public static String uuid() {
-		return UUID.randomUUID().toString().replace("-" , "");
+		return UUID.randomUUID().toString().replace("-", "");
 	}
 
 	public static String ulid() {
@@ -167,7 +167,7 @@ public class Strings {
 	 * 标准化标识符，非法字符替换为下划线
 	 */
 	public static String normalize(String name) {
-		return name == null ? "" : name.trim().replaceAll("\\W" , "_");
+		return name == null ? "" : name.trim().replaceAll("\\W", "_");
 	}
 
 	/**
@@ -245,7 +245,7 @@ public class Strings {
 				String placeholder = matcher.group(1);
 				String[] arr = placeholder.split(placeholderSeparator, 2);
 				String k = arr[0].trim();
-				String defVal = arr.length > 1 ? arr[1].trim() : "" ;
+				String defVal = arr.length > 1 ? arr[1].trim() : "";
 				String v = null;
 				if (resovedKeys.containsKey(k)) {
 					v = resovedKeys.get(k);
@@ -257,7 +257,7 @@ public class Strings {
 				if (v == null) {
 					v = defVal;
 				}
-				v = v.replace("\\" , "\\\\").replace("$" , "\\$");
+				v = v.replace("\\", "\\\\").replace("$", "\\$");
 				matcher.appendReplacement(sb, v);
 			}
 			matcher.appendTail(sb);
@@ -318,14 +318,14 @@ public class Strings {
 
 	public static String trimToEmpty(String str) {
 		if (str == null) {
-			return "" ;
+			return "";
 		}
-		return str.trim();
+		return trim(str);
 	}
 
 	public static String trimToNull(String str) {
 		if (str != null) {
-			str = str.trim();
+			str = trim(str);
 			if (str.length() > 0) {
 				return str;
 			}
@@ -337,7 +337,15 @@ public class Strings {
 		if (str == null || str.isEmpty()) {
 			return str;
 		}
-		return str.trim();
+		int begin = 0;
+		int end = str.length() - 1;
+		while (begin <= end && Character.isWhitespace(str.charAt(begin))) {
+			begin++;
+		}
+		while (end > begin && Character.isWhitespace(str.charAt(end))) {
+			end--;
+		}
+		return str.substring(begin, end + 1);
 	}
 
 	public static String trimStart(String str) {
@@ -512,7 +520,7 @@ public class Strings {
 	}
 
 
-	@SuppressWarnings({"StatementWithEmptyBody" , "AliControlFlowStatementWithoutBraces"})
+	@SuppressWarnings({"StatementWithEmptyBody", "AliControlFlowStatementWithoutBraces"})
 	public static int indexOfIgnoreCase(char[] source, int sourceOffset, int sourceCount
 		, char[] target, int targetOffset, int targetCount, int fromIndex) {
 		if (fromIndex >= sourceCount) {
@@ -677,15 +685,18 @@ public class Strings {
 	public static String[] tokenizeToArray(@Nullable String str, String delimiters) {
 		return tokenizeToArray(str, delimiters, true, true);
 	}
+
 	public static String[] tokenizeToArray(
 		@Nullable String str, String delimiters, boolean trimTokens, boolean ignoreEmptyTokens) {
 		return tokenizeToArray(str, delimiters, trimTokens, ignoreEmptyTokens, null);
 	}
+
 	public static String[] tokenizeToArray(
 		@Nullable String str, String delimiters, boolean trimTokens, boolean ignoreEmptyTokens, Function<String, String> converter) {
 		if (str == null) {
 			return StdConsts.EMPTY_STRING_ARRAY;
-		}StringTokenizer st = new StringTokenizer(str, delimiters);
+		}
+		StringTokenizer st = new StringTokenizer(str, delimiters);
 		List<String> tokens = new ArrayList<>();
 		while (st.hasMoreTokens()) {
 			String token = st.nextToken();
@@ -701,6 +712,39 @@ public class Strings {
 		}
 		return toArray(tokens);
 	}
+
+	public static String[] delimitedToArray(@Nullable String str, String delimiters) {
+		return delimitedToArray(str, delimiters, true, true);
+	}
+
+	public static String[] delimitedToArray(
+		@Nullable String str, String delimiters, boolean trimTokens, boolean ignoreEmptyTokens) {
+		return delimitedToArray(str, delimiters, trimTokens, ignoreEmptyTokens, null);
+	}
+	public static String[] delimitedToArray(
+		@Nullable String str, String delimiters, boolean trimTokens, boolean ignoreEmptyTokens, Function<String, String> converter) {
+		if (str == null) {
+			return StdConsts.EMPTY_STRING_ARRAY;
+		}
+		String[] arr = str.split(Pattern.quote(delimiters));
+		if (!trimTokens && !ignoreEmptyTokens && converter == null){
+			return arr;
+		}
+		List<String> tokens = new ArrayList<>();
+		for (String token : arr) {
+			if (trimTokens) {
+				token = token.trim();
+			}
+			if (!ignoreEmptyTokens || !token.isEmpty()) {
+				if (converter != null) {
+					token = converter.apply(token);
+				}
+				tokens.add(token);
+			}
+		}
+		return toArray(tokens);
+	}
+
 	public static String[] toArray(@Nullable Collection<String> collection) {
 		if (collection == null || collection.isEmpty()) {
 			return StdConsts.EMPTY_STRING_ARRAY;
@@ -708,12 +752,15 @@ public class Strings {
 			return collection.toArray(new String[0]);
 		}
 	}
+
 	public static String[] toArray(@Nullable Enumeration<String> enumeration) {
 		return (enumeration != null ? toArray(Collections.list(enumeration)) : StdConsts.EMPTY_STRING_ARRAY);
 	}
+
 	public static String[] toArray(@Nullable Iterator<String> iterator) {
 		return (iterator != null ? toArray(Iterables.asList(iterator)) : StdConsts.EMPTY_STRING_ARRAY);
 	}
+
 	public static <T extends Collection<String>> T asCollection(Supplier<T> supplier, String... args) {
 		T t = supplier.get();
 		for (String arg : args) {
@@ -754,7 +801,7 @@ public class Strings {
 	}
 
 	public static String join(CharSequence delimiter, CharSequence prefix, CharSequence suffix,
-							  CharSequence[] arr) {
+		CharSequence[] arr) {
 		StringJoiner joiner = new StringJoiner(delimiter, prefix, suffix);
 		for (CharSequence s : arr) {
 			if (isBlank(s)) {
@@ -777,7 +824,7 @@ public class Strings {
 	}
 
 	public static String join(CharSequence delimiter, CharSequence prefix, CharSequence suffix,
-							  Iterable<? extends CharSequence> arr) {
+		Iterable<? extends CharSequence> arr) {
 		StringJoiner joiner = new StringJoiner(delimiter, prefix, suffix);
 		for (CharSequence s : arr) {
 			if (isBlank(s)) {
@@ -791,7 +838,7 @@ public class Strings {
 	public static String format(String msg, Object... args) {
 		if (msg == null || msg.isEmpty()) {
 			if (args.length == 0) {
-				return "" ;
+				return "";
 			}
 			StringBuilder sb = new StringBuilder();
 			sb.append(args[0]);
@@ -809,7 +856,7 @@ public class Strings {
 		while (matcher.find()) {
 			int i = Integer.parseInt(matcher.group(1));
 			bitSet.set(i);
-			matcher.appendReplacement(sb, String.valueOf(i < args.length ? args[i] : null).replace("\\" , "\\\\").replace("$" , "\\$"));
+			matcher.appendReplacement(sb, String.valueOf(i < args.length ? args[i] : null).replace("\\", "\\\\").replace("$", "\\$"));
 		}
 		matcher.appendTail(sb);
 		msg = sb.toString();
@@ -822,7 +869,7 @@ public class Strings {
 				while (bitSet.get(i)) {
 					i++;
 				}
-				matcher.appendReplacement(sb, String.valueOf(i < args.length ? args[i] : null).replace("\\" , "\\\\").replace("$" , "\\$"));
+				matcher.appendReplacement(sb, String.valueOf(i < args.length ? args[i] : null).replace("\\", "\\\\").replace("$", "\\$"));
 				bitSet.set(i);
 			}
 			matcher.appendTail(sb);
