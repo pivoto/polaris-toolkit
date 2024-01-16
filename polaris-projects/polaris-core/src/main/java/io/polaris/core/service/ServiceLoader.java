@@ -1,10 +1,5 @@
 package io.polaris.core.service;
 
-import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,9 +7,23 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import io.polaris.core.log.ILogger;
+import io.polaris.core.log.ILoggers;
 
 /**
  * @author Qt
@@ -122,14 +131,15 @@ public class ServiceLoader<S> implements Iterable<Service<S>> {
 					serviceName = clazz.getAnnotation(ServiceName.class).value();
 					properties.put("name", serviceName);
 				}
-				if (clazz.isAnnotationPresent(ServiceProperty.class)) {
-					ServiceProperty anno = clazz.getAnnotation(ServiceProperty.class);
-					properties.put(anno.name(), anno.value());
-				} else if (clazz.isAnnotationPresent(ServiceProperties.class)) {
+				if (clazz.isAnnotationPresent(ServiceProperties.class)) {
 					ServiceProperties annos = clazz.getAnnotation(ServiceProperties.class);
 					for (ServiceProperty anno : annos.value()) {
 						properties.put(anno.name(), anno.value());
 					}
+				}
+				if (clazz.isAnnotationPresent(ServiceProperty.class)) {
+					ServiceProperty anno = clazz.getAnnotation(ServiceProperty.class);
+					properties.put(anno.name(), anno.value());
 				}
 
 				properties = properties.isEmpty() ? null : Collections.unmodifiableMap(properties);
