@@ -1,5 +1,9 @@
 package io.polaris.core.jdbc.sql.statement.segment;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import io.polaris.core.annotation.AnnotationProcessing;
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.consts.StdConsts;
@@ -17,10 +21,6 @@ import io.polaris.core.jdbc.sql.statement.expression.Expressions;
 import io.polaris.core.reflect.GetterFunction;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.string.Strings;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Qt
@@ -111,7 +111,12 @@ public class SelectSegment<O extends Segment<O>, S extends SelectSegment<O, S>> 
 					if (Strings.isNotBlank(fieldAlias)) {
 						ContainerNode containerNode = new ContainerNode();
 						containerNode.addNode(expression.toSqlNode(columnExpression));
-						containerNode.addNode(new TextNode(" " + fieldAlias));
+
+						if (quotaAlias && !fieldAlias.startsWith("\"")) {
+							containerNode.addNode(new TextNode("  \"" + fieldAlias + "\""));
+						} else {
+							containerNode.addNode(new TextNode(" " + fieldAlias));
+						}
 						return containerNode;
 					} else {
 						return expression.toSqlNode(columnExpression);
