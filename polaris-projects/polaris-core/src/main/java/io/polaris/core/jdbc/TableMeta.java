@@ -1,13 +1,12 @@
 package io.polaris.core.jdbc;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
-
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
 /**
  * @author Qt
@@ -33,7 +32,11 @@ public class TableMeta {
 		this.alias = alias;
 		this.columns = columns;
 		Map<String, ColumnMeta> pkColumns = new HashMap<>();
-		columns.forEach(pkColumns::put);
+		columns.forEach((key, value) -> {
+			if (value.isPrimaryKey()) {
+				pkColumns.put(key, value);
+			}
+		});
 		this.pkColumns = Collections.unmodifiableMap(pkColumns);
 	}
 
