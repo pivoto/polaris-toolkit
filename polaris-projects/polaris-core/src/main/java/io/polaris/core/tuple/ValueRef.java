@@ -1,6 +1,5 @@
 package io.polaris.core.tuple;
 
-import lombok.ToString;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -9,7 +8,6 @@ import java.util.Objects;
  * @author Qt
  * @since 1.8
  */
-@ToString
 public class ValueRef<V> implements Ref<V>, Serializable {
 	private static final long serialVersionUID = 1L;
 	private final V value;
