@@ -56,13 +56,13 @@ public abstract class TableSegment<S extends TableSegment<S>> extends BaseSegmen
 	 * 返回所有的含表别名前缀的列名表达式，逗号分隔
 	 */
 	public String getAllColumnExpression(boolean quotaAlias) {
-		return getAllColumnExpression(false, false);
+		return getAllColumnExpression(false, false, "", "");
 	}
 
 	/**
 	 * 返回所有的含表别名前缀的列名表达式，逗号分隔，并使用实体字段名作为列的别名
 	 */
-	public abstract String getAllColumnExpression(boolean aliasWithField, boolean quotaAlias);
+	public abstract String getAllColumnExpression(boolean aliasWithField, boolean quotaAlias, String aliasPrefix, String aliasSuffix);
 
 	/**
 	 * 返回含表别名前缀的列名表达式

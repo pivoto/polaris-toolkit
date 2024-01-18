@@ -50,7 +50,7 @@ public class TableSetViewSegment<S extends TableSetViewSegment<S>> extends Table
 	}
 
 	@Override
-	public String getAllColumnExpression(boolean aliasWithField, boolean quotaAlias) {
+	public String getAllColumnExpression(boolean aliasWithField, boolean quotaAlias, String aliasPrefix, String aliasSuffix) {
 		return getAllColumnExpression(quotaAlias);
 	}
 

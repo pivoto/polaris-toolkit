@@ -112,7 +112,7 @@ public class SelectStatementTest {
 		@DisplayName("嵌套查询1")
 		void test01() {
 			SelectStatement<?> sql = new SelectStatement<>(DemoEntity.class, "t1");
-			sql.select().column(DemoEntity.Fields.name);
+			sql.select().column(DemoEntity.Fields.name).aliasPrefix("prefix_").aliasSuffix("_suffix");
 
 			SelectStatement<?> sub = new SelectStatement<>(Demo2Entity.class, "t2");
 			sub.select().column(Demo2Entity.Fields.name);
@@ -131,6 +131,8 @@ public class SelectStatementTest {
 				x.where().name().eq(TableField.of("t1", Demo2Entity.Fields.name))
 					.col1().notNull();
 			});
+
+			sql.where().column(Demo2Entity.Fields.name).in(Demo2EntitySql.select("t4").name().where().col1().notNull().end());
 
 			System.out.println(sql.toSqlNode().asBoundSql());
 		}

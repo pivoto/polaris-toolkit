@@ -1,16 +1,16 @@
 package io.polaris.core.jdbc.sql.statement.segment;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.TableMetaKit;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.TextNode;
 import io.polaris.core.string.Strings;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author Qt
@@ -57,11 +57,11 @@ public class TableEntitySegment<S extends TableEntitySegment<S>> extends TableSe
 
 	@Override
 	public String getAllColumnExpression(boolean quotaAlias) {
-		return getAllColumnExpression(false, false);
+		return getAllColumnExpression(false, false, "", "");
 	}
 
 	@Override
-	public String getAllColumnExpression(boolean aliasWithField, boolean quotaAlias) {
+	public String getAllColumnExpression(boolean aliasWithField, boolean quotaAlias, String aliasPrefix, String aliasSuffix) {
 		String alias = getTableAlias();
 		StringBuilder sb = new StringBuilder();
 		for (Map.Entry<String, ColumnMeta> entry : this.tableMeta.getColumns().entrySet()) {
@@ -76,10 +76,11 @@ public class TableEntitySegment<S extends TableEntitySegment<S>> extends TableSe
 			}
 			sb.append(columnName);
 			if (aliasWithField) {
-				if (quotaAlias && !field.startsWith("\"")) {
-					sb.append(" ").append("\"").append(field).append("\"");
+				String fieldAlias = SelectSegment.toAlias(field, aliasPrefix, aliasSuffix);
+				if (quotaAlias && !fieldAlias.startsWith("\"")) {
+					sb.append(" ").append("\"").append(fieldAlias).append("\"");
 				} else {
-					sb.append(" ").append(field);
+					sb.append(" ").append(fieldAlias);
 				}
 			}
 		}

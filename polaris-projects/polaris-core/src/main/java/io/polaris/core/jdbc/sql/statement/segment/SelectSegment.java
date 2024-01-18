@@ -33,6 +33,8 @@ public class SelectSegment<O extends Segment<O>, S extends SelectSegment<O, S>> 
 	private final TableAccessible tableAccessible;
 	private String field;
 	private String alias;
+	private String aliasPrefix;
+	private String aliasSuffix;
 	private SqlNode sql;
 	private boolean aliasWithField = true;
 	/** 固定列值 */
@@ -68,12 +70,36 @@ public class SelectSegment<O extends Segment<O>, S extends SelectSegment<O, S>> 
 		return toSqlNode(false);
 	}
 
+	static String toAlias(String alias, String aliasPrefix, String aliasSuffix) {
+		if (Strings.isBlank(alias)) {
+			return "";
+		}
+		StringBuilder sb = new StringBuilder();
+		boolean startsWith = alias.startsWith("\"");
+		boolean endsWith = alias.endsWith("\"");
+		if (startsWith) {
+			sb.append("\"");
+		}
+		if (Strings.isNotBlank(aliasPrefix)) {
+			sb.append(aliasPrefix);
+		}
+		sb.append(alias, startsWith ? 1 : 0, endsWith ? alias.length() - 1 : alias.length());
+		if (Strings.isNotBlank(aliasSuffix)) {
+			sb.append(aliasSuffix);
+		}
+		if (endsWith) {
+			sb.append("\"");
+		}
+		return sb.toString();
+	}
+
 	public SqlNode toSqlNode(boolean quotaAlias) {
 		if (sql != null) {
 			return sql;
 		}
-		if (value != null && Strings.isNotBlank(alias)) {
-			String fieldAlias = this.alias;
+		String fieldAlias = toAlias(this.alias, this.aliasPrefix, this.aliasSuffix);
+
+		if (value != null && Strings.isNotBlank(fieldAlias)) {
 			ContainerNode containerNode = new ContainerNode();
 			containerNode.addNode(SqlNodes.dynamic(fieldAlias, value));
 			if (quotaAlias && !fieldAlias.startsWith("\"")) {
@@ -85,7 +111,6 @@ public class SelectSegment<O extends Segment<O>, S extends SelectSegment<O, S>> 
 		}
 		if (table != null && Strings.isNotBlank(field)) {
 			if (field.equals(SymbolConsts.ASTERISK)) {
-				String fieldAlias = this.alias;
 				if (expression != null) {
 					if (Strings.isNotBlank(fieldAlias)) {
 						ContainerNode containerNode = new ContainerNode();
@@ -100,11 +125,10 @@ public class SelectSegment<O extends Segment<O>, S extends SelectSegment<O, S>> 
 						return expression.toSqlNode(field);
 					}
 				}
-				return new TextNode(table.getAllColumnExpression(aliasWithField, quotaAlias));
+				return new TextNode(table.getAllColumnExpression(aliasWithField, quotaAlias, aliasPrefix, aliasSuffix));
 			} else {
-				String fieldAlias = this.alias;
 				if (Strings.isBlank(fieldAlias) && aliasWithField) {
-					fieldAlias = field;
+					fieldAlias = toAlias(this.field, this.aliasPrefix, this.aliasSuffix);
 				}
 				String columnExpression = table.getColumnExpression(field);
 				if (expression != null) {
@@ -330,6 +354,16 @@ public class SelectSegment<O extends Segment<O>, S extends SelectSegment<O, S>> 
 	@AnnotationProcessing
 	public S column(String field) {
 		this.field = field;
+		return getThis();
+	}
+
+	public S aliasPrefix(String aliasPrefix) {
+		this.aliasPrefix = aliasPrefix;
+		return getThis();
+	}
+
+	public S aliasSuffix(String aliasSuffix) {
+		this.aliasSuffix = aliasSuffix;
 		return getThis();
 	}
 

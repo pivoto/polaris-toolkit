@@ -45,11 +45,11 @@ public class TableRawSegment<S extends TableRawSegment<S>> extends TableSegment<
 
 	@Override
 	public String getAllColumnExpression(boolean quotaAlias) {
-		return getAllColumnExpression(false, quotaAlias);
+		return getAllColumnExpression(false, quotaAlias, "", "");
 	}
 
 	@Override
-	public String getAllColumnExpression(boolean aliasWithField, boolean quotaAlias) {
+	public String getAllColumnExpression(boolean aliasWithField, boolean quotaAlias, String aliasPrefix, String aliasSuffix) {
 		String alias = getTableAlias();
 		StringBuilder sb = new StringBuilder();
 		if (Strings.isNotBlank(alias)) {
