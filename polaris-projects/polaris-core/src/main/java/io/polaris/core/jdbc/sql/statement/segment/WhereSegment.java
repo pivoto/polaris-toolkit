@@ -176,26 +176,6 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 		return getThis();
 	}
 
-	public <I extends SelectStatement<?>> S in(I subSelect) {
-		this.column("").in(subSelect);
-		return getThis();
-	}
-
-	public <I extends SelectStatement<?>> S in(I subSelect, Consumer<I> append) {
-		this.column("").in(subSelect, append);
-		return getThis();
-	}
-
-	public <I extends SelectStatement<?>> S notIn(I subSelect) {
-		this.column("").notIn(subSelect);
-		return getThis();
-	}
-
-	public <I extends SelectStatement<?>> S notIn(I subSelect, Consumer<I> append) {
-		this.column("").notIn(subSelect, append);
-		return getThis();
-	}
-
 	public CriterionSegment<S, ?> rawColumn(String rawColumn) {
 		CriterionSegment<S, ?> c = new CriterionSegment<>(getThis(), rawColumn);
 		criteria.add(c);

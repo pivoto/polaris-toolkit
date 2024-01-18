@@ -1,5 +1,12 @@
 package io.polaris.core.jdbc.sql.statement.segment;
 
+import java.util.Collection;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+
 import io.polaris.core.annotation.AnnotationProcessing;
 import io.polaris.core.consts.StdConsts;
 import io.polaris.core.consts.SymbolConsts;
@@ -11,16 +18,15 @@ import io.polaris.core.jdbc.sql.statement.BaseSegment;
 import io.polaris.core.jdbc.sql.statement.Segment;
 import io.polaris.core.jdbc.sql.statement.SelectStatement;
 import io.polaris.core.jdbc.sql.statement.SqlNodeBuilder;
-import io.polaris.core.jdbc.sql.statement.expression.*;
+import io.polaris.core.jdbc.sql.statement.expression.AggregateFunction;
+import io.polaris.core.jdbc.sql.statement.expression.Expression;
+import io.polaris.core.jdbc.sql.statement.expression.Expressions;
+import io.polaris.core.jdbc.sql.statement.expression.LargeInExpression;
+import io.polaris.core.jdbc.sql.statement.expression.LargeNotInExpression;
+import io.polaris.core.jdbc.sql.statement.expression.LogicalExpression;
+import io.polaris.core.jdbc.sql.statement.expression.MultiColumnLogicalExpression;
 import io.polaris.core.reflect.GetterFunction;
 import io.polaris.core.string.Strings;
-
-import java.util.Collection;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 /**
  * @author Qt
@@ -55,6 +61,7 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 	// region subSelect
 	private SelectStatement<?> subSelect;
 	private TextNode subSelectSymbol;
+	private boolean subSelectWithColumn = false;
 	// endregion
 
 
@@ -96,8 +103,21 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		if (this.sql != null) {
 			return sql;
 		}
+		if (this.or != null) {
+			return this.or.toSqlNode();
+		}
+		if (this.and != null) {
+			return this.and.toSqlNode();
+		}
 		if (this.subSelect != null && this.subSelectSymbol != null) {
 			ContainerNode sql = new ContainerNode();
+			if (subSelectWithColumn) {
+				if (this.expression != null) {
+					sql.addNode(this.expression.toSqlNode(column()));
+				}else{
+					sql.addNode(SqlNodes.text(column()));
+				}
+			}
 			sql.addNode(this.subSelectSymbol);
 			sql.addNode(SqlNodes.LEFT_PARENTHESIS);
 			sql.addNode(SqlNodes.LF);
@@ -108,12 +128,6 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		}
 		if (this.expression != null) {
 			return this.expression.toSqlNode(column());
-		}
-		if (this.or != null) {
-			return this.or.toSqlNode();
-		}
-		if (this.and != null) {
-			return this.and.toSqlNode();
 		}
 		return SqlNodes.EMPTY;
 	}
@@ -242,6 +256,7 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		subSelect.nested(this.tableAccessible);
 		this.subSelect = subSelect;
 		this.subSelectSymbol = SqlNodes.EXISTS;
+		this.subSelectWithColumn = false;
 		return getThis();
 	}
 
@@ -249,6 +264,7 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		subSelect.nested(this.tableAccessible);
 		this.subSelect = subSelect;
 		this.subSelectSymbol = SqlNodes.EXISTS;
+		this.subSelectWithColumn = false;
 		append.accept(subSelect);
 		return getThis();
 	}
@@ -257,6 +273,7 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		subSelect.nested(this.tableAccessible);
 		this.subSelect = subSelect;
 		this.subSelectSymbol = SqlNodes.NOT_EXISTS;
+		this.subSelectWithColumn = false;
 		return getThis();
 	}
 
@@ -264,6 +281,7 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		subSelect.nested(this.tableAccessible);
 		this.subSelect = subSelect;
 		this.subSelectSymbol = SqlNodes.NOT_EXISTS;
+		this.subSelectWithColumn = false;
 		append.accept(subSelect);
 		return getThis();
 	}
@@ -272,6 +290,7 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		subSelect.nested(this.tableAccessible);
 		this.subSelect = subSelect;
 		this.subSelectSymbol = SqlNodes.IN;
+		this.subSelectWithColumn = true;
 		return getThis();
 	}
 
@@ -279,6 +298,7 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		subSelect.nested(this.tableAccessible);
 		this.subSelect = subSelect;
 		this.subSelectSymbol = SqlNodes.IN;
+		this.subSelectWithColumn = true;
 		append.accept(subSelect);
 		return getThis();
 	}
@@ -287,6 +307,7 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		subSelect.nested(this.tableAccessible);
 		this.subSelect = subSelect;
 		this.subSelectSymbol = SqlNodes.NOT_IN;
+		this.subSelectWithColumn = true;
 		return getThis();
 	}
 
@@ -294,6 +315,7 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		subSelect.nested(this.tableAccessible);
 		this.subSelect = subSelect;
 		this.subSelectSymbol = SqlNodes.NOT_IN;
+		this.subSelectWithColumn = true;
 		append.accept(subSelect);
 		return getThis();
 	}
