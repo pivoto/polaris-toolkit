@@ -13,6 +13,11 @@
 	<package name="com.jcfc.stdk.annotation.processing" mapping="io.polaris.annotation.processing"/>
 	<package name="com.jcfc.stdk.core" mapping="io.polaris.core"/>
 	<package name="com.jcfc.stdk" mapping="io.polaris"/>
+	<package name="com.jcfc.sdk" mapping="io.polaris"/>
+	<package name="com.jcfc.framework" mapping="io.polaris.framework"/>
+	<package name="com.jcfc.bf" mapping="io.polaris.framework"/>
+	<package name="com.jcfc.sdk.jtc" mapping="io.polaris.framework.jtc"/>
+	<package name="com.jcfc.stdk.jtc" mapping="io.polaris.framework.jtc"/>
 	<package name="com.jcfc" mapping="io.polaris"/>
 	<package name="stdk-annotation-processor" mapping="polaris-annotation-processor"/>
 	<package name="stdk-core-annotation-processor" mapping="polaris-core-annotation-processor"/>

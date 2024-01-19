@@ -12,6 +12,8 @@
 	<source-path>test/resources</source-path>
 	<package name="io.polaris.annotation.processing" mapping="com.jcfc.stdk.annotation.processing"/>
 	<package name="io.polaris.core" mapping="com.jcfc.stdk.core"/>
+	<package name="io.polaris.framework.jtc" mapping="com.jcfc.framework.jtc"/>
+	<package name="io.polaris.framework" mapping="com.jcfc.bf"/>
 	<package name="io.polaris" mapping="com.jcfc.stdk"/>
 	<package name="polaris-annotation-processor" mapping="stdk-annotation-processor"/>
 	<package name="polaris-core-annotation-processor" mapping="stdk-core-annotation-processor"/>
