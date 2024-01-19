@@ -1,13 +1,11 @@
 package io.polaris.core.crypto.symmetric;
 
+import java.security.Key;
+
 import io.polaris.core.crypto.Ciphers;
 import io.polaris.core.crypto.CryptoKeys;
 import io.polaris.core.crypto.IDecryptor;
 import io.polaris.core.crypto.IEncryptor;
-
-import java.security.GeneralSecurityException;
-import java.security.Key;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * @author Qt
@@ -31,24 +29,24 @@ public class Symmetric {
 		this.key = key;
 	}
 
-	public Symmetric(String algorithm) throws NoSuchAlgorithmException {
+	public Symmetric(String algorithm) {
 		this.algorithm = algorithm;
 		this.key = CryptoKeys.generateKey(this.algorithm);
 	}
 
-	public Symmetric(SymmetricAlgorithm algorithm) throws NoSuchAlgorithmException {
+	public Symmetric(SymmetricAlgorithm algorithm) {
 		this.algorithm = algorithm.code();
 		this.key = CryptoKeys.generateKey(this.algorithm);
 	}
 
-	public IDecryptor getDecryptor() throws GeneralSecurityException {
+	public IDecryptor getDecryptor() {
 		if (decryptor == null) {
 			decryptor = Ciphers.getDecryptor(algorithm, key);
 		}
 		return decryptor;
 	}
 
-	public IEncryptor getEncryptor() throws GeneralSecurityException {
+	public IEncryptor getEncryptor() {
 		if (encryptor == null) {
 			encryptor = Ciphers.getEncryptor(algorithm, key);
 		}
@@ -56,21 +54,21 @@ public class Symmetric {
 	}
 
 
-	public Symmetric encryptUpdate(byte[] data) throws GeneralSecurityException {
+	public Symmetric encryptUpdate(byte[] data) {
 		getEncryptor().update(data);
 		return this;
 	}
 
-	public byte[] encrypt(byte[] data) throws GeneralSecurityException {
+	public byte[] encrypt(byte[] data) {
 		return getEncryptor().encrypt(data);
 	}
 
-	public Symmetric decryptUpdate(byte[] data) throws GeneralSecurityException {
+	public Symmetric decryptUpdate(byte[] data) {
 		getDecryptor().update(data);
 		return this;
 	}
 
-	public byte[] decrypt(byte[] data) throws GeneralSecurityException {
+	public byte[] decrypt(byte[] data) {
 		return getDecryptor().decrypt(data);
 	}
 }

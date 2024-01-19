@@ -1,32 +1,44 @@
 package io.polaris.core.crypto.digest;
 
-import javax.annotation.Nonnull;
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
+import javax.annotation.Nonnull;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import io.polaris.core.err.CryptoRuntimeException;
+
 /**
  * @author Qt
  * @since 1.8
  */
+@SuppressWarnings("ALL")
 public class Hmacs {
 	private static final int STREAM_BUFFER_LENGTH = 1024;
 
 	@Nonnull
-	public static Mac getMac(String algorithm) throws NoSuchAlgorithmException {
-		return Mac.getInstance(algorithm);
+	public static Mac getMac(String algorithm) {
+		try {
+			return Mac.getInstance(algorithm);
+		} catch (NoSuchAlgorithmException e) {
+			throw new CryptoRuntimeException(e);
+		}
 	}
 
 	@Nonnull
-	public static Mac getInitializedMac(String algorithm, byte[] key) throws NoSuchAlgorithmException, InvalidKeyException {
+	public static Mac getInitializedMac(String algorithm, byte[] key) {
 		Mac mac = getMac(algorithm);
-		SecretKeySpec keySpec = new SecretKeySpec(key, algorithm);
-		mac.init(keySpec);
-		return mac;
+		try {
+			SecretKeySpec keySpec = new SecretKeySpec(key, algorithm);
+			mac.init(keySpec);
+			return mac;
+		} catch (InvalidKeyException e) {
+			throw new CryptoRuntimeException(e);
+		}
 	}
 
 	public static byte[] hmac(Mac mac, byte[] data) {
@@ -64,89 +76,89 @@ public class Hmacs {
 		return mac;
 	}
 
-	public static Mac getHmacMd5(byte[] key) throws NoSuchAlgorithmException, InvalidKeyException {
+	public static Mac getHmacMd5(byte[] key) {
 		return getInitializedMac(HmacAlgorithm.HmacMD5.code(), key);
 	}
 
-	public static Mac getHmacSha1(byte[] key) throws NoSuchAlgorithmException, InvalidKeyException {
+	public static Mac getHmacSha1(byte[] key) {
 		return getInitializedMac(HmacAlgorithm.HmacSHA1.code(), key);
 	}
 
-	public static Mac getHmacSha256(byte[] key) throws NoSuchAlgorithmException, InvalidKeyException {
+	public static Mac getHmacSha256(byte[] key) {
 		return getInitializedMac(HmacAlgorithm.HmacSHA256.code(), key);
 	}
 
-	public static Mac getHmacSha384(byte[] key) throws NoSuchAlgorithmException, InvalidKeyException {
+	public static Mac getHmacSha384(byte[] key) {
 		return getInitializedMac(HmacAlgorithm.HmacSHA384.code(), key);
 	}
 
-	public static Mac getHmacSha512(byte[] key) throws NoSuchAlgorithmException, InvalidKeyException {
+	public static Mac getHmacSha512(byte[] key) {
 		return getInitializedMac(HmacAlgorithm.HmacSHA512.code(), key);
 	}
 
 
-	public static byte[] hmacMd5(byte[] key, byte[] data) throws NoSuchAlgorithmException, InvalidKeyException {
+	public static byte[] hmacMd5(byte[] key, byte[] data) {
 		return hmac(getHmacMd5(key), data);
 	}
 
 
-	public static byte[] hmacSha1(byte[] key, byte[] data) throws NoSuchAlgorithmException, InvalidKeyException {
+	public static byte[] hmacSha1(byte[] key, byte[] data) {
 		return hmac(getHmacSha1(key), data);
 	}
 
-	public static byte[] hmacSha256(byte[] key, byte[] data) throws NoSuchAlgorithmException, InvalidKeyException {
+	public static byte[] hmacSha256(byte[] key, byte[] data) {
 		return hmac(getHmacSha256(key), data);
 	}
 
-	public static byte[] hmacSha384(byte[] key, byte[] data) throws NoSuchAlgorithmException, InvalidKeyException {
+	public static byte[] hmacSha384(byte[] key, byte[] data) {
 		return hmac(getHmacSha384(key), data);
 	}
 
-	public static byte[] hmacSha512(byte[] key, byte[] data) throws NoSuchAlgorithmException, InvalidKeyException {
+	public static byte[] hmacSha512(byte[] key, byte[] data) {
 		return hmac(getHmacSha512(key), data);
 	}
 
 
-	public static byte[] hmacMd5(byte[] key, ByteBuffer data) throws NoSuchAlgorithmException, InvalidKeyException {
+	public static byte[] hmacMd5(byte[] key, ByteBuffer data) {
 		return hmac(getHmacMd5(key), data);
 	}
 
 
-	public static byte[] hmacSha1(byte[] key, ByteBuffer data) throws NoSuchAlgorithmException, InvalidKeyException {
+	public static byte[] hmacSha1(byte[] key, ByteBuffer data) {
 		return hmac(getHmacSha1(key), data);
 	}
 
-	public static byte[] hmacSha256(byte[] key, ByteBuffer data) throws NoSuchAlgorithmException, InvalidKeyException {
+	public static byte[] hmacSha256(byte[] key, ByteBuffer data) {
 		return hmac(getHmacSha256(key), data);
 	}
 
-	public static byte[] hmacSha384(byte[] key, ByteBuffer data) throws NoSuchAlgorithmException, InvalidKeyException {
+	public static byte[] hmacSha384(byte[] key, ByteBuffer data) {
 		return hmac(getHmacSha384(key), data);
 	}
 
-	public static byte[] hmacSha512(byte[] key, ByteBuffer data) throws NoSuchAlgorithmException, InvalidKeyException {
+	public static byte[] hmacSha512(byte[] key, ByteBuffer data) {
 		return hmac(getHmacSha512(key), data);
 	}
 
 
-	public static byte[] hmacMd5(byte[] key, InputStream data) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+	public static byte[] hmacMd5(byte[] key, InputStream data) throws IOException {
 		return hmac(getHmacMd5(key), data);
 	}
 
 
-	public static byte[] hmacSha1(byte[] key, InputStream data) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+	public static byte[] hmacSha1(byte[] key, InputStream data) throws IOException {
 		return hmac(getHmacSha1(key), data);
 	}
 
-	public static byte[] hmacSha256(byte[] key, InputStream data) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+	public static byte[] hmacSha256(byte[] key, InputStream data) throws IOException {
 		return hmac(getHmacSha256(key), data);
 	}
 
-	public static byte[] hmacSha384(byte[] key, InputStream data) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+	public static byte[] hmacSha384(byte[] key, InputStream data) throws IOException {
 		return hmac(getHmacSha384(key), data);
 	}
 
-	public static byte[] hmacSha512(byte[] key, InputStream data) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+	public static byte[] hmacSha512(byte[] key, InputStream data) throws IOException {
 		return hmac(getHmacSha512(key), data);
 	}
 }

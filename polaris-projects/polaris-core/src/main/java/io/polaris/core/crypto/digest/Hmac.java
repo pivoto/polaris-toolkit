@@ -18,7 +18,7 @@ public class Hmac {
 		this.mac = mac;
 	}
 
-	public Hmac(String algorithm, byte[] key) throws NoSuchAlgorithmException, InvalidKeyException {
+	public Hmac(String algorithm, byte[] key)  {
 		this(Hmacs.getInitializedMac(algorithm, key));
 	}
 

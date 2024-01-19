@@ -1,8 +1,14 @@
 package io.polaris.core.crypto.asymmetric;
 
-import io.polaris.core.crypto.CryptoKeys;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
 
-import java.security.*;
+import io.polaris.core.crypto.CryptoKeys;
+import io.polaris.core.err.CryptoRuntimeException;
 
 /**
  * @author Qt
@@ -16,7 +22,7 @@ public class Sign {
 	private Signature signSignature;
 	private Signature verifySignature;
 
-	public Sign(SignAlgorithm algorithm) throws GeneralSecurityException {
+	public Sign(SignAlgorithm algorithm) {
 		this(algorithm.code(), CryptoKeys.generateKeyPair(algorithm.code()));
 	}
 
@@ -28,7 +34,7 @@ public class Sign {
 		this(algorithm.code(), privateKey, publicKey);
 	}
 
-	public Sign(String algorithm) throws GeneralSecurityException {
+	public Sign(String algorithm) {
 		this(algorithm, CryptoKeys.generateKeyPair(algorithm));
 	}
 
@@ -42,44 +48,68 @@ public class Sign {
 		this.publicKey = publicKey;
 	}
 
-	public Sign signUpdate(byte[] data) throws GeneralSecurityException {
-		getSignSignature().update(data);
-		return this;
+	public Sign signUpdate(byte[] data) {
+		try {
+			getSignSignature().update(data);
+			return this;
+		} catch (SignatureException e) {
+			throw new CryptoRuntimeException(e);
+		}
 	}
 
-	public byte[] sign(byte[] data) throws GeneralSecurityException {
+	public byte[] sign(byte[] data) {
 		return signUpdate(data).sign();
 	}
 
-	public byte[] sign() throws GeneralSecurityException {
-		return getSignSignature().sign();
+	public byte[] sign() {
+		try {
+			return getSignSignature().sign();
+		} catch (SignatureException e) {
+			throw new CryptoRuntimeException(e);
+		}
 	}
 
-	public Sign verifyUpdate(byte[] data) throws GeneralSecurityException {
-		getVerifySignature().update(data);
-		return this;
+	public Sign verifyUpdate(byte[] data) {
+		try {
+			getVerifySignature().update(data);
+			return this;
+		} catch (SignatureException e) {
+			throw new CryptoRuntimeException(e);
+		}
 	}
 
-	public boolean verify(byte[] data, byte[] signature) throws GeneralSecurityException {
+	public boolean verify(byte[] data, byte[] signature) {
 		return verifyUpdate(data).verify(signature);
 	}
 
-	public boolean verify(byte[] signature) throws GeneralSecurityException {
-		return getVerifySignature().verify(signature);
+	public boolean verify(byte[] signature) {
+		try {
+			return getVerifySignature().verify(signature);
+		} catch (SignatureException e) {
+			throw new CryptoRuntimeException(e);
+		}
 	}
 
 
-	public Signature getSignSignature() throws GeneralSecurityException {
-		if (signSignature == null) {
-			signSignature = Signatures.getInitializedSignature(algorithm, privateKey);
+	public Signature getSignSignature() {
+		try {
+			if (signSignature == null) {
+				signSignature = Signatures.getInitializedSignature(algorithm, privateKey);
+			}
+			return signSignature;
+		} catch (GeneralSecurityException e) {
+			throw new CryptoRuntimeException(e);
 		}
-		return signSignature;
 	}
 
-	public Signature getVerifySignature() throws GeneralSecurityException {
-		if (verifySignature == null) {
-			verifySignature = Signatures.getInitializedSignature(algorithm, publicKey);
+	public Signature getVerifySignature() {
+		try {
+			if (verifySignature == null) {
+				verifySignature = Signatures.getInitializedSignature(algorithm, publicKey);
+			}
+			return verifySignature;
+		} catch (GeneralSecurityException e) {
+			throw new CryptoRuntimeException(e);
 		}
-		return verifySignature;
 	}
 }

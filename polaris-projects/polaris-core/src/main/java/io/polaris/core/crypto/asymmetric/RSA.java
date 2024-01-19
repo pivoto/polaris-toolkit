@@ -1,28 +1,43 @@
 package io.polaris.core.crypto.asymmetric;
 
 
-import io.polaris.core.consts.StdConsts;
-import io.polaris.core.crypto.CryptoKeys;
-import io.polaris.core.io.IO;
-
-import javax.crypto.Cipher;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.security.*;
-import java.security.cert.CertificateException;
+import java.security.GeneralSecurityException;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+
+import io.polaris.core.consts.StdConsts;
+import io.polaris.core.crypto.CryptoKeys;
+import io.polaris.core.err.CryptoRuntimeException;
+import io.polaris.core.io.IO;
+
 /**
  * @author Qt
  * @version Oct 29, 2021
  * @since 1.8
  */
+@SuppressWarnings("ALL")
 public class RSA {
 	private static final String DEFAULT_PUBLIC_KEY_STRING
 		= "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAINE31e8jyk0fkrqLCjyLRR6MYp2yZ8z4OXtVaK6VUcOyPDB+FYQs599/BS604NoTWKavPvlcB30n7lu3Of7uGcCAwEAAQ==";
@@ -31,76 +46,91 @@ public class RSA {
 	private static final String SUN_RSA_SIGN = "SunRsaSign";
 
 
-	public static String decryptByPrivateKey(String key, String cipherText) throws GeneralSecurityException, UnsupportedEncodingException {
+	public static String decryptByPrivateKey(String key, String cipherText) {
 		return decrypt(toPrivateKey(key), cipherText);
 	}
 
-	public static String decryptByPublicKey(String key, String cipherText) throws GeneralSecurityException, UnsupportedEncodingException {
+	public static String decryptByPublicKey(String key, String cipherText) {
 		return decrypt(toPublicKey(key), cipherText);
 	}
 
-	public static String decrypt(PublicKey publicKey, String cipherText)
-		throws GeneralSecurityException, UnsupportedEncodingException {
-		Cipher cipher = Cipher.getInstance(AsymmetricAlgorithm.RSA_ECB_PKCS1.code());
+	public static String decrypt(PublicKey publicKey, String cipherText) {
 		try {
-			cipher.init(Cipher.DECRYPT_MODE, publicKey);
-		} catch (InvalidKeyException e) {
-			// 因为 IBM JDK 不支持私钥加密, 公钥解密, 所以要反转公私钥
-			// 也就是说对于解密, 可以通过公钥的参数伪造一个私钥对象欺骗 IBM JDK
-			Key fakePrivateKey = CryptoKeys.toRSAPrivateKey((RSAPublicKey) publicKey);
-			cipher = Cipher.getInstance(AsymmetricAlgorithm.RSA.code()); //It is a stateful object. so we need to get new one.
-			cipher.init(Cipher.DECRYPT_MODE, fakePrivateKey);
+			Cipher cipher = Cipher.getInstance(AsymmetricAlgorithm.RSA_ECB_PKCS1.code());
+			try {
+				cipher.init(Cipher.DECRYPT_MODE, publicKey);
+			} catch (InvalidKeyException e) {
+				// 因为 IBM JDK 不支持私钥加密, 公钥解密, 所以要反转公私钥
+				// 也就是说对于解密, 可以通过公钥的参数伪造一个私钥对象欺骗 IBM JDK
+				Key fakePrivateKey = CryptoKeys.toRSAPrivateKey((RSAPublicKey) publicKey);
+				cipher = Cipher.getInstance(AsymmetricAlgorithm.RSA.code()); //It is a stateful object. so we need to get new one.
+				cipher.init(Cipher.DECRYPT_MODE, fakePrivateKey);
+			}
+
+			if (cipherText == null || cipherText.length() == 0) {
+				return cipherText;
+			}
+
+			byte[] cipherBytes = Base64.getDecoder().decode(cipherText);
+			byte[] plainBytes = cipher.doFinal(cipherBytes);
+
+			return new String(plainBytes, StandardCharsets.UTF_8);
+		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException |
+						 BadPaddingException e) {
+			throw new CryptoRuntimeException(e);
 		}
-
-		if (cipherText == null || cipherText.length() == 0) {
-			return cipherText;
-		}
-
-		byte[] cipherBytes = Base64.getDecoder().decode(cipherText);
-		byte[] plainBytes = cipher.doFinal(cipherBytes);
-
-		return new String(plainBytes, StandardCharsets.UTF_8);
 	}
 
-	public static String decrypt(PrivateKey privateKey, String cipherText)
-		throws GeneralSecurityException, UnsupportedEncodingException {
-		Cipher cipher = Cipher.getInstance(AsymmetricAlgorithm.RSA_ECB_PKCS1.code());
-		cipher.init(Cipher.DECRYPT_MODE, privateKey);
-		byte[] cipherBytes = Base64.getDecoder().decode(cipherText);
-		byte[] plainBytes = cipher.doFinal(cipherBytes);
-		return new String(plainBytes, StandardCharsets.UTF_8);
+	public static String decrypt(PrivateKey privateKey, String cipherText) {
+		try {
+			Cipher cipher = Cipher.getInstance(AsymmetricAlgorithm.RSA_ECB_PKCS1.code());
+			cipher.init(Cipher.DECRYPT_MODE, privateKey);
+			byte[] cipherBytes = Base64.getDecoder().decode(cipherText);
+			byte[] plainBytes = cipher.doFinal(cipherBytes);
+			return new String(plainBytes, StandardCharsets.UTF_8);
+		} catch (NoSuchAlgorithmException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException |
+						 NoSuchPaddingException e) {
+			throw new CryptoRuntimeException(e);
+		}
 	}
 
-	public static String encryptByPublicKey(String key, String plainText) throws GeneralSecurityException, UnsupportedEncodingException {
+	public static String encryptByPublicKey(String key, String plainText) {
 		return encrypt(toPublicKey(key), plainText);
 	}
 
-	public static String encryptByPrivateKey(String key, String plainText) throws GeneralSecurityException, UnsupportedEncodingException {
+	public static String encryptByPrivateKey(String key, String plainText) {
 		return encrypt(toPrivateKey(key), plainText);
 	}
 
-	public static String encrypt(PrivateKey privateKey, String plainText)
-		throws GeneralSecurityException, UnsupportedEncodingException {
-		Cipher cipher = Cipher.getInstance(AsymmetricAlgorithm.RSA_ECB_PKCS1.code());
+	public static String encrypt(PrivateKey privateKey, String plainText) {
 		try {
-			cipher.init(Cipher.ENCRYPT_MODE, privateKey);
-		} catch (InvalidKeyException e) {
-			//For IBM JDK, 原因请看解密方法中的说明
-			Key fakePublicKey = CryptoKeys.toRSAPublicKey((RSAPrivateKey) privateKey);
-			cipher = Cipher.getInstance(AsymmetricAlgorithm.RSA.code());
-			cipher.init(Cipher.ENCRYPT_MODE, fakePublicKey);
-		}
+			Cipher cipher = Cipher.getInstance(AsymmetricAlgorithm.RSA_ECB_PKCS1.code());
+			try {
+				cipher.init(Cipher.ENCRYPT_MODE, privateKey);
+			} catch (InvalidKeyException e) {
+				//For IBM JDK, 原因请看解密方法中的说明
+				Key fakePublicKey = CryptoKeys.toRSAPublicKey((RSAPrivateKey) privateKey);
+				cipher = Cipher.getInstance(AsymmetricAlgorithm.RSA.code());
+				cipher.init(Cipher.ENCRYPT_MODE, fakePublicKey);
+			}
 
-		byte[] encryptedBytes = cipher.doFinal(plainText.getBytes(StdConsts.UTF_8));
-		return Base64.getEncoder().encodeToString(encryptedBytes);
+			byte[] encryptedBytes = cipher.doFinal(plainText.getBytes(StdConsts.UTF_8));
+			return Base64.getEncoder().encodeToString(encryptedBytes);
+		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException |
+						 BadPaddingException | UnsupportedEncodingException e) {
+			throw new CryptoRuntimeException(e);
+		}
 	}
 
-	public static String encrypt(PublicKey publicKey, String plainText)
-		throws GeneralSecurityException, UnsupportedEncodingException {
-		Cipher cipher = Cipher.getInstance(AsymmetricAlgorithm.RSA_ECB_PKCS1.code());
-		cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-		byte[] encryptedBytes = cipher.doFinal(plainText.getBytes(StdConsts.UTF_8));
-		return Base64.getEncoder().encodeToString(encryptedBytes);
+	public static String encrypt(PublicKey publicKey, String plainText) {
+		try {
+			Cipher cipher = Cipher.getInstance(AsymmetricAlgorithm.RSA_ECB_PKCS1.code());
+			cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+			byte[] encryptedBytes = cipher.doFinal(plainText.getBytes(StdConsts.UTF_8));
+			return Base64.getEncoder().encodeToString(encryptedBytes);
+		} catch (GeneralSecurityException | UnsupportedEncodingException e) {
+			throw new CryptoRuntimeException(e);
+		}
 	}
 
 
@@ -139,15 +169,18 @@ public class RSA {
 		}
 	}
 
-	public static KeyPair genKeyPair(int keySize) throws NoSuchAlgorithmException, NoSuchProviderException {
-		KeyPairGenerator gen = KeyPairGenerator.getInstance(AsymmetricAlgorithm.RSA.code(), SUN_RSA_SIGN);
-		gen.initialize(keySize, new SecureRandom());
-		KeyPair pair = gen.generateKeyPair();
-		return pair;
+	public static KeyPair genKeyPair(int keySize) {
+		try {
+			KeyPairGenerator gen = KeyPairGenerator.getInstance(AsymmetricAlgorithm.RSA.code(), SUN_RSA_SIGN);
+			gen.initialize(keySize, new SecureRandom());
+			KeyPair pair = gen.generateKeyPair();
+			return pair;
+		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+			throw new CryptoRuntimeException(e);
+		}
 	}
 
-	public static byte[][] genKeyPairBytes(int keySize)
-		throws NoSuchAlgorithmException, NoSuchProviderException {
+	public static byte[][] genKeyPairBytes(int keySize) {
 		byte[][] keyPairBytes = new byte[2][];
 
 		KeyPair pair = genKeyPair(keySize);
@@ -175,7 +208,7 @@ public class RSA {
 		}
 		try {
 			return CryptoKeys.readPublicKeyByX509(x509File);
-		} catch (IOException | CertificateException e) {
+		} catch (IOException e) {
 			throw new IllegalArgumentException("Failed to get public key", e);
 		}
 	}

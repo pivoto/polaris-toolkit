@@ -1,6 +1,11 @@
 package io.polaris.core.crypto.digest;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
@@ -10,10 +15,13 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import io.polaris.core.err.CryptoRuntimeException;
+
 /**
  * @author Qt
  * @since 1.8
  */
+@SuppressWarnings("ALL")
 public class Digests {
 	private static final int STREAM_BUFFER_LENGTH = 1024;
 
@@ -21,8 +29,12 @@ public class Digests {
 		return getDigest(messageDigestAlgorithm, (MessageDigest) null) != null;
 	}
 
-	public static MessageDigest getDigest(String algorithm) throws NoSuchAlgorithmException {
-		return MessageDigest.getInstance(algorithm);
+	public static MessageDigest getDigest(String algorithm) {
+		try {
+			return MessageDigest.getInstance(algorithm);
+		} catch (NoSuchAlgorithmException e) {
+			throw new CryptoRuntimeException(e);
+		}
 	}
 
 	public static MessageDigest getDigest(String algorithm, MessageDigest defaultMessageDigest) {
@@ -62,7 +74,7 @@ public class Digests {
 
 	public static MessageDigest updateDigest(MessageDigest digest, File data) throws IOException {
 		try (FileInputStream fis = new FileInputStream(data);
-			 BufferedInputStream in = new BufferedInputStream(fis);) {
+				 BufferedInputStream in = new BufferedInputStream(fis);) {
 			return updateDigest(digest, in);
 		}
 	}
@@ -105,151 +117,151 @@ public class Digests {
 	}
 
 
-	public static MessageDigest getMd2Digest() throws NoSuchAlgorithmException {
+	public static MessageDigest getMd2Digest() {
 		return getDigest(DigestAlgorithm.MD2.code());
 	}
 
-	public static MessageDigest getMd5Digest() throws NoSuchAlgorithmException {
+	public static MessageDigest getMd5Digest() {
 		return getDigest(DigestAlgorithm.MD5.code());
 	}
 
 
-	public static MessageDigest getSha1Digest() throws NoSuchAlgorithmException {
+	public static MessageDigest getSha1Digest() {
 		return getDigest(DigestAlgorithm.SHA1.code());
 	}
 
-	public static MessageDigest getSha256Digest() throws NoSuchAlgorithmException {
+	public static MessageDigest getSha256Digest() {
 		return getDigest(DigestAlgorithm.SHA256.code());
 	}
 
-	public static MessageDigest getSha3_224Digest() throws NoSuchAlgorithmException {
+	public static MessageDigest getSha3_224Digest() {
 		return getDigest(DigestAlgorithm.SHA3_224.code());
 	}
 
-	public static MessageDigest getSha3_256Digest() throws NoSuchAlgorithmException {
+	public static MessageDigest getSha3_256Digest() {
 		return getDigest(DigestAlgorithm.SHA3_256.code());
 	}
 
-	public static MessageDigest getSha3_384Digest() throws NoSuchAlgorithmException {
+	public static MessageDigest getSha3_384Digest() {
 		return getDigest(DigestAlgorithm.SHA3_384.code());
 	}
 
-	public static MessageDigest getSha3_512Digest() throws NoSuchAlgorithmException {
+	public static MessageDigest getSha3_512Digest() {
 		return getDigest(DigestAlgorithm.SHA3_512.code());
 	}
 
-	public static MessageDigest getSha384Digest() throws NoSuchAlgorithmException {
+	public static MessageDigest getSha384Digest() {
 		return getDigest(DigestAlgorithm.SHA384.code());
 	}
 
-	public static MessageDigest getSha512Digest() throws NoSuchAlgorithmException {
+	public static MessageDigest getSha512Digest() {
 		return getDigest(DigestAlgorithm.SHA512.code());
 	}
 
 
-	public static MessageDigest getSha512_224Digest() throws NoSuchAlgorithmException {
+	public static MessageDigest getSha512_224Digest() {
 		return getDigest(DigestAlgorithm.SHA512_224.code());
 	}
 
-	public static MessageDigest getSha512_256Digest() throws NoSuchAlgorithmException {
+	public static MessageDigest getSha512_256Digest() {
 		return getDigest(DigestAlgorithm.SHA512_256.code());
 	}
 
 
-	public static byte[] md2(byte[] data) throws NoSuchAlgorithmException {
+	public static byte[] md2(byte[] data) {
 		return getMd2Digest().digest(data);
 	}
 
-	public static byte[] md5(byte[] data) throws NoSuchAlgorithmException {
+	public static byte[] md5(byte[] data) {
 		return getMd5Digest().digest(data);
 	}
 
-	public static byte[] sha1(byte[] data) throws NoSuchAlgorithmException {
+	public static byte[] sha1(byte[] data) {
 		return getSha1Digest().digest(data);
 	}
 
-	public static byte[] sha256(byte[] data) throws NoSuchAlgorithmException {
+	public static byte[] sha256(byte[] data) {
 		return getSha256Digest().digest(data);
 	}
 
-	public static byte[] sha3_224(byte[] data) throws NoSuchAlgorithmException {
+	public static byte[] sha3_224(byte[] data) {
 		return getSha3_224Digest().digest(data);
 	}
 
-	public static byte[] sha3_256(byte[] data) throws NoSuchAlgorithmException {
+	public static byte[] sha3_256(byte[] data) {
 		return getSha3_256Digest().digest(data);
 	}
 
-	public static byte[] sha3_384(byte[] data) throws NoSuchAlgorithmException {
+	public static byte[] sha3_384(byte[] data) {
 		return getSha3_384Digest().digest(data);
 	}
 
-	public static byte[] sha3_512(byte[] data) throws NoSuchAlgorithmException {
+	public static byte[] sha3_512(byte[] data) {
 		return getSha3_512Digest().digest(data);
 	}
 
-	public static byte[] sha384(byte[] data) throws NoSuchAlgorithmException {
+	public static byte[] sha384(byte[] data) {
 		return getSha384Digest().digest(data);
 	}
 
-	public static byte[] sha512(byte[] data) throws NoSuchAlgorithmException {
+	public static byte[] sha512(byte[] data) {
 		return getSha512Digest().digest(data);
 	}
 
-	public static byte[] sha512_224(byte[] data) throws NoSuchAlgorithmException {
+	public static byte[] sha512_224(byte[] data) {
 		return getSha512_224Digest().digest(data);
 	}
 
-	public static byte[] sha512_256(byte[] data) throws NoSuchAlgorithmException {
+	public static byte[] sha512_256(byte[] data) {
 		return getSha512_256Digest().digest(data);
 	}
 
 
-	public static byte[] md2(String data) throws NoSuchAlgorithmException {
+	public static byte[] md2(String data) {
 		return md2(data.getBytes(StandardCharsets.UTF_8));
 	}
 
-	public static byte[] md5(String data) throws NoSuchAlgorithmException {
+	public static byte[] md5(String data) {
 		return md5(data.getBytes(StandardCharsets.UTF_8));
 	}
 
-	public static byte[] sha1(String data) throws NoSuchAlgorithmException {
+	public static byte[] sha1(String data) {
 		return sha1(data.getBytes(StandardCharsets.UTF_8));
 	}
 
-	public static byte[] sha256(String data) throws NoSuchAlgorithmException {
+	public static byte[] sha256(String data) {
 		return sha256(data.getBytes(StandardCharsets.UTF_8));
 	}
 
-	public static byte[] sha3_224(String data) throws NoSuchAlgorithmException {
+	public static byte[] sha3_224(String data) {
 		return sha3_224(data.getBytes(StandardCharsets.UTF_8));
 	}
 
-	public static byte[] sha3_256(String data) throws NoSuchAlgorithmException {
+	public static byte[] sha3_256(String data) {
 		return sha3_256(data.getBytes(StandardCharsets.UTF_8));
 	}
 
-	public static byte[] sha3_384(String data) throws NoSuchAlgorithmException {
+	public static byte[] sha3_384(String data) {
 		return sha3_384(data.getBytes(StandardCharsets.UTF_8));
 	}
 
-	public static byte[] sha3_512(String data) throws NoSuchAlgorithmException {
+	public static byte[] sha3_512(String data) {
 		return sha3_512(data.getBytes(StandardCharsets.UTF_8));
 	}
 
-	public static byte[] sha384(String data) throws NoSuchAlgorithmException {
+	public static byte[] sha384(String data) {
 		return sha384(data.getBytes(StandardCharsets.UTF_8));
 	}
 
-	public static byte[] sha512(String data) throws NoSuchAlgorithmException {
+	public static byte[] sha512(String data) {
 		return sha512(data.getBytes(StandardCharsets.UTF_8));
 	}
 
-	public static byte[] sha512_224(String data) throws NoSuchAlgorithmException {
+	public static byte[] sha512_224(String data) {
 		return sha512_224(data.getBytes(StandardCharsets.UTF_8));
 	}
 
-	public static byte[] sha512_256(String data) throws NoSuchAlgorithmException {
+	public static byte[] sha512_256(String data) {
 		return sha512_256(data.getBytes(StandardCharsets.UTF_8));
 	}
 

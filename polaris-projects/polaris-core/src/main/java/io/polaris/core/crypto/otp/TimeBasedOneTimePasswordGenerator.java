@@ -1,6 +1,5 @@
 package io.polaris.core.crypto.otp;
 
-import java.security.InvalidKeyException;
 import java.security.Key;
 import java.time.Duration;
 import java.time.Instant;
@@ -9,6 +8,7 @@ import java.time.Instant;
  * @author Qt
  * @since 1.8
  */
+@SuppressWarnings("ALL")
 public class TimeBasedOneTimePasswordGenerator {
 	private final OneTimePasswordGenerator otp;
 	private final Duration timeStep;
@@ -38,11 +38,11 @@ public class TimeBasedOneTimePasswordGenerator {
 		return timestamp / this.timeStep.toMillis();
 	}
 
-	public boolean verify(Key key, Instant timestamp, int code) throws InvalidKeyException {
+	public boolean verify(Key key, Instant timestamp, int code) {
 		return verify(key, timestamp.toEpochMilli(), code);
 	}
 
-	public boolean verify(Key key, long timestamp, int code) throws InvalidKeyException {
+	public boolean verify(Key key, long timestamp, int code) {
 		long data = toStepData(timestamp);
 		for (int i = -1; i <= 1; i++) {
 			int generated = otp.generate(key, data + i);
@@ -53,11 +53,11 @@ public class TimeBasedOneTimePasswordGenerator {
 		return false;
 	}
 
-	public boolean verify(String key, Instant timestamp, int code) throws InvalidKeyException {
+	public boolean verify(String key, Instant timestamp, int code) {
 		return verify(key, timestamp.toEpochMilli(), code);
 	}
 
-	public boolean verify(String key, long timestamp, int code) throws InvalidKeyException {
+	public boolean verify(String key, long timestamp, int code) {
 		long data = toStepData(timestamp);
 		for (int i = -1; i <= 1; i++) {
 			int generated = otp.generate(key, data + i);
@@ -68,35 +68,35 @@ public class TimeBasedOneTimePasswordGenerator {
 		return false;
 	}
 
-	public int generate(Key key, Instant timestamp) throws InvalidKeyException {
+	public int generate(Key key, Instant timestamp) {
 		return otp.generate(key, toStepData(timestamp));
 	}
 
-	public int generate(Key key, long timestamp) throws InvalidKeyException {
+	public int generate(Key key, long timestamp) {
 		return otp.generate(key, toStepData(timestamp));
 	}
 
-	public int generate(String key, Instant timestamp) throws InvalidKeyException {
+	public int generate(String key, Instant timestamp) {
 		return otp.generate(key, toStepData(timestamp));
 	}
 
-	public int generate(String key, long timestamp) throws InvalidKeyException {
+	public int generate(String key, long timestamp) {
 		return otp.generate(key, toStepData(timestamp));
 	}
 
-	public String generateString(Key key, Instant timestamp) throws InvalidKeyException {
+	public String generateString(Key key, Instant timestamp) {
 		return otp.generateString(key, toStepData(timestamp));
 	}
 
-	public String generateString(Key key, long timestamp) throws InvalidKeyException {
+	public String generateString(Key key, long timestamp) {
 		return otp.generateString(key, toStepData(timestamp));
 	}
 
-	public String generateString(String key, Instant timestamp) throws InvalidKeyException {
+	public String generateString(String key, Instant timestamp) {
 		return otp.generateString(key, toStepData(timestamp));
 	}
 
-	public String generateString(String key, long timestamp) throws InvalidKeyException {
+	public String generateString(String key, long timestamp) {
 		return otp.generateString(key, toStepData(timestamp));
 	}
 

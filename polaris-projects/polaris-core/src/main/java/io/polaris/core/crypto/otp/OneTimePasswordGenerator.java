@@ -1,20 +1,23 @@
 package io.polaris.core.crypto.otp;
 
-import io.polaris.core.codec.Base32;
-
-import javax.crypto.Mac;
-import javax.crypto.ShortBufferException;
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
+import javax.crypto.Mac;
+import javax.crypto.ShortBufferException;
+import javax.crypto.spec.SecretKeySpec;
+
+import io.polaris.core.codec.Base32;
+import io.polaris.core.err.CryptoRuntimeException;
+
 /**
  * @author Qt
  * @since 1.8
  */
+@SuppressWarnings("ALL")
 public class OneTimePasswordGenerator {
 	private final Mac prototypeMac;
 	private final int length;
@@ -76,15 +79,15 @@ public class OneTimePasswordGenerator {
 		return Base32.encodeToString(generateKey(size));
 	}
 
-	public int generate(String key, long data) throws InvalidKeyException {
+	public int generate(String key, long data)  {
 		return generate(Base32.decode(key), data);
 	}
 
-	public int generate(byte[] key, long data) throws InvalidKeyException {
+	public int generate(byte[] key, long data)  {
 		return generate(new SecretKeySpec(key, getAlgorithm()), data);
 	}
 
-	public int generate(Key key, long data) throws InvalidKeyException {
+	public int generate(Key key, long data)  {
 		Mac mac = getMac();
 		ByteBuffer buffer = ByteBuffer.allocate(mac.getMacLength());
 		buffer.putLong(0, data);
@@ -97,20 +100,22 @@ public class OneTimePasswordGenerator {
 			return (buffer.getInt(offset) & 0x7fffffff) % this.modDivisor;
 		} catch (ShortBufferException e) {
 			// This should be impossible
-			throw new IllegalStateException(e);
+			throw new CryptoRuntimeException(e);
+		} catch (InvalidKeyException e) {
+			throw new CryptoRuntimeException(e);
 		}
 	}
 
 
-	public String generateString(String key, long data) throws InvalidKeyException {
+	public String generateString(String key, long data)  {
 		return generateString(Base32.decode(key), data);
 	}
 
-	public String generateString(byte[] key, long data) throws InvalidKeyException {
+	public String generateString(byte[] key, long data)  {
 		return generateString(new SecretKeySpec(key, getAlgorithm()), data);
 	}
 
-	public String generateString(Key key, long data) throws InvalidKeyException {
+	public String generateString(Key key, long data)  {
 		String pwd = Integer.toString(generate(key, data));
 		StringBuilder sb = new StringBuilder(this.length);
 		int offset = (this.length - pwd.length());

@@ -7,7 +7,6 @@ import java.nio.ByteBuffer;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * @author Qt
@@ -16,7 +15,7 @@ import java.security.NoSuchAlgorithmException;
 public class Digest {
 	private final MessageDigest messageDigest;
 
-	public Digest(String algorithm) throws NoSuchAlgorithmException {
+	public Digest(String algorithm)  {
 		this(Digests.getDigest(algorithm));
 	}
 
@@ -53,6 +52,7 @@ public class Digest {
 	}
 
 
+	@SuppressWarnings("unused")
 	public MessageDigest getMessageDigest() {
 		return this.messageDigest;
 	}

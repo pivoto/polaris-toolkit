@@ -1,8 +1,13 @@
 package io.polaris.core.crypto.asymmetric;
 
-import io.polaris.core.crypto.CryptoKeys;
+import java.security.InvalidKeyException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
 
-import java.security.*;
+import io.polaris.core.crypto.CryptoKeys;
+import io.polaris.core.err.CryptoRuntimeException;
 
 /**
  * @author Qt
@@ -10,49 +15,76 @@ import java.security.*;
  */
 public class Signatures {
 
-	public static Signature getSignature(String algorithm) throws NoSuchAlgorithmException {
+	public static Signature getSignature(String algorithm) {
 		return CryptoKeys.getSignature(algorithm);
 	}
 
-	public static Signature getInitializedSignature(String algorithm, PrivateKey key) throws GeneralSecurityException {
+	public static Signature getInitializedSignature(String algorithm, PrivateKey key) {
 		Signature signature = getSignature(algorithm);
-		signature.initSign(key);
+		try {
+			signature.initSign(key);
+		} catch (InvalidKeyException e) {
+			throw new CryptoRuntimeException(e);
+		}
 		return signature;
 	}
 
-	public static Signature getInitializedSignature(String algorithm, PublicKey key) throws GeneralSecurityException {
+	public static Signature getInitializedSignature(String algorithm, PublicKey key) {
 		Signature signature = getSignature(algorithm);
-		signature.initVerify(key);
-		return signature;
+		try {
+			signature.initVerify(key);
+			return signature;
+		} catch (InvalidKeyException e) {
+			throw new CryptoRuntimeException(e);
+		}
 	}
 
-	public static Signature doUpdate(Signature signature, byte[] data) throws GeneralSecurityException {
-		signature.update(data);
-		return signature;
+	public static Signature doUpdate(Signature signature, byte[] data) {
+		try {
+			signature.update(data);
+			return signature;
+		} catch (SignatureException e) {
+			throw new CryptoRuntimeException(e);
+		}
 	}
 
-	public static byte[] doSign(Signature signature, byte[] data) throws GeneralSecurityException {
-		signature.update(data);
-		return signature.sign();
+	public static byte[] doSign(Signature signature, byte[] data) {
+		try {
+			signature.update(data);
+			return signature.sign();
+		} catch (SignatureException e) {
+			throw new CryptoRuntimeException(e);
+		}
 	}
 
-	public static boolean doVerify(Signature signature, byte[] data, byte[] sign) throws GeneralSecurityException {
-		signature.update(data);
-		return signature.verify(sign);
+	public static boolean doVerify(Signature signature, byte[] data, byte[] sign) {
+		try {
+			signature.update(data);
+			return signature.verify(sign);
+		} catch (SignatureException e) {
+			throw new CryptoRuntimeException(e);
+		}
 	}
 
-	public static byte[] sign(String algorithm, PrivateKey key, byte[] data) throws GeneralSecurityException {
+	public static byte[] sign(String algorithm, PrivateKey key, byte[] data) {
 		Signature signature = getSignature(algorithm);
-		signature.initSign(key);
-		signature.update(data);
-		return signature.sign();
+		try {
+			signature.initSign(key);
+			signature.update(data);
+			return signature.sign();
+		} catch (InvalidKeyException | SignatureException e) {
+			throw new CryptoRuntimeException(e);
+		}
 	}
 
-	public static boolean verify(String algorithm, PublicKey key, byte[] data, byte[] sign)
-		throws GeneralSecurityException {
+	public static boolean verify(String algorithm, PublicKey key, byte[] data, byte[] sign) {
 		Signature signature = getSignature(algorithm);
-		signature.initVerify(key);
-		signature.update(data);
-		return signature.verify(sign);
+		try {
+			signature.initVerify(key);
+			signature.update(data);
+			return signature.verify(sign);
+		} catch (InvalidKeyException | SignatureException e) {
+			throw new CryptoRuntimeException(e);
+		}
 	}
 }
