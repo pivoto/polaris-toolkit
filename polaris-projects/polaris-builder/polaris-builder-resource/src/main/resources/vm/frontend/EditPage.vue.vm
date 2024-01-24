@@ -4,26 +4,26 @@
 		<el-form ref="refForm" v-loading="vLoadingForm" :rules="vFormRules" :model="vFormData" label-width="90px">
 			<v-row :gutter="5">
 #foreach($col in $table.columns)
-#if(${col.javaVariableName.equals('crtUser')} || ${col.javaVariableName.equals('uptUser')}
+	#if(${col.javaVariableName.equals('crtUser')} || ${col.javaVariableName.equals('uptUser')}
 	|| ${col.javaVariableName.equals('crtUserName')} || ${col.javaVariableName.equals('uptUserName')}
 	|| ${col.javaVariableName.equals('crtUserRealName')} || ${col.javaVariableName.equals('uptUserRealName')}
 	|| ${col.javaVariableName.equals('crtDt')} || ${col.javaVariableName.equals('uptDt')}
 	|| ${col.primary})
-	#set($env.editPageColReadonly='readonly disabled')
-#else
-	#set($env.editPageColReadonly=':readonly="props.readonly" :disabled="props.readonly"')
-#end
-#if(${env.entityExtInterface.contains('Creatable')} && ${col.javaVariableName.equals('crtUser')})
-	#if(!$table.containsColumnVariableName('crtUserName'))
+		#set($env.editPageColReadonly='readonly disabled')
+	#else
+		#set($env.editPageColReadonly=':readonly="props.readonly" :disabled="props.readonly"')
+	#end
+	#if(${env.entityExtInterface.contains('Creatable')} && ${col.javaVariableName.equals('crtUser')})
+		#if(!$table.containsColumnVariableName('crtUserName'))
 				<v-col-form-item type="input" label="${col.label}" prop="crtUserName" v-model="vFormData.crtUserName"
 					clearable ${env.editPageColReadonly} item-style="width: 200px;" />
 	#end
-#elseif(${env.entityExtInterface.contains('Updatable')} && ${col.javaVariableName.equals('uptUser')})
-	#if(!$table.containsColumnVariableName('uptUserName'))
+	#elseif(${env.entityExtInterface.contains('Updatable')} && ${col.javaVariableName.equals('uptUser')})
+		#if(!$table.containsColumnVariableName('uptUserName'))
 				<v-col-form-item type="input" label="${col.label}" prop="uptUserName" v-model="vFormData.crtUserName"
 					clearable ${env.editPageColReadonly} item-style="width: 200px;" />
 	#end
-#elseif(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
+	#elseif(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
 				<v-col-form-item type="datetime" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
 					clearable ${env.editPageColReadonly} item-style="width: 200px;" />
 #elseif(${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT')
@@ -39,7 +39,7 @@
 				<v-col-form-item type="input" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
 					clearable ${env.editPageColReadonly} item-style="width: 200px;" />
 #else
-	#if(${col.name.toLowerCase().endsWith('_sts')})
+		#if(${col.name.toLowerCase().endsWith('_sts')})
 				<v-col-form-item type="switch" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
 					clearable ${env.editPageColReadonly}
 					:switch-props="{width:60,inlinePrompt:true,activeValue:'A',inactiveValue:'I',activeText:'生效',inactiveText:'失效'}" />
@@ -47,7 +47,7 @@
 				<v-col-form-item type="input" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
 					clearable ${env.editPageColReadonly} item-style="width: 200px;" />
 	#end
-#end
+	#end
 #end
 			</v-row>
 		</el-form>
@@ -105,40 +105,44 @@ interface Props {
 type ParamType = {
 #foreach($col in $table.pkColumns)
 	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
-	${col.javaVariableName}#if(${col.nullable})?#end: number,
+		${col.javaVariableName}#if(${col.nullable})?#end: number,
 	#elseif(${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT')
-	${col.javaVariableName}#if(${col.nullable})?#end: number,
+		${col.javaVariableName}#if(${col.nullable})?#end: number,
 	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'BIGINT')
-	${col.javaVariableName}#if(${col.nullable})?#end: string,
+		${col.javaVariableName}#if(${col.nullable})?#end: string,
 	#elseif(${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
-	${col.javaVariableName}#if(${col.nullable})?#end: number,
+		${col.javaVariableName}#if(${col.nullable})?#end: number,
 	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL')
-	${col.javaVariableName}#if(${col.nullable})?#end: string,
+		${col.javaVariableName}#if(${col.nullable})?#end: string,
 	#else
-	${col.javaVariableName}#if(${col.nullable})?#end: string,
+		${col.javaVariableName}#if(${col.nullable})?#end: string,
 	#end
 #end
 }
 type FormType = {
 #foreach($col in $table.columns)
 	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
-	${col.javaVariableName}?: number,
+		${col.javaVariableName}?: number,
 	#elseif(${env.entityExtInterface.contains('Creatable')} && ${col.javaVariableName.equals('crtUser')})
 	crtUser?: string,
+	#if(!$table.containsColumnVariableName('crtUserName'))
 	crtUserName?: string,
+	#end
 	#elseif(${env.entityExtInterface.contains('Updatable')} && ${col.javaVariableName.equals('uptUser')})
 	uptUser?: string,
+	#if(!$table.containsColumnVariableName('uptUserName'))
 	uptUserName?: string,
+	#end
 	#elseif(${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT')
-	${col.javaVariableName}?: number,
+		${col.javaVariableName}?: number,
 	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'BIGINT')
-	${col.javaVariableName}?: string,
+		${col.javaVariableName}?: string,
 	#elseif(${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
-	${col.javaVariableName}?: number,
+		${col.javaVariableName}?: number,
 	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL')
-	${col.javaVariableName}?: string,
+		${col.javaVariableName}?: string,
 	#else
-	${col.javaVariableName}?: string,
+		${col.javaVariableName}?: string,
 	#end
 #end
 }
@@ -214,7 +218,7 @@ const vFormRules = ref<FormRules<FormType>>({});
 #foreach($col in $table.columns)
 	#if(${col.javaVariableName.equals('crtUser')} || ${col.javaVariableName.equals('uptUser')}
 	|| ${col.javaVariableName.equals('crtDt')} || ${col.javaVariableName.equals('uptDt')})
-## ignore
+		## ignore
 	#elseif(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
 		#if(!${col.nullable})
 	vFormRules.value.${col.javaVariableName} = [buildRequiredNumberValidator()];
@@ -290,9 +294,9 @@ async function onFetchInitData(param: ParamType) {
 				param: {
 #foreach($col in $table.pkColumns)
 	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
-					${col.javaVariableName} : [param.${col.javaVariableName},param.${col.javaVariableName}],
+		${col.javaVariableName} : [param.${col.javaVariableName},param.${col.javaVariableName}],
 	#else
-					${col.javaVariableName} : param.${col.javaVariableName},
+		${col.javaVariableName} : param.${col.javaVariableName},
 	#end
 #end
 				}
