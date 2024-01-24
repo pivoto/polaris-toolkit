@@ -19,19 +19,11 @@ public class DSA {
 	}
 
 	public static byte[] sign(PrivateKey key, byte[] data)  {
-		try {
-			return Signatures.sign(AsymmetricAlgorithm.DSA.code(), key, data);
-		} catch (GeneralSecurityException e) {
-			throw new CryptoRuntimeException(e);
-		}
+		return Signatures.sign(AsymmetricAlgorithm.DSA.code(), key, data);
 	}
 
 	public static boolean verify(PublicKey key, byte[] data, byte[] sign)  {
-		try {
-			return Signatures.verify(AsymmetricAlgorithm.DSA.code(), key, data, sign);
-		} catch (GeneralSecurityException e) {
-			throw new CryptoRuntimeException(e);
-		}
+		return Signatures.verify(AsymmetricAlgorithm.DSA.code(), key, data, sign);
 	}
 
 

@@ -92,24 +92,16 @@ public class Sign {
 
 
 	public Signature getSignSignature() {
-		try {
-			if (signSignature == null) {
-				signSignature = Signatures.getInitializedSignature(algorithm, privateKey);
-			}
-			return signSignature;
-		} catch (GeneralSecurityException e) {
-			throw new CryptoRuntimeException(e);
+		if (signSignature == null) {
+			signSignature = Signatures.getInitializedSignature(algorithm, privateKey);
 		}
+		return signSignature;
 	}
 
 	public Signature getVerifySignature() {
-		try {
-			if (verifySignature == null) {
-				verifySignature = Signatures.getInitializedSignature(algorithm, publicKey);
-			}
-			return verifySignature;
-		} catch (GeneralSecurityException e) {
-			throw new CryptoRuntimeException(e);
+		if (verifySignature == null) {
+			verifySignature = Signatures.getInitializedSignature(algorithm, publicKey);
 		}
+		return verifySignature;
 	}
 }

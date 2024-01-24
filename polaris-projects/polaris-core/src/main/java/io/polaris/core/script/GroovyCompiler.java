@@ -47,11 +47,7 @@ public class GroovyCompiler {
 	}
 
 	private static String sha1(String content) {
-		try {
-			return Base64.getEncoder().encodeToString(Digests.sha1(content != null ? content.trim() : ""));
-		} catch (NoSuchAlgorithmException e) {
-			throw new IllegalStateException(e);
-		}
+		return Base64.getEncoder().encodeToString(Digests.sha1(content != null ? content.trim() : ""));
 	}
 
 	private String buildDefaultScriptName(String str) {
