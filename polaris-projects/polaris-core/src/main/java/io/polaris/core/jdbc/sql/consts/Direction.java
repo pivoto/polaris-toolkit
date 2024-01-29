@@ -8,8 +8,11 @@ import io.polaris.core.string.Strings;
  * @author Qt
  * @since 1.8,  Aug 29, 2023
  */
+@SuppressWarnings("all")
 public enum Direction {
-	ASC(SqlNodes.ASC), DESC(SqlNodes.DESC);
+	ASC(SqlNodes.ASC),
+	DESC(SqlNodes.DESC),
+	;
 
 	private final TextNode textNode;
 

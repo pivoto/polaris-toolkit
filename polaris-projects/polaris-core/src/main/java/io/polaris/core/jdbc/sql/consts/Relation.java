@@ -7,10 +7,11 @@ import io.polaris.core.jdbc.sql.node.TextNode;
  * @author Qt
  * @since 1.8,  Aug 11, 2023
  */
-@SuppressWarnings("all" )
+@SuppressWarnings("all")
 public enum Relation {
 
-	AND(SqlNodes.AND), OR(SqlNodes.OR),
+	AND(SqlNodes.AND),
+	OR(SqlNodes.OR),
 	;
 
 	final TextNode textNode;
