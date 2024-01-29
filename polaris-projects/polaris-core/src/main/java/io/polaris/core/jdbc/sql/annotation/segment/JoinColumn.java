@@ -6,8 +6,6 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.Map;
-import java.util.function.BiPredicate;
 
 /**
  * @author Qt
@@ -19,20 +17,9 @@ import java.util.function.BiPredicate;
 @Inherited
 public @interface JoinColumn {
 
-	String value();
+	String field() default "";
 
-	PredicateType predicateType() default PredicateType.NOT_EMPTY;
+	String tableAlias() default "";
 
-	Class<? extends BiPredicate<Map<String,Object>,String>>[] predicateClass() default {};
-
-	enum PredicateType {
-		NOT_NULL,
-		NOT_EMPTY,
-		IS_NULL,
-		IS_EMPTY,
-		REGEX,
-		JAVA_EVALUATOR,
-		GROOVY_EVALUATOR,
-		CUSTOM,
-	}
+	Condition[] condition() default {};
 }

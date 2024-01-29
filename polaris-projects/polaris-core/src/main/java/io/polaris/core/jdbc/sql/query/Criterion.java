@@ -1,6 +1,8 @@
 package io.polaris.core.jdbc.sql.query;
 
 import io.polaris.core.collection.Iterables;
+import io.polaris.core.jdbc.sql.consts.Operator;
+import io.polaris.core.jdbc.sql.consts.Relation;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

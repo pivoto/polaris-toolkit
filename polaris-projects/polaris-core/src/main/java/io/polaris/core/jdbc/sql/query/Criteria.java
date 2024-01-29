@@ -1,11 +1,7 @@
 package io.polaris.core.jdbc.sql.query;
 
 import io.polaris.core.collection.Iterables;
-import io.polaris.core.jdbc.ColumnMeta;
-import io.polaris.core.jdbc.TableMeta;
-import io.polaris.core.jdbc.TableMetaKit;
-import io.polaris.core.lang.Objs;
-import io.polaris.core.lang.bean.Beans;
+import io.polaris.core.jdbc.sql.consts.Relation;
 import io.polaris.core.string.Strings;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -13,7 +9,6 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Qt

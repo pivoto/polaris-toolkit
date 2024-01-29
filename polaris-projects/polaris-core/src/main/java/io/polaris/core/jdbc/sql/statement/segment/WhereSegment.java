@@ -1,23 +1,29 @@
 package io.polaris.core.jdbc.sql.statement.segment;
 
 
-import io.polaris.core.annotation.AnnotationProcessing;
-import io.polaris.core.jdbc.ColumnMeta;
-import io.polaris.core.jdbc.TableMeta;
-import io.polaris.core.jdbc.sql.node.ContainerNode;
-import io.polaris.core.jdbc.sql.node.SqlNode;
-import io.polaris.core.jdbc.sql.node.SqlNodes;
-import io.polaris.core.jdbc.sql.node.TextNode;
-import io.polaris.core.jdbc.sql.statement.*;
-import io.polaris.core.lang.bean.Beans;
-import io.polaris.core.reflect.GetterFunction;
-import io.polaris.core.reflect.Reflects;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+
+import io.polaris.core.annotation.AnnotationProcessing;
+import io.polaris.core.jdbc.ColumnMeta;
+import io.polaris.core.jdbc.TableMeta;
+import io.polaris.core.jdbc.sql.EntityStatements;
+import io.polaris.core.jdbc.sql.node.ContainerNode;
+import io.polaris.core.jdbc.sql.node.SqlNode;
+import io.polaris.core.jdbc.sql.node.SqlNodes;
+import io.polaris.core.jdbc.sql.node.TextNode;
+import io.polaris.core.jdbc.sql.statement.BaseSegment;
+import io.polaris.core.jdbc.sql.statement.ColumnPredicate;
+import io.polaris.core.jdbc.sql.statement.ConfigurableColumnPredicate;
+import io.polaris.core.jdbc.sql.statement.Segment;
+import io.polaris.core.jdbc.sql.statement.SelectStatement;
+import io.polaris.core.jdbc.sql.statement.SqlNodeBuilder;
+import io.polaris.core.lang.bean.Beans;
+import io.polaris.core.reflect.GetterFunction;
+import io.polaris.core.reflect.Reflects;
 
 /**
  * @author Qt
@@ -110,19 +116,29 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 	}
 
 	public S byEntity(Object entity) {
+		return byEntity(entity, null, null, false, null);
+	}
+
+	public S byEntity(Object entity, Predicate<String> isIncludeColumns, Predicate<String> isExcludeColumns
+		, boolean includeAllEmpty, Predicate<String> isIncludeEmptyColumns) {
 		TableMeta tableMeta = table.getTableMeta();
 		if (tableMeta != null) {
-			Statements.addWhereSqlByEntity(this, entity, tableMeta);
+			ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(isIncludeColumns, isExcludeColumns, isIncludeEmptyColumns, includeAllEmpty);
+			EntityStatements.addWhereSqlByEntity(this, entity, tableMeta, columnPredicate);
 		}
 		return getThis();
 	}
 
-	public S byEntity(Object entity, Predicate<String> includeWhereNulls) {
+	public S byEntity(Object entity, ColumnPredicate columnPredicate) {
 		TableMeta tableMeta = table.getTableMeta();
 		if (tableMeta != null) {
-			Statements.addWhereSqlByEntity(this, entity, tableMeta, includeWhereNulls);
+			EntityStatements.addWhereSqlByEntity(this, entity, tableMeta, columnPredicate);
 		}
 		return getThis();
+	}
+
+	public S byEntity(Object entity, Predicate<String> isIncludeEmptyColumns) {
+		return byEntity(entity, null, null, false, isIncludeEmptyColumns);
 	}
 
 	public S byEntityId(Object entity) {

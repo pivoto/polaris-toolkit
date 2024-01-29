@@ -1,16 +1,5 @@
 package io.polaris.core.jdbc.sql.statement;
 
-import io.polaris.core.annotation.AnnotationProcessing;
-import io.polaris.core.jdbc.ColumnMeta;
-import io.polaris.core.jdbc.TableMeta;
-import io.polaris.core.jdbc.sql.node.ContainerNode;
-import io.polaris.core.jdbc.sql.node.SqlNode;
-import io.polaris.core.jdbc.sql.node.SqlNodes;
-import io.polaris.core.jdbc.sql.node.TextNode;
-import io.polaris.core.jdbc.sql.statement.segment.ColumnSegment;
-import io.polaris.core.jdbc.sql.statement.segment.TableSegment;
-import io.polaris.core.lang.bean.Beans;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,12 +7,24 @@ import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import static io.polaris.core.lang.Objs.isNotEmpty;
+import io.polaris.core.annotation.AnnotationProcessing;
+import io.polaris.core.jdbc.ColumnMeta;
+import io.polaris.core.jdbc.TableMeta;
+import io.polaris.core.jdbc.sql.EntityStatements;
+import io.polaris.core.jdbc.sql.node.ContainerNode;
+import io.polaris.core.jdbc.sql.node.SqlNode;
+import io.polaris.core.jdbc.sql.node.SqlNodes;
+import io.polaris.core.jdbc.sql.node.TextNode;
+import io.polaris.core.jdbc.sql.statement.segment.ColumnSegment;
+import io.polaris.core.jdbc.sql.statement.segment.TableSegment;
+import io.polaris.core.lang.Objs;
+import io.polaris.core.lang.bean.Beans;
 
 /**
  * @author Qt
  * @since 1.8,  Aug 20, 2023
  */
+@SuppressWarnings("all")
 @AnnotationProcessing
 public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement<S> {
 
@@ -37,7 +38,7 @@ public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement
 		this.table = TableSegment.fromEntity(entityClass, null);
 	}
 
-	public static InsertStatement<?> of(Class<?> entityClass){
+	public static InsertStatement<?> of(Class<?> entityClass) {
 		return new InsertStatement<>(entityClass);
 	}
 
@@ -162,10 +163,14 @@ public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement
 	}
 
 	public S withEntity(Object entity) {
-		return withEntity(entity, Statements.DEFAULT_PREDICATE_EXCLUDE_NULLS);
+		return withEntity(entity, null, null, false, null);
 	}
 
-	public S withEntity(Object entity, Predicate<String> includeEntityNulls) {
+	public S withEntity(Object entity, Predicate<String> isIncludeEmptyColumns) {
+		return withEntity(entity, null, null, false, isIncludeEmptyColumns);
+	}
+
+	public S withEntity(Object entity, Predicate<String> isIncludeColumns, Predicate<String> isExcludeColumns, boolean includeAllEmpty, Predicate<String> isIncludeEmptyColumns) {
 		TableMeta tableMeta = table.getTableMeta();
 		if (tableMeta != null) {
 			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, tableMeta.getEntityClass());
@@ -177,11 +182,57 @@ public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement
 				if (!insertable) {
 					continue;
 				}
-				Object val = Statements.getValForInsert(entityMap, meta);
+				// 不在包含列表
+				if (isIncludeColumns != null && !isIncludeColumns.test(name)) {
+					continue;
+				}
+				// 在排除列表
+				if (isExcludeColumns != null && isExcludeColumns.test(name)) {
+					continue;
+				}
+
+				Object val = EntityStatements.getValForInsert(entityMap, meta);
 				if (meta.isVersion()) {
 					val = val == null ? 1L : ((Number) val).longValue() + 1;
 				}
-				if (isNotEmpty(val) || includeEntityNulls.test(name)) {
+				boolean include =
+					// 需要包含空值字段
+					includeAllEmpty || (isIncludeEmptyColumns != null && isIncludeEmptyColumns.test(name))
+						// 或为非空值
+						|| Objs.isNotEmpty(val);
+
+				if (include) {
+					this.column(name, val);
+				}
+			}
+		}
+		return getThis();
+	}
+
+	public S withEntity(Object entity, ColumnPredicate columnPredicate) {
+		TableMeta tableMeta = table.getTableMeta();
+		if (tableMeta != null) {
+			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, tableMeta.getEntityClass());
+
+			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
+				String name = entry.getKey();
+				ColumnMeta meta = entry.getValue();
+				boolean insertable = meta.isInsertable() || meta.isCreateTime() || meta.isUpdateTime();
+				if (!insertable) {
+					continue;
+				}
+				// 不在包含列表
+				if (!columnPredicate.isIncludedColumn(name)) {
+					continue;
+				}
+
+				Object val = EntityStatements.getValForInsert(entityMap, meta);
+				if (meta.isVersion()) {
+					val = val == null ? 1L : ((Number) val).longValue() + 1;
+				}
+				// 需要包含空值字段,或为非空值
+				boolean include = columnPredicate.isIncludedEmptyColumn(name) || Objs.isNotEmpty(val);
+				if (include) {
 					this.column(name, val);
 				}
 			}

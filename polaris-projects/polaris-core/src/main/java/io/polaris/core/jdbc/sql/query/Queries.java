@@ -4,6 +4,9 @@ import io.polaris.core.collection.Iterables;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.TableMetaKit;
+import io.polaris.core.jdbc.sql.consts.Direction;
+import io.polaris.core.jdbc.sql.consts.Operator;
+import io.polaris.core.jdbc.sql.consts.Relation;
 import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
@@ -146,7 +149,6 @@ public class Queries {
 	public static SqlNode parse(String column, Criterion criterion, boolean supportReplacement) {
 		SqlNode sql = new ContainerNode();
 		if (!Iterables.isEmpty(criterion.getSubset())) {
-			int i = 0;
 			boolean first = true;
 			for (Criterion sub : criterion.getSubset()) {
 				SqlNode sqlNode = parse(column, sub, supportReplacement);

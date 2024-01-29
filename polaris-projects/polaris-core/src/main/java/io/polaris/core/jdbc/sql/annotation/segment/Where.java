@@ -7,7 +7,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import io.polaris.core.jdbc.sql.query.Relation;
+import io.polaris.core.jdbc.sql.consts.Relation;
 
 /**
  * @author Qt
@@ -17,13 +17,14 @@ import io.polaris.core.jdbc.sql.query.Relation;
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Documented
 @Inherited
-public @interface Criteria {
+public @interface Where {
 
-	Criterion[] value() default {};
+	String byEntityIdKey() default "";
 
-	JoinCriterion[] join() default {};
+	String byEntityKey() default "";
+
+	Criteria[] criteria() default {};
 
 	Relation relation() default Relation.AND;
 
-	Criteria1[] subset() default {};
 }

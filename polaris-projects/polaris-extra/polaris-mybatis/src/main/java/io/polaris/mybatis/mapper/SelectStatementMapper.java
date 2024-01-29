@@ -1,9 +1,9 @@
 package io.polaris.mybatis.mapper;
 
+import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.OrderBy;
 import io.polaris.core.jdbc.sql.statement.SelectStatement;
-import io.polaris.mybatis.consts.EntityMapperKeys;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
 import org.apache.ibatis.annotations.Param;
@@ -20,23 +20,23 @@ public interface SelectStatementMapper<R> {
 
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.countBySql)
-	int countBySql(@Param(EntityMapperKeys.SELECT) SelectStatement<?> statement);
+	int countBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
 
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
-	List<R> selectEntityListBySql(@Param(EntityMapperKeys.SELECT) SelectStatement<?> statement);
+	List<R> selectEntityListBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
 
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
-	List<Map<String, Object>> selectMapListBySql(@Param(EntityMapperKeys.SELECT) SelectStatement<?> statement);
+	List<Map<String, Object>> selectMapListBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
 
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
-	R selectEntityBySql(@Param(EntityMapperKeys.SELECT) SelectStatement<?> statement);
+	R selectEntityBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
 
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
-	Map<String, Object> selectMapBySql(@Param(EntityMapperKeys.SELECT) SelectStatement<?> statement);
+	Map<String, Object> selectMapBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
 
 
 

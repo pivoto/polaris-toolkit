@@ -1,8 +1,17 @@
 package io.polaris.core.jdbc.sql.statement;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+
 import io.polaris.core.annotation.AnnotationProcessing;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.TableMeta;
+import io.polaris.core.jdbc.sql.EntityStatements;
 import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
@@ -14,14 +23,6 @@ import io.polaris.core.jdbc.sql.statement.segment.ColumnSegment;
 import io.polaris.core.jdbc.sql.statement.segment.TableSegment;
 import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.bean.Beans;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.BiPredicate;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 /**
  * @author Qt
@@ -155,10 +156,15 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 	}
 
 	public S withEntity(Object entity) {
-		return withEntity(entity, Statements.DEFAULT_PREDICATE_EXCLUDE_NULLS);
+		return withEntity(entity, null,null,false, null);
 	}
 
 	public S withEntity(Object entity, Predicate<String> includeEntityNulls) {
+		return withEntity(entity, null,null,false, includeEntityNulls);
+	}
+
+	public S withEntity(Object entity, Predicate<String> isIncludeColumns, Predicate<String> isExcludeColumns
+		, boolean includeAllEmpty, Predicate<String> isIncludeEmptyColumns) {
 		TableMeta tableMeta = this.table.getTableMeta();
 		if (tableMeta != null) {
 			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, tableMeta.getEntityClass());
@@ -174,11 +180,24 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 					// 不更新主键值
 					continue;
 				}
-				Object val = Statements.getValForUpdate(entityMap, meta);
-				if (meta.isVersion()) {
-					val = val == null ? 1L : ((Number) val).longValue() + 1;
+				// 不在包含列表
+				if (isIncludeColumns != null && !isIncludeColumns.test(name)) {
+					continue;
 				}
-				if (val != null || includeEntityNulls.test(name)) {
+				// 在排除列表
+				if (isExcludeColumns != null && isExcludeColumns.test(name)) {
+					continue;
+				}
+				Object val = EntityStatements.getValForUpdate(entityMap, meta);
+				if (meta.isVersion()) {
+					val = Objs.isEmpty(val) ? 1L : ((Number) val).longValue() + 1;
+				}
+				boolean include =
+					// 需要包含空值字段
+					includeAllEmpty || (isIncludeEmptyColumns != null && isIncludeEmptyColumns.test(name))
+						// 非空值
+						|| Objs.isNotEmpty(val);
+				if (include) {
 					this.column(name, val);
 				}
 			}

@@ -17,13 +17,13 @@ import java.util.function.BiPredicate;
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Documented
 @Inherited
-public @interface BindingKey {
+public @interface Condition {
 
-	String value();
+	String bindingKey() default "";
 
 	PredicateType predicateType() default PredicateType.NOT_EMPTY;
 
-	Class<? extends BiPredicate<Map<String,Object>,String>>[] predicateClass() default {};
+	Class<? extends BiPredicate<Map<String, Object>, String>>[] predicateClass() default {};
 
 	enum PredicateType {
 		NOT_NULL,

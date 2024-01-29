@@ -15,33 +15,15 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Documented
 @Inherited
-public @interface SelectColumn {
+public @interface GroupBy {
 	/**
 	 * @return 原始sql语句
 	 */
 	String raw() default "";
 
 	/**
-	 * @return 查询字段
+	 * @return 实体字段
 	 */
 	String field() default "";
-
-	/**
-	 * @return 查询函数，如`MAX(${ref})`、`MIN(${ref})`等
-	 */
-	String function() default "";
-
-
-	/**
-	 * @return 别名，指定固定值时不能为空
-	 */
-	String alias() default "";
-
-	/**
-	 * @return 指定固定值的绑定`Key`
-	 */
-	String keyOfValue() default "";
-
-	boolean aliasWithField() default false;
 
 }

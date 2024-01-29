@@ -78,7 +78,7 @@ public interface SqlNode {
 		throw new UnsupportedOperationException();
 	}
 
-	default void visitSubsetWritable(Consumer<SqlNodeOp> visitor) {
+	default void visitSubsetWritable(Consumer<SqlNodeOps> visitor) {
 		throw new UnsupportedOperationException();
 	}
 

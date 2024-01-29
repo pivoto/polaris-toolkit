@@ -1,7 +1,7 @@
 package io.polaris.mybatis.mapper;
 
+import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
-import io.polaris.mybatis.consts.EntityMapperKeys;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
 import org.apache.ibatis.annotations.Param;
@@ -16,16 +16,16 @@ import java.util.Map;
 public interface EntityCountMapper<E> extends EntityMapper<E> {
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.countEntity)
-	int countEntity(@Param(EntityMapperKeys.WHERE) E entity
-		, @Param(EntityMapperKeys.WHERE_NULLS_INCLUDE) Boolean includeWhereNulls);
+	int countEntity(@Param(BindingKeys.WHERE) E entity
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) Boolean includeWhereNulls);
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.countEntity)
-	int countEntityByMap(@Param(EntityMapperKeys.WHERE) Map<String, Object> entity
-		, @Param(EntityMapperKeys.WHERE_NULLS_INCLUDE) Boolean includeWhereNulls);
+	int countEntityByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) Boolean includeWhereNulls);
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.countEntity)
-	int countEntityByCriteria(@Param(EntityMapperKeys.WHERE) Criteria criteria
-		, @Param(EntityMapperKeys.WHERE_NULLS_INCLUDE) Boolean includeWhereNulls);
+	int countEntityByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) Boolean includeWhereNulls);
 
 
 	default int countEntity(E entity) {

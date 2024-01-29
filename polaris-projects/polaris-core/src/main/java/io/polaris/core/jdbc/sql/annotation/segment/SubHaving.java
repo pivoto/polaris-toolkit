@@ -17,9 +17,9 @@ import io.polaris.core.jdbc.sql.consts.Relation;
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Documented
 @Inherited
-public @interface Having {
+public @interface SubHaving {
 
-	Criteria[] criteria() default {};
+	SubCriteria[] criteria() default {};
 
 	Relation relation() default Relation.AND;
 

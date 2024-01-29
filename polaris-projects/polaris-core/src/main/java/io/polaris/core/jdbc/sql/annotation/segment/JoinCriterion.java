@@ -15,54 +15,47 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Documented
 @Inherited
-public @interface Criterion {
+public @interface JoinCriterion {
 	/**
 	 * @return 原始sql语句
 	 */
 	String raw() default "";
 
 	/**
-	 * @return 查询字段
+	 * @return 实体字段
 	 */
 	String field() default "";
 
+
+	JoinColumn eq() default @JoinColumn;
+
+	JoinColumn ne() default @JoinColumn;
+
+	JoinColumn gt() default @JoinColumn;
+
+	JoinColumn ge() default @JoinColumn;
+
+	JoinColumn lt() default @JoinColumn;
+
+	JoinColumn le() default @JoinColumn;
+
+	JoinColumn[] between() default {};
+
+	JoinColumn[] notBetween() default {};
+
+
 	/**
-	 * @return 查询函数，如`coalesce(${ref},1)`等
+	 * @return 函数，如`coalesce(${ref},1)`等
 	 */
-	String function() default "";
+	Function[] functions() default {};
 
+	boolean count() default false;
 
-	BindingKey eq() default @BindingKey;
+	boolean sum() default false;
 
-	BindingKey ne() default @BindingKey;
+	boolean max() default false;
 
-	BindingKey gt() default @BindingKey;
+	boolean min() default false;
 
-	BindingKey ge() default @BindingKey;
-
-	BindingKey lt() default @BindingKey;
-
-	BindingKey le() default @BindingKey;
-
-
-	BindingKey isNull() default @BindingKey;
-
-	BindingKey notNull() default @BindingKey;
-
-	BindingKey contains() default @BindingKey;
-
-	BindingKey notContains() default @BindingKey;
-
-	BindingKey like() default @BindingKey;
-
-	BindingKey notLike() default @BindingKey;
-
-	BindingKey between() default @BindingKey;
-
-	BindingKey notBetween() default @BindingKey;
-
-	BindingKey in() default @BindingKey;
-
-	BindingKey notIn() default @BindingKey;
-
+	boolean avg() default false;
 }

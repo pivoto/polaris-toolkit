@@ -6,8 +6,8 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.Map;
-import java.util.function.BiPredicate;
+
+import io.polaris.core.jdbc.sql.consts.JoinType;
 
 /**
  * @author Qt
@@ -17,9 +17,23 @@ import java.util.function.BiPredicate;
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Documented
 @Inherited
-public @interface BindingKey {
+public @interface Join {
 
-	String value() default "";
+	/**
+	 * @return 标识目标实体类型
+	 */
+	Class<?> value();
 
-	Condition[] condition() default {};
+	/**
+	 * @return 表别名
+	 */
+	String tableAlias();
+
+	JoinType type() default JoinType.JOIN;
+
+	SelectColumn[] columns() default {};
+
+	Criteria[] on() default {};
+
+	Where where() default @Where();
 }

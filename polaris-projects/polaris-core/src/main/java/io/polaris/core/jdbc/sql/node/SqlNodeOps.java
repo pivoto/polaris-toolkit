@@ -4,13 +4,13 @@ package io.polaris.core.jdbc.sql.node;
  * @author Qt
  * @since 1.8,  Aug 22, 2023
  */
-public class SqlNodeOp {
+public class SqlNodeOps {
 
 	private final SqlNode sqlNode;
 	private boolean deleted;
 	private SqlNode replaced;
 
-	public SqlNodeOp(SqlNode sqlNode) {
+	public SqlNodeOps(SqlNode sqlNode) {
 		this.sqlNode = sqlNode;
 	}
 

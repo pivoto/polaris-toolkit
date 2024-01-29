@@ -1,23 +1,26 @@
 package io.polaris.core.jdbc.sql.statement;
 
-import io.polaris.core.jdbc.ColumnMeta;
-import io.polaris.core.jdbc.TableMeta;
-import io.polaris.core.jdbc.sql.node.ContainerNode;
-import io.polaris.core.jdbc.sql.node.SqlNode;
-import io.polaris.core.jdbc.sql.node.SqlNodes;
-import io.polaris.core.jdbc.sql.node.TextNode;
-import io.polaris.core.jdbc.sql.statement.segment.*;
-import io.polaris.core.jdbc.table.DualEntity;
-import io.polaris.core.lang.Objs;
-import io.polaris.core.lang.bean.Beans;
-import io.polaris.core.string.Strings;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import static io.polaris.core.lang.Objs.isNotEmpty;
+import io.polaris.core.jdbc.ColumnMeta;
+import io.polaris.core.jdbc.TableMeta;
+import io.polaris.core.jdbc.sql.EntityStatements;
+import io.polaris.core.jdbc.sql.node.ContainerNode;
+import io.polaris.core.jdbc.sql.node.SqlNode;
+import io.polaris.core.jdbc.sql.node.SqlNodes;
+import io.polaris.core.jdbc.sql.node.TextNode;
+import io.polaris.core.jdbc.sql.statement.segment.AndSegment;
+import io.polaris.core.jdbc.sql.statement.segment.ColumnSegment;
+import io.polaris.core.jdbc.sql.statement.segment.TableAccessible;
+import io.polaris.core.jdbc.sql.statement.segment.TableField;
+import io.polaris.core.jdbc.sql.statement.segment.TableSegment;
+import io.polaris.core.jdbc.table.DualEntity;
+import io.polaris.core.lang.Objs;
+import io.polaris.core.lang.bean.Beans;
+import io.polaris.core.string.Strings;
 
 /**
  * Oracle Merge Into
@@ -170,18 +173,29 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 	}
 
 	public S withEntity(Object entity) {
-		return withEntity(entity, Statements.DEFAULT_PREDICATE_EXCLUDE_NULLS);
+		return withEntity(entity, null);
 	}
 
 	public S withEntity(Object entity, boolean updateWhenMatched, boolean insertWhenNotMatched) {
-		return withEntity(entity, Statements.DEFAULT_PREDICATE_EXCLUDE_NULLS, updateWhenMatched, insertWhenNotMatched);
+		return withEntity(entity, updateWhenMatched, insertWhenNotMatched, null);
 	}
 
-	public S withEntity(Object entity, Predicate<String> includeEntityNulls) {
-		return withEntity(entity, includeEntityNulls, true, true);
+	public S withEntity(Object entity, Predicate<String> isIncludeEmptyColumns) {
+		return withEntity(entity, true, true, isIncludeEmptyColumns);
 	}
 
-	public S withEntity(Object entity, Predicate<String> includeEntityNulls, boolean updateWhenMatched, boolean insertWhenNotMatched) {
+	public S withEntity(Object entity, Predicate<String> isIncludeColumns, Predicate<String> isExcludeColumns,
+		boolean includeAllEmpty, Predicate<String> isIncludeEmptyColumns) {
+		return withEntity(entity, true, true, isIncludeColumns, isExcludeColumns, includeAllEmpty, isIncludeEmptyColumns);
+	}
+
+	public S withEntity(Object entity, boolean updateWhenMatched, boolean insertWhenNotMatched, Predicate<String> isIncludeEmptyColumns) {
+		return withEntity(entity, updateWhenMatched, insertWhenNotMatched, null, null, false, isIncludeEmptyColumns);
+	}
+
+	public S withEntity(Object entity, boolean updateWhenMatched, boolean insertWhenNotMatched,
+		Predicate<String> isIncludeColumns, Predicate<String> isExcludeColumns,
+		boolean includeAllEmpty, Predicate<String> isIncludeEmptyColumns) {
 		TableMeta tableMeta = table.getTableMeta();
 		if (tableMeta != null) {
 			if (tableMeta.getColumns().values().stream().noneMatch(ColumnMeta::isPrimaryKey)) {
@@ -195,7 +209,7 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 				String name = entry.getKey();
 				ColumnMeta meta = entry.getValue();
 				if (meta.isPrimaryKey()) {
-					Object val = Statements.getValForInsert(entityMap, meta);
+					Object val = EntityStatements.getValForInsert(entityMap, meta);
 					using.select().column(DualEntity.Fields.dummy).value(val, name);
 				}
 			}
@@ -219,11 +233,24 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 					if (!updatable || meta.isPrimaryKey()) {
 						continue;
 					}
-					Object val = Statements.getValForUpdate(entityMap, meta);
+					// 不在包含列表
+					if (isIncludeColumns != null && !isIncludeColumns.test(name)) {
+						continue;
+					}
+					// 在排除列表
+					if (isExcludeColumns != null && isExcludeColumns.test(name)) {
+						continue;
+					}
+					Object val = EntityStatements.getValForUpdate(entityMap, meta);
 					if (meta.isVersion()) {
 						val = val == null ? 1L : ((Number) val).longValue() + 1;
 					}
-					if (isNotEmpty(val) || includeEntityNulls.test(name)) {
+					boolean include =
+						// 需要包含空值字段
+						includeAllEmpty || (isIncludeEmptyColumns != null && isIncludeEmptyColumns.test(name))
+							// 或为非空值
+							|| Objs.isNotEmpty(val);
+					if (include) {
 						this.update(name, val);
 					}
 				}
@@ -237,11 +264,24 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 					if (!insertable) {
 						continue;
 					}
-					Object val = Statements.getValForInsert(entityMap, meta);
+					// 不在包含列表
+					if (isIncludeColumns != null && !isIncludeColumns.test(name)) {
+						continue;
+					}
+					// 在排除列表
+					if (isExcludeColumns != null && isExcludeColumns.test(name)) {
+						continue;
+					}
+					Object val = EntityStatements.getValForInsert(entityMap, meta);
 					if (meta.isVersion()) {
 						val = val == null ? 1L : ((Number) val).longValue() + 1;
 					}
-					if (isNotEmpty(val) || includeEntityNulls.test(name)) {
+					boolean include =
+						// 需要包含空值字段
+						includeAllEmpty || (isIncludeEmptyColumns != null && isIncludeEmptyColumns.test(name))
+							// 或为非空值
+							|| Objs.isNotEmpty(val);
+					if (include) {
 						this.insert(name, val);
 					}
 				}

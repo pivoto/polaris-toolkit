@@ -8,7 +8,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
-import io.polaris.core.jdbc.sql.consts.JoinType;
 
 /**
  * @author Qt
@@ -18,12 +17,12 @@ import io.polaris.core.jdbc.sql.consts.JoinType;
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Documented
 @Inherited
-public @interface Exists {
+public @interface SubSelect {
 
 	/**
 	 * @return 标识目标实体类型
 	 */
-	Class<?> value();
+	Class<?> value() default Object.class;
 
 	/**
 	 * @return 表别名
@@ -33,15 +32,15 @@ public @interface Exists {
 	/**
 	 * @return 标识查询的字段列表，默认查询全部
 	 */
-	SelectColumn[] select() default {};
+	SelectColumn[] columns() default {};
 
 	boolean quotaSelectAlias() default false;
 
-	Where where() default @Where();
+	SubWhere where() default @SubWhere();
 
 	GroupBy[] groupBy() default {};
 
-	Having having() default @Having();
+	SubHaving having() default @SubHaving();
 
 	/**
 	 * @return 标识需要包含的字段，当字段在包含列表时，才会执行其SQL构建。

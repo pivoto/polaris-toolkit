@@ -7,7 +7,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import io.polaris.core.jdbc.sql.annotation.segment.InsertColumn;
+import io.polaris.core.jdbc.sql.annotation.segment.UpdateColumn;
 import io.polaris.core.jdbc.sql.annotation.segment.Where;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 
@@ -19,7 +19,7 @@ import io.polaris.core.jdbc.sql.consts.BindingKeys;
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Documented
 @Inherited
-public @interface SqlDelete {
+public @interface SqlUpdate {
 
 	/**
 	 * @return 标识目标实体类型
@@ -30,6 +30,8 @@ public @interface SqlDelete {
 	 * @return 表别名
 	 */
 	String tableAlias() default "";
+
+	UpdateColumn[] columns() default {};
 
 	Where where() default @Where();
 

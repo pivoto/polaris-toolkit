@@ -7,23 +7,26 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import io.polaris.core.jdbc.sql.EntityStatements;
+import io.polaris.core.jdbc.sql.consts.BindingKeys;
 
 /**
  * @author Qt
  * @since 1.8,  Jan 27, 2024
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.TYPE})
+@Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Documented
 @Inherited
-public @interface EntityDelete {
+public @interface EntityUpdate {
 
 	/**
 	 * @return 标识目标实体类型
 	 */
 	Class<?> value();
 
+	/**
+	 * @return 表别名
+	 */
 	String tableAlias() default "";
 
 	/**
@@ -34,12 +37,12 @@ public @interface EntityDelete {
 	/**
 	 * @return 标识在参数容器中映射实体参数值的`key`
 	 */
-	String keyEntity() default EntityStatements.Keys.ENTITY;
+	String entityKey() default BindingKeys.ENTITY;
 
 	/**
 	 * @return 标识在参数容器中映射`where`条件参数值的`key`
 	 */
-	String keyWhere() default EntityStatements.Keys.WHERE;
+	String whereKey() default BindingKeys.WHERE;
 
 	/**
 	 * @return 标识需要包含的字段，当字段在包含列表时，才会执行其SQL构建。
@@ -51,7 +54,7 @@ public @interface EntityDelete {
 	/**
 	 * @return 标识在参数容器中用于指定包含字段列表的`key`
 	 */
-	String keyIncludeColumns() default EntityStatements.Keys.INCLUDE_COLUMNS;
+	String includeColumnsKey() default BindingKeys.INCLUDE_COLUMNS;
 
 	/**
 	 * @return 标识排除的字段，当字段在排除列表中时，即使值非空也不执行其SQL构建。
@@ -63,7 +66,7 @@ public @interface EntityDelete {
 	/**
 	 * @return 标识在参数容器中用于指定包含字段排除列表的`key`
 	 */
-	String keyExcludeColumns() default EntityStatements.Keys.EXCLUDE_COLUMNS;
+	String excludeColumnsKey() default BindingKeys.EXCLUDE_COLUMNS;
 
 	/**
 	 * @return 标识即使字段值为空时仍要包含的字段。这些字段无论是否空值，都会执行其SQL构建。
@@ -76,19 +79,69 @@ public @interface EntityDelete {
 	/**
 	 * @return 标识在参数容器中用于指定包含空值字段列表的`key`
 	 */
-	String keyIncludeEmptyColumns() default EntityStatements.Keys.INCLUDE_EMPTY_COLUMNS;
+	String includeEmptyColumnsKey() default BindingKeys.INCLUDE_EMPTY_COLUMNS;
 
 	/**
 	 * @return 标识是否包含空值字段，如果包含则对于空值字段也执行其SQL构建。
 	 * <p>
 	 * 默认不包含。
 	 */
-	boolean includeEmpty() default false;
+	boolean includeAllEmpty() default false;
 
 	/**
 	 * @return 标识在参数容器中用于指定是否包含空值字段开关的`key`
 	 */
-	String keyIncludeEmpty() default EntityStatements.Keys.INCLUDE_EMPTY;
+	String includeAllEmptyKey() default BindingKeys.INCLUDE_EMPTY;
+
+
+	/**
+	 * @return 标识需要包含的字段，当字段在包含列表时，才会执行其SQL构建。
+	 * <p>
+	 * 默认包含所有字段，
+	 */
+	String[] whereIncludeColumns() default {};
+
+	/**
+	 * @return 标识在参数容器中用于指定包含字段列表的`key`
+	 */
+	String whereIncludeColumnsKey() default BindingKeys.WHERE_INCLUDE_COLUMNS;
+
+	/**
+	 * @return 标识排除的字段，当字段在排除列表中时，即使值非空也不执行其SQL构建。
+	 * <p>
+	 * 默认不排除任何字段
+	 */
+	String[] whereExcludeColumns() default {};
+
+	/**
+	 * @return 标识在参数容器中用于指定包含字段排除列表的`key`
+	 */
+	String whereExcludeColumnsKey() default BindingKeys.WHERE_EXCLUDE_COLUMNS;
+
+	/**
+	 * @return 标识即使字段值为空时仍要包含的字段。这些字段无论是否空值，都会执行其SQL构建。
+	 * <p>
+	 * 默认不包含空值字段
+	 */
+	String[] whereIncludeEmptyColumns() default {};
+
+
+	/**
+	 * @return 标识在参数容器中用于指定包含空值字段列表的`key`
+	 */
+	String whereIncludeEmptyColumnsKey() default BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS;
+
+	/**
+	 * @return 标识是否包含空值字段，如果包含则对于空值字段也执行其SQL构建。
+	 * <p>
+	 * 默认不包含。
+	 */
+	boolean whereIncludeAllEmpty() default false;
+
+	/**
+	 * @return 标识在参数容器中用于指定是否包含空值字段开关的`key`
+	 */
+	String whereIncludeAllEmptyKey() default BindingKeys.WHERE_INCLUDE_EMPTY;
 
 
 }

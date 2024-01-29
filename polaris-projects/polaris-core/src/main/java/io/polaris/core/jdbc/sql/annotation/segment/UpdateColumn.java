@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Documented
 @Inherited
-public @interface InsertColumn {
+public @interface UpdateColumn {
 
 	/**
 	 * @return 实体字段

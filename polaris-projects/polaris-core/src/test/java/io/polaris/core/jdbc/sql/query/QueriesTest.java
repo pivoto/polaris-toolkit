@@ -4,12 +4,11 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONWriter;
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.jdbc.sql.PreparedSql;
+import io.polaris.core.jdbc.sql.consts.Operator;
+import io.polaris.core.jdbc.sql.consts.Relation;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 class QueriesTest {

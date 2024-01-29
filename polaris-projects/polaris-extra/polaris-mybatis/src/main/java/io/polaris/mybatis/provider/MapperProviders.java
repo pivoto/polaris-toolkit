@@ -1,13 +1,13 @@
 package io.polaris.mybatis.provider;
 
-import io.polaris.core.annotation.Published;
-import io.polaris.mybatis.consts.MapperProviderKeys;
-import org.apache.ibatis.builder.annotation.ProviderContext;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
+
+import io.polaris.core.annotation.Published;
+import io.polaris.mybatis.consts.MapperProviderKeys;
+import org.apache.ibatis.builder.annotation.ProviderContext;
 
 /**
  * @author Qt
@@ -49,6 +49,11 @@ public class MapperProviders {
 
 	public static BiFunction<Map<String, Object>, ProviderContext, String> getProviderMethod(String name) {
 		return methods.get(name);
+	}
+
+	@Published
+	public static String provideSql(Map<String, Object> map, ProviderContext context) {
+		return BaseEntityProvider.provideSql(map, context);
 	}
 
 

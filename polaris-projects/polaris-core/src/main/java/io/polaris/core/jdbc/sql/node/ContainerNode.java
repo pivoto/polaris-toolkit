@@ -211,11 +211,11 @@ public class ContainerNode implements SqlNode, Cloneable {
 	}
 
 	@Override
-	public void visitSubsetWritable(Consumer<SqlNodeOp> visitor) {
+	public void visitSubsetWritable(Consumer<SqlNodeOps> visitor) {
 		int size = subset.size();
 		for (int i = 0; i < size; ) {
 			SqlNode node = subset.get(i);
-			SqlNodeOp op = new SqlNodeOp(node);
+			SqlNodeOps op = new SqlNodeOps(node);
 
 			if (node instanceof ContainerNode) {
 				boolean empty = ((ContainerNode) node).subset.isEmpty();

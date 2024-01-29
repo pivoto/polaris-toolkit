@@ -1,10 +1,15 @@
 package io.polaris.mybatis.provider;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.Map;
+
+import io.polaris.core.lang.JavaType;
+import io.polaris.core.lang.Types;
+import io.polaris.mybatis.annotation.EntityMapperDeclared;
+import io.polaris.mybatis.mapper.EntityMapper;
 import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.apache.ibatis.builder.annotation.ProviderMethodResolver;
-
-import java.lang.reflect.Method;
-import java.util.Map;
 
 /**
  * @author Qt
@@ -25,4 +30,24 @@ public abstract class BaseProviderMethodResolver implements ProviderMethodResolv
 		}
 		return ProviderMethodResolver.super.resolveMethod(context);
 	}
+
+
+	protected static Class<?> getEntityClass(ProviderContext context) {
+		Method mapperMethod = context.getMapperMethod();
+		EntityMapperDeclared declared = mapperMethod.getAnnotation(EntityMapperDeclared.class);
+		if (declared != null) {
+			return declared.entity();
+		}
+		Class<?> entityClass = null;
+		Class<?> mapperType = context.getMapperType();
+		if (EntityMapper.class.isAssignableFrom(mapperType)) {
+			Type actualType = JavaType.of(mapperType).getActualType(EntityMapper.class, 0);
+			entityClass = Types.getClass(actualType);
+		}
+		if (entityClass == null || entityClass == Object.class) {
+			throw new IllegalStateException("未知实体类型！");
+		}
+		return entityClass;
+	}
+
 }

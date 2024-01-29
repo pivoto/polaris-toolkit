@@ -15,12 +15,12 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Documented
 @Inherited
-public @interface Expression {
+public @interface Function {
 
 	/**
 	 * @return 函数，如`coalesce(${ref},1)`等
 	 */
-	String function() default "";
+	String value() default "";
 
 	JoinColumn[] joinColumns() default {};
 

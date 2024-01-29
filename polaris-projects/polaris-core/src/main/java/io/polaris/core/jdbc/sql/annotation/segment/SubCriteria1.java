@@ -17,13 +17,13 @@ import io.polaris.core.jdbc.sql.consts.Relation;
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Documented
 @Inherited
-public @interface Criteria1 {
+public @interface SubCriteria1 {
 
-	Criterion[] value() default {};
+	SubCriterion[] value() default {};
 
 	JoinCriterion[] join() default {};
 
 	Relation relation() default Relation.AND;
 
-	Criteria2[] subset() default {};
+	SubCriteria2[] subset() default {};
 }

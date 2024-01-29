@@ -1,4 +1,4 @@
-package io.polaris.core.jdbc.sql.query;
+package io.polaris.core.jdbc.sql.consts;
 
 import io.polaris.core.consts.SymbolConsts;
 import io.polaris.core.jdbc.sql.node.ContainerNode;

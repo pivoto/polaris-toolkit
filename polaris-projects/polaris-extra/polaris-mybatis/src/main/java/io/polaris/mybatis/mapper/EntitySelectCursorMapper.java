@@ -1,8 +1,8 @@
 package io.polaris.mybatis.mapper;
 
+import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.OrderBy;
-import io.polaris.mybatis.consts.EntityMapperKeys;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
 import org.apache.ibatis.annotations.Options;
@@ -10,7 +10,6 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.cursor.Cursor;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,39 +21,39 @@ public interface EntitySelectCursorMapper<E> extends EntityMapper<E> {
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	@Options(fetchSize = 1000)
-	Cursor<E> selectEntityCursor(@Param(EntityMapperKeys.WHERE) E entity
-		, @Param(EntityMapperKeys.ORDER_BY) OrderBy orderBy
-		, @Param(EntityMapperKeys.WHERE_NULLS_INCLUDE) boolean includeWhereNulls);
+	Cursor<E> selectEntityCursor(@Param(BindingKeys.WHERE) E entity
+		, @Param(BindingKeys.ORDER_BY) OrderBy orderBy
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeWhereNulls);
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	@Options(fetchSize = 1000)
-	Cursor<E> selectEntityCursorByMap(@Param(EntityMapperKeys.WHERE) Map<String, Object> entity
-		, @Param(EntityMapperKeys.ORDER_BY) OrderBy orderBy
-		, @Param(EntityMapperKeys.WHERE_NULLS_INCLUDE) boolean includeWhereNulls);
+	Cursor<E> selectEntityCursorByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
+		, @Param(BindingKeys.ORDER_BY) OrderBy orderBy
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeWhereNulls);
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	@Options(fetchSize = 1000)
-	Cursor<E> selectEntityCursorByCriteria(@Param(EntityMapperKeys.WHERE) Criteria criteria
-		, @Param(EntityMapperKeys.ORDER_BY) OrderBy orderBy
-		, @Param(EntityMapperKeys.WHERE_NULLS_INCLUDE) boolean includeWhereNulls);
+	Cursor<E> selectEntityCursorByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
+		, @Param(BindingKeys.ORDER_BY) OrderBy orderBy
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeWhereNulls);
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	@Options(fetchSize = 1000)
-	Cursor<Map<String, Object>> selectMapCursor(@Param(EntityMapperKeys.WHERE) E entity
-		, @Param(EntityMapperKeys.ORDER_BY) OrderBy orderBy
-		, @Param(EntityMapperKeys.WHERE_NULLS_INCLUDE) boolean includeWhereNulls);
+	Cursor<Map<String, Object>> selectMapCursor(@Param(BindingKeys.WHERE) E entity
+		, @Param(BindingKeys.ORDER_BY) OrderBy orderBy
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeWhereNulls);
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	@Options(fetchSize = 1000)
-	Cursor<Map<String, Object>> selectMapCursorByMap(@Param(EntityMapperKeys.WHERE) Map<String, Object> entity
-		, @Param(EntityMapperKeys.ORDER_BY) OrderBy orderBy
-		, @Param(EntityMapperKeys.WHERE_NULLS_INCLUDE) boolean includeWhereNulls);
+	Cursor<Map<String, Object>> selectMapCursorByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
+		, @Param(BindingKeys.ORDER_BY) OrderBy orderBy
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeWhereNulls);
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	@Options(fetchSize = 1000)
-	Cursor<Map<String, Object>> selectMapCursorByCriteria(@Param(EntityMapperKeys.WHERE) Criteria criteria
-		, @Param(EntityMapperKeys.ORDER_BY) OrderBy orderBy
-		, @Param(EntityMapperKeys.WHERE_NULLS_INCLUDE) boolean includeWhereNulls);
+	Cursor<Map<String, Object>> selectMapCursorByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
+		, @Param(BindingKeys.ORDER_BY) OrderBy orderBy
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeWhereNulls);
 
 
 	default Cursor<E> selectEntityCursor(E entity) {

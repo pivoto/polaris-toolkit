@@ -7,6 +7,7 @@ import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.string.StringCases;
+import lombok.val;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -133,12 +134,22 @@ public class Beans {
 	}
 
 
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	public static void setProperty(final Object bean, final String name, final Object value) {
-		Beans.newBeanMap(bean).put(name, value);
+		if (bean instanceof Map){
+			((Map) bean).put(name, value);
+		}else {
+			Beans.newBeanMap(bean).put(name, value);
+		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	public static Object getProperty(Object bean, String name) {
-		return Beans.newBeanMap(bean).get(name);
+		if (bean instanceof Map){
+			return ((Map) bean).get(name);
+		}else {
+			return Beans.newBeanMap(bean).get(name);
+		}
 	}
 
 	public static Object getPathProperty(Object o, String property) {

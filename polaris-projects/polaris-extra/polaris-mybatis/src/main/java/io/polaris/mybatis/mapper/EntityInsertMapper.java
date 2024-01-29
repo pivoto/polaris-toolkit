@@ -1,6 +1,6 @@
 package io.polaris.mybatis.mapper;
 
-import io.polaris.mybatis.consts.EntityMapperKeys;
+import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
 import org.apache.ibatis.annotations.InsertProvider;
@@ -16,14 +16,14 @@ import java.util.Set;
 public interface EntityInsertMapper<E> extends EntityMapper<E> {
 
 	@InsertProvider(type = MapperProviders.class, method = MapperProviderKeys.insertEntity)
-	int insertEntity(@Param(EntityMapperKeys.ENTITY) E entity
-		, @Param(EntityMapperKeys.ENTITY_NULLS_INCLUDE) boolean entityNullsInclude
-		, @Param(EntityMapperKeys.ENTITY_NULLS_KEYS) Set<String> entityNullsFields);
+	int insertEntity(@Param(BindingKeys.ENTITY) E entity
+		, @Param(BindingKeys.INCLUDE_EMPTY) boolean entityNullsInclude
+		, @Param(BindingKeys.INCLUDE_EMPTY_COLUMNS) Set<String> entityNullsFields);
 
 	@InsertProvider(type = MapperProviders.class, method = MapperProviderKeys.insertEntity)
-	int insertEntityByMap(@Param(EntityMapperKeys.ENTITY) Map<String, Object> entity
-		, @Param(EntityMapperKeys.ENTITY_NULLS_INCLUDE) boolean entityNullsInclude
-		, @Param(EntityMapperKeys.ENTITY_NULLS_KEYS) Set<String> entityNullsFields);
+	int insertEntityByMap(@Param(BindingKeys.ENTITY) Map<String, Object> entity
+		, @Param(BindingKeys.INCLUDE_EMPTY) boolean entityNullsInclude
+		, @Param(BindingKeys.INCLUDE_EMPTY_COLUMNS) Set<String> entityNullsFields);
 
 
 	default int insertEntity(E entity) {

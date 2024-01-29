@@ -17,13 +17,13 @@ import io.polaris.core.jdbc.sql.consts.Relation;
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Documented
 @Inherited
-public @interface Where {
+public @interface SubWhere {
 
 	String byEntityIdKey() default "";
 
 	String byEntityKey() default "";
 
-	Criteria[] criteria() default {};
+	SubCriteria[] criteria() default {};
 
 	Relation relation() default Relation.AND;
 

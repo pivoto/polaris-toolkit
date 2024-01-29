@@ -1,9 +1,9 @@
 package io.polaris.mybatis.mapper;
 
+import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.OrderBy;
 import io.polaris.core.jdbc.sql.statement.SelectStatement;
-import io.polaris.mybatis.consts.EntityMapperKeys;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
 import org.apache.ibatis.annotations.Options;
@@ -22,12 +22,12 @@ public interface SelectStatementCursorMapper<R> {
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
 	@Options(fetchSize = 1000)
-	Cursor<R> selectEntityCursorBySql(@Param(EntityMapperKeys.SELECT) SelectStatement<?> statement);
+	Cursor<R> selectEntityCursorBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
 
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
 	@Options(fetchSize = 1000)
-	Cursor<Map<String, Object>> selectMapCursorBySql(@Param(EntityMapperKeys.SELECT) SelectStatement<?> statement);
+	Cursor<Map<String, Object>> selectMapCursorBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
 
 
 	default Cursor<R> selectEntityCursorBySql(SelectStatement<?> statement, Criteria criteria, OrderBy orderBy) {

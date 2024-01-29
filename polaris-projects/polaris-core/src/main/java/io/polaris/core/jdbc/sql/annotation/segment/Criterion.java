@@ -15,33 +15,80 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Documented
 @Inherited
-public @interface Column {
+public @interface Criterion {
 	/**
 	 * @return 原始sql语句
 	 */
 	String raw() default "";
 
 	/**
-	 * @return 查询字段
+	 * @return 实体字段
 	 */
 	String field() default "";
 
-	/**
-	 * @return 查询函数，如`MAX(${ref})`、`MIN(${ref})`等
-	 */
-	String function() default "";
+	BindingKey eq() default @BindingKey;
+
+	BindingKey ne() default @BindingKey;
+
+	BindingKey gt() default @BindingKey;
+
+	BindingKey ge() default @BindingKey;
+
+	BindingKey lt() default @BindingKey;
+
+	BindingKey le() default @BindingKey;
+
+
+	BindingKey isNull() default @BindingKey;
+
+	BindingKey notNull() default @BindingKey;
+
+	BindingKey contains() default @BindingKey;
+
+	BindingKey notContains() default @BindingKey;
+
+	BindingKey startWith() default @BindingKey;
+
+	BindingKey notStartWith() default @BindingKey;
+
+	BindingKey endWith() default @BindingKey;
+
+	BindingKey notEndWith() default @BindingKey;
+
+	BindingKey like() default @BindingKey;
+
+	BindingKey notLike() default @BindingKey;
+
+	BindingKey between() default @BindingKey;
+
+	BindingKey notBetween() default @BindingKey;
+
+	BindingKey in() default @BindingKey;
+
+	BindingKey notIn() default @BindingKey;
 
 
 	/**
-	 * @return 别名，指定固定值时不能为空
+	 * @return 函数，如`coalesce(${ref},1)`等
 	 */
-	String alias() default "";
+	Function[] functions() default {};
 
-	/**
-	 * @return 指定固定值的绑定`Key`
-	 */
-	String keyOfValue() default "";
+	boolean count() default false;
 
-	boolean aliasWithField() default false;
+	boolean sum() default false;
+
+	boolean max() default false;
+
+	boolean min() default false;
+
+	boolean avg() default false;
+
+	SubSelect exists() default @SubSelect;
+
+	SubSelect notExists() default @SubSelect;
+
+	SubSelect inSubSelect() default @SubSelect;
+
+	SubSelect notInSubSelect() default @SubSelect;
 
 }

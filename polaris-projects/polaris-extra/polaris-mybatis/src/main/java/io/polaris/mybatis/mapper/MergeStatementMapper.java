@@ -1,8 +1,8 @@
 package io.polaris.mybatis.mapper;
 
+import io.polaris.core.jdbc.sql.consts.BindingKeys;
+import io.polaris.core.jdbc.sql.EntityStatements;
 import io.polaris.core.jdbc.sql.statement.MergeStatement;
-import io.polaris.core.jdbc.sql.statement.Statements;
-import io.polaris.mybatis.consts.EntityMapperKeys;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
 import org.apache.ibatis.annotations.Param;
@@ -16,53 +16,31 @@ public interface MergeStatementMapper {
 
 
 	@UpdateProvider(type = MapperProviders.class, method = MapperProviderKeys.mergeBySql)
-	int mergeBySql(@Param(EntityMapperKeys.MERGE) MergeStatement<?> statement);
+	int mergeBySql(@Param(BindingKeys.MERGE) MergeStatement<?> statement);
 
 
-	default <E> int mergeBySql(Class<E> entityClass, E entity, boolean entityNullsInclude) {
-		MergeStatement<?> st = new MergeStatement<>(entityClass, Statements.DEFAULT_TABLE_ALIAS);
-		st.withEntity(entity, entityNullsInclude ? name -> true : Statements.DEFAULT_PREDICATE_EXCLUDE_NULLS);
+	default <E> int mergeBySql(Class<E> entityClass, E entity, boolean includeAllEmpty) {
+		MergeStatement<?> st = new MergeStatement<>(entityClass, EntityStatements.DEFAULT_TABLE_ALIAS);
+		st.withEntity(entity, null, null, includeAllEmpty, null);
 		return mergeBySql(st);
 	}
 
 	default <E> int mergeBySql(Class<E> entityClass, E entity) {
-		MergeStatement<?> st = new MergeStatement<>(entityClass, Statements.DEFAULT_TABLE_ALIAS);
-		st.withEntity(entity, Statements.DEFAULT_PREDICATE_EXCLUDE_NULLS);
+		MergeStatement<?> st = new MergeStatement<>(entityClass, EntityStatements.DEFAULT_TABLE_ALIAS);
+		st.withEntity(entity);
 		return mergeBySql(st);
 	}
 
-
-	@SuppressWarnings("unchecked")
-	default <E> int mergeBySql(E entity, boolean entityNullsInclude) {
-		return mergeBySql((Class<E>) entity.getClass(), entity, entityNullsInclude);
-	}
-
-	@SuppressWarnings("unchecked")
-	default <E> int mergeBySql(E entity) {
-		return mergeBySql((Class<E>) entity.getClass(), entity);
-	}
-
-	default <E> int mergeBySql(Class<E> entityClass, E entity, boolean entityNullsInclude, boolean updateWhenMatched, boolean insertWhenNotMatched) {
-		MergeStatement<?> st = new MergeStatement<>(entityClass, Statements.DEFAULT_TABLE_ALIAS);
-		st.withEntity(entity, entityNullsInclude ? name -> true : Statements.DEFAULT_PREDICATE_EXCLUDE_NULLS, updateWhenMatched, insertWhenNotMatched);
+	default <E> int mergeBySql(Class<E> entityClass, E entity, boolean includeAllEmpty, boolean updateWhenMatched, boolean insertWhenNotMatched) {
+		MergeStatement<?> st = new MergeStatement<>(entityClass, EntityStatements.DEFAULT_TABLE_ALIAS);
+		st.withEntity(entity, updateWhenMatched, insertWhenNotMatched, null, null, includeAllEmpty, null);
 		return mergeBySql(st);
 	}
 
 	default <E> int mergeBySql(Class<E> entityClass, E entity, boolean updateWhenMatched, boolean insertWhenNotMatched) {
-		MergeStatement<?> st = new MergeStatement<>(entityClass, Statements.DEFAULT_TABLE_ALIAS);
-		st.withEntity(entity, Statements.DEFAULT_PREDICATE_EXCLUDE_NULLS, updateWhenMatched, insertWhenNotMatched);
+		MergeStatement<?> st = new MergeStatement<>(entityClass, EntityStatements.DEFAULT_TABLE_ALIAS);
+		st.withEntity(entity, updateWhenMatched, insertWhenNotMatched);
 		return mergeBySql(st);
-	}
-
-
-	@SuppressWarnings("unchecked")
-	default <E> int mergeBySql(E entity, boolean entityNullsInclude, boolean updateWhenMatched, boolean insertWhenNotMatched) {
-		return mergeBySql((Class<E>) entity.getClass(), entity, entityNullsInclude, updateWhenMatched, insertWhenNotMatched);
-	}
-
-	@SuppressWarnings("unchecked")
-	default <E> int mergeBySql(E entity, boolean updateWhenMatched, boolean insertWhenNotMatched) {
-		return mergeBySql((Class<E>) entity.getClass(), entity, updateWhenMatched, insertWhenNotMatched);
 	}
 
 }

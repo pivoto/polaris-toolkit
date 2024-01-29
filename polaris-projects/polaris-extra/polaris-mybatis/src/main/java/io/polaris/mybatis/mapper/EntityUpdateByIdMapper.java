@@ -1,6 +1,6 @@
 package io.polaris.mybatis.mapper;
 
-import io.polaris.mybatis.consts.EntityMapperKeys;
+import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
 import org.apache.ibatis.annotations.Param;
@@ -16,9 +16,9 @@ public interface EntityUpdateByIdMapper<E> extends EntityMapper<E> {
 
 
 	@UpdateProvider(type = MapperProviders.class, method = MapperProviderKeys.updateEntityById)
-	int updateEntityById(@Param(EntityMapperKeys.ENTITY) E entity
-		, @Param(EntityMapperKeys.ENTITY_NULLS_INCLUDE) boolean entityNullsInclude
-		, @Param(EntityMapperKeys.ENTITY_NULLS_KEYS) Set<String> entityNullFields);
+	int updateEntityById(@Param(BindingKeys.ENTITY) E entity
+		, @Param(BindingKeys.INCLUDE_EMPTY) boolean entityNullsInclude
+		, @Param(BindingKeys.INCLUDE_EMPTY_COLUMNS) Set<String> entityNullFields);
 
 
 	default int updateEntityById(E entity) {

@@ -7,8 +7,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import io.polaris.core.jdbc.sql.annotation.SqlSelect;
-
 /**
  * @author Qt
  * @since 1.8,  Jan 28, 2024
@@ -17,7 +15,7 @@ import io.polaris.core.jdbc.sql.annotation.SqlSelect;
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Documented
 @Inherited
-public @interface Criterion {
+public @interface SubCriterion {
 	/**
 	 * @return 原始sql语句
 	 */
@@ -86,5 +84,4 @@ public @interface Criterion {
 	boolean avg() default false;
 
 
-	SubSelect exists() ;
 }

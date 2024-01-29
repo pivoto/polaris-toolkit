@@ -1,7 +1,7 @@
 package io.polaris.mybatis.mapper;
 
+import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.node.SqlNode;
-import io.polaris.mybatis.consts.EntityMapperKeys;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
 import org.apache.ibatis.annotations.Param;
@@ -17,16 +17,16 @@ import java.util.Map;
 public interface AnySqlSelectMapper<R> {
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.executeAnySql)
-	R selectObjectByAnySql(@Param(EntityMapperKeys.SQL) SqlNode sqlNode);
+	R selectObjectByAnySql(@Param(BindingKeys.SQL) SqlNode sqlNode);
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.executeAnySql)
-	Map<String, Object> selectMapByAnySql(@Param(EntityMapperKeys.SQL) SqlNode sqlNode);
+	Map<String, Object> selectMapByAnySql(@Param(BindingKeys.SQL) SqlNode sqlNode);
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.executeAnySql)
-	List<R> selectObjectListByAnySql(@Param(EntityMapperKeys.SQL) SqlNode sqlNode);
+	List<R> selectObjectListByAnySql(@Param(BindingKeys.SQL) SqlNode sqlNode);
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.executeAnySql)
-	List<Map<String, Object>> selectMapListByAnySql(@Param(EntityMapperKeys.SQL) SqlNode sqlNode);
+	List<Map<String, Object>> selectMapListByAnySql(@Param(BindingKeys.SQL) SqlNode sqlNode);
 
 
 }

@@ -1,8 +1,8 @@
 package io.polaris.mybatis.mapper;
 
+import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.OrderBy;
-import io.polaris.mybatis.consts.EntityMapperKeys;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
 import org.apache.ibatis.annotations.Param;
@@ -19,34 +19,34 @@ public interface EntitySelectListMapper<E> extends EntityMapper<E> {
 
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
-	List<E> selectEntityList(@Param(EntityMapperKeys.WHERE) E entity
-		, @Param(EntityMapperKeys.ORDER_BY) OrderBy orderBy
-		, @Param(EntityMapperKeys.WHERE_NULLS_INCLUDE) boolean includeWhereNulls);
+	List<E> selectEntityList(@Param(BindingKeys.WHERE) E entity
+		, @Param(BindingKeys.ORDER_BY) OrderBy orderBy
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeWhereNulls);
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
-	List<E> selectEntityListByMap(@Param(EntityMapperKeys.WHERE) Map<String, Object> entity
-		, @Param(EntityMapperKeys.ORDER_BY) OrderBy orderBy
-		, @Param(EntityMapperKeys.WHERE_NULLS_INCLUDE) boolean includeWhereNulls);
+	List<E> selectEntityListByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
+		, @Param(BindingKeys.ORDER_BY) OrderBy orderBy
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeWhereNulls);
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
-	List<E> selectEntityListByCriteria(@Param(EntityMapperKeys.WHERE) Criteria criteria
-		, @Param(EntityMapperKeys.ORDER_BY) OrderBy orderBy
-		, @Param(EntityMapperKeys.WHERE_NULLS_INCLUDE) boolean includeWhereNulls);
+	List<E> selectEntityListByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
+		, @Param(BindingKeys.ORDER_BY) OrderBy orderBy
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeWhereNulls);
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
-	List<Map<String, Object>> selectMapList(@Param(EntityMapperKeys.WHERE) E entity
-		, @Param(EntityMapperKeys.ORDER_BY) OrderBy orderBy
-		, @Param(EntityMapperKeys.WHERE_NULLS_INCLUDE) boolean includeWhereNulls);
+	List<Map<String, Object>> selectMapList(@Param(BindingKeys.WHERE) E entity
+		, @Param(BindingKeys.ORDER_BY) OrderBy orderBy
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeWhereNulls);
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
-	List<Map<String, Object>> selectMapListByMap(@Param(EntityMapperKeys.WHERE) Map<String, Object> entity
-		, @Param(EntityMapperKeys.ORDER_BY) OrderBy orderBy
-		, @Param(EntityMapperKeys.WHERE_NULLS_INCLUDE) boolean includeWhereNulls);
+	List<Map<String, Object>> selectMapListByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
+		, @Param(BindingKeys.ORDER_BY) OrderBy orderBy
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeWhereNulls);
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
-	List<Map<String, Object>> selectMapListByCriteria(@Param(EntityMapperKeys.WHERE) Criteria criteria
-		, @Param(EntityMapperKeys.ORDER_BY) OrderBy orderBy
-		, @Param(EntityMapperKeys.WHERE_NULLS_INCLUDE) boolean includeWhereNulls);
+	List<Map<String, Object>> selectMapListByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
+		, @Param(BindingKeys.ORDER_BY) OrderBy orderBy
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeWhereNulls);
 
 
 	default List<E> selectEntityList(E entity) {

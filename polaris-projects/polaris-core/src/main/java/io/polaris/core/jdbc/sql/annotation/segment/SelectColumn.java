@@ -15,14 +15,14 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Documented
 @Inherited
-public @interface Column {
+public @interface SelectColumn {
 	/**
 	 * @return 原始sql语句
 	 */
 	String raw() default "";
 
 	/**
-	 * @return 查询字段
+	 * @return 实体字段
 	 */
 	String field() default "";
 
@@ -40,7 +40,7 @@ public @interface Column {
 	/**
 	 * @return 指定固定值的绑定`Key`
 	 */
-	String keyOfValue() default "";
+	String valueKey() default "";
 
 	boolean aliasWithField() default false;
 

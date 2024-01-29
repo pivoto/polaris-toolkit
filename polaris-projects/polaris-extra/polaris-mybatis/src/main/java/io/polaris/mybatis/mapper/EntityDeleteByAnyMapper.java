@@ -1,7 +1,7 @@
 package io.polaris.mybatis.mapper;
 
+import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
-import io.polaris.mybatis.consts.EntityMapperKeys;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
 import org.apache.ibatis.annotations.DeleteProvider;
@@ -18,19 +18,19 @@ public interface EntityDeleteByAnyMapper<E> extends EntityMapper<E> {
 
 
 	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.deleteEntityByAny)
-	int deleteEntityByAny(@Param(EntityMapperKeys.WHERE) E entity
-		, @Param(EntityMapperKeys.WHERE_NULLS_INCLUDE) boolean includeWhereNulls
-		, @Param(EntityMapperKeys.WHERE_NULLS_KEYS) Set<String> whereNullsFields);
+	int deleteEntityByAny(@Param(BindingKeys.WHERE) E entity
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeWhereNulls
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> whereNullsFields);
 
 	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.deleteEntityByAny)
-	int deleteEntityByMap(@Param(EntityMapperKeys.WHERE) Map<String, Object> entity
-		, @Param(EntityMapperKeys.WHERE_NULLS_INCLUDE) boolean includeWhereNulls
-		, @Param(EntityMapperKeys.WHERE_NULLS_KEYS) Set<String> whereNullsFields);
+	int deleteEntityByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeWhereNulls
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> whereNullsFields);
 
 	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.deleteEntityByAny)
-	int deleteEntityByCriteria(@Param(EntityMapperKeys.WHERE) Criteria criteria
-		, @Param(EntityMapperKeys.WHERE_NULLS_INCLUDE) boolean includeWhereNulls
-		, @Param(EntityMapperKeys.WHERE_NULLS_KEYS) Set<String> whereNullsFields);
+	int deleteEntityByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeWhereNulls
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> whereNullsFields);
 
 
 	default int deleteEntityByAny(E entity) {

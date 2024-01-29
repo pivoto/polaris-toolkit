@@ -1,7 +1,7 @@
 package io.polaris.mybatis.mapper;
 
+import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
-import io.polaris.mybatis.consts.EntityMapperKeys;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
 import org.apache.ibatis.annotations.Param;
@@ -18,28 +18,28 @@ public interface EntityUpdateByAnyMapper<E> extends EntityMapper<E> {
 
 
 	@UpdateProvider(type = MapperProviders.class, method = MapperProviderKeys.updateEntityByAny)
-	int updateEntityByAny(@Param(EntityMapperKeys.ENTITY) E entity
-		, @Param(EntityMapperKeys.ENTITY_NULLS_INCLUDE) boolean entityNullsInclude
-		, @Param(EntityMapperKeys.ENTITY_NULLS_KEYS) Set<String> entityNullFields
-		, @Param(EntityMapperKeys.WHERE) E where
-		, @Param(EntityMapperKeys.WHERE_NULLS_INCLUDE) boolean whereNullsInclude
-		, @Param(EntityMapperKeys.WHERE_NULLS_KEYS) Set<String> whereNullFields);
+	int updateEntityByAny(@Param(BindingKeys.ENTITY) E entity
+		, @Param(BindingKeys.INCLUDE_EMPTY) boolean entityNullsInclude
+		, @Param(BindingKeys.INCLUDE_EMPTY_COLUMNS) Set<String> entityNullFields
+		, @Param(BindingKeys.WHERE) E where
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean whereNullsInclude
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> whereNullFields);
 
 	@UpdateProvider(type = MapperProviders.class, method = MapperProviderKeys.updateEntityByAny)
-	int updateEntityByAnyOfMap(@Param(EntityMapperKeys.ENTITY) E entity
-		, @Param(EntityMapperKeys.ENTITY_NULLS_INCLUDE) boolean entityNullsInclude
-		, @Param(EntityMapperKeys.ENTITY_NULLS_KEYS) Set<String> entityNullFields
-		, @Param(EntityMapperKeys.WHERE) Object where
-		, @Param(EntityMapperKeys.WHERE_NULLS_INCLUDE) boolean whereNullsInclude
-		, @Param(EntityMapperKeys.WHERE_NULLS_KEYS) Set<String> whereNullFields);
+	int updateEntityByAnyOfMap(@Param(BindingKeys.ENTITY) E entity
+		, @Param(BindingKeys.INCLUDE_EMPTY) boolean entityNullsInclude
+		, @Param(BindingKeys.INCLUDE_EMPTY_COLUMNS) Set<String> entityNullFields
+		, @Param(BindingKeys.WHERE) Object where
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean whereNullsInclude
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> whereNullFields);
 
 	@UpdateProvider(type = MapperProviders.class, method = MapperProviderKeys.updateEntityByAny)
-	int updateEntityByCriteria(@Param(EntityMapperKeys.ENTITY) E entity
-		, @Param(EntityMapperKeys.ENTITY_NULLS_INCLUDE) boolean entityNullsInclude
-		, @Param(EntityMapperKeys.ENTITY_NULLS_KEYS) Set<String> entityNullFields
-		, @Param(EntityMapperKeys.WHERE) Criteria where
-		, @Param(EntityMapperKeys.WHERE_NULLS_INCLUDE) boolean whereNullsInclude
-		, @Param(EntityMapperKeys.WHERE_NULLS_KEYS) Set<String> whereNullFields);
+	int updateEntityByCriteria(@Param(BindingKeys.ENTITY) E entity
+		, @Param(BindingKeys.INCLUDE_EMPTY) boolean entityNullsInclude
+		, @Param(BindingKeys.INCLUDE_EMPTY_COLUMNS) Set<String> entityNullFields
+		, @Param(BindingKeys.WHERE) Criteria where
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean whereNullsInclude
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> whereNullFields);
 
 
 	default int updateEntityByAny(E entity, E where) {

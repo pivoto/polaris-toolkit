@@ -1,5 +1,6 @@
 package io.polaris.core.jdbc.sql.query;
 
+import io.polaris.core.jdbc.sql.consts.Direction;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
