@@ -284,7 +284,7 @@ public class EntityStatements {
 			for (Join join : joins) {
 				Class<?> joinTable = join.table();
 				String joinAlias = join.alias();
-				if (joinTable != null && joinTable != void.class) {
+				if (joinTable == null || joinTable == void.class) {
 					continue;
 				}
 				if (Strings.isBlank(joinAlias)) {
@@ -841,49 +841,49 @@ public class EntityStatements {
 		{
 			Tuple1<?> val = getValForBindingKey(bindings, criterion.contains());
 			if (val != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).contains((String) val.getFirst());
+				newCriterionSegmentWithFunction(bindings, ws, criterion).contains(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
 			Tuple1<?> val = getValForBindingKey(bindings, criterion.notContains());
 			if (val != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).notContains((String) val.getFirst());
+				newCriterionSegmentWithFunction(bindings, ws, criterion).notContains(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
 			Tuple1<?> val = getValForBindingKey(bindings, criterion.startsWith());
 			if (val != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).startsWith((String) val.getFirst());
+				newCriterionSegmentWithFunction(bindings, ws, criterion).startsWith(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
 			Tuple1<?> val = getValForBindingKey(bindings, criterion.notStartsWith());
 			if (val != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).notStartsWith((String) val.getFirst());
+				newCriterionSegmentWithFunction(bindings, ws, criterion).notStartsWith(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
 			Tuple1<?> val = getValForBindingKey(bindings, criterion.endsWith());
 			if (val != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).endsWith((String) val.getFirst());
+				newCriterionSegmentWithFunction(bindings, ws, criterion).endsWith(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
 			Tuple1<?> val = getValForBindingKey(bindings, criterion.notEndsWith());
 			if (val != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).notEndsWith((String) val.getFirst());
+				newCriterionSegmentWithFunction(bindings, ws, criterion).notEndsWith(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
 			Tuple1<?> val = getValForBindingKey(bindings, criterion.like());
 			if (val != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).like((String) val.getFirst());
+				newCriterionSegmentWithFunction(bindings, ws, criterion).like(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
 			Tuple1<?> val = getValForBindingKey(bindings, criterion.notLike());
 			if (val != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).notLike((String) val.getFirst());
+				newCriterionSegmentWithFunction(bindings, ws, criterion).notLike(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
@@ -908,13 +908,13 @@ public class EntityStatements {
 		}
 		{
 			Tuple1<?> val = getValForBindingKey(bindings, criterion.in());
-			if (val != null) {
+			if (val != null && val.getFirst() instanceof Collection) {
 				newCriterionSegmentWithFunction(bindings, ws, criterion).in((Collection) val.getFirst());
 			}
 		}
 		{
 			Tuple1<?> val = getValForBindingKey(bindings, criterion.notIn());
-			if (val != null) {
+			if (val != null && val.getFirst() instanceof Collection) {
 				newCriterionSegmentWithFunction(bindings, ws, criterion).notIn((Collection) val.getFirst());
 			}
 		}
@@ -1266,49 +1266,49 @@ public class EntityStatements {
 		{
 			Tuple1<?> val = getValForBindingKey(bindings, criterion.contains());
 			if (val != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).contains((String) val.getFirst());
+				newSubCriterionSegmentWithFunction(bindings, ws, criterion).contains(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
 			Tuple1<?> val = getValForBindingKey(bindings, criterion.notContains());
 			if (val != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).notContains((String) val.getFirst());
+				newSubCriterionSegmentWithFunction(bindings, ws, criterion).notContains(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
 			Tuple1<?> val = getValForBindingKey(bindings, criterion.startsWith());
 			if (val != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).startsWith((String) val.getFirst());
+				newSubCriterionSegmentWithFunction(bindings, ws, criterion).startsWith(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
 			Tuple1<?> val = getValForBindingKey(bindings, criterion.notStartsWith());
 			if (val != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).notStartsWith((String) val.getFirst());
+				newSubCriterionSegmentWithFunction(bindings, ws, criterion).notStartsWith(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
 			Tuple1<?> val = getValForBindingKey(bindings, criterion.endsWith());
 			if (val != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).endsWith((String) val.getFirst());
+				newSubCriterionSegmentWithFunction(bindings, ws, criterion).endsWith(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
 			Tuple1<?> val = getValForBindingKey(bindings, criterion.notEndsWith());
 			if (val != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).notEndsWith((String) val.getFirst());
+				newSubCriterionSegmentWithFunction(bindings, ws, criterion).notEndsWith(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
 			Tuple1<?> val = getValForBindingKey(bindings, criterion.like());
 			if (val != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).like((String) val.getFirst());
+				newSubCriterionSegmentWithFunction(bindings, ws, criterion).like(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
 			Tuple1<?> val = getValForBindingKey(bindings, criterion.notLike());
 			if (val != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).notLike((String) val.getFirst());
+				newSubCriterionSegmentWithFunction(bindings, ws, criterion).notLike(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
@@ -1333,13 +1333,13 @@ public class EntityStatements {
 		}
 		{
 			Tuple1<?> val = getValForBindingKey(bindings, criterion.in());
-			if (val != null) {
+			if (val != null && val.getFirst() instanceof Collection) {
 				newSubCriterionSegmentWithFunction(bindings, ws, criterion).in((Collection) val.getFirst());
 			}
 		}
 		{
 			Tuple1<?> val = getValForBindingKey(bindings, criterion.notIn());
-			if (val != null) {
+			if (val != null && val.getFirst() instanceof Collection) {
 				newSubCriterionSegmentWithFunction(bindings, ws, criterion).notIn((Collection) val.getFirst());
 			}
 		}
