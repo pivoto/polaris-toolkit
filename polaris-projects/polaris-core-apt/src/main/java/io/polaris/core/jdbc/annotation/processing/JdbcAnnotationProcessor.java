@@ -56,6 +56,7 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 			.addModifiers(Modifier.PUBLIC)
 			.addSuperinterface(entityMetaClassName);
 
+		// FieldName
 		{
 			ClassName fieldsClassName = className.nestedClass("FieldName");
 			TypeSpec.Builder fieldsClassBuilder = TypeSpec.classBuilder(fieldsClassName)
@@ -72,6 +73,7 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 
 			classBuilder.addType(fieldsClassBuilder.build());
 		}
+		// ColumnName
 		{
 			ClassName columnsClassName = className.nestedClass("ColumnName");
 			TypeSpec.Builder columnsClassBuilder = TypeSpec.classBuilder(columnsClassName)
@@ -208,12 +210,13 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 		ClassName classNameBaseOr = ClassName.get("io.polaris.core.jdbc.sql.statement.segment", "OrSegment");
 		ClassName classNameBaseCriterion = ClassName.get("io.polaris.core.jdbc.sql.statement.segment", "CriterionSegment");
 		ClassName classNameJoinBuilder = ClassName.get("io.polaris.core.jdbc.sql.statement.segment", "JoinBuilder");
+		ClassName classNameColumnSegment = ClassName.get("io.polaris.core.jdbc.sql.statement.segment", "ColumnSegment");
 
 		ClassName classNameSelect = sqlClassName.nestedClass("Select");
 		ClassName classNameInsert = sqlClassName.nestedClass("Insert");
 		ClassName classNameUpdate = sqlClassName.nestedClass("Update");
 		ClassName classNameDelete = sqlClassName.nestedClass("Delete");
-		ClassName classNameCol = sqlClassName.nestedClass("Col");
+		ClassName classNameSelectCol = sqlClassName.nestedClass("SelectCol");
 		ClassName classNameJoin = sqlClassName.nestedClass("Join");
 		ClassName classNameGroupBy = sqlClassName.nestedClass("GroupBy");
 		ClassName classNameOrderBy = sqlClassName.nestedClass("OrderBy");
@@ -256,8 +259,8 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 				nestedBuilder.addMethod(MethodSpec.methodBuilder("buildSelect")
 					.addAnnotation(Override.class)
 					.addModifiers(Modifier.PROTECTED)
-					.returns(ParameterizedTypeName.get(classNameCol, classNameSelect))
-					.addStatement("return new $T<>(getThis(), getTable())", classNameCol)
+					.returns(ParameterizedTypeName.get(classNameSelectCol, classNameSelect))
+					.addStatement("return new $T<>(getThis(), getTable())", classNameSelectCol)
 					.build());
 				nestedBuilder.addMethod(MethodSpec.methodBuilder("buildWhere")
 					.addAnnotation(Override.class)
@@ -280,7 +283,7 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 				nestedBuilder.addMethod(MethodSpec.methodBuilder("select")
 					.addAnnotation(Override.class)
 					.addModifiers(Modifier.PUBLIC)
-					.returns(ParameterizedTypeName.get(classNameCol, classNameSelect))
+					.returns(ParameterizedTypeName.get(classNameSelectCol, classNameSelect))
 					.addStatement("return super.select()")
 					.build());
 				nestedBuilder.addMethod(MethodSpec.methodBuilder("where")
@@ -342,12 +345,21 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 			{
 				for (JdbcBeanInfo.FieldInfo field : beanInfo.getFields()) {
 					String fieldName = field.getFieldName();
+
+					nestedBuilder.addMethod(MethodSpec.methodBuilder(fieldName)
+						.addModifiers(Modifier.PUBLIC)
+						.returns(ParameterizedTypeName.get(classNameColumnSegment,
+							classNameInsert,WildcardTypeName.subtypeOf(TypeName.OBJECT)))
+						.addStatement("return column($S)", fieldName)
+						.build());
+
 					nestedBuilder.addMethod(MethodSpec.methodBuilder(fieldName)
 						.addModifiers(Modifier.PUBLIC)
 						.returns(classNameInsert)
 						.addParameter(ParameterSpec.builder(TypeName.OBJECT, "value").build())
 						.addStatement("return column($S, value)", fieldName)
 						.build());
+
 					nestedBuilder.addMethod(MethodSpec.methodBuilder(fieldName)
 						.addModifiers(Modifier.PUBLIC)
 						.returns(classNameInsert)
@@ -410,6 +422,13 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 			{
 				for (JdbcBeanInfo.FieldInfo field : beanInfo.getFields()) {
 					String fieldName = field.getFieldName();
+					nestedBuilder.addMethod(MethodSpec.methodBuilder(fieldName)
+						.addModifiers(Modifier.PUBLIC)
+						.returns(ParameterizedTypeName.get(classNameColumnSegment,
+							classNameUpdate,WildcardTypeName.subtypeOf(TypeName.OBJECT)))
+						.addStatement("return column($S)", fieldName)
+						.build());
+
 					nestedBuilder.addMethod(MethodSpec.methodBuilder(fieldName)
 						.addModifiers(Modifier.PUBLIC)
 						.returns(classNameUpdate)
@@ -481,13 +500,13 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 			classBuilder.addType(nestedBuilder.build());
 		}
 
-		// col
+		// selectCol
 		{
-			TypeSpec.Builder nestedBuilder = TypeSpec.classBuilder(classNameCol)
+			TypeSpec.Builder nestedBuilder = TypeSpec.classBuilder(classNameSelectCol)
 				.addModifiers(Modifier.PUBLIC, Modifier.STATIC)
 				.addTypeVariable(TypeVariableName.get("O", ParameterizedTypeName.get(classNameSegment, TypeVariableName.get("O"))))
 				.superclass(ParameterizedTypeName.get(
-					classNameBaseCol, TypeVariableName.get("O"), ParameterizedTypeName.get(classNameCol, TypeVariableName.get("O"))
+					classNameBaseCol, TypeVariableName.get("O"), ParameterizedTypeName.get(classNameSelectCol, TypeVariableName.get("O"))
 				));
 			{
 				nestedBuilder.addMethod(MethodSpec.constructorBuilder()
@@ -507,7 +526,7 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 				String fieldName = field.getFieldName();
 				nestedBuilder.addMethod(MethodSpec.methodBuilder(fieldName)
 					.addModifiers(Modifier.PUBLIC)
-					.returns(ParameterizedTypeName.get(classNameCol, TypeVariableName.get("O")))
+					.returns(ParameterizedTypeName.get(classNameSelectCol, TypeVariableName.get("O")))
 					.addStatement("return column($S)", fieldName)
 					.build());
 			}
@@ -570,10 +589,10 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 				nestedBuilder.addMethod(MethodSpec.methodBuilder("buildSelect")
 					.addAnnotation(Override.class)
 					.addModifiers(Modifier.PROTECTED)
-					.returns(ParameterizedTypeName.get(classNameCol,
+					.returns(ParameterizedTypeName.get(classNameSelectCol,
 						ParameterizedTypeName.get(classNameJoin, TypeVariableName.get("O"))
 					))
-					.addStatement("return new $T<>(getThis(), getTable())", classNameCol)
+					.addStatement("return new $T<>(getThis(), getTable())", classNameSelectCol)
 					.build());
 				nestedBuilder.addMethod(MethodSpec.methodBuilder("buildWhere")
 					.addAnnotation(Override.class)
@@ -583,6 +602,21 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 					))
 					.addStatement("return new $T<>(getThis(), getTable())", classNameAnd)
 					.build());
+				nestedBuilder.addMethod(MethodSpec.methodBuilder("buildGroupBy")
+					.addAnnotation(Override.class)
+					.addModifiers(Modifier.PROTECTED)
+					.returns(ParameterizedTypeName.get(classNameGroupBy, ParameterizedTypeName.get(classNameJoin, TypeVariableName.get("O"))
+						))
+					.addStatement("return new $T<>(getThis(), getTable())", classNameGroupBy)
+					.build());
+				nestedBuilder.addMethod(MethodSpec.methodBuilder("buildOrderBy")
+					.addAnnotation(Override.class)
+					.addModifiers(Modifier.PROTECTED)
+					.returns(ParameterizedTypeName.get(classNameOrderBy, ParameterizedTypeName.get(classNameJoin, TypeVariableName.get("O"))
+					))
+					.addStatement("return new $T<>(getThis(), getTable())", classNameOrderBy)
+					.build());
+
 				nestedBuilder.addMethod(MethodSpec.methodBuilder("on")
 					.addAnnotation(Override.class)
 					.addModifiers(Modifier.PUBLIC)
@@ -602,10 +636,32 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 				nestedBuilder.addMethod(MethodSpec.methodBuilder("select")
 					.addAnnotation(Override.class)
 					.addModifiers(Modifier.PUBLIC)
-					.returns(ParameterizedTypeName.get(classNameCol,
+					.returns(ParameterizedTypeName.get(classNameSelectCol,
 						ParameterizedTypeName.get(classNameJoin, TypeVariableName.get("O"))
 					))
 					.addStatement("return super.select()")
+					.build());
+
+				nestedBuilder.addMethod(MethodSpec.methodBuilder("groupBy")
+					.addAnnotation(Override.class)
+					.addModifiers(Modifier.PUBLIC)
+					.returns(ParameterizedTypeName.get(classNameGroupBy, ParameterizedTypeName.get(classNameJoin, TypeVariableName.get("O"))
+					))
+					.addStatement("return super.groupBy()")
+					.build());
+				nestedBuilder.addMethod(MethodSpec.methodBuilder("having")
+					.addAnnotation(Override.class)
+					.addModifiers(Modifier.PUBLIC)
+					.returns(ParameterizedTypeName.get(classNameAnd, ParameterizedTypeName.get(classNameJoin, TypeVariableName.get("O"))
+					))
+					.addStatement("return super.having()")
+					.build());
+				nestedBuilder.addMethod(MethodSpec.methodBuilder("orderBy")
+					.addAnnotation(Override.class)
+					.addModifiers(Modifier.PUBLIC)
+					.returns(ParameterizedTypeName.get(classNameOrderBy, ParameterizedTypeName.get(classNameJoin, TypeVariableName.get("O"))
+					))
+					.addStatement("return super.orderBy()")
 					.build());
 			}
 			// fields
