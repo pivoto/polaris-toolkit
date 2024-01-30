@@ -26,8 +26,8 @@ public class DemoAppTest {
 		demoUserService.doTransaction(mapper -> {
 			log.warn("新增一条数据");
 			DemoUserEntity entity = new DemoUserEntity();
-			entity.setId(2L);
-			entity.setName("user2");
+			entity.setId(12L);
+			entity.setName("user12");
 			mapper.insertEntity(entity);
 		});
 	}
@@ -37,8 +37,8 @@ public class DemoAppTest {
 		demoUserService.doTransaction(mapper -> {
 			log.warn("新增一条数据");
 			DemoUserEntity entity = new DemoUserEntity();
-			entity.setId(3L);
-			entity.setName("user3");
+			entity.setId(13L);
+			entity.setName("user13");
 			mapper.insertEntity(entity, true);
 		});
 
@@ -49,7 +49,7 @@ public class DemoAppTest {
 		demoUserService.doTransaction(mapper -> {
 			log.warn("查询数据");
 			DemoUserEntity param = new DemoUserEntity();
-			param.setId(2L);
+			param.setId(12L);
 			System.out.println(mapper.selectEntityList(param));
 			System.out.println(mapper.selectMapList(param));
 			System.out.println(mapper.selectEntity(param));
@@ -60,7 +60,7 @@ public class DemoAppTest {
 	void test04() {
 		demoUserService.doTransaction(mapper -> {
 			DemoUserEntity param = new DemoUserEntity();
-			param.setId(2L);
+			param.setId(12L);
 			param.setVersion(0L);
 			param.setName("update2");
 			mapper.updateEntityById(param);
@@ -71,7 +71,7 @@ public class DemoAppTest {
 	void test05() {
 		demoUserService.doTransaction(mapper -> {
 			DemoUserEntity param = new DemoUserEntity();
-			param.setId(2L);
+			param.setId(12L);
 			System.out.println(mapper.selectEntityList(param));
 		});
 	}
