@@ -8,7 +8,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import io.polaris.core.jdbc.sql.annotation.segment.InsertColumn;
-import io.polaris.core.jdbc.sql.consts.BindingKeys;
 
 /**
  * @author Qt
@@ -23,7 +22,7 @@ public @interface SqlInsert {
 	/**
 	 * @return 标识目标实体类型
 	 */
-	Class<?> value();
+	Class<?> table();
 
 	InsertColumn[] columns();
 

@@ -17,13 +17,13 @@ public class SetOpsStatementTest {
 
 
 		SetOpsStatement<?> setOpsStatement = SetOpsStatement.of(
-			DemoEntitySql.select().selectAll().where().andRaw("1=1")
+			DemoEntitySql.select().selectAll().where().raw("1=1")
 				.id().inLarge(Arrays.asList(ids),5)
 				.end());
 		setOpsStatement.unionAll(
-			Demo2EntitySql.select().selectAll().where().andRaw("1=1").end());
+			Demo2EntitySql.select().selectAll().where().raw("1=1").end());
 		setOpsStatement.minus(
-			Demo3EntitySql.select().selectAll().where().andRaw("1=1").end());
+			Demo3EntitySql.select().selectAll().where().raw("1=1").end());
 
 		System.out.println(setOpsStatement.toSqlNode());
 		System.out.println();

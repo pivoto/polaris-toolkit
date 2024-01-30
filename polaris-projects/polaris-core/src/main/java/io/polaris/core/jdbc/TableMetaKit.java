@@ -117,5 +117,4 @@ public class TableMetaKit {
 			.schema(annotation.schema()).catalog(annotation.catalog()).build();
 	}
 
-
 }

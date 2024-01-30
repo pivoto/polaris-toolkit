@@ -1,5 +1,8 @@
 package io.polaris.core.jdbc.sql.statement.segment;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.polaris.core.annotation.AnnotationProcessing;
 import io.polaris.core.consts.SymbolConsts;
 import io.polaris.core.jdbc.sql.node.SqlNode;
@@ -11,9 +14,7 @@ import io.polaris.core.jdbc.sql.statement.SelectStatement;
 import io.polaris.core.lang.Objs;
 import io.polaris.core.reflect.GetterFunction;
 import io.polaris.core.reflect.Reflects;
-
-import java.util.ArrayList;
-import java.util.List;
+import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
@@ -28,6 +29,9 @@ public class JoinSegment<O extends Segment<O>, S extends JoinSegment<O, S>> exte
 	private final List<SelectSegment<S, ?>> selects = new ArrayList<>();
 	private AndSegment<S, ?> on;
 	private AndSegment<S, ?> where;
+	private final List<GroupBySegment<S, ?>> groupBys = new ArrayList<>();
+	private AndSegment<S, ?> having;
+	private final List<OrderBySegment<S, ?>> orderBys = new ArrayList<>();
 
 
 	@AnnotationProcessing
@@ -74,6 +78,17 @@ public class JoinSegment<O extends Segment<O>, S extends JoinSegment<O, S>> exte
 		return (T) new AndSegment<>(getThis(), this.table);
 	}
 
+	@AnnotationProcessing
+	protected GroupBySegment<S, ?> buildGroupBy() {
+		return new GroupBySegment<>(getThis(), this.table);
+	}
+
+	@AnnotationProcessing
+	protected OrderBySegment<S, ?> buildOrderBy() {
+		return new OrderBySegment<>(getThis(), this.table);
+	}
+
+
 	public SqlNode toOnSqlNode() {
 		if (on == null) {
 			return SqlNodes.EMPTY;
@@ -117,6 +132,11 @@ public class JoinSegment<O extends Segment<O>, S extends JoinSegment<O, S>> exte
 		return getThis();
 	}
 
+	public S selectRaw(String... rawColumns) {
+		return select(new TextNode(Strings.join(",", rawColumns)));
+	}
+
+
 	public S select(SqlNode sqlNode) {
 		SelectSegment<S, ?> segment = buildSelect().sql(sqlNode);
 		selects.add(segment);
@@ -154,12 +174,79 @@ public class JoinSegment<O extends Segment<O>, S extends JoinSegment<O, S>> exte
 		return getThis();
 	}
 
+	@AnnotationProcessing
+	@SuppressWarnings("unchecked")
+	public <G extends GroupBySegment<S, G>> G groupBy() {
+		GroupBySegment<S, ?> groupBy = buildGroupBy();
+		groupBys.add(groupBy);
+		return (G) groupBy;
+	}
+
+	@AnnotationProcessing
+	@SuppressWarnings("unchecked")
+	public <H extends AndSegment<S, H>> H having() {
+		return (H) (having = Objs.defaultIfNull(having, this::buildWhere));
+	}
+
+	@AnnotationProcessing
+	@SuppressWarnings("unchecked")
+	public <E extends OrderBySegment<S, E>> E orderBy() {
+		OrderBySegment<S, ?> orderBy = buildOrderBy();
+		orderBys.add(orderBy);
+		return (E) orderBy;
+	}
+
+	public S orderByRaw(String... rawSql) {
+		for (String s : rawSql) {
+			OrderBySegment<S, ?> orderBy = buildOrderBy();
+			orderBy.sql(new TextNode(s));
+			orderBys.add(orderBy);
+		}
+		return getThis();
+	}
+
+
+	public <T, R> S orderBy(GetterFunction<T, R> getter) {
+		return orderBy(Reflects.getPropertyName(getter));
+	}
+
+	public S orderBy(String field) {
+		OrderBySegment<S, ?> orderBy = buildOrderBy();
+		orderBy.column(field);
+		orderBys.add(orderBy);
+		return getThis();
+	}
+
+	public <T, R> S orderByDesc(GetterFunction<T, R> getter) {
+		return orderByDesc(Reflects.getPropertyName(getter));
+	}
+
+	public S orderByDesc(String field) {
+		OrderBySegment<S, ?> orderBy = buildOrderBy();
+		orderBy.column(field).desc();
+		orderBys.add(orderBy);
+		return getThis();
+	}
+
+
 	public List<SelectSegment<S, ?>> getSelects() {
 		return selects;
 	}
 
 	public TextNode getConj() {
 		return conj;
+	}
+
+	public List<GroupBySegment<S, ?>> getGroupBys() {
+		return groupBys;
+	}
+
+	public AndSegment<S, ?> getHaving() {
+		return having;
+	}
+
+	public List<OrderBySegment<S, ?>> getOrderBys() {
+		return orderBys;
 	}
 
 	public TableSegment<?> getTable() {

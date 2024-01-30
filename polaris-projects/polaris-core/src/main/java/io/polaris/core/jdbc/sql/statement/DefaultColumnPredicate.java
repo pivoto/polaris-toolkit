@@ -5,11 +5,11 @@ package io.polaris.core.jdbc.sql.statement;
  * @since 1.8,  Jan 29, 2024
  */
 public class DefaultColumnPredicate implements ColumnPredicate {
-	public static final DefaultColumnPredicate INSTANCE = new DefaultColumnPredicate();
+	private final boolean includeAllEmptyColumns;
 
-	private DefaultColumnPredicate() {
+	DefaultColumnPredicate(boolean includeAllEmptyColumns) {
+		this.includeAllEmptyColumns = includeAllEmptyColumns;
 	}
-
 
 	@Override
 	public boolean isIncludedColumn(String name) {
@@ -18,6 +18,6 @@ public class DefaultColumnPredicate implements ColumnPredicate {
 
 	@Override
 	public boolean isIncludedEmptyColumn(String name) {
-		return false;
+		return includeAllEmptyColumns;
 	}
 }

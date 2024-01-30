@@ -27,17 +27,17 @@ public @interface JoinCriterion {
 	String field() default "";
 
 
-	JoinColumn eq() default @JoinColumn;
+	JoinColumn eq() default @JoinColumn(tableAlias = "",tableField = "");
 
-	JoinColumn ne() default @JoinColumn;
+	JoinColumn ne() default @JoinColumn(tableAlias = "",tableField = "");
 
-	JoinColumn gt() default @JoinColumn;
+	JoinColumn gt() default @JoinColumn(tableAlias = "",tableField = "");
 
-	JoinColumn ge() default @JoinColumn;
+	JoinColumn ge() default @JoinColumn(tableAlias = "",tableField = "");
 
-	JoinColumn lt() default @JoinColumn;
+	JoinColumn lt() default @JoinColumn(tableAlias = "",tableField = "");
 
-	JoinColumn le() default @JoinColumn;
+	JoinColumn le() default @JoinColumn(tableAlias = "",tableField = "");
 
 	JoinColumn[] between() default {};
 

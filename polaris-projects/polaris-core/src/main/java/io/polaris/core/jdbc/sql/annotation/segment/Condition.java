@@ -23,7 +23,12 @@ public @interface Condition {
 
 	PredicateType predicateType() default PredicateType.NOT_EMPTY;
 
-	Class<? extends BiPredicate<Map<String, Object>, String>>[] predicateClass() default {};
+	String predicateExpression() default "";
+
+	String predicateKey() default "";
+
+	Class<? extends BiPredicate<Map<String, Object>, Object>>[] predicateClass() default {};
+
 
 	enum PredicateType {
 		NOT_NULL,
@@ -31,8 +36,9 @@ public @interface Condition {
 		IS_NULL,
 		IS_EMPTY,
 		REGEX,
-		JAVA_EVALUATOR,
 		GROOVY_EVALUATOR,
+		JAVA_EVALUATOR,
+		JAVASCRIPT_EVALUATOR,
 		CUSTOM,
 	}
 }

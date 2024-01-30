@@ -47,21 +47,21 @@ public @interface SubCriterion {
 
 	BindingKey notContains() default @BindingKey;
 
-	BindingKey startWith() default @BindingKey;
+	BindingKey startsWith() default @BindingKey;
 
-	BindingKey notStartWith() default @BindingKey;
+	BindingKey notStartsWith() default @BindingKey;
 
-	BindingKey endWith() default @BindingKey;
+	BindingKey endsWith() default @BindingKey;
 
-	BindingKey notEndWith() default @BindingKey;
+	BindingKey notEndsWith() default @BindingKey;
 
 	BindingKey like() default @BindingKey;
 
 	BindingKey notLike() default @BindingKey;
 
-	BindingKey between() default @BindingKey;
+	BindingKey[] between() default {};
 
-	BindingKey notBetween() default @BindingKey;
+	BindingKey[] notBetween() default {};
 
 	BindingKey in() default @BindingKey;
 

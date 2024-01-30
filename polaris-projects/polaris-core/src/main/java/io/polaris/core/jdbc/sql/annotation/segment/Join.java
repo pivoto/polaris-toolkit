@@ -7,6 +7,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.consts.JoinType;
 
 /**
@@ -22,12 +23,12 @@ public @interface Join {
 	/**
 	 * @return 标识目标实体类型
 	 */
-	Class<?> value();
+	Class<?> table();
 
 	/**
 	 * @return 表别名
 	 */
-	String tableAlias();
+	String alias();
 
 	JoinType type() default JoinType.JOIN;
 
@@ -36,4 +37,13 @@ public @interface Join {
 	Criteria[] on() default {};
 
 	Where where() default @Where();
+
+	GroupBy[] groupBy() default {};
+
+	Having having() default @Having();
+
+
+	OrderBy[] orderBy() default {};
+
+	ColumnPredicate columnPredicate() default @ColumnPredicate();
 }

@@ -1,5 +1,9 @@
 package io.polaris.core.jdbc.sql.statement.segment;
 
+import java.util.List;
+
+import javax.annotation.Nullable;
+
 import io.polaris.core.annotation.AnnotationProcessing;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.sql.node.SqlNode;
@@ -7,9 +11,7 @@ import io.polaris.core.jdbc.sql.statement.BaseSegment;
 import io.polaris.core.jdbc.sql.statement.SelectStatement;
 import io.polaris.core.jdbc.sql.statement.SetOpsStatement;
 import io.polaris.core.jdbc.sql.statement.SqlNodeBuilder;
-
-import javax.annotation.Nullable;
-import java.util.List;
+import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
@@ -17,6 +19,24 @@ import java.util.List;
  */
 @AnnotationProcessing
 public abstract class TableSegment<S extends TableSegment<S>> extends BaseSegment<S> implements SqlNodeBuilder {
+
+	private TableAccessible tableAccessible = new TableAccessible() {
+		@Override
+		public TableSegment<?> getTable(int tableIndex) {
+			if (tableIndex == 0) {
+				return TableSegment.this;
+			}
+			return null;
+		}
+
+		@Override
+		public TableSegment<?> getTable(String tableAlias) {
+			if (Strings.isEquals(getTableAlias(), tableAlias)) {
+				return TableSegment.this;
+			}
+			return null;
+		}
+	};
 
 	protected TableSegment() {
 	}
@@ -38,6 +58,10 @@ public abstract class TableSegment<S extends TableSegment<S>> extends BaseSegmen
 	@Override
 	public SqlNode toSqlNode() {
 		return toSqlNode(true);
+	}
+
+	public TableAccessible toTableAccessible() {
+		return tableAccessible;
 	}
 
 	/**

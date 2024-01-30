@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
  */
 @ServiceDefault(Integer.MAX_VALUE)
 public class JavaEvaluator implements Evaluator {
+	public static final String ENGINE_NAME = "java";
 	private static final ILogger log = ILoggers.of(JavaEvaluator.class);
 	private static final AtomicLong CLASS_NO = new AtomicLong(0);
 	private static final Pattern importPattern = Pattern.compile("\\s*\\bimport\\s+(static\\s+)?[\\w\\.\\*]+;\\s*+");

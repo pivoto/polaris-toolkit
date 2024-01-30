@@ -6,7 +6,8 @@ package io.polaris.core.jdbc.sql.statement;
  */
 public interface ColumnPredicate {
 
-	ColumnPredicate DEFAULT = DefaultColumnPredicate.INSTANCE;
+	ColumnPredicate DEFAULT = new DefaultColumnPredicate(false);
+	ColumnPredicate ALL = new DefaultColumnPredicate(true);
 
 	/**
 	 * 判断字段是否被包含在处理序列

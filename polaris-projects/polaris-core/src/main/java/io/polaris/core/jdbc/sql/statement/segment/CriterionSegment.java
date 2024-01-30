@@ -8,6 +8,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import io.polaris.core.annotation.AnnotationProcessing;
+import io.polaris.core.assertion.Assertions;
 import io.polaris.core.consts.StdConsts;
 import io.polaris.core.consts.SymbolConsts;
 import io.polaris.core.jdbc.sql.node.ContainerNode;
@@ -567,6 +568,15 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		return end();
 	}
 
+	public <E> O in(Collection<E> value, int limitSize) {
+		Assertions.assertTrue(limitSize > 0,"查");
+		if (value.size() < limitSize) {
+			this.expression = new ExpressionSegment<>(this.expression, LogicalExpression.IN.getExpression(), value);
+		} else {
+			this.expression = new ExpressionSegment<>(this.expression, LargeInExpression.of(limitSize), value);
+		}
+		return end();
+	}
 	public <E> O in(Collection<E> value) {
 		if (value.size() < 1000) {
 			this.expression = new ExpressionSegment<>(this.expression, LogicalExpression.IN.getExpression(), value);
@@ -819,40 +829,40 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		return end();
 	}
 
-	public O notStartWith(String value) {
+	public O notStartsWith(String value) {
 		this.expression = new ExpressionSegment<>(this.expression, LogicalExpression.NOT_STARTS_WITH.getExpression(), value);
 		return end();
 	}
 
-	public O notStartWith(String value, Predicate<String> predicate) {
+	public O notStartsWith(String value, Predicate<String> predicate) {
 		if (predicate.test(value)) {
-			notStartWith(value);
+			notStartsWith(value);
 		}
 		return end();
 	}
 
-	public O notStartWith(String value, boolean predicate) {
+	public O notStartsWith(String value, boolean predicate) {
 		if (predicate) {
-			notStartWith(value);
+			notStartsWith(value);
 		}
 		return end();
 	}
 
-	public O notEndWith(String value) {
+	public O notEndsWith(String value) {
 		this.expression = new ExpressionSegment<>(this.expression, LogicalExpression.NOT_ENDS_WITH.getExpression(), value);
 		return end();
 	}
 
-	public O notEndWith(String value, Predicate<String> predicate) {
+	public O notEndsWith(String value, Predicate<String> predicate) {
 		if (predicate.test(value)) {
-			notEndWith(value);
+			notEndsWith(value);
 		}
 		return end();
 	}
 
-	public O notEndWith(String value, boolean predicate) {
+	public O notEndsWith(String value, boolean predicate) {
 		if (predicate) {
-			notEndWith(value);
+			notEndsWith(value);
 		}
 		return end();
 	}

@@ -2,15 +2,22 @@ package io.polaris.core.jdbc.sql.statement.segment;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import io.polaris.core.annotation.AnnotationProcessing;
+import io.polaris.core.collection.Iterables;
+import io.polaris.core.collection.ObjectArrays;
+import io.polaris.core.converter.Converters;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.TableMeta;
-import io.polaris.core.jdbc.sql.EntityStatements;
+import io.polaris.core.jdbc.sql.BindingValues;
 import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
@@ -25,10 +32,13 @@ import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.reflect.GetterFunction;
 import io.polaris.core.reflect.Reflects;
 
+import static io.polaris.core.lang.Objs.isNotEmpty;
+
 /**
  * @author Qt
  * @since 1.8,  Aug 22, 2023
  */
+@SuppressWarnings({"UnusedReturnValue", "unused"})
 @AnnotationProcessing
 public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> extends BaseSegment<S> implements SqlNodeBuilder, TableAccessibleHolder {
 
@@ -116,34 +126,105 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 	}
 
 	public S byEntity(Object entity) {
-		return byEntity(entity, null, null, false, null);
+		return byEntity(entity, ColumnPredicate.DEFAULT);
+	}
+
+	public S byEntity(Object entity, Predicate<String> isIncludeEmptyColumns) {
+		return byEntity(entity, ConfigurableColumnPredicate.of(isIncludeEmptyColumns));
 	}
 
 	public S byEntity(Object entity, Predicate<String> isIncludeColumns, Predicate<String> isExcludeColumns
-		, boolean includeAllEmpty, Predicate<String> isIncludeEmptyColumns) {
-		TableMeta tableMeta = table.getTableMeta();
-		if (tableMeta != null) {
-			ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(isIncludeColumns, isExcludeColumns, isIncludeEmptyColumns, includeAllEmpty);
-			EntityStatements.addWhereSqlByEntity(this, entity, tableMeta, columnPredicate);
-		}
-		return getThis();
+		, Predicate<String> isIncludeEmptyColumns, boolean includeAllEmpty) {
+		return byEntity(entity, ConfigurableColumnPredicate.of(
+			isIncludeColumns, isExcludeColumns, isIncludeEmptyColumns, includeAllEmpty));
 	}
 
 	public S byEntity(Object entity, ColumnPredicate columnPredicate) {
 		TableMeta tableMeta = table.getTableMeta();
 		if (tableMeta != null) {
-			EntityStatements.addWhereSqlByEntity(this, entity, tableMeta, columnPredicate);
+			@SuppressWarnings("unchecked")
+			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
+				(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
+					? Beans.newBeanMap(entity, tableMeta.getEntityClass())
+					: Beans.newBeanMap(entity));
+			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
+				String name = entry.getKey();
+				// 不在包含列表
+				if (!columnPredicate.isIncludedColumn(name)) {
+					continue;
+				}
+				ColumnMeta meta = entry.getValue();
+				Object val = entityMap.get(name);
+				addWhereSqlByColumnValue(meta, val, columnPredicate);
+			}
 		}
 		return getThis();
 	}
 
-	public S byEntity(Object entity, Predicate<String> isIncludeEmptyColumns) {
-		return byEntity(entity, null, null, false, isIncludeEmptyColumns);
+	private void addWhereSqlByColumnValue(ColumnMeta meta, Object val
+		, ColumnPredicate columnPredicate) {
+		if (isNotEmpty(val)) {
+			Class<?> fieldType = meta.getFieldType();
+			// 日期字段
+			if (Date.class.isAssignableFrom(fieldType)) {
+				Date[] range = BindingValues.getDateRangeOrNull(val);
+				if (range != null) {
+					if (range[0] != null) {
+						this.column(meta.getFieldName()).ge(range[0]);
+					}
+					if (range[1] != null) {
+						this.column(meta.getFieldName()).le(range[1]);
+					}
+					// 完成条件绑定
+					return;
+				}
+			}
+			// 文本字段
+			else if (String.class.isAssignableFrom(fieldType)) {
+				if (val instanceof String && (((String) val).startsWith("%") || ((String) val).endsWith("%"))) {
+					this.column(meta.getFieldName()).like((String) val);
+					// 完成条件绑定
+					return;
+				}
+			}
+			if (val instanceof Collection) {
+				List<Object> list = new ArrayList<>((Collection<?>) val);
+				this.column(meta.getFieldName()).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
+			} else if (val instanceof Iterable) {
+				@SuppressWarnings("unchecked")
+				List<Object> list = Iterables.asCollection(ArrayList::new, (Iterable<Object>) val);
+				this.column(meta.getFieldName()).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
+			} else if (val instanceof Iterator) {
+				@SuppressWarnings("unchecked")
+				List<Object> list = Iterables.asCollection(ArrayList::new, (Iterator<Object>) val);
+				this.column(meta.getFieldName()).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
+			} else if (val.getClass().isArray()) {
+				List<Object> list = ObjectArrays.toList(val);
+				this.column(meta.getFieldName()).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
+			} else {
+				this.column(meta.getFieldName()).eq((Object) Converters.convertQuietly(fieldType, val));
+			}
+		} else {
+			// 需要包含空值字段
+			if (columnPredicate.isIncludedEmptyColumn(meta.getFieldName())) {
+				this.column(meta.getFieldName()).isNull();
+			}
+		}
+	}
+
+	private List<Object> convertListElements(List<Object> list, Function<Object, Object> converter) {
+		int size = list.size();
+		for (int i = 0; i < size; i++) {
+			Object o = list.get(i);
+			list.set(i, converter.apply(o));
+		}
+		return list;
 	}
 
 	public S byEntityId(Object entity) {
 		TableMeta tableMeta = table.getTableMeta();
 		if (tableMeta != null) {
+			@SuppressWarnings("unchecked")
 			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, tableMeta.getEntityClass());
 			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
 				String name = entry.getKey();
@@ -161,12 +242,12 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 		return getThis();
 	}
 
-	public S andRaw(String raw) {
+	public S raw(String raw) {
 		criteria.add(new CriterionSegment<>(getThis(), new TextNode(raw)));
 		return getThis();
 	}
 
-	public S andSql(SqlNode sql) {
+	public S sql(SqlNode sql) {
 		criteria.add(new CriterionSegment<>(getThis(), sql));
 		return getThis();
 	}

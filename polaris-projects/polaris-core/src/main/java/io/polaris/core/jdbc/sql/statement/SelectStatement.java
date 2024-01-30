@@ -286,8 +286,8 @@ public class SelectStatement<S extends SelectStatement<S>> extends BaseStatement
 	}
 
 	private void sqlGroupBy(ContainerNode sql) {
+		boolean first = true;
 		if (!groupBys.isEmpty()) {
-			boolean first = true;
 			for (GroupBySegment<S, ?> groupBy : groupBys) {
 				SqlNode sqlNode = groupBy.toSqlNode();
 				if (sqlNode.isSkipped()) {
@@ -304,19 +304,67 @@ public class SelectStatement<S extends SelectStatement<S>> extends BaseStatement
 				}
 				sql.addNode(sqlNode);
 			}
-
+		}
+		if (!this.joins.isEmpty()) {
+			for (JoinSegment<S, ?> join : joins) {
+				List<? extends GroupBySegment<?, ?>> joinGroupBys = join.getGroupBys();
+				if (joinGroupBys != null &&!joinGroupBys.isEmpty()){
+					for (GroupBySegment<?, ?> groupBy : joinGroupBys) {
+						SqlNode sqlNode = groupBy.toSqlNode();
+						if (sqlNode.isSkipped()) {
+							continue;
+						}
+						if (!sql.isEmpty()) {
+							sql.addNode(SqlNodes.LF);
+						}
+						if (first) {
+							sql.addNode(SqlNodes.GROUP_BY);
+							first = false;
+						} else {
+							sql.addNode(SqlNodes.COMMA);
+						}
+						sql.addNode(sqlNode);
+					}
+				}
+			}
 		}
 	}
 
 	private void sqlHaving(ContainerNode sql) {
+		boolean first = true;
 		if (having != null) {
 			SqlNode sqlNode = having.toSqlNode();
 			if (!sqlNode.isSkipped()) {
 				if (!sql.isEmpty()) {
 					sql.addNode(SqlNodes.LF);
 				}
-				sql.addNode(SqlNodes.HAVING);
+				if (first) {
+					sql.addNode(SqlNodes.HAVING);
+					first = false;
+				} else {
+					sql.addNode(SqlNodes.AND);
+				}
 				sql.addNode(sqlNode);
+			}
+		}
+		if (!this.joins.isEmpty()) {
+			for (JoinSegment<S, ?> join : joins) {
+				AndSegment<?, ?> joinHaving = join.getHaving();
+				if (joinHaving != null) {
+					SqlNode sqlNode = joinHaving.toSqlNode();
+					if (!sqlNode.isSkipped()) {
+						if (!sql.isEmpty()) {
+							sql.addNode(SqlNodes.LF);
+						}
+						if (first) {
+							sql.addNode(SqlNodes.HAVING);
+							first = false;
+						} else {
+							sql.addNode(SqlNodes.AND);
+						}
+						sql.addNode(sqlNode);
+					}
+				}
 			}
 		}
 	}
@@ -339,6 +387,29 @@ public class SelectStatement<S extends SelectStatement<S>> extends BaseStatement
 					sql.addNode(SqlNodes.COMMA);
 				}
 				sql.addNode(sqlNode);
+			}
+		}
+		if (!this.joins.isEmpty()) {
+			for (JoinSegment<S, ?> join : joins) {
+				List<? extends OrderBySegment<?, ?>> joinOrderBys = join.getOrderBys();
+				if (joinOrderBys != null &&!joinOrderBys.isEmpty()){
+					for (OrderBySegment<?, ?> orderBy : joinOrderBys) {
+						SqlNode sqlNode = orderBy.toSqlNode();
+						if (sqlNode.isSkipped()) {
+							continue;
+						}
+						if (!sql.isEmpty()) {
+							sql.addNode(SqlNodes.LF);
+						}
+						if (first) {
+							sql.addNode(SqlNodes.ORDER_BY);
+							first = false;
+						} else {
+							sql.addNode(SqlNodes.COMMA);
+						}
+						sql.addNode(sqlNode);
+					}
+				}
 			}
 		}
 		if (!this.orderByList.isEmpty()) {

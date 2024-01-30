@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 import javax.annotation.Nonnull;
 
@@ -20,6 +19,8 @@ import io.polaris.core.jdbc.sql.node.VarNameGenerator;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.OrderBy;
 import io.polaris.core.jdbc.sql.query.Queries;
+import io.polaris.core.jdbc.sql.statement.ColumnPredicate;
+import io.polaris.core.jdbc.sql.statement.ConfigurableColumnPredicate;
 import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.string.Strings;
@@ -41,28 +42,15 @@ public class SqlStatements {
 		String includeEmptyColumnsKey = BindingKeys.INCLUDE_EMPTY_COLUMNS;
 		String includeAllEmptyKey = BindingKeys.INCLUDE_EMPTY;
 
-		return buildInsert(bindings, entityClass, entityKey,
-			null, includeColumnsKey,
-			null, excludeColumnsKey,
-			null, includeEmptyColumnsKey,
-			false, includeAllEmptyKey
-		);
+		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings,
+			null, includeColumnsKey, null, excludeColumnsKey,
+			null, includeEmptyColumnsKey, false, includeAllEmptyKey);
+		return buildInsert(bindings, entityClass, entityKey, columnPredicate);
 	}
 
 	public static String buildInsert(Map<String, Object> bindings, Class<?> entityClass,
-		String entityKey,
-		String[] includeColumns, String includeColumnsKey,
-		String[] excludeColumns, String excludeColumnsKey,
-		String[] includeEmptyColumns, String includeEmptyColumnsKey,
-		boolean includeAllEmpty, String includeAllEmptyKey
-	) {
-
-		Predicate<String> isIncludeColumns = EntityStatements.getColumnPredicate(bindings, includeColumns, includeColumnsKey);
-		Predicate<String> isExcludeColumns = EntityStatements.getColumnPredicate(bindings, excludeColumns, excludeColumnsKey);
-		Predicate<String> isIncludeEmptyColumns = EntityStatements.getColumnPredicate(bindings, includeEmptyColumns, includeEmptyColumnsKey);
-		includeAllEmpty = EntityStatements.isIncludeEmpty(bindings, includeAllEmpty, includeAllEmptyKey);
-		Object entity = EntityStatements.getObjectOfKey(bindings, entityKey, Collections.emptyMap());
-
+		String entityKey, ColumnPredicate columnPredicate) {
+		Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, Collections.emptyMap());
 
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
 		SqlStatement sql = SqlStatement.of();
@@ -78,14 +66,11 @@ public class SqlStatements {
 				continue;
 			}
 			// 不在包含列表
-			if (isIncludeColumns != null && !isIncludeColumns.test(name)) {
+			if (!columnPredicate.isIncludedColumn(name)) {
 				continue;
 			}
-			// 在排除列表
-			if (isExcludeColumns != null && isExcludeColumns.test(name)) {
-				continue;
-			}
-			Object val = EntityStatements.getValForInsert(entityMap, meta);
+			Object val1 = entityMap.get(meta.getFieldName());
+			Object val = BindingValues.getValueForInsert(meta, val1);
 			if (meta.isVersion()) {
 				val = val == null ? 1L : ((Number) val).longValue() + 1;
 			}
@@ -94,7 +79,7 @@ public class SqlStatements {
 				bindings.put(KEY_VALUE_PREFIX + name, val);
 			} else {
 				// 需要包含空值字段
-				if (includeAllEmpty || isIncludeEmptyColumns != null && isIncludeEmptyColumns.test(name)) {
+				if (columnPredicate.isIncludedEmptyColumn(name)) {
 					sql.columnAndValue(columnName, "NULL");
 				}
 			}
@@ -103,83 +88,52 @@ public class SqlStatements {
 	}
 
 
-	public static String buildDelete(Map<String, Object> bindings, Class<?> entityClass, boolean byId
-	) {
+	public static String buildDeleteById(Map<String, Object> bindings, Class<?> entityClass) {
+		String entityKey = BindingKeys.ENTITY;
+		String whereKey = BindingKeys.WHERE;
+		return buildDeleteById(bindings, entityClass, entityKey, whereKey);
+	}
+
+	public static String buildDeleteByAny(Map<String, Object> bindings, Class<?> entityClass) {
 		String entityKey = BindingKeys.ENTITY;
 		String whereKey = BindingKeys.WHERE;
 		String includeColumnsKey = BindingKeys.INCLUDE_COLUMNS;
 		String excludeColumnsKey = BindingKeys.EXCLUDE_COLUMNS;
 		String includeEmptyColumnsKey = BindingKeys.INCLUDE_EMPTY_COLUMNS;
 		String includeAllEmptyKey = BindingKeys.INCLUDE_EMPTY;
-
-		return SqlStatements.buildDelete(bindings, entityClass, byId,
-			entityKey, whereKey,
-			null, includeColumnsKey,
-			null, excludeColumnsKey,
-			null, includeEmptyColumnsKey,
-			false, includeAllEmptyKey
-		);
+		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings,
+			null, includeColumnsKey, null, excludeColumnsKey,
+			null, includeEmptyColumnsKey, false, includeAllEmptyKey);
+		return buildDeleteByAny(bindings, entityClass, entityKey, whereKey, columnPredicate);
 	}
 
-	public static String buildDelete(Map<String, Object> bindings, Class<?> entityClass,
-		boolean byId, String entityKey, String whereKey,
-		String[] includeColumns, String includeColumnsKey,
-		String[] excludeColumns, String excludeColumnsKey,
-		String[] includeEmptyColumns, String includeEmptyColumnsKey,
-		boolean includeAllEmpty, String includeAllEmptyKey
-	) {
-
-		Predicate<String> isIncludeColumns = EntityStatements.getColumnPredicate(bindings, includeColumns, includeColumnsKey);
-		Predicate<String> isExcludeColumns = EntityStatements.getColumnPredicate(bindings, excludeColumns, excludeColumnsKey);
-		Predicate<String> isIncludeEmptyColumns = EntityStatements.getColumnPredicate(bindings, includeEmptyColumns, includeEmptyColumnsKey);
-		includeAllEmpty = EntityStatements.isIncludeEmpty(bindings, includeAllEmpty, includeAllEmptyKey);
-
+	public static String buildDeleteById(Map<String, Object> bindings, Class<?> entityClass,
+		String entityKey, String whereKey) {
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
 		SqlStatement sql = SqlStatement.of();
 		sql.delete(tableMeta.getTable());
 
 		VarNameGenerator whereKeyGen = VarNameGenerator.newInstance(KEY_WHERE_PREFIX);
-		if (byId) {
-			Object entity = EntityStatements.getObjectOfKey(bindings, entityKey, null);
-			if (entity == null) {
-				entity = EntityStatements.getObjectOfKey(bindings, whereKey, Collections.emptyMap());
-			}
-			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, entityClass);
+		Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, null);
+		if (entity == null) {
+			entity = BindingValues.getBindingValueOrDefault(bindings, whereKey, Collections.emptyMap());
+		}
+		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, entityClass);
 
-			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
-				String name = entry.getKey();
-				ColumnMeta meta = entry.getValue();
-				String columnName = meta.getColumnName();
-				boolean primaryKey = meta.isPrimaryKey();
-				boolean version = meta.isVersion();
+		for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
+			String name = entry.getKey();
+			ColumnMeta meta = entry.getValue();
+			String columnName = meta.getColumnName();
+			boolean primaryKey = meta.isPrimaryKey();
+			boolean version = meta.isVersion();
 
-				Object val = entityMap.get(name);
-				// 按主键条件删除，无需判断列的包含条件
-				if (primaryKey || version) {
-					if (Objs.isNotEmpty(val)) {
-						appendSqlWhereWithVal(bindings, sql, meta, val, whereKeyGen.generate());
-					} else {
-						sql.where(columnName + " IS NULL");
-					}
-				}
-			}
-		} else {
-			Object entity = EntityStatements.getObjectOfKey(bindings, entityKey, null);
-			if (entity != null) {
-				if (entity instanceof Criteria) {
-					appendSqlWhereWithCriteria(bindings, tableMeta, sql, whereKeyGen, entity);
+			Object val = entityMap.get(name);
+			// 按主键条件删除，无需判断列的包含条件
+			if (primaryKey || version) {
+				if (Objs.isNotEmpty(val)) {
+					appendSqlWhereWithVal(bindings, sql, meta, val, whereKeyGen.generate());
 				} else {
-					appendSqlWhereWithEntity(bindings, entityClass, tableMeta, sql, whereKeyGen, entity,
-						isIncludeColumns, isExcludeColumns, includeAllEmpty, isIncludeEmptyColumns);
-				}
-			}
-			entity = EntityStatements.getObjectOfKey(bindings, whereKey, null);
-			if (entity != null) {
-				if (entity instanceof Criteria) {
-					appendSqlWhereWithCriteria(bindings, tableMeta, sql, whereKeyGen, entity);
-				} else {
-					appendSqlWhereWithEntity(bindings, entityClass, tableMeta, sql, whereKeyGen, entity,
-						isIncludeColumns, isExcludeColumns, includeAllEmpty, isIncludeEmptyColumns);
+					sql.where(columnName + " IS NULL");
 				}
 			}
 		}
@@ -190,8 +144,37 @@ public class SqlStatements {
 		return sql.toSqlString();
 	}
 
-	public static String buildUpdateById(Map<String, Object> bindings, Class<?> entityClass
-	) {
+	public static String buildDeleteByAny(Map<String, Object> bindings, Class<?> entityClass,
+		String entityKey, String whereKey, ColumnPredicate columnPredicate) {
+		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
+		SqlStatement sql = SqlStatement.of();
+		sql.delete(tableMeta.getTable());
+
+		VarNameGenerator whereKeyGen = VarNameGenerator.newInstance(KEY_WHERE_PREFIX);
+		Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, null);
+		if (entity != null) {
+			if (entity instanceof Criteria) {
+				appendSqlWhereWithCriteria(bindings, tableMeta, sql, whereKeyGen, entity);
+			} else {
+				appendSqlWhereWithEntity(bindings, entityClass, tableMeta, sql, whereKeyGen, entity, columnPredicate);
+			}
+		}
+		entity = BindingValues.getBindingValueOrDefault(bindings, whereKey, null);
+		if (entity != null) {
+			if (entity instanceof Criteria) {
+				appendSqlWhereWithCriteria(bindings, tableMeta, sql, whereKeyGen, entity);
+			} else {
+				appendSqlWhereWithEntity(bindings, entityClass, tableMeta, sql, whereKeyGen, entity, columnPredicate);
+			}
+		}
+
+		if (!sql.where().hasConditions()) {
+			throw new IllegalStateException("缺少条件子句");
+		}
+		return sql.toSqlString();
+	}
+
+	public static String buildUpdateById(Map<String, Object> bindings, Class<?> entityClass) {
 		String entityKey = BindingKeys.ENTITY;
 		String whereKey = BindingKeys.WHERE;
 		String includeColumnsKey = BindingKeys.INCLUDE_COLUMNS;
@@ -199,35 +182,22 @@ public class SqlStatements {
 		String includeEmptyColumnsKey = BindingKeys.INCLUDE_EMPTY_COLUMNS;
 		String includeAllEmptyKey = BindingKeys.INCLUDE_EMPTY;
 
-		return SqlStatements.buildUpdateById(bindings, entityClass,
-			entityKey, whereKey,
-			null, includeColumnsKey,
-			null, excludeColumnsKey,
-			null, includeEmptyColumnsKey,
-			false, includeAllEmptyKey
-		);
+		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings,
+			null, includeColumnsKey, null, excludeColumnsKey,
+			null, includeEmptyColumnsKey, false, includeAllEmptyKey);
+		return buildUpdateById(bindings, entityClass, entityKey, whereKey, columnPredicate);
 	}
 
 	public static String buildUpdateById(Map<String, Object> bindings, Class<?> entityClass,
-		String entityKey, String whereKey,
-		String[] includeColumns, String includeColumnsKey,
-		String[] excludeColumns, String excludeColumnsKey,
-		String[] includeEmptyColumns, String includeEmptyColumnsKey,
-		boolean includeAllEmpty, String includeAllEmptyKey
-	) {
-
-		Predicate<String> isIncludeColumns = EntityStatements.getColumnPredicate(bindings, includeColumns, includeColumnsKey);
-		Predicate<String> isExcludeColumns = EntityStatements.getColumnPredicate(bindings, excludeColumns, excludeColumnsKey);
-		Predicate<String> isIncludeEmptyColumns = EntityStatements.getColumnPredicate(bindings, includeEmptyColumns, includeEmptyColumnsKey);
-		includeAllEmpty = EntityStatements.isIncludeEmpty(bindings, includeAllEmpty, includeAllEmptyKey);
+		String entityKey, String whereKey, ColumnPredicate columnPredicate) {
 
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
 		SqlStatement sql = SqlStatement.of();
 		sql.update(tableMeta.getTable());
 
-		Object entity = EntityStatements.getObjectOfKey(bindings, entityKey, null);
+		Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, null);
 		if (entity == null) {
-			entity = EntityStatements.getObjectOfKey(bindings, whereKey, Collections.emptyMap());
+			entity = BindingValues.getBindingValueOrDefault(bindings, whereKey, Collections.emptyMap());
 		}
 		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, entityClass);
 
@@ -251,11 +221,7 @@ public class SqlStatements {
 				continue;
 			}
 			// 不在包含列表
-			if (isIncludeColumns != null && !isIncludeColumns.test(name)) {
-				continue;
-			}
-			// 在排除列表
-			if (isExcludeColumns != null && isExcludeColumns.test(name)) {
+			if (!columnPredicate.isIncludedColumn(name)) {
 				continue;
 			}
 
@@ -281,9 +247,8 @@ public class SqlStatements {
 				sql.set(columnName + " = #{" + KEY_VALUE_PREFIX + name + "}");
 				bindings.put(KEY_VALUE_PREFIX + name, val);
 			} else {
-				boolean include =
-					// 需要包含空值字段
-					includeAllEmpty || (isIncludeEmptyColumns != null && isIncludeEmptyColumns.test(name));
+				// 需要包含空值字段
+				boolean include = columnPredicate.isIncludedEmptyColumn(name);
 				if (include) {
 					sql.set(columnName + " = NULL");
 				}
@@ -308,48 +273,26 @@ public class SqlStatements {
 		String whereIncludeEmptyColumnsKey = BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS;
 		String whereIncludeAllEmptyKey = BindingKeys.WHERE_INCLUDE_EMPTY;
 
-		return SqlStatements.buildUpdateByAny(bindings, entityClass,
-			entityKey, whereKey,
-			null, includeColumnsKey,
-			null, excludeColumnsKey,
-			null, includeEmptyColumnsKey,
-			false, includeAllEmptyKey,
-			null, whereIncludeColumnsKey,
-			null, whereExcludeColumnsKey,
-			null, whereIncludeEmptyColumnsKey,
-			false, whereIncludeAllEmptyKey
-		);
+		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings,
+			null, includeColumnsKey, null, excludeColumnsKey,
+			null, includeEmptyColumnsKey, false, includeAllEmptyKey);
+		ColumnPredicate whereColumnPredicate = ConfigurableColumnPredicate.of(bindings,
+			null, whereIncludeColumnsKey, null, whereExcludeColumnsKey,
+			null, whereIncludeEmptyColumnsKey, false, whereIncludeAllEmptyKey);
+
+		return buildUpdateByAny(bindings, entityClass, entityKey, whereKey, columnPredicate, whereColumnPredicate);
 	}
 
 	public static String buildUpdateByAny(Map<String, Object> bindings, Class<?> entityClass,
-		String entityKey, String whereKey,
-		String[] includeColumns, String includeColumnsKey,
-		String[] excludeColumns, String excludeColumnsKey,
-		String[] includeEmptyColumns, String includeEmptyColumnsKey,
-		boolean includeAllEmpty, String includeAllEmptyKey,
-		String[] whereIncludeColumns, String whereIncludeColumnsKey,
-		String[] whereExcludeColumns, String whereExcludeColumnsKey,
-		String[] whereIncludeEmptyColumns, String whereIncludeEmptyColumnsKey,
-		boolean whereIncludeAllEmpty, String whereIncludeAllEmptyKey
-	) {
-
-		Predicate<String> isIncludeColumns = EntityStatements.getColumnPredicate(bindings, includeColumns, includeColumnsKey);
-		Predicate<String> isExcludeColumns = EntityStatements.getColumnPredicate(bindings, excludeColumns, excludeColumnsKey);
-		Predicate<String> isIncludeEmptyColumns = EntityStatements.getColumnPredicate(bindings, includeEmptyColumns, includeEmptyColumnsKey);
-		includeAllEmpty = EntityStatements.isIncludeEmpty(bindings, includeAllEmpty, includeAllEmptyKey);
+		String entityKey, String whereKey, ColumnPredicate columnPredicate, ColumnPredicate whereColumnPredicate) {
 
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
 		SqlStatement sql = SqlStatement.of();
 		sql.update(tableMeta.getTable());
 
-		Predicate<String> isWhereIncludeColumns = EntityStatements.getColumnPredicate(bindings, whereIncludeColumns, whereIncludeColumnsKey);
-		Predicate<String> isWhereExcludeColumns = EntityStatements.getColumnPredicate(bindings, whereExcludeColumns, whereExcludeColumnsKey);
-		Predicate<String> isWhereIncludeEmptyColumns = EntityStatements.getColumnPredicate(bindings, whereIncludeEmptyColumns, whereIncludeEmptyColumnsKey);
-		whereIncludeAllEmpty = EntityStatements.isIncludeEmpty(bindings, whereIncludeAllEmpty, whereIncludeAllEmptyKey);
-
 		VarNameGenerator whereKeyGen = VarNameGenerator.newInstance(KEY_WHERE_PREFIX);
-		Object entity = EntityStatements.getObjectOfKey(bindings, entityKey, Collections.emptyMap());
-		Object where = EntityStatements.getObjectOfKey(bindings, whereKey, Collections.emptyMap());
+		Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, Collections.emptyMap());
+		Object where = BindingValues.getBindingValueOrDefault(bindings, whereKey, Collections.emptyMap());
 		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, entityClass);
 		for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
 			String name = entry.getKey();
@@ -367,14 +310,11 @@ public class SqlStatements {
 				continue;
 			}
 			// 不在包含列表
-			if (isIncludeColumns != null && !isIncludeColumns.test(name)) {
+			if (!columnPredicate.isIncludedColumn(name)) {
 				continue;
 			}
-			// 在排除列表
-			if (isExcludeColumns != null && isExcludeColumns.test(name)) {
-				continue;
-			}
-			Object entityVal = EntityStatements.getValForUpdate(entityMap, meta);
+			Object val = entityMap.get(meta.getFieldName());
+			Object entityVal = BindingValues.getValueForUpdate(meta, val);
 			if (version) {
 				entityVal = Objs.isEmpty(entityVal) ? 1L : ((Number) entityVal).longValue() + 1;
 			}
@@ -382,9 +322,8 @@ public class SqlStatements {
 				sql.set(columnName + " = #{" + KEY_VALUE_PREFIX + name + "}");
 				bindings.put(KEY_VALUE_PREFIX + name, entityVal);
 			} else {
-				boolean include =
-					// 需要包含空值字段
-					includeAllEmpty || (isIncludeEmptyColumns != null && isIncludeEmptyColumns.test(name));
+				// 需要包含空值字段
+				boolean include = columnPredicate.isIncludedEmptyColumn(name);
 				if (include) {
 					sql.set(columnName + " = NULL");
 				}
@@ -394,9 +333,7 @@ public class SqlStatements {
 		if (where instanceof Criteria) {
 			appendSqlWhereWithCriteria(bindings, tableMeta, sql, whereKeyGen, where);
 		} else if (where != null) {
-			appendSqlWhereWithEntity(bindings, entityClass, tableMeta, sql, whereKeyGen, where
-				, isWhereIncludeColumns, isWhereExcludeColumns
-				, whereIncludeAllEmpty, isWhereIncludeEmptyColumns);
+			appendSqlWhereWithEntity(bindings, entityClass, tableMeta, sql, whereKeyGen, where, whereColumnPredicate);
 		}
 
 		if (!sql.where().hasConditions()) {
@@ -412,25 +349,17 @@ public class SqlStatements {
 		String excludeColumnsKey = BindingKeys.EXCLUDE_COLUMNS;
 		String includeEmptyColumnsKey = BindingKeys.INCLUDE_EMPTY_COLUMNS;
 		String includeAllEmptyKey = BindingKeys.INCLUDE_EMPTY;
-		return buildCount(bindings, entityClass,
-			entityKey, whereKey,
+
+		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings,
 			null, includeColumnsKey,
 			null, excludeColumnsKey,
 			null, includeEmptyColumnsKey,
 			false, includeAllEmptyKey);
+		return buildCount(bindings, entityClass, entityKey, whereKey, columnPredicate);
 	}
 
 	public static String buildCount(Map<String, Object> bindings, Class<?> entityClass,
-		String entityKey, String whereKey,
-		String[] includeColumns, String includeColumnsKey,
-		String[] excludeColumns, String excludeColumnsKey,
-		String[] includeEmptyColumns, String includeEmptyColumnsKey,
-		boolean includeAllEmpty, String includeAllEmptyKey) {
-
-		Predicate<String> isIncludeColumns = EntityStatements.getColumnPredicate(bindings, includeColumns, includeColumnsKey);
-		Predicate<String> isExcludeColumns = EntityStatements.getColumnPredicate(bindings, excludeColumns, excludeColumnsKey);
-		Predicate<String> isIncludeEmptyColumns = EntityStatements.getColumnPredicate(bindings, includeEmptyColumns, includeEmptyColumnsKey);
-		includeAllEmpty = EntityStatements.isIncludeEmpty(bindings, includeAllEmpty, includeAllEmptyKey);
+		String entityKey, String whereKey, ColumnPredicate columnPredicate) {
 		VarNameGenerator whereKeyGen = VarNameGenerator.newInstance(KEY_WHERE_PREFIX);
 
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
@@ -438,28 +367,33 @@ public class SqlStatements {
 		sql.from(tableMeta.getTable());
 		sql.select("COUNT(*)");
 
-		Object entity = EntityStatements.getObjectOfKey(bindings, entityKey, null);
+		Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, null);
 		if (entity != null) {
 			if (entity instanceof Criteria) {
 				appendSqlWhereWithCriteria(bindings, tableMeta, sql, whereKeyGen, entity);
 			} else {
-				appendSqlWhereWithEntity(bindings, entityClass, tableMeta, sql, whereKeyGen, entity,
-					isIncludeColumns, isExcludeColumns, includeAllEmpty, isIncludeEmptyColumns);
+				appendSqlWhereWithEntity(bindings, entityClass, tableMeta, sql, whereKeyGen, entity, columnPredicate);
 			}
 		}
-		entity = EntityStatements.getObjectOfKey(bindings, whereKey, null);
+		entity = BindingValues.getBindingValueOrDefault(bindings, whereKey, null);
 		if (entity != null) {
 			if (entity instanceof Criteria) {
 				appendSqlWhereWithCriteria(bindings, tableMeta, sql, whereKeyGen, entity);
 			} else {
-				appendSqlWhereWithEntity(bindings, entityClass, tableMeta, sql, whereKeyGen, entity,
-					isIncludeColumns, isExcludeColumns, includeAllEmpty, isIncludeEmptyColumns);
+				appendSqlWhereWithEntity(bindings, entityClass, tableMeta, sql, whereKeyGen, entity, columnPredicate);
 			}
 		}
 		return sql.toSqlString();
 	}
 
-	public static String buildSelect(Map<String, Object> bindings, Class<?> entityClass, boolean byId) {
+	public static String buildSelectById(Map<String, Object> bindings, Class<?> entityClass) {
+		String entityKey = BindingKeys.ENTITY;
+		String whereKey = BindingKeys.WHERE;
+		String orderByKey = BindingKeys.ORDER_BY;
+		return buildSelectById(bindings, entityClass, entityKey, whereKey, orderByKey);
+	}
+
+	public static String buildSelectByAny(Map<String, Object> bindings, Class<?> entityClass) {
 		String entityKey = BindingKeys.ENTITY;
 		String whereKey = BindingKeys.WHERE;
 		String includeColumnsKey = BindingKeys.INCLUDE_COLUMNS;
@@ -467,123 +401,116 @@ public class SqlStatements {
 		String includeEmptyColumnsKey = BindingKeys.INCLUDE_EMPTY_COLUMNS;
 		String includeAllEmptyKey = BindingKeys.INCLUDE_EMPTY;
 		String orderByKey = BindingKeys.ORDER_BY;
-		return buildSelect(bindings, entityClass,
-			byId, entityKey, whereKey, orderByKey,
-			null, includeColumnsKey,
-			null, excludeColumnsKey,
-			null, includeEmptyColumnsKey,
-			false, includeAllEmptyKey);
+
+		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings,
+			null, includeColumnsKey, null, excludeColumnsKey,
+			null, includeEmptyColumnsKey, false, includeAllEmptyKey);
+		return buildSelectByAny(bindings, entityClass, entityKey, whereKey, orderByKey, columnPredicate);
 	}
 
 
-	public static String buildSelect(Map<String, Object> bindings, Class<?> entityClass,
-		boolean byId, String entityKey, String whereKey, String orderByKey,
-		String[] includeColumns, String includeColumnsKey,
-		String[] excludeColumns, String excludeColumnsKey,
-		String[] includeEmptyColumns, String includeEmptyColumnsKey,
-		boolean includeAllEmpty, String includeAllEmptyKey) {
+	public static String buildSelectById(Map<String, Object> bindings, Class<?> entityClass,
+		String entityKey, String whereKey, String orderByKey) {
 
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
 		SqlStatement sql = SqlStatement.of();
 		sql.from(tableMeta.getTable());
 
-		if (byId) {
-			Object entity = EntityStatements.getObjectOfKey(bindings, entityKey, null);
-			if (entity == null) {
-				entity = EntityStatements.getObjectOfKey(bindings, whereKey, Collections.emptyMap());
-			}
-			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, entityClass);
+		Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, null);
+		if (entity == null) {
+			entity = BindingValues.getBindingValueOrDefault(bindings, whereKey, Collections.emptyMap());
+		}
+		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, entityClass);
 
-			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
-				String name = entry.getKey();
-				ColumnMeta meta = entry.getValue();
-				String columnName = meta.getColumnName();
-				boolean primaryKey = meta.isPrimaryKey();
-				boolean version = meta.isVersion();
-				Object val = entityMap.get(name);
+		for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
+			String name = entry.getKey();
+			ColumnMeta meta = entry.getValue();
+			String columnName = meta.getColumnName();
+			boolean primaryKey = meta.isPrimaryKey();
+			boolean version = meta.isVersion();
+			Object val = entityMap.get(name);
 
-				sql.select(columnName + " " + name);
+			sql.select(columnName + " " + name);
 
-				if (primaryKey || version) {
-					if (val == null) {
-						sql.where(columnName + " IS NULL");
-					} else {
-						sql.where(columnName + " = #{" + KEY_WHERE_PREFIX + name + "}");
-						bindings.put(KEY_WHERE_PREFIX + name, val);
-					}
-				}
-			}
-			if (!sql.where().hasConditions()) {
-				throw new IllegalStateException("缺少条件子句");
-			}
-		} else {
-			Predicate<String> isIncludeColumns = EntityStatements.getColumnPredicate(bindings, includeColumns, includeColumnsKey);
-			Predicate<String> isExcludeColumns = EntityStatements.getColumnPredicate(bindings, excludeColumns, excludeColumnsKey);
-			Predicate<String> isIncludeEmptyColumns = EntityStatements.getColumnPredicate(bindings, includeEmptyColumns, includeEmptyColumnsKey);
-			includeAllEmpty = EntityStatements.isIncludeEmpty(bindings, includeAllEmpty, includeAllEmptyKey);
-			VarNameGenerator whereKeyGen = VarNameGenerator.newInstance(KEY_WHERE_PREFIX);
-
-			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
-				String name = entry.getKey();
-				ColumnMeta meta = entry.getValue();
-				String columnName = meta.getColumnName();
-				sql.select(columnName + " " + name);
-			}
-
-			Object entity = EntityStatements.getObjectOfKey(bindings, entityKey, null);
-			if (entity != null) {
-				if (entity instanceof Criteria) {
-					appendSqlWhereWithCriteria(bindings, tableMeta, sql, whereKeyGen, entity);
+			if (primaryKey || version) {
+				if (val == null) {
+					sql.where(columnName + " IS NULL");
 				} else {
-					appendSqlWhereWithEntity(bindings, entityClass, tableMeta, sql, whereKeyGen, entity,
-						isIncludeColumns, isExcludeColumns, includeAllEmpty, isIncludeEmptyColumns);
-				}
-			}
-			entity = EntityStatements.getObjectOfKey(bindings, whereKey, null);
-			if (entity != null) {
-				if (entity instanceof Criteria) {
-					appendSqlWhereWithCriteria(bindings, tableMeta, sql, whereKeyGen, entity);
-				} else {
-					appendSqlWhereWithEntity(bindings, entityClass, tableMeta, sql, whereKeyGen, entity,
-						isIncludeColumns, isExcludeColumns, includeAllEmpty, isIncludeEmptyColumns);
-				}
-			}
-			// 排序字段
-			Object orderByObj = EntityStatements.getObjectOfKey(bindings, orderByKey, null);
-			OrderBy orderBy = null;
-			if (orderByObj instanceof String) {
-				orderBy = Queries.newOrderBy((String) orderByObj);
-			} else if (orderByObj instanceof OrderBy) {
-				orderBy = (OrderBy) orderByObj;
-			}
-			if (orderBy != null) {
-				for (OrderBy.Item item : orderBy.getItems()) {
-					ColumnMeta columnMeta = tableMeta.getColumns().get(item.getField());
-					if (columnMeta == null) {
-						continue;
-					}
-					sql.orderBy(columnMeta.getColumnName() + " " + item.getDirection().getSqlText());
+					sql.where(columnName + " = #{" + KEY_WHERE_PREFIX + name + "}");
+					bindings.put(KEY_WHERE_PREFIX + name, val);
 				}
 			}
 		}
+		if (!sql.where().hasConditions()) {
+			throw new IllegalStateException("缺少条件子句");
+		}
+		return sql.toSqlString();
+	}
+
+	public static String buildSelectByAny(Map<String, Object> bindings, Class<?> entityClass,
+		String entityKey, String whereKey, String orderByKey, ColumnPredicate columnPredicate) {
+
+		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
+		SqlStatement sql = SqlStatement.of();
+		sql.from(tableMeta.getTable());
+
+
+		VarNameGenerator whereKeyGen = VarNameGenerator.newInstance(KEY_WHERE_PREFIX);
+
+		for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
+			String name = entry.getKey();
+			ColumnMeta meta = entry.getValue();
+			String columnName = meta.getColumnName();
+			sql.select(columnName + " " + name);
+		}
+
+		Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, null);
+		if (entity != null) {
+			if (entity instanceof Criteria) {
+				appendSqlWhereWithCriteria(bindings, tableMeta, sql, whereKeyGen, entity);
+			} else {
+				appendSqlWhereWithEntity(bindings, entityClass, tableMeta, sql, whereKeyGen, entity, columnPredicate);
+			}
+		}
+		entity = BindingValues.getBindingValueOrDefault(bindings, whereKey, null);
+		if (entity != null) {
+			if (entity instanceof Criteria) {
+				appendSqlWhereWithCriteria(bindings, tableMeta, sql, whereKeyGen, entity);
+			} else {
+				appendSqlWhereWithEntity(bindings, entityClass, tableMeta, sql, whereKeyGen, entity, columnPredicate);
+			}
+		}
+		// 排序字段
+		Object orderByObj = BindingValues.getBindingValueOrDefault(bindings, orderByKey, null);
+		OrderBy orderBy = null;
+		if (orderByObj instanceof String) {
+			orderBy = Queries.newOrderBy((String) orderByObj);
+		} else if (orderByObj instanceof OrderBy) {
+			orderBy = (OrderBy) orderByObj;
+		}
+		if (orderBy != null) {
+			for (OrderBy.Item item : orderBy.getItems()) {
+				ColumnMeta columnMeta = tableMeta.getColumns().get(item.getField());
+				if (columnMeta == null) {
+					continue;
+				}
+				sql.orderBy(columnMeta.getColumnName() + " " + item.getDirection().getSqlText());
+			}
+		}
+
 		return sql.toSqlString();
 	}
 
 	private static void appendSqlWhereWithEntity(Map<String, Object> bindings, Class<?> entityClass
 		, TableMeta tableMeta, SqlStatement sql, VarNameGenerator whereKeyGen
-		, Object entity, Predicate<String> isIncludeColumns, Predicate<String> isExcludeColumns
-		, boolean includeAllEmpty, Predicate<String> isIncludeEmptyColumns) {
+		, Object entity, ColumnPredicate columnPredicate) {
 		// 实体查询条件
 		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, entityClass);
 		for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
 			String name = entry.getKey();
 
 			// 不在包含列表
-			if (isIncludeColumns != null && !isIncludeColumns.test(name)) {
-				continue;
-			}
-			// 在排除列表
-			if (isExcludeColumns != null && isExcludeColumns.test(name)) {
+			if (!columnPredicate.isIncludedColumn(name)) {
 				continue;
 			}
 
@@ -594,9 +521,8 @@ public class SqlStatements {
 			if (Objs.isNotEmpty(val)) {
 				appendSqlWhereWithVal(bindings, sql, meta, val, whereKeyGen.generate());
 			} else {
-				boolean include =
-					// 需要包含空值字段
-					includeAllEmpty || (isIncludeEmptyColumns != null && isIncludeEmptyColumns.test(name));
+				// 需要包含空值字段
+				boolean include = columnPredicate.isIncludedEmptyColumn(name);
 				if (include) {
 					sql.where(columnName + " IS NULL");
 				}
@@ -634,7 +560,7 @@ public class SqlStatements {
 		// 日期字段
 		if (Date.class.isAssignableFrom(fieldType)) {
 			// 两个元素的日期类字段特殊处理，认为是日期范围条件
-			Date[] range = EntityStatements.extractDateRange(val);
+			Date[] range = BindingValues.getDateRangeOrNull(val);
 			if (range != null) {
 				Date start = range[0];
 				Date end = range[1];

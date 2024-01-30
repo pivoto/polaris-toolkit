@@ -17,7 +17,7 @@ class MergeStatementTest {
 				.where()
 //				.rawColumn("rownum").apply("rownum <= 1").end()
 				.rawColumn("rownum").apply("${ref} <= 1").end()
-				.andRaw("rownum < 2")
+				.raw("rownum < 2")
 				.end()
 			, "s");
 

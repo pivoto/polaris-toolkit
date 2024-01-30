@@ -1,6 +1,15 @@
 package io.polaris.core.jdbc.sql.statement.segment;
 
+import java.util.Map;
+
+import io.polaris.core.annotation.AnnotationProcessing;
+import io.polaris.core.consts.StdConsts;
+import io.polaris.core.jdbc.sql.node.SqlNode;
+import io.polaris.core.jdbc.sql.node.SqlNodes;
 import io.polaris.core.jdbc.sql.statement.BaseSegment;
+import io.polaris.core.jdbc.sql.statement.Segment;
+import io.polaris.core.jdbc.sql.statement.expression.Expression;
+import io.polaris.core.jdbc.sql.statement.expression.Expressions;
 import io.polaris.core.reflect.GetterFunction;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.string.Strings;
@@ -9,17 +18,25 @@ import io.polaris.core.string.Strings;
  * @author Qt
  * @since 1.8,  Aug 20, 2023
  */
-public class ColumnSegment<S extends ColumnSegment<S>> extends BaseSegment<S> {
+@AnnotationProcessing
+public class ColumnSegment<O extends Segment<O>,S extends ColumnSegment<O,S>> extends BaseSegment<S> {
 
+	private final O owner;
 	private final TableSegment<?> table;
 	private String field;
 	private transient String _rawColumn;
 	private Object value;
+	/** 表达式 */
+	private ExpressionSegment<?> expression;
 
-	public <T extends TableSegment<?>> ColumnSegment(T table) {
+	public <T extends TableSegment<?>> ColumnSegment(O owner,T table) {
+		this.owner = owner;
 		this.table = table;
 	}
 
+	public O end() {
+		return owner;
+	}
 
 	public <T, R> S column(GetterFunction<T, R> getter) {
 		return column(Reflects.getPropertyName(getter));
@@ -40,12 +57,67 @@ public class ColumnSegment<S extends ColumnSegment<S>> extends BaseSegment<S> {
 		return getThis();
 	}
 
+	public S apply(String functionPattern, String[] extFieldNames, Map<String, Object> bindings) {
+		return apply(Expressions.pattern(functionPattern), extFieldNames, bindings);
+	}
+
+	public S apply(String functionPattern, String[] extFieldNames, Object... bindings) {
+		return apply(Expressions.pattern(functionPattern), extFieldNames, bindings);
+	}
+
+	public S apply(String functionPattern) {
+		return apply(Expressions.pattern(functionPattern));
+	}
+
+	public S apply(String functionPattern, Map<String, Object> bindings) {
+		return apply(Expressions.pattern(functionPattern), bindings);
+	}
+
+	public S apply(Expression function, String[] extFieldNames, Map<String, Object> bindings) {
+		TableField[] extFields = extFieldNames == null ? new TableField[0] : new TableField[extFieldNames.length];
+		for (int i = 0; i < extFields.length; i++) {
+			extFields[i] = TableField.of(0, extFieldNames[i]);
+		}
+		this.expression = new ExpressionSegment<>(this.expression, this.table.toTableAccessible(), extFields, function, bindings);
+		return getThis();
+	}
+
+	public S apply(Expression function, String[] extFieldNames, Object... bindings) {
+		TableField[] extFields = extFieldNames == null ? new TableField[0] : new TableField[extFieldNames.length];
+		for (int i = 0; i < extFields.length; i++) {
+			extFields[i] = TableField.of(0, extFieldNames[i]);
+		}
+		this.expression = new ExpressionSegment<>(this.expression, this.table.toTableAccessible(), extFields, function, bindings);
+		return getThis();
+	}
+
+	public S apply(Expression function) {
+		this.expression = new ExpressionSegment<>(this.expression, function, StdConsts.EMPTY_ARRAY);
+		return getThis();
+	}
+
+	public S apply(Expression function, Map<String, Object> bindings) {
+		this.expression = new ExpressionSegment<>(this.expression, function, bindings);
+		return getThis();
+	}
+
 	public TableSegment<?> getTable() {
 		return table;
 	}
 
-	public Object getColumnValue() {
-		return value;
+	public SqlNode toValueSqlNode() {
+		if (this.expression != null) {
+			return this.expression.toSqlNode(name());
+		}
+		Object columnValue = this.value;
+		if (columnValue instanceof SqlNode) {
+			return (SqlNode) columnValue;
+		}
+		if (columnValue == null) {
+			return SqlNodes.mixed(name(), null);
+		} else {
+			return SqlNodes.dynamic(name(), columnValue);
+		}
 	}
 
 	public String getColumnName() {

@@ -17,9 +17,9 @@ import java.lang.annotation.Target;
 @Inherited
 public @interface JoinColumn {
 
-	String field() default "";
+	String tableAlias();
 
-	String tableAlias() default "";
+	String tableField();
 
 	Condition[] condition() default {};
 }

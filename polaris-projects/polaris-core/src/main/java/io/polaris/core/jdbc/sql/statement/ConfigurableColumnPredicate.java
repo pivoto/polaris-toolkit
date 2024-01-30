@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import io.polaris.core.collection.Iterables;
-import io.polaris.core.jdbc.sql.EntityStatements;
+import io.polaris.core.jdbc.sql.BindingValues;
 import io.polaris.core.string.Strings;
 
 /**
@@ -36,6 +36,7 @@ public class ConfigurableColumnPredicate implements ColumnPredicate {
 			toPredicate(includeEmptyColumns),
 			includeAllEmpty);
 	}
+
 	public static ColumnPredicate of(Predicate<String> isIncludeEmptyColumns) {
 		return new ConfigurableColumnPredicate(null, null, isIncludeEmptyColumns, false);
 	}
@@ -53,11 +54,19 @@ public class ConfigurableColumnPredicate implements ColumnPredicate {
 		return new ConfigurableColumnPredicate(isIncludeColumns, isExcludeColumns, isIncludeEmptyColumns, includeAllEmpty);
 	}
 
+	public static ColumnPredicate of(Map<String, Object> bindings, io.polaris.core.jdbc.sql.annotation.segment.ColumnPredicate predicate) {
+		return ConfigurableColumnPredicate.of(bindings,
+			predicate.includeColumns(), predicate.includeColumnsKey(),
+			predicate.excludeColumns(), predicate.excludeColumnsKey(),
+			predicate.includeEmptyColumns(), predicate.includeEmptyColumnsKey(),
+			predicate.includeAllEmpty(), predicate.includeAllEmptyKey());
+	}
+
 
 	public static boolean toBoolean(Map<String, Object> bindings, boolean includeAllEmpty, String includeAllEmptyKey) {
 		if (!includeAllEmpty) {
 			if (Strings.isNotBlank(includeAllEmptyKey)) {
-				Object val = EntityStatements.getObjectOfKey(bindings, includeAllEmptyKey, null);
+				Object val = BindingValues.getBindingValueOrDefault(bindings, includeAllEmptyKey, null);
 				if (val instanceof Boolean) {
 					includeAllEmpty = ((Boolean) val).booleanValue();
 				}
@@ -78,7 +87,7 @@ public class ConfigurableColumnPredicate implements ColumnPredicate {
 		Predicate<String> predicate = null;
 		if (columns == null || columns.length == 0) {
 			if (Strings.isNotBlank(keyColumns)) {
-				Object val = EntityStatements.getObjectOfKey(bindings, keyColumns, null);
+				Object val = BindingValues.getBindingValueOrDefault(bindings, keyColumns, null);
 				if (val instanceof String[]) {
 					columns = (String[]) val;
 				}

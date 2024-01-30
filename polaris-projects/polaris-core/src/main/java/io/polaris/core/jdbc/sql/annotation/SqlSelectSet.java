@@ -19,7 +19,15 @@ import io.polaris.core.jdbc.sql.consts.SelectSetOps;
 @Inherited
 public @interface SqlSelectSet {
 
+	/**
+	 * @return 集合子句
+	 */
 	Item[] value();
+
+	/**
+	 * @return 标识是否转为`count`语句
+	 */
+	boolean count() default false;
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})

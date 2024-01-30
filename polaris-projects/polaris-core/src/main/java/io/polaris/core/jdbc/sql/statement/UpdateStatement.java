@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 import io.polaris.core.annotation.AnnotationProcessing;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.TableMeta;
-import io.polaris.core.jdbc.sql.EntityStatements;
+import io.polaris.core.jdbc.sql.BindingValues;
 import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
@@ -28,11 +28,12 @@ import io.polaris.core.lang.bean.Beans;
  * @author Qt
  * @since 1.8,  Aug 20, 2023
  */
+@SuppressWarnings("unused")
 @AnnotationProcessing
 public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement<S> {
 
-	private TableSegment<?> table;
-	private final List<ColumnSegment<?>> columns = new ArrayList<>();
+	private final TableSegment<?> table;
+	private final List<ColumnSegment<S, ?>> columns = new ArrayList<>();
 	private AndSegment<S, ?> where;
 	private final Function<String, String> columnDiscovery;
 	private final List<Criteria> criteriaList = new ArrayList<>();
@@ -94,7 +95,7 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 	private void sqlSet(ContainerNode sql) {
 		if (!this.columns.isEmpty()) {
 			boolean first = true;
-			for (ColumnSegment<?> column : this.columns) {
+			for (ColumnSegment<S, ?> column : this.columns) {
 				if (!sql.isEmpty()) {
 					sql.addNode(SqlNodes.LF);
 				}
@@ -106,16 +107,7 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 				}
 				String columnName = column.getColumnName();
 				sql.addNode(new TextNode(columnName + " = "));
-				Object columnValue = column.getColumnValue();
-				if (columnValue instanceof SqlNode) {
-					sql.addNode((SqlNode) columnValue);
-				} else {
-					if (columnValue == null) {
-						sql.addNode(SqlNodes.mixed(columnName, null));
-					} else {
-						sql.addNode(SqlNodes.dynamic(columnName, columnValue));
-					}
-				}
+				sql.addNode(column.toValueSqlNode());
 			}
 		}
 	}
@@ -156,17 +148,33 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 	}
 
 	public S withEntity(Object entity) {
-		return withEntity(entity, null,null,false, null);
+		return withEntity(entity, ColumnPredicate.DEFAULT);
 	}
 
-	public S withEntity(Object entity, Predicate<String> includeEntityNulls) {
-		return withEntity(entity, null,null,false, includeEntityNulls);
+	public S withEntity(Object entity, Predicate<String> isIncludeEmptyColumns) {
+		return withEntity(entity, ConfigurableColumnPredicate.of(isIncludeEmptyColumns));
+	}
+
+	public S withEntity(Object entity, String[] includeEmptyColumns) {
+		return withEntity(entity, ConfigurableColumnPredicate.of(includeEmptyColumns));
 	}
 
 	public S withEntity(Object entity, Predicate<String> isIncludeColumns, Predicate<String> isExcludeColumns
-		, boolean includeAllEmpty, Predicate<String> isIncludeEmptyColumns) {
+		, Predicate<String> isIncludeEmptyColumns, boolean includeAllEmpty) {
+		return withEntity(entity, ConfigurableColumnPredicate.of(
+			isIncludeColumns, isExcludeColumns, isIncludeEmptyColumns, includeAllEmpty));
+	}
+
+	public S withEntity(Object entity, String[] includeColumns, String[] excludeColumns
+		, String[] includeEmptyColumns, boolean includeAllEmpty) {
+		return withEntity(entity, ConfigurableColumnPredicate.of(
+			includeColumns, excludeColumns, includeEmptyColumns, includeAllEmpty));
+	}
+
+	public S withEntity(Object entity, ColumnPredicate columnPredicate) {
 		TableMeta tableMeta = this.table.getTableMeta();
 		if (tableMeta != null) {
+			@SuppressWarnings("unchecked")
 			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, tableMeta.getEntityClass());
 
 			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
@@ -181,22 +189,17 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 					continue;
 				}
 				// 不在包含列表
-				if (isIncludeColumns != null && !isIncludeColumns.test(name)) {
+				if (!columnPredicate.isIncludedColumn(name)) {
 					continue;
 				}
-				// 在排除列表
-				if (isExcludeColumns != null && isExcludeColumns.test(name)) {
-					continue;
-				}
-				Object val = EntityStatements.getValForUpdate(entityMap, meta);
+				Object val1 = entityMap.get(meta.getFieldName());
+				Object val = BindingValues.getValueForUpdate(meta, val1);
 				if (meta.isVersion()) {
 					val = Objs.isEmpty(val) ? 1L : ((Number) val).longValue() + 1;
 				}
-				boolean include =
-					// 需要包含空值字段
-					includeAllEmpty || (isIncludeEmptyColumns != null && isIncludeEmptyColumns.test(name))
-						// 非空值
-						|| Objs.isNotEmpty(val);
+
+				// 需要包含空值字段或非空值
+				boolean include = columnPredicate.isIncludedEmptyColumn(name) || Objs.isNotEmpty(val);
 				if (include) {
 					this.column(name, val);
 				}
@@ -205,9 +208,22 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 		return getThis();
 	}
 
+	private ColumnSegment<S, ?> buildColumnSegment() {
+		return new ColumnSegment<>(getThis(), this.table);
+	}
+
+	@SuppressWarnings("unchecked")
+	@AnnotationProcessing
+	public <C extends ColumnSegment<S, C>> C column(String field) {
+		ColumnSegment<S, ?> column = buildColumnSegment();
+		column.column(field);
+		this.columns.add(column);
+		return (C) column;
+	}
+
 	@AnnotationProcessing
 	public S column(String field, Object value) {
-		ColumnSegment<?> column = new ColumnSegment<>(this.table);
+		ColumnSegment<S, ?> column = buildColumnSegment();
 		column.column(field).value(value);
 		this.columns.add(column);
 		return getThis();
@@ -216,7 +232,7 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 	@AnnotationProcessing
 	public S column(String field, Object value, BiPredicate<String, Object> predicate) {
 		if (predicate.test(field, value)) {
-			ColumnSegment<?> column = new ColumnSegment<>(this.table);
+			ColumnSegment<S, ?> column = buildColumnSegment();
 			column.column(field).value(value);
 			this.columns.add(column);
 		}
@@ -226,7 +242,7 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 	@AnnotationProcessing
 	public S column(String field, Object value, Supplier<Boolean> predicate) {
 		if (Boolean.TRUE.equals(predicate.get())) {
-			ColumnSegment<?> column = new ColumnSegment<>(this.table);
+			ColumnSegment<S, ?> column = buildColumnSegment();
 			column.column(field).value(value);
 			this.columns.add(column);
 		}
@@ -234,15 +250,16 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 	}
 
 	public S columnRaw(String rawColumn, Object value) {
-		ColumnSegment<?> column = new ColumnSegment<>(this.table);
+		ColumnSegment<S, ?> column = buildColumnSegment();
 		column.rawColumn(rawColumn).value(value);
 		this.columns.add(column);
 		return getThis();
 	}
 
+
 	public S columnRaw(String rawColumn, Object value, BiPredicate<String, Object> predicate) {
 		if (predicate.test(rawColumn, value)) {
-			ColumnSegment<?> column = new ColumnSegment<>(this.table);
+			ColumnSegment<S, ?> column = buildColumnSegment();
 			column.rawColumn(rawColumn).value(value);
 			this.columns.add(column);
 		}
@@ -251,7 +268,7 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 
 	public S columnRaw(String rawColumn, Object value, Supplier<Boolean> predicate) {
 		if (Boolean.TRUE.equals(predicate.get())) {
-			ColumnSegment<?> column = new ColumnSegment<>(this.table);
+			ColumnSegment<S, ?> column = buildColumnSegment();
 			column.rawColumn(rawColumn).value(value);
 			this.columns.add(column);
 		}
