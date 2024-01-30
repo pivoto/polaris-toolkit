@@ -17,15 +17,15 @@ public interface EntityCountMapper<E> extends EntityMapper<E> {
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.countEntity)
 	int countEntity(@Param(BindingKeys.WHERE) E entity
-		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) Boolean includeWhereNulls);
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) Boolean includeWhereEmptyVal);
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.countEntity)
 	int countEntityByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
-		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) Boolean includeWhereNulls);
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) Boolean includeWhereEmptyVal);
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.countEntity)
 	int countEntityByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
-		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) Boolean includeWhereNulls);
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) Boolean includeWhereEmptyVal);
 
 
 	default int countEntity(E entity) {

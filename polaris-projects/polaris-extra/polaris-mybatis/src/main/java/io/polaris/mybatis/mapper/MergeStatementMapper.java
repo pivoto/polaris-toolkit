@@ -2,6 +2,7 @@ package io.polaris.mybatis.mapper;
 
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.EntityStatements;
+import io.polaris.core.jdbc.sql.statement.ColumnPredicate;
 import io.polaris.core.jdbc.sql.statement.MergeStatement;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
@@ -21,7 +22,7 @@ public interface MergeStatementMapper {
 
 	default <E> int mergeBySql(Class<E> entityClass, E entity, boolean includeAllEmpty) {
 		MergeStatement<?> st = new MergeStatement<>(entityClass, EntityStatements.DEFAULT_TABLE_ALIAS);
-		st.withEntity(entity, null, null, includeAllEmpty, null);
+		st.withEntity(entity, true,true,includeAllEmpty?ColumnPredicate.ALL:ColumnPredicate.DEFAULT);
 		return mergeBySql(st);
 	}
 
@@ -33,7 +34,7 @@ public interface MergeStatementMapper {
 
 	default <E> int mergeBySql(Class<E> entityClass, E entity, boolean includeAllEmpty, boolean updateWhenMatched, boolean insertWhenNotMatched) {
 		MergeStatement<?> st = new MergeStatement<>(entityClass, EntityStatements.DEFAULT_TABLE_ALIAS);
-		st.withEntity(entity, updateWhenMatched, insertWhenNotMatched, null, null, includeAllEmpty, null);
+		st.withEntity(entity, updateWhenMatched, insertWhenNotMatched, includeAllEmpty?ColumnPredicate.ALL:ColumnPredicate.DEFAULT);
 		return mergeBySql(st);
 	}
 

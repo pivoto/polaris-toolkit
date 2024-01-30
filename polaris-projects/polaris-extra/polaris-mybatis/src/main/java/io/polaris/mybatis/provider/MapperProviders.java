@@ -51,9 +51,12 @@ public class MapperProviders {
 		return methods.get(name);
 	}
 
+	/**
+	 * @see AnyEntityProvider
+	 */
 	@Published
 	public static String provideSql(Map<String, Object> map, ProviderContext context) {
-		return BaseEntityProvider.provideSql(map, context);
+		return AnyEntityProvider.provideSql(map, context);
 	}
 
 

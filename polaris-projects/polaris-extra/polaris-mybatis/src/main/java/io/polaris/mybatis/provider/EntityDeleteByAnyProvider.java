@@ -1,20 +1,26 @@
 package io.polaris.mybatis.provider;
 
+import java.util.Map;
+
 import io.polaris.core.annotation.Published;
 import io.polaris.core.jdbc.sql.SqlStatements;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.builder.annotation.ProviderContext;
-
-import java.util.Map;
 
 /**
  * @author Qt
  * @since 1.8,  Sep 11, 2023
  */
-public class EntityDeleteByAnyProvider extends BaseProviderMethodResolver{
+@Slf4j
+public class EntityDeleteByAnyProvider extends BaseProviderMethodResolver {
 
 	@Published
 	public static String provideSql(Map<String, Object> map, ProviderContext context) {
-		return SqlStatements.buildDelete(map, getEntityClass(context), false);
+		String sql = SqlStatements.buildDeleteByAny(map, getEntityClass(context));
+		if (log.isDebugEnabled()) {
+			log.debug("Sql: {}, Vars: {}", sql, map);
+		}
+		return sql;
 	}
 
 }
