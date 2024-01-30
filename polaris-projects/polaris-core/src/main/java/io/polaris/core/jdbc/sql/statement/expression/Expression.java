@@ -1,11 +1,11 @@
 package io.polaris.core.jdbc.sql.statement.expression;
 
-import io.polaris.core.jdbc.sql.node.SqlNode;
-import io.polaris.core.jdbc.sql.node.TextNode;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import io.polaris.core.jdbc.sql.node.SqlNode;
+import io.polaris.core.jdbc.sql.node.TextNode;
 
 /**
  * @author Qt
@@ -14,9 +14,22 @@ import java.util.Map;
 @FunctionalInterface
 public interface Expression {
 
+	/**
+	 * @param baseSource 原引用表达式或字段
+	 * @param extSources 扩展引用表达式或字段
+	 * @param bindings   绑定参数
+	 * @return
+	 */
 	SqlNode toSqlNode(SqlNode baseSource, SqlNode[] extSources, Map<String, Object> bindings);
 
+	/**
+	 * @param baseSource 原引用表达式或字段
+	 * @param extSources 扩展引用表达式或字段
+	 * @param bindings   绑定参数
+	 * @return
+	 */
 	default SqlNode toSqlNode(SqlNode baseSource, SqlNode[] extSources, Object[] bindings) {
+		// 默认将绑定数组转为map
 		if (bindings != null && bindings.length > 0) {
 			Map<String, Object> map = new HashMap<>();
 			for (int i = 0; i < bindings.length; i++) {

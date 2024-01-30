@@ -33,6 +33,16 @@ public class BindingValues {
 				val = Converters.convertQuietly(meta.getFieldType(), insertDefault);
 			}
 		}
+		if (val == null) {
+			if (meta.isVersion()){
+				val = Converters.convertQuietly(meta.getFieldType(), 1L);
+			}
+		}
+		if (val == null) {
+			if (meta.isLogicDeleted()){
+				val = Converters.convertQuietly(meta.getFieldType(), false);
+			}
+		}
 		return val;
 	}
 	public static Object getValueForUpdate(ColumnMeta meta,Object val){
@@ -127,4 +137,5 @@ public class BindingValues {
 		}
 		return bindings.getOrDefault(key, defVal);
 	}
+
 }

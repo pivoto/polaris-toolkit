@@ -178,7 +178,7 @@ public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement
 				Object val1 = entityMap.get(meta.getFieldName());
 				Object val = BindingValues.getValueForInsert(meta, val1);
 				if (meta.isVersion()) {
-					val = val == null ? 1L : ((Number) val).longValue() + 1;
+					val = val == null ? 1L : ((Number) val).longValue();
 				}
 				// 需要包含空值字段,或为非空值
 				boolean include = columnPredicate.isIncludedEmptyColumn(name) || Objs.isNotEmpty(val);

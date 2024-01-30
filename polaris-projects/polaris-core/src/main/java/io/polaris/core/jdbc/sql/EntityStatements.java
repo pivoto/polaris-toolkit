@@ -888,18 +888,22 @@ public class EntityStatements {
 		}
 		{
 			BindingKey[] between = criterion.between();
-			Tuple1<?> val0 = getValForBindingKey(bindings, between[0]);
-			Tuple1<?> val1 = getValForBindingKey(bindings, between[1]);
-			if (val1 != null && val1 != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).between(val0, val1);
+			if (between.length >= 2) {
+				Tuple1<?> val0 = getValForBindingKey(bindings, between[0]);
+				Tuple1<?> val1 = getValForBindingKey(bindings, between[1]);
+				if (val1 != null && val1 != null) {
+					newCriterionSegmentWithFunction(bindings, ws, criterion).between(val0, val1);
+				}
 			}
 		}
 		{
 			BindingKey[] notBetween = criterion.notBetween();
-			Tuple1<?> val0 = getValForBindingKey(bindings, notBetween[0]);
-			Tuple1<?> val1 = getValForBindingKey(bindings, notBetween[1]);
-			if (val1 != null && val1 != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).notBetween(val0, val1);
+			if (notBetween.length >= 2) {
+				Tuple1<?> val0 = getValForBindingKey(bindings, notBetween[0]);
+				Tuple1<?> val1 = getValForBindingKey(bindings, notBetween[1]);
+				if (val1 != null && val1 != null) {
+					newCriterionSegmentWithFunction(bindings, ws, criterion).notBetween(val0, val1);
+				}
 			}
 		}
 		{
@@ -1309,18 +1313,22 @@ public class EntityStatements {
 		}
 		{
 			BindingKey[] between = criterion.between();
-			Tuple1<?> val0 = getValForBindingKey(bindings, between[0]);
-			Tuple1<?> val1 = getValForBindingKey(bindings, between[1]);
-			if (val1 != null && val1 != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).between(val0, val1);
+			if (between.length >= 2) {
+				Tuple1<?> val0 = getValForBindingKey(bindings, between[0]);
+				Tuple1<?> val1 = getValForBindingKey(bindings, between[1]);
+				if (val1 != null && val1 != null) {
+					newSubCriterionSegmentWithFunction(bindings, ws, criterion).between(val0, val1);
+				}
 			}
 		}
 		{
 			BindingKey[] notBetween = criterion.notBetween();
-			Tuple1<?> val0 = getValForBindingKey(bindings, notBetween[0]);
-			Tuple1<?> val1 = getValForBindingKey(bindings, notBetween[1]);
-			if (val1 != null && val1 != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).notBetween(val0, val1);
+			if (notBetween.length >= 2) {
+				Tuple1<?> val0 = getValForBindingKey(bindings, notBetween[0]);
+				Tuple1<?> val1 = getValForBindingKey(bindings, notBetween[1]);
+				if (val1 != null && val1 != null) {
+					newSubCriterionSegmentWithFunction(bindings, ws, criterion).notBetween(val0, val1);
+				}
 			}
 		}
 		{

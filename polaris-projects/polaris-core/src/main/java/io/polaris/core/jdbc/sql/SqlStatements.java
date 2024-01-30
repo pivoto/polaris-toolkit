@@ -72,7 +72,7 @@ public class SqlStatements {
 			Object val1 = entityMap.get(meta.getFieldName());
 			Object val = BindingValues.getValueForInsert(meta, val1);
 			if (meta.isVersion()) {
-				val = val == null ? 1L : ((Number) val).longValue() + 1;
+				val = val == null ? 1L : ((Number) val).longValue();
 			}
 			if (Objs.isNotEmpty(val)) {
 				sql.columnAndValue(columnName, "#{" + KEY_VALUE_PREFIX + name + "}");

@@ -1,13 +1,14 @@
 package io.polaris.core.jdbc.sql.statement.expression;
 
-import io.polaris.core.jdbc.sql.node.SqlNode;
-
 import java.util.Map;
+
+import io.polaris.core.jdbc.sql.node.SqlNode;
 
 /**
  * @author Qt
  * @since 1.8,  Aug 22, 2023
  */
+@SuppressWarnings("all")
 public enum LogicalExpression implements Expression {
 	IS_NULL(Expressions.pattern("${ref} IS NULL")),
 	NOT_NULL(Expressions.pattern("${ref} IS NOT NULL")),
@@ -26,12 +27,18 @@ public enum LogicalExpression implements Expression {
 	LARGE_IN(LargeInExpression.DEFAULT),
 	LARGE_NOT_IN(LargeNotInExpression.DEFAULT),
 
-	CONTAINS(Expressions.pattern("${ref} LIKE '%${0}%'")),
-	STARTS_WITH(Expressions.pattern("${ref} LIKE '${0}%'")),
-	ENDS_WITH(Expressions.pattern("${ref} LIKE '%${0}'")),
-	NOT_CONTAINS(Expressions.pattern("${ref} NOT LIKE '%${0}%'")),
-	NOT_STARTS_WITH(Expressions.pattern("${ref} NOT LIKE '${0}%'")),
-	NOT_ENDS_WITH(Expressions.pattern("${ref} NOT LIKE '%${0}'")),
+	CONTAINS(LikeExpression.CONTAINS),
+	STARTS_WITH(LikeExpression.STARTS_WITH),
+	ENDS_WITH(LikeExpression.ENDS_WITH),
+	NOT_CONTAINS(LikeExpression.NOT_CONTAINS),
+	NOT_STARTS_WITH(LikeExpression.NOT_STARTS_WITH),
+	NOT_ENDS_WITH(LikeExpression.NOT_ENDS_WITH),
+//	CONTAINS(Expressions.pattern("${ref} LIKE '%${0}%'")),
+//	STARTS_WITH(Expressions.pattern("${ref} LIKE '${0}%'")),
+//	ENDS_WITH(Expressions.pattern("${ref} LIKE '%${0}'")),
+//	NOT_CONTAINS(Expressions.pattern("${ref} NOT LIKE '%${0}%'")),
+//	NOT_STARTS_WITH(Expressions.pattern("${ref} NOT LIKE '${0}%'")),
+//	NOT_ENDS_WITH(Expressions.pattern("${ref} NOT LIKE '%${0}'")),
 
 	LIKE(Expressions.pattern("${ref} LIKE #{0}")),
 	NOT_LIKE(Expressions.pattern("${ref} NOT LIKE #{0}")),
