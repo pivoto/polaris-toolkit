@@ -8,7 +8,6 @@ import org.slf4j.Logger;
  * @since 1.8,  Aug 04, 2023
  */
 public class Slf4jLogger implements ILogger {
-	private static String FQCN = Slf4jLogger.class.getName();
 
 	private Logger log;
 

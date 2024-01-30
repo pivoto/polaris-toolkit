@@ -8,12 +8,12 @@ import java.util.StringJoiner;
  * @author Qt
  * @since 1.8
  */
-public class Loggers {
-	private static String FQCN = Loggers.class.getName();
+public class Slf4jLoggers {
+	private static String FQCN = Slf4jLoggers.class.getName();
 	private static String DFT_NAME;
 
 	static {
-		String[] arr = Loggers.class.getPackage().getName().split("\\.");
+		String[] arr = Slf4jLoggers.class.getPackage().getName().split("\\.");
 		StringJoiner joiner = new StringJoiner(".");
 		joiner.add(arr[0]);
 		if (arr.length > 1) {

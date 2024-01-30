@@ -8,7 +8,7 @@ import org.slf4j.spi.LocationAwareLogger;
  * @since 1.8,  Aug 04, 2023
  */
 public class Slf4jAwareLogger implements ILogger {
-	private static String FQCN = Loggers.class.getName();
+	private static final String FQCN = Slf4jAwareLogger.class.getName();
 
 	private LocationAwareLogger log;
 

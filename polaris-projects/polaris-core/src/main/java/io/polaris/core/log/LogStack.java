@@ -1,6 +1,5 @@
 package io.polaris.core.log;
 
-import org.apache.logging.log4j.ThreadContext;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -16,7 +15,7 @@ public class LogStack {
 
 	static {
 		try {
-			ThreadContext.peek(); // 执行log4j2的方法, 确定可用
+			org.apache.logging.log4j.ThreadContext.peek(); // 执行log4j2的方法, 确定可用
 			iStack = new Log4j2Stack();
 		} catch (Throwable e) {
 			iStack = new Slf4jStack();
