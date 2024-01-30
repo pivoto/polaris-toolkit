@@ -18,7 +18,7 @@ public class EntityDeleteByAnyProvider extends BaseProviderMethodResolver {
 	public static String provideSql(Map<String, Object> map, ProviderContext context) {
 		String sql = SqlStatements.buildDeleteByAny(map, getEntityClass(context));
 		if (log.isDebugEnabled()) {
-			log.debug("Sql: {}, Vars: {}", sql, map);
+			log.debug("<sql>\n{}\n<bindings>\n{}", sql, map);
 		}
 		return sql;
 	}

@@ -32,10 +32,10 @@ import org.apache.ibatis.builder.annotation.ProviderContext;
 public class AnyEntityProvider extends BaseProviderMethodResolver {
 
 	@Published
-	public static String provideSql(Map<String, Object> bindings, ProviderContext context) {
-		String sql = doProvideSql(bindings, context);
+	public static String provideSql(Map<String, Object> map, ProviderContext context) {
+		String sql = doProvideSql(map, context);
 		if (log.isDebugEnabled()) {
-			log.debug("Sql: {}, Vars: {}", sql, bindings);
+			log.debug("<sql>\n{}\n<bindings>\n{}", sql, map);
 		}
 		return sql;
 	}
