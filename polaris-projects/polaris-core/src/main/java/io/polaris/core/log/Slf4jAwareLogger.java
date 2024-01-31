@@ -1,6 +1,5 @@
 package io.polaris.core.log;
 
-import io.polaris.core.collection.ObjectArrays;
 import org.slf4j.spi.LocationAwareLogger;
 
 /**
@@ -44,7 +43,7 @@ public class Slf4jAwareLogger implements ILogger {
 
 	@Override
 	public void trace(String msg) {
-		trace(msg, ObjectArrays.EMPTY, null);
+		trace("{}", new Object[]{msg}, null);
 	}
 
 	@Override
@@ -54,7 +53,7 @@ public class Slf4jAwareLogger implements ILogger {
 
 	@Override
 	public void trace(String msg, Throwable t) {
-		trace(msg, ObjectArrays.EMPTY, t);
+		trace("{}", new Object[]{msg}, t);
 	}
 
 	@Override
@@ -71,7 +70,7 @@ public class Slf4jAwareLogger implements ILogger {
 
 	@Override
 	public void debug(String msg) {
-		debug(msg, ObjectArrays.EMPTY, null);
+		debug("{}", new Object[]{msg}, null);
 	}
 
 	@Override
@@ -81,7 +80,7 @@ public class Slf4jAwareLogger implements ILogger {
 
 	@Override
 	public void debug(String msg, Throwable t) {
-		debug(msg, ObjectArrays.EMPTY, t);
+		debug("{}", new Object[]{msg}, t);
 	}
 
 	@Override
@@ -98,7 +97,7 @@ public class Slf4jAwareLogger implements ILogger {
 
 	@Override
 	public void info(String msg) {
-		info(msg, ObjectArrays.EMPTY, null);
+		info("{}", new Object[]{msg}, null);
 	}
 
 	@Override
@@ -108,7 +107,7 @@ public class Slf4jAwareLogger implements ILogger {
 
 	@Override
 	public void info(String msg, Throwable t) {
-		info(msg, ObjectArrays.EMPTY, t);
+		info("{}", new Object[]{msg}, t);
 	}
 
 	@Override
@@ -125,7 +124,7 @@ public class Slf4jAwareLogger implements ILogger {
 
 	@Override
 	public void warn(String msg) {
-		warn(msg, ObjectArrays.EMPTY, null);
+		warn("{}", new Object[]{msg}, null);
 	}
 
 	@Override
@@ -135,7 +134,7 @@ public class Slf4jAwareLogger implements ILogger {
 
 	@Override
 	public void warn(String msg, Throwable t) {
-		warn(msg, ObjectArrays.EMPTY, t);
+		warn("{}", new Object[]{msg}, t);
 	}
 
 	@Override
@@ -152,7 +151,7 @@ public class Slf4jAwareLogger implements ILogger {
 
 	@Override
 	public void error(String msg) {
-		error(msg, ObjectArrays.EMPTY, null);
+		error("{}", new Object[]{msg}, null);
 	}
 
 	@Override
@@ -162,7 +161,7 @@ public class Slf4jAwareLogger implements ILogger {
 
 	@Override
 	public void error(String msg, Throwable t) {
-		error(msg, ObjectArrays.EMPTY, t);
+		error("{}", new Object[]{msg}, t);
 	}
 
 

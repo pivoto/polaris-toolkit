@@ -135,8 +135,8 @@ public class DemoMapperTest {
 				map.put("id1",1L);
 				map.put("id2",1L);
 				map.put("name","org");
-				List<DemoOrgEntity> rs = mapper.selectOrgListByAny2(map);
-				log.warn("执行结果：{}", rs);
+				log.warn("执行结果：{}", mapper.selectOrgListByAny2(map));
+				log.warn("执行结果：{}", mapper.selectOrgListByAny2(map));
 			}
 		});
 	}

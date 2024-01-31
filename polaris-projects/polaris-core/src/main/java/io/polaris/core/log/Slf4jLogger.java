@@ -58,7 +58,11 @@ public class Slf4jLogger implements ILogger {
 	@Override
 	public void trace(String msg, Object[] arguments, Throwable t) {
 		if (log != null && log.isTraceEnabled()) {
-			log.trace(msg, arguments);
+			if (arguments == null || arguments.length == 0) {
+				log.trace(msg);
+			} else {
+				log.trace(msg, arguments);
+			}
 			if (t != null) {
 				log.trace("", t);
 			}
@@ -88,7 +92,11 @@ public class Slf4jLogger implements ILogger {
 	@Override
 	public void debug(String msg, Object[] arguments, Throwable t) {
 		if (log != null && log.isDebugEnabled()) {
-			log.debug(msg, arguments);
+			if (arguments == null || arguments.length == 0) {
+				log.debug(msg);
+			} else {
+				log.debug(msg, arguments);
+			}
 			if (t != null) {
 				log.debug("", t);
 			}
@@ -118,7 +126,11 @@ public class Slf4jLogger implements ILogger {
 	@Override
 	public void info(String msg, Object[] arguments, Throwable t) {
 		if (log != null && log.isInfoEnabled()) {
-			log.info(msg, arguments);
+			if (arguments == null || arguments.length == 0) {
+				log.info(msg);
+			} else {
+				log.info(msg, arguments);
+			}
 			if (t != null) {
 				log.info("", t);
 			}
@@ -148,7 +160,11 @@ public class Slf4jLogger implements ILogger {
 	@Override
 	public void warn(String msg, Object[] arguments, Throwable t) {
 		if (log != null && log.isWarnEnabled()) {
-			log.warn(msg, arguments);
+			if (arguments == null || arguments.length == 0) {
+				log.warn(msg);
+			} else {
+				log.warn(msg, arguments);
+			}
 			if (t != null) {
 				log.warn("", t);
 			}
@@ -179,7 +195,11 @@ public class Slf4jLogger implements ILogger {
 	@Override
 	public void error(String msg, Object[] arguments, Throwable t) {
 		if (log != null && log.isErrorEnabled()) {
-			log.error(msg, arguments);
+			if (arguments == null || arguments.length == 0) {
+				log.error(msg);
+			} else {
+				log.error(msg, arguments);
+			}
 			if (t != null) {
 				log.error("", t);
 			}
