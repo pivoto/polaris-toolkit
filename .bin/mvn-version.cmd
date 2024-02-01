@@ -1,5 +1,9 @@
 @echo off
-set GIT_BASH=D:\devel\shell\Git\bin\bash
+
+REM if not "%GIT_BASH%"=="" echo %GIT_BASH%
+if "%GIT_BASH%"=="" (
+ set GIT_BASH=D:\devel\shell\Git\bin\bash
+)
 REM set VER=3.1.11-SNAPSHOT
 REM call mvn -f ../pom.xml versions:set -DnewVersion=%VER%
 REM call mvn -f ../pom.xml versions:commit
