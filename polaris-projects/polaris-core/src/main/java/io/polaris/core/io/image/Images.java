@@ -478,7 +478,7 @@ public class Images {
 
 		final String srcExtName = Filenames.extName(srcImageFile);
 		final String destExtName = Filenames.extName(destImageFile);
-		if (Strings.isEqualsIgnoreCase(srcExtName, destExtName)) {
+		if (Strings.equalsIgnoreCase(srcExtName, destExtName)) {
 			// 扩展名相同直接复制文件
 			Files.copy(srcImageFile.toPath(), destImageFile.toPath(),
 				StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
@@ -487,7 +487,7 @@ public class Images {
 		ImageOutputStream imageOutputStream = null;
 		try {
 			imageOutputStream = getImageOutputStream(destImageFile);
-			convert(read(srcImageFile), destExtName, imageOutputStream, Strings.isEqualsIgnoreCase(IMAGE_TYPE_PNG, srcExtName));
+			convert(read(srcImageFile), destExtName, imageOutputStream, Strings.equalsIgnoreCase(IMAGE_TYPE_PNG, srcExtName));
 		} finally {
 			IO.close(imageOutputStream);
 		}

@@ -1,12 +1,17 @@
 package io.polaris.core.string;
 
-import io.polaris.core.assertion.Assertions;
-
-import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.annotation.Nullable;
+
+import io.polaris.core.assertion.Arguments;
 
 /**
  * 从 spring-framework 源码复制，稍作修改
@@ -96,7 +101,7 @@ public class AntPathMatcher implements PathMatcher {
 	 * @since 4.1
 	 */
 	public AntPathMatcher(String pathSeparator) {
-		Assertions.notNull(pathSeparator, "'pathSeparator' is required");
+		Arguments.notNull(pathSeparator, "'pathSeparator' is required");
 		this.pathSeparator = pathSeparator;
 		this.pathSeparatorPatternCache = new PathSeparatorPatternCache(pathSeparator);
 	}

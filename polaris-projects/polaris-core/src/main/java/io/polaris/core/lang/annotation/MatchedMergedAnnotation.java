@@ -1,13 +1,19 @@
 package io.polaris.core.lang.annotation;
 
-import io.polaris.core.assertion.Assertions;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import java.lang.annotation.Annotation;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.lang.annotation.Annotation;
-import java.util.*;
+
+import io.polaris.core.assertion.Arguments;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * @author Qt
@@ -21,7 +27,7 @@ public class MatchedMergedAnnotation<A extends Annotation> {
 	private final List<MergedAnnotation> aliases;
 
 	public MatchedMergedAnnotation(@Nonnull Class<A> annotationType, MergedAnnotation matched, List<MergedAnnotation> aliases) {
-		Assertions.notNull(annotationType, "annotationType is null");
+		Arguments.notNull(annotationType, "annotationType is null");
 		this.annotationType = annotationType;
 		this.matched = matched;
 		this.aliases = aliases == null ? Collections.emptyList() : aliases;

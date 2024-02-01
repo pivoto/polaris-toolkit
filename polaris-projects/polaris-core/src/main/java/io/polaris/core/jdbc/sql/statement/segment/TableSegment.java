@@ -31,7 +31,7 @@ public abstract class TableSegment<S extends TableSegment<S>> extends BaseSegmen
 
 		@Override
 		public TableSegment<?> getTable(String tableAlias) {
-			if (Strings.isEquals(getTableAlias(), tableAlias)) {
+			if (Strings.equals(getTableAlias(), tableAlias)) {
 				return TableSegment.this;
 			}
 			return null;

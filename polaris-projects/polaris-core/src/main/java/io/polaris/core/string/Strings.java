@@ -1,20 +1,37 @@
 package io.polaris.core.string;
 
-import io.polaris.core.collection.Iterables;
-import io.polaris.core.collection.ObjectArrays;
-import io.polaris.core.collection.PrimitiveArrays;
-import io.polaris.core.consts.StdConsts;
-import io.polaris.core.lang.primitive.Chars;
-import io.polaris.core.ulid.UlidCreator;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.StringTokenizer;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import io.polaris.core.collection.Iterables;
+import io.polaris.core.collection.ObjectArrays;
+import io.polaris.core.collection.PrimitiveArrays;
+import io.polaris.core.consts.StdConsts;
+import io.polaris.core.lang.primitive.Chars;
+import io.polaris.core.regex.Patterns;
+import io.polaris.core.ulid.UlidCreator;
 
 /**
  * @author Qt
@@ -611,7 +628,25 @@ public class Strings {
 		}
 	}
 
-	public static boolean isEquals(CharSequence str1, CharSequence str2) {
+	public static boolean equalsAny(CharSequence str1, CharSequence... strs) {
+		for (CharSequence str : strs) {
+			if (equals(str1, str)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean equalsAnyIgnoreCase(CharSequence str1, CharSequence... strs) {
+		for (CharSequence str : strs) {
+			if (equalsIgnoreCase(str1, str)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean equals(CharSequence str1, CharSequence str2) {
 		if (str1 == str2) {
 			return true;
 		}
@@ -624,7 +659,7 @@ public class Strings {
 		return str1.toString().equals(str2.toString());
 	}
 
-	public static boolean isEqualsIgnoreCase(CharSequence str1, CharSequence str2) {
+	public static boolean equalsIgnoreCase(CharSequence str1, CharSequence str2) {
 		if (str1 == str2) {
 			return true;
 		}
@@ -637,7 +672,7 @@ public class Strings {
 		return str1.toString().equalsIgnoreCase(str2.toString());
 	}
 
-	public static boolean isEqualsIgnoreCase(char[] cs1, char[] cs2) {
+	public static boolean equalsIgnoreCase(char[] cs1, char[] cs2) {
 		if (cs1 == cs2) {
 			return true;
 		}
@@ -656,11 +691,70 @@ public class Strings {
 		return true;
 	}
 
+	public static String getIfMatch(String str, String... args) {
+		for (int i = 0; i + 1 < args.length; i += 2) {
+			if (Patterns.matches(args[i], str)) {
+				return args[i + 1];
+			}
+		}
+		if ((args.length & 1) == 0) {
+			return null;
+		}
+		return args[args.length - 1];
+	}
+
+	public static String getIfEquals(String str, String... args) {
+		for (int i = 0; i + 1 < args.length; i += 2) {
+			if (equals(args[i], str)) {
+				return args[i + 1];
+			}
+		}
+		if ((args.length & 1) == 0) {
+			return null;
+		}
+		return args[args.length - 1];
+	}
+
+	public static CharSequence getIfEquals(CharSequence str, CharSequence... args) {
+		for (int i = 0; i + 1 < args.length; i += 2) {
+			if (equals(args[i], str)) {
+				return args[i + 1];
+			}
+		}
+		if ((args.length & 1) == 0) {
+			return null;
+		}
+		return args[args.length - 1];
+	}
+
+
+	public static String getIfEqualsIgnoreCase(String str, String... args) {
+		for (int i = 0; i + 1 < args.length; i += 2) {
+			if (equalsIgnoreCase(args[i], str)) {
+				return args[i + 1];
+			}
+		}
+		if ((args.length & 1) == 0) {
+			return null;
+		}
+		return args[args.length - 1];
+	}
+
+	public static CharSequence getIfEqualsIgnoreCase(CharSequence str, CharSequence... args) {
+		for (int i = 0; i + 1 < args.length; i += 2) {
+			if (equalsIgnoreCase(args[i], str)) {
+				return args[i + 1];
+			}
+		}
+		if ((args.length & 1) == 0) {
+			return null;
+		}
+		return args[args.length - 1];
+	}
 
 	public static <T extends Collection<String>> T splitToCollection(Supplier<T> supplier, String str, String delimiterRegex) {
 		return asCollection(supplier, str.split(delimiterRegex));
 	}
-
 
 	public static Set<String> splitToSet(String str, String delimiterRegex) {
 		return asCollection(HashSet::new, str.split(delimiterRegex));
@@ -721,13 +815,14 @@ public class Strings {
 		@Nullable String str, String delimiters, boolean trimTokens, boolean ignoreEmptyTokens) {
 		return delimitedToArray(str, delimiters, trimTokens, ignoreEmptyTokens, null);
 	}
+
 	public static String[] delimitedToArray(
 		@Nullable String str, String delimiters, boolean trimTokens, boolean ignoreEmptyTokens, Function<String, String> converter) {
 		if (str == null) {
 			return StdConsts.EMPTY_STRING_ARRAY;
 		}
 		String[] arr = str.split(Pattern.quote(delimiters));
-		if (!trimTokens && !ignoreEmptyTokens && converter == null){
+		if (!trimTokens && !ignoreEmptyTokens && converter == null) {
 			return arr;
 		}
 		List<String> tokens = new ArrayList<>();
@@ -788,6 +883,7 @@ public class Strings {
 	public static Map<String, String> asMap(String... args) {
 		return asMap(HashMap::new, args);
 	}
+
 
 	public static String join(CharSequence delimiter, CharSequence... arr) {
 		StringJoiner joiner = new StringJoiner(delimiter);

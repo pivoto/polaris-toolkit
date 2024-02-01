@@ -815,7 +815,7 @@ public class ObjectArrays extends PrimitiveArrays {
 	public static int indexOfIgnoreCase(CharSequence[] array, CharSequence value) {
 		if (null != array) {
 			for (int i = 0; i < array.length; i++) {
-				if (Strings.isEqualsIgnoreCase(array[i], value)) {
+				if (Strings.equalsIgnoreCase(array[i], value)) {
 					return i;
 				}
 			}
