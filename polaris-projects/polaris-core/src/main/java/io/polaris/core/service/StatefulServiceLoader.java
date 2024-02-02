@@ -114,7 +114,6 @@ public class StatefulServiceLoader<S> implements Iterable<S> {
 	}
 
 	/**
-	 * @author Qt
 	 * @version Jan 13, 2022
 	 * @since 1.8
 	 */

@@ -24,6 +24,9 @@ public @interface SqlInsert {
 	 */
 	Class<?> table();
 
+	/**
+	 * @return 插入字段与值列表
+	 */
 	InsertColumn[] columns();
 
 	/**

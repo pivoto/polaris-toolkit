@@ -2835,7 +2835,6 @@ public class Numbers {
 	 *
 	 * @param num 被判断的数值
 	 * @return 是否是奇数
-	 * @author GuoZG
 	 */
 	public static boolean isOdd(int num) {
 		return (num & 1) == 1;
@@ -2846,7 +2845,6 @@ public class Numbers {
 	 *
 	 * @param num 被判断的数值
 	 * @return 是否是偶数
-	 * @author GuoZG
 	 */
 	public static boolean isEven(int num) {
 		return false == isOdd(num);

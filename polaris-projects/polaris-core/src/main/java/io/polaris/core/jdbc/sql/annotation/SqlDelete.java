@@ -9,6 +9,7 @@ import java.lang.annotation.Target;
 
 import io.polaris.core.jdbc.sql.annotation.segment.ColumnPredicate;
 import io.polaris.core.jdbc.sql.annotation.segment.Where;
+import io.polaris.core.jdbc.sql.consts.BindingKeys;
 
 /**
  * @author Qt
@@ -30,7 +31,10 @@ public @interface SqlDelete {
 	 */
 	String alias() default "";
 
-	Where where() default @Where();
+	/**
+	 * @return Where条件，默认使用实体ID
+	 */
+	Where where() default @Where(byEntityIdKey = BindingKeys.ENTITY);
 
 	ColumnPredicate columnPredicate() default @ColumnPredicate();
 }

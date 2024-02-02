@@ -362,7 +362,6 @@ public class Chars {
 	 *
 	 * @param number 被转换的数字
 	 * @return 转换后的字符
-	 * @author dazer
 	 * @see <a href="https://en.wikipedia.org/wiki/List_of_Unicode_characters#Unicode_symbols">维基百科wikipedia-Unicode_symbols</a>
 	 * @see <a href="https://zh.wikipedia.org/wiki/Unicode%E5%AD%97%E7%AC%A6%E5%88%97%E8%A1%A8">维基百科wikipedia-Unicode字符列表</a>
 	 * @see <a href="https://coolsymbol.com/">coolsymbol</a>

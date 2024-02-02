@@ -357,17 +357,15 @@ public class EntityStatements {
 		String entityIdKey = where.byEntityIdKey();
 		String entityKey = where.byEntityKey();
 		if (Strings.isNotBlank(entityIdKey)) {
-			Object entity = BindingValues.getBindingValueOrDefault(bindings, entityIdKey, null);
-			if (entity != null) {
-				stWhere.byEntityId(entity);
-			}
+			// 存在主键条件时
+			Object entity = BindingValues.getBindingValueOrDefault(bindings, entityIdKey, Collections.emptyMap());
+			stWhere.byEntityId(entity);
 		}
 		if (Strings.isNotBlank(entityKey)) {
-			Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, null);
-			if (entity != null) {
-				ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings, join.columnPredicate());
-				stWhere.byEntity(entity, columnPredicate);
-			}
+			// 不存在主键条件时，使用实体全字段条件
+			Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, Collections.emptyMap());
+			ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings, join.columnPredicate());
+			stWhere.byEntity(entity, columnPredicate);
 		}
 
 		if (where.relation() == Relation.OR) {
@@ -433,18 +431,15 @@ public class EntityStatements {
 		String entityIdKey = where.byEntityIdKey();
 		String entityKey = where.byEntityKey();
 		if (Strings.isNotBlank(entityIdKey)) {
-			Object entity = BindingValues.getBindingValueOrDefault(bindings, entityIdKey, null);
-			if (entity != null) {
-				ws.byEntityId(entity);
-			}
-		}
-		if (Strings.isNotBlank(entityKey)) {
-			Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, null);
-			if (entity != null) {
-				ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings,
-					columnedPredicate);
-				ws.byEntity(entity, columnPredicate);
-			}
+			// 存在主键条件时
+			Object entity = BindingValues.getBindingValueOrDefault(bindings, entityIdKey, Collections.emptyMap());
+			ws.byEntityId(entity);
+		} else if (Strings.isNotBlank(entityKey)) {
+			// 不存在主键条件时，使用实体全字段条件
+			Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, Collections.emptyMap());
+			ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings,
+				columnedPredicate);
+			ws.byEntity(entity, columnPredicate);
 		}
 
 		if (where.relation() == Relation.OR) {
@@ -485,35 +480,37 @@ public class EntityStatements {
 	}
 
 	private static void addOrderByClause(Map<String, Object> bindings, SelectStatement<?> st, SqlSelect sqlSelect) {
-		io.polaris.core.jdbc.sql.annotation.segment.OrderBy[] orderBys = sqlSelect.orderBy();
-		if (orderBys.length > 0) {
-			for (io.polaris.core.jdbc.sql.annotation.segment.OrderBy orderBy : orderBys) {
-				String field = orderBy.field();
-				if (Strings.isBlank(field)) {
-					throw new IllegalStateException("未指定排序字段名");
-				}
-				switch (orderBy.direction()) {
-					case ASC:
-						st.orderBy(field);
-						break;
-					case DESC:
-						st.orderByDesc(field);
-						break;
-				}
+		boolean hasOrderByKey = false;
+		String orderByKey = sqlSelect.orderByKey();
+		if (Strings.isNotBlank(orderByKey)) {
+			Object orderByObj = BindingValues.getBindingValueOrDefault(bindings, orderByKey, null);
+			OrderBy orderBy = null;
+			if (orderByObj instanceof String) {
+				orderBy = Queries.newOrderBy((String) orderByObj);
+			} else if (orderByObj instanceof OrderBy) {
+				orderBy = (OrderBy) orderByObj;
 			}
-		} else {
-			String orderByKey = sqlSelect.orderByKey();
-			if (Strings.isNotBlank(orderByKey)) {
-				Object orderByObj = BindingValues.getBindingValueOrDefault(bindings, orderByKey, null);
-
-				OrderBy orderBy = null;
-				if (orderByObj instanceof String) {
-					orderBy = Queries.newOrderBy((String) orderByObj);
-				} else if (orderByObj instanceof OrderBy) {
-					orderBy = (OrderBy) orderByObj;
-				}
-				if (orderBy != null) {
-					st.orderBy(orderBy);
+			if (orderBy != null) {
+				st.orderBy(orderBy);
+				hasOrderByKey = true;
+			}
+		}
+		if (!hasOrderByKey) {
+			io.polaris.core.jdbc.sql.annotation.segment.OrderBy[] orderBys = sqlSelect.orderBy();
+			if (orderBys.length > 0) {
+				for (io.polaris.core.jdbc.sql.annotation.segment.OrderBy orderBy : orderBys) {
+					String field = orderBy.field();
+					if (Strings.isBlank(field)) {
+						throw new IllegalStateException("未指定排序字段名");
+					}
+					switch (orderBy.direction()) {
+						case ASC:
+							st.orderBy(field);
+							break;
+						case DESC:
+							st.orderByDesc(field);
+							break;
+					}
 				}
 			}
 		}
@@ -1077,17 +1074,15 @@ public class EntityStatements {
 		String entityIdKey = where.byEntityIdKey();
 		String entityKey = where.byEntityKey();
 		if (Strings.isNotBlank(entityIdKey)) {
-			Object entity = BindingValues.getBindingValueOrDefault(bindings, entityIdKey, null);
-			if (entity != null) {
-				st.where().byEntityId(entity);
-			}
+			// 存在主键条件时
+			Object entity = BindingValues.getBindingValueOrDefault(bindings, entityIdKey, Collections.emptyMap());
+			st.where().byEntityId(entity);
 		}
 		if (Strings.isNotBlank(entityKey)) {
-			Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, null);
-			if (entity != null) {
-				ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings, subSelect.columnPredicate());
-				st.where().byEntity(entity, columnPredicate);
-			}
+			// 不存在主键条件时，使用实体全字段条件
+			Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, Collections.emptyMap());
+			ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings, subSelect.columnPredicate());
+			st.where().byEntity(entity, columnPredicate);
 		}
 		WhereSegment<?, ?> stWhere = st.where();
 

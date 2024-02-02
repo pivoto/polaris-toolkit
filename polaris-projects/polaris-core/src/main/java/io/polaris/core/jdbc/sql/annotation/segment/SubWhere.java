@@ -19,12 +19,24 @@ import io.polaris.core.jdbc.sql.consts.Relation;
 @Inherited
 public @interface SubWhere {
 
+	/**
+	 * @return 实体主键条件的绑定key，优先于{@link #byEntityKey}
+	 */
 	String byEntityIdKey() default "";
 
+	/**
+	 * @return 实体全字段条件的绑定key，未配置{@link #byEntityIdKey}时生效
+	 */
 	String byEntityKey() default "";
 
+	/**
+	 * @return 自定义条件
+	 */
 	SubCriteria[] criteria() default {};
 
+	/**
+	 * @return 自定义条件的关系连接符
+	 */
 	Relation relation() default Relation.AND;
 
 }

@@ -7,9 +7,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import io.polaris.core.jdbc.sql.annotation.segment.BindingKey;
 import io.polaris.core.jdbc.sql.annotation.segment.ColumnPredicate;
 import io.polaris.core.jdbc.sql.annotation.segment.UpdateColumn;
 import io.polaris.core.jdbc.sql.annotation.segment.Where;
+import io.polaris.core.jdbc.sql.consts.BindingKeys;
 
 /**
  * @author Qt
@@ -31,9 +33,15 @@ public @interface SqlUpdate {
 	 */
 	String alias() default "";
 
+	/**
+	 * @return 更新字段与值列表
+	 */
 	UpdateColumn[] columns() default {};
 
-	Where where() default @Where();
+	/**
+	 * @return Where条件，默认使用实体ID
+	 */
+	Where where() default @Where(byEntityIdKey = BindingKeys.ENTITY);
 
 	ColumnPredicate columnPredicate() default @ColumnPredicate();
 }

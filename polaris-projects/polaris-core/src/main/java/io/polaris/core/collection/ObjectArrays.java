@@ -137,7 +137,6 @@ public class ObjectArrays extends PrimitiveArrays {
 	 * @param <T>   数组元素类型
 	 * @param array 被检查的数组
 	 * @return 多个字段是否全为null
-	 * @author dahuoyzs
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> boolean isAllNull(T... array) {
@@ -1456,7 +1455,6 @@ public class ObjectArrays extends PrimitiveArrays {
 	 * @param <T>   元素类型
 	 * @param array 数组，会变更
 	 * @return 打乱后的数组
-	 * @author FengBaoheng
 	 */
 	public static <T> T[] shuffle(T[] array) {
 		return shuffle(array, Randoms.getRandom());
@@ -1469,7 +1467,6 @@ public class ObjectArrays extends PrimitiveArrays {
 	 * @param array  数组，会变更
 	 * @param random 随机数生成器
 	 * @return 打乱后的数组
-	 * @author FengBaoheng
 	 */
 	public static <T> T[] shuffle(T[] array, Random random) {
 		if (array == null || random == null || array.length <= 1) {
@@ -1847,7 +1844,6 @@ public class ObjectArrays extends PrimitiveArrays {
 	 * @param comparator 比较器
 	 * @param <T>        数组元素类型
 	 * @return 数组是否有序
-	 * @author FengBaoheng
 	 */
 	public static <T> boolean isSorted(T[] array, Comparator<? super T> comparator) {
 		if (array == null || comparator == null) {
@@ -1868,7 +1864,6 @@ public class ObjectArrays extends PrimitiveArrays {
 	 * @param <T>   数组元素类型，该类型需要实现Comparable接口
 	 * @param array 数组
 	 * @return 数组是否升序
-	 * @author FengBaoheng
 	 */
 	public static <T extends Comparable<? super T>> boolean isSorted(T[] array) {
 		return isSortedAsc(array);
@@ -1881,7 +1876,6 @@ public class ObjectArrays extends PrimitiveArrays {
 	 * @param <T>   数组元素类型，该类型需要实现Comparable接口
 	 * @param array 数组
 	 * @return 数组是否升序
-	 * @author FengBaoheng
 	 */
 	public static <T extends Comparable<? super T>> boolean isSortedAsc(T[] array) {
 		if (array == null) {
@@ -1903,7 +1897,6 @@ public class ObjectArrays extends PrimitiveArrays {
 	 * @param <T>   数组元素类型，该类型需要实现Comparable接口
 	 * @param array 数组
 	 * @return 数组是否降序
-	 * @author FengBaoheng
 	 */
 	public static <T extends Comparable<? super T>> boolean isSortedDesc(T[] array) {
 		if (array == null) {
