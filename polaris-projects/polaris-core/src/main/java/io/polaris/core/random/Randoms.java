@@ -1,14 +1,18 @@
 package io.polaris.core.random;
 
-import io.polaris.core.collection.Iterables;
-import io.polaris.core.string.Strings;
-
 import java.awt.*;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.*;
+import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+
+import io.polaris.core.collection.Iterables;
+import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
@@ -18,7 +22,9 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Randoms {
 	public static final String BASE_NUMBER = "0123456789";
 	public static final String BASE_CHAR = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	public static final String BASE_CHAR_LOWER = "abcdefghijklmnopqrstuvwxyz";
 	public static final String BASE_CHAR_NUMBER = BASE_CHAR + BASE_NUMBER;
+	public static final String BASE_CHAR_NUMBER_LOWER = BASE_CHAR_LOWER + BASE_NUMBER;
 
 	public static ThreadLocalRandom getRandom() {
 		return ThreadLocalRandom.current();
@@ -188,7 +194,7 @@ public class Randoms {
 	}
 
 	public static String randomStringLowerCase(int length) {
-		return randomString(BASE_CHAR_NUMBER, length).toLowerCase();
+		return randomString(BASE_CHAR_NUMBER_LOWER, length);
 	}
 
 

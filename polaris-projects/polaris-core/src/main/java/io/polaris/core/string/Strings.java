@@ -22,11 +22,9 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.polaris.core.collection.Iterables;
-import io.polaris.core.collection.ObjectArrays;
 import io.polaris.core.collection.PrimitiveArrays;
 import io.polaris.core.consts.StdConsts;
 import io.polaris.core.lang.primitive.Chars;
@@ -478,22 +476,6 @@ public class Strings {
 		return str == null || str.length() == 0;
 	}
 
-	public static boolean containsAny(CharSequence str, CharSequence... testStrs) {
-		return null != getContainsStr(str, testStrs);
-	}
-
-	public static String getContainsStr(CharSequence str, CharSequence... testStrs) {
-		if (isEmpty(str) || ObjectArrays.isEmpty(testStrs)) {
-			return null;
-		}
-		for (CharSequence checkStr : testStrs) {
-			if (str.toString().contains(checkStr)) {
-				return checkStr.toString();
-			}
-		}
-		return null;
-	}
-
 	public static boolean containsAny(CharSequence str, char... testChars) {
 		if (!isEmpty(str)) {
 			int len = str.length();
@@ -506,34 +488,192 @@ public class Strings {
 		return false;
 	}
 
-	public static boolean startWithIgnoreCase(@Nonnull String str, @Nonnull String prefix) {
-		if (prefix.length() == 0) {
+
+	public static String getContainsStr(CharSequence str, CharSequence... testStrs) {
+		if (str == null || testStrs.length == 0) {
+			return null;
+		}
+		String s = str.toString();
+		for (CharSequence checkStr : testStrs) {
+			if (s.contains(checkStr)) {
+				return checkStr.toString();
+			}
+		}
+		return null;
+	}
+
+	public static boolean containsAny(CharSequence str, CharSequence... testStrs) {
+		if (str == null || testStrs.length == 0) {
+			return false;
+		}
+		String s = str.toString();
+		for (CharSequence checkStr : testStrs) {
+			if (s.contains(checkStr)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean containsAnyIgnoreCase(CharSequence str, CharSequence... testStrs) {
+		if (str == null || testStrs.length == 0) {
+			return false;
+		}
+		String s = str.toString();
+		for (CharSequence checkStr : testStrs) {
+			if (containsIgnoreCase(s, checkStr)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean contains(CharSequence str, CharSequence testStr) {
+		if (str == null) {
+			return false;
+		}
+		if (testStr == null || testStr.length() == 0) {
 			return true;
 		}
 		if (str.length() == 0) {
 			return false;
 		}
-		return str.regionMatches(true, 0, prefix, 0, prefix.length());
+		return str.toString().contains(testStr);
 	}
 
-	public static boolean endWithIgnoreCase(@Nonnull String str, @Nonnull String prefix) {
-		if (prefix.length() == 0) {
+	public static boolean containsIgnoreCase(CharSequence str, CharSequence testStr) {
+		if (str == null) {
+			return false;
+		}
+		if (testStr == null || testStr.length() == 0) {
 			return true;
 		}
 		if (str.length() == 0) {
 			return false;
 		}
-		return str.regionMatches(true, str.length() - prefix.length(), prefix, 0, prefix.length());
+		return indexOfIgnoreCase(str, testStr) >= 0;
 	}
 
-	public static int indexOfIgnoreCase(String source, String target) {
-		return indexOfIgnoreCase(source.toCharArray(), 0, source.length(),
-			target.toCharArray(), 0, target.length(), 0);
+	public static boolean startsWithAny(CharSequence str, CharSequence... testStrs) {
+		if (str == null || testStrs.length == 0) {
+			return false;
+		}
+		String s = str.toString();
+		for (CharSequence checkStr : testStrs) {
+			if (startsWith(s, checkStr)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
-	public static int indexOfIgnoreCase(String source, String target, int fromIndex) {
-		return indexOfIgnoreCase(source.toCharArray(), 0, source.length(),
-			target.toCharArray(), 0, target.length(), fromIndex);
+	public static boolean startsWith(CharSequence str, CharSequence prefix) {
+		if (str == null) {
+			return false;
+		}
+		if (prefix == null || prefix.length() == 0) {
+			return true;
+		}
+		if (str.length() == 0) {
+			return false;
+		}
+		return str.toString().startsWith(prefix.toString());
+	}
+
+	public static boolean endsWithAny(CharSequence str, CharSequence... testStrs) {
+		if (str == null || testStrs.length == 0) {
+			return false;
+		}
+		String s = str.toString();
+		for (CharSequence checkStr : testStrs) {
+			if (endsWith(s, checkStr)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean endsWith(CharSequence str, CharSequence suffix) {
+		if (str == null) {
+			return false;
+		}
+		if (suffix == null || suffix.length() == 0) {
+			return true;
+		}
+		if (str.length() == 0) {
+			return false;
+		}
+		return str.toString().endsWith(suffix.toString());
+	}
+
+
+	public static boolean startsWithAnyIgnoreCase(CharSequence str, CharSequence... testStrs) {
+		if (str == null || testStrs.length == 0) {
+			return false;
+		}
+		String s = str.toString();
+		for (CharSequence checkStr : testStrs) {
+			if (startsWithIgnoreCase(s, checkStr)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean startsWithIgnoreCase(CharSequence str, CharSequence prefix) {
+		if (str == null) {
+			return false;
+		}
+		if (prefix == null || prefix.length() == 0) {
+			return true;
+		}
+		if (str.length() == 0) {
+			return false;
+		}
+		return str.toString().regionMatches(true, 0, prefix.toString(), 0, prefix.length());
+	}
+
+	public static boolean endsWithAnyIgnoreCase(CharSequence str, CharSequence... testStrs) {
+		if (str == null || testStrs.length == 0) {
+			return false;
+		}
+		String s = str.toString();
+		for (CharSequence checkStr : testStrs) {
+			if (endsWithIgnoreCase(s, checkStr)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean endsWithIgnoreCase(CharSequence str, CharSequence suffix) {
+		if (str == null) {
+			return false;
+		}
+		if (suffix == null || suffix.length() == 0) {
+			return true;
+		}
+		if (str.length() == 0) {
+			return false;
+		}
+		return str.toString().regionMatches(true, str.length() - suffix.length(), suffix.toString(), 0, suffix.length());
+	}
+
+	public static int indexOf(CharSequence source, CharSequence target) {
+		if (source == null || target == null) {
+			return -1;
+		}
+		return source.toString().indexOf(target.toString());
+	}
+
+	public static int indexOfIgnoreCase(CharSequence source, CharSequence target) {
+		return indexOfIgnoreCase(source.toString().toCharArray(), 0, source.length(),
+			target.toString().toCharArray(), 0, target.length(), 0);
+	}
+
+	public static int indexOfIgnoreCase(CharSequence source, CharSequence target, int fromIndex) {
+		return indexOfIgnoreCase(source.toString().toCharArray(), 0, source.length(),
+			target.toString().toCharArray(), 0, target.length(), fromIndex);
 	}
 
 
@@ -577,14 +717,14 @@ public class Strings {
 	}
 
 
-	public static int lastIndexOfIgnoreCase(String source, String target) {
-		return lastIndexOfIgnoreCase(source.toCharArray(), 0, source.length(),
-			target.toCharArray(), 0, target.length(), source.length());
+	public static int lastIndexOfIgnoreCase(CharSequence source, CharSequence target) {
+		return lastIndexOfIgnoreCase(source.toString().toCharArray(), 0, source.length(),
+			target.toString().toCharArray(), 0, target.length(), source.length());
 	}
 
-	public static int lastIndexOfIgnoreCase(String source, String target, int fromIndex) {
-		return lastIndexOfIgnoreCase(source.toCharArray(), 0, source.length(),
-			target.toCharArray(), 0, target.length(), fromIndex);
+	public static int lastIndexOfIgnoreCase(CharSequence source, CharSequence target, int fromIndex) {
+		return lastIndexOfIgnoreCase(source.toString().toCharArray(), 0, source.length(),
+			target.toString().toCharArray(), 0, target.length(), fromIndex);
 	}
 
 	public static int lastIndexOfIgnoreCase(char[] source, int sourceOffset, int sourceCount

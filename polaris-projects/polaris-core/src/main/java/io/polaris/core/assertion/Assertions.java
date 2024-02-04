@@ -1,17 +1,17 @@
 package io.polaris.core.assertion;
 
-import io.polaris.core.err.AssertionException;
-import io.polaris.core.err.MultipleException;
-import io.polaris.core.function.Executable;
-import io.polaris.core.lang.Other;
-import io.polaris.core.string.Strings;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import io.polaris.core.err.AssertionException;
+import io.polaris.core.err.MultipleException;
+import io.polaris.core.function.Executable;
+import io.polaris.core.lang.Other;
+import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
@@ -105,12 +105,6 @@ public class Assertions {
 		}
 	}
 
-	public static void assertSame(Object expected, Object actual, String message) throws AssertionException {
-		if (expected != actual) {
-			throw new AssertionException(format(expected, actual, message), expected, actual);
-		}
-	}
-
 	public static void assertNotEquals(char expected, char actual, String message) throws AssertionException {
 		if (expected == actual) {
 			throw new AssertionException(buildPrefix(message) + "expected: not equal but was: <" + actual + ">", Other.of(actual), actual);
@@ -157,6 +151,13 @@ public class Assertions {
 	public static void assertNotEquals(Object expected, Object actual, String message) throws AssertionException {
 		if (Objects.equals(expected, actual)) {
 			throw new AssertionException(buildPrefix(message) + "expected: not equal but was: <" + actual + ">", Other.of(actual), actual);
+		}
+	}
+
+
+	public static void assertSame(Object expected, Object actual, String message) throws AssertionException {
+		if (expected != actual) {
+			throw new AssertionException(format(expected, actual, message), expected, actual);
 		}
 	}
 
@@ -360,5 +361,213 @@ public class Assertions {
 		}
 	}
 
+	public static void assertEmpty(CharSequence actual, String message) throws AssertionException {
+		if (!Strings.isEmpty(actual)) {
+			throw new AssertionException(buildPrefix(message) + "expected: <empty> but was: <" + actual + ">", null, actual);
+		}
+	}
 
+	public static void assertNotEmpty(CharSequence actual, String message) throws AssertionException {
+		if (Strings.isEmpty(actual)) {
+			throw new AssertionException(buildPrefix(message) + "expected: not <empty> but was: <" + actual + ">", null, actual);
+		}
+	}
+
+	public static void assertBlank(CharSequence actual, String message) throws AssertionException {
+		if (!Strings.isBlank(actual)) {
+			throw new AssertionException(buildPrefix(message) + "expected: <blank> but was: <" + actual + ">", null, actual);
+		}
+	}
+
+	public static void assertNotBlank(CharSequence actual, String message) throws AssertionException {
+		if (Strings.isBlank(actual)) {
+			throw new AssertionException(buildPrefix(message) + "expected: not <blank> but was: <" + actual + ">", null, actual);
+		}
+	}
+
+	public static void assertEqualsAny(CharSequence[] expected, CharSequence actual, String message) throws AssertionException {
+		if (!Strings.equalsAny(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: equals any of <" + Arrays.toString(expected) + "> but was: <" + actual + ">", null, actual);
+		}
+	}
+
+	public static void assertNotEqualsAny(CharSequence[] expected, CharSequence actual, String message) throws AssertionException {
+		if (Strings.equalsAny(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: not equals any of <" + Arrays.toString(expected) + "> but was: <" + actual + ">", null, actual);
+		}
+	}
+
+	public static void assertEqualsAnyIgnoreCase(CharSequence[] expected, CharSequence actual, String message) throws AssertionException {
+		if (!Strings.equalsAnyIgnoreCase(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: equals ignore case any of <" + Arrays.toString(expected) + "> but was: <" + actual + ">", null, actual);
+		}
+	}
+
+	public static void assertNotEqualsAnyIgnoreCase(CharSequence[] expected, CharSequence actual, String message) throws AssertionException {
+		if (Strings.equalsAnyIgnoreCase(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: not equals ignore case any of <" + Arrays.toString(expected) + "> but was: <" + actual + ">", null, actual);
+		}
+	}
+
+	public static void assertContainsAny(CharSequence[] expected, CharSequence actual, String message) throws AssertionException {
+		if (!Strings.containsAny(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: contains any of <" + Arrays.toString(expected) + "> but was: <" + actual + ">", null, actual);
+		}
+	}
+
+	public static void assertNotContainsAny(CharSequence[] expected, CharSequence actual, String message) throws AssertionException {
+		if (Strings.containsAny(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: not contains any of <" + Arrays.toString(expected) + "> but was: <" + actual + ">", null, actual);
+		}
+	}
+
+
+	public static void assertContainsAnyIgnoreCase(CharSequence[] expected, CharSequence actual, String message) throws AssertionException {
+		if (!Strings.containsAnyIgnoreCase(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: contains ignore case any of <" + Arrays.toString(expected) + "> but was: <" + actual + ">", null, actual);
+		}
+	}
+
+	public static void assertNotContainsAnyIgnoreCase(CharSequence[] expected, CharSequence actual, String message) throws AssertionException {
+		if (Strings.containsAnyIgnoreCase(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: not contains ignore case any of <" + Arrays.toString(expected) + "> but was: <" + actual + ">", null, actual);
+		}
+	}
+
+	public static void assertStartsWithAny(CharSequence[] expected, CharSequence actual, String message) throws AssertionException {
+		if (!Strings.startsWithAny(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: starts with any of <" + Arrays.toString(expected) + "> but was: <" + actual + ">", null, actual);
+		}
+	}
+
+	public static void assertNotStartsWithAny(CharSequence[] expected, CharSequence actual, String message) throws AssertionException {
+		if (Strings.startsWithAny(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: not starts with any of <" + Arrays.toString(expected) + "> but was: <" + actual + ">", null, actual);
+		}
+	}
+
+	public static void assertEndsWithAny(CharSequence[] expected, CharSequence actual, String message) throws AssertionException {
+		if (!Strings.endsWithAny(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: ends with any of <" + Arrays.toString(expected) + "> but was: <" + actual + ">", null, actual);
+		}
+	}
+
+	public static void assertNotEndsWithAny(CharSequence[] expected, CharSequence actual, String message) throws AssertionException {
+		if (Strings.endsWithAny(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: not ends with any of <" + Arrays.toString(expected) + "> but was: <" + actual + ">", null, actual);
+		}
+	}
+
+
+	public static void assertStartsWithAnyIgnoreCase(CharSequence[] expected, CharSequence actual, String message) throws AssertionException {
+		if (!Strings.startsWithAnyIgnoreCase(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: starts with ignore case any of <" + Arrays.toString(expected) + "> but was: <" + actual + ">", null, actual);
+		}
+	}
+
+	public static void assertNotStartsWithAnyIgnoreCase(CharSequence[] expected, CharSequence actual, String message) throws AssertionException {
+		if (Strings.startsWithAnyIgnoreCase(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: not starts with ignore case any of <" + Arrays.toString(expected) + "> but was: <" + actual + ">", null, actual);
+		}
+	}
+
+	public static void assertEndsWithAnyIgnoreCase(CharSequence[] expected, CharSequence actual, String message) throws AssertionException {
+		if (!Strings.endsWithAnyIgnoreCase(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: ends with ignore case any of <" + Arrays.toString(expected) + "> but was: <" + actual + ">", null, actual);
+		}
+	}
+
+	public static void assertNotEndsWithAnyIgnoreCase(CharSequence[] expected, CharSequence actual, String message) throws AssertionException {
+		if (Strings.endsWithAnyIgnoreCase(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: not ends with ignore case any of <" + Arrays.toString(expected) + "> but was: <" + actual + ">", null, actual);
+		}
+	}
+
+
+	public static void assertEqualsIgnoreCase(CharSequence expected, CharSequence actual, String message) throws AssertionException {
+		if (!Strings.equalsIgnoreCase(expected, actual)) {
+			throw new AssertionException(buildPrefix(message) + "expected: equal ignore case <" + expected + "> but was: <" + actual + ">", Other.of(actual), actual);
+		}
+	}
+
+	public static void assertNotEqualsIgnoreCase(CharSequence expected, CharSequence actual, String message) throws AssertionException {
+		if (Strings.equalsIgnoreCase(expected, actual)) {
+			throw new AssertionException(buildPrefix(message) + "expected: not equal ignore case <" + expected + "> but was: <" + actual + ">", Other.of(actual), actual);
+		}
+	}
+
+	public static void assertContains(CharSequence expected, CharSequence actual, String message) throws AssertionException {
+		if (!Strings.contains(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: contains <" + expected + "> but was: <" + actual + ">", Other.of(actual), actual);
+		}
+	}
+
+	public static void assertNotContains(CharSequence expected, CharSequence actual, String message) throws IllegalArgumentException {
+		if (Strings.contains(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: not contains <" + expected + "> but was: <" + actual + ">", Other.of(actual), actual);
+		}
+	}
+
+
+	public static void assertContainsIgnoreCase(CharSequence expected, CharSequence actual, String message) throws IllegalArgumentException {
+		if (!Strings.containsIgnoreCase(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: contains ignore case <" + expected + "> but was: <" + actual + ">", Other.of(actual), actual);
+		}
+	}
+
+	public static void assertNotContainsIgnoreCase(CharSequence expected, CharSequence actual, String message) throws IllegalArgumentException {
+		if (Strings.containsIgnoreCase(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: not contains ignore case <" + expected + "> but was: <" + actual + ">", Other.of(actual), actual);
+		}
+	}
+
+
+	public static void assertStartsWith(CharSequence expected, CharSequence actual, String message) throws IllegalArgumentException {
+		if (!Strings.startsWith(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: starts with <" + expected + "> but was: <" + actual + ">", Other.of(actual), actual);
+		}
+	}
+
+
+	public static void assertNotStartsWith(CharSequence expected, CharSequence actual, String message) throws IllegalArgumentException {
+		if (Strings.startsWith(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: not start with <" + expected + "> but was: <" + actual + ">", Other.of(actual), actual);
+		}
+	}
+
+	public static void assertEndsWith(CharSequence expected, CharSequence actual, String message) throws IllegalArgumentException {
+		if (!Strings.endsWith(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: ends with <" + expected + "> but was: <" + actual + ">", Other.of(actual), actual);
+		}
+	}
+
+	public static void assertNotEndsWith(CharSequence expected, CharSequence actual, String message) throws IllegalArgumentException {
+		if (Strings.endsWith(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: not end with <" + expected + "> but was: <" + actual + ">", Other.of(actual), actual);
+		}
+	}
+
+	public static void assertStartsWithIgnoreCase(CharSequence expected, CharSequence actual, String message) throws IllegalArgumentException {
+		if (!Strings.startsWithIgnoreCase(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: starts with ignore case <" + expected + "> but was: <" + actual + ">", Other.of(actual), actual);
+		}
+	}
+
+	public static void assertNotStartsWithIgnoreCase(CharSequence expected, CharSequence actual, String message) throws IllegalArgumentException {
+		if (Strings.startsWithIgnoreCase(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: not start with ignore case <" + expected + "> but was: <" + actual + ">", Other.of(actual), actual);
+		}
+	}
+
+	public static void assertEndsWithIgnoreCase(CharSequence expected, CharSequence actual, String message) throws IllegalArgumentException {
+		if (!Strings.endsWithIgnoreCase(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: ends with ignore case <" + expected + "> but was: <" + actual + ">", Other.of(actual), actual);
+		}
+	}
+
+	public static void assertNotEndsWithIgnoreCase(CharSequence expected, CharSequence actual, String message) throws IllegalArgumentException {
+		if (Strings.endsWithIgnoreCase(actual, expected)) {
+			throw new AssertionException(buildPrefix(message) + "expected: not end with ignore case <" + expected + "> but was: <" + actual + ">", Other.of(actual), actual);
+		}
+	}
 }

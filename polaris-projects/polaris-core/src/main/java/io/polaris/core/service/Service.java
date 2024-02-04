@@ -32,9 +32,9 @@ public class Service<S> {
 	@Getter(AccessLevel.PACKAGE)
 	private final int order;
 	private final Map<String, String> properties;
+	private final Function<S, S> wrapperBuilder;
 	private volatile S singletonPure;
 	private volatile S singleton;
-	private Function<S, S> wrapperBuilder;
 
 	Service(final Class<? extends S> serviceClass, Map<String, String> properties, final String serviceName, final int order, Function<S, S> wrapperBuilder) {
 		this.serviceClass = serviceClass;

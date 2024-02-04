@@ -2384,7 +2384,7 @@ public class Numbers {
 			// 科学计数法忽略支持，科学计数法一般用于表示非常小和非常大的数字，这类数字转换为int后精度丢失，没有意义。
 			throw new NumberFormatException(Strings.format("Unsupported int format: [{}]", number));
 		}
-		if (Strings.startWithIgnoreCase(number, "0x")) {
+		if (Strings.startsWithIgnoreCase(number, "0x")) {
 			// 0x04表示16进制数
 			return Integer.parseInt(number.substring(2), 16);
 		}
@@ -2493,7 +2493,7 @@ public class Numbers {
 	 * @throws NumberFormatException 包装了{@link ParseException}，当给定的数字字符串无法解析时抛出
 	 */
 	public static Number parseNumber(String numberStr) throws NumberFormatException {
-		if (Strings.startWithIgnoreCase(numberStr, "0x")) {
+		if (Strings.startsWithIgnoreCase(numberStr, "0x")) {
 			// 0x04表示16进制数
 			return Long.parseLong(numberStr.substring(2), 16);
 		} else if (numberStr.startsWith("+")) {

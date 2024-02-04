@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>cn.pivoto.polaris.toolkit</groupId>
 		<artifactId>polaris-projects</artifactId>
-		<version>3.1.19</version>
+		<version>3.1.20-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>polaris-all</artifactId>
@@ -32,6 +32,10 @@
 		<dependency>
 			<groupId>cn.pivoto.polaris.toolkit</groupId>
 			<artifactId>polaris-bytecode</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>cn.pivoto.polaris.toolkit</groupId>
+			<artifactId>polaris-json</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>cn.pivoto.polaris.toolkit</groupId>

@@ -11,7 +11,8 @@ import java.util.List;
  */
 public class MultipleException extends IllegalArgumentException {
 	private static final long serialVersionUID = 1L;
-	private static final String EOL = System.getProperty("line.separator");
+	// System.getProperty("line.separator");
+	private static final String EOL = System.lineSeparator();
 	private final List<Throwable> failures;
 
 	public MultipleException(String message, List<Throwable> failures) {

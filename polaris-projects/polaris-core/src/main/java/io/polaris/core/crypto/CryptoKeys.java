@@ -261,7 +261,7 @@ public class CryptoKeys {
 	 * @return 算法
 	 */
 	public static String getAlgorithmAfterWith(String algorithm) {
-		if (Strings.startWithIgnoreCase(algorithm, "ECIESWith")) {
+		if (Strings.startsWithIgnoreCase(algorithm, "ECIESWith")) {
 			return "EC";
 		}
 		int indexOfWith = Strings.lastIndexOfIgnoreCase(algorithm, "with");
