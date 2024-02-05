@@ -77,6 +77,7 @@ import io.polaris.core.script.JavaScriptEvaluator;
 import io.polaris.core.script.ScriptEvaluators;
 import io.polaris.core.string.Strings;
 import io.polaris.core.tuple.Tuple1;
+import io.polaris.core.tuple.ValueRef;
 
 /**
  * @author Qt
@@ -99,12 +100,15 @@ public class EntityStatements {
 	public static InsertStatement<?> buildInsert(Map<String, Object> bindings, SqlInsert sqlInsert) {
 		Class<?> entityClass = sqlInsert.table();
 		InsertStatement<?> st = new InsertStatement<>(entityClass);
+
+		// binding-cache
+		Map<String, ValueRef<Object>> cache = new HashMap<>();
 		// columns
 		InsertColumn[] columns = sqlInsert.columns();
 		Map<String, Tuple1<?>> values = new HashMap<>();
 		for (InsertColumn column : columns) {
 			String field = column.field();
-			Tuple1<?> val = getValForBindingKey(bindings, column.bindingKey());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, column.bindingKey());
 			values.put(field, val);
 		}
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
@@ -140,8 +144,10 @@ public class EntityStatements {
 		}
 		DeleteStatement<?> st = new DeleteStatement<>(entityClass,
 			Strings.coalesce(sqlDelete.alias(), DEFAULT_TABLE_ALIAS));
+		// binding-cache
+		Map<String, ValueRef<Object>> cache = new HashMap<>();
 		// where
-		addWhereClause(bindings, st.where(), sqlDelete.where(), sqlDelete.columnPredicate());
+		addWhereClause(cache, bindings, st.where(), sqlDelete.where(), sqlDelete.columnPredicate());
 		return st;
 	}
 
@@ -150,12 +156,14 @@ public class EntityStatements {
 		UpdateStatement<?> st = new UpdateStatement<>(entityClass,
 			Strings.coalesce(sqlUpdate.alias(), DEFAULT_TABLE_ALIAS));
 
+		// binding-cache
+		Map<String, ValueRef<Object>> cache = new HashMap<>();
 		// columns
 		UpdateColumn[] columns = sqlUpdate.columns();
 		Map<String, Tuple1<?>> values = new HashMap<>();
 		for (UpdateColumn column : columns) {
 			String field = column.field();
-			Tuple1<?> val = getValForBindingKey(bindings, column.bindingKey());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, column.bindingKey());
 			values.put(field, val);
 		}
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
@@ -176,16 +184,18 @@ public class EntityStatements {
 		}
 
 		// where
-		addWhereClause(bindings, st.where(), sqlUpdate.where(), sqlUpdate.columnPredicate());
+		addWhereClause(cache, bindings, st.where(), sqlUpdate.where(), sqlUpdate.columnPredicate());
 		return st;
 	}
 
 
 	public static SetOpsStatement<?> buildSelectSet(Map<String, Object> bindings, SqlSelectSet sqlSelectSet) {
+		// binding-cache
+		Map<String, ValueRef<Object>> cache = new HashMap<>();
 		SetOpsStatement<?> sos = null;
 		for (SqlSelectSet.Item item : sqlSelectSet.value()) {
 			SqlSelect sqlSelect = item.value();
-			SelectStatement<?> st = buildSelect(bindings, sqlSelect);
+			SelectStatement<?> st = buildSelect(cache, bindings, sqlSelect);
 			if (sos == null) {
 				sos = SetOpsStatement.of(st);
 				continue;
@@ -223,29 +233,35 @@ public class EntityStatements {
 	}
 
 	public static SelectStatement<?> buildSelect(Map<String, Object> bindings, SqlSelect sqlSelect) {
+		// binding-cache
+		Map<String, ValueRef<Object>> cache = new HashMap<>();
+		return buildSelect(cache, bindings, sqlSelect);
+	}
+
+	private static SelectStatement<?> buildSelect(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, SqlSelect sqlSelect) {
 		Class<?> entityClass = sqlSelect.table();
 		SelectStatement<?> st = new SelectStatement<>(entityClass, Strings.coalesce(sqlSelect.alias(), DEFAULT_TABLE_ALIAS));
 		// select
-		addSelectColumns(bindings, st, sqlSelect.columns(), sqlSelect.quotaSelectAlias());
+		addSelectColumns(cache, bindings, st, sqlSelect.columns(), sqlSelect.quotaSelectAlias());
 
 		// join
-		addJoinClause(bindings, st, sqlSelect.join());
+		addJoinClause(cache, bindings, st, sqlSelect.join());
 
 		// where
-		addWhereClause(bindings, st.where(), sqlSelect.where(), sqlSelect.columnPredicate());
+		addWhereClause(cache, bindings, st.where(), sqlSelect.where(), sqlSelect.columnPredicate());
 		// group by
-		addGroupByClause(bindings, st, sqlSelect.groupBy());
+		addGroupByClause(cache, bindings, st, sqlSelect.groupBy());
 
 		// having
-		addHavingClause(bindings, st, sqlSelect.having());
+		addHavingClause(cache, bindings, st, sqlSelect.having());
 
 		// order by
-		addOrderByClause(bindings, st, sqlSelect);
+		addOrderByClause(cache, bindings, st, sqlSelect);
 
 		return st;
 	}
 
-	private static void addSelectColumns(Map<String, Object> bindings, SelectStatement<?> st, SelectColumn[] columns, boolean quotaSelectAlias) {
+	private static void addSelectColumns(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, SelectStatement<?> st, SelectColumn[] columns, boolean quotaSelectAlias) {
 		if (columns != null && columns.length > 0) {
 			for (SelectColumn col : columns) {
 				String raw = col.raw();
@@ -266,7 +282,7 @@ public class EntityStatements {
 				} else {
 					String valueKey = col.valueKey();
 					if (Strings.isNotBlank(valueKey)) {
-						Object v = BindingValues.getBindingValueOrDefault(bindings, valueKey, null);
+						Object v = BindingValues.getBindingValueOrDefault(cache,bindings, valueKey, null);
 						seg.value(v, col.alias());
 					} else {
 						throw new IllegalStateException("未指定字段名或固定键值");
@@ -279,7 +295,7 @@ public class EntityStatements {
 		st.quotaSelectAlias(quotaSelectAlias);
 	}
 
-	private static void addJoinClause(Map<String, Object> bindings, SelectStatement<?> st, Join[] joins) {
+	private static void addJoinClause(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, SelectStatement<?> st, Join[] joins) {
 		if (joins.length > 0) {
 			for (Join join : joins) {
 				Class<?> joinTable = join.table();
@@ -298,26 +314,26 @@ public class EntityStatements {
 								joinType == JoinType.RIGHT_JOIN ? st.rightJoin(joinTable, joinAlias) :
 									st.outerJoin(joinTable, joinAlias);
 				// select
-				addJoinSelectColumns(bindings, joinSt, join.columns());
+				addJoinSelectColumns(cache, bindings, joinSt, join.columns());
 				// on
 				WhereSegment<?, ?> on = joinSt.on();
 				for (io.polaris.core.jdbc.sql.annotation.segment.Criteria criteria : join.on()) {
-					addWhereByCriteria(bindings, criteria, on);
+					addWhereByCriteria(cache, bindings, criteria, on);
 				}
 				// where
-				addJoinWhereClause(bindings, joinSt, join);
+				addJoinWhereClause(cache, bindings, joinSt, join);
 				// group by
-				addJoinGroupByClause(bindings, joinSt, join.groupBy());
+				addJoinGroupByClause(cache, bindings, joinSt, join.groupBy());
 				// having
-				addJoinHavingClause(bindings, joinSt, join.having());
+				addJoinHavingClause(cache, bindings, joinSt, join.having());
 				// order by
-				addJoinOrderByClause(bindings, joinSt, join);
+				addJoinOrderByClause(cache, bindings, joinSt, join);
 
 			}
 		}
 	}
 
-	private static void addJoinSelectColumns(Map<String, Object> bindings, JoinSegment<?, ?> st, SelectColumn[] columns) {
+	private static void addJoinSelectColumns(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, JoinSegment<?, ?> st, SelectColumn[] columns) {
 		if (columns != null && columns.length > 0) {
 			for (SelectColumn col : columns) {
 				String raw = col.raw();
@@ -350,20 +366,21 @@ public class EntityStatements {
 		}
 	}
 
-	private static void addJoinWhereClause(Map<String, Object> bindings, JoinSegment<?, ?> st
+	private static void addJoinWhereClause(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, JoinSegment<?, ?> st
 		, Join join) {
 		WhereSegment<?, ?> stWhere = st.where();
 		Where where = join.where();
 		String entityIdKey = where.byEntityIdKey();
 		String entityKey = where.byEntityKey();
+
 		if (Strings.isNotBlank(entityIdKey)) {
 			// 存在主键条件时
-			Object entity = BindingValues.getBindingValueOrDefault(bindings, entityIdKey, Collections.emptyMap());
+			Object entity = BindingValues.getBindingValueOrDefault(cache, bindings, entityIdKey, Collections.emptyMap());
 			stWhere.byEntityId(entity);
 		}
 		if (Strings.isNotBlank(entityKey)) {
 			// 不存在主键条件时，使用实体全字段条件
-			Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, Collections.emptyMap());
+			Object entity = BindingValues.getBindingValueOrDefault(cache, bindings, entityKey, Collections.emptyMap());
 			ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings, join.columnPredicate());
 			stWhere.byEntity(entity, columnPredicate);
 		}
@@ -372,11 +389,11 @@ public class EntityStatements {
 			stWhere = stWhere.or();
 		}
 		for (io.polaris.core.jdbc.sql.annotation.segment.Criteria criteria : where.criteria()) {
-			addWhereByCriteria(bindings, criteria, stWhere);
+			addWhereByCriteria(cache, bindings, criteria, stWhere);
 		}
 	}
 
-	private static void addJoinGroupByClause(Map<String, Object> bindings, JoinSegment<?, ?> st
+	private static void addJoinGroupByClause(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, JoinSegment<?, ?> st
 		, GroupBy[] groupBys) {
 		if (groupBys != null && groupBys.length > 0) {
 			for (GroupBy groupBy : groupBys) {
@@ -391,7 +408,7 @@ public class EntityStatements {
 		}
 	}
 
-	private static void addJoinHavingClause(Map<String, Object> bindings, JoinSegment<?, ?> st, Having having) {
+	private static void addJoinHavingClause(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, JoinSegment<?, ?> st, Having having) {
 		io.polaris.core.jdbc.sql.annotation.segment.Criteria[] havingCriteria = having.criteria();
 		Relation havingRelation = having.relation();
 		if (havingCriteria != null && havingCriteria.length > 0) {
@@ -400,12 +417,12 @@ public class EntityStatements {
 				ws = ws.or();
 			}
 			for (io.polaris.core.jdbc.sql.annotation.segment.Criteria criteria : havingCriteria) {
-				addWhereByCriteria(bindings, criteria, ws);
+				addWhereByCriteria(cache, bindings, criteria, ws);
 			}
 		}
 	}
 
-	private static void addJoinOrderByClause(Map<String, Object> bindings, JoinSegment<?, ?> st, Join sqlSelect) {
+	private static void addJoinOrderByClause(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, JoinSegment<?, ?> st, Join sqlSelect) {
 		io.polaris.core.jdbc.sql.annotation.segment.OrderBy[] orderBys = sqlSelect.orderBy();
 		if (orderBys.length > 0) {
 			for (io.polaris.core.jdbc.sql.annotation.segment.OrderBy orderBy : orderBys) {
@@ -425,18 +442,18 @@ public class EntityStatements {
 		}
 	}
 
-	private static void addWhereClause(Map<String, Object> bindings,
+	private static void addWhereClause(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings,
 		WhereSegment<?, ?> ws, Where where,
 		io.polaris.core.jdbc.sql.annotation.segment.ColumnPredicate columnedPredicate) {
 		String entityIdKey = where.byEntityIdKey();
 		String entityKey = where.byEntityKey();
 		if (Strings.isNotBlank(entityIdKey)) {
 			// 存在主键条件时
-			Object entity = BindingValues.getBindingValueOrDefault(bindings, entityIdKey, Collections.emptyMap());
+			Object entity = BindingValues.getBindingValueOrDefault(cache, bindings, entityIdKey, Collections.emptyMap());
 			ws.byEntityId(entity);
 		} else if (Strings.isNotBlank(entityKey)) {
 			// 不存在主键条件时，使用实体全字段条件
-			Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, Collections.emptyMap());
+			Object entity = BindingValues.getBindingValueOrDefault(cache, bindings, entityKey, Collections.emptyMap());
 			ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings,
 				columnedPredicate);
 			ws.byEntity(entity, columnPredicate);
@@ -446,11 +463,11 @@ public class EntityStatements {
 			ws = ws.or();
 		}
 		for (io.polaris.core.jdbc.sql.annotation.segment.Criteria criteria : where.criteria()) {
-			addWhereByCriteria(bindings, criteria, ws);
+			addWhereByCriteria(cache, bindings, criteria, ws);
 		}
 	}
 
-	private static void addGroupByClause(Map<String, Object> bindings, SelectStatement<?> st
+	private static void addGroupByClause(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, SelectStatement<?> st
 		, GroupBy[] groupBys) {
 		if (groupBys != null && groupBys.length > 0) {
 			for (GroupBy groupBy : groupBys) {
@@ -465,7 +482,7 @@ public class EntityStatements {
 		}
 	}
 
-	private static void addHavingClause(Map<String, Object> bindings, SelectStatement<?> st, Having having) {
+	private static void addHavingClause(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, SelectStatement<?> st, Having having) {
 		io.polaris.core.jdbc.sql.annotation.segment.Criteria[] havingCriteria = having.criteria();
 		Relation havingRelation = having.relation();
 		if (havingCriteria != null && havingCriteria.length > 0) {
@@ -474,16 +491,16 @@ public class EntityStatements {
 				ws = ws.or();
 			}
 			for (io.polaris.core.jdbc.sql.annotation.segment.Criteria criteria : havingCriteria) {
-				addWhereByCriteria(bindings, criteria, ws);
+				addWhereByCriteria(cache, bindings, criteria, ws);
 			}
 		}
 	}
 
-	private static void addOrderByClause(Map<String, Object> bindings, SelectStatement<?> st, SqlSelect sqlSelect) {
+	private static void addOrderByClause(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, SelectStatement<?> st, SqlSelect sqlSelect) {
 		boolean hasOrderByKey = false;
 		String orderByKey = sqlSelect.orderByKey();
 		if (Strings.isNotBlank(orderByKey)) {
-			Object orderByObj = BindingValues.getBindingValueOrDefault(bindings, orderByKey, null);
+			Object orderByObj = BindingValues.getBindingValueOrDefault(cache, bindings, orderByKey, null);
 			OrderBy orderBy = null;
 			if (orderByObj instanceof String) {
 				orderBy = Queries.newOrderBy((String) orderByObj);
@@ -517,7 +534,7 @@ public class EntityStatements {
 	}
 
 
-	private static CriterionSegment<?, ?> newCriterionSegmentWithFunction(Map<String, Object> bindings, WhereSegment<?, ?> ws, Criterion criterion) {
+	private static CriterionSegment<?, ?> newCriterionSegmentWithFunction(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, WhereSegment<?, ?> ws, Criterion criterion) {
 		CriterionSegment<?, ?> seg = ws.column(criterion.field());
 		if (criterion.count()) {
 			seg = seg.count();
@@ -543,7 +560,7 @@ public class EntityStatements {
 			JoinColumn[] joinColumns = function.joinColumns();
 			TableField[] tableFields = new TableField[joinColumns.length];
 			for (int i = 0; i < tableFields.length; i++) {
-				TableField v = getJoinTableField(bindings, joinColumns[i]);
+				TableField v = getJoinTableField(cache, bindings, joinColumns[i]);
 				if (v == null) {
 					// 条件不满足
 					continue labelFunc;
@@ -553,7 +570,7 @@ public class EntityStatements {
 			if (bindingKeys.length > 0) {
 				Object[] args = new Object[bindingKeys.length];
 				for (int i = 0; i < bindingKeys.length; i++) {
-					Tuple1<?> val = getValForBindingKey(bindings, bindingKeys[i]);
+					Tuple1<?> val = getValForBindingKey(cache, bindings, bindingKeys[i]);
 					if (val == null) {
 						// 条件不满足
 						continue labelFunc;
@@ -569,7 +586,7 @@ public class EntityStatements {
 		return seg;
 	}
 
-	private static CriterionSegment<?, ?> newSubCriterionSegmentWithFunction(Map<String, Object> bindings, WhereSegment<?, ?> ws, SubCriterion criterion) {
+	private static CriterionSegment<?, ?> newSubCriterionSegmentWithFunction(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, WhereSegment<?, ?> ws, SubCriterion criterion) {
 		CriterionSegment<?, ?> seg = ws.column(criterion.field());
 		if (criterion.count()) {
 			seg = seg.count();
@@ -595,7 +612,7 @@ public class EntityStatements {
 			JoinColumn[] joinColumns = function.joinColumns();
 			TableField[] tableFields = new TableField[joinColumns.length];
 			for (int i = 0; i < tableFields.length; i++) {
-				TableField v = getJoinTableField(bindings, joinColumns[i]);
+				TableField v = getJoinTableField(cache, bindings, joinColumns[i]);
 				if (v == null) {
 					// 条件不满足
 					continue labelFunc;
@@ -605,7 +622,7 @@ public class EntityStatements {
 			if (bindingKeys.length > 0) {
 				Object[] args = new Object[bindingKeys.length];
 				for (int i = 0; i < bindingKeys.length; i++) {
-					Tuple1<?> val = getValForBindingKey(bindings, bindingKeys[i]);
+					Tuple1<?> val = getValForBindingKey(cache, bindings, bindingKeys[i]);
 					if (val == null) {
 						// 条件不满足
 						continue labelFunc;
@@ -620,7 +637,7 @@ public class EntityStatements {
 		return seg;
 	}
 
-	private static CriterionSegment<?, ?> newJoinCriterionSegmentWithFunction(Map<String, Object> bindings, WhereSegment<?, ?> ws, JoinCriterion criterion) {
+	private static CriterionSegment<?, ?> newJoinCriterionSegmentWithFunction(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, WhereSegment<?, ?> ws, JoinCriterion criterion) {
 		CriterionSegment<?, ?> seg = ws.column(criterion.field());
 		if (criterion.count()) {
 			seg = seg.count();
@@ -646,7 +663,7 @@ public class EntityStatements {
 			JoinColumn[] joinColumns = function.joinColumns();
 			TableField[] tableFields = new TableField[joinColumns.length];
 			for (int i = 0; i < tableFields.length; i++) {
-				TableField v = getJoinTableField(bindings, joinColumns[i]);
+				TableField v = getJoinTableField(cache, bindings, joinColumns[i]);
 				if (v == null) {
 					// 条件不满足
 					continue labelFunc;
@@ -656,7 +673,7 @@ public class EntityStatements {
 			if (bindingKeys.length > 0) {
 				Object[] args = new Object[bindingKeys.length];
 				for (int i = 0; i < bindingKeys.length; i++) {
-					Tuple1<?> val = getValForBindingKey(bindings, bindingKeys[i]);
+					Tuple1<?> val = getValForBindingKey(cache, bindings, bindingKeys[i]);
 					if (val == null) {
 						// 条件不满足
 						continue labelFunc;
@@ -671,7 +688,7 @@ public class EntityStatements {
 		return seg;
 	}
 
-	private static void addWhereByCriteria(Map<String, Object> bindings,
+	private static void addWhereByCriteria(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings,
 		io.polaris.core.jdbc.sql.annotation.segment.Criteria criteria, WhereSegment<?, ?> ws) {
 		if (criteria.relation() == Relation.OR) {
 			ws = ws.or();
@@ -679,17 +696,17 @@ public class EntityStatements {
 			ws = ws.and();
 		}
 		for (Criterion criterion : criteria.value()) {
-			addWhereByCriterion(bindings, ws, criterion);
+			addWhereByCriterion(cache, bindings, ws, criterion);
 		}
 		for (JoinCriterion joinCriterion : criteria.join()) {
-			addWhereByJoinCriterion(bindings, ws, joinCriterion);
+			addWhereByJoinCriterion(cache, bindings, ws, joinCriterion);
 		}
 		for (Criteria1 sub : criteria.subset()) {
-			addWhereByCriteria1(bindings, sub, ws);
+			addWhereByCriteria1(cache, bindings, sub, ws);
 		}
 	}
 
-	private static void addWhereByCriteria1(Map<String, Object> bindings,
+	private static void addWhereByCriteria1(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings,
 		Criteria1 criteria, WhereSegment<?, ?> ws) {
 		if (criteria.relation() == Relation.OR) {
 			ws = ws.or();
@@ -697,17 +714,17 @@ public class EntityStatements {
 			ws = ws.and();
 		}
 		for (Criterion criterion : criteria.value()) {
-			addWhereByCriterion(bindings, ws, criterion);
+			addWhereByCriterion(cache, bindings, ws, criterion);
 		}
 		for (JoinCriterion joinCriterion : criteria.join()) {
-			addWhereByJoinCriterion(bindings, ws, joinCriterion);
+			addWhereByJoinCriterion(cache, bindings, ws, joinCriterion);
 		}
 		for (Criteria2 sub : criteria.subset()) {
-			addWhereByCriteria2(bindings, sub, ws);
+			addWhereByCriteria2(cache, bindings, sub, ws);
 		}
 	}
 
-	private static void addWhereByCriteria2(Map<String, Object> bindings,
+	private static void addWhereByCriteria2(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings,
 		Criteria2 criteria, WhereSegment<?, ?> ws) {
 		if (criteria.relation() == Relation.OR) {
 			ws = ws.or();
@@ -715,17 +732,17 @@ public class EntityStatements {
 			ws = ws.and();
 		}
 		for (Criterion criterion : criteria.value()) {
-			addWhereByCriterion(bindings, ws, criterion);
+			addWhereByCriterion(cache, bindings, ws, criterion);
 		}
 		for (JoinCriterion joinCriterion : criteria.join()) {
-			addWhereByJoinCriterion(bindings, ws, joinCriterion);
+			addWhereByJoinCriterion(cache, bindings, ws, joinCriterion);
 		}
 		for (Criteria3 sub : criteria.subset()) {
-			addWhereByCriteria3(bindings, sub, ws);
+			addWhereByCriteria3(cache, bindings, sub, ws);
 		}
 	}
 
-	private static void addWhereByCriteria3(Map<String, Object> bindings,
+	private static void addWhereByCriteria3(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings,
 		Criteria3 criteria, WhereSegment<?, ?> ws) {
 		if (criteria.relation() == Relation.OR) {
 			ws = ws.or();
@@ -733,17 +750,17 @@ public class EntityStatements {
 			ws = ws.and();
 		}
 		for (Criterion criterion : criteria.value()) {
-			addWhereByCriterion(bindings, ws, criterion);
+			addWhereByCriterion(cache, bindings, ws, criterion);
 		}
 		for (JoinCriterion joinCriterion : criteria.join()) {
-			addWhereByJoinCriterion(bindings, ws, joinCriterion);
+			addWhereByJoinCriterion(cache, bindings, ws, joinCriterion);
 		}
 		for (Criteria4 sub : criteria.subset()) {
-			addWhereByCriteria4(bindings, sub, ws);
+			addWhereByCriteria4(cache, bindings, sub, ws);
 		}
 	}
 
-	private static void addWhereByCriteria4(Map<String, Object> bindings,
+	private static void addWhereByCriteria4(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings,
 		Criteria4 criteria, WhereSegment<?, ?> ws) {
 		if (criteria.relation() == Relation.OR) {
 			ws = ws.or();
@@ -751,17 +768,17 @@ public class EntityStatements {
 			ws = ws.and();
 		}
 		for (Criterion criterion : criteria.value()) {
-			addWhereByCriterion(bindings, ws, criterion);
+			addWhereByCriterion(cache, bindings, ws, criterion);
 		}
 		for (JoinCriterion joinCriterion : criteria.join()) {
-			addWhereByJoinCriterion(bindings, ws, joinCriterion);
+			addWhereByJoinCriterion(cache, bindings, ws, joinCriterion);
 		}
 		for (Criteria5 sub : criteria.subset()) {
-			addWhereByCriteria5(bindings, sub, ws);
+			addWhereByCriteria5(cache, bindings, sub, ws);
 		}
 	}
 
-	private static void addWhereByCriteria5(Map<String, Object> bindings,
+	private static void addWhereByCriteria5(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings,
 		Criteria5 criteria, WhereSegment<?, ?> ws) {
 		if (criteria.relation() == Relation.OR) {
 			ws = ws.or();
@@ -769,15 +786,15 @@ public class EntityStatements {
 			ws = ws.and();
 		}
 		for (Criterion criterion : criteria.value()) {
-			addWhereByCriterion(bindings, ws, criterion);
+			addWhereByCriterion(cache, bindings, ws, criterion);
 		}
 		for (JoinCriterion joinCriterion : criteria.join()) {
-			addWhereByJoinCriterion(bindings, ws, joinCriterion);
+			addWhereByJoinCriterion(cache, bindings, ws, joinCriterion);
 		}
 	}
 
 
-	private static void addWhereByCriterion(Map<String, Object> bindings, WhereSegment<?, ?> ws, Criterion criterion) {
+	private static void addWhereByCriterion(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, WhereSegment<?, ?> ws, Criterion criterion) {
 		String raw = criterion.raw();
 		if (Strings.isNotBlank(raw)) {
 			ws.raw(raw);
@@ -788,131 +805,131 @@ public class EntityStatements {
 			return;
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.eq());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.eq());
 			if (val != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).eq(val.getFirst());
+				newCriterionSegmentWithFunction(cache, bindings, ws, criterion).eq(val.getFirst());
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.ne());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.ne());
 			if (val != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).ne(val.getFirst());
+				newCriterionSegmentWithFunction(cache, bindings, ws, criterion).ne(val.getFirst());
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.gt());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.gt());
 			if (val != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).gt(val.getFirst());
+				newCriterionSegmentWithFunction(cache, bindings, ws, criterion).gt(val.getFirst());
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.ge());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.ge());
 			if (val != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).ge(val.getFirst());
+				newCriterionSegmentWithFunction(cache, bindings, ws, criterion).ge(val.getFirst());
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.lt());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.lt());
 			if (val != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).lt(val.getFirst());
+				newCriterionSegmentWithFunction(cache, bindings, ws, criterion).lt(val.getFirst());
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.le());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.le());
 			if (val != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).le(val.getFirst());
+				newCriterionSegmentWithFunction(cache, bindings, ws, criterion).le(val.getFirst());
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.isNull());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.isNull());
 			if (val != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).isNull();
+				newCriterionSegmentWithFunction(cache, bindings, ws, criterion).isNull();
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.notNull());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.notNull());
 			if (val != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).notNull();
+				newCriterionSegmentWithFunction(cache, bindings, ws, criterion).notNull();
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.contains());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.contains());
 			if (val != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).contains(Converters.convertQuietly(String.class, val.getFirst()));
+				newCriterionSegmentWithFunction(cache, bindings, ws, criterion).contains(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.notContains());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.notContains());
 			if (val != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).notContains(Converters.convertQuietly(String.class, val.getFirst()));
+				newCriterionSegmentWithFunction(cache, bindings, ws, criterion).notContains(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.startsWith());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.startsWith());
 			if (val != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).startsWith(Converters.convertQuietly(String.class, val.getFirst()));
+				newCriterionSegmentWithFunction(cache, bindings, ws, criterion).startsWith(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.notStartsWith());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.notStartsWith());
 			if (val != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).notStartsWith(Converters.convertQuietly(String.class, val.getFirst()));
+				newCriterionSegmentWithFunction(cache, bindings, ws, criterion).notStartsWith(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.endsWith());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.endsWith());
 			if (val != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).endsWith(Converters.convertQuietly(String.class, val.getFirst()));
+				newCriterionSegmentWithFunction(cache, bindings, ws, criterion).endsWith(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.notEndsWith());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.notEndsWith());
 			if (val != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).notEndsWith(Converters.convertQuietly(String.class, val.getFirst()));
+				newCriterionSegmentWithFunction(cache, bindings, ws, criterion).notEndsWith(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.like());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.like());
 			if (val != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).like(Converters.convertQuietly(String.class, val.getFirst()));
+				newCriterionSegmentWithFunction(cache, bindings, ws, criterion).like(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.notLike());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.notLike());
 			if (val != null) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).notLike(Converters.convertQuietly(String.class, val.getFirst()));
+				newCriterionSegmentWithFunction(cache, bindings, ws, criterion).notLike(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
 			BindingKey[] between = criterion.between();
 			if (between.length >= 2) {
-				Tuple1<?> val0 = getValForBindingKey(bindings, between[0]);
-				Tuple1<?> val1 = getValForBindingKey(bindings, between[1]);
+				Tuple1<?> val0 = getValForBindingKey(cache, bindings, between[0]);
+				Tuple1<?> val1 = getValForBindingKey(cache, bindings, between[1]);
 				if (val1 != null && val1 != null) {
-					newCriterionSegmentWithFunction(bindings, ws, criterion).between(val0, val1);
+					newCriterionSegmentWithFunction(cache, bindings, ws, criterion).between(val0, val1);
 				}
 			}
 		}
 		{
 			BindingKey[] notBetween = criterion.notBetween();
 			if (notBetween.length >= 2) {
-				Tuple1<?> val0 = getValForBindingKey(bindings, notBetween[0]);
-				Tuple1<?> val1 = getValForBindingKey(bindings, notBetween[1]);
+				Tuple1<?> val0 = getValForBindingKey(cache, bindings, notBetween[0]);
+				Tuple1<?> val1 = getValForBindingKey(cache, bindings, notBetween[1]);
 				if (val1 != null && val1 != null) {
-					newCriterionSegmentWithFunction(bindings, ws, criterion).notBetween(val0, val1);
+					newCriterionSegmentWithFunction(cache, bindings, ws, criterion).notBetween(val0, val1);
 				}
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.in());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.in());
 			if (val != null && val.getFirst() instanceof Collection) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).in((Collection) val.getFirst());
+				newCriterionSegmentWithFunction(cache, bindings, ws, criterion).in((Collection) val.getFirst());
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.notIn());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.notIn());
 			if (val != null && val.getFirst() instanceof Collection) {
-				newCriterionSegmentWithFunction(bindings, ws, criterion).notIn((Collection) val.getFirst());
+				newCriterionSegmentWithFunction(cache, bindings, ws, criterion).notIn((Collection) val.getFirst());
 			}
 		}
 		{
@@ -922,14 +939,14 @@ public class EntityStatements {
 			if (entityClass != void.class && Strings.isNotBlank(tableAlias)) {
 				SelectStatement<?> st = new SelectStatement<>(entityClass, tableAlias);
 				// select
-				addSelectColumns(bindings, st, subSelect.columns(), subSelect.quotaSelectAlias());
+				addSelectColumns(cache, bindings, st, subSelect.columns(), subSelect.quotaSelectAlias());
 				ws.exists(st);
 				// where
-				addSubWhereClause(bindings, st, subSelect);
+				addSubWhereClause(cache, bindings, st, subSelect);
 				// group by
-				addGroupByClause(bindings, st, subSelect.groupBy());
+				addGroupByClause(cache, bindings, st, subSelect.groupBy());
 				// having
-				addSubHavingClause(bindings, st, subSelect.having());
+				addSubHavingClause(cache, bindings, st, subSelect.having());
 			}
 		}
 		{
@@ -939,14 +956,14 @@ public class EntityStatements {
 			if (entityClass != void.class && Strings.isNotBlank(tableAlias)) {
 				SelectStatement<?> st = new SelectStatement<>(entityClass, tableAlias);
 				// select
-				addSelectColumns(bindings, st, subSelect.columns(), subSelect.quotaSelectAlias());
+				addSelectColumns(cache, bindings, st, subSelect.columns(), subSelect.quotaSelectAlias());
 				ws.notExists(st);
 				// where
-				addSubWhereClause(bindings, st, subSelect);
+				addSubWhereClause(cache, bindings, st, subSelect);
 				// group by
-				addGroupByClause(bindings, st, subSelect.groupBy());
+				addGroupByClause(cache, bindings, st, subSelect.groupBy());
 				// having
-				addSubHavingClause(bindings, st, subSelect.having());
+				addSubHavingClause(cache, bindings, st, subSelect.having());
 			}
 		}
 		{
@@ -956,14 +973,14 @@ public class EntityStatements {
 			if (entityClass != void.class && Strings.isNotBlank(tableAlias)) {
 				SelectStatement<?> st = new SelectStatement<>(entityClass, tableAlias);
 				// select
-				addSelectColumns(bindings, st, subSelect.columns(), subSelect.quotaSelectAlias());
-				newCriterionSegmentWithFunction(bindings, ws, criterion).in(st);
+				addSelectColumns(cache, bindings, st, subSelect.columns(), subSelect.quotaSelectAlias());
+				newCriterionSegmentWithFunction(cache, bindings, ws, criterion).in(st);
 				// where
-				addSubWhereClause(bindings, st, subSelect);
+				addSubWhereClause(cache, bindings, st, subSelect);
 				// group by
-				addGroupByClause(bindings, st, subSelect.groupBy());
+				addGroupByClause(cache, bindings, st, subSelect.groupBy());
 				// having
-				addSubHavingClause(bindings, st, subSelect.having());
+				addSubHavingClause(cache, bindings, st, subSelect.having());
 			}
 		}
 		{
@@ -973,19 +990,19 @@ public class EntityStatements {
 			if (entityClass != void.class && Strings.isNotBlank(tableAlias)) {
 				SelectStatement<?> st = new SelectStatement<>(entityClass, tableAlias);
 				// select
-				addSelectColumns(bindings, st, subSelect.columns(), subSelect.quotaSelectAlias());
-				newCriterionSegmentWithFunction(bindings, ws, criterion).notIn(st);
+				addSelectColumns(cache, bindings, st, subSelect.columns(), subSelect.quotaSelectAlias());
+				newCriterionSegmentWithFunction(cache, bindings, ws, criterion).notIn(st);
 				// where
-				addSubWhereClause(bindings, st, subSelect);
+				addSubWhereClause(cache, bindings, st, subSelect);
 				// group by
-				addGroupByClause(bindings, st, subSelect.groupBy());
+				addGroupByClause(cache, bindings, st, subSelect.groupBy());
 				// having
-				addSubHavingClause(bindings, st, subSelect.having());
+				addSubHavingClause(cache, bindings, st, subSelect.having());
 			}
 		}
 	}
 
-	private static void addSubHavingClause(Map<String, Object> bindings, SelectStatement<?> st, SubHaving having) {
+	private static void addSubHavingClause(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, SelectStatement<?> st, SubHaving having) {
 		SubCriteria[] havingCriteria = having.criteria();
 		Relation havingRelation = having.relation();
 		if (havingCriteria != null && havingCriteria.length > 0) {
@@ -994,12 +1011,12 @@ public class EntityStatements {
 				ws = ws.or();
 			}
 			for (SubCriteria criteria : havingCriteria) {
-				addSubWhereByCriteria(bindings, criteria, ws);
+				addSubWhereByCriteria(cache, bindings, criteria, ws);
 			}
 		}
 	}
 
-	private static void addWhereByJoinCriterion(Map<String, Object> bindings, WhereSegment<?, ?> ws, JoinCriterion criterion) {
+	private static void addWhereByJoinCriterion(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, WhereSegment<?, ?> ws, JoinCriterion criterion) {
 		String raw = criterion.raw();
 		if (Strings.isNotBlank(raw)) {
 			ws.raw(raw);
@@ -1010,77 +1027,77 @@ public class EntityStatements {
 			return;
 		}
 		{
-			TableField v = getJoinTableField(bindings, criterion.eq());
+			TableField v = getJoinTableField(cache, bindings, criterion.eq());
 			if (v != null) {
-				newJoinCriterionSegmentWithFunction(bindings, ws, criterion).eq(v);
+				newJoinCriterionSegmentWithFunction(cache, bindings, ws, criterion).eq(v);
 			}
 		}
 		{
-			TableField v = getJoinTableField(bindings, criterion.ne());
+			TableField v = getJoinTableField(cache, bindings, criterion.ne());
 			if (v != null) {
-				newJoinCriterionSegmentWithFunction(bindings, ws, criterion).ne(v);
+				newJoinCriterionSegmentWithFunction(cache, bindings, ws, criterion).ne(v);
 			}
 		}
 		{
-			TableField v = getJoinTableField(bindings, criterion.gt());
+			TableField v = getJoinTableField(cache, bindings, criterion.gt());
 			if (v != null) {
-				newJoinCriterionSegmentWithFunction(bindings, ws, criterion).gt(v);
+				newJoinCriterionSegmentWithFunction(cache, bindings, ws, criterion).gt(v);
 			}
 		}
 		{
-			TableField v = getJoinTableField(bindings, criterion.ge());
+			TableField v = getJoinTableField(cache, bindings, criterion.ge());
 			if (v != null) {
-				newJoinCriterionSegmentWithFunction(bindings, ws, criterion).ge(v);
+				newJoinCriterionSegmentWithFunction(cache, bindings, ws, criterion).ge(v);
 			}
 		}
 		{
-			TableField v = getJoinTableField(bindings, criterion.lt());
+			TableField v = getJoinTableField(cache, bindings, criterion.lt());
 			if (v != null) {
-				newJoinCriterionSegmentWithFunction(bindings, ws, criterion).lt(v);
+				newJoinCriterionSegmentWithFunction(cache, bindings, ws, criterion).lt(v);
 			}
 		}
 		{
-			TableField v = getJoinTableField(bindings, criterion.le());
+			TableField v = getJoinTableField(cache, bindings, criterion.le());
 			if (v != null) {
-				newJoinCriterionSegmentWithFunction(bindings, ws, criterion).le(v);
+				newJoinCriterionSegmentWithFunction(cache, bindings, ws, criterion).le(v);
 			}
 		}
 		{
 			JoinColumn[] between = criterion.between();
 			if (between.length >= 2) {
-				TableField val0 = getJoinTableField(bindings, between[0]);
-				TableField val1 = getJoinTableField(bindings, between[1]);
+				TableField val0 = getJoinTableField(cache, bindings, between[0]);
+				TableField val1 = getJoinTableField(cache, bindings, between[1]);
 				if (val1 != null && val1 != null) {
-					newJoinCriterionSegmentWithFunction(bindings, ws, criterion).between(val0, val1);
+					newJoinCriterionSegmentWithFunction(cache, bindings, ws, criterion).between(val0, val1);
 				}
 			}
 		}
 		{
 			JoinColumn[] notBetween = criterion.notBetween();
 			if (notBetween.length >= 2) {
-				TableField val0 = getJoinTableField(bindings, notBetween[0]);
-				TableField val1 = getJoinTableField(bindings, notBetween[1]);
+				TableField val0 = getJoinTableField(cache, bindings, notBetween[0]);
+				TableField val1 = getJoinTableField(cache, bindings, notBetween[1]);
 				if (val1 != null && val1 != null) {
-					newJoinCriterionSegmentWithFunction(bindings, ws, criterion).notBetween(val0, val1);
+					newJoinCriterionSegmentWithFunction(cache, bindings, ws, criterion).notBetween(val0, val1);
 				}
 			}
 		}
 
 	}
 
-	private static void addSubWhereClause(Map<String, Object> bindings, SelectStatement<?> st
+	private static void addSubWhereClause(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, SelectStatement<?> st
 		, SubSelect subSelect) {
 		SubWhere where = subSelect.where();
 		String entityIdKey = where.byEntityIdKey();
 		String entityKey = where.byEntityKey();
 		if (Strings.isNotBlank(entityIdKey)) {
 			// 存在主键条件时
-			Object entity = BindingValues.getBindingValueOrDefault(bindings, entityIdKey, Collections.emptyMap());
+			Object entity = BindingValues.getBindingValueOrDefault(cache, bindings, entityIdKey, Collections.emptyMap());
 			st.where().byEntityId(entity);
 		}
 		if (Strings.isNotBlank(entityKey)) {
 			// 不存在主键条件时，使用实体全字段条件
-			Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, Collections.emptyMap());
+			Object entity = BindingValues.getBindingValueOrDefault(cache, bindings, entityKey, Collections.emptyMap());
 			ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings, subSelect.columnPredicate());
 			st.where().byEntity(entity, columnPredicate);
 		}
@@ -1090,11 +1107,11 @@ public class EntityStatements {
 			stWhere = st.where().or();
 		}
 		for (SubCriteria criteria : where.criteria()) {
-			addSubWhereByCriteria(bindings, criteria, stWhere);
+			addSubWhereByCriteria(cache, bindings, criteria, stWhere);
 		}
 	}
 
-	private static void addSubWhereByCriteria(Map<String, Object> bindings,
+	private static void addSubWhereByCriteria(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings,
 		SubCriteria criteria, WhereSegment<?, ?> ws) {
 		if (criteria.relation() == Relation.OR) {
 			ws = ws.or();
@@ -1102,17 +1119,17 @@ public class EntityStatements {
 			ws = ws.and();
 		}
 		for (SubCriterion criterion : criteria.value()) {
-			addWhereBySubCriterion(bindings, ws, criterion);
+			addWhereBySubCriterion(cache, bindings, ws, criterion);
 		}
 		for (JoinCriterion joinCriterion : criteria.join()) {
-			addWhereByJoinCriterion(bindings, ws, joinCriterion);
+			addWhereByJoinCriterion(cache, bindings, ws, joinCriterion);
 		}
 		for (SubCriteria1 sub : criteria.subset()) {
-			addSubWhereByCriteria1(bindings, sub, ws);
+			addSubWhereByCriteria1(cache, bindings, sub, ws);
 		}
 	}
 
-	private static void addSubWhereByCriteria1(Map<String, Object> bindings,
+	private static void addSubWhereByCriteria1(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings,
 		SubCriteria1 criteria, WhereSegment<?, ?> ws) {
 		if (criteria.relation() == Relation.OR) {
 			ws = ws.or();
@@ -1120,17 +1137,17 @@ public class EntityStatements {
 			ws = ws.and();
 		}
 		for (SubCriterion criterion : criteria.value()) {
-			addWhereBySubCriterion(bindings, ws, criterion);
+			addWhereBySubCriterion(cache, bindings, ws, criterion);
 		}
 		for (JoinCriterion joinCriterion : criteria.join()) {
-			addWhereByJoinCriterion(bindings, ws, joinCriterion);
+			addWhereByJoinCriterion(cache, bindings, ws, joinCriterion);
 		}
 		for (SubCriteria2 sub : criteria.subset()) {
-			addSubWhereByCriteria2(bindings, sub, ws);
+			addSubWhereByCriteria2(cache, bindings, sub, ws);
 		}
 	}
 
-	private static void addSubWhereByCriteria2(Map<String, Object> bindings,
+	private static void addSubWhereByCriteria2(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings,
 		SubCriteria2 criteria, WhereSegment<?, ?> ws) {
 		if (criteria.relation() == Relation.OR) {
 			ws = ws.or();
@@ -1138,17 +1155,17 @@ public class EntityStatements {
 			ws = ws.and();
 		}
 		for (SubCriterion criterion : criteria.value()) {
-			addWhereBySubCriterion(bindings, ws, criterion);
+			addWhereBySubCriterion(cache, bindings, ws, criterion);
 		}
 		for (JoinCriterion joinCriterion : criteria.join()) {
-			addWhereByJoinCriterion(bindings, ws, joinCriterion);
+			addWhereByJoinCriterion(cache, bindings, ws, joinCriterion);
 		}
 		for (SubCriteria3 sub : criteria.subset()) {
-			addSubWhereByCriteria3(bindings, sub, ws);
+			addSubWhereByCriteria3(cache, bindings, sub, ws);
 		}
 	}
 
-	private static void addSubWhereByCriteria3(Map<String, Object> bindings,
+	private static void addSubWhereByCriteria3(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings,
 		SubCriteria3 criteria, WhereSegment<?, ?> ws) {
 		if (criteria.relation() == Relation.OR) {
 			ws = ws.or();
@@ -1156,17 +1173,17 @@ public class EntityStatements {
 			ws = ws.and();
 		}
 		for (SubCriterion criterion : criteria.value()) {
-			addWhereBySubCriterion(bindings, ws, criterion);
+			addWhereBySubCriterion(cache, bindings, ws, criterion);
 		}
 		for (JoinCriterion joinCriterion : criteria.join()) {
-			addWhereByJoinCriterion(bindings, ws, joinCriterion);
+			addWhereByJoinCriterion(cache, bindings, ws, joinCriterion);
 		}
 		for (SubCriteria4 sub : criteria.subset()) {
-			addSubWhereByCriteria4(bindings, sub, ws);
+			addSubWhereByCriteria4(cache, bindings, sub, ws);
 		}
 	}
 
-	private static void addSubWhereByCriteria4(Map<String, Object> bindings,
+	private static void addSubWhereByCriteria4(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings,
 		SubCriteria4 criteria, WhereSegment<?, ?> ws) {
 		if (criteria.relation() == Relation.OR) {
 			ws = ws.or();
@@ -1174,17 +1191,17 @@ public class EntityStatements {
 			ws = ws.and();
 		}
 		for (SubCriterion criterion : criteria.value()) {
-			addWhereBySubCriterion(bindings, ws, criterion);
+			addWhereBySubCriterion(cache, bindings, ws, criterion);
 		}
 		for (JoinCriterion joinCriterion : criteria.join()) {
-			addWhereByJoinCriterion(bindings, ws, joinCriterion);
+			addWhereByJoinCriterion(cache, bindings, ws, joinCriterion);
 		}
 		for (SubCriteria5 sub : criteria.subset()) {
-			addSubWhereByCriteria5(bindings, sub, ws);
+			addSubWhereByCriteria5(cache, bindings, sub, ws);
 		}
 	}
 
-	private static void addSubWhereByCriteria5(Map<String, Object> bindings,
+	private static void addSubWhereByCriteria5(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings,
 		SubCriteria5 criteria, WhereSegment<?, ?> ws) {
 		if (criteria.relation() == Relation.OR) {
 			ws = ws.or();
@@ -1192,14 +1209,14 @@ public class EntityStatements {
 			ws = ws.and();
 		}
 		for (SubCriterion criterion : criteria.value()) {
-			addWhereBySubCriterion(bindings, ws, criterion);
+			addWhereBySubCriterion(cache, bindings, ws, criterion);
 		}
 		for (JoinCriterion joinCriterion : criteria.join()) {
-			addWhereByJoinCriterion(bindings, ws, joinCriterion);
+			addWhereByJoinCriterion(cache, bindings, ws, joinCriterion);
 		}
 	}
 
-	private static void addWhereBySubCriterion(Map<String, Object> bindings, WhereSegment<?, ?> ws, SubCriterion criterion) {
+	private static void addWhereBySubCriterion(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, WhereSegment<?, ?> ws, SubCriterion criterion) {
 		String raw = criterion.raw();
 		if (Strings.isNotBlank(raw)) {
 			ws.raw(raw);
@@ -1211,166 +1228,166 @@ public class EntityStatements {
 		}
 
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.eq());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.eq());
 			if (val != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).eq(val.getFirst());
+				newSubCriterionSegmentWithFunction(cache, bindings, ws, criterion).eq(val.getFirst());
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.ne());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.ne());
 			if (val != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).ne(val.getFirst());
+				newSubCriterionSegmentWithFunction(cache, bindings, ws, criterion).ne(val.getFirst());
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.gt());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.gt());
 			if (val != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).gt(val.getFirst());
+				newSubCriterionSegmentWithFunction(cache, bindings, ws, criterion).gt(val.getFirst());
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.ge());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.ge());
 			if (val != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).ge(val.getFirst());
+				newSubCriterionSegmentWithFunction(cache, bindings, ws, criterion).ge(val.getFirst());
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.lt());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.lt());
 			if (val != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).lt(val.getFirst());
+				newSubCriterionSegmentWithFunction(cache, bindings, ws, criterion).lt(val.getFirst());
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.le());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.le());
 			if (val != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).le(val.getFirst());
+				newSubCriterionSegmentWithFunction(cache, bindings, ws, criterion).le(val.getFirst());
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.isNull());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.isNull());
 			if (val != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).isNull();
+				newSubCriterionSegmentWithFunction(cache, bindings, ws, criterion).isNull();
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.notNull());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.notNull());
 			if (val != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).notNull();
+				newSubCriterionSegmentWithFunction(cache, bindings, ws, criterion).notNull();
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.contains());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.contains());
 			if (val != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).contains(Converters.convertQuietly(String.class, val.getFirst()));
+				newSubCriterionSegmentWithFunction(cache, bindings, ws, criterion).contains(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.notContains());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.notContains());
 			if (val != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).notContains(Converters.convertQuietly(String.class, val.getFirst()));
+				newSubCriterionSegmentWithFunction(cache, bindings, ws, criterion).notContains(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.startsWith());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.startsWith());
 			if (val != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).startsWith(Converters.convertQuietly(String.class, val.getFirst()));
+				newSubCriterionSegmentWithFunction(cache, bindings, ws, criterion).startsWith(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.notStartsWith());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.notStartsWith());
 			if (val != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).notStartsWith(Converters.convertQuietly(String.class, val.getFirst()));
+				newSubCriterionSegmentWithFunction(cache, bindings, ws, criterion).notStartsWith(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.endsWith());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.endsWith());
 			if (val != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).endsWith(Converters.convertQuietly(String.class, val.getFirst()));
+				newSubCriterionSegmentWithFunction(cache, bindings, ws, criterion).endsWith(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.notEndsWith());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.notEndsWith());
 			if (val != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).notEndsWith(Converters.convertQuietly(String.class, val.getFirst()));
+				newSubCriterionSegmentWithFunction(cache, bindings, ws, criterion).notEndsWith(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.like());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.like());
 			if (val != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).like(Converters.convertQuietly(String.class, val.getFirst()));
+				newSubCriterionSegmentWithFunction(cache, bindings, ws, criterion).like(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.notLike());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.notLike());
 			if (val != null) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).notLike(Converters.convertQuietly(String.class, val.getFirst()));
+				newSubCriterionSegmentWithFunction(cache, bindings, ws, criterion).notLike(Converters.convertQuietly(String.class, val.getFirst()));
 			}
 		}
 		{
 			BindingKey[] between = criterion.between();
 			if (between.length >= 2) {
-				Tuple1<?> val0 = getValForBindingKey(bindings, between[0]);
-				Tuple1<?> val1 = getValForBindingKey(bindings, between[1]);
+				Tuple1<?> val0 = getValForBindingKey(cache, bindings, between[0]);
+				Tuple1<?> val1 = getValForBindingKey(cache, bindings, between[1]);
 				if (val1 != null && val1 != null) {
-					newSubCriterionSegmentWithFunction(bindings, ws, criterion).between(val0, val1);
+					newSubCriterionSegmentWithFunction(cache, bindings, ws, criterion).between(val0, val1);
 				}
 			}
 		}
 		{
 			BindingKey[] notBetween = criterion.notBetween();
 			if (notBetween.length >= 2) {
-				Tuple1<?> val0 = getValForBindingKey(bindings, notBetween[0]);
-				Tuple1<?> val1 = getValForBindingKey(bindings, notBetween[1]);
+				Tuple1<?> val0 = getValForBindingKey(cache, bindings, notBetween[0]);
+				Tuple1<?> val1 = getValForBindingKey(cache, bindings, notBetween[1]);
 				if (val1 != null && val1 != null) {
-					newSubCriterionSegmentWithFunction(bindings, ws, criterion).notBetween(val0, val1);
+					newSubCriterionSegmentWithFunction(cache, bindings, ws, criterion).notBetween(val0, val1);
 				}
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.in());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.in());
 			if (val != null && val.getFirst() instanceof Collection) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).in((Collection) val.getFirst());
+				newSubCriterionSegmentWithFunction(cache, bindings, ws, criterion).in((Collection) val.getFirst());
 			}
 		}
 		{
-			Tuple1<?> val = getValForBindingKey(bindings, criterion.notIn());
+			Tuple1<?> val = getValForBindingKey(cache, bindings, criterion.notIn());
 			if (val != null && val.getFirst() instanceof Collection) {
-				newSubCriterionSegmentWithFunction(bindings, ws, criterion).notIn((Collection) val.getFirst());
+				newSubCriterionSegmentWithFunction(cache, bindings, ws, criterion).notIn((Collection) val.getFirst());
 			}
 		}
 	}
 
-	private static TableField getJoinTableField(Map<String, Object> bindings, JoinColumn joinColumn) {
+	private static TableField getJoinTableField(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, JoinColumn joinColumn) {
 		String field = joinColumn.tableField();
 		String tableAlias = joinColumn.tableAlias();
 		if (Strings.isBlank(field) || Strings.isBlank(tableAlias)) {
 			return null;
 		}
-		if (!evalConditionPredicate(bindings, null, joinColumn.condition())) {
+		if (!evalConditionPredicate(cache, bindings, null, joinColumn.condition())) {
 			return null;
 		}
 		return TableField.of(tableAlias, field);
 	}
 
-	private static Tuple1<?> getValForBindingKey(Map<String, Object> bindings, BindingKey bindingKey) {
+	private static Tuple1<?> getValForBindingKey(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, BindingKey bindingKey) {
 		String key = bindingKey.value();
 		if (Strings.isBlank(key)) {
 			return null;
 		}
-		if (!evalConditionPredicate(bindings, key, bindingKey.condition())) {
+		if (!evalConditionPredicate(cache, bindings, key, bindingKey.condition())) {
 			return null;
 		}
-		return Tuple1.of(BindingValues.getBindingValueOrDefault(bindings, key, null));
+		return Tuple1.of(BindingValues.getBindingValueOrDefault(cache, bindings, key, null));
 	}
 
 
-	private static boolean evalConditionPredicate(Map<String, Object> bindings, String bindingKey, Condition[] conditions) {
+	private static boolean evalConditionPredicate(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, String bindingKey, Condition[] conditions) {
 		for (Condition condition : conditions) {
 			String key = Strings.coalesce(condition.bindingKey(), bindingKey);
 			if (Strings.isBlank(key)) {
 				return false;
 			}
-			Object condVal = BindingValues.getBindingValueOrDefault(bindings, key, null);
+			Object condVal = BindingValues.getBindingValueOrDefault(cache, bindings, key, null);
 			Condition.PredicateType predicateType = condition.predicateType();
 			switch (predicateType) {
 				case NOT_NULL: {
@@ -1434,7 +1451,7 @@ public class EntityStatements {
 				case CUSTOM: {
 					String predicateKey = condition.predicateKey();
 					if (Strings.isNotBlank(predicateKey)) {
-						BiPredicate<Map<String, Object>, Object> predicate = (BiPredicate<Map<String, Object>, Object>) BindingValues.getBindingValueOrDefault(bindings, predicateKey, null);
+						BiPredicate<Map<String, Object>, Object> predicate = (BiPredicate<Map<String, Object>, Object>) BindingValues.getBindingValueOrDefault(cache, bindings, predicateKey, null);
 						if (predicate == null || !predicate.test(bindings, condVal)) {
 							return false;
 						}
@@ -1607,14 +1624,17 @@ public class EntityStatements {
 	public static SelectStatement<?> buildSelect(Map<String, Object> bindings, Class<?> entityClass, String tableAlias, boolean byId, String entityKey, String whereKey, String orderByKey, ColumnPredicate columnPredicate) {
 		SelectStatement<?> st = new SelectStatement<>(entityClass, Strings.coalesce(tableAlias, DEFAULT_TABLE_ALIAS));
 		st.selectAll();
+
+		// binding-cache
+		Map<String, ValueRef<Object>> cache = new HashMap<>();
 		if (byId) {
-			Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, null);
+			Object entity = BindingValues.getBindingValueOrDefault(cache, bindings, entityKey, null);
 			if (entity == null) {
-				entity = BindingValues.getBindingValueOrDefault(bindings, whereKey, Collections.emptyMap());
+				entity = BindingValues.getBindingValueOrDefault(cache, bindings, whereKey, Collections.emptyMap());
 			}
 			st.where().byEntityId(entity);
 		} else {
-			Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, null);
+			Object entity = BindingValues.getBindingValueOrDefault(cache, bindings, entityKey, null);
 			if (entity != null) {
 				if (entity instanceof Criteria) {
 					st.where((Criteria) entity);
@@ -1622,7 +1642,7 @@ public class EntityStatements {
 					st.where().byEntity(entity, columnPredicate);
 				}
 			}
-			entity = BindingValues.getBindingValueOrDefault(bindings, whereKey, null);
+			entity = BindingValues.getBindingValueOrDefault(cache, bindings, whereKey, null);
 			if (entity != null) {
 				if (entity instanceof Criteria) {
 					st.where((Criteria) entity);
@@ -1633,7 +1653,7 @@ public class EntityStatements {
 		}
 
 		// 排序字段
-		Object orderByObj = BindingValues.getBindingValueOrDefault(bindings, orderByKey, null);
+		Object orderByObj = BindingValues.getBindingValueOrDefault(cache, bindings, orderByKey, null);
 		OrderBy orderBy = null;
 		if (orderByObj instanceof String) {
 			orderBy = Queries.newOrderBy((String) orderByObj);

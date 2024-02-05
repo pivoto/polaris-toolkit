@@ -14,6 +14,7 @@ import io.polaris.core.converter.Converters;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.string.Strings;
+import io.polaris.core.tuple.ValueRef;
 
 /**
  * @author Qt
@@ -21,7 +22,7 @@ import io.polaris.core.string.Strings;
  */
 public class BindingValues {
 
-	public static Object getValueForInsert(ColumnMeta meta,Object val){
+	public static Object getValueForInsert(ColumnMeta meta, Object val) {
 		if (val == null) {
 			if (meta.isCreateTime() || meta.isUpdateTime()) {
 				val = Converters.convertQuietly(meta.getFieldType(), new Date());
@@ -34,20 +35,21 @@ public class BindingValues {
 			}
 		}
 		if (val == null) {
-			if (meta.isVersion()){
+			if (meta.isVersion()) {
 				val = Converters.convertQuietly(meta.getFieldType(), 1L);
 			}
 		}
 		if (val == null) {
-			if (meta.isLogicDeleted()){
+			if (meta.isLogicDeleted()) {
 				val = Converters.convertQuietly(meta.getFieldType(), false);
 			}
 		}
 		return val;
 	}
-	public static Object getValueForUpdate(ColumnMeta meta,Object val){
+
+	public static Object getValueForUpdate(ColumnMeta meta, Object val) {
 		if (val == null) {
-			if ( meta.isUpdateTime()) {
+			if (meta.isUpdateTime()) {
 				val = Converters.convertQuietly(meta.getFieldType(), new Date());
 			}
 		}
@@ -105,7 +107,7 @@ public class BindingValues {
 		return range;
 	}
 
-	public static Object getDefaultTimeVal(Class<?> fieldType){
+	public static Object getDefaultTimeVal(Class<?> fieldType) {
 		if (fieldType.isAssignableFrom(Date.class)) {
 			return new Date();
 		}
@@ -124,7 +126,7 @@ public class BindingValues {
 		return new Date();
 	}
 
-	public static Object getBindingValueOrDefault(Map<String, Object> bindings, String key, Object defVal){
+	public static Object getBindingValueOrDefault(Map<String, Object> bindings, String key, Object defVal) {
 		if (bindings == null) {
 			return defVal;
 		}
@@ -136,6 +138,37 @@ public class BindingValues {
 			return val;
 		}
 		return bindings.getOrDefault(key, defVal);
+	}
+
+	public static Object getBindingValueOrDefault(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, String key, Object defVal) {
+		if (bindings == null) {
+			return defVal;
+		}
+		Object val;
+		if (cache != null) {
+			ValueRef<Object> ref = cache.get(key);
+			if (ref != null) {
+				val = ref.get();
+			} else {
+				if (key.contains(".") || key.contains("[")) {
+					val = Beans.getPathProperty(bindings, key);
+					cache.put(key, ValueRef.of(val));
+				} else {
+					val = bindings.get(key);
+					cache.put(key, ValueRef.of(val));
+				}
+			}
+		} else {
+			if (key.contains(".") || key.contains("[")) {
+				val = Beans.getPathProperty(bindings, key);
+			} else {
+				val = bindings.get(key);
+			}
+		}
+		if (val == null) {
+			return defVal;
+		}
+		return val;
 	}
 
 }
