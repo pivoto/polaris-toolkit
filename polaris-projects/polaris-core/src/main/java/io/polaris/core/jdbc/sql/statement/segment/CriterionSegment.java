@@ -82,9 +82,9 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 	}
 
 
-	public CriterionSegment(O owner, String column) {
+	public CriterionSegment(O owner, String rawColumn) {
 		this.owner = owner;
-		this._rawColumn = column;
+		this._rawColumn = rawColumn;
 	}
 
 	public <T extends TableSegment<?>> CriterionSegment(O owner, TableAccessible tableAccessible, T table, String field) {
@@ -137,8 +137,8 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		return owner;
 	}
 
-	protected S rawColumn(String column) {
-		this._rawColumn = column;
+	protected S rawColumn(String rawColumn) {
+		this._rawColumn = rawColumn;
 		return getThis();
 	}
 

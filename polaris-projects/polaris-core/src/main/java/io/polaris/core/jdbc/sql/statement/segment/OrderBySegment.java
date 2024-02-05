@@ -82,8 +82,8 @@ public class OrderBySegment<O extends Segment<O>, S extends OrderBySegment<O, S>
 		return getThis();
 	}
 
-	public S rawColumn(String column) {
-		this._rawColumn = column;
+	public S rawColumn(String rawColumn) {
+		this._rawColumn = rawColumn;
 		return getThis();
 	}
 

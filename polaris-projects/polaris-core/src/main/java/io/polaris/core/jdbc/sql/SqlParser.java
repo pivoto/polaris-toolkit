@@ -1,7 +1,11 @@
 package io.polaris.core.jdbc.sql;
 
 import io.polaris.core.consts.StdConsts;
+import io.polaris.core.consts.SymbolConsts;
+import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.sql.node.*;
+import io.polaris.core.jdbc.sql.statement.segment.TableAccessible;
+import io.polaris.core.jdbc.sql.statement.segment.TableSegment;
 import io.polaris.core.lang.bean.BeanMap;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.string.StringCases;
@@ -92,6 +96,41 @@ public class SqlParser {
 		return root;
 	}
 
+
+
+	public static String resolveRefTableField(String sql, TableAccessible tableAccessible) {
+		ContainerNode containerNode = SqlParser.parse(sql, '&', (char) -1, '{', '}');
+		containerNode.visitSubset(node -> {
+			if (node.isVarNode()) {
+				String varName = node.getVarName();
+				Deque<String> path = Beans.parseProperty(varName);
+				int size = path.size();
+				if (size > 2) {
+					throw new IllegalArgumentException("表达式错误(&{tableAlias.tableField}): " + varName);
+				}
+				String tableAlias = path.pollFirst();
+				TableSegment<?> table = tableAccessible.getTable(tableAlias);
+				if (table == null) {
+					throw new IllegalArgumentException("表别名不存在: " + tableAlias);
+				}
+				String tableField = path.pollFirst();
+				if (tableField == null) {
+					TableMeta tableMeta = table.getTableMeta();
+					if (tableMeta == null) {
+						node.bindVarValue(tableAlias);
+					} else {
+						node.bindVarValue(tableMeta.getTable() + " " + tableAlias);
+					}
+				} else if (SymbolConsts.ASTERISK.equals(tableField)) {
+					node.bindVarValue(table.getAllColumnExpression(false));
+				} else {
+					node.bindVarValue(table.getColumnExpression(tableField));
+				}
+			}
+		});
+
+		return containerNode.toString();
+	}
 
 	/**
 	 * 是否基本数据类型(基本类型,枚举,数组,字符串,数值,日期)

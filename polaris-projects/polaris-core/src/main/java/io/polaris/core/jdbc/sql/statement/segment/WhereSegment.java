@@ -242,7 +242,15 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 		return getThis();
 	}
 
+	/**
+	 * @param raw 原生SQL条件，支持表达式`&{tableAlias.tableField}`解析
+	 * @return 当前条件对象
+	 */
 	public S raw(String raw) {
+		if (tableAccessible != null) {
+			// 解析表字段名
+			raw = tableAccessible.resolveRefTableField(raw);
+		}
 		criteria.add(new CriterionSegment<>(getThis(), new TextNode(raw)));
 		return getThis();
 	}
@@ -273,7 +281,15 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 		return getThis();
 	}
 
+	/**
+	 * @param rawColumn 原生SQL字段名，支持表达式`&{tableAlias.tableField}`解析
+	 * @return 字段条件对象
+	 */
 	public CriterionSegment<S, ?> rawColumn(String rawColumn) {
+		if (tableAccessible != null) {
+			// 解析表字段名
+			rawColumn = tableAccessible.resolveRefTableField(rawColumn);
+		}
 		CriterionSegment<S, ?> c = new CriterionSegment<>(getThis(), rawColumn);
 		criteria.add(c);
 		return c;
