@@ -11,6 +11,7 @@ import io.polaris.core.annotation.AnnotationProcessing;
 import io.polaris.core.assertion.Assertions;
 import io.polaris.core.consts.StdConsts;
 import io.polaris.core.consts.SymbolConsts;
+import io.polaris.core.jdbc.sql.SqlTextParsers;
 import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
@@ -138,6 +139,8 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 	}
 
 	protected S rawColumn(String rawColumn) {
+		// 解析表字段名
+		rawColumn = SqlTextParsers.resolveRefTableField(rawColumn, tableAccessible);
 		this._rawColumn = rawColumn;
 		return getThis();
 	}
@@ -569,7 +572,7 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 	}
 
 	public <E> O in(Collection<E> value, int limitSize) {
-		Assertions.assertTrue(limitSize > 0,"查");
+		Assertions.assertTrue(limitSize > 0,"集合元素数量上限必须大于0");
 		if (value.size() < limitSize) {
 			this.expression = new ExpressionSegment<>(this.expression, LogicalExpression.IN.getExpression(), value);
 		} else {

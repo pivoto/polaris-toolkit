@@ -56,7 +56,6 @@ public class SelectSegment<O extends Segment<O>, S extends SelectSegment<O, S>> 
 		if (owner instanceof TableAccessibleHolder) {
 			return ((TableAccessibleHolder) owner).getTableAccessible();
 		}
-		// 暂不支持复杂Update语句
 		return null;
 	}
 

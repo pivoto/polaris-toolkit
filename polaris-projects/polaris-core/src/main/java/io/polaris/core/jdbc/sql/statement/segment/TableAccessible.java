@@ -1,6 +1,6 @@
 package io.polaris.core.jdbc.sql.statement.segment;
 
-import io.polaris.core.jdbc.sql.SqlParser;
+import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
@@ -17,7 +17,23 @@ public interface TableAccessible extends TableAccessibleHolder {
 		return this;
 	}
 
-	default String resolveRefTableField(String sql) {
-		return SqlParser.resolveRefTableField(sql, this);
+	static TableAccessible of(TableSegment<?>... tables) {
+		return new TableAccessible() {
+			@Override
+			public TableSegment<?> getTable(int tableIndex) {
+				return tables.length > tableIndex ? tables[tableIndex] : null;
+			}
+
+			@Override
+			public TableSegment<?> getTable(String tableAlias) {
+				for (int i = 0; i < tables.length; i++) {
+					TableSegment<?> table = tables[i];
+					if (Strings.equals(table.getTableAlias(), tableAlias)) {
+						return table;
+					}
+				}
+				return null;
+			}
+		};
 	}
 }

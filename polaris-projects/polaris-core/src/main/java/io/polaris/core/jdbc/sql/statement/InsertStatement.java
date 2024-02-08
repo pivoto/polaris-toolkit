@@ -16,6 +16,7 @@ import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
 import io.polaris.core.jdbc.sql.node.TextNode;
 import io.polaris.core.jdbc.sql.statement.segment.ColumnSegment;
+import io.polaris.core.jdbc.sql.statement.segment.TableAccessible;
 import io.polaris.core.jdbc.sql.statement.segment.TableSegment;
 import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.bean.Beans;
@@ -26,7 +27,7 @@ import io.polaris.core.lang.bean.Beans;
  */
 @SuppressWarnings("all")
 @AnnotationProcessing
-public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement<S> {
+public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement<S> implements TableAccessible {
 
 	private TableSegment<?> table;
 	private final List<ColumnSegment<S, ?>> columns = new ArrayList<>();
@@ -38,8 +39,17 @@ public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement
 		this.table = TableSegment.fromEntity(entityClass, null);
 	}
 
+	@AnnotationProcessing
+	public InsertStatement(Class<?> entityClass, String alias) {
+		this.table = TableSegment.fromEntity(entityClass, alias);
+	}
+
 	public static InsertStatement<?> of(Class<?> entityClass) {
 		return new InsertStatement<>(entityClass);
+	}
+
+	public static InsertStatement<?> of(Class<?> entityClass, String alias) {
+		return new InsertStatement<>(entityClass, alias);
 	}
 
 	@Override
@@ -258,4 +268,23 @@ public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement
 	}
 
 
+	@Override
+	public TableSegment<?> getTable(int tableIndex) {
+		// 不支持负数定位
+		if (tableIndex < 0) {
+			throw new IllegalArgumentException("tableIndex: " + tableIndex);
+		}
+		if (tableIndex == 0) {
+			return this.table;
+		}
+		throw new IllegalArgumentException("no such table! tableIndex: " + tableIndex);
+	}
+
+	@Override
+	public TableSegment<?> getTable(String tableAlias) {
+		if (Objs.equals(this.table.getTableAlias(), tableAlias)) {
+			return this.table;
+		}
+		throw new IllegalArgumentException("no such table! tableAlias: " + tableAlias);
+	}
 }

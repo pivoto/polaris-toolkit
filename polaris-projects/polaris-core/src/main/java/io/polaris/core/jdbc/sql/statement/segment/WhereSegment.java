@@ -18,6 +18,7 @@ import io.polaris.core.converter.Converters;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.sql.BindingValues;
+import io.polaris.core.jdbc.sql.SqlTextParsers;
 import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
@@ -66,7 +67,6 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 		if (owner instanceof TableAccessibleHolder) {
 			return ((TableAccessibleHolder) owner).getTableAccessible();
 		}
-		// 暂不支持复杂Update语句
 		return null;
 	}
 
@@ -247,10 +247,8 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 	 * @return 当前条件对象
 	 */
 	public S raw(String raw) {
-		if (tableAccessible != null) {
-			// 解析表字段名
-			raw = tableAccessible.resolveRefTableField(raw);
-		}
+		// 解析表字段名
+		raw = SqlTextParsers.resolveRefTableField(raw, tableAccessible);
 		criteria.add(new CriterionSegment<>(getThis(), new TextNode(raw)));
 		return getThis();
 	}
@@ -286,10 +284,8 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 	 * @return 字段条件对象
 	 */
 	public CriterionSegment<S, ?> rawColumn(String rawColumn) {
-		if (tableAccessible != null) {
-			// 解析表字段名
-			rawColumn = tableAccessible.resolveRefTableField(rawColumn);
-		}
+		// 解析表字段名
+		rawColumn = SqlTextParsers.resolveRefTableField(rawColumn, tableAccessible);
 		CriterionSegment<S, ?> c = new CriterionSegment<>(getThis(), rawColumn);
 		criteria.add(c);
 		return c;

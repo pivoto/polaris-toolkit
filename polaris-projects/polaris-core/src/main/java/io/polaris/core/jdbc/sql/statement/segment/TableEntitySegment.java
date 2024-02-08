@@ -23,8 +23,9 @@ public class TableEntitySegment<S extends TableEntitySegment<S>> extends TableSe
 
 	public TableEntitySegment(Class<?> entityClass, String alias) {
 		this.entityClass = entityClass;
-		this.alias = alias;
 		this.tableMeta = entityClass == null ? null : TableMetaKit.instance().get(entityClass);
+		// this.alias = alias;
+		this.alias = Strings.coalesce(alias, this.tableMeta.getAlias());
 	}
 
 	@Override
@@ -52,7 +53,8 @@ public class TableEntitySegment<S extends TableEntitySegment<S>> extends TableSe
 
 	@Override
 	public String getTableAlias() {
-		return Strings.coalesce(this.alias, this.tableMeta.getAlias());
+		//return Strings.coalesce(this.alias, this.tableMeta.getAlias());
+		return this.alias;
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import java.util.List;
 
 import io.polaris.core.annotation.AnnotationProcessing;
 import io.polaris.core.consts.SymbolConsts;
+import io.polaris.core.jdbc.sql.SqlTextParsers;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
 import io.polaris.core.jdbc.sql.node.TextNode;
@@ -133,7 +134,7 @@ public class JoinSegment<O extends Segment<O>, S extends JoinSegment<O, S>> exte
 	}
 
 	public S selectRaw(String... rawColumns) {
-		return select(new TextNode(Strings.join(",", rawColumns)));
+		return select(SqlNodes.text(SqlTextParsers.resolveRefTableField(Strings.join(",", rawColumns), this)));
 	}
 
 
@@ -199,7 +200,7 @@ public class JoinSegment<O extends Segment<O>, S extends JoinSegment<O, S>> exte
 	public S orderByRaw(String... rawSql) {
 		for (String s : rawSql) {
 			OrderBySegment<S, ?> orderBy = buildOrderBy();
-			orderBy.sql(new TextNode(s));
+			orderBy.sql(SqlNodes.text(SqlTextParsers.resolveRefTableField(s, tableAccessible)));
 			orderBys.add(orderBy);
 		}
 		return getThis();

@@ -2,6 +2,7 @@ package io.polaris.core.jdbc.sql.statement;
 
 import io.polaris.core.annotation.AnnotationProcessing;
 import io.polaris.core.consts.SymbolConsts;
+import io.polaris.core.jdbc.sql.SqlTextParsers;
 import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
@@ -567,7 +568,7 @@ public class SelectStatement<S extends SelectStatement<S>> extends BaseStatement
 	}
 
 	public S selectRaw(String... rawColumns) {
-		return select(new TextNode(Strings.join(",", rawColumns)));
+		return select(SqlNodes.text(SqlTextParsers.resolveRefTableField(Strings.join(",", rawColumns), this)));
 	}
 
 	public S select(SqlNode sqlNode) {

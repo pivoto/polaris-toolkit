@@ -1,7 +1,8 @@
 package io.polaris.core.jdbc.sql.statement.expression;
 
 import io.polaris.core.function.TernaryFunction;
-import io.polaris.core.jdbc.sql.SqlParser;
+import io.polaris.core.jdbc.sql.BindingValues;
+import io.polaris.core.jdbc.sql.SqlTextParsers;
 import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
@@ -33,7 +34,7 @@ public class PatternExpression extends BaseExpression {
 	private final Map<String, Integer> refIndices = new HashMap<>();
 
 	public PatternExpression(String pattern) {
-		ContainerNode sqlNode = SqlParser.parse(pattern);
+		ContainerNode sqlNode = SqlTextParsers.parse(pattern);
 		int[] argSize = new int[]{0};
 		int[] refExtIdx = new int[]{-1};
 		boolean[] hasRef0 = new boolean[]{false};
@@ -125,7 +126,7 @@ public class PatternExpression extends BaseExpression {
 
 	@Override
 	protected TernaryFunction<SqlNode, SqlNode[], Map<String, Object>, ContainerNode> buildMapFunction() {
-		return (baseSource, extSources, bindings) -> bind(baseSource, extSources, varName -> bindings == null ? null : bindings.get(varName));
+		return (baseSource, extSources, bindings) -> bind(baseSource, extSources, varName -> bindings == null ? null : BindingValues.getBindingValueOrDefault(bindings,varName,null));
 	}
 
 	protected ContainerNode createPatternSqlNode() {

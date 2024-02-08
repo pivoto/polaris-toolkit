@@ -18,7 +18,7 @@ import java.util.function.Function;
  * @since 1.8,  Aug 20, 2023
  */
 @AnnotationProcessing
-public class DeleteStatement<S extends DeleteStatement<S>> extends BaseStatement<S> {
+public class DeleteStatement<S extends DeleteStatement<S>> extends BaseStatement<S> implements TableAccessible{
 
 	private final TableSegment<?> table;
 	private AndSegment<S, ?> where;
@@ -131,5 +131,25 @@ public class DeleteStatement<S extends DeleteStatement<S>> extends BaseStatement
 	@AnnotationProcessing
 	public TableSegment<?> getTable() {
 		return table;
+	}
+
+	@Override
+	public TableSegment<?> getTable(int tableIndex) {
+		// 不支持负数定位
+		if (tableIndex < 0) {
+			throw new IllegalArgumentException("tableIndex: " + tableIndex);
+		}
+		if (tableIndex == 0) {
+			return this.table;
+		}
+		throw new IllegalArgumentException("no such table! tableIndex: " + tableIndex);
+	}
+
+	@Override
+	public TableSegment<?> getTable(String tableAlias) {
+		if (Objs.equals(this.table.getTableAlias(), tableAlias)) {
+			return this.table;
+		}
+		throw new IllegalArgumentException("no such table! tableAlias: " + tableAlias);
 	}
 }

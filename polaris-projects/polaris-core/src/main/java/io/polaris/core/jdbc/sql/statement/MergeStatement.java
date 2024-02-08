@@ -385,6 +385,9 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 	@Override
 	public TableSegment<?> getTable(int tableIndex) {
 		// 不支持负数定位
+		if (tableIndex < 0) {
+			throw new IllegalArgumentException("tableIndex: " + tableIndex);
+		}
 		if (tableIndex == 0) {
 			return this.table;
 		}

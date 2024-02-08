@@ -20,6 +20,7 @@ import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.Queries;
 import io.polaris.core.jdbc.sql.statement.segment.AndSegment;
 import io.polaris.core.jdbc.sql.statement.segment.ColumnSegment;
+import io.polaris.core.jdbc.sql.statement.segment.TableAccessible;
 import io.polaris.core.jdbc.sql.statement.segment.TableSegment;
 import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.bean.Beans;
@@ -30,7 +31,7 @@ import io.polaris.core.lang.bean.Beans;
  */
 @SuppressWarnings("unused")
 @AnnotationProcessing
-public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement<S> {
+public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement<S> implements TableAccessible {
 
 	private final TableSegment<?> table;
 	private final List<ColumnSegment<S, ?>> columns = new ArrayList<>();
@@ -292,5 +293,26 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 	@AnnotationProcessing
 	public TableSegment<?> getTable() {
 		return table;
+	}
+
+
+	@Override
+	public TableSegment<?> getTable(int tableIndex) {
+		// 不支持负数定位
+		if (tableIndex < 0) {
+			throw new IllegalArgumentException("tableIndex: " + tableIndex);
+		}
+		if (tableIndex == 0) {
+			return this.table;
+		}
+		throw new IllegalArgumentException("no such table! tableIndex: " + tableIndex);
+	}
+
+	@Override
+	public TableSegment<?> getTable(String tableAlias) {
+		if (Objs.equals(this.table.getTableAlias(), tableAlias)) {
+			return this.table;
+		}
+		throw new IllegalArgumentException("no such table! tableAlias: " + tableAlias);
 	}
 }
