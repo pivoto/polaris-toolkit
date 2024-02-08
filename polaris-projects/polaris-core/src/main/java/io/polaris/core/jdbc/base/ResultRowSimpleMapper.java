@@ -6,13 +6,17 @@ import java.sql.SQLException;
 /**
  * @author Qt
  */
-public interface RowMapper<T> {
+@FunctionalInterface
+public interface ResultRowSimpleMapper<T> {
 
 	/**
 	 * row to object
+	 *
 	 * @param rs
 	 * @return
 	 * @throws SQLException
 	 */
 	T map(ResultSet rs) throws SQLException;
+
+
 }

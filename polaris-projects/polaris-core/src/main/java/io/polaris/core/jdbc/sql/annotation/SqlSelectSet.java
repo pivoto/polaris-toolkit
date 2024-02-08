@@ -7,6 +7,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import io.polaris.core.jdbc.sql.annotation.segment.Condition;
 import io.polaris.core.jdbc.sql.consts.SelectSetOps;
 
 /**
@@ -39,5 +40,6 @@ public @interface SqlSelectSet {
 
 		SelectSetOps ops() default SelectSetOps.UNION_ALL;
 
+		Condition[] condition() default {};
 	}
 }

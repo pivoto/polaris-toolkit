@@ -26,4 +26,5 @@ public @interface GroupBy {
 	 */
 	String field() default "";
 
+	Condition[] condition() default {};
 }

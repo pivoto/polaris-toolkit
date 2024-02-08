@@ -1,12 +1,12 @@
 package io.polaris.core.jdbc.base;
 
-import io.polaris.core.lang.JavaType;
-import io.polaris.core.lang.bean.MetaObject;
-import lombok.Getter;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import io.polaris.core.lang.JavaType;
+import io.polaris.core.lang.bean.MetaObject;
+import lombok.Getter;
 
 /**
  * @author Qt
@@ -20,7 +20,7 @@ public class BeanMapping<T> {
 	private List<BeanCompositeMapping<?>> composites;
 	private boolean caseInsensitive = true;
 	private boolean caseCamel = true;
-	private int propertyCaseModel;
+	private int caseModel;
 
 	public BeanMapping() {
 	}
@@ -39,7 +39,7 @@ public class BeanMapping<T> {
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	public void prepare() {
-		propertyCaseModel = MetaObject.buildPropertyCaseModel(caseInsensitive, caseCamel);
+		caseModel = MetaObject.buildCaseModel(caseInsensitive, caseCamel);
 		if (columns != null) {
 			for (Iterator<BeanPropertyMapping> it = columns.iterator(); it.hasNext(); ) {
 				BeanPropertyMapping col = it.next();
@@ -54,7 +54,7 @@ public class BeanMapping<T> {
 				if (!composite.isValid()) {
 					it.remove();
 				} else {
-					MetaObject compositeMetaObject = metaObject.getProperty(propertyCaseModel, composite.getProperty());
+					MetaObject compositeMetaObject = metaObject.getProperty(caseModel, composite.getProperty());
 					if (compositeMetaObject == null) {
 						it.remove();
 					} else {

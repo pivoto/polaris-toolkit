@@ -43,5 +43,7 @@ public @interface Join {
 
 	OrderBy[] orderBy() default {};
 
+	Condition[] condition() default {};
+
 	ColumnPredicate columnPredicate() default @ColumnPredicate();
 }

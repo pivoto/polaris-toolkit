@@ -132,8 +132,9 @@ public class BindingValues {
 		}
 		if (key.contains(".") || key.contains("[")) {
 			Object val = Beans.getPathProperty(bindings, key);
+			// 降级处理
 			if (val == null) {
-				return defVal;
+				return bindings.getOrDefault(key, defVal);
 			}
 			return val;
 		}
@@ -152,6 +153,10 @@ public class BindingValues {
 			} else {
 				if (key.contains(".") || key.contains("[")) {
 					val = Beans.getPathProperty(bindings, key);
+					// 降级处理
+					if (val == null) {
+						val = bindings.get(key);
+					}
 					cache.put(key, ValueRef.of(val));
 				} else {
 					val = bindings.get(key);
@@ -161,6 +166,10 @@ public class BindingValues {
 		} else {
 			if (key.contains(".") || key.contains("[")) {
 				val = Beans.getPathProperty(bindings, key);
+				// 降级处理
+				if (val == null) {
+					val = bindings.get(key);
+				}
 			} else {
 				val = bindings.get(key);
 			}

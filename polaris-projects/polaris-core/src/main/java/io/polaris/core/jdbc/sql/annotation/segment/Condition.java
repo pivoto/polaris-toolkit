@@ -25,9 +25,12 @@ public @interface Condition {
 
 	String predicateExpression() default "";
 
-	String predicateKey() default "";
+	/** groovy/javascript/java */
+	String predicateScriptEngine() default "";
 
-	Class<? extends BiPredicate<Map<String, Object>, Object>>[] predicateClass() default {};
+	String predicateCustomKey() default "";
+
+	Class<? extends BiPredicate<Map<String, Object>, Object>>[] predicateCustomClass() default {};
 
 
 	enum PredicateType {
@@ -36,9 +39,8 @@ public @interface Condition {
 		IS_NULL,
 		IS_EMPTY,
 		REGEX,
-		GROOVY_EVALUATOR,
-		JAVA_EVALUATOR,
-		JAVASCRIPT_EVALUATOR,
+		SCRIPT,
 		CUSTOM,
+		DEFAULT,
 	}
 }

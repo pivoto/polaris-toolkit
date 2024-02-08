@@ -1,5 +1,6 @@
 package io.polaris.core.jdbc.base;
 
+import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -7,13 +8,27 @@ import java.sql.SQLException;
  * @author Qt
  * @since 1.8
  */
-public class ResultSingleExtractor implements ResultExtractor<Object> {
+public class ResultSingleExtractor<T> implements ResultExtractor<T> {
+
+	private final ResultRowMapper<T> mapper;
+
+	public ResultSingleExtractor() {
+		this(Object.class);
+	}
+
+	public ResultSingleExtractor(Type type) {
+		this.mapper = ResultRowMappers.ofSingle(type);
+	}
+
+	public ResultSingleExtractor(Class<T> type) {
+		this.mapper = ResultRowMappers.ofSingle(type);
+	}
+
 	@Override
-	public Object visit(ResultSet rs) throws SQLException {
-		Object o = null;
+	public T extract(ResultSet rs) throws SQLException {
 		if (rs.next()) {
-			o = rs.getObject(1);
+			return  mapper.map(rs, null);
 		}
-		return o;
+		return null;
 	}
 }

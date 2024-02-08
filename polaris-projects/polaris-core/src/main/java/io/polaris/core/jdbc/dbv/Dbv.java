@@ -1,7 +1,7 @@
 package io.polaris.core.jdbc.dbv;
 
 import io.polaris.core.jdbc.Jdbcs;
-import io.polaris.core.jdbc.base.RowMapper;
+import io.polaris.core.jdbc.base.ResultRowSimpleMapper;
 import io.polaris.core.jdbc.dbv.model.*;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
@@ -39,7 +39,7 @@ public class Dbv {
 	}
 
 
-	public static <T> List<T> read(ResultSet rs, List<T> list, RowMapper<T> mapper) {
+	public static <T> List<T> read(ResultSet rs, List<T> list, ResultRowSimpleMapper<T> mapper) {
 		try {
 			while (rs.next()) {
 				list.add(mapper.map(rs));

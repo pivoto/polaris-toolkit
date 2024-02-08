@@ -7,8 +7,9 @@ import java.sql.SQLException;
  * @author Qt
  * @since 1.8
  */
+@FunctionalInterface
 public interface ResultExtractor<T> {
 
-	T visit(ResultSet rs) throws SQLException;
+	T extract(ResultSet rs) throws SQLException;
 
 }

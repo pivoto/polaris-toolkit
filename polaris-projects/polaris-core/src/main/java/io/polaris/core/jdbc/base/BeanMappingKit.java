@@ -1,11 +1,10 @@
 package io.polaris.core.jdbc.base;
 
-import io.polaris.core.lang.bean.MetaObject;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
-import java.util.Set;
+
+import io.polaris.core.lang.bean.MetaObject;
 
 /**
  * @author Qt
@@ -14,14 +13,14 @@ import java.util.Set;
 class BeanMappingKit {
 
 	@SuppressWarnings("rawtypes")
-	public static <T> void setProperty(ResultSet rs, BeanMapping<T> mapping, int propertyCaseModel, T bean) throws SQLException {
+	public static <T> void setProperty(ResultSet rs, BeanMapping<T> mapping, int caseModel, T bean) throws SQLException {
 		MetaObject<T> metaObject = mapping.getMetaObject();
 
 		if (mapping.getColumns() != null) {
 			for (BeanPropertyMapping pm : mapping.getColumns()) {
 				Object val = rs.getObject(pm.getColumn());
 				if (val != null) {
-					metaObject.setProperty(bean, propertyCaseModel, pm.getProperty(), val);
+					metaObject.setProperty(bean, caseModel, pm.getProperty(), val);
 				}
 			}
 		}
@@ -32,12 +31,12 @@ class BeanMappingKit {
 				BeanMapping subMapping = composite.getMapping();
 				MetaObject subMetaObject = subMapping.getMetaObject();
 				if (subMetaObject != null) {
-					Object subBean = metaObject.getProperty(bean, propertyCaseModel, subProperty);
+					Object subBean = metaObject.getProperty(bean, caseModel, subProperty);
 					if (subBean == null) {
 						subBean = subMetaObject.newInstance();
-						metaObject.setProperty(bean ,propertyCaseModel, subProperty,subBean);
+						metaObject.setProperty(bean ,caseModel, subProperty,subBean);
 					}
-					setProperty(rs, subMapping, propertyCaseModel, subBean);
+					setProperty(rs, subMapping, caseModel, subBean);
 				}
 			}
 		}

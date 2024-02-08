@@ -18,8 +18,22 @@ import io.polaris.core.jdbc.sql.consts.Direction;
 @Documented
 @Inherited
 public @interface OrderBy {
+	/**
+	 * @return 原始sql语句
+	 */
+	String raw() default "";
+	/**
+	 * @return 实体字段
+	 */
+	String field() default "";
 
-	String field();
+
+	/**
+	 * @return 函数，如`coalesce(${ref},1)`等
+	 */
+	Function[] functions() default {};
 
 	Direction direction() default Direction.ASC;
+
+	Condition[] condition() default {};
 }

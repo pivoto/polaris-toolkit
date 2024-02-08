@@ -27,10 +27,9 @@ public @interface SelectColumn {
 	String field() default "";
 
 	/**
-	 * @return 查询函数，如`MAX(${ref})`、`MIN(${ref})`等
+	 * @return 函数，如`max(${ref})`、`coalesce(${ref},1)`等
 	 */
-	String function() default "";
-
+	Function[] functions() default {};
 
 	/**
 	 * @return 别名，指定固定值时不能为空
@@ -44,4 +43,5 @@ public @interface SelectColumn {
 
 	boolean aliasWithField() default false;
 
+	Condition[] condition() default {};
 }

@@ -1,10 +1,7 @@
 package io.polaris.core.jdbc.base;
 
 import io.polaris.core.string.Strings;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
  * @author Qt

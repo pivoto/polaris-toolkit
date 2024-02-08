@@ -1,9 +1,15 @@
 package io.polaris.core.jdbc.sql;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 
 import io.polaris.core.converter.Converters;
@@ -16,7 +22,10 @@ import io.polaris.core.jdbc.sql.annotation.EntityMerge;
 import io.polaris.core.jdbc.sql.annotation.EntitySelect;
 import io.polaris.core.jdbc.sql.annotation.EntityUpdate;
 import io.polaris.core.jdbc.sql.annotation.SqlDelete;
+import io.polaris.core.jdbc.sql.annotation.SqlEntityDeclared;
 import io.polaris.core.jdbc.sql.annotation.SqlInsert;
+import io.polaris.core.jdbc.sql.annotation.SqlRaw;
+import io.polaris.core.jdbc.sql.annotation.SqlRawSimple;
 import io.polaris.core.jdbc.sql.annotation.SqlSelect;
 import io.polaris.core.jdbc.sql.annotation.SqlSelectSet;
 import io.polaris.core.jdbc.sql.annotation.SqlUpdate;
@@ -28,6 +37,7 @@ import io.polaris.core.jdbc.sql.annotation.segment.Criteria3;
 import io.polaris.core.jdbc.sql.annotation.segment.Criteria4;
 import io.polaris.core.jdbc.sql.annotation.segment.Criteria5;
 import io.polaris.core.jdbc.sql.annotation.segment.Criterion;
+import io.polaris.core.jdbc.sql.annotation.segment.Function;
 import io.polaris.core.jdbc.sql.annotation.segment.GroupBy;
 import io.polaris.core.jdbc.sql.annotation.segment.Having;
 import io.polaris.core.jdbc.sql.annotation.segment.InsertColumn;
@@ -35,6 +45,7 @@ import io.polaris.core.jdbc.sql.annotation.segment.Join;
 import io.polaris.core.jdbc.sql.annotation.segment.JoinColumn;
 import io.polaris.core.jdbc.sql.annotation.segment.JoinCriterion;
 import io.polaris.core.jdbc.sql.annotation.segment.SelectColumn;
+import io.polaris.core.jdbc.sql.annotation.segment.SqlRawItem;
 import io.polaris.core.jdbc.sql.annotation.segment.SubCriteria;
 import io.polaris.core.jdbc.sql.annotation.segment.SubCriteria1;
 import io.polaris.core.jdbc.sql.annotation.segment.SubCriteria2;
@@ -47,10 +58,13 @@ import io.polaris.core.jdbc.sql.annotation.segment.SubSelect;
 import io.polaris.core.jdbc.sql.annotation.segment.SubWhere;
 import io.polaris.core.jdbc.sql.annotation.segment.UpdateColumn;
 import io.polaris.core.jdbc.sql.annotation.segment.Where;
+import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.consts.JoinType;
 import io.polaris.core.jdbc.sql.consts.Relation;
 import io.polaris.core.jdbc.sql.consts.SelectSetOps;
+import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.SqlNode;
+import io.polaris.core.jdbc.sql.node.SqlNodes;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.OrderBy;
 import io.polaris.core.jdbc.sql.query.Queries;
@@ -65,18 +79,21 @@ import io.polaris.core.jdbc.sql.statement.SqlNodeBuilder;
 import io.polaris.core.jdbc.sql.statement.UpdateStatement;
 import io.polaris.core.jdbc.sql.statement.segment.CriterionSegment;
 import io.polaris.core.jdbc.sql.statement.segment.JoinSegment;
+import io.polaris.core.jdbc.sql.statement.segment.OrderBySegment;
 import io.polaris.core.jdbc.sql.statement.segment.SelectSegment;
+import io.polaris.core.jdbc.sql.statement.segment.TableAccessible;
 import io.polaris.core.jdbc.sql.statement.segment.TableField;
+import io.polaris.core.jdbc.sql.statement.segment.TableSegment;
 import io.polaris.core.jdbc.sql.statement.segment.WhereSegment;
 import io.polaris.core.lang.Objs;
+import io.polaris.core.lang.annotation.AnnotationAttributes;
+import io.polaris.core.reflect.Reflects;
 import io.polaris.core.regex.Patterns;
 import io.polaris.core.script.Evaluator;
-import io.polaris.core.script.GroovyEvaluator;
-import io.polaris.core.script.JavaEvaluator;
-import io.polaris.core.script.JavaScriptEvaluator;
 import io.polaris.core.script.ScriptEvaluators;
 import io.polaris.core.string.Strings;
 import io.polaris.core.tuple.Tuple1;
+import io.polaris.core.tuple.Tuple3;
 import io.polaris.core.tuple.ValueRef;
 
 /**
@@ -96,6 +113,249 @@ public class EntityStatements {
 			return null;
 		}
 	}
+
+	public static java.util.function.Function<Map<String, Object>, SqlNode> buildSqlUpdateFunction(Method method) {
+		{
+			EntityInsert entityInsert = method.getAnnotation(EntityInsert.class);
+			if (entityInsert != null) {
+				return (bindings) -> EntityStatements.buildInsert(bindings, entityInsert).toSqlNode();
+			}
+		}
+		{
+			EntityDelete entityDelete = method.getAnnotation(EntityDelete.class);
+			if (entityDelete != null) {
+				return (bindings) -> EntityStatements.buildDelete(bindings, entityDelete).toSqlNode();
+			}
+		}
+		{
+			EntityUpdate entityUpdate = method.getAnnotation(EntityUpdate.class);
+			if (entityUpdate != null) {
+				return (bindings) -> EntityStatements.buildUpdate(bindings, entityUpdate).toSqlNode();
+			}
+		}
+		{
+			EntityMerge entityMerge = method.getAnnotation(EntityMerge.class);
+			if (entityMerge != null) {
+				return (bindings) -> EntityStatements.buildMerge(bindings, entityMerge).toSqlNode();
+			}
+		}
+		{
+			SqlInsert sqlInsert = method.getAnnotation(SqlInsert.class);
+			if (sqlInsert != null) {
+				return (bindings) -> EntityStatements.buildInsert(bindings, sqlInsert).toSqlNode();
+			}
+		}
+		{
+			SqlDelete sqlDelete = method.getAnnotation(SqlDelete.class);
+			if (sqlDelete != null) {
+				return (bindings) -> EntityStatements.buildDelete(bindings, sqlDelete).toSqlNode();
+			}
+		}
+		{
+			SqlUpdate sqlUpdate = method.getAnnotation(SqlUpdate.class);
+			if (sqlUpdate != null) {
+				return (bindings) -> EntityStatements.buildUpdate(bindings, sqlUpdate).toSqlNode();
+			}
+		}
+		return buildSqlRawFunction(method);
+	}
+
+	public static java.util.function.Function<Map<String, Object>, SqlNode> buildSqlSelectFunction(Method method) {
+		{
+			EntitySelect entitySelect = method.getAnnotation(EntitySelect.class);
+			if (entitySelect != null) {
+				if (entitySelect.count()) {
+					return (bindings) -> EntityStatements.buildSelect(bindings, entitySelect).toCountSqlNode();
+				}
+				return (bindings) -> EntityStatements.buildSelect(bindings, entitySelect).toSqlNode();
+			}
+		}
+		{
+			SqlSelect sqlSelect = method.getAnnotation(SqlSelect.class);
+			if (sqlSelect != null) {
+				if (sqlSelect.count()) {
+					return (bindings) -> EntityStatements.buildSelect(bindings, sqlSelect).toCountSqlNode();
+				}
+				return (bindings) -> EntityStatements.buildSelect(bindings, sqlSelect).toSqlNode();
+			}
+		}
+		{
+			SqlSelectSet sqlSelect = method.getAnnotation(SqlSelectSet.class);
+			if (sqlSelect != null) {
+				if (sqlSelect.count()) {
+					return (bindings) -> EntityStatements.buildSelectSet(bindings, sqlSelect).toCountSqlNode();
+				}
+				return (bindings) -> EntityStatements.buildSelectSet(bindings, sqlSelect).toSqlNode();
+			}
+		}
+		return buildSqlRawFunction(method);
+	}
+
+	private static java.util.function.Function<Map<String, Object>, SqlNode> buildSqlRawFunction(Method method) {
+		SqlEntityDeclared entityDeclared = method.getAnnotation(SqlEntityDeclared.class);
+		TableAccessible tableAccessible = null;
+		if (entityDeclared != null) {
+			Class<?>[] tables = entityDeclared.table();
+			String[] aliases = entityDeclared.alias();
+			int len = Integer.min(tables.length, aliases.length);
+			if (len > 0) {
+				TableSegment<?>[] tableSegments = new TableSegment<?>[len];
+				for (int i = 0; i < len; i++) {
+					tableSegments[i] = TableSegment.fromEntity(tables[i], aliases[i]);
+				}
+				tableAccessible = TableAccessible.of(tableSegments);
+			}
+		}
+
+		{
+			SqlRawSimple sqlRaw = method.getAnnotation(SqlRawSimple.class);
+			if (sqlRaw != null) {
+				if (tableAccessible != null) {
+					final TableAccessible finalTableAccessible = tableAccessible;
+					return (bindings) -> {
+						String sqlText = SqlTextParsers.resolveRefTableField(Strings.join(" ", sqlRaw.value()), finalTableAccessible);
+						ContainerNode sql = SqlTextParsers.parse(sqlText);
+						return buildSqlRaw(sql, varName -> BindingValues.getBindingValueOrDefault(bindings, varName, null));
+					};
+				}
+				return (bindings) -> {
+					String sqlText = Strings.join(" ", sqlRaw.value());
+					ContainerNode sql = SqlTextParsers.parse(sqlText);
+					return buildSqlRaw(sql, varName -> BindingValues.getBindingValueOrDefault(bindings, varName, null));
+				};
+			}
+		}
+		{
+			SqlRaw sqlRaw = method.getAnnotation(SqlRaw.class);
+			if (sqlRaw != null) {
+				SqlRawItemModel[] items = SqlRawItemModel.of(sqlRaw);
+				final TableAccessible finalTableAccessible = tableAccessible;
+				return (bindings) -> {
+					// binding-cache
+					Map<String, ValueRef<Object>> cache = new HashMap<>();
+					return buildSqlRaw(cache, bindings, items, finalTableAccessible);
+				};
+			}
+		}
+		// 找不到实体Sql注解，从入参获取直接SQL
+		return (bindings) -> {
+			Object sql = bindings.get(BindingKeys.SQL);
+			if (sql instanceof SqlNode) {
+				return (SqlNode) sql;
+			}
+			if (sql instanceof SqlNodeBuilder) {
+				return ((SqlNodeBuilder) sql).toSqlNode();
+			}
+			throw new IllegalArgumentException("缺少SQL参数：`" + BindingKeys.SQL + "`");
+		};
+	}
+
+	private static ContainerNode buildSqlRaw(ContainerNode sql, java.util.function.Function<String, Object> valueResolver) {
+		sql.visitSubset(node -> {
+			if (node.isVarNode() && node.getVarValue() == null) {
+				String varName = node.getVarName();
+				Object varVal = valueResolver.apply(varName);
+				node.bindVarValue(varVal);
+			}
+		});
+		return sql;
+	}
+
+	private static ContainerNode buildSqlRaw(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, SqlRawItemModel[] items, TableAccessible tableAccessible) {
+		List<SqlRawItemModel> activeItems = new ArrayList<>(items.length);
+		SqlRawItemModel defaultItem = null;
+		for (SqlRawItemModel item : items) {
+			if (isDefaultCondition(item.condition)) {
+				defaultItem = item;
+			}
+			if (evalConditionPredicate(cache, bindings, null, item.condition)) {
+				activeItems.add(item);
+			}
+		}
+		if (activeItems.isEmpty() && defaultItem != null) {
+			activeItems.add(defaultItem);
+		}
+		ContainerNode sql = new ContainerNode();
+
+		for (int j = 0, activeItemsSize = activeItems.size(); j < activeItemsSize; j++) {
+			if (j > 0) {
+				sql.addNode(SqlNodes.BLANK);
+			}
+			SqlRawItemModel item = activeItems.get(j);
+			String forEachKey = item.forEachKey;
+			// for each
+			if (Strings.isNotBlank(forEachKey)) {
+				Object collection = BindingValues.getBindingValueOrDefault(cache, bindings, forEachKey, null);
+				if (collection == null) {
+					continue;
+				}
+				boolean isArray = collection.getClass().isArray();
+				List<ContainerNode> subSqlList = new ArrayList<>();
+				BiConsumer<Integer, Object> itemConsumer = (i, ele) -> {
+					if (Strings.isNotBlank(item.itemKey)) cache.put(item.itemKey, ValueRef.of(ele));
+					if (Strings.isNotBlank(item.indexKey)) cache.put(item.indexKey, ValueRef.of(i));
+					ContainerNode itemSql;
+					List<SqlRawItemModel> subset = item.subset;
+					if (subset != null) {
+						itemSql = buildSqlRaw(cache, bindings, subset.toArray(new SqlRawItemModel[0]), tableAccessible);
+					} else {
+						itemSql = SqlTextParsers.parse(SqlTextParsers.resolveRefTableField(item.sqlText, tableAccessible));
+					}
+					ContainerNode subSql = buildSqlRaw(itemSql, key -> BindingValues.getBindingValueOrDefault(cache, bindings, key, null));
+					subSqlList.add(subSql);
+				};
+
+				//array
+				if (isArray) {
+					int len = Array.getLength(collection);
+					for (int i = 0; i < len; i++) {
+						final Object ele = Array.get(collection, i);
+						itemConsumer.accept(i, ele);
+					}
+				}
+				// iterable
+				else if (collection instanceof Iterable) {
+					int i = 0;
+					for (Object ele : ((Iterable<?>) collection)) {
+						itemConsumer.accept(i, ele);
+						i++;
+					}
+				}
+				// ignore
+				else {
+					continue;
+				}
+				// seperator
+				int size = subSqlList.size();
+				if (size > 0) {
+					sql.addNode(SqlTextParsers.parse(SqlTextParsers.resolveRefTableField(item.open, tableAccessible)));
+					for (int i = 0; i < size; i++) {
+						if (i > 0) {
+							sql.addNode(SqlTextParsers.parse(SqlTextParsers.resolveRefTableField(item.separator, tableAccessible)));
+						}
+						sql.addNode(subSqlList.get(i));
+					}
+					sql.addNode(SqlTextParsers.parse(SqlTextParsers.resolveRefTableField(item.close, tableAccessible)));
+				}
+			}
+			// normal
+			else {
+				ContainerNode itemSql;
+				List<SqlRawItemModel> subset = item.subset;
+				if (subset != null) {
+					itemSql = buildSqlRaw(cache, bindings, subset.toArray(new SqlRawItemModel[0]), tableAccessible);
+				} else {
+					itemSql = SqlTextParsers.parse(SqlTextParsers.resolveRefTableField(item.sqlText, tableAccessible));
+				}
+				ContainerNode subSql = buildSqlRaw(itemSql, key ->
+					BindingValues.getBindingValueOrDefault(cache, bindings, key, null)
+				);
+				sql.addNode(subSql);
+			}
+		}
+		return sql;
+	}
+
 
 	public static InsertStatement<?> buildInsert(Map<String, Object> bindings, SqlInsert sqlInsert) {
 		Class<?> entityClass = sqlInsert.table();
@@ -193,7 +453,23 @@ public class EntityStatements {
 		// binding-cache
 		Map<String, ValueRef<Object>> cache = new HashMap<>();
 		SetOpsStatement<?> sos = null;
-		for (SqlSelectSet.Item item : sqlSelectSet.value()) {
+		SqlSelectSet.Item[] items = sqlSelectSet.value();
+		List<SqlSelectSet.Item> activeItems = new ArrayList<>(items.length);
+		SqlSelectSet.Item defaultItem = null;
+		for (SqlSelectSet.Item item : items) {
+			if (isDefaultCondition(item.condition())) {
+				defaultItem = item;
+			}
+			if (!evalConditionPredicate(cache, bindings, null, item.condition())) {
+				continue;
+			}
+			activeItems.add(item);
+		}
+		if (activeItems.isEmpty() && defaultItem != null) {
+			activeItems.add(defaultItem);
+		}
+
+		for (SqlSelectSet.Item item : activeItems) {
 			SqlSelect sqlSelect = item.value();
 			SelectStatement<?> st = buildSelect(cache, bindings, sqlSelect);
 			if (sos == null) {
@@ -263,7 +539,22 @@ public class EntityStatements {
 
 	private static void addSelectColumns(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, SelectStatement<?> st, SelectColumn[] columns, boolean quotaSelectAlias) {
 		if (columns != null && columns.length > 0) {
+			List<SelectColumn> activeCols = new ArrayList<>(columns.length);
+			SelectColumn defaultCol = null;
 			for (SelectColumn col : columns) {
+				if (isDefaultCondition(col.condition())) {
+					defaultCol = col;
+				}
+				if (!evalConditionPredicate(cache, bindings, null, col.condition())) {
+					continue;
+				}
+				activeCols.add(col);
+			}
+			if (activeCols.isEmpty() && defaultCol != null) {
+				activeCols.add(defaultCol);
+			}
+
+			for (SelectColumn col : activeCols) {
 				String raw = col.raw();
 				if (Strings.isNotBlank(raw)) {
 					st.selectRaw(raw);
@@ -273,16 +564,26 @@ public class EntityStatements {
 				SelectSegment<?, ?> seg = st.select();
 				if (Strings.isNotBlank(field)) {
 					seg.column(field);
-					String function = col.function();
-					if (Strings.isNotBlank(function)) {
-						seg.apply(function, bindings);
+					for (Function function : col.functions()) {
+						Tuple3<String, TableField[], Object[]> functionTuple = parseFunction(cache, bindings, function);
+						if (functionTuple == null) {
+							continue;
+						}
+						String expr = functionTuple.getFirst();
+						TableField[] tableFields = functionTuple.getSecond();
+						Object[] args = functionTuple.getThird();
+						if (args != null) {
+							seg = seg.apply(expr, tableFields, args);
+						} else {
+							seg = seg.apply(expr, tableFields, bindings);
+						}
 					}
 					seg.aliasWithField(col.aliasWithField());
 					seg.alias(col.alias());
 				} else {
 					String valueKey = col.valueKey();
 					if (Strings.isNotBlank(valueKey)) {
-						Object v = BindingValues.getBindingValueOrDefault(cache,bindings, valueKey, null);
+						Object v = BindingValues.getBindingValueOrDefault(cache, bindings, valueKey, null);
 						seg.value(v, col.alias());
 					} else {
 						throw new IllegalStateException("未指定字段名或固定键值");
@@ -297,14 +598,29 @@ public class EntityStatements {
 
 	private static void addJoinClause(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, SelectStatement<?> st, Join[] joins) {
 		if (joins.length > 0) {
+			List<Join> activeJoins = new ArrayList<>();
+			Join defaultJoin = null;
 			for (Join join : joins) {
+				if (isDefaultCondition(join.condition())) {
+					defaultJoin = join;
+				}
+				if (!evalConditionPredicate(cache, bindings, null, join.condition())) {
+					continue;
+				}
+				activeJoins.add(join);
+			}
+			if (activeJoins.isEmpty() && defaultJoin != null) {
+				activeJoins.add(defaultJoin);
+			}
+
+			for (Join join : activeJoins) {
 				Class<?> joinTable = join.table();
 				String joinAlias = join.alias();
 				if (joinTable == null || joinTable == void.class) {
-					continue;
+					throw new IllegalStateException("未指定连接表实体类型");
 				}
 				if (Strings.isBlank(joinAlias)) {
-					continue;
+					throw new IllegalStateException("未指定连接表别名");
 				}
 				JoinType joinType = join.type();
 				JoinSegment<?, ?> joinSt =
@@ -335,7 +651,22 @@ public class EntityStatements {
 
 	private static void addJoinSelectColumns(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, JoinSegment<?, ?> st, SelectColumn[] columns) {
 		if (columns != null && columns.length > 0) {
+			List<SelectColumn> activeCols = new ArrayList<>(columns.length);
+			SelectColumn defaultCol = null;
 			for (SelectColumn col : columns) {
+				if (isDefaultCondition(col.condition())) {
+					defaultCol = col;
+				}
+				if (!evalConditionPredicate(cache, bindings, null, col.condition())) {
+					continue;
+				}
+				activeCols.add(col);
+			}
+			if (activeCols.isEmpty() && defaultCol != null) {
+				activeCols.add(defaultCol);
+			}
+
+			for (SelectColumn col : activeCols) {
 				String raw = col.raw();
 				if (Strings.isNotBlank(raw)) {
 					st.selectRaw(raw);
@@ -345,9 +676,19 @@ public class EntityStatements {
 				SelectSegment<?, ?> seg = st.select();
 				if (Strings.isNotBlank(field)) {
 					seg.column(field);
-					String function = col.function();
-					if (Strings.isNotBlank(function)) {
-						seg.apply(function, bindings);
+					for (Function function : col.functions()) {
+						Tuple3<String, TableField[], Object[]> functionTuple = parseFunction(cache, bindings, function);
+						if (functionTuple == null) {
+							continue;
+						}
+						String expr = functionTuple.getFirst();
+						TableField[] tableFields = functionTuple.getSecond();
+						Object[] args = functionTuple.getThird();
+						if (args != null) {
+							seg = seg.apply(expr, tableFields, args);
+						} else {
+							seg = seg.apply(expr, tableFields, bindings);
+						}
 					}
 					seg.aliasWithField(col.aliasWithField());
 					seg.alias(col.alias());
@@ -396,7 +737,22 @@ public class EntityStatements {
 	private static void addJoinGroupByClause(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, JoinSegment<?, ?> st
 		, GroupBy[] groupBys) {
 		if (groupBys != null && groupBys.length > 0) {
+			List<GroupBy> activeGroupBys = new ArrayList<>(groupBys.length);
+			GroupBy defaultGroupBy = null;
 			for (GroupBy groupBy : groupBys) {
+				if (isDefaultCondition(groupBy.condition())) {
+					defaultGroupBy = groupBy;
+				}
+				if (!evalConditionPredicate(cache, bindings, null, groupBy.condition())) {
+					continue;
+				}
+				activeGroupBys.add(groupBy);
+			}
+			if (activeGroupBys.isEmpty() && defaultGroupBy != null) {
+				activeGroupBys.add(defaultGroupBy);
+			}
+
+			for (GroupBy groupBy : activeGroupBys) {
 				String raw = groupBy.raw();
 				String field = groupBy.field();
 				if (Strings.isNotBlank(raw)) {
@@ -425,17 +781,53 @@ public class EntityStatements {
 	private static void addJoinOrderByClause(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, JoinSegment<?, ?> st, Join sqlSelect) {
 		io.polaris.core.jdbc.sql.annotation.segment.OrderBy[] orderBys = sqlSelect.orderBy();
 		if (orderBys.length > 0) {
+			List<io.polaris.core.jdbc.sql.annotation.segment.OrderBy> activeOrderBys = new ArrayList<>(orderBys.length);
+			io.polaris.core.jdbc.sql.annotation.segment.OrderBy defaultOrderBy = null;
 			for (io.polaris.core.jdbc.sql.annotation.segment.OrderBy orderBy : orderBys) {
+				if (isDefaultCondition(orderBy.condition())) {
+					defaultOrderBy = orderBy;
+				}
+				if (!evalConditionPredicate(cache, bindings, null, orderBy.condition())) {
+					continue;
+				}
+				activeOrderBys.add(orderBy);
+			}
+			if (activeOrderBys.isEmpty() && defaultOrderBy != null) {
+				activeOrderBys.add(defaultOrderBy);
+			}
+			for (io.polaris.core.jdbc.sql.annotation.segment.OrderBy orderBy : activeOrderBys) {
+				String raw = orderBy.raw();
+				if (Strings.isNotBlank(raw)) {
+					st.orderByRaw(raw);
+					continue;
+				}
 				String field = orderBy.field();
 				if (Strings.isBlank(field)) {
 					throw new IllegalStateException("未指定排序字段名");
 				}
+				OrderBySegment<?, ?> seg = st.orderBy();
+				seg.column(field);
+
+				for (Function function : orderBy.functions()) {
+					Tuple3<String, TableField[], Object[]> functionTuple = parseFunction(cache, bindings, function);
+					if (functionTuple == null) {
+						continue;
+					}
+					String expr = functionTuple.getFirst();
+					TableField[] tableFields = functionTuple.getSecond();
+					Object[] args = functionTuple.getThird();
+					if (args != null) {
+						seg = seg.apply(expr, tableFields, args);
+					} else {
+						seg = seg.apply(expr, tableFields, bindings);
+					}
+				}
 				switch (orderBy.direction()) {
 					case ASC:
-						st.orderBy(field);
+						seg.asc();
 						break;
 					case DESC:
-						st.orderByDesc(field);
+						seg.desc();
 						break;
 				}
 			}
@@ -470,7 +862,22 @@ public class EntityStatements {
 	private static void addGroupByClause(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, SelectStatement<?> st
 		, GroupBy[] groupBys) {
 		if (groupBys != null && groupBys.length > 0) {
+			List<GroupBy> activeGroupBys = new ArrayList<>(groupBys.length);
+			GroupBy defaultGroupBy = null;
 			for (GroupBy groupBy : groupBys) {
+				if (isDefaultCondition(groupBy.condition())) {
+					defaultGroupBy = groupBy;
+				}
+				if (!evalConditionPredicate(cache, bindings, null, groupBy.condition())) {
+					continue;
+				}
+				activeGroupBys.add(groupBy);
+			}
+			if (activeGroupBys.isEmpty() && defaultGroupBy != null) {
+				activeGroupBys.add(defaultGroupBy);
+			}
+
+			for (GroupBy groupBy : activeGroupBys) {
 				String raw = groupBy.raw();
 				String field = groupBy.field();
 				if (Strings.isNotBlank(raw)) {
@@ -515,17 +922,54 @@ public class EntityStatements {
 		if (!hasOrderByKey) {
 			io.polaris.core.jdbc.sql.annotation.segment.OrderBy[] orderBys = sqlSelect.orderBy();
 			if (orderBys.length > 0) {
+				List<io.polaris.core.jdbc.sql.annotation.segment.OrderBy> activeOrderBys = new ArrayList<>(orderBys.length);
+				io.polaris.core.jdbc.sql.annotation.segment.OrderBy defaultOrderBy = null;
 				for (io.polaris.core.jdbc.sql.annotation.segment.OrderBy orderBy : orderBys) {
+					if (isDefaultCondition(orderBy.condition())) {
+						defaultOrderBy = orderBy;
+					}
+					if (!evalConditionPredicate(cache, bindings, null, orderBy.condition())) {
+						continue;
+					}
+					activeOrderBys.add(orderBy);
+				}
+				if (activeOrderBys.isEmpty() && defaultOrderBy != null) {
+					activeOrderBys.add(defaultOrderBy);
+				}
+
+				for (io.polaris.core.jdbc.sql.annotation.segment.OrderBy orderBy : activeOrderBys) {
+					String raw = orderBy.raw();
+					if (Strings.isNotBlank(raw)) {
+						st.orderByRaw(raw);
+						continue;
+					}
 					String field = orderBy.field();
 					if (Strings.isBlank(field)) {
 						throw new IllegalStateException("未指定排序字段名");
 					}
+					OrderBySegment<?, ?> seg = st.orderBy();
+					seg.column(field);
+
+					for (Function function : orderBy.functions()) {
+						Tuple3<String, TableField[], Object[]> functionTuple = parseFunction(cache, bindings, function);
+						if (functionTuple == null) {
+							continue;
+						}
+						String expr = functionTuple.getFirst();
+						TableField[] tableFields = functionTuple.getSecond();
+						Object[] args = functionTuple.getThird();
+						if (args != null) {
+							seg = seg.apply(expr, tableFields, args);
+						} else {
+							seg = seg.apply(expr, tableFields, bindings);
+						}
+					}
 					switch (orderBy.direction()) {
 						case ASC:
-							st.orderBy(field);
+							seg.asc();
 							break;
 						case DESC:
-							st.orderByDesc(field);
+							seg.desc();
 							break;
 					}
 				}
@@ -533,6 +977,37 @@ public class EntityStatements {
 		}
 	}
 
+	private static Tuple3<String, TableField[], Object[]> parseFunction(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, Function function) {
+		String expr = function.value();
+		if (Strings.isBlank(expr)) {
+			return null;
+		}
+		JoinColumn[] joinColumns = function.joinColumns();
+		TableField[] tableFields = new TableField[joinColumns.length];
+		for (int i = 0; i < tableFields.length; i++) {
+			TableField v = getJoinTableField(cache, bindings, joinColumns[i]);
+			if (v == null) {
+				// 条件不满足
+				return null;
+			}
+			tableFields[i] = v;
+		}
+		BindingKey[] bindingKeys = function.bindingKeys();
+		if (bindingKeys.length > 0) {
+			Object[] args = new Object[bindingKeys.length];
+			for (int i = 0; i < bindingKeys.length; i++) {
+				Tuple1<?> val = getValForBindingKey(cache, bindings, bindingKeys[i]);
+				if (val == null) {
+					// 条件不满足
+					return null;
+				}
+				args[i] = val.getFirst();
+			}
+			return Tuple3.of(expr, tableFields, args);
+		} else {
+			return Tuple3.of(expr, tableFields, null);
+		}
+	}
 
 	private static CriterionSegment<?, ?> newCriterionSegmentWithFunction(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, WhereSegment<?, ?> ws, Criterion criterion) {
 		CriterionSegment<?, ?> seg = ws.column(criterion.field());
@@ -551,32 +1026,15 @@ public class EntityStatements {
 		if (criterion.avg()) {
 			seg = seg.avg();
 		}
-		labelFunc:
-		for (io.polaris.core.jdbc.sql.annotation.segment.Function function : criterion.functions()) {
-			String expr = function.value();
-			if (Strings.isBlank(expr)) {
+		for (Function function : criterion.functions()) {
+			Tuple3<String, TableField[], Object[]> functionTuple = parseFunction(cache, bindings, function);
+			if (functionTuple == null) {
 				continue;
 			}
-			JoinColumn[] joinColumns = function.joinColumns();
-			TableField[] tableFields = new TableField[joinColumns.length];
-			for (int i = 0; i < tableFields.length; i++) {
-				TableField v = getJoinTableField(cache, bindings, joinColumns[i]);
-				if (v == null) {
-					// 条件不满足
-					continue labelFunc;
-				}
-			}
-			BindingKey[] bindingKeys = function.bindingKeys();
-			if (bindingKeys.length > 0) {
-				Object[] args = new Object[bindingKeys.length];
-				for (int i = 0; i < bindingKeys.length; i++) {
-					Tuple1<?> val = getValForBindingKey(cache, bindings, bindingKeys[i]);
-					if (val == null) {
-						// 条件不满足
-						continue labelFunc;
-					}
-					args[i] = val.getFirst();
-				}
+			String expr = functionTuple.getFirst();
+			TableField[] tableFields = functionTuple.getSecond();
+			Object[] args = functionTuple.getThird();
+			if (args != null) {
 				seg = seg.apply(expr, tableFields, args);
 			} else {
 				seg = seg.apply(expr, tableFields, bindings);
@@ -603,32 +1061,15 @@ public class EntityStatements {
 		if (criterion.avg()) {
 			seg = seg.avg();
 		}
-		labelFunc:
-		for (io.polaris.core.jdbc.sql.annotation.segment.Function function : criterion.functions()) {
-			String expr = function.value();
-			if (Strings.isBlank(expr)) {
+		for (Function function : criterion.functions()) {
+			Tuple3<String, TableField[], Object[]> functionTuple = parseFunction(cache, bindings, function);
+			if (functionTuple == null) {
 				continue;
 			}
-			JoinColumn[] joinColumns = function.joinColumns();
-			TableField[] tableFields = new TableField[joinColumns.length];
-			for (int i = 0; i < tableFields.length; i++) {
-				TableField v = getJoinTableField(cache, bindings, joinColumns[i]);
-				if (v == null) {
-					// 条件不满足
-					continue labelFunc;
-				}
-			}
-			BindingKey[] bindingKeys = function.bindingKeys();
-			if (bindingKeys.length > 0) {
-				Object[] args = new Object[bindingKeys.length];
-				for (int i = 0; i < bindingKeys.length; i++) {
-					Tuple1<?> val = getValForBindingKey(cache, bindings, bindingKeys[i]);
-					if (val == null) {
-						// 条件不满足
-						continue labelFunc;
-					}
-					args[i] = val.getFirst();
-				}
+			String expr = functionTuple.getFirst();
+			TableField[] tableFields = functionTuple.getSecond();
+			Object[] args = functionTuple.getThird();
+			if (args != null) {
 				seg = seg.apply(expr, tableFields, args);
 			} else {
 				seg = seg.apply(expr, tableFields, bindings);
@@ -654,32 +1095,15 @@ public class EntityStatements {
 		if (criterion.avg()) {
 			seg = seg.avg();
 		}
-		labelFunc:
-		for (io.polaris.core.jdbc.sql.annotation.segment.Function function : criterion.functions()) {
-			String expr = function.value();
-			if (Strings.isBlank(expr)) {
+		for (Function function : criterion.functions()) {
+			Tuple3<String, TableField[], Object[]> functionTuple = parseFunction(cache, bindings, function);
+			if (functionTuple == null) {
 				continue;
 			}
-			JoinColumn[] joinColumns = function.joinColumns();
-			TableField[] tableFields = new TableField[joinColumns.length];
-			for (int i = 0; i < tableFields.length; i++) {
-				TableField v = getJoinTableField(cache, bindings, joinColumns[i]);
-				if (v == null) {
-					// 条件不满足
-					continue labelFunc;
-				}
-			}
-			BindingKey[] bindingKeys = function.bindingKeys();
-			if (bindingKeys.length > 0) {
-				Object[] args = new Object[bindingKeys.length];
-				for (int i = 0; i < bindingKeys.length; i++) {
-					Tuple1<?> val = getValForBindingKey(cache, bindings, bindingKeys[i]);
-					if (val == null) {
-						// 条件不满足
-						continue labelFunc;
-					}
-					args[i] = val.getFirst();
-				}
+			String expr = functionTuple.getFirst();
+			TableField[] tableFields = functionTuple.getSecond();
+			Object[] args = functionTuple.getThird();
+			if (args != null) {
 				seg = seg.apply(expr, tableFields, args);
 			} else {
 				seg = seg.apply(expr, tableFields, bindings);
@@ -1380,14 +1804,15 @@ public class EntityStatements {
 		return Tuple1.of(BindingValues.getBindingValueOrDefault(cache, bindings, key, null));
 	}
 
+	private static boolean isDefaultCondition(Condition[] conditions) {
+		return conditions.length == 1 && conditions[0].predicateType() == Condition.PredicateType.DEFAULT;
+	}
 
-	private static boolean evalConditionPredicate(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, String bindingKey, Condition[] conditions) {
+	private static boolean evalConditionPredicate(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, String defaultBindingKey, Condition[] conditions) {
+		// 任意条件不满足，则返回false，否则true
 		for (Condition condition : conditions) {
-			String key = Strings.coalesce(condition.bindingKey(), bindingKey);
-			if (Strings.isBlank(key)) {
-				return false;
-			}
-			Object condVal = BindingValues.getBindingValueOrDefault(cache, bindings, key, null);
+			String key = Strings.coalesce(condition.bindingKey(), defaultBindingKey);
+			Object condVal = Strings.isBlank(key) ? null : BindingValues.getBindingValueOrDefault(cache, bindings, key, null);
 			Condition.PredicateType predicateType = condition.predicateType();
 			switch (predicateType) {
 				case NOT_NULL: {
@@ -1415,11 +1840,11 @@ public class EntityStatements {
 					break;
 				}
 				case REGEX: {
-					String expression = condition.predicateExpression();
-					if (Strings.isBlank(expression)) {
+					if (!(condVal instanceof String)) {
 						return false;
 					}
-					if (!(condVal instanceof String)) {
+					String expression = condition.predicateExpression();
+					if (Strings.isBlank(expression)) {
 						return false;
 					}
 					if (!Patterns.matches(expression, (String) condVal)) {
@@ -1427,36 +1852,33 @@ public class EntityStatements {
 					}
 					break;
 				}
-				case GROOVY_EVALUATOR: {
-					boolean rs = evalConditionPredicateByEngineName(GroovyEvaluator.ENGINE_NAME, condition.predicateExpression(), condVal, bindings);
-					if (!rs) {
+				case SCRIPT: {
+					String expression = condition.predicateExpression();
+					String engineName = condition.predicateScriptEngine();
+					if (Strings.isBlank(expression) || Strings.isBlank(engineName)) {
 						return false;
 					}
-					break;
-				}
-				case JAVA_EVALUATOR: {
-					boolean rs = evalConditionPredicateByEngineName(JavaEvaluator.ENGINE_NAME, condition.predicateExpression(), condVal, bindings);
-					if (!rs) {
+					Evaluator evaluator = ScriptEvaluators.getEvaluator(engineName);
+					if (evaluator == null) {
 						return false;
 					}
-					break;
-				}
-				case JAVASCRIPT_EVALUATOR: {
-					boolean rs = evalConditionPredicateByEngineName(JavaScriptEvaluator.ENGINE_NAME, condition.predicateExpression(), condVal, bindings);
+					Map<String, Object> output = new HashMap<>();
+					Object o = evaluator.eval(expression, condVal, output, bindings);
+					boolean rs = Converters.convertQuietly(boolean.class, o, false);
 					if (!rs) {
 						return false;
 					}
 					break;
 				}
 				case CUSTOM: {
-					String predicateKey = condition.predicateKey();
-					if (Strings.isNotBlank(predicateKey)) {
-						BiPredicate<Map<String, Object>, Object> predicate = (BiPredicate<Map<String, Object>, Object>) BindingValues.getBindingValueOrDefault(cache, bindings, predicateKey, null);
+					String customKey = condition.predicateCustomKey();
+					if (Strings.isNotBlank(customKey)) {
+						BiPredicate<Map<String, Object>, Object> predicate = (BiPredicate<Map<String, Object>, Object>) BindingValues.getBindingValueOrDefault(cache, bindings, customKey, null);
 						if (predicate == null || !predicate.test(bindings, condVal)) {
 							return false;
 						}
 					} else {
-						for (Class<? extends BiPredicate<Map<String, Object>, Object>> c : condition.predicateClass()) {
+						for (Class<? extends BiPredicate<Map<String, Object>, Object>> c : condition.predicateCustomClass()) {
 							try {
 								BiPredicate<Map<String, Object>, Object> biPredicate = c.newInstance();
 								if (!biPredicate.test(bindings, condVal)) {
@@ -1469,24 +1891,14 @@ public class EntityStatements {
 					}
 					break;
 				}
+				case DEFAULT:
+					return false;
 				default:
+					return false;
 			}
 		}
 		return true;
 	}
-
-	private static boolean evalConditionPredicateByEngineName(String engineName, String expression, Object condVal, Map<String, Object> bindings) {
-		if (Strings.isBlank(expression)) {
-			return false;
-		}
-		Evaluator evaluator = ScriptEvaluators.getEvaluator(engineName);
-		Map<String, Object> output = new HashMap<>();
-		expression = Evaluator.OUTPUT + "put(\"" + Evaluator.RESULT + "\",(" + expression + "));";
-		evaluator.eval(expression, condVal, output, bindings);
-		Object o = output.get(Evaluator.RESULT);
-		return Converters.convertQuietly(boolean.class, o, false);
-	}
-
 
 	public static InsertStatement<?> buildInsert(Map<String, Object> bindings, EntityInsert entityInsert) {
 		return buildInsert(bindings, entityInsert.table(), entityInsert.entityKey()
@@ -1704,4 +2116,63 @@ public class EntityStatements {
 	}
 
 
+	private static class SqlRawItemModel {
+
+		private static final String CONDITION = Reflects.getPropertyName(SqlRawItem::condition);
+		private static final String VALUE = Reflects.getPropertyName(SqlRawItem::value);
+		private static final String SUBSET = Reflects.getPropertyName(SqlRawItem::subset);
+		private static final String FOR_EACH_KEY = Reflects.getPropertyName(SqlRawItem::forEachKey);
+		private static final String ITEM_KEY = Reflects.getPropertyName(SqlRawItem::itemKey);
+		private static final String INDEX_KEY = Reflects.getPropertyName(SqlRawItem::indexKey);
+		private static final String OPEN = Reflects.getPropertyName(SqlRawItem::open);
+		private static final String CLOSE = Reflects.getPropertyName(SqlRawItem::close);
+		private static final String SEPARATOR = Reflects.getPropertyName(SqlRawItem::separator);
+		private String sqlText;
+		private List<SqlRawItemModel> subset;
+		private Condition[] condition;
+		private String forEachKey;
+		private String itemKey;
+		private String indexKey;
+		private String open;
+		private String close;
+		private String separator;
+
+		public static SqlRawItemModel[] of(SqlRaw sqlRaw) {
+			SqlRawItem[] items = sqlRaw.value();
+			SqlRawItemModel[] models = new SqlRawItemModel[items.length];
+			for (int i = 0; i < items.length; i++) {
+				SqlRawItem item = items[i];
+				models[i] = of(item);
+			}
+			return models;
+		}
+
+		public static SqlRawItemModel of(SqlRawItem sqlRawItem) {
+			AnnotationAttributes attributes = AnnotationAttributes.of(sqlRawItem);
+			return of(attributes);
+		}
+
+		private static SqlRawItemModel of(AnnotationAttributes attributes) {
+			SqlRawItemModel model = new SqlRawItemModel();
+			Object subset = attributes.get(SUBSET);
+			int subsetLength = subset == null ? 0 : Array.getLength(subset);
+			if (subsetLength > 0) {
+				model.subset = new ArrayList<>();
+				for (int i = 0; i < subsetLength; i++) {
+					Annotation o = (Annotation) Array.get(subset, i);
+					model.subset.add(SqlRawItemModel.of(AnnotationAttributes.of(o)));
+				}
+			} else {
+				model.sqlText = Strings.join(" ", attributes.getStringArray(VALUE));
+			}
+			model.condition = attributes.getAnnotationArray(CONDITION, Condition.class);
+			model.forEachKey = attributes.getString(FOR_EACH_KEY);
+			model.itemKey = attributes.getString(ITEM_KEY);
+			model.indexKey = attributes.getString(INDEX_KEY);
+			model.open = Strings.join(" ", attributes.getStringArray(OPEN));
+			model.close = Strings.join(" ", attributes.getStringArray(CLOSE));
+			model.separator = Strings.join(" ", attributes.getStringArray(SEPARATOR));
+			return model;
+		}
+	}
 }
