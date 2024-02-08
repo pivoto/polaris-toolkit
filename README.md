@@ -18,6 +18,7 @@
 - [x] 注解处理增强，支持元注解解析、合并
 - [x] SelectSegment 别名添加支统一前缀、后缀支持
 - [x] 通用Sql注解构建工具类
+- [ ] SqlStatement orderBy 添加函数支持
 - [ ] 优化代码生成器设计，提供更通用的配置方法，提升性能
 - [ ] 工具类扩展：spring-boot-starter
 

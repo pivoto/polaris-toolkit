@@ -9,6 +9,7 @@ import io.polaris.core.jdbc.sql.annotation.EntitySelect;
 import io.polaris.core.jdbc.sql.annotation.EntityUpdate;
 import io.polaris.core.jdbc.sql.annotation.SqlSelect;
 import io.polaris.core.jdbc.sql.annotation.segment.BindingKey;
+import io.polaris.core.jdbc.sql.annotation.segment.Condition;
 import io.polaris.core.jdbc.sql.annotation.segment.Criteria;
 import io.polaris.core.jdbc.sql.annotation.segment.Criteria1;
 import io.polaris.core.jdbc.sql.annotation.segment.Criterion;
@@ -104,7 +105,13 @@ public interface DemoMapper {
 				),
 			}
 		),
-		orderBy = {@OrderBy(field = DemoOrgEntityMeta.FieldName.id, direction = Direction.DESC)}
+		orderBy = {@OrderBy(field = DemoOrgEntityMeta.FieldName.id, direction = Direction.DESC,
+			condition = {@Condition(bindingKey = "id",
+				predicateType = Condition.PredicateType.SCRIPT,
+				predicateScriptEngine = "groovy",
+				predicateExpression = "id >= 1"
+			)})
+		}
 	)
 	List<DemoOrgEntity> selectOrgListByAny2(Map<String, Object> param);
 
