@@ -6,7 +6,7 @@ import java.util.Map;
  * @author Qt
  * @since 1.8
  */
-public class NullScript implements IScript {
+public class NullScript implements Script {
 	public static final NullScript INSTANCE = new NullScript();
 
 	@Override

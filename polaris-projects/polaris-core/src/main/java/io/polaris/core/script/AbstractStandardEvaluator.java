@@ -1,15 +1,21 @@
 package io.polaris.core.script;
 
+import java.util.Base64;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import javax.script.Bindings;
+import javax.script.Compilable;
+import javax.script.CompiledScript;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+
 import io.polaris.core.cache.ICache;
 import io.polaris.core.cache.MapCache;
 import io.polaris.core.crypto.digest.Digests;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
-
-import javax.script.*;
-import java.util.Base64;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * @author Qt
@@ -40,7 +46,7 @@ public abstract class AbstractStandardEvaluator implements Evaluator {
 				cache = iCache;
 			}
 		} else {
-			log.error("脚本引擎不支持: {}", engineName);
+			log.error("脚本引擎不支持:{}", engineName);
 		}
 	}
 
@@ -67,9 +73,13 @@ public abstract class AbstractStandardEvaluator implements Evaluator {
 	@Override
 	public Object eval(String scriptContent, Object input, Object output, Map<String, Object> mergeBindings) throws ScriptEvalException {
 		try {
+			if (scriptEngine == null) {
+				throw new ScriptEvalException("脚本引擎不支持:" + getEngineName());
+			}
 			Bindings bindings = scriptEngine.createBindings();
 			if (mergeBindings != null) {
 				bindings.putAll(mergeBindings);
+				bindings.put(BINDINGS, mergeBindings);
 			} else {
 				if (input instanceof Map) {
 					bindings.putAll((Map) input);
@@ -100,7 +110,7 @@ public abstract class AbstractStandardEvaluator implements Evaluator {
 				rs = scriptEngine.eval(scriptContent, bindings);
 			}
 			if (output instanceof Map) {
-				((Map) output).put(RESULT, rs);
+				((Map) output).putIfAbsent(RESULT, rs);
 			}
 			return rs;
 		} catch (Exception e) {

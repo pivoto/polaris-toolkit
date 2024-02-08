@@ -1,15 +1,5 @@
 package io.polaris.core.script;
 
-import io.polaris.core.cache.ICache;
-import io.polaris.core.cache.MapCache;
-import io.polaris.core.compiler.MemoryCompiler;
-import io.polaris.core.crypto.digest.Digests;
-import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
-import io.polaris.core.reflect.Reflects;
-import io.polaris.core.reflect.SerializableQuaternionConsumer;
-import io.polaris.core.service.ServiceDefault;
-
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -18,11 +8,23 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.polaris.core.cache.ICache;
+import io.polaris.core.cache.MapCache;
+import io.polaris.core.compiler.MemoryCompiler;
+import io.polaris.core.crypto.digest.Digests;
+import io.polaris.core.log.ILogger;
+import io.polaris.core.log.ILoggers;
+import io.polaris.core.reflect.Reflects;
+import io.polaris.core.reflect.SerializableQuaternionFunction;
+import io.polaris.core.service.ServiceDefault;
+import io.polaris.core.service.ServiceName;
+
 /**
  * @author Qt
  * @since 1.8
  */
 @ServiceDefault(Integer.MAX_VALUE)
+@ServiceName(JavaEvaluator.ENGINE_NAME)
 public class JavaEvaluator implements Evaluator {
 	public static final String ENGINE_NAME = "java";
 	private static final ILogger log = ILoggers.of(JavaEvaluator.class);
@@ -73,22 +75,23 @@ public class JavaEvaluator implements Evaluator {
 		sb.append("\n");
 
 		// region override
-		sb.append("public void ")
+		sb.append("public Object ")
 			.append(Reflects.getLambdaMethodName(
-				(SerializableQuaternionConsumer<JavaEvaluatorFunction, Object, Object, Map<String, Object>>) JavaEvaluatorFunction::doEval))
-			.append("(Object _input, Object _output, Map<String, Object> bindings){\n");
-		sb.append(inputType).append(" input = (").append(inputType).append(")_input;").append("\n");
-		sb.append(outputType).append(" output = (").append(outputType).append(")_output;").append("\n");
+				(SerializableQuaternionFunction<JavaEvaluatorFunction, Object, Object, Map<String, Object>, Object>) JavaEvaluatorFunction::doEval))
+			.append("(Object _input, Object _output, Map<String, Object> ").append(BINDINGS).append("){\n");
+		sb.append(inputType).append(" ").append(INPUT).append(" = (").append(inputType).append(")_input;").append("\n");
+		sb.append(outputType).append(" ").append(OUTPUT).append(" = (").append(outputType).append(")_output;").append("\n");
 		sb.append(classBody).append("\n");
 		sb.append("}");
 		sb.append("\n");
-		// endregion calc
+		// endregion
 
 		sb.append("}");
 		sb.append("\n");
 		return sb.toString();
 	}
 
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
 	public Object eval(String scriptContent, Object input, Object output, Map<String, Object> mergeBindings) throws ScriptEvalException {
 		try {
@@ -127,8 +130,11 @@ public class JavaEvaluator implements Evaluator {
 			}
 			bindings.put(INPUT, input);
 			bindings.put(OUTPUT, output);
-			bean.eval(input, output, bindings);
-			return output;
+			Object rs = bean.eval(input, output, bindings);
+			if (output instanceof Map) {
+				((Map) output).putIfAbsent(RESULT, rs);
+			}
+			return rs;
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new ScriptEvalException(e.getMessage(), e);

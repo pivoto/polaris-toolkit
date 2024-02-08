@@ -6,7 +6,7 @@ import java.util.Map;
  * @author Qt
  * @since 1.8
  */
-public class ErrorScript implements IScript{
+public class ErrorScript implements Script {
 	private final Throwable throwable;
 
 	public ErrorScript(Throwable throwable) {

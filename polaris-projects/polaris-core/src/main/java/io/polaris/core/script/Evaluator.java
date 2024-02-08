@@ -9,6 +9,7 @@ import java.util.Map;
 public interface Evaluator {
 	String INPUT = "input";
 	String OUTPUT = "output";
+	String BINDINGS = "bindings";
 	String RESULT = "result";
 
 	/**

@@ -5,12 +5,10 @@ import io.polaris.core.string.Strings;
 import groovy.lang.Binding;
 import groovy.lang.GroovyClassLoader;
 import groovy.lang.GroovyCodeSource;
-import groovy.lang.Script;
 import lombok.Getter;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.runtime.InvokerHelper;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -72,7 +70,7 @@ public class GroovyCompiler {
 		clearScript(scriptName);
 	}
 
-	public IScript compileScript(String scriptName, String scriptSource) {
+	public Script compileScript(String scriptName, String scriptSource) {
 		try {
 			Class klass = compile(scriptName, scriptSource);
 			return createScript(klass);
@@ -81,20 +79,20 @@ public class GroovyCompiler {
 		}
 	}
 
-	public IScript createScript(Class klass) {
+	public Script createScript(Class klass) {
 		if (klass == null) {
 			return new NullScript();
 		}
-		if (IScript.class.isAssignableFrom(klass)) {
+		if (Script.class.isAssignableFrom(klass)) {
 			try {
-				return (IScript) klass.newInstance();
+				return (Script) klass.newInstance();
 			} catch (ReflectiveOperationException e) {
 				throw new ScriptEvalException("初始化脚本类失败", e);
 			}
 		}
 		try {
 			return (variables) -> {
-				Script script = InvokerHelper.createScript(klass, null);
+				groovy.lang.Script script = InvokerHelper.createScript(klass, null);
 				script.setBinding(new Binding(variables));
 				return script.run();
 			};
@@ -131,29 +129,29 @@ public class GroovyCompiler {
 	}
 
 
-	public Script createGroovyScript(Class scriptClass, Binding binding) {
+	public groovy.lang.Script createGroovyScript(Class scriptClass, Binding binding) {
 		return InvokerHelper.createScript(scriptClass, binding);
 	}
 
-	public Script compileGroovyScript(String name, String content, Binding binding) {
+	public groovy.lang.Script compileGroovyScript(String name, String content, Binding binding) {
 		Class clazz = compile(name, content);
-		Script script = createGroovyScript(clazz, binding);
+		groovy.lang.Script script = createGroovyScript(clazz, binding);
 		return script;
 	}
 
-	public Script compileGroovyScript(String name, String content, Map<String, Object> variables) {
+	public groovy.lang.Script compileGroovyScript(String name, String content, Map<String, Object> variables) {
 		return compileGroovyScript(name, content, new Binding(variables));
 	}
 
-	public Script compileGroovyScript(String content, Map<String, Object> variables) {
+	public groovy.lang.Script compileGroovyScript(String content, Map<String, Object> variables) {
 		return compileGroovyScript(null, content, new Binding(variables));
 	}
 
-	public Script compileGroovyScript(String name, String content, String... args) {
+	public groovy.lang.Script compileGroovyScript(String name, String content, String... args) {
 		return compileGroovyScript(name, content, new Binding(args));
 	}
 
-	public Script compileGroovyScript(String content, String... args) {
+	public groovy.lang.Script compileGroovyScript(String content, String... args) {
 		return compileGroovyScript(null, content, new Binding(args));
 	}
 

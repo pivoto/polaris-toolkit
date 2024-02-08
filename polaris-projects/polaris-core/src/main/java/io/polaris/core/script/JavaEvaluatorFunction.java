@@ -15,11 +15,12 @@ public abstract class JavaEvaluatorFunction {
 	public JavaEvaluatorFunction() {
 	}
 
-	public void eval(Object input, Object output, Map<String, Object> bindings) {
-		doEval(input, output, bindings);
+	public Object eval(Object input, Object output, Map<String, Object> bindings) {
+		return doEval(input, output, bindings);
 	}
 
-	protected void doEval(Object input, Object output, Map<String, Object> bindings) {
+	protected Object doEval(Object input, Object output, Map<String, Object> bindings) {
+		return null;
 	}
 
 }

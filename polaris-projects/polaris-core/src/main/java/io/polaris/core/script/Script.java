@@ -8,7 +8,7 @@ import java.util.function.Function;
  * @since 1.8
  */
 @FunctionalInterface
-public interface IScript extends Function<Map<String, Object>, Object> {
+public interface Script extends Function<Map<String, Object>, Object> {
 
 	Object run(Map<String, Object> binding);
 

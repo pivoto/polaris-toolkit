@@ -8,7 +8,7 @@ class GroovyCompilerTest {
 
 	@Test
 	void test01() {
-		IScript s = GroovyCompiler.getInstance().compileScript(null,
+		Script s = GroovyCompiler.getInstance().compileScript(null,
 			"def a = new " + Random.class.getName() + "().nextInt(); \n" +
 				"return a;");
 		System.out.println(s.run(null));

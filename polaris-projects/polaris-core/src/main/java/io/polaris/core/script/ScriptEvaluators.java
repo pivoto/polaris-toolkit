@@ -1,42 +1,60 @@
 package io.polaris.core.script;
 
-import io.polaris.core.io.IO;
-
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Map;
-import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
+
+import io.polaris.core.io.IO;
+import io.polaris.core.log.ILogger;
+import io.polaris.core.log.ILoggers;
+import io.polaris.core.service.Service;
+import io.polaris.core.service.ServiceLoader;
+import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
  * @since 1.8
  */
 public class ScriptEvaluators {
-
+	private static final ILogger log = ILoggers.of(ScriptEvaluators.class);
 	private static final String FILE_PREFIX = "file:";
 	private static final String CLASSPATH_PREFIX = "classpath:";
 	private static final Map<String, Evaluator> engineMap = new ConcurrentHashMap<>();
 	private static Evaluator defaultEngine;
 
 	static {
-		ServiceLoader<Evaluator> loader = ServiceLoader.load(Evaluator.class);
-		for (Evaluator evaluator : loader) {
-			if (defaultEngine == null) {
-				defaultEngine = evaluator;
+		ServiceLoader<Evaluator> services = ServiceLoader.of(Evaluator.class);
+		for (Service<Evaluator> service : services) {
+			try {
+				String engineName = service.getServiceName();
+				Evaluator evaluator = service.getSingleton();
+				if (Strings.isBlank(engineName)) {
+					String simpleName = evaluator.getClass().getSimpleName();
+					engineName = simpleName.replaceFirst(Evaluator.class.getSimpleName() + "$", "");
+				}
+				if (!hasEvaluator(engineName)) {
+					register(engineName, evaluator);
+					register(engineName.toUpperCase(), evaluator);
+					register(engineName.toLowerCase(), evaluator);
+					if (defaultEngine == null) {
+						defaultEngine = evaluator;
+					}
+				}
+			} catch (Exception e) {
+				log.error(e.getMessage(), e);
 			}
-			String simpleName = evaluator.getClass().getSimpleName();
-			String engineName = simpleName.replaceFirst(Evaluator.class.getSimpleName() + "$", "");
-			register(engineName, evaluator);
-			register(engineName.toUpperCase(), evaluator);
-			register(engineName.toLowerCase(), evaluator);
 		}
 		if (defaultEngine == null) {
 			defaultEngine = new JavaScriptEvaluator();
 		}
+	}
+
+	public static boolean hasEvaluator(String engineName) {
+		return engineMap.containsKey(engineName);
 	}
 
 	public static Evaluator getEvaluator(String engineName) {
