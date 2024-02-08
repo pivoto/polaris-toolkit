@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +45,18 @@ public class MetaObjectTest {
 		System.out.println(Beans.newBeanMap(new Object()).keySet());
 		System.out.println(Beans.newBeanMap(new Object[1]).keySet());
 		System.out.println(Beans.newBeanMap(new ArrayList()).keySet());
+	}
+
+	@Test
+	void test02() {
+		Map<String,Object> bindings = new HashMap<>();
+		bindings.put("a", new HashMap<>());
+
+		MetaObject<Map> meta = (MetaObject<Map>) MetaObject.of(bindings.getClass());
+		meta.setPathProperty(bindings,"a.a","1");
+		System.out.println();
+		System.out.println(meta.getPathProperty(bindings,"a.a"));
+		System.out.println(bindings);
 	}
 
 	@Data

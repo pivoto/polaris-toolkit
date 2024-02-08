@@ -1,5 +1,23 @@
 package io.polaris.core.lang.bean;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import io.polaris.core.converter.Converters;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.TypeRef;
@@ -13,14 +31,6 @@ import io.polaris.core.string.StringCases;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-
-import javax.annotation.Nonnull;
-import java.lang.reflect.Array;
-import java.lang.reflect.Type;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 /**
  * @author Qt
@@ -38,6 +48,7 @@ public class MetaObject<T> {
 	private final JavaType<T> beanType;
 	private int state = INIT;
 
+	private boolean isObject;
 	private boolean isBasic;
 	private boolean isPrimitive;
 	private boolean isPrimitiveWrapper;
@@ -57,11 +68,30 @@ public class MetaObject<T> {
 		this.beanType = beanType;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		MetaObject<?> that = (MetaObject<?>) o;
+		return Objects.equals(beanType, that.beanType);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(beanType);
+	}
+
 	private void parse() {
 		state = PARSING;
 		try {
 			Class<T> rawClass = beanType.getRawClass();
-			if (rawClass.isPrimitive()) {
+			if (Object.class.equals(rawClass)) {
+				this.isObject = true;
+			} else if (rawClass.isPrimitive()) {
 				this.isPrimitive = true;
 				this.isBasic = true;
 			} else if (Types.isPrimitiveWrapper(rawClass)) {
@@ -135,18 +165,19 @@ public class MetaObject<T> {
 		return of(JavaType.of(beanType));
 	}
 
-	public static int buildPropertyCaseModel(boolean caseInsensitive, boolean caseCamel) {
+	public static int buildCaseModel(boolean caseInsensitive, boolean caseCamel) {
 		return (caseInsensitive ? CASE_INSENSITIVE : 0) | (caseCamel ? CASE_CAMEL : 0);
 	}
 
-	public static boolean isCaseInsensitive(int propertyCaseModel) {
-		return (CASE_INSENSITIVE & propertyCaseModel) != 0;
+	public static boolean isCaseInsensitive(int caseModel) {
+		return (CASE_INSENSITIVE & caseModel) != 0;
 	}
 
-	public static boolean isCaseCamel(int propertyCaseModel) {
-		return (CASE_CAMEL & propertyCaseModel) != 0;
+	public static boolean isCaseCamel(int caseModel) {
+		return (CASE_CAMEL & caseModel) != 0;
 	}
 
+	@Nullable
 	public T newInstance() {
 		return Reflects.newInstanceIfPossible(this.beanType.getRawClass());
 	}
@@ -155,28 +186,35 @@ public class MetaObject<T> {
 		return getPropertyOrSetDefault(o, 0, property);
 	}
 
-	public Object getPropertyOrSetDefault(@Nonnull T o, int propertyCaseModel, @Nonnull String property) {
-		if (isBasic || isEnum) {
-			log.warn("不支持的属性：{}:{}", beanType.getTypeName(), property);
-			return null;
+	public Object getPropertyOrSetDefault(@Nonnull T o, int caseModel, @Nonnull String property) {
+		if (isObject || isBasic || isEnum) {
+			MetaObject runtimeMeta = MetaObject.of(o.getClass());
+			if (this.equals(runtimeMeta) || runtimeMeta.isObject || runtimeMeta.isBasic || runtimeMeta.isEnum) {
+				log.debug("不支持的属性：{}:{}", beanType.getTypeName(), property);
+				return null;
+			} else {
+				return runtimeMeta.getPropertyOrSetDefault(o, caseModel, property);
+			}
 		}
 		if (isArray) {
 			int idx = 0;
 			try {
 				idx = Integer.parseInt(property);
 			} catch (NumberFormatException e) {
-				log.warn("数组下标属性错误：{}:{}", beanType.getTypeName(), property);
+				log.debug("数组下标属性错误：{}:{}", beanType.getTypeName(), property);
 				return null;
 			}
 			int length = Array.getLength(o);
 			if (idx >= length) {
-				log.warn("数组下标属性越界：{}:{}", beanType.getTypeName(), property);
+				log.debug("数组下标属性越界：{}:{}", beanType.getTypeName(), property);
 				return null;
 			}
 			Object val = Array.get(o, idx);
 			if (val == null) {
 				val = this.elementType.newInstance();
-				Array.set(o, idx, val);
+				if (val != null) {
+					Array.set(o, idx, val);
+				}
 			}
 			return val;
 		}
@@ -194,7 +232,7 @@ public class MetaObject<T> {
 			try {
 				idx = Integer.parseInt(property);
 			} catch (NumberFormatException e) {
-				log.warn("集合下标属性错误：{}:{}", beanType.getTypeName(), property);
+				log.debug("集合下标属性错误：{}:{}", beanType.getTypeName(), property);
 				return null;
 			}
 			int size = ((Collection) o).size();
@@ -225,25 +263,32 @@ public class MetaObject<T> {
 			}
 			return val;
 		}
+
 		Accessor accessor = properties.get(property);
 		if (accessor == null || accessor.getter == null || accessor.setter == null) {
-			if (isCaseInsensitive(propertyCaseModel)) {
+			if (isCaseInsensitive(caseModel)) {
 				accessor = propertiesCaseInsensitive.get(property);
 			}
 			if (accessor == null || accessor.getter == null || accessor.setter == null) {
-				if (isCaseCamel(propertyCaseModel)) {
+				if (isCaseCamel(caseModel)) {
 					String propertyCamelCase = StringCases.underlineToCamelCase(property);
 					accessor = properties.get(propertyCamelCase);
 					if (accessor == null || accessor.getter == null || accessor.setter == null) {
-						if (isCaseInsensitive(propertyCaseModel)) {
+						if (isCaseInsensitive(caseModel)) {
 							accessor = propertiesCaseInsensitive.get(propertyCamelCase);
 						}
 					}
 				}
 			}
 			if (accessor == null || accessor.getter == null || accessor.setter == null) {
-				log.warn("不支持的属性：{}:{}", beanType.getTypeName(), property);
-				return null;
+
+				MetaObject runtimeMeta = MetaObject.of(o.getClass());
+				if (this.equals(runtimeMeta) || runtimeMeta.isObject || runtimeMeta.isBasic || runtimeMeta.isEnum) {
+					log.debug("不支持的属性：{}:{}", beanType.getTypeName(), property);
+					return null;
+				} else {
+					return runtimeMeta.getPropertyOrSetDefault(o, caseModel, property);
+				}
 			}
 		}
 		Object val = accessor.getter.apply(o);
@@ -258,22 +303,27 @@ public class MetaObject<T> {
 		return setProperty(o, 0, property, val);
 	}
 
-	public Object setProperty(@Nonnull T o, int propertyCaseModel, @Nonnull String property, Object val) {
-		if (isBasic || isEnum) {
-			log.warn("不支持的属性：{}:{}", beanType.getTypeName(), property);
-			return null;
+	public Object setProperty(@Nonnull T o, int caseModel, @Nonnull String property, Object val) {
+		if (isObject || isBasic || isEnum) {
+			MetaObject runtimeMeta = MetaObject.of(o.getClass());
+			if (this.equals(runtimeMeta) || runtimeMeta.isObject || runtimeMeta.isBasic || runtimeMeta.isEnum) {
+				log.debug("不支持的属性：{}:{}", beanType.getTypeName(), property);
+				return null;
+			} else {
+				return runtimeMeta.setProperty(o, caseModel, property, val);
+			}
 		}
 		if (isArray) {
 			int idx = 0;
 			try {
 				idx = Integer.parseInt(property);
 			} catch (NumberFormatException e) {
-				log.warn("数组下标属性错误：{}:{}", beanType.getTypeName(), property);
+				log.debug("数组下标属性错误：{}:{}", beanType.getTypeName(), property);
 				return null;
 			}
 			int length = Array.getLength(o);
 			if (idx >= length) {
-				log.warn("数组下标属性越界：{}:{}", beanType.getTypeName(), property);
+				log.debug("数组下标属性越界：{}:{}", beanType.getTypeName(), property);
 				return null;
 			}
 			Array.set(o, idx, val = Converters.convertQuietly(elementType.beanType, val));
@@ -290,7 +340,7 @@ public class MetaObject<T> {
 			try {
 				idx = Integer.parseInt(property);
 			} catch (NumberFormatException e) {
-				log.warn("集合下标属性越界：{}:{}", beanType.getTypeName(), property);
+				log.debug("集合下标属性越界：{}:{}", beanType.getTypeName(), property);
 				return null;
 			}
 			int size = ((Collection) o).size();
@@ -312,25 +362,31 @@ public class MetaObject<T> {
 			((Collection) o).addAll(list);
 			return val;
 		}
+
 		Accessor accessor = properties.get(property);
 		if (accessor == null || accessor.setter == null) {
-			if (isCaseInsensitive(propertyCaseModel)) {
+			if (isCaseInsensitive(caseModel)) {
 				accessor = propertiesCaseInsensitive.get(property);
 			}
 			if (accessor == null || accessor.setter == null) {
-				if (isCaseCamel(propertyCaseModel)) {
+				if (isCaseCamel(caseModel)) {
 					String propertyCamelCase = StringCases.underlineToCamelCase(property);
 					accessor = properties.get(propertyCamelCase);
 					if (accessor == null || accessor.setter == null) {
-						if (isCaseInsensitive(propertyCaseModel)) {
+						if (isCaseInsensitive(caseModel)) {
 							accessor = propertiesCaseInsensitive.get(propertyCamelCase);
 						}
 					}
 				}
 			}
 			if (accessor == null || accessor.setter == null) {
-				log.warn("不支持的属性：{}:{}", beanType.getTypeName(), property);
-				return null;
+				MetaObject runtimeMeta = MetaObject.of(o.getClass());
+				if (this.equals(runtimeMeta) || runtimeMeta.isObject || runtimeMeta.isBasic || runtimeMeta.isEnum) {
+					log.debug("不支持的属性：{}:{}", beanType.getTypeName(), property);
+					return null;
+				} else {
+					return runtimeMeta.setProperty(o, caseModel, property, val);
+				}
 			}
 		}
 		accessor.setter.accept(o, val = Converters.convertQuietly(accessor.meta.beanType, val));
@@ -341,9 +397,9 @@ public class MetaObject<T> {
 		return getProperty(0, property);
 	}
 
-	public MetaObject<?> getProperty(int propertyCaseModel, @Nonnull String property) {
-		if (isBasic || isEnum) {
-			log.warn("不支持的属性：{}:{}", beanType.getTypeName(), property);
+	public MetaObject<?> getProperty(int caseModel, @Nonnull String property) {
+		if (isObject || isBasic || isEnum) {
+			log.debug("不支持的属性：{}:{}", beanType.getTypeName(), property);
 			return null;
 		}
 		if (isArray || isCollection || isMap) {
@@ -351,33 +407,33 @@ public class MetaObject<T> {
 		}
 		Accessor accessor = properties.get(property);
 		if (accessor == null) {
-			if (isCaseInsensitive(propertyCaseModel)) {
+			if (isCaseInsensitive(caseModel)) {
 				accessor = propertiesCaseInsensitive.get(property);
 			}
 			if (accessor == null) {
-				if (isCaseCamel(propertyCaseModel)) {
+				if (isCaseCamel(caseModel)) {
 					String propertyCamelCase = StringCases.underlineToCamelCase(property);
 					accessor = properties.get(propertyCamelCase);
 					if (accessor == null) {
-						if (isCaseInsensitive(propertyCaseModel)) {
+						if (isCaseInsensitive(caseModel)) {
 							accessor = propertiesCaseInsensitive.get(propertyCamelCase);
 						}
 					}
 				}
 			}
 			if (accessor == null) {
-				log.warn("不支持的属性：{}:{}", beanType.getTypeName(), property);
+				log.debug("不支持的属性：{}:{}", beanType.getTypeName(), property);
 				return null;
 			}
 		}
 		return accessor.meta;
 	}
 
-	public MetaObject<?> getPathProperty(int propertyCaseModel, @Nonnull String property) {
+	public MetaObject<?> getPathProperty(int caseModel, @Nonnull String property) {
 		Deque<String> properties = Beans.parseProperty(property);
 		MetaObject meta = this;
 		for (String key : properties) {
-			meta = meta.getProperty(propertyCaseModel, key);
+			meta = meta.getProperty(caseModel, key);
 			if (meta == null) {
 				break;
 			}
@@ -389,22 +445,27 @@ public class MetaObject<T> {
 		return getProperty(o, 0, property);
 	}
 
-	public Object getProperty(@Nonnull T o, int propertyCaseModel, @Nonnull String property) {
-		if (isBasic || isEnum) {
-			log.warn("不支持的属性：{}:{}", beanType.getTypeName(), property);
-			return null;
+	public Object getProperty(@Nonnull T o, int caseModel, @Nonnull String property) {
+		if (isObject || isBasic || isEnum) {
+			MetaObject runtimeMeta = MetaObject.of(o.getClass());
+			if (this.equals(runtimeMeta) || runtimeMeta.isObject || runtimeMeta.isBasic || runtimeMeta.isEnum) {
+				log.debug("不支持的属性：{}:{}", beanType.getTypeName(), property);
+				return null;
+			} else {
+				return runtimeMeta.getProperty(o, caseModel, property);
+			}
 		}
 		if (isArray) {
 			int idx = 0;
 			try {
 				idx = Integer.parseInt(property);
 			} catch (NumberFormatException e) {
-				log.warn("数组下标属性错误：{}:{}", beanType.getTypeName(), property);
+				log.debug("数组下标属性错误：{}:{}", beanType.getTypeName(), property);
 				return null;
 			}
 			int length = Array.getLength(o);
 			if (idx >= length) {
-				log.warn("数组下标属性越界：{}:{}", beanType.getTypeName(), property);
+				log.debug("数组下标属性越界：{}:{}", beanType.getTypeName(), property);
 				return null;
 			}
 			return Array.get(o, idx);
@@ -418,12 +479,12 @@ public class MetaObject<T> {
 			try {
 				idx = Integer.parseInt(property);
 			} catch (NumberFormatException e) {
-				log.warn("集合下标属性错误：{}:{}", beanType.getTypeName(), property);
+				log.debug("集合下标属性错误：{}:{}", beanType.getTypeName(), property);
 				return null;
 			}
 			int size = ((Collection) o).size();
 			if (idx >= size) {
-				log.warn("集合下标属性越界：{}:{}", beanType.getTypeName(), property);
+				log.debug("集合下标属性越界：{}:{}", beanType.getTypeName(), property);
 				return null;
 			}
 			if (o instanceof List) {
@@ -437,23 +498,28 @@ public class MetaObject<T> {
 		}
 		Accessor accessor = properties.get(property);
 		if (accessor == null || accessor.getter == null) {
-			if (isCaseInsensitive(propertyCaseModel)) {
+			if (isCaseInsensitive(caseModel)) {
 				accessor = propertiesCaseInsensitive.get(property);
 			}
 			if (accessor == null || accessor.getter == null) {
-				if (isCaseCamel(propertyCaseModel)) {
+				if (isCaseCamel(caseModel)) {
 					String propertyCamelCase = StringCases.underlineToCamelCase(property);
 					accessor = properties.get(propertyCamelCase);
 					if (accessor == null || accessor.getter == null) {
-						if (isCaseInsensitive(propertyCaseModel)) {
+						if (isCaseInsensitive(caseModel)) {
 							accessor = propertiesCaseInsensitive.get(propertyCamelCase);
 						}
 					}
 				}
 			}
 			if (accessor == null || accessor.getter == null) {
-				log.warn("不支持的属性：{}:{}", beanType.getTypeName(), property);
-				return null;
+				MetaObject runtimeMeta = MetaObject.of(o.getClass());
+				if (this.equals(runtimeMeta) || runtimeMeta.isObject || runtimeMeta.isBasic || runtimeMeta.isEnum) {
+					log.debug("不支持的属性：{}:{}", beanType.getTypeName(), property);
+					return null;
+				} else {
+					return runtimeMeta.getProperty(o, caseModel, property);
+				}
 			}
 		}
 		return accessor.getter.apply(o);
@@ -463,16 +529,21 @@ public class MetaObject<T> {
 		return hasProperty(o, 0, property);
 	}
 
-	public boolean hasProperty(@Nonnull T o, int propertyCaseModel, @Nonnull String property) {
-		if (isBasic || isEnum) {
-			return false;
+	public boolean hasProperty(@Nonnull T o, int caseModel, @Nonnull String property) {
+		if (isObject || isBasic || isEnum) {
+			MetaObject runtimeMeta = MetaObject.of(o.getClass());
+			if (this.equals(runtimeMeta) || runtimeMeta.isObject || runtimeMeta.isBasic || runtimeMeta.isEnum) {
+				return false;
+			} else {
+				return runtimeMeta.hasProperty(o, caseModel, property);
+			}
 		}
 		if (isArray) {
 			int idx = 0;
 			try {
 				idx = Integer.parseInt(property);
 			} catch (NumberFormatException e) {
-				log.warn("数组下标属性错误：{}:{}", beanType.getTypeName(), property);
+				log.debug("数组下标属性错误：{}:{}", beanType.getTypeName(), property);
 				return false;
 			}
 			int length = Array.getLength(o);
@@ -490,7 +561,7 @@ public class MetaObject<T> {
 			try {
 				idx = Integer.parseInt(property);
 			} catch (NumberFormatException e) {
-				log.warn("集合下标属性越界：{}:{}", beanType.getTypeName(), property);
+				log.debug("集合下标属性越界：{}:{}", beanType.getTypeName(), property);
 				return false;
 			}
 			int size = ((Collection) o).size();
@@ -508,22 +579,27 @@ public class MetaObject<T> {
 		}
 		Accessor accessor = properties.get(property);
 		if (accessor == null || accessor.getter == null) {
-			if (isCaseInsensitive(propertyCaseModel)) {
+			if (isCaseInsensitive(caseModel)) {
 				accessor = propertiesCaseInsensitive.get(property);
 			}
 			if (accessor == null || accessor.getter == null) {
-				if (isCaseCamel(propertyCaseModel)) {
+				if (isCaseCamel(caseModel)) {
 					String propertyCamelCase = StringCases.underlineToCamelCase(property);
 					accessor = properties.get(propertyCamelCase);
 					if (accessor == null || accessor.getter == null) {
-						if (isCaseInsensitive(propertyCaseModel)) {
+						if (isCaseInsensitive(caseModel)) {
 							accessor = propertiesCaseInsensitive.get(propertyCamelCase);
 						}
 					}
 				}
 			}
 			if (accessor == null || accessor.getter == null) {
-				return false;
+				MetaObject runtimeMeta = MetaObject.of(o.getClass());
+				if (this.equals(runtimeMeta) || runtimeMeta.isObject || runtimeMeta.isBasic || runtimeMeta.isEnum) {
+					return false;
+				} else {
+					return runtimeMeta.hasProperty(o, caseModel, property);
+				}
 			}
 		}
 		return accessor.getter.apply(o) != null;
@@ -534,55 +610,55 @@ public class MetaObject<T> {
 		return getPathProperty(o, 0, Beans.parseProperty(property));
 	}
 
-	public Object getPathProperty(@Nonnull T o, int propertyCaseModel, @Nonnull String property) {
-		return getPathProperty(o, propertyCaseModel, Beans.parseProperty(property));
+	public Object getPathProperty(@Nonnull T o, int caseModel, @Nonnull String property) {
+		return getPathProperty(o, caseModel, Beans.parseProperty(property));
 	}
 
 	public Object setPathProperty(@Nonnull T o, @Nonnull String property, Object val) {
 		return setPathProperty(o, 0, Beans.parseProperty(property), val);
 	}
 
-	public Object setPathProperty(@Nonnull T o, int propertyCaseModel, @Nonnull String property, Object val) {
-		return setPathProperty(o, propertyCaseModel, Beans.parseProperty(property), val);
+	public Object setPathProperty(@Nonnull T o, int caseModel, @Nonnull String property, Object val) {
+		return setPathProperty(o, caseModel, Beans.parseProperty(property), val);
 	}
 
-	private Object setPathProperty(@Nonnull T o, int propertyCaseModel, Deque<String> properties, Object val) {
+	private Object setPathProperty(@Nonnull T o, int caseModel, Deque<String> properties, Object val) {
 		if (val == null) {
 			return null;
 		}
 		String property = properties.pollLast();
 		if (properties.isEmpty()) {
-			return setProperty(o, propertyCaseModel, property, val);
+			return setProperty(o, caseModel, property, val);
 		}
-		PropertyInfo info = getRequiredPathProperty(o, propertyCaseModel, properties);
+		PropertyInfo info = getRequiredPathProperty(o, caseModel, properties);
 		if (info == null) {
 			return null;
 		}
 		if (info.propertyMeta.isArray) {
 			return setArrayElement(info, property, info.propertyMeta.elementType, val);
 		} else {
-			return info.propertyMeta.setProperty(info.propertyObj, propertyCaseModel, property, val);
+			return info.propertyMeta.setProperty(info.propertyObj, caseModel, property, val);
 		}
 	}
 
-	private Object getPathProperty(T obj, int propertyCaseModel, Deque<String> properties) {
+	private Object getPathProperty(T obj, int caseModel, Deque<String> properties) {
 		Object target = obj;
 		MetaObject meta = this;
 		for (String property : properties) {
-			target = meta.getProperty(target, propertyCaseModel, property);
+			target = meta.getProperty(target, caseModel, property);
 			if (target == null) {
 				break;
 			}
-			meta = meta.getProperty(propertyCaseModel,property);
+			meta = meta.getProperty(caseModel, property);
 		}
 		return target;
 	}
 
-	private PropertyInfo getRequiredPathProperty(T obj, int propertyCaseModel, Deque<String> properties) {
+	private PropertyInfo getRequiredPathProperty(T obj, int caseModel, Deque<String> properties) {
 		PropertyInfo info = new PropertyInfo("", obj, this, null, null);
 		for (String property : properties) {
-			Object propVal = info.propertyMeta.getPropertyOrSetDefault(info.propertyObj, propertyCaseModel, property);
-			MetaObject propMeta = info.propertyMeta.getProperty(propertyCaseModel,property);
+			Object propVal = info.propertyMeta.getPropertyOrSetDefault(info.propertyObj, caseModel, property);
+			MetaObject propMeta = info.propertyMeta.getProperty(caseModel, property);
 			if (propVal == null) {
 				propVal = setArrayElement(info, property, propMeta, null);
 				if (propVal == null) {
@@ -629,6 +705,10 @@ public class MetaObject<T> {
 
 	public JavaType<T> getBeanType() {
 		return beanType;
+	}
+
+	public boolean isObject() {
+		return isObject;
 	}
 
 	public boolean isBasic() {
