@@ -341,6 +341,11 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 				.addModifiers(Modifier.PUBLIC)
 				.addStatement("super($T.class)", beanClassName)
 				.build());
+			nestedBuilder.addMethod(MethodSpec.constructorBuilder()
+				.addModifiers(Modifier.PUBLIC)
+				.addParameter(ParameterSpec.builder(ClassName.get(String.class), "alias").build())
+				.addStatement("super($T.class, alias)", beanClassName)
+				.build());
 
 			{
 				for (JdbcBeanInfo.FieldInfo field : beanInfo.getFields()) {
@@ -916,6 +921,12 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 				.addModifiers(Modifier.PUBLIC, Modifier.STATIC)
 				.returns(classNameInsert)
 				.addStatement("return new $T()", classNameInsert)
+				.build());
+			classBuilder.addMethod(MethodSpec.methodBuilder("insert")
+				.addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+				.returns(classNameInsert)
+				.addParameter(ClassName.get(String.class), "alias")
+				.addStatement("return new $T(alias)", classNameInsert)
 				.build());
 
 			classBuilder.addMethod(MethodSpec.methodBuilder("update")
