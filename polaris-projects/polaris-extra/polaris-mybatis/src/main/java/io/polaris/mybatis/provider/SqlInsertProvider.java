@@ -6,6 +6,7 @@ import io.polaris.core.annotation.Published;
 import io.polaris.core.jdbc.sql.EntityStatements;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.statement.InsertStatement;
+import io.polaris.mybatis.scripting.ProviderSqlSourceDriver;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.builder.annotation.ProviderContext;
 
@@ -17,7 +18,8 @@ import org.apache.ibatis.builder.annotation.ProviderContext;
 public class SqlInsertProvider extends BaseProviderMethodResolver {
 
 	@Published
-	public static String provideSql(Map<String, Object> map, ProviderContext context) {
+	public static String provideSql(Object parameterObject, ProviderContext context) {
+		Map<String, Object> map = ProviderSqlSourceDriver.toParameterBindings(context.getMapperMethod(), parameterObject);
 		InsertStatement<?> st = (InsertStatement<?>) map.get(BindingKeys.INSERT);
 		String sql = EntityStatements.asSqlWithBindings(map, st);
 		if (log.isDebugEnabled()) {

@@ -55,92 +55,92 @@ public class MapperProviders {
 	 * @see AnyEntityProvider
 	 */
 	@Published
-	public static String provideSql(Map<String, Object> map, ProviderContext context) {
-		return AnyEntityProvider.provideSql(map, context);
+	public static String provideSql(Object parameterObject, ProviderContext context) {
+		return AnyEntityProvider.provideSql(parameterObject, context);
 	}
 
 
 	@Published
-	public static String executeAnySql(Map<String, Object> map, ProviderContext context) {
-		return AnySqlProvider.provideSql(map, context);
+	public static String executeAnySql(Object parameterObject, ProviderContext context) {
+		return AnySqlProvider.provideSql(parameterObject, context);
 	}
 
 	@Published
-	public static String insertEntity(Map<String, Object> map, ProviderContext context) {
-		return EntityInsertProvider.provideSql(map, context);
-	}
-
-
-	@Published
-	public static String deleteEntityById(Map<String, Object> map, ProviderContext context) {
-		return EntityDeleteByIdProvider.provideSql(map, context);
+	public static String insertEntity(Object parameterObject, ProviderContext context) {
+		return EntityInsertProvider.provideSql(parameterObject, context);
 	}
 
 
 	@Published
-	public static String deleteEntityByAny(Map<String, Object> map, ProviderContext context) {
-		return EntityDeleteByAnyProvider.provideSql(map, context);
+	public static String deleteEntityById(Object parameterObject, ProviderContext context) {
+		return EntityDeleteByIdProvider.provideSql(parameterObject, context);
 	}
 
 
 	@Published
-	public static String updateEntityById(Map<String, Object> map, ProviderContext context) {
-		return EntityUpdateByIdProvider.provideSql(map, context);
+	public static String deleteEntityByAny(Object parameterObject, ProviderContext context) {
+		return EntityDeleteByAnyProvider.provideSql(parameterObject, context);
 	}
 
 
 	@Published
-	public static String updateEntityByAny(Map<String, Object> map, ProviderContext context) {
-		return EntityUpdateByAnyProvider.provideSql(map, context);
+	public static String updateEntityById(Object parameterObject, ProviderContext context) {
+		return EntityUpdateByIdProvider.provideSql(parameterObject, context);
 	}
 
 
 	@Published
-	public static String countEntity(Map<String, Object> map, ProviderContext context) {
-		return EntityCountProvider.provideSql(map, context);
+	public static String updateEntityByAny(Object parameterObject, ProviderContext context) {
+		return EntityUpdateByAnyProvider.provideSql(parameterObject, context);
 	}
 
 
 	@Published
-	public static String selectEntityById(Map<String, Object> map, ProviderContext context) {
-		return EntitySelectByIdProvider.provideSql(map, context);
+	public static String countEntity(Object parameterObject, ProviderContext context) {
+		return EntityCountProvider.provideSql(parameterObject, context);
 	}
 
 
 	@Published
-	public static String selectEntity(Map<String, Object> map, ProviderContext context) {
-		return EntitySelectByAnyProvider.provideSql(map, context);
+	public static String selectEntityById(Object parameterObject, ProviderContext context) {
+		return EntitySelectByIdProvider.provideSql(parameterObject, context);
 	}
 
 
 	@Published
-	public static String insertBySql(Map<String, Object> map, ProviderContext context) {
-		return SqlInsertProvider.provideSql(map, context);
+	public static String selectEntity(Object parameterObject, ProviderContext context) {
+		return EntitySelectByAnyProvider.provideSql(parameterObject, context);
+	}
+
+
+	@Published
+	public static String insertBySql(Object parameterObject, ProviderContext context) {
+		return SqlInsertProvider.provideSql(parameterObject, context);
 	}
 
 	@Published
-	public static String deleteBySql(Map<String, Object> map, ProviderContext context) {
-		return SqlDeleteProvider.provideSql(map, context);
+	public static String deleteBySql(Object parameterObject, ProviderContext context) {
+		return SqlDeleteProvider.provideSql(parameterObject, context);
 	}
 
 	@Published
-	public static String updateBySql(Map<String, Object> map, ProviderContext context) {
-		return SqlUpdateProvider.provideSql(map, context);
+	public static String updateBySql(Object parameterObject, ProviderContext context) {
+		return SqlUpdateProvider.provideSql(parameterObject, context);
 	}
 
 	@Published
-	public static String selectBySql(Map<String, Object> map, ProviderContext context) {
-		return SqlSelectProvider.provideSql(map, context);
+	public static String selectBySql(Object parameterObject, ProviderContext context) {
+		return SqlSelectProvider.provideSql(parameterObject, context);
 	}
 
 	@Published
-	public static String countBySql(Map<String, Object> map, ProviderContext context) {
-		return SqlCountProvider.provideSql(map, context);
+	public static String countBySql(Object parameterObject, ProviderContext context) {
+		return SqlCountProvider.provideSql(parameterObject, context);
 	}
 
 	@Published
-	public static String mergeBySql(Map<String, Object> map, ProviderContext context) {
-		return SqlMergeProvider.provideSql(map, context);
+	public static String mergeBySql(Object parameterObject, ProviderContext context) {
+		return SqlMergeProvider.provideSql(parameterObject, context);
 	}
 
 }

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.Types;
+import io.polaris.core.reflect.Reflects;
 import io.polaris.mybatis.annotation.EntityMapperDeclared;
 import io.polaris.mybatis.mapper.EntityMapper;
 import org.apache.ibatis.builder.annotation.ProviderContext;
@@ -26,6 +27,14 @@ public abstract class BaseProviderMethodResolver implements ProviderMethodResolv
 		}
 		try {
 			return getClass().getMethod("provideSql", Map.class, ProviderContext.class);
+		} catch (NoSuchMethodException ignore) {
+		}
+		try {
+			return getClass().getMethod(methodName, Object.class, ProviderContext.class);
+		} catch (NoSuchMethodException ignore) {
+		}
+		try {
+			return getClass().getMethod("provideSql", Object.class, ProviderContext.class);
 		} catch (NoSuchMethodException ignore) {
 		}
 		return ProviderMethodResolver.super.resolveMethod(context);
