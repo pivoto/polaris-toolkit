@@ -1,10 +1,10 @@
 package io.polaris.core.jdbc.sql.node;
 
+import java.util.Collections;
+
 import io.polaris.core.annotation.AnnotationProcessing;
 import io.polaris.core.jdbc.sql.BoundSql;
 import io.polaris.core.jdbc.sql.PreparedSql;
-
-import java.util.Collections;
 
 /**
  * @author Qt
@@ -31,7 +31,7 @@ public class TextNode implements SqlNode, Cloneable {
 
 	@Override
 	public PreparedSql asPreparedSql() {
-		if (text.length() == 0) {
+		if (text == null || text.isEmpty()) {
 			return PreparedSql.EMPTY;
 		}
 		return new PreparedSql(text, Collections.emptyList());
@@ -39,7 +39,7 @@ public class TextNode implements SqlNode, Cloneable {
 
 	@Override
 	public BoundSql asBoundSql(VarNameGenerator generator, String openVarToken, String closeVarToken) {
-		if (text.length() == 0) {
+		if (text == null || text.isEmpty()) {
 			return BoundSql.EMPTY;
 		}
 		return new BoundSql(text, Collections.emptyMap());
