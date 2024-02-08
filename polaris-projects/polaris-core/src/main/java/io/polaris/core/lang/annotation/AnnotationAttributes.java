@@ -1,15 +1,20 @@
 package io.polaris.core.lang.annotation;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 import io.polaris.core.converter.Converters;
 import io.polaris.core.reflect.Reflects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
-import java.util.*;
 
 /**
  * @author Qt
@@ -117,6 +122,10 @@ public class AnnotationAttributes {
 		return memberValue == null ? null : memberValue.getValue();
 	}
 
+	public <T> T get(String name, Class<T> type) {
+		return Converters.convert(type, get(name));
+	}
+
 	public String getString(String name) {
 		return Converters.convert(String.class, get(name));
 	}
@@ -144,6 +153,28 @@ public class AnnotationAttributes {
 	public Class[] getClassArray(String name) {
 		return Converters.convert(Class[].class, get(name));
 	}
+
+	public Annotation getAnnotation(String name) {
+		return Converters.convert(Annotation.class, get(name));
+	}
+
+	public Annotation[] getAnnotationArray(String name) {
+		return Converters.convert(Annotation[].class, get(name));
+	}
+
+	public AnnotationAttributes getAnnotationAttributes(String name) {
+		return AnnotationAttributes.of(getAnnotation(name));
+	}
+
+	public AnnotationAttributes[] getAnnotationAttributesArray(String name) {
+		Annotation[] arr = getAnnotationArray(name);
+		AnnotationAttributes[] attributes = new AnnotationAttributes[arr.length];
+		for (int i = 0; i < arr.length; i++) {
+			attributes[i] = AnnotationAttributes.of(arr[i]);
+		}
+		return attributes;
+	}
+
 
 	public <V extends Annotation> V getAnnotation(String name, Class<V> annotationType) {
 		return Converters.convert(annotationType, get(name));
