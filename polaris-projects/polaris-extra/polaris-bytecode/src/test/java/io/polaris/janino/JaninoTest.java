@@ -39,6 +39,7 @@ public class JaninoTest {
 				.getDefaultCompilerFactory(ShippingCost.class.getClassLoader())
 				.newExpressionEvaluator()
 		);
+
 		ee.setDefaultImports();
 		ee.setExpressionType(double.class);
 		ee.setParameters(new String[]{"total"}, new Class[]{double.class});
