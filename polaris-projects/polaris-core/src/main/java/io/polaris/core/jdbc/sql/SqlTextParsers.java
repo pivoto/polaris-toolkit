@@ -1,24 +1,33 @@
 package io.polaris.core.jdbc.sql;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Date;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
 import io.polaris.core.consts.StdConsts;
 import io.polaris.core.consts.SymbolConsts;
 import io.polaris.core.jdbc.TableMeta;
-import io.polaris.core.jdbc.sql.node.*;
+import io.polaris.core.jdbc.sql.node.ContainerNode;
+import io.polaris.core.jdbc.sql.node.DynamicNode;
+import io.polaris.core.jdbc.sql.node.MixedNode;
+import io.polaris.core.jdbc.sql.node.TextNode;
 import io.polaris.core.jdbc.sql.statement.segment.TableAccessible;
 import io.polaris.core.jdbc.sql.statement.segment.TableSegment;
 import io.polaris.core.lang.bean.BeanMap;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.string.StringCases;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.*;
+import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
  * @since 1.8,  Aug 11, 2023
  */
-public class SqlParser {
+public class SqlTextParsers {
 
 	public static ContainerNode parse(String sql) {
 		return parse(sql, '$', '#', '{', '}');
@@ -96,10 +105,28 @@ public class SqlParser {
 		return root;
 	}
 
-
-
+	/**
+	 * 解析实体表与字段的引用表达式，支持格式：
+	 * <ul>
+	 *   <li>`&{tableAlias}`
+	 *   </li>
+	 *   <li>`&{tableAlias.tableField}`
+	 *   </li>
+	 *   <li>`&{tableAlias?.tableField}`
+	 *   </li>
+	 *   <li>`&{#tableIndex}`
+	 *   </li>
+	 *   <li>`&{#tableIndex.tableField}`
+	 *   </li>
+	 *   <li>`&{#tableIndex?.tableField}`
+	 *   </li>
+	 * </ul>
+	 */
 	public static String resolveRefTableField(String sql, TableAccessible tableAccessible) {
-		ContainerNode containerNode = SqlParser.parse(sql, '&', (char) -1, '{', '}');
+		if (tableAccessible == null || Strings.isBlank(sql)) {
+			return sql;
+		}
+		ContainerNode containerNode = SqlTextParsers.parse(sql, '&', (char) -1, '{', '}');
 		containerNode.visitSubset(node -> {
 			if (node.isVarNode()) {
 				String varName = node.getVarName();
@@ -109,26 +136,49 @@ public class SqlParser {
 					throw new IllegalArgumentException("表达式错误(&{tableAlias.tableField}): " + varName);
 				}
 				String tableAlias = path.pollFirst();
-				TableSegment<?> table = tableAccessible.getTable(tableAlias);
+				if (Strings.isBlank(tableAlias)) {
+					throw new IllegalArgumentException("表达式错误(&{tableAlias.tableField}): " + varName);
+				}
+				boolean excludeAlias = tableAlias.charAt(tableAlias.length() - 1) == '?';
+				if (excludeAlias) {
+					tableAlias = tableAlias.substring(0, tableAlias.length() - 1);
+				}
+
+				TableSegment<?> table;
+				// 取序号
+				if (tableAlias.startsWith(SymbolConsts.HASH_MARK)) {
+					table = tableAccessible.getTable(Integer.parseInt(tableAlias.substring(1)));
+				} else {
+					table = tableAccessible.getTable(tableAlias);
+				}
 				if (table == null) {
 					throw new IllegalArgumentException("表别名不存在: " + tableAlias);
 				}
+
 				String tableField = path.pollFirst();
 				if (tableField == null) {
 					TableMeta tableMeta = table.getTableMeta();
+					// 晨直接实体表，可能是子查询等
 					if (tableMeta == null) {
-						node.bindVarValue(tableAlias);
+						node.bindVarValue(table.getTableAlias());
 					} else {
-						node.bindVarValue(tableMeta.getTable() + " " + tableAlias);
+						node.bindVarValue(tableMeta.getTable() + " " + table.getTableAlias());
 					}
 				} else if (SymbolConsts.ASTERISK.equals(tableField)) {
-					node.bindVarValue(table.getAllColumnExpression(false));
+					if (excludeAlias) {
+						node.bindVarValue(Strings.join(", ", table.getAllColumnNames()));
+					} else {
+						node.bindVarValue(table.getAllColumnExpression(false));
+					}
 				} else {
-					node.bindVarValue(table.getColumnExpression(tableField));
+					if (excludeAlias) {
+						node.bindVarValue(table.getColumnName(tableField));
+					} else {
+						node.bindVarValue(table.getColumnExpression(tableField));
+					}
 				}
 			}
 		});
-
 		return containerNode.toString();
 	}
 
