@@ -10,7 +10,7 @@ public interface SqlNodes {
 
 	TextNode NULL = new TextNode("NULL");
 	TextNode BLANK = new TextNode(" ");
-	TextNode LF = new TextNode("\n");
+	TextNode LF = new TextNode(System.getProperty("jdbc.sql.line.separator"," "));
 	TextNode SELECT = new TextNode("SELECT ");
 	TextNode DELETE = new TextNode("DELETE ");
 	TextNode UPDATE = new TextNode("UPDATE ");
