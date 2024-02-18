@@ -130,15 +130,19 @@ public class BindingValues {
 		if (bindings == null) {
 			return defVal;
 		}
-		if (key.contains(".") || key.contains("[")) {
-			Object val = Beans.getPathProperty(bindings, key);
-			// 降级处理
-			if (val == null) {
-				return bindings.getOrDefault(key, defVal);
+		try {
+			if (key.contains(".") || key.contains("[")) {
+				Object val = Beans.getPathProperty(bindings, key);
+				// 降级处理
+				if (val == null) {
+					return bindings.getOrDefault(key, defVal);
+				}
+				return val;
 			}
-			return val;
+			return bindings.getOrDefault(key, defVal);
+		} catch (Exception e) {
+			return defVal;
 		}
-		return bindings.getOrDefault(key, defVal);
 	}
 
 	public static Object getBindingValueOrDefault(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, String key, Object defVal) {
@@ -152,26 +156,38 @@ public class BindingValues {
 				val = ref.get();
 			} else {
 				if (key.contains(".") || key.contains("[")) {
+					try {
+						val = Beans.getPathProperty(bindings, key);
+						// 降级处理
+						if (val == null) {
+							val = bindings.get(key);
+						}
+					} catch (Exception e) {
+						val = null;
+					}
+					cache.put(key, ValueRef.of(val));
+				} else {
+					try {
+						val = bindings.get(key);
+					} catch (Exception e) {
+						val = null;
+					}
+					cache.put(key, ValueRef.of(val));
+				}
+			}
+		} else {
+			try {
+				if (key.contains(".") || key.contains("[")) {
 					val = Beans.getPathProperty(bindings, key);
 					// 降级处理
 					if (val == null) {
 						val = bindings.get(key);
 					}
-					cache.put(key, ValueRef.of(val));
 				} else {
 					val = bindings.get(key);
-					cache.put(key, ValueRef.of(val));
 				}
-			}
-		} else {
-			if (key.contains(".") || key.contains("[")) {
-				val = Beans.getPathProperty(bindings, key);
-				// 降级处理
-				if (val == null) {
-					val = bindings.get(key);
-				}
-			} else {
-				val = bindings.get(key);
+			} catch (Exception e) {
+				val = null;
 			}
 		}
 		if (val == null) {
