@@ -1,5 +1,6 @@
 package io.polaris.core.jdbc.executor;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -39,9 +40,11 @@ import io.polaris.core.jdbc.sql.annotation.SqlSelect;
 import io.polaris.core.jdbc.sql.annotation.SqlSelectSet;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.lang.JavaType;
+import io.polaris.core.lang.annotation.AnnotationAttributes;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.map.Maps;
 import io.polaris.core.reflect.Reflects;
+import io.polaris.core.string.Strings;
 import io.polaris.core.tuple.Tuple2;
 
 /**
@@ -151,7 +154,7 @@ public class JdbcExecutorMetadata<T> {
 		final Parameter[] parameters = method.getParameters();
 		final int parameterCount = parameterTypes.length;
 		final int[] specIndex = new int[]{-1, -1, -1, -1};
-		final Key[] keys = new Key[parameterCount];
+		final String[] keys = new String[parameterCount];
 		for (int i = 0; i < parameterCount; i++) {
 			Parameter parameter = parameters[i];
 			JavaType<?> parameterType = JavaType.of(parameterTypes[i]);
@@ -162,7 +165,7 @@ public class JdbcExecutorMetadata<T> {
 			} else if (ResultVisitor.class.isAssignableFrom(parameterType.getRawClass())) {
 				specIndex[2] = i;
 			} else {
-				Key key = parameter.getAnnotation(Key.class);
+				String key = getParameterName(parameter);
 				if (key == null) {
 					if (specIndex[3] >= 0) {
 						throw new IllegalArgumentException("不能存在多个未指定参数名的参数");
@@ -232,7 +235,7 @@ public class JdbcExecutorMetadata<T> {
 				if (PrimitiveArrays.contains(specIndex, i)) {
 					continue;
 				}
-				bindings.put(keys[i].value(), args[i]);
+				bindings.put(keys[i], args[i]);
 			}
 			return new MethodArgs(options, conn, bindings, noKeyArg, extractor, visitor, resultRowMapper);
 		};
@@ -250,4 +253,17 @@ public class JdbcExecutorMetadata<T> {
 	}
 
 
+	private static String getParameterName(Parameter parameter) {
+		Key key = parameter.getAnnotation(Key.class);
+		if (key != null) {
+			return Strings.trimToNull(key.value());
+		}
+		for (Annotation annotation : parameter.getAnnotations()) {
+			// 兼容 mybatis-param
+			if ("org.apache.ibatis.annotations.Param".equals(annotation.annotationType().getName())) {
+				return Strings.trimToNull(AnnotationAttributes.of(annotation).getString("value"));
+			}
+		}
+		return null;
+	}
 }

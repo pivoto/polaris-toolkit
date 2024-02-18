@@ -9,9 +9,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.RandomAccess;
 
 import javax.annotation.Nonnull;
 import javax.naming.Context;
@@ -28,7 +30,6 @@ import io.polaris.core.jdbc.base.ResultExtractors;
 import io.polaris.core.jdbc.base.ResultRowSimpleMapper;
 import io.polaris.core.jdbc.base.ResultSetVisitor;
 import io.polaris.core.jdbc.base.StatementPreparer;
-import io.polaris.core.jdbc.base.StatementPreparers;
 import io.polaris.core.jdbc.executor.BatchResult;
 import io.polaris.core.jdbc.executor.JdbcBatch;
 import io.polaris.core.jdbc.executor.JdbcExecutors;
@@ -141,6 +142,30 @@ public class Jdbcs {
 		}
 	}
 
+	public static void beginTransaction(Connection connection) throws SQLException {
+		if (connection != null) {
+			connection.setAutoCommit(false);
+		}
+	}
+
+	public static void closeTransaction(Connection connection) throws SQLException {
+		if (connection != null) {
+			connection.setAutoCommit(true);
+		}
+	}
+
+	public static void commit(Connection connection) throws SQLException {
+		if (connection != null) {
+			connection.commit();
+		}
+	}
+
+	public static void rollback(Connection connection) throws SQLException {
+		if (connection != null) {
+			connection.commit();
+		}
+	}
+
 	public static <T> T createExecutor(Class<T> interfaceClass) {
 		return JdbcExecutors.createExecutor(interfaceClass);
 	}
@@ -152,29 +177,29 @@ public class Jdbcs {
 	public static <T> T query(Connection conn, SqlNode sqlNode
 		, ResultExtractor<T> extractor) throws SQLException {
 		PreparedSql sql = sqlNode.asPreparedSql();
-		return query(conn, sql.getText(), StatementPreparers.of(sql.getBindings()), extractor);
+		return query(conn, sql.getText(), preparerOfParameters(sql.getBindings()), extractor);
 	}
 
 	public static <T> T query(Connection conn, SqlNode sqlNode, @Nonnull JdbcOptions options
 		, ResultExtractor<T> extractor) throws SQLException {
 		PreparedSql sql = sqlNode.asPreparedSql();
-		return query(conn, sql.getText(), StatementPreparers.of(sql.getBindings()), extractor);
+		return query(conn, sql.getText(), preparerOfParameters(sql.getBindings()), extractor);
 	}
 
 	public static void query(Connection conn, SqlNode sqlNode, @Nonnull JdbcOptions options
 		, ResultSetVisitor visitor) throws SQLException {
 		PreparedSql sql = sqlNode.asPreparedSql();
-		query(conn, sql.getText(), options, StatementPreparers.of(sql.getBindings()), visitor);
+		query(conn, sql.getText(), options, preparerOfParameters(sql.getBindings()), visitor);
 	}
 
 	public static <T> T query(Connection conn, String sql, Iterable<?> parameters
 		, ResultExtractor<T> extractor) throws SQLException {
-		return query(conn, sql, StatementPreparers.of(parameters), extractor);
+		return query(conn, sql, preparerOfParameters(parameters), extractor);
 	}
 
 	public static <T> T query(Connection conn, String sql, Object[] parameters
 		, ResultExtractor<T> extractor) throws SQLException {
-		return query(conn, sql, StatementPreparers.of(parameters), extractor);
+		return query(conn, sql, preparerOfParameters(parameters), extractor);
 	}
 
 	public static <T> T query(Connection conn, String sql, ResultExtractor<T> extractor) throws SQLException {
@@ -197,11 +222,11 @@ public class Jdbcs {
 	}
 
 	public static List<Map<String, Object>> queryForMapList(Connection conn, String sql, Iterable<?> parameters) throws SQLException {
-		return query(conn, sql, StatementPreparers.of(parameters), ResultExtractors.ofMapList());
+		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofMapList());
 	}
 
 	public static List<Map<String, Object>> queryForMapList(Connection conn, String sql, Object[] parameters) throws SQLException {
-		return query(conn, sql, StatementPreparers.of(parameters), ResultExtractors.ofMapList());
+		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofMapList());
 	}
 
 	public static <T> List<T> queryForList(Connection conn, String sql, Class<T> beanType) throws SQLException {
@@ -209,11 +234,11 @@ public class Jdbcs {
 	}
 
 	public static <T> List<T> queryForList(Connection conn, String sql, Iterable<?> parameters, Class<T> beanType) throws SQLException {
-		return query(conn, sql, StatementPreparers.of(parameters), ResultExtractors.ofBeanList(beanType));
+		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofBeanList(beanType));
 	}
 
 	public static <T> List<T> queryForList(Connection conn, String sql, Object[] parameters, Class<T> beanType) throws SQLException {
-		return query(conn, sql, StatementPreparers.of(parameters), ResultExtractors.ofBeanList(beanType));
+		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofBeanList(beanType));
 	}
 
 	public static <T> List<T> queryForList(Connection conn, String sql, BeanMapping<T> mapping) throws SQLException {
@@ -221,11 +246,11 @@ public class Jdbcs {
 	}
 
 	public static <T> List<T> queryForList(Connection conn, String sql, Iterable<?> parameters, BeanMapping<T> mapping) throws SQLException {
-		return query(conn, sql, StatementPreparers.of(parameters), ResultExtractors.ofMappingList(mapping));
+		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofMappingList(mapping));
 	}
 
 	public static <T> List<T> queryForList(Connection conn, String sql, Object[] parameters, BeanMapping<T> mapping) throws SQLException {
-		return query(conn, sql, StatementPreparers.of(parameters), ResultExtractors.ofMappingList(mapping));
+		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofMappingList(mapping));
 	}
 
 	public static Map<String, Object> queryForMap(Connection conn, String sql) throws SQLException {
@@ -233,11 +258,11 @@ public class Jdbcs {
 	}
 
 	public static Map<String, Object> queryForMap(Connection conn, String sql, Iterable<?> parameters) throws SQLException {
-		return query(conn, sql, StatementPreparers.of(parameters), ResultExtractors.ofMap());
+		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofMap());
 	}
 
 	public static Map<String, Object> queryForMap(Connection conn, String sql, Object[] parameters) throws SQLException {
-		return query(conn, sql, StatementPreparers.of(parameters), ResultExtractors.ofMap());
+		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofMap());
 	}
 
 	public static <T> T queryForObject(Connection conn, String sql, Class<T> beanType) throws SQLException {
@@ -269,26 +294,26 @@ public class Jdbcs {
 	}
 
 	public static Object queryForSingle(Connection conn, String sql, Iterable<?> parameters) throws SQLException {
-		return query(conn, sql, StatementPreparers.of(parameters), ResultExtractors.ofSingle());
+		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofSingle());
 	}
 
 	public static Object queryForSingle(Connection conn, String sql, Object[] parameters) throws SQLException {
-		return query(conn, sql, StatementPreparers.of(parameters), ResultExtractors.ofSingle());
+		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofSingle());
 	}
 
 	public static int update(Connection conn, SqlNode sql) throws SQLException {
 		PreparedSql preparedSql = sql.asPreparedSql();
-		return update(conn, preparedSql.getText(), StatementPreparers.of(preparedSql.getBindings()));
+		return update(conn, preparedSql.getText(), preparerOfParameters(preparedSql.getBindings()));
 	}
 
 	public static int update(Connection conn, SqlNode sql, @Nonnull JdbcOptions options) throws SQLException {
 		PreparedSql preparedSql = sql.asPreparedSql();
-		return update(conn, preparedSql.getText(), options, StatementPreparers.of(preparedSql.getBindings()), null);
+		return update(conn, preparedSql.getText(), options, preparerOfParameters(preparedSql.getBindings()), null);
 	}
 
 	public static int update(Connection conn, SqlNode sql, @Nonnull JdbcOptions options, Object generatedKeyBinding) throws SQLException {
 		PreparedSql preparedSql = sql.asPreparedSql();
-		return update(conn, preparedSql.getText(), options, StatementPreparers.of(preparedSql.getBindings()), generatedKeyBinding);
+		return update(conn, preparedSql.getText(), options, preparerOfParameters(preparedSql.getBindings()), generatedKeyBinding);
 	}
 
 	public static int update(Connection conn, String sql) throws SQLException {
@@ -296,11 +321,11 @@ public class Jdbcs {
 	}
 
 	public static int update(Connection conn, String sql, Iterable<?> parameters) throws SQLException {
-		return update(conn, sql, DEFAULT_OPTIONS, StatementPreparers.of(parameters), null);
+		return update(conn, sql, DEFAULT_OPTIONS, preparerOfParameters(parameters), null);
 	}
 
 	public static int update(Connection conn, String sql, Object[] parameters) throws SQLException {
-		return update(conn, sql, DEFAULT_OPTIONS, StatementPreparers.of(parameters), null);
+		return update(conn, sql, DEFAULT_OPTIONS, preparerOfParameters(parameters), null);
 	}
 
 
@@ -328,7 +353,7 @@ public class Jdbcs {
 			}
 			return null;
 		} catch (SQLException e) {
-			log.error("查询方法执行异常，语句：{}", sql);
+			log.debug(e, "查询方法执行异常，语句：{}", sql);
 			throw e;
 		} finally {
 			Jdbcs.close(rs);
@@ -351,7 +376,7 @@ public class Jdbcs {
 				visitor.visit(rs);
 			}
 		} catch (SQLException e) {
-			log.error("查询方法执行异常，语句：{}", sql);
+			log.debug(e, "查询方法执行异常，语句：{}", sql);
 			throw e;
 		} finally {
 			Jdbcs.close(rs);
@@ -390,7 +415,7 @@ public class Jdbcs {
 			}
 			return rows;
 		} catch (SQLException e) {
-			log.error("更新方法执行异常，语句：{}", sql);
+			log.debug(e, "更新方法执行异常，语句：{}", sql);
 			throw e;
 		} finally {
 			Jdbcs.close(rs);
@@ -470,21 +495,95 @@ public class Jdbcs {
 		return st;
 	}
 
+	public static StatementPreparer preparerOfAll(StatementPreparer... preparers) {
+		return st -> {
+			for (StatementPreparer preparer : preparers) {
+				preparer.set(st);
+			}
+		};
+	}
+
+	public static StatementPreparer preparerOfParameters(Iterable<?> parameters) {
+		if (parameters instanceof List && parameters instanceof RandomAccess) {
+			List<?> list = (List<?>) parameters;
+			return st -> {
+				if (log.isDebugEnabled()) {
+					StringBuilder sb = new StringBuilder().append("[ ");
+					for (int i = 0; i < list.size(); i++) {
+						Object o = list.get(i);
+						if (o == null) {
+							st.setNull(i + 1, Types.VARCHAR);
+						} else {
+							st.setObject(i + 1, o);
+						}
+						if (i > 0) {
+							sb.append(", ");
+						}
+						sb.append((i + 1)).append("->`").append(o).append("`");
+					}
+					sb.append(" ]");
+					log.debug("绑定参数：{}", sb.toString());
+				} else {
+					for (int i = 0; i < list.size(); i++) {
+						Object o = list.get(i);
+						if (o == null) {
+							st.setNull(i + 1, Types.VARCHAR);
+						} else {
+							st.setObject(i + 1, o);
+						}
+					}
+				}
+			};
+		}
+		return st -> {
+			int i = 1;
+			if (log.isDebugEnabled()) {
+				StringBuilder sb = new StringBuilder().append("[ ");
+				for (Object o : parameters) {
+					if (o == null) {
+						st.setNull(i, Types.VARCHAR);
+					} else {
+						st.setObject(i, o);
+					}
+					if (i > 1) {
+						sb.append(", ");
+					}
+					sb.append(i).append("->`").append(o).append("`");
+					i++;
+				}
+				sb.append(" ]");
+				log.debug("绑定参数：{}", sb.toString());
+			} else {
+				for (Object o : parameters) {
+					if (o == null) {
+						st.setNull(i, Types.VARCHAR);
+					} else {
+						st.setObject(i, o);
+					}
+					i++;
+				}
+			}
+		};
+	}
+
+	public static StatementPreparer preparerOfParameters(Object[] parameters) {
+		return preparerOfParameters(Arrays.asList(parameters));
+	}
 
 	public static JdbcBatch updateBatch(Connection conn, SqlNode sql) throws SQLException {
 		PreparedSql preparedSql = sql.asPreparedSql();
-		return updateBatch(conn, preparedSql.getText(), StatementPreparers.of(preparedSql.getBindings()));
+		return updateBatch(conn, preparedSql.getText(), preparerOfParameters(preparedSql.getBindings()));
 	}
 
 
 	public static JdbcBatch updateBatch(Connection conn, SqlNode sql, @Nonnull JdbcOptions options) throws SQLException {
 		PreparedSql preparedSql = sql.asPreparedSql();
-		return updateBatch(conn, preparedSql.getText(), options, StatementPreparers.of(preparedSql.getBindings()), null);
+		return updateBatch(conn, preparedSql.getText(), options, preparerOfParameters(preparedSql.getBindings()), null);
 	}
 
 	public static JdbcBatch updateBatch(Connection conn, SqlNode sql, @Nonnull JdbcOptions options, Object generatedKeyBinding) throws SQLException {
 		PreparedSql preparedSql = sql.asPreparedSql();
-		return updateBatch(conn, preparedSql.getText(), options, StatementPreparers.of(preparedSql.getBindings()), generatedKeyBinding);
+		return updateBatch(conn, preparedSql.getText(), options, preparerOfParameters(preparedSql.getBindings()), generatedKeyBinding);
 	}
 
 	public static JdbcBatch updateBatch(Connection conn, String sql) throws SQLException {
@@ -492,11 +591,11 @@ public class Jdbcs {
 	}
 
 	public static JdbcBatch updateBatch(Connection conn, String sql, Iterable<?> parameters) throws SQLException {
-		return updateBatch(conn, sql, DEFAULT_OPTIONS, StatementPreparers.of(parameters), null);
+		return updateBatch(conn, sql, DEFAULT_OPTIONS, preparerOfParameters(parameters), null);
 	}
 
 	public static JdbcBatch updateBatch(Connection conn, String sql, Object[] parameters) throws SQLException {
-		return updateBatch(conn, sql, DEFAULT_OPTIONS, StatementPreparers.of(parameters), null);
+		return updateBatch(conn, sql, DEFAULT_OPTIONS, preparerOfParameters(parameters), null);
 	}
 
 	public static JdbcBatch updateBatch(Connection conn, String sql, StatementPreparer preparer) throws SQLException {

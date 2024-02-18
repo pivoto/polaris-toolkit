@@ -13,7 +13,6 @@ import io.polaris.core.collection.ObjectArrays;
 import io.polaris.core.jdbc.Jdbcs;
 import io.polaris.core.jdbc.base.JdbcOptions;
 import io.polaris.core.jdbc.base.StatementPreparer;
-import io.polaris.core.jdbc.base.StatementPreparers;
 import io.polaris.core.jdbc.sql.PreparedSql;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.lang.bean.MetaObject;
@@ -116,18 +115,18 @@ public class JdbcBatch {
 
 	public void update(Connection conn, SqlNode sql) throws SQLException {
 		PreparedSql preparedSql = sql.asPreparedSql();
-		update(conn, preparedSql.getText(), StatementPreparers.of(preparedSql.getBindings()));
+		update(conn, preparedSql.getText(), Jdbcs.preparerOfParameters(preparedSql.getBindings()));
 	}
 
 
 	public void update(Connection conn, SqlNode sql, @Nonnull JdbcOptions options) throws SQLException {
 		PreparedSql preparedSql = sql.asPreparedSql();
-		update(conn, preparedSql.getText(), options, StatementPreparers.of(preparedSql.getBindings()), null);
+		update(conn, preparedSql.getText(), options, Jdbcs.preparerOfParameters(preparedSql.getBindings()), null);
 	}
 
 	public void update(Connection conn, SqlNode sql, @Nonnull JdbcOptions options, Object generatedKeyBinding) throws SQLException {
 		PreparedSql preparedSql = sql.asPreparedSql();
-		update(conn, preparedSql.getText(), options, StatementPreparers.of(preparedSql.getBindings()), generatedKeyBinding);
+		update(conn, preparedSql.getText(), options, Jdbcs.preparerOfParameters(preparedSql.getBindings()), generatedKeyBinding);
 	}
 
 	public void update(Connection conn, String sql) throws SQLException {
@@ -135,11 +134,11 @@ public class JdbcBatch {
 	}
 
 	public void update(Connection conn, String sql, Iterable<?> parameters) throws SQLException {
-		update(conn, sql, DEFAULT_OPTIONS, StatementPreparers.of(parameters), null);
+		update(conn, sql, DEFAULT_OPTIONS, Jdbcs.preparerOfParameters(parameters), null);
 	}
 
 	public void update(Connection conn, String sql, Object[] parameters) throws SQLException {
-		update(conn, sql, DEFAULT_OPTIONS, StatementPreparers.of(parameters), null);
+		update(conn, sql, DEFAULT_OPTIONS, Jdbcs.preparerOfParameters(parameters), null);
 	}
 
 	public void update(Connection conn, String sql, StatementPreparer preparer) throws SQLException {

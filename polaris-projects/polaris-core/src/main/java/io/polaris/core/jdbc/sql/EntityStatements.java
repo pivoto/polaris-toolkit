@@ -22,7 +22,7 @@ import io.polaris.core.jdbc.sql.annotation.EntityMerge;
 import io.polaris.core.jdbc.sql.annotation.EntitySelect;
 import io.polaris.core.jdbc.sql.annotation.EntityUpdate;
 import io.polaris.core.jdbc.sql.annotation.SqlDelete;
-import io.polaris.core.jdbc.sql.annotation.SqlEntityDeclared;
+import io.polaris.core.jdbc.sql.annotation.SqlEntity;
 import io.polaris.core.jdbc.sql.annotation.SqlInsert;
 import io.polaris.core.jdbc.sql.annotation.SqlRaw;
 import io.polaris.core.jdbc.sql.annotation.SqlRawSimple;
@@ -192,7 +192,7 @@ public class EntityStatements {
 	}
 
 	private static java.util.function.Function<Map<String, Object>, SqlNode> buildSqlRawFunction(Method method) {
-		SqlEntityDeclared entityDeclared = method.getAnnotation(SqlEntityDeclared.class);
+		SqlEntity entityDeclared = method.getAnnotation(SqlEntity.class);
 		TableAccessible tableAccessible = null;
 		if (entityDeclared != null) {
 			Class<?>[] tables = entityDeclared.table();
