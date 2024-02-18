@@ -3,7 +3,10 @@ package io.polaris.demo.mybatis.entity;
 import io.polaris.core.jdbc.annotation.Column;
 import io.polaris.core.jdbc.annotation.Id;
 import io.polaris.core.jdbc.annotation.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
@@ -13,6 +16,9 @@ import java.util.Date;
  */
 @Data
 @Table(value = "demo_user")
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class DemoUserEntity {
 	@Id
 	@Column

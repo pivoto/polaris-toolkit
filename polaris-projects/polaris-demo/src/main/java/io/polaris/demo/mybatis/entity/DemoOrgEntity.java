@@ -5,7 +5,10 @@ import java.util.Date;
 import io.polaris.core.jdbc.annotation.Column;
 import io.polaris.core.jdbc.annotation.Id;
 import io.polaris.core.jdbc.annotation.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author Qt
@@ -13,6 +16,9 @@ import lombok.Data;
  */
 @Data
 @Table(value = "demo_org")
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class DemoOrgEntity {
 	@Id
 	@Column

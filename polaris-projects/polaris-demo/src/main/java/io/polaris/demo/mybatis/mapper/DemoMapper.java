@@ -17,6 +17,7 @@ import io.polaris.core.jdbc.sql.annotation.segment.Join;
 import io.polaris.core.jdbc.sql.annotation.segment.JoinColumn;
 import io.polaris.core.jdbc.sql.annotation.segment.JoinCriterion;
 import io.polaris.core.jdbc.sql.annotation.segment.OrderBy;
+import io.polaris.core.jdbc.sql.annotation.segment.SelectColumn;
 import io.polaris.core.jdbc.sql.annotation.segment.Where;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.consts.Direction;
@@ -74,7 +75,8 @@ public interface DemoMapper {
 	List<DemoOrgEntity> selectOrgListByAny(@Param("id") Long id, @Param("name") String name);
 
 	@SelectProvider(AnyEntityProvider.class)
-	@SqlSelect(table = DemoOrgEntity.class, alias = "o",
+	@SqlSelect(table = DemoOrgEntity.class, alias = "o", quotaSelectAlias = true,
+		columns = {@SelectColumn(field = "*", aliasWithField = true, aliasPrefix = "org.")},
 		join = @Join(table = DemoUserOrgEntity.class, alias = "uo",
 			on = @Criteria(
 				join = {
@@ -113,6 +115,6 @@ public interface DemoMapper {
 			)})
 		}
 	)
-	List<DemoOrgEntity> selectOrgListByAny2(Map<String, Object> param);
+	List<DemoUserOrgEntity> selectOrgListByAny2(Map<String, Object> param);
 
 }

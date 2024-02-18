@@ -1,10 +1,13 @@
 package io.polaris.demo.mybatis.service;
 
+import java.sql.Connection;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import javax.sql.DataSource;
+
 import io.polaris.demo.mybatis.mapper.DemoMapper;
-import io.polaris.demo.mybatis.mapper.DemoUserEntityMapper;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,12 +18,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class DemoService {
 
+	private final DataSource dataSource;
 	private final DemoMapper demoMapper;
 
-	public DemoService(DemoMapper demoMapper) {
+	public DemoService(DataSource dataSource, DemoMapper demoMapper) {
+		this.dataSource = dataSource;
 		this.demoMapper = demoMapper;
 	}
 
+	public Connection getConnection() {
+		return DataSourceUtils.getConnection(dataSource);
+	}
 
 	@Transactional
 	public <R> R doTransaction(Function<DemoMapper, R> function) {

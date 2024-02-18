@@ -1,0 +1,12 @@
+POST http://localhost:6666/demo/test
+Content-Type: application/json
+
+{}
+
+###
+POST http://localhost:6666/demo/listUser
+Content-Type: application/json
+
+{}
+
+###
