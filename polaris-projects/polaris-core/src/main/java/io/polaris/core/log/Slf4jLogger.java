@@ -1,6 +1,7 @@
 package io.polaris.core.log;
 
 import io.polaris.core.collection.ObjectArrays;
+import io.polaris.core.string.Strings;
 import org.slf4j.Logger;
 
 /**
@@ -58,13 +59,18 @@ public class Slf4jLogger implements ILogger {
 	@Override
 	public void trace(String msg, Object[] arguments, Throwable t) {
 		if (log != null && log.isTraceEnabled()) {
-			if (arguments == null || arguments.length == 0) {
-				log.trace(msg);
-			} else {
-				log.trace(msg, arguments);
-			}
-			if (t != null) {
-				log.trace("", t);
+			if (t == null) {
+				if (arguments == null || arguments.length == 0) {
+					log.trace(msg);
+				} else {
+					log.trace(msg, arguments);
+				}
+			}else{
+				if (arguments == null || arguments.length == 0) {
+					log.trace(msg, t);
+				} else {
+					log.trace(Strings.format(msg, arguments), t);
+				}
 			}
 		}
 	}
@@ -92,13 +98,18 @@ public class Slf4jLogger implements ILogger {
 	@Override
 	public void debug(String msg, Object[] arguments, Throwable t) {
 		if (log != null && log.isDebugEnabled()) {
-			if (arguments == null || arguments.length == 0) {
-				log.debug(msg);
-			} else {
-				log.debug(msg, arguments);
-			}
-			if (t != null) {
-				log.debug("", t);
+			if (t == null) {
+				if (arguments == null || arguments.length == 0) {
+					log.debug(msg);
+				} else {
+					log.debug(msg, arguments);
+				}
+			}else{
+				if (arguments == null || arguments.length == 0) {
+					log.debug(msg, t);
+				} else {
+					log.debug(Strings.format(msg, arguments), t);
+				}
 			}
 		}
 	}
@@ -126,13 +137,18 @@ public class Slf4jLogger implements ILogger {
 	@Override
 	public void info(String msg, Object[] arguments, Throwable t) {
 		if (log != null && log.isInfoEnabled()) {
-			if (arguments == null || arguments.length == 0) {
-				log.info(msg);
-			} else {
-				log.info(msg, arguments);
-			}
-			if (t != null) {
-				log.info("", t);
+			if (t == null) {
+				if (arguments == null || arguments.length == 0) {
+					log.info(msg);
+				} else {
+					log.info(msg, arguments);
+				}
+			}else{
+				if (arguments == null || arguments.length == 0) {
+					log.info(msg, t);
+				} else {
+					log.info(Strings.format(msg, arguments), t);
+				}
 			}
 		}
 	}
@@ -160,13 +176,18 @@ public class Slf4jLogger implements ILogger {
 	@Override
 	public void warn(String msg, Object[] arguments, Throwable t) {
 		if (log != null && log.isWarnEnabled()) {
-			if (arguments == null || arguments.length == 0) {
-				log.warn(msg);
-			} else {
-				log.warn(msg, arguments);
-			}
-			if (t != null) {
-				log.warn("", t);
+			if (t == null) {
+				if (arguments == null || arguments.length == 0) {
+					log.warn(msg);
+				} else {
+					log.warn(msg, arguments);
+				}
+			}else{
+				if (arguments == null || arguments.length == 0) {
+					log.warn(msg, t);
+				} else {
+					log.warn(Strings.format(msg, arguments), t);
+				}
 			}
 		}
 	}
@@ -195,13 +216,18 @@ public class Slf4jLogger implements ILogger {
 	@Override
 	public void error(String msg, Object[] arguments, Throwable t) {
 		if (log != null && log.isErrorEnabled()) {
-			if (arguments == null || arguments.length == 0) {
-				log.error(msg);
-			} else {
-				log.error(msg, arguments);
-			}
-			if (t != null) {
-				log.error("", t);
+			if (t == null) {
+				if (arguments == null || arguments.length == 0) {
+					log.error(msg);
+				} else {
+					log.error(msg, arguments);
+				}
+			}else{
+				if (arguments == null || arguments.length == 0) {
+					log.error(msg, t);
+				} else {
+					log.error(Strings.format(msg, arguments), t);
+				}
 			}
 		}
 	}

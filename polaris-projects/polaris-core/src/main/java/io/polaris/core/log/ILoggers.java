@@ -3,12 +3,14 @@ package io.polaris.core.log;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.polaris.core.string.Strings;
+
 /**
  * @author Qt
  * @since 1.8,  Jan 10, 2024
  */
 public class ILoggers {
-	private static Map<String, ILogger> CACHE = new ConcurrentHashMap<>();
+	private static final Map<String, ILogger> CACHE = new ConcurrentHashMap<>();
 
 	public static ILogger of(Class<?> c) {
 		return of(c.getName());
@@ -16,6 +18,23 @@ public class ILoggers {
 
 	public static ILogger of(String name) {
 		return CACHE.computeIfAbsent(name, k -> newLogger(name));
+	}
+
+	public static ILogger of() {
+		return of(detectLoggerName());
+	}
+
+	private static String detectLoggerName() {
+		String name = null;
+		StackTraceElement[] elements = Thread.currentThread().getStackTrace();
+		for (int i = 1; i < elements.length; i++) {
+			String className = elements[i].getClassName();
+			if (!ILoggers.class.getName().equals(className)) {
+				name = className;
+				break;
+			}
+		}
+		return Strings.coalesce(name, "");
 	}
 
 	private static ILogger newLogger(String name) {
