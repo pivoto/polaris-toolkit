@@ -5,8 +5,8 @@ package io.polaris.core.function;
  * @since 1.8
  */
 @FunctionalInterface
-public interface Executable {
+public interface ExecutableWithArgs<T> {
 
-	void execute() throws Exception;
+	void execute(T... args) throws Exception;
 
 }
