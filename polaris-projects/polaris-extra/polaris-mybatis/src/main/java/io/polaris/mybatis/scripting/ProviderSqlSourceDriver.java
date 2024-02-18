@@ -34,7 +34,7 @@ public class ProviderSqlSourceDriver extends XMLLanguageDriver {
 			return (Map<String, Object>) parameterObject;
 		} else {
 			if (!ProviderSqlSourceDriver.hasProviderSqlSourceDriver(mapperMethod)) {
-				throw new IllegalArgumentException("请使用Map类型或明确声明参数名");
+				throw new IllegalArgumentException("请使用Map类型参数或明确声明参数键名");
 			}
 			return ProviderSqlSourceDriver.toParameterBindings(parameterObject);
 		}

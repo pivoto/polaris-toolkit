@@ -21,6 +21,9 @@ public class SqlCountProvider extends BaseProviderMethodResolver {
 	public static String provideSql(Object parameterObject, ProviderContext context) {
 		Map<String, Object> map = ProviderSqlSourceDriver.toParameterBindings(context.getMapperMethod(), parameterObject);
 		SelectStatement<?> st = (SelectStatement<?>) map.get(BindingKeys.SELECT);
+		if (st == null) {
+			st = (SelectStatement<?>) map.get(BindingKeys.SQL);
+		}
 		String sql = EntityStatements.asSqlWithBindings(map, st::toCountSqlNode);
 		if (log.isDebugEnabled()) {
 			log.debug("<sql>\n{}\n<bindings>\n{}", sql, map);

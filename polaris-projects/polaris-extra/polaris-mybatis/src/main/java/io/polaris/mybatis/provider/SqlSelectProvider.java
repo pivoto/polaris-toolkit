@@ -5,6 +5,7 @@ import java.util.Map;
 import io.polaris.core.annotation.Published;
 import io.polaris.core.jdbc.sql.EntityStatements;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
+import io.polaris.core.jdbc.sql.statement.MergeStatement;
 import io.polaris.core.jdbc.sql.statement.SelectStatement;
 import io.polaris.mybatis.scripting.ProviderSqlSourceDriver;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,9 @@ public class SqlSelectProvider extends BaseProviderMethodResolver {
 	public static String provideSql(Object parameterObject, ProviderContext context) {
 		Map<String, Object> map = ProviderSqlSourceDriver.toParameterBindings(context.getMapperMethod(), parameterObject);
 		SelectStatement<?> st = (SelectStatement<?>) map.get(BindingKeys.SELECT);
+		if (st == null) {
+			st = (SelectStatement<?>) map.get(BindingKeys.SQL);
+		}
 		String sql = EntityStatements.asSqlWithBindings(map, st);
 		if (log.isDebugEnabled()) {
 			log.debug("[Sql]{}", sql);
