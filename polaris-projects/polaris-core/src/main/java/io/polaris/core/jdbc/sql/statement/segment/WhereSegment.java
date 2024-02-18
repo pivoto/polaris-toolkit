@@ -221,15 +221,36 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 		return list;
 	}
 
+	@SuppressWarnings("unchecked")
 	public S byEntityId(Object entity) {
 		TableMeta tableMeta = table.getTableMeta();
 		if (tableMeta != null) {
-			@SuppressWarnings("unchecked")
 			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, tableMeta.getEntityClass());
 			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
 				String name = entry.getKey();
 				ColumnMeta meta = entry.getValue();
 				if (meta.isPrimaryKey() || meta.isVersion()) {
+					Object val = entityMap.get(name);
+					if (val == null) {
+						this.column(name).isNull();
+					} else {
+						this.column(name).eq(val);
+					}
+				}
+			}
+		}
+		return getThis();
+	}
+
+	@SuppressWarnings("unchecked")
+	public S byEntityIdAndVersion(Object entity) {
+		TableMeta tableMeta = table.getTableMeta();
+		if (tableMeta != null) {
+			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, tableMeta.getEntityClass());
+			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
+				String name = entry.getKey();
+				ColumnMeta meta = entry.getValue();
+				if (meta.isPrimaryKey()) {
 					Object val = entityMap.get(name);
 					if (val == null) {
 						this.column(name).isNull();

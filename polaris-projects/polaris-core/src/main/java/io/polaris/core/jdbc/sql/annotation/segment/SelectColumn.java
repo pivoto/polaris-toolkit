@@ -43,5 +43,9 @@ public @interface SelectColumn {
 
 	boolean aliasWithField() default false;
 
+	String aliasPrefix() default "";
+
+	String aliasSuffix() default "";
+
 	Condition[] condition() default {};
 }

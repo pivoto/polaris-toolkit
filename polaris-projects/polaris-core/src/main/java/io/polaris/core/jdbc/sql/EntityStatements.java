@@ -580,11 +580,15 @@ public class EntityStatements {
 					}
 					seg.aliasWithField(col.aliasWithField());
 					seg.alias(col.alias());
+					seg.aliasPrefix(col.aliasPrefix());
+					seg.aliasSuffix(col.aliasSuffix());
 				} else {
 					String valueKey = col.valueKey();
 					if (Strings.isNotBlank(valueKey)) {
 						Object v = BindingValues.getBindingValueOrDefault(cache, bindings, valueKey, null);
 						seg.value(v, col.alias());
+						seg.aliasPrefix(col.aliasPrefix());
+						seg.aliasSuffix(col.aliasSuffix());
 					} else {
 						throw new IllegalStateException("未指定字段名或固定键值");
 					}
@@ -692,11 +696,15 @@ public class EntityStatements {
 					}
 					seg.aliasWithField(col.aliasWithField());
 					seg.alias(col.alias());
+					seg.aliasPrefix(col.aliasPrefix());
+					seg.aliasSuffix(col.aliasSuffix());
 				} else {
 					String valueKey = col.valueKey();
 					if (Strings.isNotBlank(valueKey)) {
 						Object v = BindingValues.getBindingValueOrDefault(bindings, valueKey, null);
 						seg.value(v, col.alias());
+						seg.aliasPrefix(col.aliasPrefix());
+						seg.aliasSuffix(col.aliasSuffix());
 					} else {
 						throw new IllegalStateException("未指定字段名或固定键值");
 					}
@@ -1950,7 +1958,7 @@ public class EntityStatements {
 			if (entity == null) {
 				entity = BindingValues.getBindingValueOrDefault(bindings, whereKey, Collections.emptyMap());
 			}
-			st.where().byEntityId(entity);
+			st.where().byEntityIdAndVersion(entity);
 		} else {
 			Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, null);
 			if (entity != null) {
@@ -1999,7 +2007,7 @@ public class EntityStatements {
 				entity = BindingValues.getBindingValueOrDefault(bindings, whereKey, Collections.emptyMap());
 			}
 			st.withEntity(entity, columnPredicate);
-			st.where().byEntityId(entity);
+			st.where().byEntityIdAndVersion(entity);
 			return st;
 		} else {
 			Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, Collections.emptyMap());

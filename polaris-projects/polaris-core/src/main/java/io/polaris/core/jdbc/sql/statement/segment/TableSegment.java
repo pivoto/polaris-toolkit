@@ -84,7 +84,7 @@ public abstract class TableSegment<S extends TableSegment<S>> extends BaseSegmen
 	}
 
 	/**
-	 * 返回所有的含表别名前缀的列名表达式，逗号分隔，并使用实体字段名作为列的别名
+	 * 返回所有的含表别名前缀的列名表达式，逗号分隔，使用实体字段名作为列的别名时同时添加前缀和后缀
 	 */
 	public abstract String getAllColumnExpression(boolean aliasWithField, boolean quotaAlias, String aliasPrefix, String aliasSuffix);
 
