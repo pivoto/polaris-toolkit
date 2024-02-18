@@ -79,7 +79,7 @@ public class Base32 {
 		try {
 			encoder.decode(data, 0, data.length, bOut);
 		} catch (Exception e) {
-			throw new DecoderException("unable to decode base32 data: " + e.getMessage(), e);
+			throw new CodecException("unable to decode base32 data: " + e.getMessage(), e);
 		}
 
 		return bOut.toByteArray();
@@ -97,7 +97,7 @@ public class Base32 {
 		try {
 			encoder.decode(data, bOut);
 		} catch (Exception e) {
-			throw new DecoderException("unable to decode base32 string: " + e.getMessage(), e);
+			throw new CodecException("unable to decode base32 string: " + e.getMessage(), e);
 		}
 
 		return bOut.toByteArray();
@@ -126,7 +126,7 @@ public class Base32 {
 		try {
 			return encoder.decode(base32Data, start, length, out);
 		} catch (Exception e) {
-			throw new DecoderException("unable to decode base32 data: " + e.getMessage(), e);
+			throw new CodecException("unable to decode base32 data: " + e.getMessage(), e);
 		}
 	}
 }

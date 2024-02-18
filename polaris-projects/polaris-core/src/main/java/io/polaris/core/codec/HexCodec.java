@@ -75,7 +75,7 @@ public class HexCodec {
 		try {
 			encoder.decode(data, 0, data.length, bOut);
 		} catch (Exception e) {
-			throw new DecoderException("exception decoding HexCodec data: " + e.getMessage(), e);
+			throw new CodecException("exception decoding HexCodec data: " + e.getMessage(), e);
 		}
 
 		return bOut.toByteArray();
@@ -92,7 +92,7 @@ public class HexCodec {
 		try {
 			encoder.decode(data, bOut);
 		} catch (Exception e) {
-			throw new DecoderException("exception decoding HexCodec string: " + e.getMessage(), e);
+			throw new CodecException("exception decoding HexCodec string: " + e.getMessage(), e);
 		}
 
 		return bOut.toByteArray();
@@ -119,7 +119,7 @@ public class HexCodec {
 		try {
 			return encoder.decodeStrict(str, 0, str.length());
 		} catch (Exception e) {
-			throw new DecoderException("exception decoding HexCodec string: " + e.getMessage(), e);
+			throw new CodecException("exception decoding HexCodec string: " + e.getMessage(), e);
 		}
 	}
 
@@ -133,7 +133,7 @@ public class HexCodec {
 		try {
 			return encoder.decodeStrict(str, off, len);
 		} catch (Exception e) {
-			throw new DecoderException("exception decoding HexCodec string: " + e.getMessage(), e);
+			throw new CodecException("exception decoding HexCodec string: " + e.getMessage(), e);
 		}
 	}
 }
