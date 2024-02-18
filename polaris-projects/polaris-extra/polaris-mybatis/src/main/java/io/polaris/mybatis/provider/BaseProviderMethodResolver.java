@@ -6,8 +6,7 @@ import java.util.Map;
 
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.Types;
-import io.polaris.core.reflect.Reflects;
-import io.polaris.mybatis.annotation.EntityMapperDeclared;
+import io.polaris.mybatis.annotation.MapperEntity;
 import io.polaris.mybatis.mapper.EntityMapper;
 import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.apache.ibatis.builder.annotation.ProviderMethodResolver;
@@ -43,7 +42,7 @@ public abstract class BaseProviderMethodResolver implements ProviderMethodResolv
 
 	protected static Class<?> getEntityClass(ProviderContext context) {
 		Method mapperMethod = context.getMapperMethod();
-		EntityMapperDeclared declared = mapperMethod.getAnnotation(EntityMapperDeclared.class);
+		MapperEntity declared = mapperMethod.getAnnotation(MapperEntity.class);
 		if (declared != null) {
 			return declared.entity();
 		}
