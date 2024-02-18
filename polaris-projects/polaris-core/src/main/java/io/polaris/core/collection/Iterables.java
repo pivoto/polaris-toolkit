@@ -1,6 +1,8 @@
 package io.polaris.core.collection;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.BiFunction;
@@ -390,7 +392,7 @@ public class Iterables {
 		return true;
 	}
 
-	public static String toArrayString(@Nonnull Object obj) {
+	public static String toArrayString(@Nullable Object obj) {
 		if (obj == null) {
 			return null;
 		} else if (obj instanceof long[]) {
