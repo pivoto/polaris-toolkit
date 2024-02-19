@@ -35,7 +35,7 @@ public class URLEncoders {
 	private static final BitSet PUNCTUATION = new BitSet(256);
 	/**
 	 * Characters which are safe to use in userinfo,
-	 * i.e. {@link #UNRESERVED} plus {@link #PUNCTUATION}uation
+	 * i.e. {@link #UNRESERVED} plus {@link #PUNCTUATION}
 	 */
 	private static final BitSet USERINFO = new BitSet(256);
 	/**

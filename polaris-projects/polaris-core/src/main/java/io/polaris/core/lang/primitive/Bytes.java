@@ -153,7 +153,7 @@ public class Bytes {
 
 	/**
 	 * byte数组转short<br>
-	 * 默认以小端序转换
+	 * 默认以大端序转换
 	 *
 	 * @param bytes byte数组
 	 * @return short值
@@ -194,7 +194,7 @@ public class Bytes {
 
 	/**
 	 * short转byte数组<br>
-	 * 默认以小端序转换
+	 * 默认以大端序转换
 	 *
 	 * @param shortValue short值
 	 * @return byte数组
@@ -225,7 +225,7 @@ public class Bytes {
 
 	/**
 	 * byte[]转int值<br>
-	 * 默认以小端序转换
+	 * 默认以大端序转换
 	 *
 	 * @param bytes byte数组
 	 * @return int值
@@ -272,7 +272,7 @@ public class Bytes {
 
 	/**
 	 * int转byte数组<br>
-	 * 默认以小端序转换
+	 * 默认以大端序转换
 	 *
 	 * @param intValue int值
 	 * @return byte数组
@@ -312,7 +312,7 @@ public class Bytes {
 
 	/**
 	 * long转byte数组<br>
-	 * 默认以小端序转换<br>
+	 * 默认以大端序转换<br>
 	 * from: https://stackoverflow.com/questions/4485128/how-do-i-convert-long-to-byte-and-back-in-java
 	 *
 	 * @param longValue long值
@@ -349,7 +349,7 @@ public class Bytes {
 
 	/**
 	 * byte数组转long<br>
-	 * 默认以小端序转换<br>
+	 * 默认以大端序转换<br>
 	 * from: https://stackoverflow.com/questions/4485128/how-do-i-convert-long-to-byte-and-back-in-java
 	 *
 	 * @param bytes byte数组
@@ -400,7 +400,7 @@ public class Bytes {
 	}
 
 	/**
-	 * float转byte数组，默认以小端序转换<br>
+	 * float转byte数组，默认以大端序转换<br>
 	 *
 	 * @param floatValue float值
 	 * @return byte数组
@@ -422,7 +422,7 @@ public class Bytes {
 
 	/**
 	 * byte数组转float<br>
-	 * 默认以小端序转换<br>
+	 * 默认以大端序转换<br>
 	 *
 	 * @param bytes byte数组
 	 * @return float值
@@ -445,7 +445,7 @@ public class Bytes {
 
 	/**
 	 * double转byte数组<br>
-	 * 默认以小端序转换<br>
+	 * 默认以大端序转换<br>
 	 *
 	 * @param doubleValue double值
 	 * @return byte数组
@@ -469,7 +469,7 @@ public class Bytes {
 
 	/**
 	 * byte数组转Double<br>
-	 * 默认以小端序转换<br>
+	 * 默认以大端序转换<br>
 	 *
 	 * @param bytes byte数组
 	 * @return long值

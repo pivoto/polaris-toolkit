@@ -55,7 +55,7 @@ public class Reflects {
 				}
 			}
 			if (idx >= 0) {
-				return findParameterizedType(method.getDeclaringClass(), targetType, idx);
+				return findActualTypeArgument(method.getDeclaringClass(), targetType, idx);
 			}
 		}
 		return null;
@@ -69,8 +69,8 @@ public class Reflects {
 	 * @param index                  位置
 	 * @return 泛型实参
 	 */
-	public static Class findParameterizedType(Class parameterizedSuperType, Object obj, int index) {
-		return findParameterizedType(parameterizedSuperType, obj.getClass(), index);
+	public static Class findActualTypeArgument(Class parameterizedSuperType, Object obj, int index) {
+		return findActualTypeArgument(parameterizedSuperType, obj.getClass(), index);
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class Reflects {
 	 * @param index                  位置
 	 * @return 泛型实参
 	 */
-	public static Class findParameterizedType(Class parameterizedSuperType, Class targetClass, int index) {
+	public static Class findActualTypeArgument(Class parameterizedSuperType, Class targetClass, int index) {
 		if (parameterizedSuperType == targetClass || !parameterizedSuperType.isAssignableFrom(targetClass)) {
 			return null;
 		}
@@ -186,8 +186,8 @@ public class Reflects {
 	/**
 	 * 得到指定类型的最近的泛型信息中指定位置的实参
 	 */
-	public static Class findParameterizedType(Class clazz, int index) {
-		Class[] actualTypeArguments = findParameterizedTypes(clazz);
+	public static Class findActualTypeArgument(Class clazz, int index) {
+		Class[] actualTypeArguments = findActualTypeArguments(clazz);
 		if (actualTypeArguments == null || actualTypeArguments.length == 0) {
 			return null;
 		}
@@ -195,13 +195,13 @@ public class Reflects {
 	}
 
 	public static Class firstParameterizedType(Class clazz) {
-		return findParameterizedType(clazz, 0);
+		return findActualTypeArgument(clazz, 0);
 	}
 
 	/**
 	 * 获取类型的最近的泛型参数
 	 */
-	public static Class[] findParameterizedTypes(Class clazz) {
+	public static Class[] findActualTypeArguments(Class clazz) {
 		Deque<ParameterizedType> parameterizedTypes = findAllParameterizedTypes(clazz);
 		if (parameterizedTypes.isEmpty()) {
 			return null;

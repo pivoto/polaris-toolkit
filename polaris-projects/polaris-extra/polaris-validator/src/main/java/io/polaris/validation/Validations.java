@@ -73,7 +73,7 @@ public class Validations {
 		List<Class<? extends ConstraintValidator<A, ?>>> targets = new ArrayList<>();
 		for (ConstraintValidatorDescriptor<A> descriptor : list) {
 			Class<? extends ConstraintValidator<A, ?>> c = descriptor.getValidatorClass();
-			Class target = Reflects.findParameterizedType(ConstraintValidator.class, c, 1);
+			Class target = Reflects.findActualTypeArgument(ConstraintValidator.class, c, 1);
 			if (target.isAssignableFrom(type)) {
 				targets.add(c);
 			}
@@ -92,7 +92,7 @@ public class Validations {
 		List<Class<? extends ConstraintValidator<A, ?>>> targets = new ArrayList<>();
 		for (ConstraintValidatorDescriptor<A> descriptor : list) {
 			Class<? extends ConstraintValidator<A, ?>> c = descriptor.getValidatorClass();
-			Class target = Reflects.findParameterizedType(ConstraintValidator.class, c, 1);
+			Class target = Reflects.findActualTypeArgument(ConstraintValidator.class, c, 1);
 			if (target.equals(type)) {
 				matched = c;
 				break;
