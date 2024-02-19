@@ -1,5 +1,7 @@
 package io.polaris.core.compiler;
 
+import io.polaris.core.TestConsole;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class MemoryCompilerTest {
@@ -9,28 +11,32 @@ class MemoryCompilerTest {
 		MemoryCompiler memoryCompiler = MemoryCompiler.getInstance();
 		{
 			try {
-				Class<?> c = memoryCompiler.compile("io.polaris.Test001", "" +
+				String className = "io.polaris.Test001";
+				Class<?> c = memoryCompiler.compile(className, "" +
 					"package io.polaris;" +
 					"public class Test001{" +
 					"}" +
 					"");
-				System.out.println(c);
-				System.out.println(c.newInstance());
+				TestConsole.printx(c);
+				TestConsole.printx(c.newInstance());
+				Assertions.assertEquals(className, c.getName());
 			} catch (Exception e) {
-				e.printStackTrace();
+				TestConsole.printStackTrace(e);
 			}
 		}
 		{
 			try {
-				Class<?> c = memoryCompiler.compile("io.polaris.Test002", "" +
+				String className = "io.polaris.Test002";
+				Class<?> c = memoryCompiler.compile(className, "" +
 					"package io.polaris;" +
 					"public class Test002{" +
 					"}" +
 					"");
-				System.out.println(c);
-				System.out.println(c.newInstance());
+				TestConsole.printx(c);
+				TestConsole.printx(c.newInstance());
+				Assertions.assertEquals(className, c.getName());
 			} catch (Exception e) {
-				e.printStackTrace();
+				TestConsole.printStackTrace(e);
 			}
 		}
 

@@ -1,5 +1,6 @@
 package io.polaris.core.lang.annotation;
 
+import io.polaris.core.TestConsole;
 import io.polaris.core.lang.annotation.Annotations;
 import org.junit.jupiter.api.Test;
 
@@ -14,39 +15,39 @@ public class AnnotationsTest00 {
 
 	@Test
 	void test01() {
-		System.out.println("T1: " + Annotations.getAnnotation(T1.class, A1.class));
-		System.out.println("T2: " + Annotations.getAnnotation(T2.class, A1.class));
-		System.out.println("T3: " + Annotations.getAnnotation(T3.class, A1.class));
-		System.out.println("T4: " + Annotations.getAnnotation(T4.class, A1.class));
-		System.out.println("T5: " + Annotations.getAnnotation(T5.class, A1.class));
-		System.out.println("T6: " + Annotations.getAnnotation(T6.class, A1.class));
-		System.out.println("T7: " + Annotations.getAnnotation(T7.class, A1.class));
-		System.out.println("T8: " + Annotations.getAnnotation(T8.class, A1.class));
+		TestConsole.println("T1: " + Annotations.getAnnotation(T1.class, A1.class));
+		TestConsole.println("T2: " + Annotations.getAnnotation(T2.class, A1.class));
+		TestConsole.println("T3: " + Annotations.getAnnotation(T3.class, A1.class));
+		TestConsole.println("T4: " + Annotations.getAnnotation(T4.class, A1.class));
+		TestConsole.println("T5: " + Annotations.getAnnotation(T5.class, A1.class));
+		TestConsole.println("T6: " + Annotations.getAnnotation(T6.class, A1.class));
+		TestConsole.println("T7: " + Annotations.getAnnotation(T7.class, A1.class));
+		TestConsole.println("T8: " + Annotations.getAnnotation(T8.class, A1.class));
 	}
 
 	@Test
 	void test02() {
-		System.out.println("T1: " + Arrays.toString(Annotations.getRepeatableAnnotation(T1.class, R1.class)));
-		System.out.println("T2: " + Arrays.toString(Annotations.getRepeatableAnnotation(T2.class, R1.class)));
-		System.out.println("T3: " + Arrays.toString(Annotations.getRepeatableAnnotation(T3.class, R1.class)));
-		System.out.println("T4: " + Arrays.toString(Annotations.getRepeatableAnnotation(T4.class, R1.class)));
-		System.out.println("T5: " + Arrays.toString(Annotations.getRepeatableAnnotation(T5.class, R1.class)));
-		System.out.println("T6: " + Arrays.toString(Annotations.getRepeatableAnnotation(T6.class, R1.class)));
-		System.out.println("T7: " + Arrays.toString(Annotations.getRepeatableAnnotation(T7.class, R1.class)));
-		System.out.println("T8: " + Arrays.toString(Annotations.getRepeatableAnnotation(T8.class, R1.class)));
+		TestConsole.println("T1: " + Arrays.toString(Annotations.getRepeatableAnnotation(T1.class, R1.class)));
+		TestConsole.println("T2: " + Arrays.toString(Annotations.getRepeatableAnnotation(T2.class, R1.class)));
+		TestConsole.println("T3: " + Arrays.toString(Annotations.getRepeatableAnnotation(T3.class, R1.class)));
+		TestConsole.println("T4: " + Arrays.toString(Annotations.getRepeatableAnnotation(T4.class, R1.class)));
+		TestConsole.println("T5: " + Arrays.toString(Annotations.getRepeatableAnnotation(T5.class, R1.class)));
+		TestConsole.println("T6: " + Arrays.toString(Annotations.getRepeatableAnnotation(T6.class, R1.class)));
+		TestConsole.println("T7: " + Arrays.toString(Annotations.getRepeatableAnnotation(T7.class, R1.class)));
+		TestConsole.println("T8: " + Arrays.toString(Annotations.getRepeatableAnnotation(T8.class, R1.class)));
 	}
 
 	@Test
-	void test04() throws NoSuchFieldException, IllegalAccessException, NoSuchMethodException {
+	void test03() throws NoSuchFieldException, IllegalAccessException, NoSuchMethodException {
 		A1 a1 = Annotations.getAnnotation(T1.class, A1.class);
 		InvocationHandler handler = Proxy.getInvocationHandler(a1);
 		Field field = handler.getClass().getDeclaredField("memberValues");
 		field.setAccessible(true);
-		System.out.println(field.get(handler));
+		TestConsole.println(field.get(handler));
 
 		{
 			Method value = A2.class.getMethod("value");
-			System.out.println(value.getDefaultValue());
+			TestConsole.println(value.getDefaultValue());
 		}
 		Proxy.newProxyInstance(A1.class.getClassLoader(), new Class[]{A1.class}, new InvocationHandler() {
 			@Override

@@ -1,5 +1,6 @@
 package io.polaris.core.jdbc.sql.statement;
 
+import io.polaris.core.TestConsole;
 import io.polaris.core.jdbc.sql.statement.segment.TableField;
 import org.junit.jupiter.api.Test;
 
@@ -41,17 +42,17 @@ public class DemoEntityTest {
 //			.column("a").eq(1)
 //			.end();
 
-		System.out.println(select.toSqlNode().asBoundSql());
-		System.out.println(select.toSqlNode().asPreparedSql());
+		TestConsole.println(select.toSqlNode().asBoundSql());
+		TestConsole.println(select.toSqlNode().asPreparedSql());
 	}
 
 	@Test
 	void test02() {
 		DemoEntity entity = DemoEntity.builder().id(1L).name("demo").col1(1).fieldStr1("f1").fieldStr2("f2").build();
 
-		System.out.println();
-		System.out.println("select>");
-		System.out.println(DemoEntitySql.select()
+		TestConsole.println();
+		TestConsole.println("select>");
+		TestConsole.println(DemoEntitySql.select()
 			.quotaSelectAlias(true)
 			.select().value(1, "a")
 			.select().all().end()
@@ -59,35 +60,35 @@ public class DemoEntityTest {
 			.end()
 			.toSqlNode().asBoundSql());
 
-		System.out.println();
-		System.out.println("merge>");
-		System.out.println(new MergeStatement<>(DemoEntity.class, "T").withEntity(entity)
+		TestConsole.println();
+		TestConsole.println("merge>");
+		TestConsole.println(new MergeStatement<>(DemoEntity.class, "T").withEntity(entity)
 			.toSqlNode().asBoundSql());
 
 
-		System.out.println();
-		System.out.println("insert>");
-		System.out.println(DemoEntitySql.insert()
+		TestConsole.println();
+		TestConsole.println("insert>");
+		TestConsole.println(DemoEntitySql.insert()
 			.withEntity(entity)
 			.toSqlNode().asBoundSql());
-		System.out.println();
-		System.out.println("insert>");
-		System.out.println(DemoEntitySql.insert()
+		TestConsole.println();
+		TestConsole.println("insert>");
+		TestConsole.println(DemoEntitySql.insert()
 			.withEntity(entity)
 			.enableUpdateByDuplicateKey(true)
 			.toSqlNode().asBoundSql());
 
-		System.out.println();
-		System.out.println("update>");
-		System.out.println(DemoEntitySql.update()
+		TestConsole.println();
+		TestConsole.println("update>");
+		TestConsole.println(DemoEntitySql.update()
 			.withEntity(entity)
 			.where().byEntityId(entity)
 			.end()
 			.toSqlNode().asBoundSql());
 
-		System.out.println();
-		System.out.println("delete>");
-		System.out.println(DemoEntitySql.delete()
+		TestConsole.println();
+		TestConsole.println("delete>");
+		TestConsole.println(DemoEntitySql.delete()
 			.where().byEntityId(entity)
 			.end()
 			.toSqlNode().asBoundSql());

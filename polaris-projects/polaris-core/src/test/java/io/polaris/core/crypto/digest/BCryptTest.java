@@ -1,12 +1,15 @@
 package io.polaris.core.crypto.digest;
 
+import io.polaris.core.TestConsole;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class BCryptTest {
-	String test_vectors[][] = {
+
+	static String test_vectors[][] = {
 		{"",
 			"$2a$06$DCq7YPn5Rq63x1Lad4cll.",
 			"$2a$06$DCq7YPn5Rq63x1Lad4cll.TV4S6ytwfsfvkgY8jIucDrjc8deX1s."},
@@ -72,101 +75,107 @@ class BCryptTest {
 	@Test
 	@DisplayName("BCrypt.hashpw(String, String)")
 	public void testHashpw() {
-		System.out.print("BCrypt.hashpw(): ");
+		TestConsole.println("BCrypt.hashpw(): ");
 		for (int i = 0; i < test_vectors.length; i++) {
 			String plain = test_vectors[i][0];
 			String salt = test_vectors[i][1];
 			String expected = test_vectors[i][2];
 			String hashed = BCrypt.hashpw(plain, salt);
+			TestConsole.println("> plain:`{}`, salt:`{}`, expected:`{}`, hashed:`{}`",  plain, salt, expected, hashed);
 			assertEquals(hashed, expected);
-			System.out.print(".");
 		}
-		System.out.println("");
+		TestConsole.println("");
 	}
 
 	@Test
 	@DisplayName("BCrypt.gensalt(int)")
 	public void testGensaltInt() {
-		System.out.print("BCrypt.gensalt(log_rounds):");
+		TestConsole.println("BCrypt.gensalt(log_rounds):");
 		for (int i = 4; i <= 12; i++) {
-			System.out.print(" " + Integer.toString(i) + ":");
 			for (int j = 0; j < test_vectors.length; j += 4) {
 				String plain = test_vectors[j][0];
 				String salt = BCrypt.gensalt(i);
 				String hashed1 = BCrypt.hashpw(plain, salt);
 				String hashed2 = BCrypt.hashpw(plain, hashed1);
+				TestConsole.println("> plain:`{}`, salt:`{}`, hashed1:`{}`, hashed2:`{}`", plain, salt, hashed1, hashed2);
 				assertEquals(hashed1, hashed2);
-				System.out.print(".");
 			}
 		}
-		System.out.println("");
+		TestConsole.println("");
 	}
 
 	@Test
 	@DisplayName("BCrypt.gensalt()")
 	public void testGensalt() {
-		System.out.print("BCrypt.gensalt(): ");
+		TestConsole.println("BCrypt.gensalt(): ");
 		for (int i = 0; i < test_vectors.length; i += 4) {
 			String plain = test_vectors[i][0];
 			String salt = BCrypt.gensalt();
 			String hashed1 = BCrypt.hashpw(plain, salt);
 			String hashed2 = BCrypt.hashpw(plain, hashed1);
+			TestConsole.println("> plain:`{}`, salt:`{}`, hashed1:`{}`, hashed2:`{}`", plain, salt, hashed1, hashed2);
 			assertEquals(hashed1, hashed2);
-			System.out.print(".");
 		}
-		System.out.println("");
+		TestConsole.println("");
 	}
 
 	@Test
 	@DisplayName("BCrypt.checkpw(String, String)")
 	public void testCheckpw_success() {
-		System.out.print("BCrypt.checkpw w/ good passwords: ");
+		TestConsole.println("BCrypt.checkpw w/ good passwords: ");
 		for (int i = 0; i < test_vectors.length; i++) {
 			String plain = test_vectors[i][0];
 			String expected = test_vectors[i][2];
-			assertTrue(BCrypt.checkpw(plain, expected));
-			System.out.print(".");
+			boolean checked = BCrypt.checkpw(plain, expected);
+			TestConsole.println("> plain:`{}`, expected:`{}`, checked:`{}`", plain, expected, checked);
+			assertTrue(checked);
 		}
-		System.out.println("");
+		TestConsole.println("");
 	}
 
 	@Test
 	@DisplayName("BCrypt.checkpw(String, String)")
 	public void testCheckpw_failure() {
-		System.out.print("BCrypt.checkpw w/ bad passwords: ");
+		TestConsole.print("BCrypt.checkpw w/ bad passwords: ");
 		for (int i = 0; i < test_vectors.length; i++) {
 			int broken_index = (i + 4) % test_vectors.length;
 			String plain = test_vectors[i][0];
 			String expected = test_vectors[broken_index][2];
 			assertFalse(BCrypt.checkpw(plain, expected));
-			System.out.print(".");
+			TestConsole.print(".");
 		}
-		System.out.println("");
+		TestConsole.println("");
 	}
 
 	@Test
 	@DisplayName("correct hashing of non-US-ASCII passwords")
 	public void testInternationalChars() {
-		System.out.print("BCrypt.hashpw w/ international chars: ");
+		TestConsole.print("BCrypt.hashpw w/ international chars: ");
 		String pw1 = "\u2605\u2605\u2605\u2605\u2605\u2605\u2605\u2605";
 		String pw2 = "????????";
 
 		String h1 = BCrypt.hashpw(pw1, BCrypt.gensalt());
 		assertFalse(BCrypt.checkpw(pw2, h1));
-		System.out.print(".");
+		TestConsole.print(".");
 
 		String h2 = BCrypt.hashpw(pw2, BCrypt.gensalt());
 		assertFalse(BCrypt.checkpw(pw1, h2));
-		System.out.print(".");
-		System.out.println("");
+		TestConsole.print(".");
+		TestConsole.println("");
 	}
 
 	@Test
 	void test01() {
+		String plain = "Abc@12345678";
+		String hash0 = "$2a$10$Oi8tgz6XtGNLsrKIY8yVWecHIRrIS1AaJmWIgtIR8e.8buWG6Vx6q";
 		String salt = BCrypt.gensalt();
-		String hash = BCrypt.hashpw("Abc@12345678", salt);
-		System.out.println(salt);
-		System.out.println(hash);
-		System.out.println(BCrypt.checkpw("Abc@12345678","$2a$10$Oi8tgz6XtGNLsrKIY8yVWecHIRrIS1AaJmWIgtIR8e.8buWG6Vx6q"));
+		String hash = BCrypt.hashpw(plain, salt);
+
+		TestConsole.println("salt: {}",salt);
+		TestConsole.println("hash: {}",hash);
+		TestConsole.println("checked: {}",BCrypt.checkpw(plain, hash0));
+		TestConsole.println("checked: {}",BCrypt.checkpw(plain, hash));
+		Assertions.assertTrue(BCrypt.checkpw(plain, hash0));
+		Assertions.assertTrue(BCrypt.checkpw(plain, hash));
 	}
 }

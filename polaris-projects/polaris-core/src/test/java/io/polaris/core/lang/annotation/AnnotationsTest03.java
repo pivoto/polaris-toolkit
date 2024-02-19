@@ -1,5 +1,6 @@
 package io.polaris.core.lang.annotation;
 
+import io.polaris.core.TestConsole;
 import io.polaris.core.reflect.Reflects;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,24 +16,24 @@ public class AnnotationsTest03 {
 	@Test
 	@DisplayName("类注解测试")
 	void testClassAlias01() {
-		System.out.println(MergedAnnotations.of(C1.class).getMergedRepeatableAnnotation(R1.class));
-		System.out.println(MergedAnnotations.of(C1_1.class).getMergedRepeatableAnnotation(R1.class));
-		System.out.println(MergedAnnotations.of(C1_1x.class).getMergedRepeatableAnnotation(R1.class));
-		System.out.println(MergedAnnotations.of(C1_2.class).getMergedRepeatableAnnotation(R1.class));
-		System.out.println(MergedAnnotations.of(C1_2x.class).getMergedRepeatableAnnotation(R1.class));
-		System.out.println(MergedAnnotations.of(C1_2_1.class).getMergedRepeatableAnnotation(R1.class));
+		TestConsole.println(MergedAnnotations.of(C1.class).getMergedRepeatableAnnotation(R1.class));
+		TestConsole.println(MergedAnnotations.of(C1_1.class).getMergedRepeatableAnnotation(R1.class));
+		TestConsole.println(MergedAnnotations.of(C1_1x.class).getMergedRepeatableAnnotation(R1.class));
+		TestConsole.println(MergedAnnotations.of(C1_2.class).getMergedRepeatableAnnotation(R1.class));
+		TestConsole.println(MergedAnnotations.of(C1_2x.class).getMergedRepeatableAnnotation(R1.class));
+		TestConsole.println(MergedAnnotations.of(C1_2_1.class).getMergedRepeatableAnnotation(R1.class));
 	}
 
 	@Test
 	@DisplayName("方法注解测试")
 	void testClassAlias02() {
 
-		System.out.println(MergedAnnotations.of(Reflects.getMethod(C1.class, "m1")).getMergedRepeatableAnnotation(R1.class));
-		System.out.println(MergedAnnotations.of(Reflects.getMethod(C1_1.class, "m1")).getMergedRepeatableAnnotation(R1.class));
-		System.out.println(MergedAnnotations.of(Reflects.getMethod(C1_1x.class, "m1")).getMergedRepeatableAnnotation(R1.class));
-		System.out.println(MergedAnnotations.of(Reflects.getMethod(C1_2.class, "m1")).getMergedRepeatableAnnotation(R1.class));
-		System.out.println(MergedAnnotations.of(Reflects.getMethod(C1_2x.class, "m1")).getMergedRepeatableAnnotation(R1.class));
-		System.out.println(MergedAnnotations.of(Reflects.getMethod(C1_2_1.class, "m1")).getMergedRepeatableAnnotation(R1.class));
+		TestConsole.println(MergedAnnotations.of(Reflects.getMethod(C1.class, "m1")).getMergedRepeatableAnnotation(R1.class));
+		TestConsole.println(MergedAnnotations.of(Reflects.getMethod(C1_1.class, "m1")).getMergedRepeatableAnnotation(R1.class));
+		TestConsole.println(MergedAnnotations.of(Reflects.getMethod(C1_1x.class, "m1")).getMergedRepeatableAnnotation(R1.class));
+		TestConsole.println(MergedAnnotations.of(Reflects.getMethod(C1_2.class, "m1")).getMergedRepeatableAnnotation(R1.class));
+		TestConsole.println(MergedAnnotations.of(Reflects.getMethod(C1_2x.class, "m1")).getMergedRepeatableAnnotation(R1.class));
+		TestConsole.println(MergedAnnotations.of(Reflects.getMethod(C1_2_1.class, "m1")).getMergedRepeatableAnnotation(R1.class));
 	}
 
 	@A1(name = "C1")

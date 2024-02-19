@@ -1,5 +1,6 @@
 package io.polaris.core.lang.bean;
 
+import io.polaris.core.TestConsole;
 import io.polaris.core.random.Randoms;
 import lombok.Data;
 import org.junit.jupiter.api.Test;
@@ -31,20 +32,20 @@ public class MetaObjectTest {
 			meta.setPathProperty(target, "map.3.date", val);
 		}
 		BeanMap<MetaT> beanMap = Beans.newBeanMap(target);
-		System.out.println();
+		TestConsole.println();
 		beanMap.forEach((k, v) -> {
-			System.out.println(k + " -> " + v);
+			TestConsole.println(k + " -> " + v);
 		});
-		System.out.println();
-		System.out.println(meta.getPathProperty(target, "array.1"));
-		System.out.println(meta.getPathProperty(target, "array.4"));
-		System.out.println(meta.getPathProperty(target, "array.x"));
+		TestConsole.println();
+		TestConsole.println(meta.getPathProperty(target, "array.1"));
+		TestConsole.println(meta.getPathProperty(target, "array.4"));
+		TestConsole.println(meta.getPathProperty(target, "array.x"));
 
 
-		System.out.println();
-		System.out.println(Beans.newBeanMap(new Object()).keySet());
-		System.out.println(Beans.newBeanMap(new Object[1]).keySet());
-		System.out.println(Beans.newBeanMap(new ArrayList()).keySet());
+		TestConsole.println();
+		TestConsole.println(Beans.newBeanMap(new Object()).keySet());
+		TestConsole.println(Beans.newBeanMap(new Object[1]).keySet());
+		TestConsole.println(Beans.newBeanMap(new ArrayList()).keySet());
 	}
 
 	@Test
@@ -54,9 +55,9 @@ public class MetaObjectTest {
 
 		MetaObject<Map> meta = (MetaObject<Map>) MetaObject.of(bindings.getClass());
 		meta.setPathProperty(bindings,"a.a","1");
-		System.out.println();
-		System.out.println(meta.getPathProperty(bindings,"a.a"));
-		System.out.println(bindings);
+		TestConsole.println();
+		TestConsole.println(meta.getPathProperty(bindings,"a.a"));
+		TestConsole.println(bindings);
 	}
 
 	@Data

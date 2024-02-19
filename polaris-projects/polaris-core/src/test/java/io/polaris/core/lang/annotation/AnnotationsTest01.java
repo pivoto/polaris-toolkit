@@ -1,5 +1,6 @@
 package io.polaris.core.lang.annotation;
 
+import io.polaris.core.TestConsole;
 import org.junit.jupiter.api.Test;
 
 import java.io.PrintWriter;
@@ -18,18 +19,19 @@ public class AnnotationsTest01 {
 	void testNewInstance() {
 		Map<String, Object> map = new HashMap<>();
 		map.put("value", "test...");
+		map.put("name", "test...");
 		Anno1 anno1 = Annotations.newInstance(Anno1.class, map);
 		Anno1 anno2 = Annotations.newInstance(Anno1.class, map);
-		System.out.println(anno1.annotationType());
-		System.out.println(anno1);
-		System.out.println(anno2);
-		System.out.println(anno1.equals(anno2));
-		System.out.println(anno1.hashCode());
-		System.out.println(anno2.hashCode());
-		System.out.println(anno1.annotationType());
-		System.out.println(anno2.annotationType());
-		System.out.println(anno1.value());
-		System.out.println(anno2.value());
+		TestConsole.println(anno1.annotationType());
+		TestConsole.println(anno1);
+		TestConsole.println(anno2);
+		TestConsole.println(anno1.equals(anno2));
+		TestConsole.println(anno1.hashCode());
+		TestConsole.println(anno2.hashCode());
+		TestConsole.println(anno1.annotationType());
+		TestConsole.println(anno2.annotationType());
+		TestConsole.println(anno1.value());
+		TestConsole.println(anno2.value());
 	}
 
 	@Test
@@ -52,14 +54,14 @@ public class AnnotationsTest01 {
 		}
 
 		MergedAnnotations mergedAnnotations = new MergedAnnotations(B.class);
-		System.out.println(mergedAnnotations);
+		TestConsole.println(mergedAnnotations);
 		mergedAnnotations.getSortedAnnotations().forEach((k, v) -> {
-			System.out.println(">>" + k + ">>");
+			TestConsole.println(">>" + k + ">>");
 			for (MergedAnnotation mergedAnnotation : v) {
-				System.out.println(mergedAnnotation);
+				TestConsole.println(mergedAnnotation);
 			}
 		});
-		System.out.println(mergedAnnotations.getMergedAnnotation(RepeatableAnno1.class));
+		TestConsole.println(mergedAnnotations.getMergedAnnotation(RepeatableAnno1.class));
 	}
 
 	@Anno1x1("I")

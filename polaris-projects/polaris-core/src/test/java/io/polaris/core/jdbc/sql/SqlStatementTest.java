@@ -1,12 +1,13 @@
 package io.polaris.core.jdbc.sql;
 
+import io.polaris.core.TestConsole;
 import org.junit.jupiter.api.Test;
 
 class SqlStatementTest {
 
 	@Test
 	void test01() {
-		System.out.println(new SqlStatement()
+		TestConsole.println(SqlStatement.of()
 			.select("a,b,c,d,e")
 			.from("tab t")
 			.join("table2 t2")
@@ -26,7 +27,7 @@ class SqlStatementTest {
 
 	@Test
 	void test02() {
-		System.out.println(new SqlStatement()
+		TestConsole.println(SqlStatement.of()
 			.insert("table1")
 			.columns("a", "b", "c")
 			.values("1", "2", "3")
@@ -35,7 +36,7 @@ class SqlStatementTest {
 
 	@Test
 	void test03() {
-		System.out.println(new SqlStatement()
+		TestConsole.println(SqlStatement.of()
 			.delete("table1")
 			.where("a=1", "b=2", "c=3")
 			.values("1", "2", "3")
@@ -43,7 +44,7 @@ class SqlStatementTest {
 	}
 	@Test
 	void test04() {
-		System.out.println(new SqlStatement()
+		TestConsole.println(SqlStatement.of()
 			.update("table1")
 			.set("a=#{a}", "b=#{b}", "c=#{c}")
 			.where("a = 1")

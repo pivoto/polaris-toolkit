@@ -1,5 +1,6 @@
 package io.polaris.core.jdbc.sql.statement;
 
+import io.polaris.core.TestConsole;
 import io.polaris.core.jdbc.sql.query.Queries;
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +14,7 @@ public class DeleteStatementTest {
 		s.where(Queries.newCriteria(DemoEntity.builder()
 			.name("%123%")
 			.build()));
-		System.out.printf("%s\n\n", s.toSqlNode().asBoundSql());
+		TestConsole.println( s.toSqlNode().asBoundSql());
 	}
 
 }

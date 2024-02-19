@@ -1,14 +1,17 @@
 package io.polaris.core.xml;
 
-import io.polaris.core.collection.Iterables;
-import io.polaris.core.map.FluentMap;
-import org.junit.jupiter.api.Test;
-import org.w3c.dom.Document;
-
-import javax.xml.xpath.XPathConstants;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import javax.xml.xpath.XPathConstants;
+
+import io.polaris.core.TestConsole;
+import io.polaris.core.collection.Iterables;
+import io.polaris.core.map.FluentMap;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -40,7 +43,7 @@ class XmlTest {
 			+ "<successCounts>1</successCounts>"//
 			+ "</returnsms>";
 		Document docResult = Xml.parseXml(result);
-		System.out.println(Xml.toStr(docResult));
+		TestConsole.println(Xml.toStr(docResult));
 	}
 
 	@Test
@@ -61,7 +64,8 @@ class XmlTest {
 		Document docResult = Xml.parseXml(result);
 		Object value = Xml.getByXPath("//returnsms/message", docResult, XPathConstants.STRING);
 		assertEquals("ok", value);
-		System.out.println(Xml.getByXPath("//returnsms/list/task[@id='test1']", docResult, XPathConstants.STRING));
+		TestConsole.println(Xml.getByXPath("//returnsms/list/task[@id='test1']", docResult, XPathConstants.STRING));
+		Assertions.assertEquals("1", Xml.getByXPath("//returnsms/list/task[@id='test1']", docResult, XPathConstants.STRING));
 	}
 
 	@Test
@@ -76,7 +80,10 @@ class XmlTest {
 			+ "<newNode><sub>subText</sub></newNode>"//
 			+ "</returnsms>";
 		Map<String, Object> map = Xml.xmlToMap(xml);
-		System.out.println(map);
+		TestConsole.println(map);
+		Assertions.assertEquals("ok", map.get("message"));
+		Assertions.assertEquals("1", map.get("successCounts"));
+		Assertions.assertInstanceOf(Map.class, map.get("newNode"));
 	}
 
 	@Test
@@ -88,7 +95,7 @@ class XmlTest {
 			.put("Town", Iterables.asList("town1", "town2"))
 			.get();
 		Document doc = Xml.mapToXml(map, "user");
-		System.out.println(Xml.toStr(doc, true));
+		TestConsole.println(Xml.toStr(doc, true));
 	}
 
 

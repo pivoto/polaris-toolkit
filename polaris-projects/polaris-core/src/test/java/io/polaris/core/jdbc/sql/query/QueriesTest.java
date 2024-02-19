@@ -2,6 +2,8 @@ package io.polaris.core.jdbc.sql.query;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONWriter;
+
+import io.polaris.core.TestConsole;
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.jdbc.sql.PreparedSql;
 import io.polaris.core.jdbc.sql.consts.Operator;
@@ -32,11 +34,11 @@ class QueriesTest {
 						.value(new String[]{"1", "2", "3"})
 				));
 
-		System.out.println(JSON.toJSONString(condition, JSONWriter.Feature.PrettyFormat));
+		TestConsole.println(JSON.toJSONString(condition, JSONWriter.Feature.PrettyFormat));
 		SqlNode sqlNode = Queries.parse(condition, true, Function.identity());
 		PreparedSql sql = sqlNode.asPreparedSql();
-		System.out.println(sql.getText());
-		System.out.println(sql.getBindings());
+		TestConsole.println(sql.getText());
+		TestConsole.println(sql.getBindings());
 	}
 
 	@Test
@@ -78,11 +80,11 @@ class QueriesTest {
 				)
 			));
 
-		System.out.println(JSON.toJSONString(condition, JSONWriter.Feature.PrettyFormat));
+		TestConsole.println(JSON.toJSONString(condition, JSONWriter.Feature.PrettyFormat));
 		SqlNode sqlNode = Queries.parse(condition, true, Function.identity());
 		PreparedSql sql = sqlNode.asPreparedSql();
-		System.out.println(sql.getText());
-		System.out.println(sql.getBindings());
+		TestConsole.println(sql.getText());
+		TestConsole.println(sql.getBindings());
 
 	}
 }

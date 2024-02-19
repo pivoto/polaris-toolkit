@@ -1,13 +1,19 @@
 package io.polaris.core.crypto.asymmetric;
 
+import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Security;
+import java.util.Base64;
+
+import io.polaris.core.TestConsole;
 import io.polaris.core.crypto.Ciphers;
 import io.polaris.core.crypto.CryptoKeys;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
-import java.io.UnsupportedEncodingException;
-import java.security.*;
-import java.util.Base64;
 
 class RSATest {
 	@BeforeAll
@@ -22,25 +28,30 @@ class RSATest {
 		PrivateKey privateKey = keyPair.getPrivate();
 		PublicKey publicKey = keyPair.getPublic();
 
+		String data = "123456";
 		{
-			String encrypted = RSA.encrypt(publicKey, "123456");
-			System.out.println("encrypted: " + encrypted);
+			String encrypted = RSA.encrypt(publicKey, data);
+			TestConsole.println("encrypted: {}", encrypted);
 			byte[] decrypt = Ciphers.decrypt(AsymmetricAlgorithm.RSA_ECB_PKCS1.code(), privateKey, Base64.getDecoder().decode(encrypted));
-			System.out.println("decrypt: " + new String(decrypt));
+			TestConsole.println("decrypt: {}", new String(decrypt));
+			Assertions.assertEquals(data, new String(decrypt));
 
 			byte[] encrypt = Ciphers.encrypt(AsymmetricAlgorithm.RSA_ECB_PKCS1.code(), publicKey, decrypt);
-			System.out.println("encrypt: " + Base64.getEncoder().encodeToString(encrypt));
-			System.out.println("decrypt: " + RSA.decrypt(privateKey, Base64.getEncoder().encodeToString(encrypt)));
+			TestConsole.println("encrypt: {}", Base64.getEncoder().encodeToString(encrypt));
+			TestConsole.println("decrypt: {}", RSA.decrypt(privateKey, Base64.getEncoder().encodeToString(encrypt)));
+			Assertions.assertEquals(data, RSA.decrypt(privateKey, Base64.getEncoder().encodeToString(encrypt)));
 		}
 		{
-			String encrypted = RSA.encrypt(privateKey, "123456");
-			System.out.println("encrypted: " + encrypted);
+			String encrypted = RSA.encrypt(privateKey, data);
+			TestConsole.println("encrypted: {}", encrypted);
 			byte[] decrypt = Ciphers.decrypt(AsymmetricAlgorithm.RSA_ECB_PKCS1.code(), publicKey, Base64.getDecoder().decode(encrypted));
-			System.out.println("decrypt: " + new String(decrypt));
+			TestConsole.println("decrypt: {}", new String(decrypt));
+			Assertions.assertEquals(data, new String(decrypt));
 
 			byte[] encrypt = Ciphers.encrypt(AsymmetricAlgorithm.RSA_ECB_PKCS1.code(), privateKey, decrypt);
-			System.out.println("encrypt: " + Base64.getEncoder().encodeToString(encrypt));
-			System.out.println("decrypt: " + RSA.decrypt(publicKey, Base64.getEncoder().encodeToString(encrypt)));
+			TestConsole.println("encrypt: {}", Base64.getEncoder().encodeToString(encrypt));
+			TestConsole.println("decrypt: {}", RSA.decrypt(publicKey, Base64.getEncoder().encodeToString(encrypt)));
+			Assertions.assertEquals(data, RSA.decrypt(publicKey, Base64.getEncoder().encodeToString(encrypt)));
 		}
 
 	}
@@ -50,10 +61,11 @@ class RSATest {
 		String key = "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBANpps1ERytVE3J/aZNXLsb3A9907yIPwar4z/qngdEysSnz2P/8AU7RJyqjTf/gYTl87XXkvqV2GcXito2ZASQcCAwEAAQ==";
 		String cipherText = "jmYXcvdLGT+YuAOx1G4ro7G3wrwxbd+mGaFul8cYG5wRJGzYkQ43TlxtWfoAS/lmyd5kmwGo+2WAFmN4fBdK5w==";
 		String s = RSA.decryptByPublicKey(key, cipherText);
-		System.out.println(s);
+		TestConsole.println(s);
 
 		PublicKey publicKey = CryptoKeys.toPublicKey(AsymmetricAlgorithm.RSA.code(), Base64.getDecoder().decode(key));
 		byte[] decrypted = Ciphers.decrypt(AsymmetricAlgorithm.RSA_ECB_PKCS1.code(), publicKey, Base64.getDecoder().decode(cipherText));
-		System.out.println(new String(decrypted));
+		TestConsole.println(new String(decrypted));
+		Assertions.assertEquals(s, new String(decrypted));
 	}
 }

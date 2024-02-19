@@ -1,5 +1,6 @@
 package io.polaris.core.jdbc.sql.statement;
 
+import io.polaris.core.TestConsole;
 import io.polaris.core.jdbc.sql.PreparedSql;
 import io.polaris.core.jdbc.sql.statement.segment.TableField;
 import net.sf.jsqlparser.JSQLParserException;
@@ -32,7 +33,7 @@ class MergeStatementTest {
 		;
 
 		PreparedSql sql = s.toSqlNode().asPreparedSql();
-		System.out.println(sql);
+		TestConsole.println(sql);
 		CCJSqlParserUtil.parse(sql.getText());
 		CCJSqlParserUtil.parse("replace into t (a,b,c) values(1,2,3) ON DUPLICATE KEY UPDATE a=1");
 	}

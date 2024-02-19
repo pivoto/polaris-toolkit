@@ -1,5 +1,6 @@
 package io.polaris.core.reflect;
 
+import io.polaris.core.TestConsole;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -12,19 +13,19 @@ public class ReflectsTest2 {
 
 	@Test
 	void test01() {
-		System.out.println(Arrays.toString(
+		TestConsole.println(Arrays.toString(
 			Reflects.getFields(C.class, c -> c.getType().isPrimitive())
 		));
 	}
 
 	@Test
 	void test02() {
-		System.out.println(Reflects.findParameterizedTypes(I.class, C.class));
-		System.out.println(Reflects.findParameterizedType(I.class, C.class, 0));
-		System.out.println(Reflects.findAllParameterizedTypes(C.class));
-		System.out.println(Arrays.toString(Reflects.findParameterizedTypes(C.class)));
+		TestConsole.println(Reflects.findParameterizedTypes(I.class, C.class));
+		TestConsole.println(Reflects.findActualTypeArgument(I.class, C.class, 0));
+		TestConsole.println(Reflects.findAllParameterizedTypes(C.class));
+		TestConsole.println(Arrays.toString(Reflects.findActualTypeArguments(C.class)));
 
-		System.out.println(Arrays.toString(C.class.getTypeParameters()));
+		TestConsole.println(Arrays.toString(C.class.getTypeParameters()));
 	}
 
 	static interface I<A> {

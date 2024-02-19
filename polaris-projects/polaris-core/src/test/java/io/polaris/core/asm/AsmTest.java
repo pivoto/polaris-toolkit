@@ -1,10 +1,16 @@
 package io.polaris.core.asm;
 
+import java.lang.reflect.ParameterizedType;
+import java.util.Map;
+
 import io.polaris.core.compiler.MemoryClassLoader;
 import io.polaris.core.lang.TypeRef;
+import io.polaris.core.lang.TypeRefs;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
+import org.testng.asserts.Assertion;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -35,10 +41,13 @@ public class AsmTest {
 		MemoryClassLoader loader = MemoryClassLoader.getInstance();
 		loader.add(className, byteArray);
 		Class<?> c = loader.loadClass(className);
-		System.out.println(c);
-		TypeRef o = (TypeRef) c.newInstance();
-		System.out.println(o);
-		System.out.println(o.getType());
+
+		Assertions.assertEquals(className, c.getName());
+		Object o = c.newInstance();
+		Assertions.assertInstanceOf(TypeRef.class, o);
+		Assertions.assertInstanceOf(ParameterizedType.class, ((TypeRef) o).getType());
+		Assertions.assertEquals(Map.class, ((ParameterizedType)((TypeRef) o).getType()).getRawType());
+		Assertions.assertEquals(TypeRefs.getType("java.util.Map<java.lang.String, java.lang.String>"), ((TypeRef) o).getType());
 	}
 
 

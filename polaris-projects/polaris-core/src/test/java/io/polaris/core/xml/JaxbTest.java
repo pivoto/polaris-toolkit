@@ -1,6 +1,9 @@
 package io.polaris.core.xml;
 
+import io.polaris.core.TestConsole;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.xml.bind.annotation.*;
@@ -17,14 +20,18 @@ public class JaxbTest {
 		roomVo.setRoomNo("101");
 		schoolVo.setRoom(roomVo);
 
-		System.out.println(Jaxb.toXml(schoolVo));
-		System.out.println(Jaxb.toBean(Jaxb.toXml(schoolVo), SchoolVo.class));
+		TestConsole.println(Jaxb.toXml(schoolVo));
+		SchoolVo bean = Jaxb.toBean(Jaxb.toXml(schoolVo), SchoolVo.class);
+		TestConsole.println(bean);
+		Assertions.assertEquals(bean.getSchoolName(), schoolVo.getSchoolName());
+		Assertions.assertEquals(bean.getRoom().getRoomName(), schoolVo.getRoom().getRoomName());
 	}
 
 	@XmlRootElement(name = "school")
 	@XmlAccessorType(XmlAccessType.FIELD)
 	@XmlType(propOrder = {"schoolName", "schoolAddress", "room"})
 	@ToString
+	@EqualsAndHashCode
 	public static class SchoolVo {
 		@XmlElement(name = "school_name", required = true)
 		private String schoolName;
@@ -65,6 +72,7 @@ public class JaxbTest {
 	@XmlAccessorType(XmlAccessType.FIELD)
 	@XmlType(propOrder = {"roomNo", "roomName"})
 	@ToString
+	@EqualsAndHashCode
 	public static final class RoomVo {
 		@XmlElement(name = "room_no", required = true)
 		private String roomNo;

@@ -1,5 +1,6 @@
 package io.polaris.core.lang.copier;
 
+import io.polaris.core.TestConsole;
 import io.polaris.core.lang.copier.BeanToBeanCopier;
 import io.polaris.core.lang.copier.CopyOptions;
 import lombok.Data;
@@ -22,9 +23,9 @@ class BeanToBeanCopierTest {
 		B t = new BeanToBeanCopier<>(a, b, B.class,
 			CopyOptions.create().ignoreNull().override(false).ignoreCase()
 		).copy();
-		System.out.println(a);
-		System.out.println(b);
-		System.out.println(t);
+		TestConsole.println(a);
+		TestConsole.println(b);
+		TestConsole.println(t);
 
 		Assertions.assertEquals(a.id, b.id);
 		Assertions.assertNotEquals(a.name, b.name);

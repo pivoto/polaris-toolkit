@@ -1,5 +1,6 @@
 package io.polaris.core.jdbc.sql.statement;
 
+import io.polaris.core.TestConsole;
 import io.polaris.core.jdbc.sql.query.Queries;
 import org.junit.jupiter.api.Test;
 
@@ -25,8 +26,8 @@ public class UpdateStatementTest {
 			.name("%123%")
 			.build()));
 
-		//System.out.printf("%s\n\n", s.toSqlNode().asPreparedSql());
-		System.out.printf("%s\n\n", s.toSqlNode().asBoundSql());
+		//TestConsole.println(s.toSqlNode().asPreparedSql());
+		TestConsole.println(s.toSqlNode().asBoundSql());
 	}
 
 }

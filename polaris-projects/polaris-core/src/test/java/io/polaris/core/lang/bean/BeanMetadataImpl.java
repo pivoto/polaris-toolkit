@@ -9,7 +9,7 @@ import java.util.function.Function;
  * @author Qt
  * @since 1.8,  Aug 05, 2023
  */
-public class BeanMetadataTest implements BeanMetadata{
+public class BeanMetadataImpl implements BeanMetadata{
 	@Override
 	public Map<String, Type> types() {
 		return BeanMetadatas.getPropertyTypes(BeanMetadatas.class);

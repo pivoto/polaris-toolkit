@@ -1,5 +1,6 @@
 package io.polaris.core.jdbc.sql.statement.segment;
 
+import io.polaris.core.TestConsole;
 import io.polaris.core.jdbc.sql.SqlTextParsers;
 import io.polaris.core.jdbc.sql.statement.Demo2Entity;
 import io.polaris.core.jdbc.sql.statement.Demo3Entity;
@@ -17,17 +18,17 @@ class TableAccessibleTest {
 			new TableEntitySegment<>(Demo3Entity.class, "t3")
 		);
 
-		System.out.printf("%s%n", SqlTextParsers.resolveRefTableField("&{t1}", tableAccessible));
-		System.out.printf("%s%n", SqlTextParsers.resolveRefTableField("&{t2}", tableAccessible));
-		System.out.printf("%s%n", SqlTextParsers.resolveRefTableField("&{t3}", tableAccessible));
-		System.out.printf("%s%n", SqlTextParsers.resolveRefTableField("&{t1.*}", tableAccessible));
-		System.out.printf("%s%n", SqlTextParsers.resolveRefTableField("&{t2.*}", tableAccessible));
-		System.out.printf("%s%n", SqlTextParsers.resolveRefTableField("&{t3.*}", tableAccessible));
-		System.out.printf("%s%n", SqlTextParsers.resolveRefTableField("select &{t1.*} from &{t1} where &{t1.fieldStr1} like '%xx%'", tableAccessible));
-		System.out.printf("%s%n", SqlTextParsers.resolveRefTableField("&{t1?.*}", tableAccessible));
-		System.out.printf("%s%n", SqlTextParsers.resolveRefTableField("&{t2?.*}", tableAccessible));
-		System.out.printf("%s%n", SqlTextParsers.resolveRefTableField("&{t3?.*}", tableAccessible));
-		System.out.printf("%s%n", SqlTextParsers.resolveRefTableField("select &{t1?.*} from &{t1} where &{t1?.fieldStr1} like '%xx%'", tableAccessible));
+		TestConsole.println( SqlTextParsers.resolveRefTableField("&{t1}", tableAccessible));
+		TestConsole.println( SqlTextParsers.resolveRefTableField("&{t2}", tableAccessible));
+		TestConsole.println( SqlTextParsers.resolveRefTableField("&{t3}", tableAccessible));
+		TestConsole.println( SqlTextParsers.resolveRefTableField("&{t1.*}", tableAccessible));
+		TestConsole.println( SqlTextParsers.resolveRefTableField("&{t2.*}", tableAccessible));
+		TestConsole.println( SqlTextParsers.resolveRefTableField("&{t3.*}", tableAccessible));
+		TestConsole.println( SqlTextParsers.resolveRefTableField("select &{t1.*} from &{t1} where &{t1.fieldStr1} like '%xx%'", tableAccessible));
+		TestConsole.println( SqlTextParsers.resolveRefTableField("&{t1?.*}", tableAccessible));
+		TestConsole.println( SqlTextParsers.resolveRefTableField("&{t2?.*}", tableAccessible));
+		TestConsole.println( SqlTextParsers.resolveRefTableField("&{t3?.*}", tableAccessible));
+		TestConsole.println( SqlTextParsers.resolveRefTableField("select &{t1?.*} from &{t1} where &{t1?.fieldStr1} like '%xx%'", tableAccessible));
 
 
 	}

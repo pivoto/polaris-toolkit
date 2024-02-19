@@ -1,5 +1,6 @@
 package io.polaris.core.jdbc.sql.statement.expression;
 
+import io.polaris.core.TestConsole;
 import io.polaris.core.regex.Patterns;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +18,7 @@ class PatternExpressionTest {
 		for (String s : args) {
 			Matcher m = pattern.matcher(s);
 			if (m.matches()) {
-				System.out.printf("%s: %s, %s \n", s,m.group(), m.group(1));
+				TestConsole.println("{}: {}, {} \n", s,m.group(), m.group(1));
 			}
 		}
 	}

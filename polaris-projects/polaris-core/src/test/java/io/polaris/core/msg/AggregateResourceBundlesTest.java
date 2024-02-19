@@ -1,5 +1,6 @@
 package io.polaris.core.msg;
 
+import io.polaris.core.TestConsole;
 import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
@@ -11,14 +12,14 @@ class AggregateResourceBundlesTest {
 	void test01() {
 		ResourceBundle bundle = null;
 		bundle = ResourceBundle.getBundle("io.polaris.Messages");
-		System.out.println(bundle);
+		TestConsole.println(bundle);
 		bundle = AggregateResourceBundles.getBundle(Locale.CHINA, "io.polaris.Messages");
-		System.out.println(bundle);
-		System.out.println(bundle.keySet());
+		TestConsole.println(bundle);
+		TestConsole.println(bundle.keySet());
 	}
 
 	@Test
 	void test02() {
-		System.out.println(MessageResources.getDefaultMessageResource().getMessage("testkey"));
+		TestConsole.println(MessageResources.getDefaultMessageResource().getMessage("testkey"));
 	}
 }

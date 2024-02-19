@@ -1,5 +1,6 @@
 package io.polaris.core.jdbc.sql.statement;
 
+import io.polaris.core.TestConsole;
 import io.polaris.core.jdbc.sql.BoundSql;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.Criterion;
@@ -30,7 +31,7 @@ public class SelectStatementTest {
 			sql.selectAll();
 			sql.where().column(DemoEntity.Fields.name).eq(123);
 			sql.orderBy().column(DemoEntity.Fields.score).desc();
-			System.out.println(sql.toSqlNode().asBoundSql());
+			TestConsole.println(sql.toSqlNode().asBoundSql());
 		}
 
 		@Test
@@ -43,7 +44,7 @@ public class SelectStatementTest {
 			sql.groupBy().column(DemoEntity.Fields.name).end();
 			sql.having().column(DemoEntity.Fields.score).max().gt(60);
 			sql.orderBy().rawColumn("m").desc();
-			System.out.println(sql.toSqlNode().asBoundSql());
+			TestConsole.println(sql.toSqlNode().asBoundSql());
 		}
 
 	}
@@ -96,11 +97,11 @@ public class SelectStatementTest {
 					)
 			);
 
-			System.out.println("查询：");
-			System.out.println(statement.toSqlNode().asBoundSql());
-			System.out.println("查总数：");
-			System.out.println(statement.toCountSqlNode().asBoundSql());
-			System.out.println(AnySelectStatement.of(statement,"x").select().column("*").count().end().toSqlNode().asBoundSql());
+			TestConsole.println("查询：");
+			TestConsole.println(statement.toSqlNode().asBoundSql());
+			TestConsole.println("查总数：");
+			TestConsole.println(statement.toCountSqlNode().asBoundSql());
+			TestConsole.println(AnySelectStatement.of(statement,"x").select().column("*").count().end().toSqlNode().asBoundSql());
 		}
 	}
 
@@ -134,7 +135,7 @@ public class SelectStatementTest {
 
 			sql.where().column(Demo2Entity.Fields.name).in(Demo2EntitySql.select("t4").name().where().col1().notNull().end());
 
-			System.out.println(sql.toSqlNode().asBoundSql());
+			TestConsole.println(sql.toSqlNode().asBoundSql());
 		}
 	}
 }

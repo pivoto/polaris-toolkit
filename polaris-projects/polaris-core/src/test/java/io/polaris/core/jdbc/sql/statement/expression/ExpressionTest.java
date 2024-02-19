@@ -1,5 +1,6 @@
 package io.polaris.core.jdbc.sql.statement.expression;
 
+import io.polaris.core.TestConsole;
 import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
 import io.polaris.core.jdbc.sql.node.TextNode;
@@ -10,10 +11,9 @@ class ExpressionTest {
 	@Test
 	void test01() {
 		Expression expr = Expressions.function("coalesce", true, false, false);
-		System.out.println(expr.toSqlNode(SqlNodes.text("col"), new Object[]{1}).asBoundSql());
-		System.out.println(expr.toSqlNode(SqlNodes.text("col"), new Object[]{1, 2}).asBoundSql());
-		System.out.println(expr.toSqlNode(SqlNodes.text("col"), new Object[]{1, 2, 3, 4}).asBoundSql());
-
+		TestConsole.println(expr.toSqlNode(SqlNodes.text("col"), new Object[]{1}).asBoundSql());
+		TestConsole.println(expr.toSqlNode(SqlNodes.text("col"), new Object[]{1, 2}).asBoundSql());
+		TestConsole.println(expr.toSqlNode(SqlNodes.text("col"), new Object[]{1, 2, 3, 4}).asBoundSql());
 	}
 
 	@Test
@@ -33,7 +33,7 @@ class ExpressionTest {
 			sql.addNode(new TextNode(" " + i + " "));
 		}
 
-		System.out.println(sql.asBoundSql().toString());
+		TestConsole.println(sql.asBoundSql().toString());
 		sql.visitSubsetWritable(op -> {
 			if (op.getSqlNode().isTextNode()) {
 				if (Integer.parseInt(op.getSqlNode().getText().trim()) % 3 == 0) {
@@ -41,8 +41,8 @@ class ExpressionTest {
 				}
 			}
 		});
-		System.out.println(sql.asBoundSql().toString());
-
+		TestConsole.println(sql.asBoundSql().toString());
 	}
+
 }
 

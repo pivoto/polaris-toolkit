@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
+import io.polaris.core.TestConsole;
 import io.polaris.core.jdbc.annotation.Id;
 import io.polaris.core.jdbc.annotation.Table;
 import io.polaris.core.jdbc.base.annotation.Key;
@@ -27,7 +28,7 @@ public class JdbcExecutorsTest {
 		try (Connection conn = Jdbcs.getConnection("jdbc:oracle:thin:@localhost:1521/cmisdb", "basesv", "basesv");) {
 			JdbcExecutors.setCurrentConnection(conn);
 
-			System.out.println(testInterface.getTenantList(TenantEntity.builder().tenantId("C421").build()));
+			TestConsole.println(testInterface.getTenantList(TenantEntity.builder().tenantId("C421").build()));
 
 		} finally {
 			JdbcExecutors.clearCurrentConnection();

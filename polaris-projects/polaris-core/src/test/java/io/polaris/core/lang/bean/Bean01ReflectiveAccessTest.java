@@ -1,5 +1,6 @@
 package io.polaris.core.lang.bean;
 
+import io.polaris.core.TestConsole;
 import io.polaris.core.asm.reflect.MethodAccess;
 import io.polaris.core.asm.reflect.ReflectiveAccess;
 import io.polaris.core.function.Executable;
@@ -28,18 +29,18 @@ public class Bean01ReflectiveAccessTest {
 		try {
 			r.execute();
 		} catch (Throwable e) {
-			System.err.println(e.getClass().getName() + ": " + e.getMessage());
+			TestConsole.println(e.getClass().getName() + ": " + e.getMessage());
 		}
 	};
 
 	@Test
 	void MethodAccess() throws IOException {
 		MethodAccess methodAccess = MethodAccess.get(Bean01.class);
-		executable.accept(() -> System.out.println(methodAccess.getClass()));
-		executable.accept(() -> System.out.println(methodAccess.getClass().getClassLoader()));
+		executable.accept(() -> TestConsole.println(methodAccess.getClass()));
+		executable.accept(() -> TestConsole.println(methodAccess.getClass().getClassLoader()));
 		Class<BeanMetadata> metadataClass = BeanMetadatas.getMetadataClass(Bean01.class);
-		executable.accept(() -> System.out.println(metadataClass));
-		executable.accept(() -> System.out.println(metadataClass.getClassLoader()));
+		executable.accept(() -> TestConsole.println(metadataClass));
+		executable.accept(() -> TestConsole.println(metadataClass.getClassLoader()));
 	}
 
 	@Test
@@ -58,7 +59,7 @@ public class Bean01ReflectiveAccessTest {
 		executable.accept(() -> map.put("booleanVal", 1));
 		executable.accept(() -> map.put("booleanValProtected", 1));
 		executable.accept(() -> map.put("booleanValPrivate", 1));
-		executable.accept(() -> System.out.println(map));
+		executable.accept(() -> TestConsole.println(map));
 	}
 
 	@Test
@@ -87,18 +88,18 @@ public class Bean01ReflectiveAccessTest {
 		executable.accept(() -> access.invokeMethod(bean01, "testDefaultReturnObjectWithArgs", "123", 123));
 		executable.accept(() -> access.invokeMethod(bean01, "testDefaultReturnPrimitiveWithArgs", "123", 123));
 
-		executable.accept(() -> System.out.println("clone: " + access.invokeMethod(bean01, "clone")));
-		executable.accept(() -> System.out.println("clone: " + bean01.clone()));
+		executable.accept(() -> TestConsole.println("clone: " + access.invokeMethod(bean01, "clone")));
+		executable.accept(() -> TestConsole.println("clone: " + bean01.clone()));
 
 		executable.accept(() -> access.invokeMethod(bean01, "setId", "123"));
 		executable.accept(() -> access.invokeMethod(bean01, "setIdParent", "123"));
 		executable.accept(() -> access.invokeMethod(bean01, "setNameParent", "123"));
 		executable.accept(() -> access.invokeMethod(bean01, "setNamePrivateParent", "123"));
 		executable.accept(() -> access.invokeMethod(bean01, "setNameProtectedParent", "123"));
-		executable.accept(() -> System.out.println("staticIdParent: " + access.getField(bean01, "staticIdParent")));
-		executable.accept(() -> System.out.println("staticId: " + access.getField(bean01, "staticId")));
-		executable.accept(() -> System.out.println("idParent: " + access.getField(bean01, "idParent")));
-		executable.accept(() -> System.out.println("id: " + access.getField(bean01, "id")));
-		executable.accept(() -> System.out.println("toString: " + access.invokeMethod(bean01, "toString")));
+		executable.accept(() -> TestConsole.println("staticIdParent: " + access.getField(bean01, "staticIdParent")));
+		executable.accept(() -> TestConsole.println("staticId: " + access.getField(bean01, "staticId")));
+		executable.accept(() -> TestConsole.println("idParent: " + access.getField(bean01, "idParent")));
+		executable.accept(() -> TestConsole.println("id: " + access.getField(bean01, "id")));
+		executable.accept(() -> TestConsole.println("toString: " + access.invokeMethod(bean01, "toString")));
 	}
 }

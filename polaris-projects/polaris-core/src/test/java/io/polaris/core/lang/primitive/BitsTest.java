@@ -1,5 +1,6 @@
 package io.polaris.core.lang.primitive;
 
+import io.polaris.core.TestConsole;
 import io.polaris.core.string.Hex;
 import org.junit.jupiter.api.Test;
 
@@ -15,17 +16,17 @@ class BitsTest {
 		buffer.put(new byte[]{1, 2, 3, 4, 5, 6, 7, 8});
 		buffer.flip();
 		long l = buffer.getLong();
-		System.out.println(Hex.formatHex(l));
+		TestConsole.println(Hex.formatHex(l));
 
 		buffer.flip();
 		buffer.order(ByteOrder.nativeOrder());
 		buffer.putLong(0x0102030405060708L);
 		buffer.flip();
-		System.out.println(Hex.formatBytes(buffer.array()));
+		TestConsole.println(Hex.formatBytes(buffer.array()));
 
-		System.out.println(Hex.formatHex(Bytes.bytesToLong(new byte[]{1, 2, 3, 4, 5, 6, 7, 8})));
-		System.out.println(Bytes.CPU_ENDIAN);
-		System.out.println(ByteOrder.nativeOrder());
+		TestConsole.println(Hex.formatHex(Bytes.bytesToLong(new byte[]{1, 2, 3, 4, 5, 6, 7, 8})));
+		TestConsole.println(Bytes.CPU_ENDIAN);
+		TestConsole.println(ByteOrder.nativeOrder());
 	}
 
 	@Test
@@ -35,10 +36,10 @@ class BitsTest {
 		buf.flip();
 		byte[] bytes = new byte[4];
 		buf.get(bytes);
-		System.out.println(Hex.formatBytes(bytes));
+		TestConsole.println(Hex.formatBytes(bytes));
 
-		System.out.println(Hex.formatHex(Bits.getIntB(buf, 0)));
-		System.out.println(Hex.formatHex(Bits.getIntL(buf, 0)));
+		TestConsole.println(Hex.formatHex(Bits.getIntB(buf, 0)));
+		TestConsole.println(Hex.formatHex(Bits.getIntL(buf, 0)));
 	}
 
 

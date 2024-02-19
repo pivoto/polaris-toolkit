@@ -1,5 +1,6 @@
 package io.polaris.core.lang.bean;
 
+import io.polaris.core.TestConsole;
 import io.polaris.core.time.Times;
 import org.junit.jupiter.api.Test;
 
@@ -11,27 +12,27 @@ public class BeansTest {
 	void testBeanAccess() throws ReflectiveOperationException {
 		Bean01 o = new Bean01();
 		Map<String, Object> map = Beans.newBeanMap(o);
-		System.out.println(map);
-		System.out.println(o);
+		TestConsole.println(map);
+		TestConsole.println(o);
 		map.put("id", "test");
 		map.put("nickName", "test");
 
-		System.out.println(map);
-		System.out.println(o);
+		TestConsole.println(map);
+		TestConsole.println(o);
 
 		map.forEach((k, v) -> {
-			System.out.printf("%s -> %s%n", k, v);
+			TestConsole.println("{} -> {}", k, v);
 		});
-		System.out.println(map.get("nickName"));
+		TestConsole.println(map.get("nickName"));
 	}
 
 	@Test
 	void test02() throws Exception {
 		Class<BeanMetadata> metadataClass = BeanMetadatas.getMetadataClass(Bean01.class);
 		BeanMetadata iMetadata = metadataClass.newInstance();
-		System.out.println(iMetadata.types());
-		System.out.println(iMetadata.getters());
-		System.out.println(iMetadata.setters());
+		TestConsole.println(iMetadata.types());
+		TestConsole.println(iMetadata.getters());
+		TestConsole.println(iMetadata.setters());
 	}
 
 	@Test
@@ -41,6 +42,6 @@ public class BeansTest {
 		long time = Times.millsTime(1000, () -> {
 			BeanMap beanMap = new BeanMap(o);
 		});
-		System.out.println("time: " + time);
+		TestConsole.println("time: " + time);
 	}
 }

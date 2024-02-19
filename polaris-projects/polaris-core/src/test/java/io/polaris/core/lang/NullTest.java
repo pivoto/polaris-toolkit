@@ -1,9 +1,15 @@
 package io.polaris.core.lang;
 
-import org.junit.jupiter.api.Test;
-
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Base64;
+
+import io.polaris.core.TestConsole;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 class NullTest {
 
@@ -16,13 +22,12 @@ class NullTest {
 		oos.flush();
 
 		byte[] bytes = bos.toByteArray();
-		System.out.println(new String(bytes));
-		System.out.println(Base64.getEncoder().encodeToString(bytes));
+		TestConsole.println(new String(bytes));
+		TestConsole.println(Base64.getEncoder().encodeToString(bytes));
 
 		ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
 		ObjectInputStream ois = new ObjectInputStream(bis);
 		Object o = ois.readObject();
-		System.out.println(o);
-		System.out.println(o == Null.getInstance());
+		Assertions.assertSame(Null.getInstance(), o);
 	}
 }

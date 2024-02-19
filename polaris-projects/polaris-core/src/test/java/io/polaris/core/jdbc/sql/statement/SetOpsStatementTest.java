@@ -1,5 +1,6 @@
 package io.polaris.core.jdbc.sql.statement;
 
+import io.polaris.core.TestConsole;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -25,8 +26,8 @@ public class SetOpsStatementTest {
 		setOpsStatement.minus(
 			Demo3EntitySql.select().selectAll().where().raw("1=1").end());
 
-		System.out.println(setOpsStatement.toSqlNode());
-		System.out.println();
-		System.out.println(setOpsStatement.toCountSqlNode());
+		TestConsole.println(setOpsStatement.toSqlNode());
+		TestConsole.println();
+		TestConsole.println(setOpsStatement.toCountSqlNode());
 	}
 }

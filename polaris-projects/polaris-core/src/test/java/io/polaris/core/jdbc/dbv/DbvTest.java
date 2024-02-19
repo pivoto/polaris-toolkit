@@ -1,12 +1,5 @@
 package io.polaris.core.jdbc.dbv;
 
-import com.alibaba.fastjson2.JSON;
-import io.polaris.core.jdbc.Jdbcs;
-import io.polaris.core.jdbc.dbv.model.*;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -14,6 +7,20 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import io.polaris.core.TestConsole;
+import io.polaris.core.jdbc.Jdbcs;
+import io.polaris.core.jdbc.dbv.model.Catalog;
+import io.polaris.core.jdbc.dbv.model.Column;
+import io.polaris.core.jdbc.dbv.model.IndexInfo;
+import io.polaris.core.jdbc.dbv.model.PrimaryKey;
+import io.polaris.core.jdbc.dbv.model.Schema;
+import io.polaris.core.jdbc.dbv.model.Table;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import com.alibaba.fastjson2.JSON;
 
 class DbvTest {
 
@@ -31,7 +38,7 @@ class DbvTest {
 
 	protected void show(Collection<?> collection) {
 		for (Object o : collection) {
-			System.out.printf("%s%n", JSON.toJSONString(o));
+			TestConsole.println(JSON.toJSONString(o));
 		}
 	}
 
@@ -39,7 +46,7 @@ class DbvTest {
 	void test00() throws SQLException {
 		DatabaseMetaData metaData = conn.getMetaData();
 		show(ResultSetFetcher.fetchList(metaData.getTableTypes()));
-		ResultSet rs = metaData.getTables(null, null, "ARM_USER", new String[]{"TABLE"});
+		ResultSet rs = metaData.getTables(null, null, "BRM_USER", new String[]{"TABLE"});
 		List<Map<String, Object>> list = ResultSetFetcher.fetchList(rs);
 		show(list);
 	}
@@ -58,7 +65,7 @@ class DbvTest {
 
 	@Test
 	public void test03() throws SQLException {
-		List<Table> tables = Dbv.readTables(conn.getMetaData(), null, null, "ARM_USER", null);
+		List<Table> tables = Dbv.readTables(conn.getMetaData(), null, null, "BRM_USER", null);
 		show(tables);
 		for (Table table : tables) {
 			List<PrimaryKey> primaryKeys = Dbv.readPrimaryKeys(conn.getMetaData(), table);
@@ -69,13 +76,13 @@ class DbvTest {
 
 	@Test
 	public void test04() throws SQLException {
-		List<Column> columns = Dbv.readColumns(conn.getMetaData(), null, null, "ARM_USER", null);
+		List<Column> columns = Dbv.readColumns(conn.getMetaData(), null, null, "BRM_USER", null);
 		show(columns);
 	}
 
 	@Test
 	public void test05() throws SQLException {
-		List<IndexInfo> indexInfos = Dbv.readIndexes(conn.getMetaData(), null, null, "ARM_USER");
+		List<IndexInfo> indexInfos = Dbv.readIndexes(conn.getMetaData(), null, null, "BRM_USER");
 		show(indexInfos);
 	}
 
