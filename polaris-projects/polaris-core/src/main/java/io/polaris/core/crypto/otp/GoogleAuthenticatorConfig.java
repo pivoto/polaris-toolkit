@@ -90,6 +90,10 @@ public class GoogleAuthenticatorConfig {
 		return hmacHash;
 	}
 
+	public static GoogleAuthenticatorConfigBuilder builder() {
+		return new GoogleAuthenticatorConfigBuilder();
+	}
+
 	public static class GoogleAuthenticatorConfigBuilder {
 		private GoogleAuthenticatorConfig config = new GoogleAuthenticatorConfig();
 
@@ -97,7 +101,7 @@ public class GoogleAuthenticatorConfig {
 			return config;
 		}
 
-		public GoogleAuthenticatorConfigBuilder setCodeDigits(int codeDigits) {
+		public GoogleAuthenticatorConfigBuilder codeDigits(int codeDigits) {
 			if (codeDigits <= 0) {
 				throw new IllegalArgumentException("Code digits must be positive.");
 			}
@@ -115,7 +119,7 @@ public class GoogleAuthenticatorConfig {
 			return this;
 		}
 
-		public GoogleAuthenticatorConfigBuilder setNumberOfScratchCodes(int numberOfScratchCodes) {
+		public GoogleAuthenticatorConfigBuilder numberOfScratchCodes(int numberOfScratchCodes) {
 			if (numberOfScratchCodes < 0) {
 				throw new IllegalArgumentException("The number of scratch codes must not be negative");
 			}
@@ -128,7 +132,7 @@ public class GoogleAuthenticatorConfig {
 			return this;
 		}
 
-		public GoogleAuthenticatorConfigBuilder setTimeStepSizeInMillis(long timeStepSizeInMillis) {
+		public GoogleAuthenticatorConfigBuilder timeStepSizeInMillis(long timeStepSizeInMillis) {
 			if (timeStepSizeInMillis <= 0) {
 				throw new IllegalArgumentException("Time step size must be positive.");
 			}
@@ -137,7 +141,7 @@ public class GoogleAuthenticatorConfig {
 			return this;
 		}
 
-		public GoogleAuthenticatorConfigBuilder setWindowSize(int windowSize) {
+		public GoogleAuthenticatorConfigBuilder windowSize(int windowSize) {
 			if (windowSize <= 0) {
 				throw new IllegalArgumentException("Window number must be positive.");
 			}
@@ -146,7 +150,7 @@ public class GoogleAuthenticatorConfig {
 			return this;
 		}
 
-		public GoogleAuthenticatorConfigBuilder setSecretBits(int secretBits) {
+		public GoogleAuthenticatorConfigBuilder secretBits(int secretBits) {
 			if (secretBits < 128) {
 				throw new IllegalArgumentException("Secret bits must be greater than or equal to 128.");
 			}
@@ -159,7 +163,7 @@ public class GoogleAuthenticatorConfig {
 			return this;
 		}
 
-		public GoogleAuthenticatorConfigBuilder setHmacHash(OtpHmacHashAlgorithm hmacHash) {
+		public GoogleAuthenticatorConfigBuilder hmacHash(OtpHmacHashAlgorithm hmacHash) {
 			if (hmacHash == null) {
 				throw new IllegalArgumentException("HMAC Hash Function cannot be null.");
 			}

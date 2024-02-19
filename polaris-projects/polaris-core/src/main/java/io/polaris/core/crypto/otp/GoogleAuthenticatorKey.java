@@ -102,6 +102,10 @@ public final class GoogleAuthenticatorKey {
 		return verificationCode;
 	}
 
+	public static Builder builder(String key) {
+		return new Builder(key);
+	}
+
 	/**
 	 * This class is a builder to create instances of the {@link GoogleAuthenticatorKey} class.
 	 */
