@@ -398,6 +398,21 @@ public class Strings {
 		return str.substring(0, end);
 	}
 
+	public static String trim(String str, char ch) {
+		if (str == null || str.isEmpty()) {
+			return str;
+		}
+		int begin = 0;
+		int end = str.length() - 1;
+		while (begin <= end && ch == str.charAt(begin)) {
+			begin++;
+		}
+		while (end > begin && ch == str.charAt(end)) {
+			end--;
+		}
+		return str.substring(begin, end + 1);
+	}
+
 	public static String trimStart(String str, char ch) {
 		if (str == null || str.isEmpty()) {
 			return str;
