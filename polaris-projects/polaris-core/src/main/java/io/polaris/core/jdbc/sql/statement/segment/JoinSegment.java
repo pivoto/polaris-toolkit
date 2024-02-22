@@ -134,7 +134,7 @@ public class JoinSegment<O extends Segment<O>, S extends JoinSegment<O, S>> exte
 	}
 
 	public S selectRaw(String... rawColumns) {
-		return select(SqlNodes.text(SqlTextParsers.resolveRefTableField(Strings.join(",", rawColumns), this)));
+		return select(SqlNodes.text(SqlTextParsers.resolveTableRef(Strings.join(",", rawColumns), this)));
 	}
 
 
@@ -200,7 +200,7 @@ public class JoinSegment<O extends Segment<O>, S extends JoinSegment<O, S>> exte
 	public S orderByRaw(String... rawSql) {
 		for (String s : rawSql) {
 			OrderBySegment<S, ?> orderBy = buildOrderBy();
-			orderBy.sql(SqlNodes.text(SqlTextParsers.resolveRefTableField(s, tableAccessible)));
+			orderBy.sql(SqlNodes.text(SqlTextParsers.resolveTableRef(s, tableAccessible)));
 			orderBys.add(orderBy);
 		}
 		return getThis();

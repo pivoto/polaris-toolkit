@@ -1,5 +1,15 @@
 package io.polaris.core.jdbc;
 
+import java.io.ObjectStreamException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import io.polaris.core.asm.reflect.ReflectiveAccess;
 import io.polaris.core.jdbc.annotation.Column;
 import io.polaris.core.jdbc.annotation.Id;
@@ -7,12 +17,6 @@ import io.polaris.core.jdbc.annotation.Table;
 import io.polaris.core.jdbc.annotation.processing.JdbcBeanInfo;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
-
-import java.io.ObjectStreamException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Qt
@@ -29,6 +33,15 @@ public class TableMetaKit {
 
 	private Object readResolve() throws ObjectStreamException {
 		return instance;
+	}
+
+	public TableMeta get(String entityClassName) {
+		try {
+			Class<?> type = Class.forName(entityClassName);
+			return get(type);
+		} catch (ClassNotFoundException e) {
+			return null;
+		}
 	}
 
 	public TableMeta get(Class<?> entityClass) {
@@ -59,7 +72,9 @@ public class TableMetaKit {
 				String table = (String) reflectiveAccess.getField(null, "TABLE");
 				String alias = (String) reflectiveAccess.getField(null, "ALIAS");
 				Map<String, ColumnMeta> columns = (Map<String, ColumnMeta>) reflectiveAccess.getField(null, "COLUMNS");
-				return TableMeta.builder().entityClass(entityClass).table(table).alias(alias).columns(columns).schema(schema).catalog(catalog).build();
+				return TableMeta.builder().entityClass(entityClass)
+					.table(table).alias(alias)
+					.columns(columns).schema(schema).catalog(catalog).build();
 			}
 		} catch (Throwable e) {
 			log.error("", e);
@@ -113,7 +128,9 @@ public class TableMetaKit {
 			}
 			targetClass = targetClass.getSuperclass();
 		} while (targetClass != null && targetClass != Object.class);
-		return TableMeta.builder().entityClass(entityClass).table(annotation.value()).columns(Collections.unmodifiableMap(columns))
+		return TableMeta.builder().entityClass(entityClass)
+			.table(annotation.value()).alias(annotation.alias())
+			.columns(Collections.unmodifiableMap(columns))
 			.schema(annotation.schema()).catalog(annotation.catalog()).build();
 	}
 

@@ -1,18 +1,26 @@
 package io.polaris.core.jdbc.sql;
 
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 
+import io.polaris.core.consts.StdConsts;
 import io.polaris.core.converter.Converters;
 import io.polaris.core.jdbc.ColumnMeta;
+import io.polaris.core.lang.bean.BeanMap;
 import io.polaris.core.lang.bean.Beans;
+import io.polaris.core.string.StringCases;
 import io.polaris.core.string.Strings;
 import io.polaris.core.tuple.ValueRef;
 
@@ -196,4 +204,74 @@ public class BindingValues {
 		return val;
 	}
 
+
+	/**
+	 * 是否基本数据类型(基本类型,枚举,数组,字符串,数值,日期)
+	 *
+	 * @param clazz
+	 * @return
+	 */
+	private static boolean isBasicDataType(Class clazz) {
+		return clazz.isPrimitive()
+			|| clazz.isEnum()
+			|| clazz.isArray()
+			|| String.class == clazz
+			|| Integer.class == clazz
+			|| BigDecimal.class == clazz
+			|| Double.class == clazz
+			|| BigInteger.class == clazz
+			|| Float.class == clazz
+			|| Short.class == clazz
+			|| Byte.class == clazz
+			|| Character.class == clazz
+			|| Boolean.class == clazz
+			|| Date.class.isAssignableFrom(clazz)
+			;
+	}
+
+	public static Map<String, Object> asMap(Object o) {
+		Map<String, Object> params = new HashMap<>();
+		// 兼容小写驼峰转小写下划线
+		Map<String, Object> compatible = new HashMap<>();
+		if (o == null) {
+			params.put(StdConsts.VALUE, null);
+		} else if (isBasicDataType(o.getClass())) {
+			params.put(StdConsts.VALUE, o);
+		} else if (o instanceof Map) {
+			// 遍历KeySet, 不使用entrySet, 以适应某些特殊形式的Map支持
+			Set keys = ((Map) o).keySet();
+			for (Object key : keys) {
+				String s = Objects.toString(key, null);
+				if (s != null) {
+					Object val = ((Map) o).get(key);
+					params.put(s, val);
+					String underlineKey = StringCases.camelToUnderlineCase(s);
+					if (!s.equals(underlineKey)) {
+						compatible.put(underlineKey, val);
+					}
+				}
+			}
+		} else if (o.getClass() != Object.class) {
+			try {
+				BeanMap<Object> map = Beans.newBeanMap(o);
+				for (String key : map.keySet()) {
+					Object val = map.get(key);
+					params.put(key, val);
+					String underlineKey = StringCases.camelToUnderlineCase(key);
+					if (!key.equals(underlineKey)) {
+						compatible.put(underlineKey, val);
+					}
+				}
+			} catch (Exception e) {
+			}
+		} else {
+			params.put(StdConsts.VALUE, o);
+		}
+		if (!compatible.isEmpty()) {
+			for (Map.Entry<String, Object> entry : compatible.entrySet()) {
+				params.putIfAbsent(entry.getKey(), entry.getValue());
+			}
+		}
+		return params;
+	}
 }

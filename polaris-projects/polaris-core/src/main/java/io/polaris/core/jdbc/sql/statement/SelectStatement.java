@@ -568,7 +568,7 @@ public class SelectStatement<S extends SelectStatement<S>> extends BaseStatement
 	}
 
 	public S selectRaw(String... rawColumns) {
-		return select(SqlNodes.text(SqlTextParsers.resolveRefTableField(Strings.join(",", rawColumns), this)));
+		return select(SqlNodes.text(SqlTextParsers.resolveTableRef(Strings.join(",", rawColumns), this)));
 	}
 
 	public S select(SqlNode sqlNode) {

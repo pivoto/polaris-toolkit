@@ -108,7 +108,7 @@ public class OrderBySegment<O extends Segment<O>, S extends OrderBySegment<O, S>
 	}
 
 	public S rawColumn(String rawColumn) {
-		rawColumn = SqlTextParsers.resolveRefTableField(rawColumn, tableAccessible);
+		rawColumn = SqlTextParsers.resolveTableRef(rawColumn, tableAccessible);
 		this._rawColumn = rawColumn;
 		return getThis();
 	}

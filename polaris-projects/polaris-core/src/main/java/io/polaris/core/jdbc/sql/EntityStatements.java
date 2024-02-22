@@ -106,14 +106,25 @@ public class EntityStatements {
 	public static final String DEFAULT_TABLE_ALIAS = "T";
 
 	public static TableMeta getTableMeta(String entityClassName) {
-		try {
-			Class<?> type = Class.forName(entityClassName);
-			return TableMetaKit.instance().get(type);
-		} catch (ClassNotFoundException e) {
-			return null;
-		}
+		return TableMetaKit.instance().get(entityClassName);
 	}
 
+	public static TableAccessible asTableAccessible(SqlEntity sqlEntityDeclared) {
+		TableAccessible tableAccessible = null;
+		if (sqlEntityDeclared != null) {
+			Class<?>[] tables = sqlEntityDeclared.table();
+			String[] aliases = sqlEntityDeclared.alias();
+			int len = Integer.min(tables.length, aliases.length);
+			if (len > 0) {
+				TableSegment<?>[] tableSegments = new TableSegment<?>[len];
+				for (int i = 0; i < len; i++) {
+					tableSegments[i] = TableSegment.fromEntity(tables[i], aliases[i]);
+				}
+				tableAccessible = TableAccessible.of(tableSegments);
+			}
+		}
+		return tableAccessible;
+	}
 	public static java.util.function.Function<Map<String, Object>, SqlNode> buildSqlUpdateFunction(Method method) {
 		{
 			EntityInsert entityInsert = method.getAnnotation(EntityInsert.class);
@@ -191,21 +202,8 @@ public class EntityStatements {
 		return buildSqlRawFunction(method);
 	}
 
-	private static java.util.function.Function<Map<String, Object>, SqlNode> buildSqlRawFunction(Method method) {
-		SqlEntity entityDeclared = method.getAnnotation(SqlEntity.class);
-		TableAccessible tableAccessible = null;
-		if (entityDeclared != null) {
-			Class<?>[] tables = entityDeclared.table();
-			String[] aliases = entityDeclared.alias();
-			int len = Integer.min(tables.length, aliases.length);
-			if (len > 0) {
-				TableSegment<?>[] tableSegments = new TableSegment<?>[len];
-				for (int i = 0; i < len; i++) {
-					tableSegments[i] = TableSegment.fromEntity(tables[i], aliases[i]);
-				}
-				tableAccessible = TableAccessible.of(tableSegments);
-			}
-		}
+	public static java.util.function.Function<Map<String, Object>, SqlNode> buildSqlRawFunction(Method method) {
+		TableAccessible tableAccessible = asTableAccessible(method.getAnnotation(SqlEntity.class));
 
 		{
 			SqlRawSimple sqlRaw = method.getAnnotation(SqlRawSimple.class);
@@ -213,7 +211,7 @@ public class EntityStatements {
 				if (tableAccessible != null) {
 					final TableAccessible finalTableAccessible = tableAccessible;
 					return (bindings) -> {
-						String sqlText = SqlTextParsers.resolveRefTableField(Strings.join(" ", sqlRaw.value()), finalTableAccessible);
+						String sqlText = SqlTextParsers.resolveTableRef(Strings.join(" ", sqlRaw.value()), finalTableAccessible);
 						ContainerNode sql = SqlTextParsers.parse(sqlText);
 						return buildSqlRaw(sql, varName -> BindingValues.getBindingValueOrDefault(bindings, varName, null));
 					};
@@ -249,6 +247,7 @@ public class EntityStatements {
 			throw new IllegalArgumentException("缺少SQL参数：`" + BindingKeys.SQL + "`");
 		};
 	}
+
 
 	private static ContainerNode buildSqlRaw(ContainerNode sql, java.util.function.Function<String, Object> valueResolver) {
 		sql.visitSubset(node -> {
@@ -299,7 +298,7 @@ public class EntityStatements {
 					if (subset != null) {
 						itemSql = buildSqlRaw(cache, bindings, subset.toArray(new SqlRawItemModel[0]), tableAccessible);
 					} else {
-						itemSql = SqlTextParsers.parse(SqlTextParsers.resolveRefTableField(item.sqlText, tableAccessible));
+						itemSql = SqlTextParsers.parse(SqlTextParsers.resolveTableRef(item.sqlText, tableAccessible));
 					}
 					ContainerNode subSql = buildSqlRaw(itemSql, key -> BindingValues.getBindingValueOrDefault(cache, bindings, key, null));
 					subSqlList.add(subSql);
@@ -328,14 +327,14 @@ public class EntityStatements {
 				// seperator
 				int size = subSqlList.size();
 				if (size > 0) {
-					sql.addNode(SqlTextParsers.parse(SqlTextParsers.resolveRefTableField(item.open, tableAccessible)));
+					sql.addNode(SqlTextParsers.parse(SqlTextParsers.resolveTableRef(item.open, tableAccessible)));
 					for (int i = 0; i < size; i++) {
 						if (i > 0) {
-							sql.addNode(SqlTextParsers.parse(SqlTextParsers.resolveRefTableField(item.separator, tableAccessible)));
+							sql.addNode(SqlTextParsers.parse(SqlTextParsers.resolveTableRef(item.separator, tableAccessible)));
 						}
 						sql.addNode(subSqlList.get(i));
 					}
-					sql.addNode(SqlTextParsers.parse(SqlTextParsers.resolveRefTableField(item.close, tableAccessible)));
+					sql.addNode(SqlTextParsers.parse(SqlTextParsers.resolveTableRef(item.close, tableAccessible)));
 				}
 			}
 			// normal
@@ -345,7 +344,7 @@ public class EntityStatements {
 				if (subset != null) {
 					itemSql = buildSqlRaw(cache, bindings, subset.toArray(new SqlRawItemModel[0]), tableAccessible);
 				} else {
-					itemSql = SqlTextParsers.parse(SqlTextParsers.resolveRefTableField(item.sqlText, tableAccessible));
+					itemSql = SqlTextParsers.parse(SqlTextParsers.resolveTableRef(item.sqlText, tableAccessible));
 				}
 				ContainerNode subSql = buildSqlRaw(itemSql, key ->
 					BindingValues.getBindingValueOrDefault(cache, bindings, key, null)

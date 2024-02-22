@@ -53,13 +53,12 @@ public class TableEntitySegment<S extends TableEntitySegment<S>> extends TableSe
 
 	@Override
 	public String getTableAlias() {
-		//return Strings.coalesce(this.alias, this.tableMeta.getAlias());
 		return this.alias;
 	}
 
 	@Override
 	public String getAllColumnExpression(boolean quotaAlias) {
-		return getAllColumnExpression(false, false, "", "");
+		return getAllColumnExpression(false, quotaAlias, "", "");
 	}
 
 	@Override

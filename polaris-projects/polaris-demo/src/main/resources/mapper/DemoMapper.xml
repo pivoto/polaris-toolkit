@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.polaris.demo.mybatis.mapper.DemoMapper">
+	<select id="getOrgListByIds2" resultType="io.polaris.demo.mybatis.entity.DemoOrgEntity"
+					lang="io.polaris.mybatis.scripting.TableRefResolvableDriver">
+		<bind name="xEntity" value="'io.polaris.demo.mybatis.entity.DemoOrgEntity'"/>
+		select &amp;{x(${xEntity}).*} from &amp;{x(${xEntity})} where 1=1
+		<if test="ids != null and ids.length > 0">
+			and &amp;{x(${xEntity}).id} in
+			<foreach collection="ids" item="id" open="(" close=")" separator=",">
+				#{id}
+			</foreach>
+		</if>
+
+	</select>
+</mapper>

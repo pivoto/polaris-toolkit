@@ -3,6 +3,7 @@ package io.polaris.mybatis.util;
 import io.polaris.core.function.Visitable;
 import io.polaris.core.io.IO;
 import io.polaris.core.jdbc.TableMeta;
+import io.polaris.core.jdbc.TableMetaKit;
 import io.polaris.core.jdbc.sql.EntityStatements;
 import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.bean.Beans;
@@ -66,7 +67,7 @@ public class MybatisToolkit {
 
 
 	public static TableMeta getTableMeta(String entityClassName) {
-		return EntityStatements.getTableMeta(entityClassName);
+		return TableMetaKit.instance().get(entityClassName);
 	}
 
 

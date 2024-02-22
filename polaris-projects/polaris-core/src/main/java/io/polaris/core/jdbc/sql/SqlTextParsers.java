@@ -1,15 +1,5 @@
 package io.polaris.core.jdbc.sql;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Date;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-
-import io.polaris.core.consts.StdConsts;
 import io.polaris.core.consts.SymbolConsts;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.sql.node.ContainerNode;
@@ -18,9 +8,6 @@ import io.polaris.core.jdbc.sql.node.MixedNode;
 import io.polaris.core.jdbc.sql.node.TextNode;
 import io.polaris.core.jdbc.sql.statement.segment.TableAccessible;
 import io.polaris.core.jdbc.sql.statement.segment.TableSegment;
-import io.polaris.core.lang.bean.BeanMap;
-import io.polaris.core.lang.bean.Beans;
-import io.polaris.core.string.StringCases;
 import io.polaris.core.string.Strings;
 
 /**
@@ -122,22 +109,24 @@ public class SqlTextParsers {
 	 *   </li>
 	 * </ul>
 	 */
-	public static String resolveRefTableField(String sql, TableAccessible tableAccessible) {
-		if (tableAccessible == null || Strings.isBlank(sql)) {
+	public static String resolveTableRef(String sql, TableAccessible tableAccessible) {
+		if (Strings.isBlank(sql)) {
+			return sql;
+		}
+		if (tableAccessible == null) {
 			return sql;
 		}
 		ContainerNode containerNode = SqlTextParsers.parse(sql, '&', (char) -1, '{', '}');
 		containerNode.visitSubset(node -> {
 			if (node.isVarNode()) {
 				String varName = node.getVarName();
-				Deque<String> path = Beans.parseProperty(varName);
-				int size = path.size();
-				if (size > 2) {
-					throw new IllegalArgumentException("表达式错误(&{tableAlias.tableField}): " + varName);
+				String[] paths = Strings.tokenizeToArray(varName, ".");
+				if (paths.length == 0 || paths.length > 2) {
+					throw new IllegalArgumentException("实体表字段的引用表达式错误: " + varName);
 				}
-				String tableAlias = path.pollFirst();
+				String tableAlias = paths[0].trim();
 				if (Strings.isBlank(tableAlias)) {
-					throw new IllegalArgumentException("表达式错误(&{tableAlias.tableField}): " + varName);
+					throw new IllegalArgumentException("实体表字段的引用表达式错误: " + varName);
 				}
 				boolean excludeAlias = tableAlias.charAt(tableAlias.length() - 1) == '?';
 				if (excludeAlias) {
@@ -155,12 +144,114 @@ public class SqlTextParsers {
 					throw new IllegalArgumentException("表别名不存在: " + tableAlias);
 				}
 
-				String tableField = path.pollFirst();
-				if (tableField == null) {
+				String tableField = paths.length == 1 ? null : paths[1].trim();
+				if (Strings.isBlank(tableField)) {
 					TableMeta tableMeta = table.getTableMeta();
-					// 晨直接实体表，可能是子查询等
+					// 无直接实体表，可能是子查询等
 					if (tableMeta == null) {
 						node.bindVarValue(table.getTableAlias());
+					} else {
+						if (excludeAlias) {
+							node.bindVarValue(tableMeta.getTable());
+						} else {
+							node.bindVarValue(tableMeta.getTable() + " " + table.getTableAlias());
+						}
+					}
+				} else if (SymbolConsts.ASTERISK.equals(tableField)) {
+					if (excludeAlias) {
+						node.bindVarValue(Strings.join(", ", table.getAllColumnNames()));
+					} else {
+						node.bindVarValue(table.getAllColumnExpression(false));
+					}
+				} else {
+					if (excludeAlias) {
+						node.bindVarValue(table.getColumnName(tableField));
+					} else {
+						node.bindVarValue(table.getColumnExpression(tableField));
+					}
+				}
+			}
+		});
+		return containerNode.toString();
+	}
+
+
+	/**
+	 * 解析实体表与字段的引用表达式，支持格式：
+	 * <ul>
+	 *   <li>`&{tableAlias(entityClassName)}`
+	 *   </li>
+	 *   <li>`&{tableAlias(entityClassName).tableField}`
+	 *   </li>
+	 *   <li>`&{tableAlias(entityClassName)?.tableField}`
+	 *   </li>
+	 * </ul>
+	 */
+	@SuppressWarnings("AlibabaMethodTooLong")
+	public static String resolveTableRef(String sql) {
+		if (Strings.isBlank(sql)) {
+			return sql;
+		}
+		ContainerNode containerNode = SqlTextParsers.parse(sql, '&', (char) -1, '{', '}');
+		containerNode.visitSubset(node -> {
+			if (node.isVarNode()) {
+				String varName = node.getVarName();
+				int iLeftParenthesis = varName.indexOf('(');
+				if (iLeftParenthesis < 1) {
+					throw new IllegalArgumentException("实体表字段的引用表达式错误: " + varName);
+				}
+				int iRightParenthesis = varName.indexOf(')', iLeftParenthesis);
+				if (iRightParenthesis <= iLeftParenthesis + 1) {
+					throw new IllegalArgumentException("实体表字段的引用表达式错误: " + varName);
+				}
+				String tableAlias = varName.substring(0, iLeftParenthesis).trim();
+				String entityClassName = varName.substring(iLeftParenthesis + 1, iRightParenthesis).trim();
+				TableSegment<?> table;
+				try {
+					Class<?> type = Class.forName(entityClassName);
+					table = TableSegment.fromEntity(type, tableAlias);
+				} catch (ClassNotFoundException e) {
+					throw new IllegalArgumentException("实体类不存在: " + entityClassName);
+				}
+				TableMeta tableMeta = table.getTableMeta();
+				if (tableMeta == null) {
+					throw new IllegalArgumentException("实体类不存在: " + entityClassName);
+				}
+				boolean excludeAlias = false;
+				String tableField = varName.substring(iRightParenthesis + 1).trim();
+				if (!tableField.isEmpty()) {
+					int idx = 0;
+					while (idx < tableField.length()) {
+						if (Character.isWhitespace(tableField.charAt(idx))) {
+							idx++;
+							continue;
+						}
+						if (tableField.charAt(idx) == '?') {
+							excludeAlias = true;
+							idx++;
+							break;
+						} else {
+							break;
+						}
+					}
+					while (idx < tableField.length()) {
+						if (Character.isWhitespace(tableField.charAt(idx))) {
+							idx++;
+							continue;
+						}
+						if (tableField.charAt(idx) == '.') {
+							idx++;
+							break;
+						} else {
+							break;
+						}
+					}
+					tableField = tableField.substring(idx);
+				}
+
+				if (Strings.isBlank(tableField)) {
+					if (excludeAlias) {
+						node.bindVarValue(tableMeta.getTable());
 					} else {
 						node.bindVarValue(tableMeta.getTable() + " " + table.getTableAlias());
 					}
@@ -182,73 +273,4 @@ public class SqlTextParsers {
 		return containerNode.toString();
 	}
 
-	/**
-	 * 是否基本数据类型(基本类型,枚举,数组,字符串,数值,日期)
-	 *
-	 * @param clazz
-	 * @return
-	 */
-	private static boolean isBasicDataType(Class clazz) {
-		return clazz.isPrimitive()
-			|| clazz.isEnum()
-			|| clazz.isArray()
-			|| String.class == clazz
-			|| Integer.class == clazz
-			|| BigDecimal.class == clazz
-			|| Double.class == clazz
-			|| BigInteger.class == clazz
-			|| Float.class == clazz
-			|| Short.class == clazz
-			|| Byte.class == clazz
-			|| Character.class == clazz
-			|| Boolean.class == clazz
-			|| Date.class.isAssignableFrom(clazz)
-			;
-	}
-
-	public static Map<String, Object> asMap(Object o) {
-		Map<String, Object> params = new HashMap<>();
-		// 兼容小写驼峰转小写下划线
-		Map<String, Object> compatible = new HashMap<>();
-		if (o == null) {
-			params.put(StdConsts.VALUE, null);
-		} else if (isBasicDataType(o.getClass())) {
-			params.put(StdConsts.VALUE, o);
-		} else if (o instanceof Map) {
-			// 遍历KeySet, 不使用entrySet, 以适应某些特殊形式的Map支持
-			Set keys = ((Map) o).keySet();
-			for (Object key : keys) {
-				String s = Objects.toString(key, null);
-				if (s != null) {
-					Object val = ((Map) o).get(key);
-					params.put(s, val);
-					String underlineKey = StringCases.camelToUnderlineCase(s);
-					if (!s.equals(underlineKey)) {
-						compatible.put(underlineKey, val);
-					}
-				}
-			}
-		} else if (o.getClass() != Object.class) {
-			try {
-				BeanMap<Object> map = Beans.newBeanMap(o);
-				for (String key : map.keySet()) {
-					Object val = map.get(key);
-					params.put(key, val);
-					String underlineKey = StringCases.camelToUnderlineCase(key);
-					if (!key.equals(underlineKey)) {
-						compatible.put(underlineKey, val);
-					}
-				}
-			} catch (Exception e) {
-			}
-		} else {
-			params.put(StdConsts.VALUE, o);
-		}
-		if (!compatible.isEmpty()) {
-			for (Map.Entry<String, Object> entry : compatible.entrySet()) {
-				params.putIfAbsent(entry.getKey(), entry.getValue());
-			}
-		}
-		return params;
-	}
 }

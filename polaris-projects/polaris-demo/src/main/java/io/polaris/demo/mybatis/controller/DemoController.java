@@ -36,6 +36,9 @@ public class DemoController {
 			map.put("selectOrgById", mapper.selectOrgById(DemoOrgEntity.builder().id(1L).build()));
 			map.put("selectOrgList", mapper.selectOrgList(DemoOrgEntity.builder().name("org%").build()));
 			map.put("selectOrgListByAny", mapper.selectOrgListByAny(1L, "org"));
+			map.put("getOrgListByIds", mapper.getOrgListByIds(new Long[] {1L, 2L}));
+			map.put("getOrgListByIds2", mapper.getOrgListByIds2(new Long[] {1L, 2L}));
+			map.put("getOrgListByIds3", mapper.getOrgListByIds3(new Long[] {1L, 2L}));
 			Map<String, Object> param = new HashMap<>();
 			param.put("id", 1L);
 			param.put("name", "org%");

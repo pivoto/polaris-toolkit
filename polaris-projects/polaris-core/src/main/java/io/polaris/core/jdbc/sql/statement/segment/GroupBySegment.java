@@ -92,7 +92,7 @@ public class GroupBySegment<O extends Segment<O>, S extends GroupBySegment<O, S>
 
 	public S rawColumn(String rawColumn) {
 		// 解析表字段名
-		rawColumn = SqlTextParsers.resolveRefTableField(rawColumn, tableAccessible);
+		rawColumn = SqlTextParsers.resolveTableRef(rawColumn, tableAccessible);
 		this._rawColumn = rawColumn;
 		return getThis();
 	}

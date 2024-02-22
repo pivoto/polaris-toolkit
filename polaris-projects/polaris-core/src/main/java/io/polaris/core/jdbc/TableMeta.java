@@ -29,7 +29,7 @@ public class TableMeta {
 		this.schema = schema;
 		this.catalog = catalog;
 		this.table = table;
-		this.alias = alias;
+		this.alias = alias == null ? "" : alias;
 		this.columns = columns;
 		Map<String, ColumnMeta> pkColumns = new HashMap<>();
 		columns.forEach((key, value) -> {
