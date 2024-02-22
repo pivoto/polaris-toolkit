@@ -14,7 +14,10 @@
 
   代码生成器工具
 
-## maven 依赖
+## 依赖引入
+
+### maven
+
 - 依赖核心库
 ```xml
 <dependency>
