@@ -1,23 +1,50 @@
 # polaris-toolkit
 
+一个纯净的Java工具类库，提供一套标准SDK库与三方依赖的扩展库，力求功能丰富，不断优化和借鉴吸收各类优秀开源实现。
+
 - polaris-core
 
-  常用工具库，只存在Slf4j日志、JSR标准依赖，无更多的三方依赖，保待纯净
+  常用核心工具库，只存在Slf4j日志、JSR标准依赖，无更多的三方依赖，以保待纯净
 
 - polaris-extra-*
 
-  扩展工具库，针对特定用途或功能的扩展工具，有具体的功能依赖
+  扩展工具库，针对特定用途或功能的扩展工具，有具体的三方库依赖
 
 - polaris-builder
 
   代码生成器工具
 
+## maven 依赖
+- 依赖核心库
+```xml
+<dependency>
+  <groupId>cn.pivoto.polaris.toolkit</groupId>
+  <artifactId>polaris-core</artifactId>
+  <version>${polaris-version}</version>
+</dependency>
+```
+- 依赖所有库
+```xml
+<dependency>
+  <groupId>cn.pivoto.polaris.toolkit</groupId>
+  <artifactId>polaris-all</artifactId>
+  <type>pom</type>
+  <version>${polaris-version}</version>
+</dependency>
+```
 
 ## 版本变更说明
 
 - [计划](TODO.md)
 
 
+### 3.1.23
+- 移除DecoderException类
+- 优化部分工具类的命名与注释文字
+- 修改SQL引用表达式解析方法
+- 添加Mybatis的LanguageDriver实现TableRefResolvableDriver
+- 优化Mybatis的LanguageDriver实现ProviderSqlSourceDriver
+- 其他代码优化与测试
 
 ### 3.1.22
 - 添加工具函数接口`Callable*`、`Executable*`
@@ -154,5 +181,5 @@
 ### 3.0.1
 - 优化工程结构，分离bom工程，开发工具库独立版本
 
-### 2.x
-- 开发并提供工具库过渡版本
+### 1.x、2.x
+- 已弃用，工具库历史过渡版本
