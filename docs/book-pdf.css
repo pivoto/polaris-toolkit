@@ -1,0 +1,20 @@
+.book-summary ul.summary li.header {
+		text-transform: none;
+}
+
+a.gitbook-link[href^="https://www.gitbook.com"] {
+		display: none !important;
+}
+
+footer.page-footer {
+		display: none !important;
+}
+
+#anchors-navbar, #goTop {
+		display: none !important;
+}
+
+#anchor-navigation-ex-navbar, #anchorNavigationExGoTop {
+		display: none !important;
+}
+

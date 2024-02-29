@@ -18,7 +18,7 @@
 
 ### maven
 
-- 依赖核心库
+- 只依赖核心库
 ```xml
 <dependency>
   <groupId>cn.pivoto.polaris.toolkit</groupId>
@@ -26,7 +26,7 @@
   <version>${polaris-version}</version>
 </dependency>
 ```
-- 依赖所有库
+- 依赖通用库
 ```xml
 <dependency>
   <groupId>cn.pivoto.polaris.toolkit</groupId>

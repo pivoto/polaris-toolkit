@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "gitbook-plugin-advance-blockquote": "^1.0.2",
+    "gitbook-plugin-embed-file": "^3.2.9"
+  }
+}

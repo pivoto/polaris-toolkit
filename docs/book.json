@@ -1,0 +1,82 @@
+{
+  "title": "研发框架指导手册",
+  "author": "Qt",
+  "description": "",
+  "language": "zh-hans",
+  "gitbook": "3.2.3",
+  "root": ".",
+  "styles": {
+    "website": "book.css",
+    "ebook": "book-pdf.css",
+    "pdf": "book-pdf.css",
+    "mobi": "book-pdf.css",
+    "epub": "book-pdf.css"
+  },
+  "structure": {
+    "readme": "README.md",
+    "summary": "SUMMARY.md"
+  },
+  "links": {
+    "gitbook": false,
+    "sharing": {
+      "google": false,
+      "facebook": false,
+      "twitter": false,
+      "all": false
+    }
+  },
+  "plugins": [
+    "-sharing",
+    "-lunr",
+    "-search",
+    "advance-blockquote",
+    "search-plus",
+    "navigator",
+    "prism",
+    "prism-themes",
+    "anchors",
+    "ace",
+    "emphasize",
+    "katex",
+    "splitter",
+    "chapter-fold",
+    "expandable-chapters-small",
+    "code",
+    "embed-file"
+  ],
+  "pluginsConfig": {
+    "asciidoc-include": {
+      "syntax": "asciidoc"
+    },
+    "flexible-alerts": {
+      "style": "flat"
+    },
+    "advance-blockquote": {
+      "style": "callout",
+      "comment": {
+        "label": "Comment",
+        "icon": "fa fa-comments",
+        "className": "info"
+      }
+    },
+    "embed-file": {
+    },
+    "theme-default": {
+      "showLevel": true
+    },
+    "prism": {
+      "css": [
+        "prism-themes/themes/prism-base16-ateliersulphurpool.light.css"
+      ]
+    },
+    "sectionx": {
+      "tag": "b"
+    }
+  },
+  "pdf": {
+    "toc": true,
+    "pageNumbers": true,
+    "fontSize": 16,
+    "paperSize": "a4"
+  }
+}

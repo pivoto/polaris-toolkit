@@ -1,0 +1,10 @@
+.book-summary ul.summary li.header {
+    text-transform: none;
+}
+.gitbook-link {
+    display: none !important;
+}
+
+body .book.font-family-0{
+	font-family: "Courier New", Courier, Monospaced !important;
+}
