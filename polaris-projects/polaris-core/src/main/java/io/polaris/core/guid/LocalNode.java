@@ -54,7 +54,7 @@ public class LocalNode {
 				addr = address[address.length - 1];
 			}else{
 				String[] arr = firstIp.split("\\.");
-				addr = Byte.parseByte(arr[arr.length - 1]);
+				addr = Integer.parseInt(arr[arr.length - 1]);
 			}
 		} catch (Throwable e) {
 			System.err.println("cannot read InetAddress!");
