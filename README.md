@@ -41,6 +41,9 @@
 - [计划](TODO.md)
 
 
+### 3.1.24
+- 修复LocalNode获取IP节点错误
+
 ### 3.1.23
 - 移除DecoderException类
 - 优化部分工具类的命名与注释文字
