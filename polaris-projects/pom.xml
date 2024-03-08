@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>cn.pivoto.polaris.toolkit</groupId>
 		<artifactId>polaris-toolkit</artifactId>
-		<version>3.1.24</version>
+		<version>3.1.25-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
@@ -156,4 +156,13 @@
 			</plugin>
 		</plugins>
 	</reporting>
+
+	<!--<profiles>
+		<profile>
+			<id>withDemo</id>
+			<modules>
+				<module>polaris-demo</module>
+			</modules>
+		</profile>
+	</profiles>-->
 </project>
