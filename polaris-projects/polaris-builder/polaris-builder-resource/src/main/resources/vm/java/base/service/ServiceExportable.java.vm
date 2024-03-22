@@ -32,11 +32,11 @@ import io.polaris.core.jdbc.sql.query.Pageable;
 import io.polaris.mybatis.util.MybatisToolkit;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.polaris.bf.core.fs.domain.ExcelFileDto;
-import io.polaris.bf.core.fs.domain.FileDto;
-import io.polaris.bf.core.fs.excel.ExcelConfig;
-import io.polaris.jtc.brm.session.AppSessions;
-import io.polaris.jtc.brm.cache.BrmCaches;
+import com.jcfc.bf.core.fs.domain.ExcelFileDto;
+import com.jcfc.bf.core.fs.domain.FileDto;
+import com.jcfc.bf.core.fs.excel.ExcelConfig;
+import com.jcfc.framework.jtc.brm.session.AppSessions;
+import com.jcfc.framework.jtc.brm.cache.BrmCaches;
 
 /**
  * $!{table.name}

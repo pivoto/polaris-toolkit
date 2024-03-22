@@ -89,42 +89,42 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 	private ${col.javaTypeSimpleName} ${col.javaVariableName};
 #end
 
-	#if(!$table.containsColumnVariableName('crtUser'))
-		#if($table.containsColumnVariableName('crtUserName'))
-		@Column(ignored = true)
-		private Long crtUser;
-		#end
+#if(!$table.containsColumnVariableName('crtUser'))
+	#if($table.containsColumnVariableName('crtUserName'))
+	@Column(ignored = true)
+	private Long crtUser;
 	#end
-	#if(!$table.containsColumnVariableName('crtUserName'))
-		#if($table.containsColumnVariableName('crtUser'))
-		@Column(ignored = true)
-		private String crtUserName;
-		#end
+#end
+#if(!$table.containsColumnVariableName('crtUserName'))
+	#if($table.containsColumnVariableName('crtUser'))
+	@Column(ignored = true)
+	private String crtUserName;
 	#end
-	#if(!$table.containsColumnVariableName('crtUserRealName'))
-		#if($table.containsColumnVariableName('crtUser') || $table.containsColumnVariableName('crtUserName'))
-		@Column(ignored = true)
-		private String crtUserRealName;
-		#end
+#end
+#if(!$table.containsColumnVariableName('crtUserRealName'))
+	#if($table.containsColumnVariableName('crtUser') || $table.containsColumnVariableName('crtUserName'))
+	@Column(ignored = true)
+	private String crtUserRealName;
 	#end
-	#if(!$table.containsColumnVariableName('uptUser'))
-		#if($table.containsColumnVariableName('uptUserName'))
-		@Column(ignored = true)
-		private Long uptUser;
-		#end
+#end
+#if(!$table.containsColumnVariableName('uptUser'))
+	#if($table.containsColumnVariableName('uptUserName'))
+	@Column(ignored = true)
+	private Long uptUser;
 	#end
-	#if(!$table.containsColumnVariableName('uptUserName'))
-		#if($table.containsColumnVariableName('uptUser'))
-		@Column(ignored = true)
-		private String uptUserName;
-		#end
+#end
+#if(!$table.containsColumnVariableName('uptUserName'))
+	#if($table.containsColumnVariableName('uptUser'))
+	@Column(ignored = true)
+	private String uptUserName;
 	#end
-	#if(!$table.containsColumnVariableName('uptUserRealName'))
-		#if($table.containsColumnVariableName('uptUser') || $table.containsColumnVariableName('uptUserName'))
-		@Column(ignored = true)
-		private String uptUserRealName;
-		#end
+#end
+#if(!$table.containsColumnVariableName('uptUserRealName'))
+	#if($table.containsColumnVariableName('uptUser') || $table.containsColumnVariableName('uptUserName'))
+	@Column(ignored = true)
+	private String uptUserRealName;
 	#end
+#end
 
 	/** 查询SQL的ORDER BY子句内容(各排序字段) */
 	@Schema(hidden = true)
