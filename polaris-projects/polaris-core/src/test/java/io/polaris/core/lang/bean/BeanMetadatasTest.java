@@ -25,11 +25,12 @@ class BeanMetadatasTest {
 	}
 
 	@Test
-	void test03() throws InstantiationException, IllegalAccessException {
+	void test03() throws InstantiationException, IllegalAccessException, IOException {
 		Class<BeanMetadata> c = BeanMetadataBuilder.buildMetadataClassWithInnerTypeRef(Bean01.class);
 		BeanMetadata metadata = c.newInstance();
 		TestConsole.println(metadata.types());
 		TestConsole.println(metadata.getters());
 		TestConsole.println(metadata.setters());
+		AsmPrint.print(c, false);
 	}
 }

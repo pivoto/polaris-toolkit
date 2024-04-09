@@ -1,14 +1,15 @@
 package io.polaris.core.lang.copier;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+
 import io.polaris.core.lang.bean.BeanMap;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
-import io.polaris.core.map.ListMultiMap;
-
-import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.List;
+import io.polaris.core.map.SetMultiMap;
+import io.polaris.core.tuple.Tuple2;
 
 /**
  * @author Qt
@@ -36,77 +37,30 @@ public class BeanToBeanCopier<S, T> extends BaseCopier<S, T> {
 		}
 
 		try {
-			BeanMap<S> sourceMap = Beans.newBeanMap(source);
-			BeanMap<T> targetMap = Beans.newBeanMap(target, actualEditable);
-			final ListMultiMap<String, String> rel;
-			if (options.isIgnoreCase()) {
-				rel = new ListMultiMap<>();
-				for (String key : targetMap.keySet()) {
-					rel.putOne(key.toUpperCase(), key);
-				}
-			} else {
-				rel = null;
-			}
+			final BeanMap<S> sourceMap = Beans.newBeanMap(source);
+			final BeanMap<T> targetMap = Beans.newBeanMap(target, actualEditable);
+			final SetMultiMap<String, String> candidates = createTargetBeanMapCandidateKeys(targetMap);
+			final List<Tuple2<String, Object>> sourceEntries = new ArrayList<>(sourceMap.size());
 
-			sourceMap.forEach((name, value) -> {
-				try {
-					name = super.editKey(name);
-					if (name == null) {
-						return;
-					}
-					if (super.isIgnore(name)) {
-						return;
-					}
-					if (value == null && options.isIgnoreNull()) {
-						return;
-					}
-					List<String> list;
-					if (rel != null) {
-						list = rel.get(name.toUpperCase());
-						if (list == null) {
-							return;
-						}
-					} else {
-						list = Collections.singletonList(name);
-					}
-					for (String key : list) {
-						Type type = targetMap.getType(key);
-						if (type == null) {
-							// 无此属性
-							continue;
-						}
-						if (!super.filter(name, type, value)) {
-							continue;
-						}
-						if (!options.isOverride()) {
-							Object orig = targetMap.get(key);
-							if (orig != null) {
-								continue;
-							}
-						}
-						Object newValue = super.convert(type, value);
-						newValue = super.editValue(name, newValue);
-						if (newValue == null && options.isIgnoreNull()) {
-							continue;
-						}
-						targetMap.put(key, newValue);
-					}
-				} catch (Exception e) {
-					if (!options.isIgnoreError()) {
-						throw new UnsupportedOperationException(e);
-					} else {
-						log.warn("对象复制失败：{}",  e.getMessage());
-						if (log.isDebugEnabled()) {
-							log.debug(e.getMessage(), e);
-						}
-					}
+			sourceMap.forEach(wrapConsumer((sourceKey, value) -> {
+				sourceKey = super.editKey(sourceKey);
+				if (sourceKey == null) {
+					return;
 				}
-			});
+				if (super.isIgnore(sourceKey)) {
+					return;
+				}
+				if (value == null && options.isIgnoreNull()) {
+					return;
+				}
+				sourceEntries.add(Tuple2.of(sourceKey, value));
+			}));
+			setTargetValues(sourceEntries, targetMap, candidates);
 		} catch (Exception e) {
 			if (!options.isIgnoreError()) {
 				throw new UnsupportedOperationException(e);
 			} else {
-				log.warn("对象复制失败：{}",  e.getMessage());
+				log.warn("对象复制失败：{}", e.getMessage());
 				if (log.isDebugEnabled()) {
 					log.debug(e.getMessage(), e);
 				}
@@ -115,4 +69,5 @@ public class BeanToBeanCopier<S, T> extends BaseCopier<S, T> {
 
 		return this.target;
 	}
+
 }

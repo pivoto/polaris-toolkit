@@ -1,13 +1,13 @@
 package io.polaris.core.lang.copier;
 
+import java.lang.reflect.Type;
+import java.util.Map;
+
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.bean.BeanMap;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
-
-import java.lang.reflect.Type;
-import java.util.Map;
 
 /**
  * @author Qt
@@ -36,54 +36,43 @@ public class BeanToMapCopier<T> extends BaseCopier<T, Map> {
 		}
 		try {
 			BeanMap<T> sourceMap = Beans.newBeanMap(source, actualEditable);
-			sourceMap.forEach((name, value) -> {
-				try {
-					name = super.editKey(name);
-					if (name == null) {
+			sourceMap.forEach(wrapConsumer((sourceKey, value) -> {
+				sourceKey = super.editKey(sourceKey);
+				if (sourceKey == null) {
+					return;
+				}
+				if (super.isIgnore(sourceKey)) {
+					return;
+				}
+				if (value == null && options.isIgnoreNull()) {
+					return;
+				}
+				Type type = sourceMap.getType(sourceKey);
+				if (!super.filter(sourceKey, type, value)) {
+					return;
+				}
+				JavaType<Object> javaType = JavaType.of(this.targetType);
+				Object targetKey = super.convert(javaType.getActualType(Map.class, 0), sourceKey);
+				if (!options.isOverride()) {
+					Object orig = target.get(sourceKey);
+					if (orig != null) {
 						return;
-					}
-					if (super.isIgnore(name)) {
-						return;
-					}
-					if (value == null && options.isIgnoreNull()) {
-						return;
-					}
-					Type type = sourceMap.getType(name);
-					if (!super.filter(name, type, value)) {
-						return;
-					}
-					JavaType<Object> javaType = JavaType.of(this.targetType);
-					Object key = super.convert(javaType.getActualType(Map.class,0), name);
-					if (!options.isOverride()) {
-						Object orig = target.get(name);
-						if (orig != null) {
-							return;
-						}
-					}
-					value = super.convert(javaType.getActualType(Map.class,1), value);
-					value = super.editValue(name, value);
-					if (value == null && options.isIgnoreNull()) {
-						return;
-					}
-
-					target.put(key, value);
-				} catch (Exception e) {
-					if (!options.isIgnoreError()) {
-						throw new UnsupportedOperationException(e);
-					} else {
-						log.warn("对象复制失败：{}",  e.getMessage());
-						if (log.isDebugEnabled()) {
-							log.debug(e.getMessage(), e);
-						}
 					}
 				}
-			});
+				value = super.convert(javaType.getActualType(Map.class, 1), value);
+				value = super.editValue(sourceKey, value);
+				if (value == null && options.isIgnoreNull()) {
+					return;
+				}
+
+				target.put(targetKey, value);
+			}));
 
 		} catch (Exception e) {
 			if (!options.isIgnoreError()) {
 				throw new UnsupportedOperationException(e);
 			} else {
-				log.warn("对象复制失败：{}",  e.getMessage());
+				log.warn("对象复制失败：{}", e.getMessage());
 				if (log.isDebugEnabled()) {
 					log.debug(e.getMessage(), e);
 				}

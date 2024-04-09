@@ -1,10 +1,5 @@
 package io.polaris.core.lang.copier;
 
-import io.polaris.core.collection.Iterables;
-import io.polaris.core.converter.Converters;
-import io.polaris.core.function.TernaryFunction;
-import lombok.Getter;
-
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
 import java.lang.reflect.Type;
@@ -13,6 +8,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+
+import io.polaris.core.collection.Iterables;
+import io.polaris.core.converter.Converters;
+import io.polaris.core.function.TernaryFunction;
+import lombok.Getter;
 
 /**
  * @author Qt
@@ -31,6 +31,12 @@ public class CopyOptions {
 	private boolean ignoreError = true;
 	/** 是否忽略属性大小写 */
 	private boolean ignoreCase = false;
+	/** 是否忽略JavaBean属性的首字母大小写处理模式，可应对lombok对双大写字母前缀字段的错误处理 */
+	private boolean ignoreCapitalize = false;
+	/** 是否支持属性下划线转驼峰 */
+	private boolean underlineToCamelCase = false;
+	/** 是否支持属性驼峰转下划线 */
+	private boolean camelToUnderlineCase = false;
 	/** 是否覆盖目标值，如果不覆盖，会先读取目标对象的值，非null则写，否则忽略。如果覆盖，则不判断直接写 */
 	private boolean override = true;
 	/** 属性属性编辑器，用于自定义属性转换规则，例如驼峰转下划线等 */
@@ -119,6 +125,39 @@ public class CopyOptions {
 	/** 忽略属性大小写 */
 	public CopyOptions ignoreCase() {
 		return ignoreCase(true);
+	}
+
+	/** 是否忽略JavaBean属性的首字母大小写处理模式，可应对lombok对双大写字母前缀字段的错误处理 */
+	public CopyOptions ignoreCapitalize(boolean ignoreCapitalize) {
+		this.ignoreCapitalize = ignoreCapitalize;
+		return this;
+	}
+
+	/** 忽略JavaBean属性的首字母大小写处理模式，可应对lombok对双大写字母前缀字段的错误处理 */
+	public CopyOptions ignoreCapitalize() {
+		return ignoreCapitalize(true);
+	}
+
+	/** 是否支持属性下划线转驼峰 */
+	public CopyOptions underlineToCamelCase(boolean underlineToCamelCase) {
+		this.underlineToCamelCase = underlineToCamelCase;
+		return this;
+	}
+
+	/** 支持属性下划线转驼峰 */
+	public CopyOptions underlineToCamelCase() {
+		return underlineToCamelCase(true);
+	}
+
+	/** 是否支持属性驼峰转下划线 */
+	public CopyOptions camelToUnderlineCase(boolean camelToUnderlineCase) {
+		this.camelToUnderlineCase = camelToUnderlineCase;
+		return this;
+	}
+
+	/** 支持属性驼峰转下划线 */
+	public CopyOptions camelToUnderlineCase() {
+		return camelToUnderlineCase(true);
 	}
 
 	/** 属性名映射 */
