@@ -64,7 +64,7 @@
 		<maven.jetty.version>9.2.2.v20140723</maven.jetty.version>
 		<maven.tomcat.version>2.2</maven.tomcat.version>
 
-		<maven.lombok.version>1.18.20</maven.lombok.version>
+		<maven.lombok.version>1.18.32</maven.lombok.version>
 		<maven.groovy.version>2.5.22</maven.groovy.version>
 
 		<dependency.spring-boot.version>2.3.10.RELEASE</dependency.spring-boot.version>
