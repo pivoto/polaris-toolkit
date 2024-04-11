@@ -1,5 +1,7 @@
 package io.polaris.core.asm.reflect;
 
+import io.polaris.core.asm.AsmUtils;
+import io.polaris.core.collection.Iterables;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -8,6 +10,7 @@ import org.objectweb.asm.Type;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -17,6 +20,7 @@ import static org.objectweb.asm.Opcodes.*;
  * @since 1.8,  Aug 04, 2023
  */
 public abstract class FieldAccess {
+	private static final AccessPool<Class, FieldAccess> pool = new AccessPool<>();
 	private String[] fieldNames;
 	private Class[] fieldTypes;
 	private Field[] fields;
@@ -48,28 +52,24 @@ public abstract class FieldAccess {
 		return get(instance, getIndex(fieldName));
 	}
 
-	public String[] getFieldNames() {
-		return fieldNames;
+	public List<String> getFieldNames() {
+		return Iterables.asList(fieldNames) ;
 	}
 
-	public Class[] getFieldTypes() {
-		return fieldTypes;
+	public List<Class> getFieldTypes() {
+		return Iterables.asList(fieldTypes);
 	}
 
-	public java.lang.reflect.Type[] getFieldGenericTypes() {
-		return fieldGenericTypes;
+	public List<java.lang.reflect.Type> getFieldGenericTypes() {
+		return Iterables.asList(fieldGenericTypes);
 	}
 
 	public int getFieldCount() {
 		return fieldTypes.length;
 	}
 
-	public Field[] getFields() {
-		return fields;
-	}
-
-	public void setFields(Field[] fields) {
-		this.fields = fields;
+	public List<Field> getFields() {
+		return Iterables.asList(fields);
 	}
 
 	abstract public void set(Object instance, int fieldIndex, Object value);
@@ -110,15 +110,19 @@ public abstract class FieldAccess {
 
 	abstract public float getFloat(Object instance, int fieldIndex);
 
+	public static FieldAccess get(Class type){
+		return pool.computeIfAbsent(type, FieldAccess::create);
+	}
+
 	/** @param type Must not be the Object class, an interface, a primitive type, or void. */
-	static public FieldAccess get(Class type) {
+	public static FieldAccess create(Class type) {
 		if (type.getSuperclass() == null) {
 			throw new IllegalArgumentException("类型不能为Object、interface、原始类型或void");
 		}
 
 		ArrayList<Field> fields = new ArrayList<Field>();
 		Class nextClass = type;
-		while (nextClass != Object.class) {
+		while (nextClass != null && nextClass != Object.class) {
 			Field[] declaredFields = nextClass.getDeclaredFields();
 			for (int i = 0, n = declaredFields.length; i < n; i++) {
 				Field field = declaredFields[i];
@@ -228,46 +232,7 @@ public abstract class FieldAccess {
 				mv.visitTypeInsn(CHECKCAST, classNameInternal);
 				mv.visitVarInsn(ALOAD, 3);
 
-				switch (fieldType.getSort()) {
-					case Type.BOOLEAN:
-						mv.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
-						mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z");
-						break;
-					case Type.BYTE:
-						mv.visitTypeInsn(CHECKCAST, "java/lang/Byte");
-						mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Byte", "byteValue", "()B");
-						break;
-					case Type.CHAR:
-						mv.visitTypeInsn(CHECKCAST, "java/lang/Character");
-						mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Character", "charValue", "()C");
-						break;
-					case Type.SHORT:
-						mv.visitTypeInsn(CHECKCAST, "java/lang/Short");
-						mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Short", "shortValue", "()S");
-						break;
-					case Type.INT:
-						mv.visitTypeInsn(CHECKCAST, "java/lang/Integer");
-						mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I");
-						break;
-					case Type.FLOAT:
-						mv.visitTypeInsn(CHECKCAST, "java/lang/Float");
-						mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Float", "floatValue", "()F");
-						break;
-					case Type.LONG:
-						mv.visitTypeInsn(CHECKCAST, "java/lang/Long");
-						mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Long", "longValue", "()J");
-						break;
-					case Type.DOUBLE:
-						mv.visitTypeInsn(CHECKCAST, "java/lang/Double");
-						mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Double", "doubleValue", "()D");
-						break;
-					case Type.ARRAY:
-						mv.visitTypeInsn(CHECKCAST, fieldType.getDescriptor());
-						break;
-					case Type.OBJECT:
-						mv.visitTypeInsn(CHECKCAST, fieldType.getInternalName());
-						break;
-				}
+				AsmUtils.autoUnBoxing(mv, fieldType);
 
 				mv.visitFieldInsn(PUTFIELD, field.getDeclaringClass().getName().replace('.', '/'), field.getName(),
 					fieldType.getDescriptor());
@@ -308,32 +273,7 @@ public abstract class FieldAccess {
 					Type.getDescriptor(field.getType()));
 
 				Type fieldType = Type.getType(field.getType());
-				switch (fieldType.getSort()) {
-					case Type.BOOLEAN:
-						mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;");
-						break;
-					case Type.BYTE:
-						mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;");
-						break;
-					case Type.CHAR:
-						mv.visitMethodInsn(INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;");
-						break;
-					case Type.SHORT:
-						mv.visitMethodInsn(INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;");
-						break;
-					case Type.INT:
-						mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
-						break;
-					case Type.FLOAT:
-						mv.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;");
-						break;
-					case Type.LONG:
-						mv.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;");
-						break;
-					case Type.DOUBLE:
-						mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;");
-						break;
-				}
+				AsmUtils.autoBoxing(mv, fieldType);
 
 				mv.visitInsn(ARETURN);
 			}

@@ -14,6 +14,8 @@ import static org.objectweb.asm.Opcodes.*;
  * @since 1.8,  Aug 04, 2023
  */
 public abstract class ConstructorAccess<T> {
+
+	private static final AccessPool<Class, ConstructorAccess> pool = new AccessPool<>();
 	/** 是否非静态成员内部类 */
 	private boolean isNonStaticMemberClass;
 	/**
@@ -33,7 +35,11 @@ public abstract class ConstructorAccess<T> {
 	 */
 	public abstract T newInstance(Object enclosingInstance);
 
-	static public <T> ConstructorAccess<T> get(Class<T> type) {
+	@SuppressWarnings("unchecked")
+	public static <T> ConstructorAccess<T> get(Class<T> type) {
+		return pool.computeIfAbsent(type, ConstructorAccess::create);
+	}
+	public static <T> ConstructorAccess<T> create(Class<T> type) {
 		Class enclosingType = type.getEnclosingClass();
 
 		boolean isNonStaticMemberClass = enclosingType != null && type.isMemberClass() && !Modifier.isStatic(type.getModifiers());

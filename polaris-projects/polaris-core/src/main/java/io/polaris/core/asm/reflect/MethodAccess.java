@@ -1,13 +1,38 @@
 package io.polaris.core.asm.reflect;
 
-import org.objectweb.asm.*;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-import static org.objectweb.asm.Opcodes.*;
+import io.polaris.core.asm.AsmUtils;
+import io.polaris.core.collection.Iterables;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+
+import static org.objectweb.asm.Opcodes.AALOAD;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.ACC_SUPER;
+import static org.objectweb.asm.Opcodes.ACC_VARARGS;
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ARETURN;
+import static org.objectweb.asm.Opcodes.ASTORE;
+import static org.objectweb.asm.Opcodes.ATHROW;
+import static org.objectweb.asm.Opcodes.BIPUSH;
+import static org.objectweb.asm.Opcodes.CHECKCAST;
+import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.ILOAD;
+import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
+import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.objectweb.asm.Opcodes.NEW;
+import static org.objectweb.asm.Opcodes.RETURN;
+import static org.objectweb.asm.Opcodes.V1_8;
 
 /**
  * @author Qt
@@ -15,6 +40,7 @@ import static org.objectweb.asm.Opcodes.*;
  * @since 1.8,  Aug 04, 2023
  */
 public abstract class MethodAccess {
+	private static final AccessPool<Class, MethodAccess> pool = new AccessPool<>();
 	private String[] methodNames;
 	private Class[][] parameterTypes;
 	private Class[] returnTypes;
@@ -66,24 +92,28 @@ public abstract class MethodAccess {
 			"Unable to find non-private method: " + methodName + " with " + paramsCount + " params.");
 	}
 
-	public String[] getMethodNames() {
-		return methodNames;
+	public List<String> getMethodNames() {
+		return Iterables.asList(methodNames);
 	}
 
-	public Class[][] getParameterTypes() {
-		return parameterTypes;
+	public List<Class[]> getParameterTypes() {
+		return Iterables.asList(parameterTypes);
 	}
 
-	public java.lang.reflect.Type[][] getGenericParameterTypes() {
-		return genericParameterTypes;
+	public List<java.lang.reflect.Type[]> getGenericParameterTypes() {
+		return Iterables.asList(genericParameterTypes);
 	}
 
-	public Class[] getReturnTypes() {
-		return returnTypes;
+	public List<Class> getReturnTypes() {
+		return Iterables.asList(returnTypes);
 	}
 
-	public java.lang.reflect.Type[] getGenericReturnTypes() {
-		return genericReturnTypes;
+	public List<java.lang.reflect.Type> getGenericReturnTypes() {
+		return Iterables.asList(genericReturnTypes);
+	}
+
+	public static MethodAccess get(Class type) {
+		return pool.computeIfAbsent(type, MethodAccess::create);
 	}
 
 	/**
@@ -91,7 +121,7 @@ public abstract class MethodAccess {
 	 *
 	 * @param type Must not be a primitive type, or void.
 	 */
-	public static MethodAccess get(Class type) {
+	public static MethodAccess create(Class type) {
 		boolean isInterface = type.isInterface();
 		if (!isInterface && type.getSuperclass() == null && type != Object.class) {
 			throw new IllegalArgumentException("不支持基本数据类型或void类型");
@@ -100,7 +130,7 @@ public abstract class MethodAccess {
 		ArrayList<Method> methods = new ArrayList<Method>();
 		if (!isInterface) {
 			Class nextClass = type;
-			while (nextClass != Object.class) {
+			while (nextClass != null && nextClass != Object.class) {
 				addDeclaredMethodsToList(nextClass, methods);
 				nextClass = nextClass.getSuperclass();
 			}
@@ -185,46 +215,8 @@ public abstract class MethodAccess {
 								mv.visitIntInsn(BIPUSH, paramIndex);
 								mv.visitInsn(AALOAD);
 								Type paramType = Type.getType(paramTypes[paramIndex]);
-								switch (paramType.getSort()) {
-									case Type.BOOLEAN:
-										mv.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
-										mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z");
-										break;
-									case Type.BYTE:
-										mv.visitTypeInsn(CHECKCAST, "java/lang/Byte");
-										mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Byte", "byteValue", "()B");
-										break;
-									case Type.CHAR:
-										mv.visitTypeInsn(CHECKCAST, "java/lang/Character");
-										mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Character", "charValue", "()C");
-										break;
-									case Type.SHORT:
-										mv.visitTypeInsn(CHECKCAST, "java/lang/Short");
-										mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Short", "shortValue", "()S");
-										break;
-									case Type.INT:
-										mv.visitTypeInsn(CHECKCAST, "java/lang/Integer");
-										mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I");
-										break;
-									case Type.FLOAT:
-										mv.visitTypeInsn(CHECKCAST, "java/lang/Float");
-										mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Float", "floatValue", "()F");
-										break;
-									case Type.LONG:
-										mv.visitTypeInsn(CHECKCAST, "java/lang/Long");
-										mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Long", "longValue", "()J");
-										break;
-									case Type.DOUBLE:
-										mv.visitTypeInsn(CHECKCAST, "java/lang/Double");
-										mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Double", "doubleValue", "()D");
-										break;
-									case Type.ARRAY:
-										mv.visitTypeInsn(CHECKCAST, paramType.getDescriptor());
-										break;
-									case Type.OBJECT:
-										mv.visitTypeInsn(CHECKCAST, paramType.getInternalName());
-										break;
-								}
+								AsmUtils.autoUnBoxing(mv, paramType);
+
 								buffer.append(paramType.getDescriptor());
 							}
 
@@ -240,36 +232,7 @@ public abstract class MethodAccess {
 							}
 							mv.visitMethodInsn(invoke, classNameInternal, methodNames[i], buffer.toString());
 
-							switch (Type.getType(returnType).getSort()) {
-								case Type.VOID:
-									mv.visitInsn(ACONST_NULL);
-									break;
-								case Type.BOOLEAN:
-									mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;");
-									break;
-								case Type.BYTE:
-									mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;");
-									break;
-								case Type.CHAR:
-									mv.visitMethodInsn(INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;");
-									break;
-								case Type.SHORT:
-									mv.visitMethodInsn(INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;");
-									break;
-								case Type.INT:
-									mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
-									break;
-								case Type.FLOAT:
-									mv.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;");
-									break;
-								case Type.LONG:
-									mv.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;");
-									break;
-								case Type.DOUBLE:
-									mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;");
-									break;
-							}
-
+							AsmUtils.autoBoxingForReturn(mv, Type.getType(returnType));
 							mv.visitInsn(ARETURN);
 						}
 

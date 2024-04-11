@@ -1,6 +1,7 @@
 package io.polaris.core.compiler;
 
 
+import io.polaris.core.io.IO;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
 import io.polaris.core.string.Strings;
@@ -24,7 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class MemoryClassLoader extends URLClassLoader {
 	private static final ILogger log = ILoggers.of(MemoryClassLoader.class);
-//	private static final String memoryClassBytesCacheDir = System.getProperty("java.memory.bytecode.tmpdir");
+	private static final String classBytesCacheDir;
+	private static final boolean classBytesCacheEnabled;
 	private final Map<String, MemoryJavaFileObject> classes = new ConcurrentHashMap<>();
 	private final String classPath;
 	private final Set<String> classPaths = new LinkedHashSet<>();
@@ -39,6 +41,16 @@ public class MemoryClassLoader extends URLClassLoader {
 					(PrivilegedAction<MemoryClassLoader>) () -> new MemoryClassLoader(loader)
 				)
 			);
+		}
+	}
+	static{
+		String tmpdir = System.getProperty("java.memory.bytecode.tmpdir");
+		if (Strings.isNotBlank(tmpdir)){
+			classBytesCacheDir = tmpdir.trim();
+			classBytesCacheEnabled = true;
+		}else{
+			classBytesCacheDir = null;
+			classBytesCacheEnabled = false;
 		}
 	}
 
@@ -64,21 +76,17 @@ public class MemoryClassLoader extends URLClassLoader {
 		return Collections.unmodifiableCollection(classes.values());
 	}
 
-//	public static void writeMemoryClassBytesCacheFile(String className, byte[] bytes) {
-//		if (Strings.isNotBlank(memoryClassBytesCacheDir)) {
-//			try {
-//				File file = new File(memoryClassBytesCacheDir + "/" + className.replace('.', '/') + ".class");
-//				log.debug("缓存动态生成类的字节码：{}", file.getAbsolutePath());
-//				File dir = file.getParentFile();
-//				if (!dir.exists()) {
-//					dir.mkdirs();
-//				}
-//				IO.writeBytes(file, bytes);
-//			} catch (Throwable e) {
-//				log.error("", e);
-//			}
-//		}
-//	}
+	static void writeMemoryClassBytesCacheFile(String className, byte[] bytes) {
+		if (classBytesCacheEnabled){
+			try {
+				File file = new File(classBytesCacheDir + "/" + className.replace(".", "/") + ".class");
+				log.debug("缓存动态生成类的字节码：{}", file.getAbsolutePath());
+				IO.writeBytes(file, bytes);
+			} catch (IOException e) {
+				log.error("", e);
+			}
+		}
+	}
 
 	@Override
 	protected Class<?> findClass(final String className) throws ClassNotFoundException {
@@ -97,29 +105,24 @@ public class MemoryClassLoader extends URLClassLoader {
 	}
 
 	public void addIfAbsent(String className, byte[] classBytes) {
-		classes.putIfAbsent(className, new MemoryJavaFileObject(className, classBytes));
-//		MemoryJavaFileObject old = classes.putIfAbsent(className, new MemoryJavaFileObject(className, classBytes));
-//		if (old == null) {
-//			writeMemoryClassBytesCacheFile(className, classBytes);
-//		}
+		addIfAbsent(className, new MemoryJavaFileObject(className, classBytes));
 	}
 
 	public void add(String className, byte[] classBytes) {
-		classes.put(className, new MemoryJavaFileObject(className, classBytes));
-//		writeMemoryClassBytesCacheFile(className, classBytes);
+		add(className, new MemoryJavaFileObject(className, classBytes));
 	}
 
 	public void addIfAbsent(final String className, MemoryJavaFileObject file) {
-		classes.putIfAbsent(className, file);
-//		MemoryJavaFileObject old = classes.putIfAbsent(className, file);
-//		if (old == null) {
-//			writeMemoryClassBytesCacheFile(className, file.getByteCode());
-//		}
+		//classes.putIfAbsent(className, file);
+		MemoryJavaFileObject old = classes.putIfAbsent(className, file);
+		if (old == null) {
+			writeMemoryClassBytesCacheFile(className, file.getByteCode());
+		}
 	}
 
 	public void add(final String className, MemoryJavaFileObject file) {
 		classes.put(className, file);
-//		writeMemoryClassBytesCacheFile(className, file.getByteCode());
+		writeMemoryClassBytesCacheFile(className, file.getByteCode());
 	}
 
 	@Override

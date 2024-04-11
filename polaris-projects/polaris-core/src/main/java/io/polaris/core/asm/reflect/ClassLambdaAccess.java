@@ -1,5 +1,22 @@
 package io.polaris.core.asm.reflect;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
+import io.polaris.core.asm.AsmUtils;
 import io.polaris.core.err.InvocationException;
 import io.polaris.core.lang.Types;
 import io.polaris.core.log.ILogger;
@@ -7,26 +24,53 @@ import io.polaris.core.log.ILoggers;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.reflect.SerializableFunction;
 import io.polaris.core.tuple.Tuple2;
-import org.objectweb.asm.*;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Handle;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-
-import static org.objectweb.asm.Opcodes.*;
+import static org.objectweb.asm.Opcodes.AALOAD;
+import static org.objectweb.asm.Opcodes.AASTORE;
+import static org.objectweb.asm.Opcodes.ACC_FINAL;
+import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
+import static org.objectweb.asm.Opcodes.ACC_PROTECTED;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.ACC_STATIC;
+import static org.objectweb.asm.Opcodes.ACC_SUPER;
+import static org.objectweb.asm.Opcodes.ACC_SYNTHETIC;
+import static org.objectweb.asm.Opcodes.ACONST_NULL;
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ANEWARRAY;
+import static org.objectweb.asm.Opcodes.ARETURN;
+import static org.objectweb.asm.Opcodes.ASTORE;
+import static org.objectweb.asm.Opcodes.ATHROW;
+import static org.objectweb.asm.Opcodes.BIPUSH;
+import static org.objectweb.asm.Opcodes.CHECKCAST;
+import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.GETFIELD;
+import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
+import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.objectweb.asm.Opcodes.NEW;
+import static org.objectweb.asm.Opcodes.POP;
+import static org.objectweb.asm.Opcodes.PUTFIELD;
+import static org.objectweb.asm.Opcodes.PUTSTATIC;
+import static org.objectweb.asm.Opcodes.RETURN;
+import static org.objectweb.asm.Opcodes.SIPUSH;
+import static org.objectweb.asm.Opcodes.V1_8;
 
 /**
  * @author Qt
  * @since 1.8,  Aug 05, 2023
  */
 @SuppressWarnings("all")
-public abstract class ReflectiveAccess<T> {
-	private static ILogger log = ILoggers.of(ReflectiveAccess.class);
+public abstract class ClassLambdaAccess<T> {
+	private static final AccessPool<Class, ClassLambdaAccess> pool = new AccessPool<>();
+	private static ILogger log = ILoggers.of(ClassLambdaAccess.class);
 	private int constructorIndex = -1;
 	private Class[][] constructorParamTypes;
 	private Function<Object[], Object>[] constructors;
@@ -34,7 +78,7 @@ public abstract class ReflectiveAccess<T> {
 	private Map<String, Tuple2<Function<Object, Object>, BiConsumer<Object, Object>>> fields;
 
 
-	protected ReflectiveAccess() {
+	protected ClassLambdaAccess() {
 		constructorParamTypes = this.buildConstructorParamTypes();
 		constructors = this.buildConstructors();
 		methods = this.buildMethods();
@@ -46,6 +90,8 @@ public abstract class ReflectiveAccess<T> {
 			}
 		}
 	}
+
+	// region expect to overwrite
 
 	protected Map<String, Tuple2<Function<Object, Object>, BiConsumer<Object, Object>>> buildFields() {
 		return Collections.emptyMap();
@@ -63,13 +109,9 @@ public abstract class ReflectiveAccess<T> {
 		return new Function[0];
 	}
 
-	public Set<String> getMethodNames() {
-		return new LinkedHashSet<>(methods.keySet());
-	}
+	// endregion
 
-	public Set<String> getFieldNames() {
-		return new LinkedHashSet<>(fields.keySet());
-	}
+	// region constructor access
 
 	public boolean containsDefaultConstructor() {
 		return constructorIndex >= 0;
@@ -96,34 +138,6 @@ public abstract class ReflectiveAccess<T> {
 		return false;
 	}
 
-	public boolean containsMethod(String methodName) {
-		return methods.containsKey(methodName);
-	}
-
-	public boolean containsMethod(String methodName, Class... paramTypes) {
-		Tuple2<Class[], BiFunction<Object, Object[], Object>>[] tuples = this.methods.get(methodName);
-		if (tuples == null) {
-			return false;
-		}
-		for (Tuple2<Class[], BiFunction<Object, Object[], Object>> tuple : tuples) {
-			Class[] definedTypes = tuple.getFirst();
-			if (Types.isEquals(definedTypes, paramTypes)) {
-				return true;
-			}
-		}
-		for (Tuple2<Class[], BiFunction<Object, Object[], Object>> tuple : tuples) {
-			Class[] definedTypes = tuple.getFirst();
-			if (Types.isAssignable(definedTypes, paramTypes)) {
-				return true;
-			}
-		}
-		return true;
-	}
-
-	public boolean containsField(String fieldName) {
-		return fields.containsKey(fieldName);
-	}
-
 	public T newInstance() {
 		if (constructorIndex >= 0) {
 			try {
@@ -132,7 +146,7 @@ public abstract class ReflectiveAccess<T> {
 				throw InvocationException.of(e);
 			}
 		}
-		throw new IllegalArgumentException("找不到指定的非私有构造方法");
+		throw new IllegalArgumentException("Constructor not found");
 	}
 
 	public T newInstance(Class<?>[] types, Object... args) {
@@ -161,7 +175,7 @@ public abstract class ReflectiveAccess<T> {
 				}
 			}
 		}
-		throw new IllegalArgumentException("找不到指定的非私有构造方法");
+		throw new IllegalArgumentException("Constructor not found");
 	}
 
 	public T newInstance(Object... args) {
@@ -197,13 +211,121 @@ public abstract class ReflectiveAccess<T> {
 				}
 			}
 		}
-		throw new IllegalArgumentException("找不到指定的非私有构造方法");
+		throw new IllegalArgumentException("Constructor not found");
+	}
+
+	public T newInstanceOrNoop() {
+		if (constructorIndex >= 0) {
+			try {
+				return (T) constructors[constructorIndex].apply(new Object[0]);
+			} catch (Throwable e) {
+				throw InvocationException.of(e);
+			}
+		}
+		return null;
+	}
+
+	public T newInstanceOrNoop(Class<?>[] types, Object... args) {
+		if (types == null || types.length == 0) {
+			return newInstance();
+		}
+		for (int i = 0; i < constructorParamTypes.length; i++) {
+			Class[] constructorParamType = constructorParamTypes[i];
+			// 完全匹配
+			if (Types.isEquals(constructorParamType, types)) {
+				try {
+					return (T) constructors[i].apply(args);
+				} catch (Throwable e) {
+					throw InvocationException.of(e);
+				}
+			}
+		}
+		for (int i = 0; i < constructorParamTypes.length; i++) {
+			Class[] constructorParamType = constructorParamTypes[i];
+			// 匹配子类型
+			if (Types.isAssignable(constructorParamType, types)) {
+				try {
+					return (T) constructors[i].apply(args);
+				} catch (Throwable e) {
+					throw InvocationException.of(e);
+				}
+			}
+		}
+		return null;
+	}
+
+	public T newInstanceOrNoop(Object... args) {
+		if (args.length == 0) {
+			return newInstance();
+		}
+		for (int i = 0; i < constructorParamTypes.length; i++) {
+			Class[] constructorParamType = constructorParamTypes[i];
+			if (args.length == constructorParamType.length) {
+				boolean matched = true;
+				for (int j = 0; j < args.length; j++) {
+					if (args[j] == null) {
+						continue;
+					}
+					if (constructorParamType[j].isPrimitive()) {
+						if (!constructorParamType[j].isInstance(args[j]) && !Types.getWrapperClass(constructorParamType[j]).isInstance(args[j])) {
+							matched = false;
+							break;
+						}
+					} else {
+						if (!constructorParamType[j].isInstance(args[j])) {
+							matched = false;
+							break;
+						}
+					}
+				}
+				if (matched) {
+					try {
+						return (T) constructors[i].apply(args);
+					} catch (Throwable e) {
+						throw InvocationException.of(e);
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	// endregion
+
+	// region method access
+
+	public Set<String> getMethodNames() {
+		return new LinkedHashSet<>(methods.keySet());
+	}
+
+	public boolean containsMethod(String methodName) {
+		return methods.containsKey(methodName);
+	}
+
+	public boolean containsMethod(String methodName, Class... paramTypes) {
+		Tuple2<Class[], BiFunction<Object, Object[], Object>>[] tuples = this.methods.get(methodName);
+		if (tuples == null) {
+			return false;
+		}
+		for (Tuple2<Class[], BiFunction<Object, Object[], Object>> tuple : tuples) {
+			Class[] definedTypes = tuple.getFirst();
+			if (Types.isEquals(definedTypes, paramTypes)) {
+				return true;
+			}
+		}
+		for (Tuple2<Class[], BiFunction<Object, Object[], Object>> tuple : tuples) {
+			Class[] definedTypes = tuple.getFirst();
+			if (Types.isAssignable(definedTypes, paramTypes)) {
+				return true;
+			}
+		}
+		return true;
 	}
 
 	public Object invokeMethod(Object object, String methodName, Class[] paramTypes, Object... args) {
 		Tuple2<Class[], BiFunction<Object, Object[], Object>>[] tuples = this.methods.get(methodName);
 		if (tuples == null) {
-			throw new IllegalArgumentException("找不到指定的非私有方法：" + methodName + " " + Arrays.toString(paramTypes));
+			throw new IllegalArgumentException("Method not found：" + methodName + " " + Arrays.toString(paramTypes));
 		}
 		for (Tuple2<Class[], BiFunction<Object, Object[], Object>> tuple : tuples) {
 			Class[] definedTypes = tuple.getFirst();
@@ -225,13 +347,13 @@ public abstract class ReflectiveAccess<T> {
 				}
 			}
 		}
-		throw new IllegalArgumentException("找不到指定的非私有方法：" + methodName + " " + Arrays.toString(paramTypes));
+		throw new IllegalArgumentException("Method not found：" + methodName + " " + Arrays.toString(paramTypes));
 	}
 
 	public Object invokeMethod(Object object, String methodName, Object... args) {
 		Tuple2<Class[], BiFunction<Object, Object[], Object>>[] tuples = this.methods.get(methodName);
 		if (tuples == null) {
-			throw new IllegalArgumentException("找不到指定的非私有方法：" + methodName);
+			throw new IllegalArgumentException("Method not found：" + methodName);
 		}
 		for (Tuple2<Class[], BiFunction<Object, Object[], Object>> tuple : tuples) {
 			Class[] definedTypes = tuple.getFirst();
@@ -263,13 +385,91 @@ public abstract class ReflectiveAccess<T> {
 				}
 			}
 		}
-		throw new IllegalArgumentException("找不到指定的非私有方法：" + methodName);
+		throw new IllegalArgumentException("Method not found：" + methodName);
+	}
+
+	public Object invokeMethodOrNoop(Object object, String methodName, Class[] paramTypes, Object... args) {
+		Tuple2<Class[], BiFunction<Object, Object[], Object>>[] tuples = this.methods.get(methodName);
+		if (tuples == null) {
+			return null;
+		}
+		for (Tuple2<Class[], BiFunction<Object, Object[], Object>> tuple : tuples) {
+			Class[] definedTypes = tuple.getFirst();
+			if (Types.isEquals(definedTypes, paramTypes)) {
+				try {
+					return tuple.getSecond().apply(object, args);
+				} catch (Throwable e) {
+					throw InvocationException.of(e);
+				}
+			}
+		}
+		for (Tuple2<Class[], BiFunction<Object, Object[], Object>> tuple : tuples) {
+			Class[] definedTypes = tuple.getFirst();
+			if (Types.isAssignable(definedTypes, paramTypes)) {
+				try {
+					return tuple.getSecond().apply(object, args);
+				} catch (Throwable e) {
+					throw InvocationException.of(e);
+				}
+			}
+		}
+		return null;
+	}
+
+	public Object invokeMethodOrNoop(Object object, String methodName, Object... args) {
+		Tuple2<Class[], BiFunction<Object, Object[], Object>>[] tuples = this.methods.get(methodName);
+		if (tuples == null) {
+			return null;
+		}
+		for (Tuple2<Class[], BiFunction<Object, Object[], Object>> tuple : tuples) {
+			Class[] definedTypes = tuple.getFirst();
+			if (args.length != definedTypes.length) {
+				continue;
+			}
+			boolean matched = true;
+			for (int j = 0; j < args.length; j++) {
+				if (args[j] == null) {
+					continue;
+				}
+				if (definedTypes[j].isPrimitive()) {
+					if (!definedTypes[j].isInstance(args[j]) && !Types.getWrapperClass(definedTypes[j]).isInstance(args[j])) {
+						matched = false;
+						break;
+					}
+				} else {
+					if (!definedTypes[j].isInstance(args[j])) {
+						matched = false;
+						break;
+					}
+				}
+			}
+			if (matched) {
+				try {
+					return tuple.getSecond().apply(object, args);
+				} catch (Throwable e) {
+					throw InvocationException.of(e);
+				}
+			}
+		}
+		return null;
+	}
+
+	// endregion
+
+	// region field access
+
+	public Set<String> getFieldNames() {
+		return new LinkedHashSet<>(fields.keySet());
+	}
+
+	public boolean containsField(String fieldName) {
+		return fields.containsKey(fieldName);
 	}
 
 	public void setField(Object object, String fieldName, Object value) {
 		Tuple2<Function<Object, Object>, BiConsumer<Object, Object>> tuple = this.fields.get(fieldName);
 		if (tuple == null) {
-			throw new IllegalArgumentException("找不到指定的非私有字段：" + fieldName);
+			throw new IllegalArgumentException("Field not found：" + fieldName);
 		}
 		tuple.getSecond().accept(object, value);
 	}
@@ -277,13 +477,36 @@ public abstract class ReflectiveAccess<T> {
 	public Object getField(Object object, String fieldName) {
 		Tuple2<Function<Object, Object>, BiConsumer<Object, Object>> tuple = this.fields.get(fieldName);
 		if (tuple == null) {
-			throw new IllegalArgumentException("找不到指定的非私有字段：" + fieldName);
+			throw new IllegalArgumentException("Field not found：" + fieldName);
 		}
 		return tuple.getFirst().apply(object);
 	}
 
-	public static <T> ReflectiveAccess<T> get(Class<T> type) {
-		String accessClassName = AccessClassLoader.buildAccessClassName(type, ReflectiveAccess.class);
+	public void setFieldOrNoop(Object object, String fieldName, Object value) {
+		Tuple2<Function<Object, Object>, BiConsumer<Object, Object>> tuple = this.fields.get(fieldName);
+		if (tuple == null) {
+			return;
+		}
+		tuple.getSecond().accept(object, value);
+	}
+
+	public Object getFieldOrNoop(Object object, String fieldName) {
+		Tuple2<Function<Object, Object>, BiConsumer<Object, Object>> tuple = this.fields.get(fieldName);
+		if (tuple == null) {
+			return null;
+		}
+		return tuple.getFirst().apply(object);
+	}
+
+	// endregion
+
+
+	public static <T> ClassLambdaAccess<T> get(Class<T> type) {
+		return pool.computeIfAbsent(type, ClassLambdaAccess::create);
+	}
+
+	public static <T> ClassLambdaAccess<T> create(Class<T> type) {
+		String accessClassName = AccessClassLoader.buildAccessClassName(type, ClassLambdaAccess.class);
 		Class accessClass;
 		AccessClassLoader loader = AccessClassLoader.get(type);
 		synchronized (loader) {
@@ -292,9 +515,9 @@ public abstract class ReflectiveAccess<T> {
 				accessClass = buildAccessClass(loader, accessClassName, type);
 			}
 		}
-		ReflectiveAccess<T> access;
+		ClassLambdaAccess<T> access;
 		try {
-			access = (ReflectiveAccess<T>) accessClass.newInstance();
+			access = (ClassLambdaAccess<T>) accessClass.newInstance();
 		} catch (Throwable t) {
 			throw new IllegalStateException("实例化构造器访问类失败: " + accessClassName, t);
 		}
@@ -307,7 +530,7 @@ public abstract class ReflectiveAccess<T> {
 		String classNameInternal = type.getName().replace('.', '/');
 
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-		String superclassNameInternal = ReflectiveAccess.class.getName().replace('.', '/');
+		String superclassNameInternal = ClassLambdaAccess.class.getName().replace('.', '/');
 		cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, accessClassNameInternal, null,
 			superclassNameInternal, null);
 		cw.visitInnerClass("java/lang/invoke/MethodHandles$Lookup", "java/lang/invoke/MethodHandles", "Lookup", ACC_PUBLIC | ACC_FINAL | ACC_STATIC);
@@ -344,12 +567,12 @@ public abstract class ReflectiveAccess<T> {
 			constructorList.add((Constructor<T>) declaredConstructor);
 		}
 		int size = constructorList.size();
-		SerializableFunction<ReflectiveAccess, Function<Object[], Object>[]> buildConstructors = ReflectiveAccess::buildConstructors;
+		SerializableFunction<ClassLambdaAccess, Function<Object[], Object>[]> buildConstructors = ClassLambdaAccess::buildConstructors;
 		final String lambdaPrefixOfConstructors = "lambda$" + buildConstructors.serialized().getImplMethodName() + "$";
 
 		// 生成各构造的参数类型列表
 		{
-			SerializableFunction<ReflectiveAccess, Class[][]> fetchConstructorParamTypes = ReflectiveAccess::buildConstructorParamTypes;
+			SerializableFunction<ClassLambdaAccess, Class[][]> fetchConstructorParamTypes = ClassLambdaAccess::buildConstructorParamTypes;
 			MethodVisitor methodVisitor = cw.visitMethod(ACC_PROTECTED, fetchConstructorParamTypes.serialized().getImplMethodName(), "()[[Ljava/lang/Class;", null, null);
 			methodVisitor.visitCode();
 			methodVisitor.visitLdcInsn(Integer.valueOf(size));
@@ -444,46 +667,7 @@ public abstract class ReflectiveAccess<T> {
 					mv.visitIntInsn(BIPUSH, j);
 					mv.visitInsn(AALOAD);
 					Type paramType = Type.getType(parameterType);
-					switch (paramType.getSort()) {
-						case Type.BOOLEAN:
-							mv.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
-							mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z", false);
-							break;
-						case Type.BYTE:
-							mv.visitTypeInsn(CHECKCAST, "java/lang/Byte");
-							mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Byte", "byteValue", "()B", false);
-							break;
-						case Type.CHAR:
-							mv.visitTypeInsn(CHECKCAST, "java/lang/Character");
-							mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Character", "charValue", "()C", false);
-							break;
-						case Type.SHORT:
-							mv.visitTypeInsn(CHECKCAST, "java/lang/Short");
-							mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Short", "shortValue", "()S", false);
-							break;
-						case Type.INT:
-							mv.visitTypeInsn(CHECKCAST, "java/lang/Integer");
-							mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I", false);
-							break;
-						case Type.FLOAT:
-							mv.visitTypeInsn(CHECKCAST, "java/lang/Float");
-							mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Float", "floatValue", "()F", false);
-							break;
-						case Type.LONG:
-							mv.visitTypeInsn(CHECKCAST, "java/lang/Long");
-							mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Long", "longValue", "()J", false);
-							break;
-						case Type.DOUBLE:
-							mv.visitTypeInsn(CHECKCAST, "java/lang/Double");
-							mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Double", "doubleValue", "()D", false);
-							break;
-						case Type.ARRAY:
-							mv.visitTypeInsn(CHECKCAST, paramType.getDescriptor());
-							break;
-						case Type.OBJECT:
-							mv.visitTypeInsn(CHECKCAST, paramType.getInternalName());
-							break;
-					}
+					AsmUtils.autoUnBoxing(mv, paramType);
 				}
 				String constructorDescriptor = Type.getConstructorDescriptor(constructor);
 				mv.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(type), "<init>",
@@ -512,7 +696,7 @@ public abstract class ReflectiveAccess<T> {
 
 
 	private static <T> void insertMethodInvokers(ClassWriter cw, String accessClassNameInternal, Class<T> type) {
-		SerializableFunction<ReflectiveAccess, Map<String, Tuple2<Class[], BiFunction<Object, Object[], Object>>[]>> buildMethods = ReflectiveAccess::buildMethods;
+		SerializableFunction<ClassLambdaAccess, Map<String, Tuple2<Class[], BiFunction<Object, Object[], Object>>[]>> buildMethods = ClassLambdaAccess::buildMethods;
 
 		Map<String, List<Method>> declaredMethods = getDeclaredMethods(type);
 		final String lambdaPrefixOfMethods = "lambda$" + buildMethods.serialized().getImplMethodName() + "$";
@@ -615,12 +799,12 @@ public abstract class ReflectiveAccess<T> {
 
 					MethodVisitor mv = cw.visitMethod(ACC_PRIVATE | ACC_STATIC | ACC_SYNTHETIC, lambdaName, "(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;", null, null);
 					mv.visitCode();
-					Label label0 = new Label();
-					Label label1 = new Label();
-					Label label2 = new Label();
+					Label labelStart = new Label();
+					Label labelEnd = new Label();
+					Label labelCatch = new Label();
 					if (hasThrows) {
-						mv.visitTryCatchBlock(label0, label1, label2, "java/lang/Throwable");
-						mv.visitLabel(label0);
+						mv.visitTryCatchBlock(labelStart, labelEnd, labelCatch, "java/lang/Throwable");
+						mv.visitLabel(labelStart);
 					}
 
 					mv.visitVarInsn(ALOAD, 0);
@@ -635,46 +819,7 @@ public abstract class ReflectiveAccess<T> {
 						mv.visitInsn(AALOAD);
 
 						Type paramType = Type.getType(parameterType);
-						switch (paramType.getSort()) {
-							case Type.BOOLEAN:
-								mv.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
-								mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z", false);
-								break;
-							case Type.BYTE:
-								mv.visitTypeInsn(CHECKCAST, "java/lang/Byte");
-								mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Byte", "byteValue", "()B", false);
-								break;
-							case Type.CHAR:
-								mv.visitTypeInsn(CHECKCAST, "java/lang/Character");
-								mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Character", "charValue", "()C", false);
-								break;
-							case Type.SHORT:
-								mv.visitTypeInsn(CHECKCAST, "java/lang/Short");
-								mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Short", "shortValue", "()S", false);
-								break;
-							case Type.INT:
-								mv.visitTypeInsn(CHECKCAST, "java/lang/Integer");
-								mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I", false);
-								break;
-							case Type.FLOAT:
-								mv.visitTypeInsn(CHECKCAST, "java/lang/Float");
-								mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Float", "floatValue", "()F", false);
-								break;
-							case Type.LONG:
-								mv.visitTypeInsn(CHECKCAST, "java/lang/Long");
-								mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Long", "longValue", "()J", false);
-								break;
-							case Type.DOUBLE:
-								mv.visitTypeInsn(CHECKCAST, "java/lang/Double");
-								mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Double", "doubleValue", "()D", false);
-								break;
-							case Type.ARRAY:
-								mv.visitTypeInsn(CHECKCAST, paramType.getDescriptor());
-								break;
-							case Type.OBJECT:
-								mv.visitTypeInsn(CHECKCAST, paramType.getInternalName());
-								break;
-						}
+						AsmUtils.autoUnBoxing(mv, paramType);
 					}
 					Class<?> declaringClass = method.getDeclaringClass();
 					boolean isInterface = declaringClass.isInterface();
@@ -688,48 +833,24 @@ public abstract class ReflectiveAccess<T> {
 					}
 					mv.visitMethodInsn(invokeOpcode, Type.getInternalName(declaringClass), methodName, Type.getMethodDescriptor(method), isInterface);
 					Class<?> returnType = method.getReturnType();
-					switch (Type.getType(returnType).getSort()) {
-						case Type.VOID:
-							mv.visitInsn(ACONST_NULL);
-							break;
-						case Type.BOOLEAN:
-							mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;");
-							break;
-						case Type.BYTE:
-							mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;");
-							break;
-						case Type.CHAR:
-							mv.visitMethodInsn(INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;");
-							break;
-						case Type.SHORT:
-							mv.visitMethodInsn(INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;");
-							break;
-						case Type.INT:
-							mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
-							break;
-						case Type.FLOAT:
-							mv.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;");
-							break;
-						case Type.LONG:
-							mv.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;");
-							break;
-						case Type.DOUBLE:
-							mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;");
-							break;
+					if(returnType.equals(Void.TYPE)){
+						mv.visitInsn(ACONST_NULL);
+					}else{
+						AsmUtils.autoBoxing(mv, returnType);
 					}
 
 					if (hasThrows) {
-						mv.visitLabel(label1);
+						mv.visitLabel(labelEnd);
 					}
 					mv.visitInsn(ARETURN);
 					if (hasThrows) {
-						mv.visitLabel(label2);
+						mv.visitLabel(labelCatch);
 						mv.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[]{"java/lang/Throwable"});
 						mv.visitVarInsn(ASTORE, 2);
-						mv.visitTypeInsn(NEW, org.objectweb.asm.Type.getInternalName(InvocationException.class));
+						mv.visitTypeInsn(NEW, Type.getInternalName(InvocationException.class));
 						mv.visitInsn(DUP);
 						mv.visitVarInsn(ALOAD, 2);
-						mv.visitMethodInsn(INVOKESPECIAL, org.objectweb.asm.Type.getInternalName(InvocationException.class), "<init>", "(Ljava/lang/Throwable;)V", false);
+						mv.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(InvocationException.class), "<init>", "(Ljava/lang/Throwable;)V", false);
 						mv.visitInsn(ATHROW);
 					}
 
@@ -741,17 +862,17 @@ public abstract class ReflectiveAccess<T> {
 		}
 	}
 
-	private	static Map<String, List<Method>> getDeclaredMethods(Class type) {
+	private static Map<String, List<Method>> getDeclaredMethods(Class type) {
 		Map<String, Method> allMethods = new HashMap<>();
 		boolean isInterface = type.isInterface();
 		if (!isInterface) {
 			Class nextClass = type;
 			while (nextClass != null) { // 也包含Object类的方法
-				ReflectiveAccess.recursiveAddMethodsToMap(nextClass, allMethods);
+				ClassLambdaAccess.recursiveAddMethodsToMap(nextClass, allMethods);
 				nextClass = nextClass.getSuperclass();
 			}
 		} else {
-			ReflectiveAccess.recursiveAddMethodsToMap(type, allMethods);
+			ClassLambdaAccess.recursiveAddMethodsToMap(type, allMethods);
 		}
 		Map<String, List<Method>> overloadMethods = new HashMap<>();
 		allMethods.forEach((k, v) -> {
@@ -761,7 +882,7 @@ public abstract class ReflectiveAccess<T> {
 		return overloadMethods;
 	}
 
-	private	static void recursiveAddMethodsToMap(Class interfaceType, Map<String, Method> methods) {
+	private static void recursiveAddMethodsToMap(Class interfaceType, Map<String, Method> methods) {
 		Method[] declaredMethods = interfaceType.getDeclaredMethods();
 		for (int i = 0, n = declaredMethods.length; i < n; i++) {
 			Method method = declaredMethods[i];
@@ -786,11 +907,10 @@ public abstract class ReflectiveAccess<T> {
 		}
 	}
 
-
 	private static <T> void insertFieldInvokers(ClassWriter cw, String accessClassNameInternal, Class<T> type) {
 		Map<String, Field> fields = new HashMap<>();
 		Class nextClass = type;
-		while (nextClass != Object.class) {
+		while (nextClass != null && nextClass != Object.class) {
 			Field[] declaredFields = nextClass.getDeclaredFields();
 			for (int i = 0, n = declaredFields.length; i < n; i++) {
 				Field field = declaredFields[i];
@@ -803,7 +923,7 @@ public abstract class ReflectiveAccess<T> {
 			nextClass = nextClass.getSuperclass();
 		}
 
-		SerializableFunction<ReflectiveAccess, Map<String, Tuple2<Function<Object, Object>, BiConsumer<Object, Object>>>> buildFields = ReflectiveAccess::buildFields;
+		SerializableFunction<ClassLambdaAccess, Map<String, Tuple2<Function<Object, Object>, BiConsumer<Object, Object>>>> buildFields = ClassLambdaAccess::buildFields;
 		final String lambdaPrefixOfFields = "lambda$" + buildFields.serialized().getImplMethodName() + "$";
 		// buildFields方法
 		{
@@ -882,46 +1002,7 @@ public abstract class ReflectiveAccess<T> {
 					}
 					mv.visitVarInsn(ALOAD, 1);
 					Type fieldType = Type.getType(field.getType());
-					switch (fieldType.getSort()) {
-						case Type.BOOLEAN:
-							mv.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
-							mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z");
-							break;
-						case Type.BYTE:
-							mv.visitTypeInsn(CHECKCAST, "java/lang/Byte");
-							mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Byte", "byteValue", "()B");
-							break;
-						case Type.CHAR:
-							mv.visitTypeInsn(CHECKCAST, "java/lang/Character");
-							mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Character", "charValue", "()C");
-							break;
-						case Type.SHORT:
-							mv.visitTypeInsn(CHECKCAST, "java/lang/Short");
-							mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Short", "shortValue", "()S");
-							break;
-						case Type.INT:
-							mv.visitTypeInsn(CHECKCAST, "java/lang/Integer");
-							mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I");
-							break;
-						case Type.FLOAT:
-							mv.visitTypeInsn(CHECKCAST, "java/lang/Float");
-							mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Float", "floatValue", "()F");
-							break;
-						case Type.LONG:
-							mv.visitTypeInsn(CHECKCAST, "java/lang/Long");
-							mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Long", "longValue", "()J");
-							break;
-						case Type.DOUBLE:
-							mv.visitTypeInsn(CHECKCAST, "java/lang/Double");
-							mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Double", "doubleValue", "()D");
-							break;
-						case Type.ARRAY:
-							mv.visitTypeInsn(CHECKCAST, fieldType.getDescriptor());
-							break;
-						case Type.OBJECT:
-							mv.visitTypeInsn(CHECKCAST, fieldType.getInternalName());
-							break;
-					}
+					AsmUtils.autoUnBoxing(mv, fieldType);
 					if (Modifier.isStatic(field.getModifiers())) {
 						mv.visitFieldInsn(PUTSTATIC, Type.getInternalName(field.getDeclaringClass()), fieldName, fieldType.getDescriptor());
 					} else {
@@ -947,32 +1028,7 @@ public abstract class ReflectiveAccess<T> {
 						mv.visitFieldInsn(GETFIELD, Type.getInternalName(type), fieldName, Type.getDescriptor(field.getType()));
 					}
 					Type fieldType = Type.getType(field.getType());
-					switch (fieldType.getSort()) {
-						case Type.BOOLEAN:
-							mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;");
-							break;
-						case Type.BYTE:
-							mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;");
-							break;
-						case Type.CHAR:
-							mv.visitMethodInsn(INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;");
-							break;
-						case Type.SHORT:
-							mv.visitMethodInsn(INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;");
-							break;
-						case Type.INT:
-							mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
-							break;
-						case Type.FLOAT:
-							mv.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;");
-							break;
-						case Type.LONG:
-							mv.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;");
-							break;
-						case Type.DOUBLE:
-							mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;");
-							break;
-					}
+					AsmUtils.autoBoxing(mv, fieldType);
 					mv.visitInsn(ARETURN);
 					mv.visitMaxs(1, 1);
 					mv.visitEnd();

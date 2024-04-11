@@ -1,20 +1,16 @@
 package io.polaris.core.lang.bean;
 
-import io.polaris.core.asm.reflect.ReflectiveAccess;
-import io.polaris.core.err.InvocationException;
-import io.polaris.core.tuple.Tuple2;
+import io.polaris.core.asm.reflect.ClassAccess;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 /**
  * @author Qt
  * @since 1.8,  Aug 05, 2023
  */
-public class Bean01ReflectiveAccess extends ReflectiveAccess {
+public class Bean01ClassAccess extends ClassAccess {
 //	@Override
 //	protected Class[][] buildConstructorParamTypes() {
 //		Class[][] types = new Class[11111][];

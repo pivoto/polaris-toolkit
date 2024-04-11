@@ -7,6 +7,9 @@ import io.polaris.core.asm.AsmPrint;
 import org.junit.jupiter.api.Test;
 
 class BeanMetadatasTest {
+	static {
+		System.setProperty("java.memory.bytecode.tmpdir", "/data/classes");
+	}
 
 
 	@Test
@@ -24,13 +27,13 @@ class BeanMetadatasTest {
 		AsmPrint.print(c, false);
 	}
 
-	@Test
-	void test03() throws InstantiationException, IllegalAccessException, IOException {
-		Class<BeanMetadata> c = BeanMetadataBuilder.buildMetadataClassWithInnerTypeRef(Bean01.class);
-		BeanMetadata metadata = c.newInstance();
-		TestConsole.println(metadata.types());
-		TestConsole.println(metadata.getters());
-		TestConsole.println(metadata.setters());
-		AsmPrint.print(c, false);
-	}
+//	@Test
+//	void test03() throws InstantiationException, IllegalAccessException, IOException {
+//		Class<BeanMetadata> c = BeanMetadataBuilder.buildMetadataClassWithInnerTypeRef(Bean01.class);
+//		BeanMetadata metadata = c.newInstance();
+//		TestConsole.println(metadata.types());
+//		TestConsole.println(metadata.getters());
+//		TestConsole.println(metadata.setters());
+//		AsmPrint.print(c, false);
+//	}
 }

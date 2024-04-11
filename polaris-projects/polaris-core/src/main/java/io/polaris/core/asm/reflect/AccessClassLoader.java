@@ -1,14 +1,17 @@
 package io.polaris.core.asm.reflect;
 
-import io.polaris.core.compiler.MemoryClassLoader;
-import io.polaris.core.map.Maps;
-
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import io.polaris.core.io.IO;
+import io.polaris.core.map.Maps;
+import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
@@ -25,14 +28,26 @@ class AccessClassLoader extends ClassLoader {
 
 	private final Set<String> localClassNames = Collections.newSetFromMap(new ConcurrentHashMap<>());
 	private static final Map<String, Class<?>> baseClasses = new ConcurrentHashMap<>();
+	private static final String classBytesCacheDir;
+	private static final boolean classBytesCacheEnabled;
 
 	static {
-		registerBaseClass(ReflectiveAccess.class
+		registerBaseClass(
+			ClassAccess.class
+			, ClassLambdaAccess.class
 			, MethodAccess.class
 			, ConstructorAccess.class
 			, PublicConstructorAccess.class
 			, FieldAccess.class
 		);
+		String tmpdir = System.getProperty("java.memory.bytecode.tmpdir");
+		if (Strings.isNotBlank(tmpdir)) {
+			classBytesCacheDir = tmpdir.trim();
+			classBytesCacheEnabled = true;
+		} else {
+			classBytesCacheDir = null;
+			classBytesCacheEnabled = false;
+		}
 	}
 
 	private AccessClassLoader(ClassLoader parent) {
@@ -55,6 +70,12 @@ class AccessClassLoader extends ClassLoader {
 
 	Class defineAccessClass(String name, byte[] bytes) throws ClassFormatError {
 		localClassNames.add(name);
+		if (classBytesCacheEnabled) {
+			try {
+				IO.writeBytes(new File(classBytesCacheDir + "/" + name.replace(".", "/") + ".class"), bytes);
+			} catch (IOException ignored) {
+			}
+		}
 		return defineClass(name, bytes);
 	}
 

@@ -11,17 +11,29 @@ public class LimitedLinkedHashMap<K, V> extends LinkedHashMap<K, V> {
 
 	private int maxCapacity = 0;
 
+
 	public LimitedLinkedHashMap(int maxCapacity) {
-		this.maxCapacity = maxCapacity;
+		this(maxCapacity, false);
 	}
 
 	public LimitedLinkedHashMap(int maxCapacity, boolean accessOrder) {
-		super(16, .75f, accessOrder);
-		this.maxCapacity = maxCapacity;
+		this(maxCapacity, accessOrder, 128, .75f);
+	}
+
+	public LimitedLinkedHashMap(int maxCapacity, boolean accessOrder, int initialCapacity) {
+		this(maxCapacity, accessOrder, initialCapacity, .75f);
 	}
 
 	public LimitedLinkedHashMap(int maxCapacity, boolean accessOrder, int initialCapacity, float loadFactor) {
 		super(initialCapacity, loadFactor, accessOrder);
+		this.maxCapacity = maxCapacity;
+	}
+
+	public int getMaxCapacity() {
+		return maxCapacity;
+	}
+
+	public void setMaxCapacity(int maxCapacity) {
 		this.maxCapacity = maxCapacity;
 	}
 

@@ -2,7 +2,7 @@ package io.polaris.core.lang.bean;
 
 import io.polaris.core.TestConsole;
 import io.polaris.core.asm.reflect.MethodAccess;
-import io.polaris.core.asm.reflect.ReflectiveAccess;
+import io.polaris.core.asm.reflect.ClassAccess;
 import io.polaris.core.function.Executable;
 import org.junit.jupiter.api.Test;
 import org.openjdk.jmh.annotations.*;
@@ -45,7 +45,7 @@ public class Bean01ReflectiveAccessTest {
 
 	@Test
 	void testBeanMap() {
-		ReflectiveAccess<Bean01> access = ReflectiveAccess.get(Bean01.class);
+		ClassAccess<Bean01> access = ClassAccess.get(Bean01.class);
 		Bean01 bean01 = access.newInstance(false);
 		BeanMap<Bean01> map = Beans.newBeanMap(bean01);
 		executable.accept(() -> map.put("intProperty", 1));
@@ -64,7 +64,7 @@ public class Bean01ReflectiveAccessTest {
 
 	@Test
 	void testReflectiveAccess() {
-		ReflectiveAccess<Bean01> access = ReflectiveAccess.get(Bean01.class);
+		ClassAccess<Bean01> access = ClassAccess.get(Bean01.class);
 		Bean01 bean01 = access.newInstance(false);
 		executable.accept(() -> access.invokeMethod(bean01, "testStaticVoid"));
 		executable.accept(() -> access.invokeMethod(bean01, "testStaticVoidWithException"));

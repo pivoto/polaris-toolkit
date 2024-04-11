@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import io.polaris.core.asm.reflect.ReflectiveAccess;
+import io.polaris.core.asm.reflect.ClassAccess;
 import io.polaris.core.jdbc.annotation.Column;
 import io.polaris.core.jdbc.annotation.Id;
 import io.polaris.core.jdbc.annotation.Table;
@@ -66,12 +66,12 @@ public class TableMetaKit {
 			String metaClassName = entityClassName + annotation.metaSuffix();
 			Class<?> c = Class.forName(metaClassName);
 			if (IEntityMeta.class.isAssignableFrom(c)) {
-				ReflectiveAccess<?> reflectiveAccess = ReflectiveAccess.get(c);
-				String schema = (String) reflectiveAccess.getField(null, "SCHEMA");
-				String catalog = (String) reflectiveAccess.getField(null, "CATALOG");
-				String table = (String) reflectiveAccess.getField(null, "TABLE");
-				String alias = (String) reflectiveAccess.getField(null, "ALIAS");
-				Map<String, ColumnMeta> columns = (Map<String, ColumnMeta>) reflectiveAccess.getField(null, "COLUMNS");
+				ClassAccess<?> classAccess = ClassAccess.get(c);
+				String schema = (String) classAccess.getField(null, "SCHEMA");
+				String catalog = (String) classAccess.getField(null, "CATALOG");
+				String table = (String) classAccess.getField(null, "TABLE");
+				String alias = (String) classAccess.getField(null, "ALIAS");
+				Map<String, ColumnMeta> columns = (Map<String, ColumnMeta>) classAccess.getField(null, "COLUMNS");
 				return TableMeta.builder().entityClass(entityClass)
 					.table(table).alias(alias)
 					.columns(columns).schema(schema).catalog(catalog).build();
