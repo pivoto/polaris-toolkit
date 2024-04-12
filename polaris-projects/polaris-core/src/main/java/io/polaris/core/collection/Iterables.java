@@ -292,7 +292,7 @@ public class Iterables {
 		if (array1 == null || array2 == null) {
 			return false;
 		}
-		if (array1.length != array1.length) {
+		if (array1.length != array2.length) {
 			return false;
 		}
 		for (int i = 0; i < array1.length; i++) {
