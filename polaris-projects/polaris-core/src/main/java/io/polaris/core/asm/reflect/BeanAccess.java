@@ -127,6 +127,10 @@ public abstract class BeanAccess<T> {
 		return setterIndices.containsKey(property);
 	}
 
+	public Map<String, Integer> setterIndices() {
+		return Collections.unmodifiableMap(setterIndices);
+	}
+
 	public Set<String> setterPropertyNames() {
 		return Collections.unmodifiableSet(setterIndices.keySet());
 	}
@@ -160,6 +164,10 @@ public abstract class BeanAccess<T> {
 		return getterIndices.containsKey(property);
 	}
 
+	public Map<String, Integer> getterIndices() {
+		return Collections.unmodifiableMap(getterIndices);
+	}
+
 	public Set<String> getterPropertyNames() {
 		return Collections.unmodifiableSet(getterIndices.keySet());
 	}
@@ -191,6 +199,10 @@ public abstract class BeanAccess<T> {
 
 	public boolean containsField(String property) {
 		return fieldIndices.containsKey(property);
+	}
+
+	public Map<String, Integer> fieldIndices() {
+		return Collections.unmodifiableMap(fieldIndices);
 	}
 
 	public Set<String> fieldNames() {
@@ -240,6 +252,10 @@ public abstract class BeanAccess<T> {
 
 	public boolean containsStaticField(String property) {
 		return staticFieldIndices.containsKey(property);
+	}
+
+	public Map<String, Integer> staticFieldIndices() {
+		return Collections.unmodifiableMap(setterIndices);
 	}
 
 	public Set<String> staticFieldNames() {
