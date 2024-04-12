@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 @Warmup(iterations = 1) // 先预热1轮
 @Measurement(iterations = 2) // 进行2轮测试
 @Threads(128)
-public class Bean01ReflectiveAccessTest {
+public class BenchmarkReflectiveAccessBean01Test {
 
 
 	Consumer<Executable> executable = (r) -> {

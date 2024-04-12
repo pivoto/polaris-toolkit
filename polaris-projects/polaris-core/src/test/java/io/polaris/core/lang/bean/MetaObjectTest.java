@@ -17,8 +17,8 @@ public class MetaObjectTest {
 	void test01() {
 		MetaObject<MetaT> meta = MetaObject.of(MetaT.class);
 		MetaT target = meta.newInstance();
+		long val = System.currentTimeMillis() + 3600000;
 		{
-			long val = System.currentTimeMillis() + 3600000;
 			meta.setPathProperty(target, "id", val);
 			meta.setPathProperty(target, "name", Randoms.randomString(10));
 			meta.setPathProperty(target, "date", val);
@@ -37,9 +37,9 @@ public class MetaObjectTest {
 			TestConsole.println(k + " -> " + v);
 		});
 		TestConsole.println();
-		TestConsole.println(meta.getPathProperty(target, "array.1"));
-		TestConsole.println(meta.getPathProperty(target, "array.4"));
-		TestConsole.println(meta.getPathProperty(target, "array.x"));
+		TestConsole.println("array.1 -> {}",meta.getPathProperty(target, "array.1"));
+		TestConsole.println("array.4 -> {}",meta.getPathProperty(target, "array.4"));
+		TestConsole.println("array.x -> {}",meta.getPathProperty(target, "array.x"));
 
 
 		TestConsole.println();
