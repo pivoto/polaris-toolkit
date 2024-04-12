@@ -36,6 +36,9 @@ public abstract class BaseCopier<S, T> implements Copier<T> {
 	}
 
 	protected Object convert(Type targetType, Object value) {
+		if (!options.isEnableConverter()) {
+			return value;
+		}
 		return (options.getConverter() != null) ?
 			options.getConverter().apply(targetType, value) : value;
 	}

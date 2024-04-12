@@ -36,6 +36,11 @@ public class BeanToMapCopier<T> extends BaseCopier<T, Map> {
 		}
 		try {
 			BeanMap<T> sourceMap = Beans.newBeanMap(source, actualEditable);
+
+			JavaType<Object> javaType = JavaType.of(this.targetType);
+			Type keyType = javaType.getActualType(Map.class, 0);
+			Type valueType = javaType.getActualType(Map.class, 1);
+
 			sourceMap.forEach(wrapConsumer((sourceKey, value) -> {
 				sourceKey = super.editKey(sourceKey);
 				if (sourceKey == null) {
@@ -51,15 +56,14 @@ public class BeanToMapCopier<T> extends BaseCopier<T, Map> {
 				if (!super.filter(sourceKey, type, value)) {
 					return;
 				}
-				JavaType<Object> javaType = JavaType.of(this.targetType);
-				Object targetKey = super.convert(javaType.getActualType(Map.class, 0), sourceKey);
+				Object targetKey = super.convert(keyType, sourceKey);
 				if (!options.isOverride()) {
 					Object orig = target.get(sourceKey);
 					if (orig != null) {
 						return;
 					}
 				}
-				value = super.convert(javaType.getActualType(Map.class, 1), value);
+				value = super.convert(valueType, value);
 				value = super.editValue(sourceKey, value);
 				if (value == null && options.isIgnoreNull()) {
 					return;

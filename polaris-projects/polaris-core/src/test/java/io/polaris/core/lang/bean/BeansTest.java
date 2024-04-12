@@ -38,9 +38,9 @@ public class BeansTest {
 	@Test
 	void test01() throws Exception {
 		Bean01 o = new Bean01();
-		new BeanMap(o);
+		Map<String, Object> map = Beans.newBeanMap(o);
 		long time = Times.millsTime(1000, () -> {
-			BeanMap beanMap = new BeanMap(o);
+			BeanMap beanMap = Beans.newBeanMap(o);
 		});
 		TestConsole.println("time: " + time);
 	}

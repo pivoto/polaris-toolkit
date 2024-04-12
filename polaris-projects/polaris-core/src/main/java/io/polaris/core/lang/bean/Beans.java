@@ -1,5 +1,21 @@
 package io.polaris.core.lang.bean;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.lang.copier.Copiers;
 import io.polaris.core.lang.copier.CopyOptions;
@@ -7,16 +23,6 @@ import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.string.StringCases;
-import lombok.val;
-
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * @author Qt
@@ -36,28 +42,26 @@ public class Beans {
 	}
 
 	public static <T> BeanMapBuilder<T> newBeanMapBuilder(T bean) {
-		return new BeanMapBuilder<T>(bean);
+		return BeanMapBuilder.of(bean);
 	}
 
-	public static <T> BeanMap<T> newBeanMap(T bean
-		, Class<?> beanType, BiFunction<Object, Type, Object> converter
-		, Function<String, Object> fallbackGetter
-		, BiConsumer<String, Object> fallbackSetter) {
-		return new BeanMap<>(bean, beanType, converter, fallbackGetter, fallbackSetter);
+	public static <T> BeanMap<T> newBeanMap(T bean, Class<?> beanType, BeanMapOptions options) {
+		return BeanMapBuilder.of(bean).beanType(beanType).options(options).build();
 	}
 
 	public static <T> BeanMap<T> newBeanMap(T bean, Class<?> beanType) {
-		return newBeanMap(bean, beanType, null, null, null);
+		return BeanMapBuilder.of(bean).beanType(beanType).build();
 	}
 
 	public static <T> BeanMap<T> newBeanMap(T bean) {
-		return newBeanMap(bean, bean.getClass(), null, null, null);
+		return new BeanMapBuilder<T>(bean).build();
 	}
 
-	public static <T> BeanMap<T> newBeanMap(T bean, BiFunction<Object, Type, Object> converter) {
-		return newBeanMap(bean, bean.getClass(), converter, null, null);
+	public static <T> BeanMap<T> newBeanMap(T bean, BiFunction<Type, Object, Object> converter) {
+		return new BeanMapBuilder<T>(bean)
+			.options(BeanMapOptions.newOptions().enableConverter(true).converter(converter))
+			.build();
 	}
-
 
 	public static <T> T copyBean(Object source, Class<T> clazz) {
 		return copyBean(source, clazz, null);
@@ -99,21 +103,21 @@ public class Beans {
 
 	public static Map<String, Object> copyBean(Object bean, String... properties) {
 		int mapSize = 16;
-		Function<String, String> keyEditor = null;
+		Function<String, String> keyMapping = null;
 		if (properties.length > 0) {
 			mapSize = properties.length;
 			Set<String> propertiesSet = Iterables.asSet(properties);
-			keyEditor = property -> propertiesSet.contains(property) ? property : null;
+			keyMapping = property -> propertiesSet.contains(property) ? property : null;
 		}
 		// 指明了要复制的属性 所以不忽略null值
-		return copyBean(bean, new LinkedHashMap<>(mapSize, 1), false, keyEditor);
+		return copyBean(bean, new LinkedHashMap<>(mapSize), false, keyMapping);
 	}
 
-	public static Map<String, Object> copyBean(Object bean, Map<String, Object> targetMap, boolean ignoreNull, Function<String, String> keyEditor) {
+	public static Map<String, Object> copyBean(Object bean, Map<String, Object> targetMap, boolean ignoreNull, Function<String, String> keyMapping) {
 		if (null == bean) {
 			return null;
 		}
-		return Copiers.create(bean, targetMap, CopyOptions.create().ignoreNull(ignoreNull).keyMapping(keyEditor)).copy();
+		return Copiers.create(bean, targetMap, CopyOptions.create().ignoreNull(ignoreNull).keyMapping(keyMapping)).copy();
 	}
 
 
@@ -136,18 +140,18 @@ public class Beans {
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public static void setProperty(final Object bean, final String name, final Object value) {
-		if (bean instanceof Map){
+		if (bean instanceof Map) {
 			((Map) bean).put(name, value);
-		}else {
+		} else {
 			Beans.newBeanMap(bean).put(name, value);
 		}
 	}
 
 	@SuppressWarnings("rawtypes")
 	public static Object getProperty(Object bean, String name) {
-		if (bean instanceof Map){
+		if (bean instanceof Map) {
 			return ((Map) bean).get(name);
-		}else {
+		} else {
 			return Beans.newBeanMap(bean).get(name);
 		}
 	}

@@ -6,6 +6,7 @@ import io.polaris.core.random.Randoms;
 import io.polaris.core.tuple.Tuple;
 import io.polaris.core.tuple.Tuples;
 import lombok.Data;
+import lombok.experimental.FieldNameConstants;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -16,6 +17,7 @@ import java.util.*;
  * @since 1.8,  Aug 05, 2023
  */
 @Data
+@FieldNameConstants
 public class Bean01 extends Bean01Parent{
 	private static final ILogger log = ILoggers.of(Bean01.class);
 	static String staticId;

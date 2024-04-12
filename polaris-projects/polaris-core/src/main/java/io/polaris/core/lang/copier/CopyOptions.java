@@ -12,6 +12,7 @@ import java.util.function.Function;
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.converter.Converters;
 import io.polaris.core.function.TernaryFunction;
+import io.polaris.core.lang.Types;
 import lombok.Getter;
 
 /**
@@ -20,6 +21,28 @@ import lombok.Getter;
  */
 @Getter
 public class CopyOptions {
+
+	public static final BiFunction<Type, Object, Object> DEFAULT_CONVERTER = Converters::convertQuietly;
+	public static final BiFunction<Type, Object, Object> PROPERTY_EDITOR_CONVERTER = (type, value) -> {
+		if (value == null) {
+			return null;
+		}
+		Class<?> rawClass = Types.getWrapperClass(Types.getClass(type));
+		Class<?> valueClass = Types.getWrapperClass(value.getClass());
+		if (rawClass.isAssignableFrom(valueClass)) {
+			return value;
+		}
+		PropertyEditor editor = PropertyEditorManager.findEditor((Class<?>) type);
+		if (editor != null) {
+			if (value instanceof String) {
+				editor.setAsText((String) value);
+			} else {
+				editor.setAsText(value.toString());
+			}
+			return editor.getValue();
+		}
+		return value;
+	};
 	/**
 	 * 限制的类或接口，必须为目标对象的实现接口或父类，用于限制拷贝的属性，例如一个类我只想复制其父类的一些属性，就可以将editable设置为父类<br>
 	 * 如果目标对象是Map，源对象是Bean，则作用于源对象上
@@ -47,22 +70,10 @@ public class CopyOptions {
 	private Set<String> ignoreKeys;
 	/** 属性过滤器，断言通过的属性才会被复制。<br> 断言参数中Field为源对象的属性对象,如果不存在则使用目标对象，Object为源对象的对应值 */
 	private TernaryFunction<String, Type, Object, Boolean> filter;
+	/** 是否启用类型转换器 */
+	private boolean enableConverter = true;
 	/** 自定义类型转换器 */
-	private BiFunction<Type, Object, Object> converter = (type, value) -> {
-		if (value == null) {
-			return null;
-		}
-		Object rs = Converters.convertQuietly(type, value);
-		if (rs == null) {
-			if (type instanceof Class) {
-				PropertyEditor editor = PropertyEditorManager.findEditor((Class<?>) type);
-				if (editor != null) {
-					editor.setValue(value);
-				}
-			}
-		}
-		return rs;
-	};
+	private BiFunction<Type, Object, Object> converter = DEFAULT_CONVERTER;
 
 
 	public static CopyOptions create() {
@@ -183,9 +194,31 @@ public class CopyOptions {
 		return this;
 	}
 
+
+	/** 是否启用类型转换器 */
+	public CopyOptions enableConverter(boolean enableConverter) {
+		this.enableConverter = enableConverter;
+		return this;
+	}
+
+	/** 是否启用类型转换器 */
+	public CopyOptions enableConverter() {
+		return enableConverter(true);
+	}
+
 	/** 自定义类型转换器 */
 	public CopyOptions converter(BiFunction<Type, Object, Object> converter) {
 		this.converter = converter;
+		return this;
+	}
+
+	public CopyOptions useDefaultConverter() {
+		this.converter = DEFAULT_CONVERTER;
+		return this;
+	}
+
+	public CopyOptions usePropertyEditorConverter() {
+		this.converter = PROPERTY_EDITOR_CONVERTER;
 		return this;
 	}
 

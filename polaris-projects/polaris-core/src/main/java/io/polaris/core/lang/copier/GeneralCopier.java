@@ -17,6 +17,7 @@ public class GeneralCopier<T> implements Copier<T> {
 	 * @param targetType  目标的泛型类型，用于标注有泛型参数的Bean对象
 	 * @param copyOptions 拷贝属性选项
 	 */
+	@SuppressWarnings("unchecked")
 	public GeneralCopier(Object source, T target, Type targetType, CopyOptions copyOptions) {
 		if (source instanceof Map) {
 			if (target instanceof Map) {
@@ -26,7 +27,7 @@ public class GeneralCopier<T> implements Copier<T> {
 			}
 		} else {
 			if (target instanceof Map) {
-				copier = (Copier<T>) new BeanToMapCopier(source, (Map<?, ?>) target, targetType, copyOptions);
+				copier = (Copier<T>) new BeanToMapCopier<>(source, (Map<?, ?>) target, targetType, copyOptions);
 			} else {
 				copier = new BeanToBeanCopier<>(source, target, targetType, copyOptions);
 			}

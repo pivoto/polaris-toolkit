@@ -29,6 +29,10 @@ public class MapToMapCopier extends BaseCopier<Map, Map> {
 	@Override
 	public Map copy() {
 		try {
+			JavaType<Object> javaType = JavaType.of(this.targetType);
+			Type valueType = javaType.getActualType(Map.class, 1);
+			Type keyType = javaType.getActualType(Map.class, 0);
+
 			this.source.forEach(wrapConsumer((key, value) -> {
 				if (key == null) {
 					return;
@@ -37,7 +41,6 @@ public class MapToMapCopier extends BaseCopier<Map, Map> {
 					return;
 				}
 
-				JavaType<Object> javaType = JavaType.of(this.targetType);
 				if (key instanceof String) {
 					final String keyStr = super.editKey(key.toString());
 					if (keyStr == null) {
@@ -46,12 +49,12 @@ public class MapToMapCopier extends BaseCopier<Map, Map> {
 					if (super.isIgnore(keyStr)) {
 						return;
 					}
-					value = super.convert(javaType.getActualType(Map.class, 1), value);
+					value = super.convert(valueType, value);
 					value = super.editValue(keyStr, value);
-					key = super.convert(javaType.getActualType(Map.class, 0), keyStr);
+					key = super.convert(keyType, keyStr);
 				} else {
-					key = super.convert(javaType.getActualType(Map.class, 0), key);
-					value = super.convert(javaType.getActualType(Map.class, 1), value);
+					key = super.convert(keyType, key);
+					value = super.convert(valueType, value);
 				}
 				if (value == null && options.isIgnoreNull()) {
 					return;
