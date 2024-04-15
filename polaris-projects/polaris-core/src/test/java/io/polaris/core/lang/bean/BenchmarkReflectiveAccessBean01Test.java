@@ -38,7 +38,7 @@ public class BenchmarkReflectiveAccessBean01Test {
 		MethodAccess methodAccess = MethodAccess.get(Bean01.class);
 		executable.accept(() -> TestConsole.println(methodAccess.getClass()));
 		executable.accept(() -> TestConsole.println(methodAccess.getClass().getClassLoader()));
-		Class<BeanMetadata> metadataClass = BeanMetadatas.getMetadataClass(Bean01.class);
+		Class<BeanMetadataV1> metadataClass = BeanMetadatasV1.getMetadataClass(Bean01.class);
 		executable.accept(() -> TestConsole.println(metadataClass));
 		executable.accept(() -> TestConsole.println(metadataClass.getClassLoader()));
 	}

@@ -2,10 +2,13 @@ package io.polaris.core.lang.copier;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import io.polaris.core.lang.bean.BeanMap;
 import io.polaris.core.lang.bean.Beans;
+import io.polaris.core.lang.bean.PropertyAccessor;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
 import io.polaris.core.map.SetMultiMap;
@@ -16,7 +19,7 @@ import io.polaris.core.tuple.Tuple2;
  * @since 1.8
  */
 @SuppressWarnings("rawtypes")
-public class BeanToBeanCopier<S, T> extends BaseCopier<S, T> {
+public class BeanToBeanCopier<S, T> extends BaseToBeanCopier<S, T> {
 	private static final ILogger log = ILoggers.of(BeanToBeanCopier.class);
 
 	/**
@@ -37,12 +40,14 @@ public class BeanToBeanCopier<S, T> extends BaseCopier<S, T> {
 		}
 
 		try {
-			final BeanMap<S> sourceMap = Beans.newBeanMap(source);
-			final BeanMap<T> targetMap = Beans.newBeanMap(target, actualEditable);
-			final SetMultiMap<String, String> candidates = createTargetBeanMapCandidateKeys(targetMap);
-			final List<Tuple2<String, Object>> sourceEntries = new ArrayList<>(sourceMap.size());
+			// 记录已复制key
+			final Set<String> recorder = new HashSet<>();
+			final Map<String, PropertyAccessor> accessors = Beans.getIndexedFieldAndPropertyAccessors(actualEditable);
+			final SetMultiMap<String, String> candidates = createTargetBeanMapCandidateKeys(accessors);
 
-			sourceMap.forEach(wrapConsumer((sourceKey, value) -> {
+			final Map<String, PropertyAccessor> sourceAccessors = Beans.getIndexedFieldAndPropertyAccessors(source.getClass());
+			final List<Tuple2<String, Object>> sourceEntries = new ArrayList<>(sourceAccessors.size());
+			sourceAccessors.forEach(wrapConsumer((sourceKey, sourceAccessor) -> {
 				sourceKey = super.editKey(sourceKey);
 				if (sourceKey == null) {
 					return;
@@ -50,17 +55,22 @@ public class BeanToBeanCopier<S, T> extends BaseCopier<S, T> {
 				if (super.isIgnore(sourceKey)) {
 					return;
 				}
+				if(!sourceAccessor.hasSetter()){
+					return;
+				}
+				Object value = sourceAccessor.get(source);
 				if (value == null && options.isIgnoreNull()) {
 					return;
 				}
 				sourceEntries.add(Tuple2.of(sourceKey, value));
 			}));
-			setTargetValues(sourceEntries, targetMap, candidates);
+			// set with candidates
+			setTargetValues(sourceEntries, accessors,candidates, recorder);
 		} catch (Exception e) {
 			if (!options.isIgnoreError()) {
 				throw new UnsupportedOperationException(e);
 			} else {
-				log.warn("对象复制失败：{}", e.getMessage());
+				log.warn("Copy failed：{}", e.getMessage());
 				if (log.isDebugEnabled()) {
 					log.debug(e.getMessage(), e);
 				}

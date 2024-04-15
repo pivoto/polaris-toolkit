@@ -1,10 +1,10 @@
-package io.polaris.core.lang.bean;
+package io.polaris.core.lang.bean.property;
 
 /**
  * @author Qt
  * @since 1.8,  Aug 28, 2023
  */
-public interface BeanPropertyBuilder<T> {
+public interface PropertyBuilder<T> {
 
 
 	/**
@@ -13,18 +13,18 @@ public interface BeanPropertyBuilder<T> {
 	 * @param orig
 	 * @return
 	 */
-	BeanPropertyBuilder<T> from(Object orig);
+	PropertyBuilder<T> from(Object orig);
 
 	/**
 	 * 是否忽略空属性值
 	 *
 	 * @return
 	 */
-	BeanPropertyBuilder<T> ignoreNull(boolean ignored);
+	PropertyBuilder<T> ignoreNull(boolean ignored);
 
-	BeanPropertyBuilder<T> mapAll();
+	PropertyBuilder<T> mapAll();
 
-	BeanPropertyBuilder<T> mapAll(Class<?> clazz);
+	PropertyBuilder<T> mapAll(Class<?> clazz);
 
 	/**
 	 * 配置属性映射关系
@@ -33,7 +33,7 @@ public interface BeanPropertyBuilder<T> {
 	 * @param destProperty 目标对象属性表达式
 	 * @return
 	 */
-	BeanPropertyBuilder<T> map(String origProperty, String destProperty);
+	PropertyBuilder<T> map(String origProperty, String destProperty);
 
 	/**
 	 * 设置目标对象的属性的值
@@ -42,14 +42,14 @@ public interface BeanPropertyBuilder<T> {
 	 * @param value        属性值
 	 * @return
 	 */
-	BeanPropertyBuilder<T> set(String destProperty, Object value);
+	PropertyBuilder<T> set(String destProperty, Object value);
 
 	/**
 	 * 执行所有属性映射操作,已执行过的操作不会重复执行
 	 *
 	 * @return
 	 */
-	BeanPropertyBuilder<T> exec();
+	PropertyBuilder<T> exec();
 
 	/**
 	 * 执行所有属性映射操作并返回目标对象

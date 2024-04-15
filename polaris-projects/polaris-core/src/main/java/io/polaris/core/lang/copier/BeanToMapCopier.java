@@ -4,8 +4,8 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 import io.polaris.core.lang.JavaType;
-import io.polaris.core.lang.bean.BeanMap;
 import io.polaris.core.lang.bean.Beans;
+import io.polaris.core.lang.bean.PropertyAccessor;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
 
@@ -35,13 +35,13 @@ public class BeanToMapCopier<T> extends BaseCopier<T, Map> {
 			actualEditable = options.getEditable();
 		}
 		try {
-			BeanMap<T> sourceMap = Beans.newBeanMap(source, actualEditable);
+			final Map<String, PropertyAccessor> sourceAccessors = Beans.getIndexedFieldAndPropertyAccessors(source.getClass());
 
 			JavaType<Object> javaType = JavaType.of(this.targetType);
 			Type keyType = javaType.getActualType(Map.class, 0);
 			Type valueType = javaType.getActualType(Map.class, 1);
 
-			sourceMap.forEach(wrapConsumer((sourceKey, value) -> {
+			sourceAccessors.forEach(wrapConsumer((sourceKey, sourceAccessor) -> {
 				sourceKey = super.editKey(sourceKey);
 				if (sourceKey == null) {
 					return;
@@ -49,10 +49,14 @@ public class BeanToMapCopier<T> extends BaseCopier<T, Map> {
 				if (super.isIgnore(sourceKey)) {
 					return;
 				}
+				if(!sourceAccessor.hasSetter()){
+					return;
+				}
+				Object value = sourceAccessor.get(source);
 				if (value == null && options.isIgnoreNull()) {
 					return;
 				}
-				Type type = sourceMap.getType(sourceKey);
+				Type type = sourceAccessor.type();
 				if (!super.filter(sourceKey, type, value)) {
 					return;
 				}
@@ -76,7 +80,7 @@ public class BeanToMapCopier<T> extends BaseCopier<T, Map> {
 			if (!options.isIgnoreError()) {
 				throw new UnsupportedOperationException(e);
 			} else {
-				log.warn("对象复制失败：{}", e.getMessage());
+				log.warn("Copy failed：{}", e.getMessage());
 				if (log.isDebugEnabled()) {
 					log.debug(e.getMessage(), e);
 				}

@@ -1,6 +1,5 @@
-package io.polaris.core.lang.bean.impl;
+package io.polaris.core.lang.bean.property;
 
-import io.polaris.core.lang.bean.BeanPropertyBuilder;
 import io.polaris.core.lang.bean.Beans;
 
 import java.lang.reflect.Array;
@@ -12,15 +11,15 @@ import java.util.List;
  * @author Qt
  * @since 1.8,  Dec 28, 2023
  */
-public class ListBeanPropertyBuilder<T> extends AbstractBeanPropertyBuilder<List<T>> implements BeanPropertyBuilder<List<T>> {
+public class ListPropertyBuilder<T> extends AbstractPropertyBuilder<List<T>> implements PropertyBuilder<List<T>> {
 	private List<T> list;
 	private Class<T> clazz;
 
-	public ListBeanPropertyBuilder(List<T> list, Class<T> clazz) {
+	public ListPropertyBuilder(List<T> list, Class<T> clazz) {
 		this(list, clazz, 0);
 	}
 
-	public ListBeanPropertyBuilder(List<T> list, Class<T> clazz, int size) {
+	public ListPropertyBuilder(List<T> list, Class<T> clazz, int size) {
 		if (list == null) {
 			this.list = new ArrayList<>();
 		} else {
@@ -58,16 +57,16 @@ public class ListBeanPropertyBuilder<T> extends AbstractBeanPropertyBuilder<List
 
 	@SuppressWarnings({"rawtypes"})
 	@Override
-	public void exec(Seriation seriation) {
-		Object orig = seriation.orig;
+	public void exec(Operation operation) {
+		Object orig = operation.orig;
 		if (orig != null) {
 			if (orig instanceof Collection) {
 				int i = 0;
 				for (Object o : (Collection) orig) {
-					Object val = Beans.getPathProperty(o, seriation.origProperty);
-					if (val != null || !seriation.ignoredNull) {
+					Object val = Beans.getPathProperty(o, operation.origProperty);
+					if (val != null || !operation.ignoredNull) {
 						Object one = getIndexObj(i);
-						Beans.setPathProperty(one, seriation.destProperty, val);
+						Beans.setPathProperty(one, operation.destProperty, val);
 					}
 					i++;
 				}
@@ -75,24 +74,24 @@ public class ListBeanPropertyBuilder<T> extends AbstractBeanPropertyBuilder<List
 				int len = Array.getLength(orig);
 				for (int i = 0; i < len; i++) {
 					Object o = Array.get(orig, i);
-					Object val = Beans.getPathProperty(o, seriation.origProperty);
-					if (val != null || !seriation.ignoredNull) {
+					Object val = Beans.getPathProperty(o, operation.origProperty);
+					if (val != null || !operation.ignoredNull) {
 						Object one = getIndexObj(i);
-						Beans.setPathProperty(one, seriation.destProperty, val);
+						Beans.setPathProperty(one, operation.destProperty, val);
 					}
 				}
 			} else {
 				for (Object one : list) {
-					Object val = Beans.getPathProperty(orig, seriation.origProperty);
-					if (val != null || !seriation.ignoredNull) {
-						Beans.setPathProperty(one, seriation.destProperty, val);
+					Object val = Beans.getPathProperty(orig, operation.origProperty);
+					if (val != null || !operation.ignoredNull) {
+						Beans.setPathProperty(one, operation.destProperty, val);
 					}
 				}
 			}
 		} else {
 			for (Object one : list) {
-				if (seriation.propertyValue != null || !seriation.ignoredNull) {
-					Beans.setPathProperty(one, seriation.destProperty, seriation.propertyValue);
+				if (operation.propertyValue != null || !operation.ignoredNull) {
+					Beans.setPathProperty(one, operation.destProperty, operation.propertyValue);
 				}
 			}
 		}

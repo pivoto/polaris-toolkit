@@ -2,6 +2,7 @@ package io.polaris.core.lang.bean;
 
 import io.polaris.core.TestConsole;
 import io.polaris.core.time.Times;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -9,16 +10,13 @@ import java.util.Map;
 public class BeansTest {
 
 	@Test
-	void testBeanAccess() throws ReflectiveOperationException {
+	void testBeanMap() throws ReflectiveOperationException {
 		Bean01 o = new Bean01();
 		Map<String, Object> map = Beans.newBeanMap(o);
-		TestConsole.println(map);
-		TestConsole.println(o);
 		map.put("id", "test");
 		map.put("nickName", "test");
 
-		TestConsole.println(map);
-		TestConsole.println(o);
+		Assertions.assertEquals(map.toString(), o.toString());
 
 		map.forEach((k, v) -> {
 			TestConsole.println("{} -> {}", k, v);
@@ -27,9 +25,9 @@ public class BeansTest {
 	}
 
 	@Test
-	void test02() throws Exception {
-		Class<BeanMetadata> metadataClass = BeanMetadatas.getMetadataClass(Bean01.class);
-		BeanMetadata iMetadata = metadataClass.newInstance();
+	void testBeanMetadatasV1() throws Exception {
+		Class<BeanMetadataV1> metadataClass = BeanMetadatasV1.getMetadataClass(Bean01.class);
+		BeanMetadataV1 iMetadata = metadataClass.newInstance();
 		TestConsole.println(iMetadata.types());
 		TestConsole.println(iMetadata.getters());
 		TestConsole.println(iMetadata.setters());

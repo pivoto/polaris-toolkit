@@ -1,18 +1,5 @@
 package io.polaris.core.lang.bean;
 
-import io.polaris.core.asm.AsmTypeSignatures;
-import io.polaris.core.compiler.MemoryClassLoader;
-import io.polaris.core.compiler.MemoryCompiler;
-import io.polaris.core.err.InvocationException;
-import io.polaris.core.lang.TypeRef;
-import io.polaris.core.reflect.Reflects;
-import io.polaris.core.reflect.SerializableFunction;
-import io.polaris.core.tuple.Tuple2;
-import io.polaris.core.tuple.Tuples;
-import com.squareup.javapoet.*;
-import org.objectweb.asm.*;
-
-import javax.lang.model.element.Modifier;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -25,40 +12,86 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static org.objectweb.asm.Opcodes.*;
+import javax.lang.model.element.Modifier;
+
+import io.polaris.core.asm.AsmTypeSignatures;
+import io.polaris.core.compiler.MemoryClassLoader;
+import io.polaris.core.compiler.MemoryCompiler;
+import io.polaris.core.err.InvocationException;
+import io.polaris.core.lang.TypeRef;
+import io.polaris.core.reflect.Reflects;
+import io.polaris.core.reflect.SerializableFunction;
+import io.polaris.core.tuple.Tuple2;
+import io.polaris.core.tuple.Tuples;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.Handle;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
+
+import static org.objectweb.asm.Opcodes.ACC_FINAL;
+import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.ACC_STATIC;
+import static org.objectweb.asm.Opcodes.ACC_SUPER;
+import static org.objectweb.asm.Opcodes.ACC_SYNTHETIC;
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ARETURN;
+import static org.objectweb.asm.Opcodes.ASTORE;
+import static org.objectweb.asm.Opcodes.ATHROW;
+import static org.objectweb.asm.Opcodes.CHECKCAST;
+import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
+import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.objectweb.asm.Opcodes.NEW;
+import static org.objectweb.asm.Opcodes.POP;
+import static org.objectweb.asm.Opcodes.PUTFIELD;
+import static org.objectweb.asm.Opcodes.RETURN;
+import static org.objectweb.asm.Opcodes.V1_8;
 
 /**
  * @author Qt
  * @since 1.8,  Aug 03, 2023
  */
-class BeanMetadataBuilder {
+class BeanMetadataV1Builder {
 	private static final AtomicLong seq = new AtomicLong(0);
 	private static final String $$_BEAN_METADATA_$$ = "$$BeanMetadata$$";
 
 
 	@SuppressWarnings("unchecked")
-	static <T> Class<BeanMetadata> buildMetadataClass(Class<T> beanType) {
+	static <T> Class<BeanMetadataV1> buildMetadataClass(Class<T> beanType) {
 		try {
-			Tuple2<String, Map<String, byte[]>> rs = BeanMetadataBuilder.buildMetadataClassBytes(beanType);
+			Tuple2<String, Map<String, byte[]>> rs = BeanMetadataV1Builder.buildMetadataClassBytes(beanType);
 			MemoryClassLoader loader = MemoryClassLoader.getInstance(beanType.getClassLoader());
 			Map<String, byte[]> classes = rs.getSecond();
 			classes.forEach(loader::add);
 			Class<?> clazz = loader.loadClass(rs.getFirst());
-			return (Class<BeanMetadata>) clazz;
+			return (Class<BeanMetadataV1>) clazz;
 		} catch (IntrospectionException | ClassNotFoundException e) {
 			throw new IllegalStateException(e);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	static <T> Class<BeanMetadata> buildMetadataClassWithInnerTypeRef(Class<T> beanType) {
+	static <T> Class<BeanMetadataV1> buildMetadataClassWithInnerTypeRef(Class<T> beanType) {
 		try {
-			Tuple2<String, Map<String, byte[]>> rs = BeanMetadataBuilder.buildMetadataClassBytesWithInnerTypeRef(beanType);
+			Tuple2<String, Map<String, byte[]>> rs = BeanMetadataV1Builder.buildMetadataClassBytesWithInnerTypeRef(beanType);
 			MemoryClassLoader loader = MemoryClassLoader.getInstance(beanType.getClassLoader());
 			Map<String, byte[]> classes = rs.getSecond();
 			classes.forEach(loader::add);
 			Class<?> clazz = loader.loadClass(rs.getFirst());
-			return (Class<BeanMetadata>) clazz;
+			return (Class<BeanMetadataV1>) clazz;
 		} catch (IntrospectionException | ClassNotFoundException e) {
 			throw new IllegalStateException(e);
 		}
@@ -74,7 +107,7 @@ class BeanMetadataBuilder {
 		}
 
 		String className = javaClassName.replace('.', '/');
-		String interfaceName = BeanMetadata.class.getName().replace('.', '/');
+		String interfaceName = BeanMetadataV1.class.getName().replace('.', '/');
 		ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
 		classWriter.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className,
 			null, "java/lang/Object", new String[]{interfaceName});
@@ -86,12 +119,12 @@ class BeanMetadataBuilder {
 		injectConstructor(classWriter);
 		// types
 		{
-			String getPropertyTypes = ((SerializableFunction<Class<?>, Map<String, Type>>) BeanMetadatas::getPropertyTypes).serialized().getImplMethodName();
+			String getPropertyTypes = ((SerializableFunction<Class<?>, Map<String, Type>>) BeanMetadatasV1::getPropertyTypes).serialized().getImplMethodName();
 			MethodVisitor methodVisitor = classWriter.visitMethod(ACC_PUBLIC, "types", "()Ljava/util/Map;", "()Ljava/util/Map<Ljava/lang/String;Ljava/lang/reflect/Type;>;", null);
 			methodVisitor.visitCode();
 			methodVisitor.visitLdcInsn(org.objectweb.asm.Type.getType(beanType));
 			methodVisitor.visitMethodInsn(INVOKESTATIC,
-				BeanMetadatas.class.getName().replace('.', '/'),
+				BeanMetadatasV1.class.getName().replace('.', '/'),
 				getPropertyTypes, "(Ljava/lang/Class;)Ljava/util/Map;", false);
 			methodVisitor.visitInsn(ARETURN);
 			methodVisitor.visitMaxs(1, 1);
@@ -123,7 +156,7 @@ class BeanMetadataBuilder {
 		}
 
 		String className = javaClassName.replace('.', '/');
-		String interfaceName = BeanMetadata.class.getName().replace('.', '/');
+		String interfaceName = BeanMetadataV1.class.getName().replace('.', '/');
 		ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
 		classWriter.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className,
 			null, "java/lang/Object", new String[]{interfaceName});
@@ -464,7 +497,7 @@ class BeanMetadataBuilder {
 	}
 
 
-	static <T> Class<BeanMetadata> buildMetadataClassByJdk(Class<T> beanType) {
+	static <T> Class<BeanMetadataV1> buildMetadataClassByJdk(Class<T> beanType) {
 		try {
 			String javaPackageName = beanType.getPackage().getName();
 			if (javaPackageName.startsWith("java.")) {
@@ -475,10 +508,10 @@ class BeanMetadataBuilder {
 			ClassName className = ClassName.get(javaPackageName,
 				beanType.getSimpleName() + $$_BEAN_METADATA_$$ + seq.incrementAndGet());
 			TypeSpec.Builder classBuilder = TypeSpec.classBuilder(className)
-				.addModifiers(javax.lang.model.element.Modifier.PUBLIC)
-				.addSuperinterface(ClassName.get(BeanMetadata.class))
+				.addModifiers(Modifier.PUBLIC)
+				.addSuperinterface(ClassName.get(BeanMetadataV1.class))
 				.addMethod(
-					MethodSpec.constructorBuilder().addModifiers(javax.lang.model.element.Modifier.PUBLIC)
+					MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC)
 						.build()
 				);
 
@@ -504,11 +537,11 @@ class BeanMetadataBuilder {
 				// Map<String, Function<Object, Object>> getters();
 				MethodSpec.Builder gettersMethodBuilder = MethodSpec.methodBuilder("getters")
 					.returns(gettersType)
-					.addModifiers(javax.lang.model.element.Modifier.PUBLIC);
+					.addModifiers(Modifier.PUBLIC);
 				// Map<String, BiConsumer<Object, Object>> setters();
 				MethodSpec.Builder settersMethodBuilder = MethodSpec.methodBuilder("setters")
 					.returns(settersType)
-					.addModifiers(javax.lang.model.element.Modifier.PUBLIC);
+					.addModifiers(Modifier.PUBLIC);
 				// Map<String, Type> types();
 				MethodSpec.Builder typesMethodBuilder = MethodSpec.methodBuilder("types")
 					.returns(typesType)

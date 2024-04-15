@@ -2,25 +2,42 @@ package io.polaris.core.lang.bean;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import io.polaris.core.asm.reflect.BeanAccess;
+import io.polaris.core.asm.reflect.BeanLambdaAccess;
+import io.polaris.core.asm.reflect.BeanPropertyInfo;
 import io.polaris.core.collection.Iterables;
+import io.polaris.core.converter.Converters;
+import io.polaris.core.lang.Types;
+import io.polaris.core.lang.bean.property.ListPropertyBuilder;
+import io.polaris.core.lang.bean.property.PropertyBuilder;
+import io.polaris.core.lang.bean.property.StdPropertyBuilder;
 import io.polaris.core.lang.copier.Copiers;
 import io.polaris.core.lang.copier.CopyOptions;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
+import io.polaris.core.map.Maps;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.string.StringCases;
 
@@ -75,7 +92,7 @@ public class Beans {
 		if (null == source || null == targetSupplier) {
 			return null;
 		}
-		final T target = targetSupplier.get();
+		T target = targetSupplier.get();
 		copyBean(source, target, options);
 		return target;
 	}
@@ -94,7 +111,7 @@ public class Beans {
 		return copyBean(bean, new LinkedHashMap<>(), isUnderlineCase, ignoreNull);
 	}
 
-	public static Map<String, Object> copyBean(Object bean, Map<String, Object> targetMap, final boolean isUnderlineCase, boolean ignoreNull) {
+	public static Map<String, Object> copyBean(Object bean, Map<String, Object> targetMap, boolean isUnderlineCase, boolean ignoreNull) {
 		if (null == bean) {
 			return null;
 		}
@@ -121,38 +138,58 @@ public class Beans {
 	}
 
 
-	public static <T> BeanPropertyBuilder<T> newBeanPropertyBuilder(T dest) {
-		return BeanPropertyBuilders.of(dest);
+	public static <T> PropertyBuilder<T> newPropertyBuilder(T dest) {
+		return new StdPropertyBuilder<>(dest);
 	}
 
-	public static <T> BeanPropertyBuilder<T> newBeanPropertyBuilder(Class<T> destType) {
-		return BeanPropertyBuilders.of(destType);
+	public static <T> PropertyBuilder<T> newPropertyBuilder(Class<T> destType) {
+		return new StdPropertyBuilder<>(destType);
 	}
 
-	public static <T> BeanPropertyBuilder<List<T>> newBeanPropertyBuilder(List<T> list, Class<T> type) {
-		return BeanPropertyBuilders.of(list, type);
+	public static <T> PropertyBuilder<List<T>> newPropertyBuilder(List<T> list, Class<T> type) {
+		return new ListPropertyBuilder<T>(list, type);
 	}
 
-	public static <T> BeanPropertyBuilder<List<T>> newBeanPropertyBuilder(List<T> list, Class<T> type, int size) {
-		return BeanPropertyBuilders.of(list, type, size);
+	public static <T> PropertyBuilder<List<T>> newPropertyBuilder(List<T> list, Class<T> type, int size) {
+		return new ListPropertyBuilder<T>(list, type, size);
 	}
 
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	public static void setProperty(final Object bean, final String name, final Object value) {
+	public static void setProperty(Object bean, String name, Object value) {
 		if (bean instanceof Map) {
+			//noinspection rawtypes,unchecked
 			((Map) bean).put(name, value);
 		} else {
-			Beans.newBeanMap(bean).put(name, value);
+			PropertyAccessor accessor = getIndexedFieldAndPropertyAccessor(bean.getClass(), name);
+			if (accessor != null && accessor.hasSetter()) {
+				Type type = accessor.type();
+				if (value == null && Types.isPrimitive(Types.getClass(type))) {
+					// 基本类型不能赋null
+					return;
+				}
+				if (value != null) {
+					// 非null值转换类型
+					value = Converters.convertQuietly(type, value);
+					if (value != null) {
+						// 转换失败忽略
+						accessor.set(bean, value);
+					}
+				} else {
+					// 直接赋值为null
+					accessor.set(bean, null);
+				}
+			}
 		}
 	}
 
-	@SuppressWarnings("rawtypes")
+
 	public static Object getProperty(Object bean, String name) {
 		if (bean instanceof Map) {
+			//noinspection rawtypes
 			return ((Map) bean).get(name);
 		} else {
-			return Beans.newBeanMap(bean).get(name);
+			PropertyAccessor accessor = getIndexedFieldAndPropertyAccessor(bean.getClass(), name);
+			return accessor != null && accessor.hasGetter() ? accessor.get(bean) : null;
 		}
 	}
 
@@ -277,4 +314,126 @@ public class Beans {
 		return queue;
 	}
 
+
+	@Nullable
+	public static <T> PropertyAccessor getIndexedPropertyAccessor(Class<T> beanType, String name) {
+		return getIndexedPropertyAccessors(beanType).get(name);
+	}
+
+	@Nullable
+	public static <T> PropertyAccessor getIndexedFieldAndPropertyAccessor(Class<T> beanType, String name) {
+		return getIndexedFieldAndPropertyAccessors(beanType).get(name);
+	}
+
+	@Nullable
+	public static <T> PropertyAccessor getLambdaPropertyAccessor(Class<T> beanType, String name) {
+		return getLambdaPropertyAccessors(beanType).get(name);
+	}
+
+	@Nullable
+	public static <T> PropertyAccessor getLambdaFieldAndPropertyAccessor(Class<T> beanType, String name) {
+		return getLambdaFieldAndPropertyAccessors(beanType).get(name);
+	}
+
+	@Nonnull
+	public static <T> Map<String, PropertyAccessor> getIndexedPropertyAccessors(Class<T> beanType) {
+		Map<String, PropertyAccessor>[] metadata = IndexedCache.getMetadata(beanType);
+		return metadata[0];
+	}
+
+	@Nonnull
+	public static <T> Map<String, PropertyAccessor> getIndexedFieldAndPropertyAccessors(Class<T> beanType) {
+		Map<String, PropertyAccessor>[] metadata = IndexedCache.getMetadata(beanType);
+		return metadata[1];
+	}
+
+	@Nonnull
+	public static <T> Map<String, PropertyAccessor> getLambdaPropertyAccessors(Class<T> beanType) {
+		Map<String, PropertyAccessor>[] metadata = LambdaCache.getMetadata(beanType);
+		return metadata[0];
+	}
+
+	@Nonnull
+	public static <T> Map<String, PropertyAccessor> getLambdaFieldAndPropertyAccessors(Class<T> beanType) {
+		Map<String, PropertyAccessor>[] metadata = LambdaCache.getMetadata(beanType);
+		return metadata[1];
+	}
+
+
+	static class IndexedCache {
+		private static final Map<Class<?>, Map<String, PropertyAccessor>[]> PROPERTIES = Maps.newSoftMap(new ConcurrentHashMap<>());
+
+		@SuppressWarnings("unchecked")
+		private static <T> Map<String, PropertyAccessor>[] createMetadata(Class<T> beanType) {
+			BeanAccess<T> access = BeanAccess.get(beanType);
+			Map<String, BeanPropertyInfo> accessProperties = access.properties();
+			Map<String, PropertyAccessor> properties = new HashMap<>(accessProperties.size());
+			Map<String, PropertyAccessor> propertiesWithFields = new HashMap<>(accessProperties.size());
+			for (Map.Entry<String, BeanPropertyInfo> entry : accessProperties.entrySet()) {
+				BeanPropertyInfo beanPropertyInfo = entry.getValue();
+				Type propertyGenericType = beanPropertyInfo.getPropertyGenericType();
+				String propertyName = beanPropertyInfo.getPropertyName();
+				if (beanPropertyInfo.getField() != null) {
+					// 忽略static field
+					if (Modifier.isStatic(beanPropertyInfo.getField().getModifiers())) {
+						continue;
+					}
+					int fieldIndex = access.getFieldIndex(propertyName);
+					PropertyAccessor accessor = new PropertyFieldIndexedAccessor(access, propertyGenericType, fieldIndex);
+					propertiesWithFields.put(propertyName, accessor);
+				} else {
+					int getterIndex = access.getGetterIndex(propertyName);
+					int setterIndex = access.getSetterIndex(propertyName);
+					PropertyAccessor accessor = new PropertyIndexedAccessor(access, propertyGenericType, getterIndex, setterIndex);
+					properties.put(propertyName, accessor);
+					propertiesWithFields.put(propertyName, accessor);
+				}
+			}
+			return new Map[]{Collections.unmodifiableMap(properties), Collections.unmodifiableMap(propertiesWithFields)};
+		}
+
+		@Nonnull
+		static <T> Map<String, PropertyAccessor>[] getMetadata(Class<T> beanType) {
+			return PROPERTIES.computeIfAbsent(beanType, IndexedCache::createMetadata);
+		}
+	}
+
+	static class LambdaCache {
+		private static final Map<Class<?>, Map<String, PropertyAccessor>[]> PROPERTIES = Maps.newSoftMap(new ConcurrentHashMap<>());
+
+		@SuppressWarnings("unchecked")
+		private static <T> Map<String, PropertyAccessor>[] createMetadata(Class<T> beanType) {
+			BeanLambdaAccess<T> access = BeanLambdaAccess.get(beanType);
+			Map<String, BeanPropertyInfo> accessProperties = access.properties();
+			Map<String, PropertyAccessor> properties = new HashMap<>(accessProperties.size());
+			Map<String, PropertyAccessor> propertiesWithFields = new HashMap<>(accessProperties.size());
+			for (Map.Entry<String, BeanPropertyInfo> entry : accessProperties.entrySet()) {
+				BeanPropertyInfo beanPropertyInfo = entry.getValue();
+				Type propertyGenericType = beanPropertyInfo.getPropertyGenericType();
+				String propertyName = beanPropertyInfo.getPropertyName();
+				if (beanPropertyInfo.getField() != null) {
+					// 忽略static field
+					if (Modifier.isStatic(beanPropertyInfo.getField().getModifiers())) {
+						continue;
+					}
+					Function<Object, Object> getter = access.getFieldGetter(propertyName);
+					BiConsumer<Object, Object> setter = access.getFieldSetter(propertyName);
+					PropertyAccessor accessor = new PropertyLambdaAccessor(access, propertyGenericType, getter, setter);
+					propertiesWithFields.put(propertyName, accessor);
+				} else {
+					Function<Object, Object> getter = access.getGetter(propertyName);
+					BiConsumer<Object, Object> setter = access.getSetter(propertyName);
+					PropertyAccessor accessor = new PropertyLambdaAccessor(access, propertyGenericType, getter, setter);
+					properties.put(propertyName, accessor);
+					propertiesWithFields.put(propertyName, accessor);
+				}
+			}
+			return new Map[]{Collections.unmodifiableMap(properties), Collections.unmodifiableMap(propertiesWithFields)};
+		}
+
+		@Nonnull
+		static <T> Map<String, PropertyAccessor>[] getMetadata(Class<T> beanType) {
+			return PROPERTIES.computeIfAbsent(beanType, LambdaCache::createMetadata);
+		}
+	}
 }

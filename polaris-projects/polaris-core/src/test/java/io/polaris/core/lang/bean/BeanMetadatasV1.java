@@ -1,7 +1,5 @@
 package io.polaris.core.lang.bean;
 
-import io.polaris.core.map.Maps;
-
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -15,20 +13,22 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import io.polaris.core.map.Maps;
+
 /**
  * @author Qt
  * @since 1.8,  Aug 03, 2023
  */
-public class BeanMetadatas {
+public class BeanMetadatasV1 {
 
-	private static final Map<Class<?>, Class<BeanMetadata>> METADATA_CLASSES = Maps.newSoftMap(new ConcurrentHashMap<>());
-	private static final Map<Class<?>, BeanMetadata> METADATA_CACHES = Maps.newSoftMap(new ConcurrentHashMap<>());
+	private static final Map<Class<?>, Class<BeanMetadataV1>> METADATA_CLASSES = Maps.newSoftMap(new ConcurrentHashMap<>());
+	private static final Map<Class<?>, BeanMetadataV1> METADATA_CACHES = Maps.newSoftMap(new ConcurrentHashMap<>());
 
-	public static <T> BeanMetadata getMetadata(Class<T> beanType) {
-		BeanMetadata cache = METADATA_CACHES.computeIfAbsent(beanType, c -> {
+	public static <T> BeanMetadataV1 getMetadata(Class<T> beanType) {
+		BeanMetadataV1 cache = METADATA_CACHES.computeIfAbsent(beanType, c -> {
 			try {
-				BeanMetadata metadata = BeanMetadatas.getMetadataClass(beanType).newInstance();
-				return new BeanMetadatas.BeanMetadataCache(metadata);
+				BeanMetadataV1 metadata = BeanMetadatasV1.getMetadataClass(beanType).newInstance();
+				return new BeanMetadataV1Cache(metadata);
 			} catch (ReflectiveOperationException e) {
 				throw new RuntimeException(e);
 			}
@@ -54,20 +54,20 @@ public class BeanMetadatas {
 		}
 	}
 
-	public static <T> Class<BeanMetadata> getMetadataClass(Class<T> beanType) {
-		return METADATA_CLASSES.computeIfAbsent(beanType, c -> BeanMetadataBuilder.buildMetadataClass(beanType));
+	public static <T> Class<BeanMetadataV1> getMetadataClass(Class<T> beanType) {
+		return METADATA_CLASSES.computeIfAbsent(beanType, c -> BeanMetadataV1Builder.buildMetadataClass(beanType));
 	}
 
-	protected static class BeanMetadataCache implements BeanMetadata {
+	protected static class BeanMetadataV1Cache implements BeanMetadataV1 {
 		private final Map<String, Type> types;
 		private final Map<String, Function<Object, Object>> getters;
 		private final Map<String, BiConsumer<Object, Object>> setters;
 
-		protected BeanMetadataCache(BeanMetadata metadata) {
+		protected BeanMetadataV1Cache(BeanMetadataV1 metadata) {
 			this(metadata.types(), metadata.getters(), metadata.setters());
 		}
 
-		public BeanMetadataCache(Map<String, Type> types, Map<String, Function<Object, Object>> getters, Map<String, BiConsumer<Object, Object>> setters) {
+		public BeanMetadataV1Cache(Map<String, Type> types, Map<String, Function<Object, Object>> getters, Map<String, BiConsumer<Object, Object>> setters) {
 			this.types = Collections.unmodifiableMap(types);
 			this.getters = Collections.unmodifiableMap(getters);
 			this.setters = Collections.unmodifiableMap(setters);

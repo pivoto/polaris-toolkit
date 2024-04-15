@@ -1,6 +1,5 @@
 package io.polaris.core.lang.bean;
 
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,8 +8,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nonnull;
 
-import io.polaris.core.asm.reflect.BeanAccess;
-import io.polaris.core.asm.reflect.BeanPropertyInfo;
 import io.polaris.core.converter.Converters;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.TypeRef;
@@ -27,44 +24,23 @@ import io.polaris.core.string.StringCases;
 public class IndexedMetaObject<T> extends MetaObject<T> {
 	private static final ILogger log = ILoggers.of(IndexedMetaObject.class);
 	private static final Map<JavaType<?>, IndexedMetaObject<?>> CACHE = Maps.newWeakKeyMap(new ConcurrentHashMap<>());
-	private Map<String, IndexedAccessor> properties;
-	private Map<String, IndexedAccessor> propertiesCaseInsensitive;
+	private Map<String, IndexedProperty> properties;
+	private Map<String, IndexedProperty> propertiesCaseInsensitive;
 
 
 	private IndexedMetaObject(JavaType<T> beanType) {
 		super(beanType);
 	}
 
-	static class IndexedAccessor {
-		private final BeanAccess<?> access;
+	static class IndexedProperty {
 		private final MetaObject<?> meta;
-		private final boolean field;
-		private final int getter;
-		private final int setter;
+		private final PropertyAccessor accessor;
 
-		IndexedAccessor(BeanAccess<?> access, MetaObject<?> meta, boolean field, int getter, int setter) {
-			this.access = access;
+		IndexedProperty(MetaObject<?> meta, PropertyAccessor accessor) {
 			this.meta = meta;
-			this.field = field;
-			this.getter = getter;
-			this.setter = setter;
+			this.accessor = accessor;
 		}
 
-		public Object get(Object bean) {
-			if (field) {
-				return access.getIndexField(bean, getter);
-			} else {
-				return access.getIndexProperty(bean, getter);
-			}
-		}
-
-		public void set(Object bean, Object val) {
-			if (field) {
-				access.setIndexField(bean, setter, val);
-			} else {
-				access.setIndexProperty(bean, setter, val);
-			}
-		}
 	}
 
 
@@ -103,41 +79,22 @@ public class IndexedMetaObject<T> extends MetaObject<T> {
 	@SuppressWarnings("all")
 	@Override
 	protected boolean initBeanAccessor(Class<T> rawClass) {
-		BeanAccess<T> access = BeanAccess.get(rawClass);
-
-		Map<String, IndexedAccessor> properties = new HashMap<>(64);
-		for (Map.Entry<String, BeanPropertyInfo> entry : access.properties().entrySet()) {
-			BeanPropertyInfo beanPropertyInfo = entry.getValue();
-			Type propertyGenericType = beanPropertyInfo.getPropertyGenericType();
-			String propertyName = beanPropertyInfo.getPropertyName();
-
-			if (beanPropertyInfo.getField() != null) {
-				// 忽略static field
-				if (Modifier.isStatic(beanPropertyInfo.getField().getModifiers())) {
-					continue;
-				}
-				IndexedMetaObject<Object> meta = IndexedMetaObject.of(propertyGenericType);
-				int fieldIndex = access.getFieldIndex(propertyName);
-				IndexedAccessor accessor = new IndexedAccessor(access, meta, true, fieldIndex, fieldIndex);
-				properties.put(propertyName, accessor);
-			} else {
-				IndexedMetaObject<Object> meta = IndexedMetaObject.of(propertyGenericType);
-				int getterIndex = access.getGetterIndex(propertyName);
-				int setterIndex = access.getSetterIndex(propertyName);
-				IndexedAccessor accessor = new IndexedAccessor(access, meta, false, getterIndex, setterIndex);
-				properties.put(propertyName, accessor);
-			}
-		}
-
-		int size = properties.size();
+		Map<String, PropertyAccessor> accessors = Beans.getIndexedFieldAndPropertyAccessors(rawClass);
+		int size = accessors.size();
 		if (size > 0) {
-			this.properties = new HashMap<>(2 * size);
-			this.properties.putAll(properties);
+			Map<String, IndexedProperty> properties = new HashMap<>(size);
+			Map<String, IndexedProperty> propertiesCaseInsensitive = new CaseInsensitiveMap<>(new HashMap<>(size), true);
+			for (Map.Entry<String, PropertyAccessor> entry : accessors.entrySet()) {
+				String propertyName = entry.getKey();
+				PropertyAccessor accessor = entry.getValue();
+				Type type = accessor.type();
+				IndexedMetaObject<?> meta = IndexedMetaObject.of(type);
+				IndexedProperty indexedProperty =  	new IndexedProperty(meta, accessor);
+				properties.put(propertyName, indexedProperty);
+				propertiesCaseInsensitive.put(propertyName, indexedProperty);
+			}
 			this.properties = Collections.unmodifiableMap(properties);
-
-			this.propertiesCaseInsensitive = new CaseInsensitiveMap<>(new HashMap<>(2 * size), true);
-			this.propertiesCaseInsensitive.putAll(properties);
-			this.propertiesCaseInsensitive = Collections.unmodifiableMap(this.propertiesCaseInsensitive);
+			this.propertiesCaseInsensitive = Collections.unmodifiableMap(propertiesCaseInsensitive);
 			return true;
 		}
 
@@ -145,163 +102,164 @@ public class IndexedMetaObject<T> extends MetaObject<T> {
 	}
 
 	@Override
-	protected Object getBeanPropertyOrSetDefault(@Nonnull T o, int caseModel, @Nonnull String property) {
-		IndexedAccessor accessor = properties.get(property);
-		if (accessor == null || accessor.getter < 0 || accessor.setter < 0) {
+	protected Object getBeanPropertyOrSetDefault(@Nonnull T o, int caseModel, @Nonnull String name) {
+		IndexedProperty property = properties.get(name);
+		if (property == null || !property.accessor.hasGetter() || !property.accessor.hasSetter()) {
 			if (isCaseInsensitive(caseModel)) {
-				accessor = propertiesCaseInsensitive.get(property);
+				property = propertiesCaseInsensitive.get(name);
 			}
-			if (accessor == null || accessor.getter < 0 || accessor.setter < 0) {
+			if (property == null || !property.accessor.hasGetter() || !property.accessor.hasSetter()) {
 				if (isCaseCamel(caseModel)) {
-					String propertyCamelCase = StringCases.underlineToCamelCase(property);
-					accessor = properties.get(propertyCamelCase);
-					if (accessor == null || accessor.getter < 0 || accessor.setter < 0) {
+					String propertyCamelCase = StringCases.underlineToCamelCase(name);
+					property = properties.get(propertyCamelCase);
+					if (property == null || !property.accessor.hasGetter() || !property.accessor.hasSetter()) {
 						if (isCaseInsensitive(caseModel)) {
-							accessor = propertiesCaseInsensitive.get(propertyCamelCase);
+							property = propertiesCaseInsensitive.get(propertyCamelCase);
 						}
 					}
 				}
 			}
-			if (accessor == null || accessor.getter < 0 || accessor.setter < 0) {
+			if (property == null || !property.accessor.hasGetter() || !property.accessor.hasSetter()) {
 				@SuppressWarnings("unchecked")
 				MetaObject<T> rtMeta = createMetaObject(JavaType.of((Class<T>) o.getClass()));
 				if (this.equals(rtMeta) || rtMeta.isObject() || rtMeta.isBasic() || rtMeta.isEnum()) {
-					log.debug("不支持的属性：{}:{}", getBeanType().getTypeName(), property);
+					log.debug("Unsupported property：{}:{}", getBeanType().getTypeName(), name);
 					return null;
 				} else {
-					return rtMeta.getPropertyOrSetDefault(o, caseModel, property);
+					return rtMeta.getPropertyOrSetDefault(o, caseModel, name);
 				}
 			}
 		}
-		Object val = accessor.get(o);
+		Object val = property.accessor.get(o);
 		if (val == null) {
-			val = accessor.meta.newInstance();
-			accessor.set(o, val);
+			val = property.meta.newInstance();
+			property.accessor.set(o, val);
 		}
 		return val;
 	}
 
 	@Override
-	protected Object setBeanProperty(@Nonnull T o, int caseModel, @Nonnull String property, Object val) {
-		IndexedAccessor accessor = properties.get(property);
-		if (accessor == null || accessor.setter < 0) {
+	protected Object setBeanProperty(@Nonnull T o, int caseModel, @Nonnull String name, Object val) {
+		IndexedProperty property = properties.get(name);
+		if (property == null || !property.accessor.hasSetter()) {
 			if (isCaseInsensitive(caseModel)) {
-				accessor = propertiesCaseInsensitive.get(property);
+				property = propertiesCaseInsensitive.get(name);
 			}
-			if (accessor == null || accessor.setter < 0) {
+			if (property == null || !property.accessor.hasSetter()) {
 				if (isCaseCamel(caseModel)) {
-					String propertyCamelCase = StringCases.underlineToCamelCase(property);
-					accessor = properties.get(propertyCamelCase);
-					if (accessor == null || accessor.setter < 0) {
+					String propertyCamelCase = StringCases.underlineToCamelCase(name);
+					property = properties.get(propertyCamelCase);
+					if (property == null || !property.accessor.hasSetter()) {
 						if (isCaseInsensitive(caseModel)) {
-							accessor = propertiesCaseInsensitive.get(propertyCamelCase);
+							property = propertiesCaseInsensitive.get(propertyCamelCase);
 						}
 					}
 				}
 			}
-			if (accessor == null || accessor.setter < 0) {
+			if (property == null || !property.accessor.hasSetter()) {
 				@SuppressWarnings("unchecked")
 				MetaObject<T> rtMeta = createMetaObject(JavaType.of((Class<T>) o.getClass()));
 				if (this.equals(rtMeta) || rtMeta.isObject() || rtMeta.isBasic() || rtMeta.isEnum()) {
-					log.debug("不支持的属性：{}:{}", getBeanType().getTypeName(), property);
+					log.debug("Unsupported property：{}:{}", getBeanType().getTypeName(), name);
 					return null;
 				} else {
-					return rtMeta.setProperty(o, caseModel, property, val);
+					return rtMeta.setProperty(o, caseModel, name, val);
 				}
 			}
 		}
-		accessor.set(o, val = Converters.convertQuietly(accessor.meta.getBeanType(), val));
+		Object val1 = val = Converters.convertQuietly(property.meta.getBeanType(), val);
+		property.accessor.set(o, val1);
 		return val;
 	}
 
 	@Override
 	@SuppressWarnings("all")
-	protected MetaObject<?> getBeanProperty(int caseModel, @Nonnull String property) {
-		IndexedAccessor accessor = properties.get(property);
-		if (accessor == null) {
+	protected MetaObject<?> getBeanProperty(int caseModel, @Nonnull String name) {
+		IndexedProperty property = properties.get(name);
+		if (property == null) {
 			if (isCaseInsensitive(caseModel)) {
-				accessor = propertiesCaseInsensitive.get(property);
+				property = propertiesCaseInsensitive.get(name);
 			}
-			if (accessor == null) {
+			if (property == null) {
 				if (isCaseCamel(caseModel)) {
-					String propertyCamelCase = StringCases.underlineToCamelCase(property);
-					accessor = properties.get(propertyCamelCase);
-					if (accessor == null) {
+					String propertyCamelCase = StringCases.underlineToCamelCase(name);
+					property = properties.get(propertyCamelCase);
+					if (property == null) {
 						if (isCaseInsensitive(caseModel)) {
-							accessor = propertiesCaseInsensitive.get(propertyCamelCase);
+							property = propertiesCaseInsensitive.get(propertyCamelCase);
 						}
 					}
 				}
 			}
-			if (accessor == null) {
-				log.debug("不支持的属性：{}:{}", getBeanType().getTypeName(), property);
+			if (property == null) {
+				log.debug("Unsupported property：{}:{}", getBeanType().getTypeName(), name);
 				return null;
 			}
 		}
-		return accessor.meta;
+		return property.meta;
 	}
 
 	@Override
-	protected Object getBeanProperty(@Nonnull T o, int caseModel, @Nonnull String property) {
-		IndexedAccessor accessor = properties.get(property);
-		if (accessor == null || accessor.getter < 0) {
+	protected Object getBeanProperty(@Nonnull T o, int caseModel, @Nonnull String name) {
+		IndexedProperty property = properties.get(name);
+		if (property == null || !property.accessor.hasGetter()) {
 			if (isCaseInsensitive(caseModel)) {
-				accessor = propertiesCaseInsensitive.get(property);
+				property = propertiesCaseInsensitive.get(name);
 			}
-			if (accessor == null || accessor.getter < 0) {
+			if (property == null || !property.accessor.hasGetter()) {
 				if (isCaseCamel(caseModel)) {
-					String propertyCamelCase = StringCases.underlineToCamelCase(property);
-					accessor = properties.get(propertyCamelCase);
-					if (accessor == null || accessor.getter < 0) {
+					String propertyCamelCase = StringCases.underlineToCamelCase(name);
+					property = properties.get(propertyCamelCase);
+					if (property == null || !property.accessor.hasGetter()) {
 						if (isCaseInsensitive(caseModel)) {
-							accessor = propertiesCaseInsensitive.get(propertyCamelCase);
+							property = propertiesCaseInsensitive.get(propertyCamelCase);
 						}
 					}
 				}
 			}
-			if (accessor == null || accessor.getter < 0) {
+			if (property == null || !property.accessor.hasGetter()) {
 				@SuppressWarnings("unchecked")
 				MetaObject<T> rtMeta = createMetaObject(JavaType.of((Class<T>) o.getClass()));
 				if (this.equals(rtMeta) || rtMeta.isObject() || rtMeta.isBasic() || rtMeta.isEnum()) {
-					log.debug("不支持的属性：{}:{}", getBeanType().getTypeName(), property);
+					log.debug("Unsupported property：{}:{}", getBeanType().getTypeName(), name);
 					return null;
 				} else {
-					return rtMeta.getProperty(o, caseModel, property);
+					return rtMeta.getProperty(o, caseModel, name);
 				}
 			}
 		}
-		return accessor.get(o);
+		return property.accessor.get(o);
 	}
 
 	@Override
-	protected boolean hasBeanProperty(@Nonnull T o, int caseModel, @Nonnull String property) {
-		IndexedAccessor accessor = properties.get(property);
-		if (accessor == null || accessor.getter < 0) {
+	protected boolean hasBeanProperty(@Nonnull T o, int caseModel, @Nonnull String name) {
+		IndexedProperty property = properties.get(name);
+		if (property == null || !property.accessor.hasGetter()) {
 			if (isCaseInsensitive(caseModel)) {
-				accessor = propertiesCaseInsensitive.get(property);
+				property = propertiesCaseInsensitive.get(name);
 			}
-			if (accessor == null || accessor.getter < 0) {
+			if (property == null || !property.accessor.hasGetter()) {
 				if (isCaseCamel(caseModel)) {
-					String propertyCamelCase = StringCases.underlineToCamelCase(property);
-					accessor = properties.get(propertyCamelCase);
-					if (accessor == null || accessor.getter < 0) {
+					String propertyCamelCase = StringCases.underlineToCamelCase(name);
+					property = properties.get(propertyCamelCase);
+					if (property == null || !property.accessor.hasGetter()) {
 						if (isCaseInsensitive(caseModel)) {
-							accessor = propertiesCaseInsensitive.get(propertyCamelCase);
+							property = propertiesCaseInsensitive.get(propertyCamelCase);
 						}
 					}
 				}
 			}
-			if (accessor == null || accessor.getter < 0) {
+			if (property == null || !property.accessor.hasGetter()) {
 				@SuppressWarnings("unchecked")
 				MetaObject<T> rtMeta = createMetaObject(JavaType.of((Class<T>) o.getClass()));
 				if (this.equals(rtMeta) || rtMeta.isObject() || rtMeta.isBasic() || rtMeta.isEnum()) {
 					return false;
 				} else {
-					return rtMeta.hasProperty(o, caseModel, property);
+					return rtMeta.hasProperty(o, caseModel, name);
 				}
 			}
 		}
-		return accessor.get(o) != null;
+		return property.accessor.get(o) != null;
 	}
 
 

@@ -1,18 +1,13 @@
 package io.polaris.core.lang.bean;
 
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 
-import io.polaris.core.asm.reflect.BeanLambdaAccess;
-import io.polaris.core.asm.reflect.BeanPropertyInfo;
 import io.polaris.core.converter.Converters;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.TypeRef;
@@ -21,8 +16,6 @@ import io.polaris.core.log.ILoggers;
 import io.polaris.core.map.CaseInsensitiveMap;
 import io.polaris.core.map.Maps;
 import io.polaris.core.string.StringCases;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * @author Qt
@@ -31,8 +24,8 @@ import lombok.Setter;
 public class LambdaMetaObject<T> extends MetaObject<T> {
 	private static final ILogger log = ILoggers.of(LambdaMetaObject.class);
 	private static final Map<JavaType<?>, LambdaMetaObject<?>> CACHE = Maps.newWeakKeyMap(new ConcurrentHashMap<>());
-	private Map<String, LambdaAccessor> properties;
-	private Map<String, LambdaAccessor> propertiesCaseInsensitive;
+	private Map<String, LambdaProperty> properties;
+	private Map<String, LambdaProperty> propertiesCaseInsensitive;
 
 
 	private LambdaMetaObject(JavaType<T> beanType) {
@@ -40,26 +33,15 @@ public class LambdaMetaObject<T> extends MetaObject<T> {
 	}
 
 
-	@Getter
-	@Setter
-	static class LambdaAccessor {
-		private final LambdaMetaObject<?> meta;
-		private final Function<Object, Object> getter;
-		private final BiConsumer<Object, Object> setter;
+	static class LambdaProperty {
+		private final MetaObject<?> meta;
+		private final PropertyAccessor accessor;
 
-		LambdaAccessor(LambdaMetaObject<?> meta, Function<Object, Object> getter, BiConsumer<Object, Object> setter) {
+		LambdaProperty(MetaObject<?> meta, PropertyAccessor accessor) {
 			this.meta = meta;
-			this.getter = getter;
-			this.setter = setter;
+			this.accessor = accessor;
 		}
 
-		public Object get(Object bean) {
-			return getter.apply(bean);
-		}
-
-		public void set(Object bean, Object val) {
-			setter.accept(bean, val);
-		}
 	}
 
 	@SuppressWarnings("all")
@@ -96,41 +78,23 @@ public class LambdaMetaObject<T> extends MetaObject<T> {
 	@SuppressWarnings("all")
 	@Override
 	protected boolean initBeanAccessor(Class<T> rawClass) {
-		BeanLambdaAccess<T> access = BeanLambdaAccess.get(rawClass);
-
-		Map<String, LambdaAccessor> properties = new HashMap<>(64);
-		for (Map.Entry<String, BeanPropertyInfo> entry : access.properties().entrySet()) {
-			BeanPropertyInfo beanPropertyInfo = entry.getValue();
-			Type propertyGenericType = beanPropertyInfo.getPropertyGenericType();
-			String propertyName = beanPropertyInfo.getPropertyName();
-			if (beanPropertyInfo.getField() != null) {
-				// 忽略static field
-				if (Modifier.isStatic(beanPropertyInfo.getField().getModifiers())) {
-					continue;
-				}
-				LambdaMetaObject<Object> meta = LambdaMetaObject.of(propertyGenericType);
-				Function<Object, Object> getter = access.getFieldGetter(propertyName);
-				BiConsumer<Object, Object> setter = access.getFieldSetter(propertyName);
-				LambdaAccessor accessor = new LambdaAccessor(meta, getter, setter);
-				properties.put(propertyName, accessor);
-			} else {
-				LambdaMetaObject<Object> meta = LambdaMetaObject.of(propertyGenericType);
-				Function<Object, Object> getter = access.getGetter(propertyName);
-				BiConsumer<Object, Object> setter = access.getSetter(propertyName);
-				LambdaAccessor accessor = new LambdaAccessor(meta, getter, setter);
-				properties.put(propertyName, accessor);
-			}
-		}
-
-		int size = properties.size();
+		Map<String, PropertyAccessor> accessors = Beans.getLambdaFieldAndPropertyAccessors(rawClass);
+		int size = accessors.size();
 		if (size > 0) {
-			this.properties = new HashMap<>(2 * size);
-			this.properties.putAll(properties);
-			this.properties = Collections.unmodifiableMap(properties);
+			Map<String, LambdaProperty> properties = new HashMap<>(size);
+			Map<String, LambdaProperty> propertiesCaseInsensitive = new CaseInsensitiveMap<>(new HashMap<>(size), true);
 
-			this.propertiesCaseInsensitive = new CaseInsensitiveMap<>(new HashMap<>(2 * size), true);
-			this.propertiesCaseInsensitive.putAll(properties);
-			this.propertiesCaseInsensitive = Collections.unmodifiableMap(this.propertiesCaseInsensitive);
+			for (Map.Entry<String, PropertyAccessor> entry : accessors.entrySet()) {
+				String propertyName = entry.getKey();
+				PropertyAccessor accessor = entry.getValue();
+				Type type = accessor.type();
+				LambdaMetaObject<Object> meta = LambdaMetaObject.of(type);
+				LambdaProperty lambdaProperty = new LambdaProperty(meta, accessor);
+				properties.put(propertyName, lambdaProperty);
+				propertiesCaseInsensitive.put(propertyName, lambdaProperty);
+			}
+			this.properties = Collections.unmodifiableMap(properties);
+			this.propertiesCaseInsensitive = Collections.unmodifiableMap(propertiesCaseInsensitive);
 			return true;
 		}
 		return false;
@@ -138,163 +102,164 @@ public class LambdaMetaObject<T> extends MetaObject<T> {
 
 
 	@Override
-	protected Object getBeanPropertyOrSetDefault(@Nonnull T o, int caseModel, @Nonnull String property) {
-		LambdaAccessor accessor = properties.get(property);
-		if (accessor == null || accessor.getter == null || accessor.setter == null) {
+	protected Object getBeanPropertyOrSetDefault(@Nonnull T o, int caseModel, @Nonnull String name) {
+		LambdaProperty property = properties.get(name);
+		if (property == null || !property.accessor.hasGetter() || !property.accessor.hasSetter()) {
 			if (isCaseInsensitive(caseModel)) {
-				accessor = propertiesCaseInsensitive.get(property);
+				property = propertiesCaseInsensitive.get(name);
 			}
-			if (accessor == null || accessor.getter == null || accessor.setter == null) {
+			if (property == null || !property.accessor.hasGetter() || !property.accessor.hasSetter()) {
 				if (isCaseCamel(caseModel)) {
-					String propertyCamelCase = StringCases.underlineToCamelCase(property);
-					accessor = properties.get(propertyCamelCase);
-					if (accessor == null || accessor.getter == null || accessor.setter == null) {
+					String propertyCamelCase = StringCases.underlineToCamelCase(name);
+					property = properties.get(propertyCamelCase);
+					if (property == null || !property.accessor.hasGetter() || !property.accessor.hasSetter()) {
 						if (isCaseInsensitive(caseModel)) {
-							accessor = propertiesCaseInsensitive.get(propertyCamelCase);
+							property = propertiesCaseInsensitive.get(propertyCamelCase);
 						}
 					}
 				}
 			}
-			if (accessor == null || accessor.getter == null || accessor.setter == null) {
+			if (property == null || !property.accessor.hasGetter() || !property.accessor.hasSetter()) {
 				@SuppressWarnings("unchecked")
 				MetaObject<T> rtMeta = createMetaObject(JavaType.of((Class<T>) o.getClass()));
 				if (this.equals(rtMeta) || rtMeta.isObject() || rtMeta.isBasic() || rtMeta.isEnum()) {
-					log.debug("不支持的属性：{}:{}", getBeanType().getTypeName(), property);
+					log.debug("Unsupported property：{}:{}", getBeanType().getTypeName(), name);
 					return null;
 				} else {
-					return rtMeta.getPropertyOrSetDefault(o, caseModel, property);
+					return rtMeta.getPropertyOrSetDefault(o, caseModel, name);
 				}
 			}
 		}
-		Object val = accessor.get(o);
+		Object val = property.accessor.get(o);
 		if (val == null) {
-			val = accessor.meta.newInstance();
-			accessor.set(o, val);
+			val = property.meta.newInstance();
+			property.accessor.set(o, val);
 		}
 		return val;
 	}
 
 	@Override
-	protected Object setBeanProperty(@Nonnull T o, int caseModel, @Nonnull String property, Object val) {
-		LambdaAccessor accessor = properties.get(property);
-		if (accessor == null || accessor.setter == null) {
+	protected Object setBeanProperty(@Nonnull T o, int caseModel, @Nonnull String name, Object val) {
+		LambdaProperty property = properties.get(name);
+		if (property == null || !property.accessor.hasSetter()) {
 			if (isCaseInsensitive(caseModel)) {
-				accessor = propertiesCaseInsensitive.get(property);
+				property = propertiesCaseInsensitive.get(name);
 			}
-			if (accessor == null || accessor.setter == null) {
+			if (property == null || !property.accessor.hasSetter()) {
 				if (isCaseCamel(caseModel)) {
-					String propertyCamelCase = StringCases.underlineToCamelCase(property);
-					accessor = properties.get(propertyCamelCase);
-					if (accessor == null || accessor.setter == null) {
+					String propertyCamelCase = StringCases.underlineToCamelCase(name);
+					property = properties.get(propertyCamelCase);
+					if (property == null || !property.accessor.hasSetter()) {
 						if (isCaseInsensitive(caseModel)) {
-							accessor = propertiesCaseInsensitive.get(propertyCamelCase);
+							property = propertiesCaseInsensitive.get(propertyCamelCase);
 						}
 					}
 				}
 			}
-			if (accessor == null || accessor.setter == null) {
+			if (property == null || !property.accessor.hasSetter()) {
 				@SuppressWarnings("unchecked")
 				MetaObject<T> rtMeta = createMetaObject(JavaType.of((Class<T>) o.getClass()));
 				if (this.equals(rtMeta) || rtMeta.isObject() || rtMeta.isBasic() || rtMeta.isEnum()) {
-					log.debug("不支持的属性：{}:{}", getBeanType().getTypeName(), property);
+					log.debug("Unsupported property：{}:{}", getBeanType().getTypeName(), name);
 					return null;
 				} else {
-					return rtMeta.setProperty(o, caseModel, property, val);
+					return rtMeta.setProperty(o, caseModel, name, val);
 				}
 			}
 		}
-		accessor.set(o, val = Converters.convertQuietly(accessor.meta.getBeanType(), val));
+		Object val1 = val = Converters.convertQuietly(property.meta.getBeanType(), val);
+		property.accessor.set(o, val1);
 		return val;
 	}
 
 	@Override
 	@SuppressWarnings("all")
-	protected MetaObject<?> getBeanProperty(int caseModel, @Nonnull String property) {
-		LambdaAccessor accessor = properties.get(property);
-		if (accessor == null) {
+	protected MetaObject<?> getBeanProperty(int caseModel, @Nonnull String name) {
+		LambdaProperty property = properties.get(name);
+		if (property == null) {
 			if (isCaseInsensitive(caseModel)) {
-				accessor = propertiesCaseInsensitive.get(property);
+				property = propertiesCaseInsensitive.get(name);
 			}
-			if (accessor == null) {
+			if (property == null) {
 				if (isCaseCamel(caseModel)) {
-					String propertyCamelCase = StringCases.underlineToCamelCase(property);
-					accessor = properties.get(propertyCamelCase);
-					if (accessor == null) {
+					String propertyCamelCase = StringCases.underlineToCamelCase(name);
+					property = properties.get(propertyCamelCase);
+					if (property == null) {
 						if (isCaseInsensitive(caseModel)) {
-							accessor = propertiesCaseInsensitive.get(propertyCamelCase);
+							property = propertiesCaseInsensitive.get(propertyCamelCase);
 						}
 					}
 				}
 			}
-			if (accessor == null) {
-				log.debug("不支持的属性：{}:{}", getBeanType().getTypeName(), property);
+			if (property == null) {
+				log.debug("Unsupported property：{}:{}", getBeanType().getTypeName(), name);
 				return null;
 			}
 		}
-		return accessor.meta;
+		return property.meta;
 	}
 
 	@Override
-	protected Object getBeanProperty(@Nonnull T o, int caseModel, @Nonnull String property) {
-		LambdaAccessor accessor = properties.get(property);
-		if (accessor == null || accessor.getter == null) {
+	protected Object getBeanProperty(@Nonnull T o, int caseModel, @Nonnull String name) {
+		LambdaProperty property = properties.get(name);
+		if (property == null || !property.accessor.hasGetter()) {
 			if (isCaseInsensitive(caseModel)) {
-				accessor = propertiesCaseInsensitive.get(property);
+				property = propertiesCaseInsensitive.get(name);
 			}
-			if (accessor == null || accessor.getter == null) {
+			if (property == null || !property.accessor.hasGetter()) {
 				if (isCaseCamel(caseModel)) {
-					String propertyCamelCase = StringCases.underlineToCamelCase(property);
-					accessor = properties.get(propertyCamelCase);
-					if (accessor == null || accessor.getter == null) {
+					String propertyCamelCase = StringCases.underlineToCamelCase(name);
+					property = properties.get(propertyCamelCase);
+					if (property == null || !property.accessor.hasGetter()) {
 						if (isCaseInsensitive(caseModel)) {
-							accessor = propertiesCaseInsensitive.get(propertyCamelCase);
+							property = propertiesCaseInsensitive.get(propertyCamelCase);
 						}
 					}
 				}
 			}
-			if (accessor == null || accessor.getter == null) {
+			if (property == null || !property.accessor.hasGetter()) {
 				@SuppressWarnings("unchecked")
 				MetaObject<T> rtMeta = createMetaObject(JavaType.of((Class<T>) o.getClass()));
 				if (this.equals(rtMeta) || rtMeta.isObject() || rtMeta.isBasic() || rtMeta.isEnum()) {
-					log.debug("不支持的属性：{}:{}", getBeanType().getTypeName(), property);
+					log.debug("Unsupported property：{}:{}", getBeanType().getTypeName(), name);
 					return null;
 				} else {
-					return rtMeta.getProperty(o, caseModel, property);
+					return rtMeta.getProperty(o, caseModel, name);
 				}
 			}
 		}
-		return accessor.get(o);
+		return property.accessor.get(o);
 	}
 
 	@Override
-	protected boolean hasBeanProperty(@Nonnull T o, int caseModel, @Nonnull String property) {
-		LambdaAccessor accessor = properties.get(property);
-		if (accessor == null || accessor.getter == null) {
+	protected boolean hasBeanProperty(@Nonnull T o, int caseModel, @Nonnull String name) {
+		LambdaProperty property = properties.get(name);
+		if (property == null || !property.accessor.hasGetter()) {
 			if (isCaseInsensitive(caseModel)) {
-				accessor = propertiesCaseInsensitive.get(property);
+				property = propertiesCaseInsensitive.get(name);
 			}
-			if (accessor == null || accessor.getter == null) {
+			if (property == null || !property.accessor.hasGetter()) {
 				if (isCaseCamel(caseModel)) {
-					String propertyCamelCase = StringCases.underlineToCamelCase(property);
-					accessor = properties.get(propertyCamelCase);
-					if (accessor == null || accessor.getter == null) {
+					String propertyCamelCase = StringCases.underlineToCamelCase(name);
+					property = properties.get(propertyCamelCase);
+					if (property == null || !property.accessor.hasGetter()) {
 						if (isCaseInsensitive(caseModel)) {
-							accessor = propertiesCaseInsensitive.get(propertyCamelCase);
+							property = propertiesCaseInsensitive.get(propertyCamelCase);
 						}
 					}
 				}
 			}
-			if (accessor == null || accessor.getter == null) {
+			if (property == null || !property.accessor.hasGetter()) {
 				@SuppressWarnings("unchecked")
 				MetaObject<T> rtMeta = createMetaObject(JavaType.of((Class<T>) o.getClass()));
 				if (this.equals(rtMeta) || rtMeta.isObject() || rtMeta.isBasic() || rtMeta.isEnum()) {
 					return false;
 				} else {
-					return rtMeta.hasProperty(o, caseModel, property);
+					return rtMeta.hasProperty(o, caseModel, name);
 				}
 			}
 		}
-		return accessor.get(o) != null;
+		return property.accessor.get(o) != null;
 	}
 
 

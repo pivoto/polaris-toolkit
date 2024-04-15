@@ -9,7 +9,7 @@ import java.util.function.Function;
  * @author Qt
  * @since 1.8,  Aug 03, 2023
  */
-public interface BeanMetadata {
+public interface BeanMetadataV1 {
 
 	Map<String, Type> types();
 

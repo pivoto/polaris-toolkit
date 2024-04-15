@@ -125,6 +125,9 @@ public abstract class MetaObject<T> {
 
 
 	public static <T> MetaObject<T> of(BeanAccessMode mode, JavaType<T> beanType) {
+		if (mode == null) {
+			mode = BeanAccessMode.INDEXED;
+		}
 		switch(mode){
 			case LAMBDA:
 				return LambdaMetaObject.of(beanType);
@@ -176,7 +179,7 @@ public abstract class MetaObject<T> {
 		if (isObject || isBasic || isEnum) {
 			MetaObject runtimeMeta = createMetaObject(JavaType.of(o.getClass()));
 			if (this.equals(runtimeMeta) || runtimeMeta.isObject || runtimeMeta.isBasic || runtimeMeta.isEnum) {
-				log.debug("不支持的属性：{}:{}", beanType.getTypeName(), property);
+				log.debug("Unsupported property：{}:{}", beanType.getTypeName(), property);
 				return null;
 			} else {
 				return runtimeMeta.getPropertyOrSetDefault(o, caseModel, property);
@@ -187,12 +190,12 @@ public abstract class MetaObject<T> {
 			try {
 				idx = Integer.parseInt(property);
 			} catch (NumberFormatException e) {
-				log.debug("数组下标属性错误：{}:{}", beanType.getTypeName(), property);
+				log.debug("Array index number format error：{}:{}", beanType.getTypeName(), property);
 				return null;
 			}
 			int length = Array.getLength(o);
 			if (idx >= length) {
-				log.debug("数组下标属性越界：{}:{}", beanType.getTypeName(), property);
+				log.debug("Array index out of bounds：{}:{}", beanType.getTypeName(), property);
 				return null;
 			}
 			Object val = Array.get(o, idx);
@@ -218,7 +221,7 @@ public abstract class MetaObject<T> {
 			try {
 				idx = Integer.parseInt(property);
 			} catch (NumberFormatException e) {
-				log.debug("集合下标属性错误：{}:{}", beanType.getTypeName(), property);
+				log.debug("Collection index number format error：{}:{}", beanType.getTypeName(), property);
 				return null;
 			}
 			int size = ((Collection) o).size();
@@ -261,7 +264,7 @@ public abstract class MetaObject<T> {
 		if (isObject || isBasic || isEnum) {
 			MetaObject runtimeMeta = createMetaObject(JavaType.of(o.getClass()));
 			if (this.equals(runtimeMeta) || runtimeMeta.isObject || runtimeMeta.isBasic || runtimeMeta.isEnum) {
-				log.debug("不支持的属性：{}:{}", beanType.getTypeName(), property);
+				log.debug("Unsupported property：{}:{}", beanType.getTypeName(), property);
 				return null;
 			} else {
 				return runtimeMeta.setProperty(o, caseModel, property, val);
@@ -272,12 +275,12 @@ public abstract class MetaObject<T> {
 			try {
 				idx = Integer.parseInt(property);
 			} catch (NumberFormatException e) {
-				log.debug("数组下标属性错误：{}:{}", beanType.getTypeName(), property);
+				log.debug("Array index number format error：{}:{}", beanType.getTypeName(), property);
 				return null;
 			}
 			int length = Array.getLength(o);
 			if (idx >= length) {
-				log.debug("数组下标属性越界：{}:{}", beanType.getTypeName(), property);
+				log.debug("Array index out of bounds：{}:{}", beanType.getTypeName(), property);
 				return null;
 			}
 			Array.set(o, idx, val = Converters.convertQuietly(elementType.beanType, val));
@@ -294,7 +297,7 @@ public abstract class MetaObject<T> {
 			try {
 				idx = Integer.parseInt(property);
 			} catch (NumberFormatException e) {
-				log.debug("集合下标属性越界：{}:{}", beanType.getTypeName(), property);
+				log.debug("Collection index out of bounds：{}:{}", beanType.getTypeName(), property);
 				return null;
 			}
 			int size = ((Collection) o).size();
@@ -326,7 +329,7 @@ public abstract class MetaObject<T> {
 
 	public MetaObject<?> getProperty(int caseModel, @Nonnull String property) {
 		if (isObject || isBasic || isEnum) {
-			log.debug("不支持的属性：{}:{}", beanType.getTypeName(), property);
+			log.debug("Unsupported property：{}:{}", beanType.getTypeName(), property);
 			return null;
 		}
 		if (isArray || isCollection || isMap) {
@@ -355,7 +358,7 @@ public abstract class MetaObject<T> {
 		if (isObject || isBasic || isEnum) {
 			MetaObject runtimeMeta = createMetaObject(JavaType.of(o.getClass()));
 			if (this.equals(runtimeMeta) || runtimeMeta.isObject || runtimeMeta.isBasic || runtimeMeta.isEnum) {
-				log.debug("不支持的属性：{}:{}", beanType.getTypeName(), property);
+				log.debug("Unsupported property：{}:{}", beanType.getTypeName(), property);
 				return null;
 			} else {
 				return runtimeMeta.getProperty(o, caseModel, property);
@@ -366,12 +369,12 @@ public abstract class MetaObject<T> {
 			try {
 				idx = Integer.parseInt(property);
 			} catch (NumberFormatException e) {
-				log.debug("数组下标属性错误：{}:{}", beanType.getTypeName(), property);
+				log.debug("Array index number format error：{}:{}", beanType.getTypeName(), property);
 				return null;
 			}
 			int length = Array.getLength(o);
 			if (idx >= length) {
-				log.debug("数组下标属性越界：{}:{}", beanType.getTypeName(), property);
+				log.debug("Array index out of bounds：{}:{}", beanType.getTypeName(), property);
 				return null;
 			}
 			return Array.get(o, idx);
@@ -385,12 +388,12 @@ public abstract class MetaObject<T> {
 			try {
 				idx = Integer.parseInt(property);
 			} catch (NumberFormatException e) {
-				log.debug("集合下标属性错误：{}:{}", beanType.getTypeName(), property);
+				log.debug("Collection index number format error：{}:{}", beanType.getTypeName(), property);
 				return null;
 			}
 			int size = ((Collection) o).size();
 			if (idx >= size) {
-				log.debug("集合下标属性越界：{}:{}", beanType.getTypeName(), property);
+				log.debug("Collection index out of bounds：{}:{}", beanType.getTypeName(), property);
 				return null;
 			}
 			if (o instanceof List) {
@@ -423,7 +426,7 @@ public abstract class MetaObject<T> {
 			try {
 				idx = Integer.parseInt(property);
 			} catch (NumberFormatException e) {
-				log.debug("数组下标属性错误：{}:{}", beanType.getTypeName(), property);
+				log.debug("Array index number format error：{}:{}", beanType.getTypeName(), property);
 				return false;
 			}
 			int length = Array.getLength(o);
@@ -441,7 +444,7 @@ public abstract class MetaObject<T> {
 			try {
 				idx = Integer.parseInt(property);
 			} catch (NumberFormatException e) {
-				log.debug("集合下标属性越界：{}:{}", beanType.getTypeName(), property);
+				log.debug("Collection index out of bounds：{}:{}", beanType.getTypeName(), property);
 				return false;
 			}
 			int size = ((Collection) o).size();

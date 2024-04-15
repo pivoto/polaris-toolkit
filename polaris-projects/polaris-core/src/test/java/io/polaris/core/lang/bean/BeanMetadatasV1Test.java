@@ -6,7 +6,7 @@ import io.polaris.core.TestConsole;
 import io.polaris.core.asm.AsmPrint;
 import org.junit.jupiter.api.Test;
 
-class BeanMetadatasTest {
+class BeanMetadatasV1Test {
 	static {
 		System.setProperty("java.memory.bytecode.tmpdir", "/data/classes");
 	}
@@ -14,13 +14,13 @@ class BeanMetadatasTest {
 
 	@Test
 	void test01() throws IOException {
-		AsmPrint.print(BeanMetadataImpl.class.getName());
+		AsmPrint.print(BeanMetadataV1Impl.class.getName());
 	}
 
 	@Test
 	void test02() throws InstantiationException, IllegalAccessException, IOException {
-		Class<BeanMetadata> c = BeanMetadataBuilder.buildMetadataClass(Bean01.class);
-		BeanMetadata metadata = c.newInstance();
+		Class<BeanMetadataV1> c = BeanMetadataV1Builder.buildMetadataClass(Bean01.class);
+		BeanMetadataV1 metadata = c.newInstance();
 		TestConsole.println(metadata.types());
 		TestConsole.println(metadata.getters());
 		TestConsole.println(metadata.setters());
@@ -29,7 +29,7 @@ class BeanMetadatasTest {
 
 //	@Test
 //	void test03() throws InstantiationException, IllegalAccessException, IOException {
-//		Class<BeanMetadata> c = BeanMetadataBuilder.buildMetadataClassWithInnerTypeRef(Bean01.class);
+//		Class<BeanMetadata> c = BeanMetadataV1Builder.buildMetadataClassWithInnerTypeRef(Bean01.class);
 //		BeanMetadata metadata = c.newInstance();
 //		TestConsole.println(metadata.types());
 //		TestConsole.println(metadata.getters());

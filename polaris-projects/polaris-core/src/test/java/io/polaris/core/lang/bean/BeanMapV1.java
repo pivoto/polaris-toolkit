@@ -32,7 +32,7 @@ import io.polaris.core.log.ILoggers;
  */
 public class BeanMapV1<T> extends AbstractMap<String, Object> implements IBeanMap<T>, Map<String, Object> {
 	private static final ILogger log = ILoggers.of(BeanMapV1.class);
-	protected final BeanMetadata metadata;
+	protected final BeanMetadataV1 metadata;
 	protected final Map<String, Function<Object, Object>> getters;
 	protected final Map<String, BiConsumer<Object, Object>> setters;
 	protected final Map<String, Type> types;
@@ -104,7 +104,7 @@ public class BeanMapV1<T> extends AbstractMap<String, Object> implements IBeanMa
 			this.getters = Collections.emptyMap();
 			this.setters = Collections.emptyMap();
 		} else {
-			BeanMetadata metadata = this.getBeanMetadata(beanType);
+			BeanMetadataV1 metadata = this.getBeanMetadata(beanType);
 			this.metadata = metadata;
 			this.types = metadata.types();
 			this.getters = metadata.getters();
@@ -113,9 +113,9 @@ public class BeanMapV1<T> extends AbstractMap<String, Object> implements IBeanMa
 	}
 
 
-	protected BeanMetadata getBeanMetadata(Class<?> clazz) {
+	protected BeanMetadataV1 getBeanMetadata(Class<?> clazz) {
 		if (compilable) {
-			return BeanMetadatas.getMetadata(clazz);
+			return BeanMetadatasV1.getMetadata(clazz);
 		}
 		try {
 			Map<String, Type> types = new HashMap<>();
@@ -150,7 +150,7 @@ public class BeanMapV1<T> extends AbstractMap<String, Object> implements IBeanMa
 					});
 				}
 			}
-			return new BeanMetadatas.BeanMetadataCache(types, getters, setters);
+			return new BeanMetadatasV1.BeanMetadataV1Cache(types, getters, setters);
 		} catch (IntrospectionException e) {
 			throw new RuntimeException(e);
 		}

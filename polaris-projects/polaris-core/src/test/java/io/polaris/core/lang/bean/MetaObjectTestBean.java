@@ -94,6 +94,93 @@ public class MetaObjectTestBean {
 	@Setter(AccessLevel.NONE)
 	public java.lang.Object publicObjectVal;
 
+
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	protected java.lang.String protectedStringVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	protected int protectedIntVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	protected long protectedLongVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	protected float protectedFloatVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	protected double protectedDoubleVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	protected boolean protectedBooleanVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	protected byte protectedByteVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	protected char protectedCharVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	protected short protectedShortVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	protected java.math.BigDecimal protectedBigDecimalVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	protected java.util.Date protectedDateVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	protected java.sql.Timestamp protectedTimestampVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	protected io.polaris.core.lang.bean.MetaObjectTestBean protectedMetaObjectTestBeanVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	protected java.lang.Object protectedObjectVal;
+
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	java.lang.String defaultStringVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	int defaultIntVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	long defaultLongVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	float defaultFloatVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	double defaultDoubleVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	boolean defaultBooleanVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	byte defaultByteVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	char defaultCharVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	short defaultShortVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	java.math.BigDecimal defaultBigDecimalVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	java.util.Date defaultDateVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	java.sql.Timestamp defaultTimestampVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	io.polaris.core.lang.bean.MetaObjectTestBean defaultMetaObjectTestBeanVal;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	java.lang.Object defaultObjectVal;
+
 	// endregion 单元素
 
 	// region 数组

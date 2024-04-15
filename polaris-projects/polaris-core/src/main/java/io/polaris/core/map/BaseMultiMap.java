@@ -39,7 +39,11 @@ public abstract class BaseMultiMap<K, V, E extends Collection<V>> implements Mul
 	public boolean removeOne(K key, V value) {
 		E vs = get(key);
 		if (vs != null) {
-			return vs.remove(value);
+			boolean rs = vs.remove(value);
+			if (vs.isEmpty()) {
+				remove(key);
+			}
+			return rs;
 		}
 		return false;
 	}

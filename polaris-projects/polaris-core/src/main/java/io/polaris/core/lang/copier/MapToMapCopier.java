@@ -69,7 +69,7 @@ public class MapToMapCopier extends BaseCopier<Map, Map> {
 			if (!options.isIgnoreError()) {
 				throw new UnsupportedOperationException(e);
 			} else {
-				log.warn("对象复制失败：{}", e.getMessage());
+				log.warn("Copy failed：{}", e.getMessage());
 				if (log.isDebugEnabled()) {
 					log.debug(e.getMessage(), e);
 				}

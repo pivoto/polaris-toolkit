@@ -34,6 +34,9 @@ public class BeanPropertyInfo {
 	private final Method readMethod;
 	private final Field field;
 
+	/**
+	 * 要求：存在属性方法时，直接字段为空，只能通过属性方法访问属性
+	 */
 	private BeanPropertyInfo(String propertyName, Type propertyGenericType, Class propertyType, Method writeMethod, Method readMethod, Field field) {
 		this.propertyName = propertyName;
 		this.propertyGenericType = propertyGenericType;
