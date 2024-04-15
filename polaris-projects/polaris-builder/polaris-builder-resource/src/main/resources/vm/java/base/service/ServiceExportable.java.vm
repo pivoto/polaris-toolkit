@@ -3,7 +3,22 @@ package ${pkgPrefix}${env.servicePackage.replace('/','.')};
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
+
+import javax.validation.Valid;
+import javax.validation.constraints.*;
+
+import io.polaris.core.date.Dates;
+import io.polaris.core.lang.bean.Beans;
+import io.polaris.core.string.Strings;
+import io.polaris.core.jdbc.sql.query.OrderBy;
+import io.polaris.core.jdbc.sql.query.Queries;
+import io.polaris.core.jdbc.sql.query.Pageable;
+import io.polaris.mybatis.util.MybatisToolkit;
+import io.polaris.validation.Validations;
+import io.polaris.validation.group.*;
+
 import lombok.*;
 import lombok.experimental.*;
 import lombok.extern.slf4j.*;
@@ -19,24 +34,17 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import ${pkgPrefix}${env.mapperPackage.replace('/','.')}.${table.javaClassName}${env.mapperClassSuffix};
-import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
-
-import javax.validation.Valid;
-import javax.validation.constraints.*;
-import io.polaris.validation.group.*;
-import io.polaris.validation.Validations;
-import io.polaris.core.jdbc.sql.query.OrderBy;
-import io.polaris.core.jdbc.sql.query.Queries;
-import io.polaris.core.jdbc.sql.query.Pageable;
-import io.polaris.mybatis.util.MybatisToolkit;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.jcfc.bf.core.fs.domain.CsvFileDto;
 import com.jcfc.bf.core.fs.domain.ExcelFileDto;
 import com.jcfc.bf.core.fs.domain.FileDto;
 import com.jcfc.bf.core.fs.excel.ExcelConfig;
 import com.jcfc.framework.jtc.brm.session.AppSessions;
 import com.jcfc.framework.jtc.brm.cache.BrmCaches;
+
+import ${pkgPrefix}${env.mapperPackage.replace('/','.')}.${table.javaClassName}${env.mapperClassSuffix};
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
 
 /**
  * $!{table.name}
@@ -49,6 +57,7 @@ import com.jcfc.framework.jtc.brm.cache.BrmCaches;
 public class ${table.javaClassName}${env.serviceClassSuffix} {
 
 	private final ${table.javaClassName}${env.mapperClassSuffix} mapper;
+	private final ExcelConfig defaultExcelConfig = buildDefaultExcelConfig();
 
 	public ${table.javaClassName}${env.serviceClassSuffix}(@Autowired ${table.javaClassName}${env.mapperClassSuffix} mapper) {
 		this.mapper = mapper;
@@ -59,54 +68,144 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		return function.apply(mapper);
 	}
 
-
-	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public FileDto export(${table.javaClassName}${env.entityClassSuffix} param, Pageable page) {
-		return toFileDto(mapper.selectEntityCursor(param, page.getOrderBy()));
-	}
-
-	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public FileDto export(Map<String,Object> param, Pageable page) {
-		return toFileDto(mapper.selectEntityCursorByMap(param, page.getOrderBy()));
-	}
-
-	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public FileDto export(${table.javaClassName}${env.entityClassSuffix} param, Pageable page, ExcelConfig excelConfig) {
-		return toFileDto(mapper.selectEntityCursor(param, page.getOrderBy()), excelConfig);
-	}
-
-	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public FileDto export(Map<String,Object> param, Pageable page, ExcelConfig excelConfig) {
-		return toFileDto(mapper.selectEntityCursorByMap(param, page.getOrderBy()), excelConfig);
-	}
-
-	public ExcelConfig buildDefaultExcelConfig() {
-		String fileName = "#if(${table.label})$!{table.label}#else$!{table.name}#end.xlsx";
+	private ExcelConfig buildDefaultExcelConfig() {
 		return new ExcelConfig()
-			.withFileName(fileName)
-#foreach($col in $table.columns)
-			#if(!$table.containsColumnVariableName('crtUserName') && ${col.javaVariableName.equals('crtUser')})
-			.withColumn("crtUserName", "#if(${col.label})${col.label}#else${col.name}#end")
-			#elseif(!$table.containsColumnVariableName('crtUserRealName') && ${col.javaVariableName.equals('crtUser')})
-			.withColumn("crtUserRealName", "#if(${col.label})${col.label}#else${col.name}#end")
-			#elseif(!$table.containsColumnVariableName('uptUserName') && ${col.javaVariableName.equals('uptUser')})
-			.withColumn("uptUserName", "#if(${col.label})${col.label}#else${col.name}#end")
-			#elseif(!$table.containsColumnVariableName('uptUserRealName') && ${col.javaVariableName.equals('uptUser')})
-			.withColumn("uptUserRealName", "#if(${col.label})${col.label}#else${col.name}#end")
-			#else
-			.withColumn("${col.javaVariableName}", "#if(${col.label})${col.label}#else${col.name}#end")
+			#foreach($col in $table.columns)
+				#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
+				.withDateColumn("${col.javaVariableName}", "#if(${col.label})${col.label}#else${col.name}#end", Dates.PATTERN_YYYY_MM_DD_HH_MM_SS)
+				#elseif(!$table.containsColumnVariableName('crtUserName') && ${col.javaVariableName.equals('crtUser')})
+				.withColumn("crtUserName", "#if(${col.label})${col.label}#else${col.name}#end")
+				#elseif(!$table.containsColumnVariableName('crtUserRealName') && ${col.javaVariableName.equals('crtUser')})
+				.withColumn("crtUserRealName", "#if(${col.label})${col.label}#else${col.name}#end")
+				#elseif(!$table.containsColumnVariableName('uptUserName') && ${col.javaVariableName.equals('uptUser')})
+				.withColumn("uptUserName", "#if(${col.label})${col.label}#else${col.name}#end")
+				#elseif(!$table.containsColumnVariableName('uptUserRealName') && ${col.javaVariableName.equals('uptUser')})
+				.withColumn("uptUserRealName", "#if(${col.label})${col.label}#else${col.name}#end")
+				#else
+				.withColumn("${col.javaVariableName}", "#if(${col.label})${col.label}#else${col.name}#end")
+				#end
 			#end
-#end
 			;
 	}
-	public FileDto toFileDto(Cursor<${table.javaClassName}${env.entityClassSuffix}> cursor, ExcelConfig config) {
-		FileDto fileDto = new FileDto().withFileName(config.getFileName());
+
+	private FileDto toFileDtoExcel(Cursor<${table.javaClassName}${env.entityClassSuffix}> cursor, ExcelConfig config) {
+		String fileName = config.getFileName();
+		if(Strings.isBlank(fileName) || "data".equalsIgnoreCase(fileName)){
+			fileName = "#if(${table.label})$!{table.label}#else$!{table.name}#end.xlsx";
+		}
+		FileDto fileDto = new FileDto().withFileName(fileName);
 		ExcelFileDto excel = fileDto.toExcelFile(config);
-		excel.toFile(MybatisToolkit.buildVisitable(cursor, e-> BrmCaches.transUpdatable(BrmCaches.transCreatable(e))));
+		excel.toFile(MybatisToolkit.buildVisitable(cursor, e-> ${table.javaClassName}${env.entityClassSuffix}.translate(e)));
 		return fileDto;
 	}
-	public FileDto toFileDto(Cursor<${table.javaClassName}${env.entityClassSuffix}> cursor) {
-		return toFileDto(cursor, buildDefaultExcelConfig());
+
+	private FileDto toFileDtoExcel(Cursor<${table.javaClassName}${env.entityClassSuffix}> cursor) {
+		return toFileDtoExcel(cursor, defaultExcelConfig);
+	}
+
+	private FileDto toFileDtoCsv(Cursor<${table.javaClassName}${env.entityClassSuffix}> cursor, ExcelConfig config) {
+		String fileName = config.getFileName();
+		if(Strings.isBlank(fileName) || "data".equalsIgnoreCase(fileName)){
+			fileName = "#if(${table.label})$!{table.label}#else$!{table.name}#end.csv";
+		}
+		FileDto fileDto = new FileDto().withFileName(fileName);
+		CsvFileDto csv = fileDto.toCsvGbkFile(config);
+		csv.toFile(MybatisToolkit.buildVisitable(cursor, e-> ${table.javaClassName}${env.entityClassSuffix}.translate(e)));
+		return fileDto;
+	}
+
+	private FileDto toFileDtoCsv(Cursor<${table.javaClassName}${env.entityClassSuffix}> cursor) {
+		return toFileDtoCsv(cursor, defaultExcelConfig);
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void importCsv(FileDto fileDto) {
+		importCsv(fileDto, this.defaultExcelConfig);
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void importCsv(FileDto fileDto, ExcelConfig excelConfig) {
+		Consumer<Map<String, Object>> consumer = record -> {
+			${table.javaClassName}${env.entityClassSuffix} entity = Beans.newBeanMap(record).copyToBean(new ${table.javaClassName}${env.entityClassSuffix}());
+			insertSelective(entity);
+		};
+		importCsv(fileDto, excelConfig, consumer);
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void importCsv(FileDto fileDto, Consumer<Map<String, Object>> consumer) {
+		importCsv(fileDto, this.defaultExcelConfig, consumer);
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void importCsv(FileDto fileDto, ExcelConfig excelConfig, Consumer<Map<String, Object>> consumer) {
+		CsvFileDto csvFile = fileDto.toCsvGbkFile(excelConfig);
+		csvFile.readData(consumer);
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void importExcel(FileDto fileDto) {
+		importExcel(fileDto, this.defaultExcelConfig);
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void importExcel(FileDto fileDto, ExcelConfig excelConfig) {
+		Consumer<Map<String, Object>> consumer = record -> {
+			${table.javaClassName}${env.entityClassSuffix} entity = Beans.newBeanMap(record).copyToBean(new ${table.javaClassName}${env.entityClassSuffix}());
+			insertSelective(entity);
+		};
+		importExcel(fileDto, this.defaultExcelConfig, consumer);
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void importExcel(FileDto fileDto, Consumer<Map<String, Object>> consumer) {
+		importExcel(fileDto, this.defaultExcelConfig, consumer);
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void importExcel(FileDto fileDto, ExcelConfig excelConfig, Consumer<Map<String, Object>> consumer) {
+		ExcelFileDto excelFile = fileDto.toExcelFile(excelConfig);
+		excelFile.readData(consumer);
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public FileDto exportCsv(${table.javaClassName}${env.entityClassSuffix} param, Pageable page) {
+		return toFileDtoCsv(mapper.selectEntityCursor(param, page.getOrderBy()));
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public FileDto exportCsv(Map<String,Object> param, Pageable page) {
+		return toFileDtoCsv(mapper.selectEntityCursorByMap(param, page.getOrderBy()));
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public FileDto exportCsv(${table.javaClassName}${env.entityClassSuffix} param, Pageable page, ExcelConfig excelConfig) {
+		return toFileDtoCsv(mapper.selectEntityCursor(param, page.getOrderBy()), excelConfig);
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public FileDto exportCsv(Map<String,Object> param, Pageable page, ExcelConfig excelConfig) {
+		return toFileDtoCsv(mapper.selectEntityCursorByMap(param, page.getOrderBy()), excelConfig);
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public FileDto exportExcel(${table.javaClassName}${env.entityClassSuffix} param, Pageable page) {
+		return toFileDtoExcel(mapper.selectEntityCursor(param, page.getOrderBy()));
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public FileDto exportExcel(Map<String,Object> param, Pageable page) {
+		return toFileDtoExcel(mapper.selectEntityCursorByMap(param, page.getOrderBy()));
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public FileDto exportExcel(${table.javaClassName}${env.entityClassSuffix} param, Pageable page, ExcelConfig excelConfig) {
+		return toFileDtoExcel(mapper.selectEntityCursor(param, page.getOrderBy()), excelConfig);
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public FileDto exportExcel(Map<String,Object> param, Pageable page, ExcelConfig excelConfig) {
+		return toFileDtoExcel(mapper.selectEntityCursorByMap(param, page.getOrderBy()), excelConfig);
 	}
 
 	/**
@@ -152,8 +251,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		}else{
 			page.addAll(list);
 		}
-		BrmCaches.transCreatable(list);
-		BrmCaches.transUpdatable(list);
+		${table.javaClassName}${env.entityClassSuffix}.translate(list);
 		int total = mapper.countEntity(param);
 		page.setTotal(total);
 		return page;
@@ -176,8 +274,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		}else{
 			page.addAll(list);
 		}
-		BrmCaches.transCreatable(list);
-		BrmCaches.transUpdatable(list);
+		${table.javaClassName}${env.entityClassSuffix}.translate(list);
 		int total = mapper.countEntityByMap(param);
 		page.setTotal(total);
 		return page;
@@ -202,8 +299,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 			page.setTotal((int) data.getTotal());
 			list = data;
 		}
-		BrmCaches.transCreatable(list);
-		BrmCaches.transUpdatable(list);
+		${table.javaClassName}${env.entityClassSuffix}.translate(list);
 		return list;
 	}
 	/**
@@ -225,8 +321,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 			page.setTotal((int) data.getTotal());
 			list = data;
 		}
-		BrmCaches.transCreatable(list);
-		BrmCaches.transUpdatable(list);
+		${table.javaClassName}${env.entityClassSuffix}.translate(list);
 		return list;
 	}
 
@@ -241,8 +336,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		log.info("查询表[${table.name}]结果集.param={},maxCount={}", param, maxCount);
 		List<${table.javaClassName}${env.entityClassSuffix}> list = PageHelper.startPage(1, maxCount, false)
 			.doSelectPage(() -> mapper.selectEntityList(param));
-		BrmCaches.transCreatable(list);
-		BrmCaches.transUpdatable(list);
+		${table.javaClassName}${env.entityClassSuffix}.translate(list);
 		return list;
 	}
 
@@ -257,8 +351,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		log.info("查询表[${table.name}]结果集.param={},maxCount={}", param, maxCount);
 		List<${table.javaClassName}${env.entityClassSuffix}> list = PageHelper.startPage(1, maxCount, false)
 			.doSelectPage(() -> mapper.selectEntityListByMap(param));
-		BrmCaches.transCreatable(list);
-		BrmCaches.transUpdatable(list);
+		${table.javaClassName}${env.entityClassSuffix}.translate(list);
 		return list;
 	}
 
@@ -272,8 +365,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	public List<${table.javaClassName}${env.entityClassSuffix}> getList(${table.javaClassName}${env.entityClassSuffix} param) {
 		log.info("查询表[${table.name}]结果集.param={}", param);
 		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.selectEntityList(param);
-		BrmCaches.transCreatable(list);
-		BrmCaches.transUpdatable(list);
+		${table.javaClassName}${env.entityClassSuffix}.translate(list);
 		return list;
 	}
 	/**
@@ -286,8 +378,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	public List<${table.javaClassName}${env.entityClassSuffix}> getList(Map<String,Object> param) {
 		log.info("查询表[${table.name}]结果集.param={}", param);
 		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.selectEntityListByMap(param);
-		BrmCaches.transCreatable(list);
-		BrmCaches.transUpdatable(list);
+		${table.javaClassName}${env.entityClassSuffix}.translate(list);
 		return list;
 	}
 
@@ -304,8 +395,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		log.info("查询表[${table.name}]结果集.param={},pageIndex={},pageSize={}", param, pageIndex, pageSize);
 		List<${table.javaClassName}${env.entityClassSuffix}> list = PageHelper.startPage(pageIndex, pageSize, false)
 			.doSelectPage(() -> mapper.selectEntityList(param));
-		BrmCaches.transCreatable(list);
-		BrmCaches.transUpdatable(list);
+		${table.javaClassName}${env.entityClassSuffix}.translate(list);
 		return list;
 	}
 	/**
@@ -321,8 +411,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		log.info("查询表[${table.name}]结果集.param={},pageIndex={},pageSize={}", param, pageIndex, pageSize);
 		List<${table.javaClassName}${env.entityClassSuffix}> list = PageHelper.startPage(pageIndex, pageSize, false)
 			.doSelectPage(() -> mapper.selectEntityListByMap(param));
-		BrmCaches.transCreatable(list);
-		BrmCaches.transUpdatable(list);
+		${table.javaClassName}${env.entityClassSuffix}.translate(list);
 		return list;
 	}
 
@@ -406,8 +495,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		log.info("根据主键查询表[${table.name}]记录.param={}", param);
 		Validations.validate(param, Retrieve.class);
 		${table.javaClassName}${env.entityClassSuffix} entity =  mapper.selectEntityById(param);
-		BrmCaches.transCreatable(entity);
-		BrmCaches.transUpdatable(entity);
+		${table.javaClassName}${env.entityClassSuffix}.translate(entity);
 		return entity;
 	}
 
@@ -421,8 +509,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	public ${table.javaClassName}${env.entityClassSuffix} getUnique(${table.javaClassName}${env.entityClassSuffix} param) {
 		log.info("根据主键查询表[${table.name}]记录.param={}", param);
 		${table.javaClassName}${env.entityClassSuffix} entity =  mapper.selectEntity(param);
-		BrmCaches.transCreatable(entity);
-		BrmCaches.transUpdatable(entity);
+		${table.javaClassName}${env.entityClassSuffix}.translate(entity);
 		return entity;
 	}
 

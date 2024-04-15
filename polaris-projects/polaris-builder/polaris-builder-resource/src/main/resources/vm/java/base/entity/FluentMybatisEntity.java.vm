@@ -1,9 +1,17 @@
 #parse("/vm/include.vm")
 package ${pkgPrefix}${env.entityPackage.replace('/','.')};
 
+import java.io.Serializable;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.polaris.core.jdbc.annotation.Table;
 import io.polaris.core.jdbc.annotation.Column;
 import io.polaris.core.jdbc.annotation.Id;
+
+import lombok.*;
+import lombok.experimental.Accessors;
+import lombok.experimental.FieldNameConstants;
+
 import cn.org.atool.fluent.mybatis.annotation.FluentMybatis;
 import cn.org.atool.fluent.mybatis.annotation.NotField;
 import cn.org.atool.fluent.mybatis.annotation.TableField;
@@ -11,11 +19,6 @@ import cn.org.atool.fluent.mybatis.annotation.TableId;
 import cn.org.atool.fluent.mybatis.base.RichEntity;
 import cn.org.atool.fluent.mybatis.metadata.DbType;
 
-import java.io.Serializable;
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
-import lombok.experimental.Accessors;
-import lombok.experimental.FieldNameConstants;
 #foreach($name in $table.columnJavaTypes)
 import $name;
 #end

@@ -2,9 +2,12 @@
 package ${pkgPrefix}${env.entityPackage.replace('/','.')};
 
 import java.io.Serializable;
-import com.mybatisflex.annotation.*;
+
 import lombok.*;
 import lombok.experimental.Accessors;
+
+import com.mybatisflex.annotation.*;
+
 #foreach($name in $table.columnJavaTypes)
 import $name;
 #end

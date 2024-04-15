@@ -3,9 +3,9 @@ package ${pkgPrefix}${env.servicePackage.replace('/','.')};
 
 import java.util.List;
 
-import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
-
 import com.github.pagehelper.Page;
+
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
 
 /**
  * $!{table.name}

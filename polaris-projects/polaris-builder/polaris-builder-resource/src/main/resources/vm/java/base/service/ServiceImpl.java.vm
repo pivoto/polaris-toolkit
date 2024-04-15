@@ -4,6 +4,7 @@ package ${pkgPrefix}${env.servicePackage.replace('/','.')}.${env.implPackage.rep
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+
 import lombok.*;
 import lombok.experimental.*;
 import lombok.extern.slf4j.*;
@@ -18,11 +19,11 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import ${pkgPrefix}${env.mapperPackage.replace('/','.')}.${table.javaClassName}${env.mapperClassSuffix};
-import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
-
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+
+import ${pkgPrefix}${env.mapperPackage.replace('/','.')}.${table.javaClassName}${env.mapperClassSuffix};
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
 
 /**
  * $!{table.name}

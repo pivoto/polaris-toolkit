@@ -4,10 +4,22 @@ package ${pkgPrefix}${env.servicePackage.replace('/','.')};
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+
+import javax.validation.Valid;
+import javax.validation.constraints.*;
+
+import io.polaris.core.jdbc.sql.query.OrderBy;
+import io.polaris.core.jdbc.sql.query.Queries;
+import io.polaris.core.jdbc.sql.query.Pageable;
+import io.polaris.mybatis.util.MybatisToolkit;
+import io.polaris.validation.Validations;
+import io.polaris.validation.group.*;
+
 import lombok.*;
 import lombok.experimental.*;
 import lombok.extern.slf4j.*;
 
+import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.session.RowBounds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,21 +30,13 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import ${pkgPrefix}${env.mapperPackage.replace('/','.')}.${table.javaClassName}${env.mapperClassSuffix};
-import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
-
-import javax.validation.Valid;
-import javax.validation.constraints.*;
-import io.polaris.validation.group.*;
-import io.polaris.validation.Validations;
-import io.polaris.core.jdbc.sql.query.OrderBy;
-import io.polaris.core.jdbc.sql.query.Queries;
-import io.polaris.core.jdbc.sql.query.Pageable;
-import io.polaris.mybatis.util.MybatisToolkit;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.jcfc.framework.jtc.brm.session.AppSessions;
 import com.jcfc.framework.jtc.brm.cache.BrmCaches;
+
+import ${pkgPrefix}${env.mapperPackage.replace('/','.')}.${table.javaClassName}${env.mapperClassSuffix};
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
 
 /**
  * $!{table.name}
@@ -98,8 +102,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		}else{
 			page.addAll(list);
 		}
-		BrmCaches.transCreatable(list);
-		BrmCaches.transUpdatable(list);
+		${table.javaClassName}${env.entityClassSuffix}.translate(list);
 		int total = mapper.countEntity(param);
 		page.setTotal(total);
 		return page;
@@ -122,8 +125,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		}else{
 			page.addAll(list);
 		}
-		BrmCaches.transCreatable(list);
-		BrmCaches.transUpdatable(list);
+		${table.javaClassName}${env.entityClassSuffix}.translate(list);
 		int total = mapper.countEntityByMap(param);
 		page.setTotal(total);
 		return page;
@@ -148,8 +150,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 			page.setTotal((int) data.getTotal());
 			list = data;
 		}
-		BrmCaches.transCreatable(list);
-		BrmCaches.transUpdatable(list);
+		${table.javaClassName}${env.entityClassSuffix}.translate(list);
 		return list;
 	}
 	/**
@@ -171,8 +172,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 			page.setTotal((int) data.getTotal());
 			list = data;
 		}
-		BrmCaches.transCreatable(list);
-		BrmCaches.transUpdatable(list);
+		${table.javaClassName}${env.entityClassSuffix}.translate(list);
 		return list;
 	}
 
@@ -187,8 +187,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		log.info("查询表[${table.name}]结果集.param={},maxCount={}", param, maxCount);
 		List<${table.javaClassName}${env.entityClassSuffix}> list = PageHelper.startPage(1, maxCount, false)
 			.doSelectPage(() -> mapper.selectEntityList(param));
-		BrmCaches.transCreatable(list);
-		BrmCaches.transUpdatable(list);
+		${table.javaClassName}${env.entityClassSuffix}.translate(list);
 		return list;
 	}
 
@@ -203,8 +202,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		log.info("查询表[${table.name}]结果集.param={},maxCount={}", param, maxCount);
 		List<${table.javaClassName}${env.entityClassSuffix}> list = PageHelper.startPage(1, maxCount, false)
 			.doSelectPage(() -> mapper.selectEntityListByMap(param));
-		BrmCaches.transCreatable(list);
-		BrmCaches.transUpdatable(list);
+		${table.javaClassName}${env.entityClassSuffix}.translate(list);
 		return list;
 	}
 
@@ -218,8 +216,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	public List<${table.javaClassName}${env.entityClassSuffix}> getList(${table.javaClassName}${env.entityClassSuffix} param) {
 		log.info("查询表[${table.name}]结果集.param={}", param);
 		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.selectEntityList(param);
-		BrmCaches.transCreatable(list);
-		BrmCaches.transUpdatable(list);
+		${table.javaClassName}${env.entityClassSuffix}.translate(list);
 		return list;
 	}
 	/**
@@ -232,8 +229,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	public List<${table.javaClassName}${env.entityClassSuffix}> getList(Map<String,Object> param) {
 		log.info("查询表[${table.name}]结果集.param={}", param);
 		List<${table.javaClassName}${env.entityClassSuffix}> list = mapper.selectEntityListByMap(param);
-		BrmCaches.transCreatable(list);
-		BrmCaches.transUpdatable(list);
+		${table.javaClassName}${env.entityClassSuffix}.translate(list);
 		return list;
 	}
 
@@ -250,8 +246,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		log.info("查询表[${table.name}]结果集.param={},pageIndex={},pageSize={}", param, pageIndex, pageSize);
 		List<${table.javaClassName}${env.entityClassSuffix}> list = PageHelper.startPage(pageIndex, pageSize, false)
 			.doSelectPage(() -> mapper.selectEntityList(param));
-		BrmCaches.transCreatable(list);
-		BrmCaches.transUpdatable(list);
+		${table.javaClassName}${env.entityClassSuffix}.translate(list);
 		return list;
 	}
 	/**
@@ -267,8 +262,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		log.info("查询表[${table.name}]结果集.param={},pageIndex={},pageSize={}", param, pageIndex, pageSize);
 		List<${table.javaClassName}${env.entityClassSuffix}> list = PageHelper.startPage(pageIndex, pageSize, false)
 			.doSelectPage(() -> mapper.selectEntityListByMap(param));
-		BrmCaches.transCreatable(list);
-		BrmCaches.transUpdatable(list);
+		${table.javaClassName}${env.entityClassSuffix}.translate(list);
 		return list;
 	}
 
@@ -352,8 +346,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		log.info("根据主键查询表[${table.name}]记录.param={}", param);
 		Validations.validate(param, Retrieve.class);
 		${table.javaClassName}${env.entityClassSuffix} entity =  mapper.selectEntityById(param);
-		BrmCaches.transCreatable(entity);
-		BrmCaches.transUpdatable(entity);
+		${table.javaClassName}${env.entityClassSuffix}.translate(entity);
 		return entity;
 	}
 
@@ -367,8 +360,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	public ${table.javaClassName}${env.entityClassSuffix} getUnique(${table.javaClassName}${env.entityClassSuffix} param) {
 		log.info("根据主键查询表[${table.name}]记录.param={}", param);
 		${table.javaClassName}${env.entityClassSuffix} entity =  mapper.selectEntity(param);
-		BrmCaches.transCreatable(entity);
-		BrmCaches.transUpdatable(entity);
+		${table.javaClassName}${env.entityClassSuffix}.translate(entity);
 		return entity;
 	}
 

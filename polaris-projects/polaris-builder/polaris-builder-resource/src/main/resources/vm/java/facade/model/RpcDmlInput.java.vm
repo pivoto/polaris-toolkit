@@ -2,19 +2,27 @@
 package ${pkgPrefixFacade}${env.modelPackage.replace('/','.')};
 
 import java.io.Serializable;
-import lombok.*;
-import lombok.experimental.Accessors;
 #foreach($name in $table.columnJavaTypes)
 import $name;
 #end
-import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
+
+import javax.validation.ConstraintValidatorContext;
+import javax.validation.Valid;
+import javax.validation.constraints.*;
+
+import io.polaris.validation.*;
+import io.polaris.validation.group.*;
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import lombok.*;
+import lombok.experimental.Accessors;
+import lombok.experimental.FieldNameConstants;
 
 import com.jcfc.bf.core.context.domain.ExchangeDto;
 import com.jcfc.bf.core.data.consts.Dml;
-import io.swagger.v3.oas.annotations.media.Schema;
-import javax.validation.Valid;
-import javax.validation.constraints.*;
-import io.polaris.validation.group.*;
+import com.jcfc.bf.core.fs.domain.FileDto;
+
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
 
 /**
  * $!{table.name}
@@ -23,12 +31,45 @@ import io.polaris.validation.group.*;
 ## * @since ${current.date}
  */
 @Data
+@FieldNameConstants
+@CustomValidated(${table.javaClassName}${env.rpcDmlInputClassSuffix}.Validator.class)
 public class ${table.javaClassName}${env.rpcDmlInputClassSuffix} extends ExchangeDto{
 
 	@Schema(description = "操作类型")
-	@NotNull(message = "操作类型不能为空")
+	@NotNull(message = "操作类型[type]不能为空")
 	private Dml type;
 	@Valid
+	@Schema(description = "实体参数")
 	private ${table.javaClassName}${env.entityClassSuffix} entity;
+	@Schema(description = "Csv数据文件")
+	private FileDto csvFile;
+	@Schema(description = "Excel数据文件")
+	private FileDto excelFile;
 
+	public static class Validator implements CustomValidation {
+		@Override
+		public boolean isValid(ConstraintValidatorContext context, Object value, String... arguments) {
+			${table.javaClassName}${env.rpcDmlInputClassSuffix} o = (${table.javaClassName}${env.rpcDmlInputClassSuffix}) value;
+			if (Dml.INSERT == o.getType() || Dml.UPDATE == o.getType() || Dml.DELETE == o.getType()) {
+				if (o.getEntity() == null) {
+					context.disableDefaultConstraintViolation();
+					context.buildConstraintViolationWithTemplate("实体参数[entity]不能为空")
+						.addPropertyNode(Fields.entity)
+						.addConstraintViolation()
+					;
+					return false;
+				}
+			} else if (Dml.IMPORT == o.getType()) {
+				if (o.csvFile == null && o.excelFile == null) {
+					context.disableDefaultConstraintViolation();
+					context.buildConstraintViolationWithTemplate("数据文件参数[csvFile或excelFile]不能为空")
+						.addPropertyNode(Fields.csvFile)
+						.addConstraintViolation()
+					;
+					return false;
+				}
+			}
+			return true;
+		}
+	}
 }

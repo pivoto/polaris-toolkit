@@ -1,16 +1,16 @@
 #parse("/vm/include.vm")
 package ${pkgPrefix}${env.mapperPackage.replace('/','.')};
 
-import io.polaris.mybatis.mapper.*;
-
 import java.util.List;
 import java.util.Map;
+
+import io.polaris.mybatis.mapper.*;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.stereotype.Repository;
 
-import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};;
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
 
 /**
  * ${table.name}

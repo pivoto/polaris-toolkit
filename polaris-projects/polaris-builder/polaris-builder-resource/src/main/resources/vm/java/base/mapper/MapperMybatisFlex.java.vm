@@ -4,10 +4,11 @@ package ${pkgPrefix}${env.mapperPackage.replace('/','.')};
 import java.util.List;
 
 import com.mybatisflex.core.BaseMapper;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.session.RowBounds;
 
-import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};;
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
 
 /**
  * ${table.name}

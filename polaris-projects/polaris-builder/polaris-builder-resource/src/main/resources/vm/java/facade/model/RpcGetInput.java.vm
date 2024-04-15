@@ -2,17 +2,22 @@
 package ${pkgPrefixFacade}${env.modelPackage.replace('/','.')};
 
 import java.io.Serializable;
-import lombok.*;
-import lombok.experimental.Accessors;
 #foreach($name in $table.columnJavaTypes)
 import $name;
 #end
-import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
-import com.jcfc.bf.core.context.domain.ExchangeDto;
-import com.jcfc.bf.core.data.consts.Dml;
-import io.swagger.v3.oas.annotations.media.Schema;
+
 import javax.validation.Valid;
 import javax.validation.constraints.*;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import lombok.*;
+import lombok.experimental.Accessors;
+
+import com.jcfc.bf.core.context.domain.ExchangeDto;
+import com.jcfc.bf.core.data.consts.Dml;
+
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
 
 /**
  * $!{table.name}
@@ -23,7 +28,8 @@ import javax.validation.constraints.*;
 @Data
 public class ${table.javaClassName}${env.rpcGetInputClassSuffix} extends ExchangeDto{
 	@Valid
-	private Param param;
+	@NotNull(message = "条件参数[param]不能为空")
+	private Param param = new Param();
 
 	@Data
 	public static class Param{

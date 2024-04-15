@@ -1,6 +1,32 @@
 #parse("/vm/include.vm")
 package ${pkgPrefixFacade}${env.rpcPackage.replace('/','.')};
 
+import java.util.*;
+
+import javax.validation.Valid;
+
+import io.polaris.core.assertion.Arguments;
+import io.polaris.core.assertion.Assertions;
+import io.polaris.core.jdbc.sql.query.OrderBy;
+import io.polaris.core.jdbc.sql.query.Queries;
+import io.polaris.core.jdbc.sql.query.Pageable;
+import io.polaris.core.lang.bean.Beans;
+import io.polaris.core.lang.bean.IBeanMap;
+
+import lombok.extern.slf4j.Slf4j;
+
+import com.jcfc.bf.core.consts.Bool;
+import com.jcfc.bf.core.context.domain.ExchangeDto;
+import com.jcfc.bf.core.data.consts.Dml;
+import com.jcfc.bf.core.data.domain.Page;
+import com.jcfc.bf.core.data.domain.QueryDto;
+import com.jcfc.bf.core.fs.domain.FileDto;
+import com.jcfc.bf.core.rpc.annotation.RpcService;
+import com.jcfc.bf.core.rpc.oas.annotation.OpenApi;
+import com.jcfc.framework.jtc.brm.session.AppSessions;
+
+import org.springframework.util.Assert;
+
 import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
 import ${pkgPrefix}${env.servicePackage.replace('/','.')}.${table.javaClassName}${env.serviceClassSuffix};
 import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassName}${env.rpcDmlInputClassSuffix};
@@ -8,28 +34,6 @@ import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassN
 import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassName}${env.rpcListInputClassSuffix};
 import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassName}${env.rpcGetOutputClassSuffix};
 import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassName}${env.rpcListOutputClassSuffix};
-
-import io.polaris.core.assertion.Assertions;
-import io.polaris.core.jdbc.sql.query.OrderBy;
-import io.polaris.core.jdbc.sql.query.Queries;
-import io.polaris.core.jdbc.sql.query.Pageable;
-import io.polaris.core.lang.bean.Beans;
-import io.polaris.core.lang.bean.IBeanMap;
-import com.jcfc.bf.common.map.BeanMaps;
-import com.jcfc.bf.core.consts.Bool;
-import com.jcfc.bf.core.context.domain.ExchangeDto;
-import com.jcfc.bf.core.data.consts.Dml;
-import com.jcfc.bf.core.data.domain.Page;
-import com.jcfc.bf.core.data.domain.QueryDto;
-import com.jcfc.bf.core.rpc.annotation.RpcService;
-import com.jcfc.bf.core.rpc.oas.annotation.OpenApi;
-import com.jcfc.framework.jtc.brm.session.AppSessions;
-
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.Assert;
-
-import java.util.*;
-import javax.validation.Valid;
 
 /**
  * $!{table.name}
@@ -50,7 +54,7 @@ public class ${table.javaClassName}${env.rpcClassSuffix}{
 	@RpcService(active = Bool.FALSE, code = "$!{env.rpcCodePrefix}${table.javaClassName}Dml", name = "数据操作")
 	@OpenApi(inputSchema = ${table.javaClassName}${env.rpcDmlInputClassSuffix}.class, outputSchema = ExchangeDto.class)
 	public ExchangeDto do$!{env.rpcCodePrefix}${table.javaClassName}Dml(@Valid ${table.javaClassName}${env.rpcDmlInputClassSuffix} input) {
-		Assertions.assertNotNull(input.getType(), "操作类型不能为空");
+		Arguments.notNull(input.getType(), "操作类型不能为空");
 		Dml type = input.getType();
 		${table.javaClassName}${env.entityClassSuffix} entity = input.getEntity();
 		switch (type) {
@@ -66,6 +70,18 @@ public class ${table.javaClassName}${env.rpcClassSuffix}{
 				${table.javaVariableName}${env.serviceClassSuffix}.delete(entity);
 				break;
 			}
+			case IMPORT: {
+				FileDto csvFile = input.getCsvFile();
+				FileDto excelFile = input.getExcelFile();
+				if (csvFile != null) {
+					${table.javaVariableName}${env.serviceClassSuffix}.importCsv(csvFile);
+				} else if (excelFile != null){
+					${table.javaVariableName}${env.serviceClassSuffix}.importExcel(excelFile);
+				} else {
+					throw new IllegalArgumentException("数据文件不能为空");
+				}
+				break;
+			}
 			default: // ignore
 		}
 		return new ExchangeDto();
@@ -76,7 +92,7 @@ public class ${table.javaClassName}${env.rpcClassSuffix}{
 	@OpenApi(inputSchema = ${table.javaClassName}${env.rpcGetInputClassSuffix}.class, outputSchema = ${table.javaClassName}${env.rpcGetOutputClassSuffix}.class)
 	public ${table.javaClassName}${env.rpcGetOutputClassSuffix} do$!{env.rpcCodePrefix}${table.javaClassName}Get(@Valid ${table.javaClassName}${env.rpcGetInputClassSuffix} input) {
 		${table.javaClassName}${env.entityClassSuffix} entity = ${table.javaVariableName}${env.serviceClassSuffix}.getUnique(
-			BeanMaps.of(input.getParam()).copyToBean(new ${table.javaClassName}${env.entityClassSuffix}())
+			Beans.newBeanMap(input.getParam()).copyToBean(new ${table.javaClassName}${env.entityClassSuffix}())
 		);
 		${table.javaClassName}${env.rpcGetOutputClassSuffix} output = new ${table.javaClassName}${env.rpcGetOutputClassSuffix}();
 		output.setEntity(entity);
@@ -88,7 +104,7 @@ public class ${table.javaClassName}${env.rpcClassSuffix}{
 	public ${table.javaClassName}${env.rpcListOutputClassSuffix} do$!{env.rpcCodePrefix}${table.javaClassName}List(@Valid ${table.javaClassName}${env.rpcListInputClassSuffix} input) {
 		${table.javaClassName}${env.rpcListOutputClassSuffix} output = new ${table.javaClassName}${env.rpcListOutputClassSuffix}();
 		Page page = input.getPage();
-		Map<String, Object> param = BeanMaps.of(input.getParam());
+		Map<String, Object> param = Beans.newBeanMap(input.getParam());
 		if (page.getOrderBy()==null) {
 			OrderBy orderBy = Queries.newOrderBy(input.getSqlOrderBy());
 			page.setOrderBy(orderBy);
@@ -96,6 +112,34 @@ public class ${table.javaClassName}${env.rpcClassSuffix}{
 		List<${table.javaClassName}${env.entityClassSuffix}> list = ${table.javaVariableName}${env.serviceClassSuffix}.getPage(param, page);
 		output.setPage(page);
 		output.setList(list);
+		return output;
+	}
+
+	@RpcService(active = Bool.FALSE, code = "$!{env.rpcCodePrefix}${table.javaClassName}ExportCsv", name = "列表数据查询导出Csv")
+	@OpenApi(inputSchema = ${table.javaClassName}${env.rpcListInputClassSuffix}.class, outputSchema = ExchangeDto.class)
+	public ExchangeDto do$!{env.rpcCodePrefix}${table.javaClassName}ExportCsv(@Valid ${table.javaClassName}${env.rpcListInputClassSuffix} input) {
+		ExchangeDto output = new ExchangeDto();
+		Page page = input.getPage();
+		Map<String, Object> param = Beans.newBeanMap(input.getParam());
+		if (page.getOrderBy()==null) {
+			OrderBy orderBy = Queries.newOrderBy(input.getSqlOrderBy());
+			page.setOrderBy(orderBy);
+		}
+		output.setDownload(${table.javaVariableName}${env.serviceClassSuffix}.exportCsv(param, page));
+		return output;
+	}
+
+	@RpcService(active = Bool.FALSE, code = "$!{env.rpcCodePrefix}${table.javaClassName}ExportExcel", name = "列表数据查询导出Excel")
+	@OpenApi(inputSchema = ${table.javaClassName}${env.rpcListInputClassSuffix}.class, outputSchema = ExchangeDto.class)
+	public ExchangeDto do$!{env.rpcCodePrefix}${table.javaClassName}ExportExcel(@Valid ${table.javaClassName}${env.rpcListInputClassSuffix} input) {
+		ExchangeDto output = new ExchangeDto();
+		Page page = input.getPage();
+		Map<String, Object> param = Beans.newBeanMap(input.getParam());
+		if (page.getOrderBy()==null) {
+			OrderBy orderBy = Queries.newOrderBy(input.getSqlOrderBy());
+			page.setOrderBy(orderBy);
+		}
+		output.setDownload(${table.javaVariableName}${env.serviceClassSuffix}.exportExcel(param, page));
 		return output;
 	}
 
@@ -113,21 +157,6 @@ public class ${table.javaClassName}${env.rpcClassSuffix}{
 //		output.setList(list);
 //		return output;
 //	}
-
-	@RpcService(active = Bool.FALSE, code = "$!{env.rpcCodePrefix}${table.javaClassName}ListExport", name = "列表数据查询导出")
-	@OpenApi(inputSchema = ${table.javaClassName}${env.rpcListInputClassSuffix}.class, outputSchema = ExchangeDto.class)
-	public ExchangeDto do$!{env.rpcCodePrefix}${table.javaClassName}ListExport(@Valid ${table.javaClassName}${env.rpcListInputClassSuffix} input) {
-		ExchangeDto output = new ExchangeDto();
-		Page page = input.getPage();
-		Map<String, Object> param = BeanMaps.of(input.getParam());
-		if (page.getOrderBy()==null) {
-			OrderBy orderBy = Queries.newOrderBy(input.getSqlOrderBy());
-			page.setOrderBy(orderBy);
-		}
-		output.setDownload(${table.javaVariableName}${env.serviceClassSuffix}.export(param, page));
-		return output;
-	}
-
 //	@RpcService(active = Bool.FALSE, code = "$!{env.rpcCodePrefix}${table.javaClassName}QueryExport", name = "通用数据查询导出")
 //	@OpenApi(inputSchema = QueryDto.class, outputSchema = ExchangeDto.class)
 //	public ExchangeDto do$!{env.rpcCodePrefix}${table.javaClassName}QueryExport(QueryDto input) {
@@ -137,7 +166,7 @@ public class ${table.javaClassName}${env.rpcClassSuffix}{
 //		if (page.getOrderBy()==null) {
 //			page.setOrderBy(input.getParam().toOrderBy());
 //		}
-//		output.setDownload(${table.javaVariableName}${env.serviceClassSuffix}.export(param, page));
+//		output.setDownload(${table.javaVariableName}${env.serviceClassSuffix}.exportExcel(param, page));
 //		return output;
 //	}
 }

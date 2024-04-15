@@ -2,16 +2,20 @@
 package ${pkgPrefixFacade}${env.modelPackage.replace('/','.')};
 
 import java.io.Serializable;
-import lombok.*;
-import lombok.experimental.Accessors;
+import java.util.List;
 #foreach($name in $table.columnJavaTypes)
 import $name;
 #end
-import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
+
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import lombok.*;
+import lombok.experimental.Accessors;
+
 import com.jcfc.bf.core.context.domain.ExchangeDto;
 import com.jcfc.bf.core.data.domain.Page;
-import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.List;
+
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
 
 /**
  * $!{table.name}

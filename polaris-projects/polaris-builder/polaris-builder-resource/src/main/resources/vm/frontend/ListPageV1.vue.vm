@@ -454,7 +454,7 @@ function onExportRecord(){
 				}
 				let rs = await apix({
 					method: 'post',
-					url: '/api/$!{env.rpcCodePrefix}${table.javaClassName}ListExport',
+					url: '/api/$!{env.rpcCodePrefix}${table.javaClassName}ExportExcel',
 					headers: {},
 					data: input
 				});

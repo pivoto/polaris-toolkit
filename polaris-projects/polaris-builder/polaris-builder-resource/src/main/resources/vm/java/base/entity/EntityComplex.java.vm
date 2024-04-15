@@ -1,17 +1,23 @@
 #parse("/vm/include.vm")
 package ${pkgPrefix}${env.entityPackage.replace('/','.')};
 
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+
+import javax.validation.Valid;
+import javax.validation.constraints.*;
+
 import io.polaris.core.jdbc.annotation.Table;
 import io.polaris.core.jdbc.annotation.Column;
 import io.polaris.core.jdbc.annotation.Id;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.polaris.validation.group.*;
+
 import lombok.*;
 import lombok.experimental.FieldNameConstants;
-import java.io.Serializable;
 
-import javax.validation.Valid;
-import javax.validation.constraints.*;
-import io.polaris.validation.group.*;
+import com.jcfc.framework.jtc.brm.cache.BrmCaches;
 
 #foreach($name in $table.columnJavaTypes)
 import $name;
@@ -134,5 +140,18 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 	@Schema(hidden = true)
 	@Column(ignored = true)
 	private ${table.javaClassName}${env.entityClassSuffix} sqlUpdateValues;
+
+
+	public static ${table.javaClassName}${env.entityClassSuffix} translate(${table.javaClassName}${env.entityClassSuffix} entity){
+		BrmCaches.transCreatable(entity);
+		BrmCaches.transUpdatable(entity);
+		return entity;
+	}
+
+	public static List<${table.javaClassName}${env.entityClassSuffix}> translate(List<${table.javaClassName}${env.entityClassSuffix}> list) {
+		BrmCaches.transCreatable(list);
+		BrmCaches.transUpdatable(list);
+		return list;
+	}
 
 }

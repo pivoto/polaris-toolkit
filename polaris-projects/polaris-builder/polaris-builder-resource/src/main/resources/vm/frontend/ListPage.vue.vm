@@ -58,7 +58,9 @@
 				<el-button v-auth="'add'" size="small" type="primary" icon="EleDocumentAdd" @click="onOpenAddDialog()">新增</el-button>
 				<el-button v-auth="'edit'" size="small" type="primary" icon="EleEdit" @click="onOpenEditDialog()">修改</el-button>
 				<el-button v-auth="'delete'" size="small" type="primary" icon="EleDelete" @click="onDeleteRecord()">删除</el-button>
-				<el-button v-auth="'export'" size="small" type="primary" icon="EleDownload" @click="onExportRecord()">导出</el-button>
+				<el-button v-auth="'export'" size="small" type="primary" icon="EleDownload" @click="onExportRecord(true)">导出Csv</el-button>
+				<el-button v-auth="'export'" size="small" type="primary" icon="EleDownload" @click="onExportRecord(false)">导出Excel</el-button>
+				<el-button v-auth="'import'" size="small" type="primary" icon="EleUpload" @click="onOpenImportDialog()">导入</el-button>
 				</el-button-group>
 			</template>
 			<template #default>
@@ -96,6 +98,30 @@
 		<Add${table.javaClassName} ref="refAddDialog" v-model:show="vShowAddDialog" @after-submit="onTableRefresh"/>
 		<Edit${table.javaClassName} ref="refEditDialog" :readonly="vTableRecords.editReadonly"
 			:data="vTableRecords.editParam" v-model:show="vShowEditDialog" @after-submit="onTableRefresh"/>
+		<v-dialog width="500px" ref="refImportDialog" v-model="vShowImportDialog" :title="'数据导入'">
+			<el-form ref="refImportForm" :rules="vImportForm.importFormRules" :model="vImportForm.importForm" label-width="90px">
+				<v-row :gutter="5">
+					<v-col>
+						<el-form-item label="文件上传" prop="fileList">
+							<el-upload ref="refImportUploader" style="width:300px;" name="dataFile" limit="1" accept=".csv,.xlsx" :auto-upload="false" show-file-list v-model:file-list="vImportForm.importForm.fileList">
+								<template #trigger>
+									<el-button type="primary" @click=""><el-icon><EleUploadFilled/></el-icon>选择</el-button>
+								</template>
+								<template #tip>
+									<span>(*.csv/*.xlsx)</span>
+								</template>
+							</el-upload>
+						</el-form-item>
+					</v-col>
+				</v-row>
+			</el-form>
+			<template #footer>
+				<div class="dialog-footer">
+					<el-button icon="EleCircleCheckFilled" type="primary" @click="onImportRecord()">上传</el-button>
+					<el-button icon="EleCircleCloseFilled" type="primary" @click="onCancelImportRecord()">取消</el-button>
+				</div>
+			</template>
+		</v-dialog>
 	</div>
 </template>
 <script lang="ts">
@@ -116,8 +142,10 @@ import type {
 } from 'vue';
 import type {TableColumnCtx} from 'element-plus';
 import type {FormInstance, FormRules} from 'element-plus';
+import type {UploadInstance,UploadProps, UploadUserFile } from 'element-plus'
 import type {RuleItem, ValidateError, ValidateFieldsError} from 'async-validator';
 
+import VDialog from '/@/components/page/VDialog.vue';
 import VQueryPanel from '/@/components/page/VQueryPanel.vue';
 import VTablePanel from '/@/components/page/VTablePanel.vue';
 import VRow from '/@/components/page/VRow.vue';
@@ -156,6 +184,9 @@ type EntityType = {
 interface FormType extends Partial<Omit<EntityType,'crtDt'|'uptDt'>> {
 	[key:string]: any,
 }
+interface ImportFormType {
+	fileList: UploadUserFile[],
+}
 
 const Fields = {
 #foreach($col in $table.columns)
@@ -171,9 +202,12 @@ const FieldsLike = {
 };
 const refDiv = shallowRef<HTMLElement>();
 const refForm = ref<FormInstance>() as Ref<FormInstance>;
+const refImportForm = ref<FormInstance>() as Ref<FormInstance>;
+const refImportUploader = ref<UploadInstance>() as Ref<UploadInstance>;
 const refAddDialog = ref() as Ref<InstanceType<typeof Add${table.javaClassName}>>;
 const refEditDialog = ref() as Ref<InstanceType<typeof Edit${table.javaClassName}>>;
 const vLoadingTable = ref(false);
+const vShowImportDialog = ref(false);
 const vShowAddDialog = ref(false);
 const vShowEditDialog = ref(false);
 const vTablePage = ref<{
@@ -205,6 +239,15 @@ const vQueryForm = ref<{
 		queryFormInit: {},
 		queryForm: {},
 		queryFormRules: {},
+	});
+const vImportForm = ref<{
+	importForm: ImportFormType,
+	importFormRules: FormRules<ImportFormType>,
+	}>({
+		importForm: {
+			fileList: []
+		},
+		importFormRules:{}
 	});
 
 // validators
@@ -353,6 +396,10 @@ function onOpenEditDialog(row?: any){
 	}
 	vShowEditDialog.value = true;
 }
+// 打开导入弹窗
+function onOpenImportDialog() {
+	vShowImportDialog.value = true;
+}
 // 删除数据
 function onDeleteRecord(row?: any){
 	row = row || vTableRecords.value.currentRow
@@ -391,7 +438,7 @@ function onDeleteRecord(row?: any){
 		})
 }
 // 导出数据
-function onExportRecord(){
+function onExportRecord(useCsv?: boolean){
 	let queryFormCache = vQueryForm.value.queryFormCache;
 	if (!queryFormCache) {
 		msg.warn('缺少查询条件！请先做查询操作');
@@ -414,7 +461,7 @@ function onExportRecord(){
 				}
 				let rs = await apix({
 					method: 'post',
-					url: '/api/$!{env.rpcCodePrefix}${table.javaClassName}ListExport',
+					url: useCsv? '/api/$!{env.rpcCodePrefix}${table.javaClassName}ExportCsv':'/api/$!{env.rpcCodePrefix}${table.javaClassName}ExportExcel',
 					headers: {},
 					data: input
 				});
@@ -445,6 +492,61 @@ function onExportRecord(){
 				msg.error('导出操作失败：'+e);
 			}
 	})
+}
+// 取消导入数据
+function onCancelImportRecord() {
+	vShowImportDialog.value = false;
+	refImportUploader.value.clearFiles();
+}
+// 导入数据
+function onImportRecord() {
+	let fileList = vImportForm.value.importForm.fileList;
+	if (fileList?.length != 1){
+		msg.error('数据文件不存在，请选择上传指定格式的数据文件！');
+		return;
+	}
+	let file = fileList[0];
+	if (!file.name.endsWith('.csv') && !file.name.endsWith('.xlsx')){
+		msg.error('数据文件格式不正确，请选择上传指定格式的数据文件！');
+		return;
+	}
+	msg.confirm(`确认导入指定的数据文件，是否继续?`,'提示','warning')
+		.then(async (d)=>{
+			console.log(d)
+			let formData = new FormData();
+			formData.append('type', 'IMPORT');
+			if (file.name.endsWith('.csv')){
+				formData.append('csvFile', file.raw);
+			}else if(file.name.endsWith('.xlsx')){
+				formData.append('excelFile', file.raw);
+			}
+			// 调用接口上传
+			let rs = await apix({
+				method: 'post',
+				url: '/api/$!{env.rpcCodePrefix}${table.javaClassName}Dml',
+				headers: {},
+				data: formData
+			});
+			console.log(rs.output, rs.error)
+			if (rs.hasError()) {
+				msg.error(rs.getErrMessage() || '数据导入失败！')
+				return;
+			}
+			msg.success('数据导入成功');
+			onTableRefresh();
+		}).catch((e)=>{
+			if (e == 'cancel' || e == 'close'){
+				console.warn(e)
+				msg.warn('取消导入操作')
+			}else{
+				console.error(e)
+				msg.error('导入操作失败：'+e);
+			}
+		}).finally(()=>{
+			// 删除上传组件中的文件
+			refImportUploader.value.handleRemove(file);
+			vShowImportDialog.value = false;
+		});
 }
 // 页面加载时
 onMounted(() => {
