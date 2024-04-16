@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author Qt
@@ -16,9 +17,21 @@ public class TransformMap<K, V> implements Map<K, V> {
 	private final Function<Object, K> keyTransformer;
 	private final Function<Object, V> valueTransformer;
 
+	public TransformMap(Supplier<Map<K, V>> supplier) {
+		this.raw = supplier.get();
+		this.keyTransformer = null;
+		this.valueTransformer = null;
+	}
+
 	public TransformMap(Map<K, V> raw) {
 		this.raw = raw;
 		this.keyTransformer = null;
+		this.valueTransformer = null;
+	}
+
+	public TransformMap(Supplier<Map<K, V>> supplier, Function<Object, K> keyTransformer) {
+		this.raw = supplier.get();
+		this.keyTransformer = keyTransformer;
 		this.valueTransformer = null;
 	}
 
@@ -28,6 +41,12 @@ public class TransformMap<K, V> implements Map<K, V> {
 		this.valueTransformer = null;
 	}
 
+	public TransformMap(Supplier<Map<K, V>> supplier, Function<Object, K> keyTransformer, Function<Object, V> valueTransformer) {
+		this.raw = supplier.get();
+		this.keyTransformer = keyTransformer;
+		this.valueTransformer = valueTransformer;
+	}
+
 	public TransformMap(Map<K, V> raw, Function<Object, K> keyTransformer, Function<Object, V> valueTransformer) {
 		this.raw = raw;
 		this.keyTransformer = keyTransformer;
@@ -35,12 +54,12 @@ public class TransformMap<K, V> implements Map<K, V> {
 	}
 
 	protected K transformKey(Object key) {
-		return keyTransformer==null? (K) key :keyTransformer.apply(key);
+		return keyTransformer == null ? (K) key : keyTransformer.apply(key);
 	}
 
 
 	protected V transformValue(Object value) {
-		return valueTransformer==null? (V) value :valueTransformer.apply(value);
+		return valueTransformer == null ? (V) value : valueTransformer.apply(value);
 	}
 
 

@@ -175,12 +175,12 @@ public abstract class BeanCopier<S> {
 			Map<String, Object> upperCaseSource = null;
 			if (!options.hasKeyMapping()) {
 				if (upperCaseSource == null) {
-					upperCaseSource = new CaseInsensitiveMap(source);
+					upperCaseSource = new CaseInsensitiveMap(HashMap::new,source);
 				}
 				copyMapToBeanWithSameKeys(upperCaseSource, target, options, targetKeys);
 			} else {
 				// 需要动态处理key
-				Map<String, String> upperCaseTarget = new CaseInsensitiveMap();
+				Map<String, String> upperCaseTarget = new CaseInsensitiveMap(HashMap::new);
 				for (String key : targetKeys) {
 					upperCaseTarget.put(key, key);
 				}
@@ -196,13 +196,13 @@ public abstract class BeanCopier<S> {
 			}
 			if (options.enableUnderlineToCamelCase() && !targetKeys.isEmpty()) {
 				if (upperCaseSource == null) {
-					upperCaseSource = new CaseInsensitiveMap(source);
+					upperCaseSource = new CaseInsensitiveMap(HashMap::new,source);
 				}
 				copyMapToBeanWithUnderlineToCamelKeys(upperCaseSource, target, options, targetKeys);
 			}
 			if (options.enableCamelToUnderlineCase() && !targetKeys.isEmpty()) {
 				if (upperCaseSource == null) {
-					upperCaseSource = new CaseInsensitiveMap(source);
+					upperCaseSource = new CaseInsensitiveMap(HashMap::new,source);
 				}
 				copyMapToBeanWithCamelToUnderlineKeys(upperCaseSource, target, options, targetKeys);
 			}
@@ -260,7 +260,7 @@ public abstract class BeanCopier<S> {
 			}
 			// ignoreCase
 			if (options.ignoreCase() && !targetKeys.isEmpty()) {
-				Map<String, BeanPropertyInfo> sourceUpperProperties = Maps.newUpperCaseLinkedHashMap();
+				Map<String, BeanPropertyInfo> sourceUpperProperties = Maps.newUpperCaseHashMap();
 				sourceUpperProperties.putAll(sourceProperties);
 				List<Tuple2<BeanPropertyInfo, BeanPropertyInfo>> sameKeyMappingIgnoreCase = BeanOptionsCopier.buildSameKeyMapping(sourceUpperProperties, targetProperties, true);
 				copyBeanToBeanWithDynamicKeyMappings(sourceBeanAccess, source, targetBeanAccess, target, options, targetKeys, sameKeyMappingIgnoreCase);
@@ -313,8 +313,13 @@ public abstract class BeanCopier<S> {
 			java.lang.reflect.Type type = info.getPropertyGenericType();
 			value = options.editValue(sourceKey, value);
 			value = options.convert(type, value);
-			if (value == null && options.ignoreNull()) {
-				return;
+			if (value == null) {
+				if (options.ignoreNull()) {
+					return;
+				}
+				if (info.getPropertyType().isPrimitive()) {
+					return;
+				}
 			}
 			targetBeanAccess.setField(target, targetKey, value);
 			targetKeys.remove(targetKey);
@@ -336,8 +341,13 @@ public abstract class BeanCopier<S> {
 			java.lang.reflect.Type type = info.getPropertyGenericType();
 			value = options.editValue(sourceKey, value);
 			value = options.convert(type, value);
-			if (value == null && options.ignoreNull()) {
-				return;
+			if (value == null) {
+				if (options.ignoreNull()) {
+					return;
+				}
+				if (info.getPropertyType().isPrimitive()) {
+					return;
+				}
 			}
 			targetBeanAccess.setProperty(target, targetKey, value);
 			targetKeys.remove(targetKey);
