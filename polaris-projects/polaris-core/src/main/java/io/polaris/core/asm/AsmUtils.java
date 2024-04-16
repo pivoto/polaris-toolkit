@@ -1,13 +1,19 @@
 package io.polaris.core.asm;
 
+import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
+import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
+import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.objectweb.asm.Opcodes.RETURN;
 
 /**
  * @author Qt
@@ -116,6 +122,7 @@ public class AsmUtils {
 	public static void autoBoxingForReturn(MethodVisitor mv, Class<?> clz) {
 		autoBoxingForReturn(mv, Type.getType(clz));
 	}
+
 	/**
 	 * 添加自动装箱指令
 	 */
@@ -127,6 +134,15 @@ public class AsmUtils {
 		}
 	}
 
+	public static void insertDefaultConstructor(ClassWriter cw, String superclassNameInternal) {
+		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+		mv.visitCode();
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitMethodInsn(INVOKESPECIAL, superclassNameInternal, "<init>", "()V", false);
+		mv.visitInsn(RETURN);
+		mv.visitMaxs(1, 1);
+		mv.visitEnd();
+	}
 
 	public static Label[] newLabels(int size) {
 		Label[] label = new Label[size];
@@ -135,4 +151,61 @@ public class AsmUtils {
 		}
 		return label;
 	}
+
+	public static void storeVar(MethodVisitor mv, Class<?> type, int varIndex) {
+		if (type == byte.class || type == boolean.class || type == short.class || type == char.class || type == int.class) {
+			mv.visitVarInsn(Opcodes.ISTORE, varIndex);
+		} else if (type == long.class) {
+			mv.visitVarInsn(Opcodes.LSTORE, varIndex);
+		} else if (type == float.class) {
+			mv.visitVarInsn(Opcodes.FSTORE, varIndex);
+		} else if (type == double.class) {
+			mv.visitVarInsn(Opcodes.DSTORE, varIndex);
+//		} else if (type == byte[].class || type == boolean[].class) {
+//			mv.visitVarInsn(Opcodes.BASTORE, varIndex);
+//		} else if (type == char[].class) {
+//			mv.visitVarInsn(Opcodes.CASTORE, varIndex);
+//		} else if (type == short[].class) {
+//			mv.visitVarInsn(Opcodes.SASTORE, varIndex);
+//		} else if (type == long[].class) {
+//			mv.visitVarInsn(Opcodes.LASTORE, varIndex);
+//		} else if (type == float[].class) {
+//			mv.visitVarInsn(Opcodes.FASTORE, varIndex);
+//		} else if (type == double[].class) {
+//			mv.visitVarInsn(Opcodes.DASTORE, varIndex);
+//		} else if (type.isArray()) {
+//			mv.visitVarInsn(Opcodes.AASTORE, varIndex);
+		} else {
+			mv.visitVarInsn(Opcodes.ASTORE, varIndex);
+		}
+	}
+
+	public static void loadVar(MethodVisitor mv, Class<?> type, int varIndex) {
+		if (type == byte.class || type == boolean.class || type == short.class || type == char.class || type == int.class) {
+			mv.visitVarInsn(Opcodes.ILOAD, varIndex);
+		} else if (type == long.class) {
+			mv.visitVarInsn(Opcodes.LLOAD, varIndex);
+		} else if (type == float.class) {
+			mv.visitVarInsn(Opcodes.FLOAD, varIndex);
+		} else if (type == double.class) {
+			mv.visitVarInsn(Opcodes.DLOAD, varIndex);
+//		} else if (type == byte[].class || type == boolean[].class) {
+//			mv.visitVarInsn(Opcodes.BALOAD, varIndex);
+//		} else if (type == char[].class) {
+//			mv.visitVarInsn(Opcodes.CALOAD, varIndex);
+//		} else if (type == short[].class) {
+//			mv.visitVarInsn(Opcodes.SALOAD, varIndex);
+//		} else if (type == long[].class) {
+//			mv.visitVarInsn(Opcodes.LALOAD, varIndex);
+//		} else if (type == float[].class) {
+//			mv.visitVarInsn(Opcodes.FALOAD, varIndex);
+//		} else if (type == double[].class) {
+//			mv.visitVarInsn(Opcodes.DALOAD, varIndex);
+//		} else if (type.isArray()) {
+//			mv.visitVarInsn(Opcodes.AALOAD, varIndex);
+		} else {
+			mv.visitVarInsn(Opcodes.ALOAD, varIndex);
+		}
+	}
+
 }

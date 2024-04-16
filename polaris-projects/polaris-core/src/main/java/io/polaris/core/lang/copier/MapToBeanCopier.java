@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.lang.bean.PropertyAccessor;
 import io.polaris.core.log.ILogger;
@@ -24,25 +25,22 @@ public class MapToBeanCopier<T> extends BaseToBeanCopier<Map, T> {
 
 	/**
 	 * @param source      来源Map
+	 * @param sourceType  来源类型
 	 * @param target      目标Bean对象
-	 * @param targetType  目标泛型类型
+	 * @param targetType  目标类型
 	 * @param copyOptions 拷贝选项
 	 */
-	public MapToBeanCopier(Map source, T target, Type targetType, CopyOptions copyOptions) {
-		super(source, target, targetType, copyOptions);
+	public MapToBeanCopier(Map source, Type sourceType, T target, Type targetType, CopyOptions copyOptions) {
+		super(source, sourceType, target, targetType, copyOptions);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public T copy() {
-		Class<?> actualEditable = target.getClass();
-		if (options.getEditable() != null && options.getEditable().isAssignableFrom(actualEditable)) {
-			actualEditable = options.getEditable();
-		}
 		try {
 			// 记录已复制key
 			final Set<String> recorder = new HashSet<>();
-			final Map<String, PropertyAccessor> accessors = Beans.getIndexedFieldAndPropertyAccessors(actualEditable);
+			final Map<String, PropertyAccessor> accessors = Beans.getIndexedFieldAndPropertyAccessors(JavaType.of(targetType).getRawClass());
 			final SetMultiMap<String, String> candidates = createTargetBeanMapCandidateKeys(accessors);
 
 			final List<Tuple2<String, Object>> sourceEntries = new ArrayList<>(this.source.size());
@@ -50,25 +48,26 @@ public class MapToBeanCopier<T> extends BaseToBeanCopier<Map, T> {
 				if (k == null) {
 					return;
 				}
-				String sourceKey = super.editKey(k.toString());
+				String key = k.toString();
+				String sourceKey = options.editKey(key);
 				if (sourceKey == null) {
 					return;
 				}
-				if (super.isIgnore(sourceKey)) {
+				if (options.isIgnoredKey(sourceKey)) {
 					return;
 				}
-				if (value == null && options.isIgnoreNull()) {
+				if (value == null && options.ignoreNull()) {
 					return;
 				}
 				sourceEntries.add(Tuple2.of(sourceKey, value));
 			}));
 			// set with candidates
-			setTargetValues(sourceEntries, accessors,candidates, recorder);
+			setTargetValues(sourceEntries, accessors, candidates, recorder);
 		} catch (Exception e) {
-			if (!options.isIgnoreError()) {
+			if (!options.ignoreError()) {
 				throw new UnsupportedOperationException(e);
 			} else {
-				log.warn("Copy failed：{}",  e.getMessage());
+				log.warn("Copy failed：{}", e.getMessage());
 				if (log.isDebugEnabled()) {
 					log.debug(e.getMessage(), e);
 				}

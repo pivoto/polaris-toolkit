@@ -2,7 +2,6 @@ package io.polaris.core.lang.bean;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -369,15 +368,12 @@ public class Beans {
 			Map<String, BeanPropertyInfo> accessProperties = access.properties();
 			Map<String, PropertyAccessor> properties = new HashMap<>(accessProperties.size());
 			Map<String, PropertyAccessor> propertiesWithFields = new HashMap<>(accessProperties.size());
+
 			for (Map.Entry<String, BeanPropertyInfo> entry : accessProperties.entrySet()) {
 				BeanPropertyInfo beanPropertyInfo = entry.getValue();
 				Type propertyGenericType = beanPropertyInfo.getPropertyGenericType();
 				String propertyName = beanPropertyInfo.getPropertyName();
 				if (beanPropertyInfo.getField() != null) {
-					// 忽略static field
-					if (Modifier.isStatic(beanPropertyInfo.getField().getModifiers())) {
-						continue;
-					}
 					int fieldIndex = access.getFieldIndex(propertyName);
 					PropertyAccessor accessor = new PropertyFieldIndexedAccessor(access, propertyGenericType, fieldIndex);
 					propertiesWithFields.put(propertyName, accessor);
@@ -412,10 +408,6 @@ public class Beans {
 				Type propertyGenericType = beanPropertyInfo.getPropertyGenericType();
 				String propertyName = beanPropertyInfo.getPropertyName();
 				if (beanPropertyInfo.getField() != null) {
-					// 忽略static field
-					if (Modifier.isStatic(beanPropertyInfo.getField().getModifiers())) {
-						continue;
-					}
 					Function<Object, Object> getter = access.getFieldGetter(propertyName);
 					BiConsumer<Object, Object> setter = access.getFieldSetter(propertyName);
 					PropertyAccessor accessor = new PropertyLambdaAccessor(access, propertyGenericType, getter, setter);

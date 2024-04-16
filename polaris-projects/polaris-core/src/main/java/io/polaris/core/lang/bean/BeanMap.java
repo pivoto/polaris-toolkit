@@ -19,7 +19,7 @@ public class BeanMap<T> extends AbstractMap<String, Object> implements IBeanMap<
 	protected final T bean;
 	protected final Class<?> beanType;
 	protected final BeanMapOptions options;
-	protected final boolean includeOpenFields;
+	protected final boolean includeFields;
 	protected final boolean hasConverter;
 	protected final boolean hasFallbackSetter;
 	protected final boolean hasFallbackGetter;
@@ -32,7 +32,7 @@ public class BeanMap<T> extends AbstractMap<String, Object> implements IBeanMap<
 		this.bean = bean;
 		this.beanType = beanType;
 		this.options = options;
-		this.includeOpenFields = options.includeOpenFields();
+		this.includeFields = options.includeFields();
 		this.hasConverter = options.enableConverter() && options.converter() != null;
 		this.hasFallbackSetter = options.enableFallback() && options.fallbackSetter() != null;
 		this.hasFallbackGetter = options.enableFallback() && options.fallbackGetter() != null;

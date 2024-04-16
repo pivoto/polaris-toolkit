@@ -19,57 +19,50 @@ public class BeanToMapCopier<T> extends BaseCopier<T, Map> {
 
 	/**
 	 * @param source      来源Map
+	 * @param sourceType  来源类型
 	 * @param target      目标Map对象
-	 * @param targetType  目标泛型类型
+	 * @param targetType  目标类型
 	 * @param copyOptions 拷贝选项
 	 */
-	public BeanToMapCopier(T source, Map target, Type targetType, CopyOptions copyOptions) {
-		super(source, target, targetType, copyOptions);
+	public BeanToMapCopier(T source, Type sourceType, Map target, Type targetType, CopyOptions copyOptions) {
+		super(source, sourceType, target, targetType, copyOptions);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public Map copy() {
-		Class<?> actualEditable = source.getClass();
-		if (options.getEditable() != null && options.getEditable().isAssignableFrom(actualEditable)) {
-			actualEditable = options.getEditable();
-		}
 		try {
-			final Map<String, PropertyAccessor> sourceAccessors = Beans.getIndexedFieldAndPropertyAccessors(source.getClass());
+			final Map<String, PropertyAccessor> sourceAccessors = Beans.getIndexedFieldAndPropertyAccessors(JavaType.of(sourceType).getRawClass());
 
 			JavaType<Object> javaType = JavaType.of(this.targetType);
 			Type keyType = javaType.getActualType(Map.class, 0);
 			Type valueType = javaType.getActualType(Map.class, 1);
 
 			sourceAccessors.forEach(wrapConsumer((sourceKey, sourceAccessor) -> {
-				sourceKey = super.editKey(sourceKey);
+				sourceKey = options.editKey(sourceKey);
 				if (sourceKey == null) {
 					return;
 				}
-				if (super.isIgnore(sourceKey)) {
+				if (options.isIgnoredKey(sourceKey)) {
 					return;
 				}
-				if(!sourceAccessor.hasSetter()){
+				if (!sourceAccessor.hasSetter()) {
 					return;
 				}
 				Object value = sourceAccessor.get(source);
-				if (value == null && options.isIgnoreNull()) {
+				if (value == null && options.ignoreNull()) {
 					return;
 				}
-				Type type = sourceAccessor.type();
-				if (!super.filter(sourceKey, type, value)) {
-					return;
-				}
-				Object targetKey = super.convert(keyType, sourceKey);
-				if (!options.isOverride()) {
+				Object targetKey = options.convert(keyType, sourceKey);
+				if (!options.override()) {
 					Object orig = target.get(sourceKey);
 					if (orig != null) {
 						return;
 					}
 				}
-				value = super.convert(valueType, value);
-				value = super.editValue(sourceKey, value);
-				if (value == null && options.isIgnoreNull()) {
+				value = options.convert(valueType, value);
+				value = options.editValue(sourceKey, value);
+				if (value == null && options.ignoreNull()) {
 					return;
 				}
 
@@ -77,7 +70,7 @@ public class BeanToMapCopier<T> extends BaseCopier<T, Map> {
 			}));
 
 		} catch (Exception e) {
-			if (!options.isIgnoreError()) {
+			if (!options.ignoreError()) {
 				throw new UnsupportedOperationException(e);
 			} else {
 				log.warn("Copy failed：{}", e.getMessage());

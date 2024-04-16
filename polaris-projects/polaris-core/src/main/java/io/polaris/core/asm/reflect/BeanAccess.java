@@ -3,12 +3,12 @@ package io.polaris.core.asm.reflect;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
 
 import io.polaris.core.asm.AsmUtils;
 import io.polaris.core.err.InvocationException;
@@ -22,46 +22,21 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import static org.objectweb.asm.Opcodes.ACC_FINAL;
-import static org.objectweb.asm.Opcodes.ACC_PROTECTED;
-import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
-import static org.objectweb.asm.Opcodes.ACC_STATIC;
-import static org.objectweb.asm.Opcodes.ACC_SUPER;
-import static org.objectweb.asm.Opcodes.ACC_VARARGS;
-import static org.objectweb.asm.Opcodes.ACONST_NULL;
-import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.ARETURN;
-import static org.objectweb.asm.Opcodes.ASTORE;
-import static org.objectweb.asm.Opcodes.ATHROW;
-import static org.objectweb.asm.Opcodes.CHECKCAST;
-import static org.objectweb.asm.Opcodes.DUP;
-import static org.objectweb.asm.Opcodes.GETFIELD;
-import static org.objectweb.asm.Opcodes.GETSTATIC;
-import static org.objectweb.asm.Opcodes.ILOAD;
-import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
-import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
-import static org.objectweb.asm.Opcodes.INVOKESTATIC;
-import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
-import static org.objectweb.asm.Opcodes.NEW;
-import static org.objectweb.asm.Opcodes.POP;
-import static org.objectweb.asm.Opcodes.PUTFIELD;
-import static org.objectweb.asm.Opcodes.PUTSTATIC;
-import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.V1_8;
+import static org.objectweb.asm.Opcodes.*;
 
 /**
  * @author Qt
  * @since 1.8,  Apr 11, 2024
  */
 public abstract class BeanAccess<T> {
-	private static final AccessPool<Class, BeanAccess> pool = new AccessPool<>();
 	private static ILogger log = ILoggers.of(BeanAccess.class);
+	@SuppressWarnings({"rawtypes"})
+	private static final AccessPool<Class<?>, BeanAccess> pool = new AccessPool<>();
 
 	private Map<String, BeanPropertyInfo> properties;
 	private Map<String, Integer> setterIndices;
 	private Map<String, Integer> getterIndices;
 	private Map<String, Integer> fieldIndices;
-	private Map<String, Integer> staticFieldIndices;
 
 	protected BeanAccess() {
 	}
@@ -84,14 +59,6 @@ public abstract class BeanAccess<T> {
 		throw new IllegalArgumentException("Field not found");
 	}
 
-	public Object getIndexStaticField(Object o, int fieldIndex) {
-		throw new IllegalArgumentException("Field not found");
-	}
-
-	public void setIndexStaticField(Object o, int methodIndex, Object val) {
-		throw new IllegalArgumentException("Field not found");
-	}
-
 	// endregion
 
 	// region info
@@ -106,7 +73,7 @@ public abstract class BeanAccess<T> {
 	}
 
 	public Set<String> allPropertyNames() {
-		return Collections.unmodifiableSet(properties.keySet());
+		return properties.keySet();
 	}
 
 	public java.lang.reflect.Type propertyGenericType(String property) {
@@ -121,6 +88,69 @@ public abstract class BeanAccess<T> {
 
 	// endregion
 
+	// region property or field
+
+	public boolean containsSetterOrField(String key) {
+		BeanPropertyInfo info = properties.get(key);
+		if (info != null) {
+			return info.getField() != null || info.getWriteMethod() != null;
+		}
+		return false;
+	}
+
+	public boolean containsGetterOrField(String key) {
+		BeanPropertyInfo info = properties.get(key);
+		if (info != null) {
+			return info.getField() != null || info.getReadMethod() != null;
+		}
+		return false;
+	}
+
+	public Object getPropertyOrField(Object o, String key) {
+		int i = getGetterIndex(key);
+		if (i >= 0) {
+			return getIndexProperty(o, i);
+		}
+		i = getFieldIndex(key);
+		if (i >= 0) {
+			return getIndexField(o, i);
+		}
+		return null;
+	}
+
+	public boolean setPropertyOrField(Object o, String key, Object val) {
+		int i = getSetterIndex(key);
+		if (i >= 0) {
+			setIndexProperty(o, i, val);
+			return true;
+		}
+		i = getFieldIndex(key);
+		if (i >= 0) {
+			setIndexField(o, i, val);
+			return true;
+		}
+		return false;
+	}
+
+	public boolean setPropertyOrField(Object o, String key, Object val, BiFunction<java.lang.reflect.Type, Object, Object> converter) {
+		BeanPropertyInfo info = this.properties.get(key);
+		if (info == null) {
+			return false;
+		}
+		java.lang.reflect.Type type = info.getPropertyGenericType();
+		if (info.getField() != null) {
+			setField(o, key, converter.apply(type, val));
+			return true;
+		}
+		if (info.getWriteMethod() != null) {
+			setProperty(o, key, converter.apply(type, val));
+			return true;
+		}
+		return false;
+	}
+
+	// endregion
+
 	// region setter
 
 	public boolean containsSetter(String property) {
@@ -128,11 +158,11 @@ public abstract class BeanAccess<T> {
 	}
 
 	public Map<String, Integer> setterIndices() {
-		return Collections.unmodifiableMap(setterIndices);
+		return setterIndices;
 	}
 
 	public Set<String> setterPropertyNames() {
-		return Collections.unmodifiableSet(setterIndices.keySet());
+		return setterIndices.keySet();
 	}
 
 	public int getSetterIndex(String property) {
@@ -165,11 +195,11 @@ public abstract class BeanAccess<T> {
 	}
 
 	public Map<String, Integer> getterIndices() {
-		return Collections.unmodifiableMap(getterIndices);
+		return getterIndices;
 	}
 
 	public Set<String> getterPropertyNames() {
-		return Collections.unmodifiableSet(getterIndices.keySet());
+		return getterIndices.keySet();
 	}
 
 	public int getGetterIndex(String property) {
@@ -195,18 +225,18 @@ public abstract class BeanAccess<T> {
 
 	// endregion
 
-	// region normal field
+	// region field
 
 	public boolean containsField(String property) {
 		return fieldIndices.containsKey(property);
 	}
 
 	public Map<String, Integer> fieldIndices() {
-		return Collections.unmodifiableMap(fieldIndices);
+		return fieldIndices;
 	}
 
 	public Set<String> fieldNames() {
-		return Collections.unmodifiableSet(fieldIndices.keySet());
+		return fieldIndices.keySet();
 	}
 
 	public int getFieldIndex(String property) {
@@ -248,170 +278,77 @@ public abstract class BeanAccess<T> {
 
 	// endregion
 
-	// region static field
-
-	public boolean containsStaticField(String property) {
-		return staticFieldIndices.containsKey(property);
-	}
-
-	public Map<String, Integer> staticFieldIndices() {
-		return Collections.unmodifiableMap(setterIndices);
-	}
-
-	public Set<String> staticFieldNames() {
-		return Collections.unmodifiableSet(staticFieldIndices.keySet());
-	}
-
-	public int getStaticFieldIndex(String property) {
-		Integer index = staticFieldIndices.get(property);
-		return index == null ? -1 : index;
-	}
-
-	public void setStaticField(Object o, String property, Object val) {
-		int index = getStaticFieldIndex(property);
-		if (index == -1) {
-			throw new IllegalArgumentException("Field not found");
-		}
-		setIndexStaticField(o, index, val);
-	}
-
-	public Object getStaticField(Object o, String property) {
-		int index = getStaticFieldIndex(property);
-		if (index == -1) {
-			throw new IllegalArgumentException("Field not found");
-		}
-		return getIndexStaticField(o, index);
-	}
-
-	public void setStaticFieldOrNoop(Object o, String property, Object val) {
-		int index = getStaticFieldIndex(property);
-		if (index == -1) {
-			return;
-		}
-		setIndexStaticField(o, index, val);
-	}
-
-	public Object getStaticFieldOrNoop(Object o, String property) {
-		int index = getStaticFieldIndex(property);
-		if (index == -1) {
-			return null;
-		}
-		return getIndexStaticField(o, index);
-	}
-
-	// endregion
-
-
+	@SuppressWarnings("unchecked")
 	public static <T> BeanAccess<T> get(Class<T> type) {
 		return pool.computeIfAbsent(type, BeanAccess::create);
 	}
 
+	@SuppressWarnings({"unchecked"})
 	public static <T> BeanAccess<T> create(Class<T> type) {
-		Map<String, BeanPropertyInfo> propertyInfoMap = BeanPropertyInfo.mapOf(type);
-		List<BeanPropertyInfo> setters = new ArrayList<>();
-		List<BeanPropertyInfo> getters = new ArrayList<>();
-		List<BeanPropertyInfo> fields = new ArrayList<>();
-		List<BeanPropertyInfo> staticFields = new ArrayList<>();
-
-		for (Map.Entry<String, BeanPropertyInfo> entry : propertyInfoMap.entrySet()) {
-			BeanPropertyInfo beanPropertyInfo = entry.getValue();
-			if (beanPropertyInfo.getWriteMethod() != null) {
-				setters.add(beanPropertyInfo);
-			}
-			if (beanPropertyInfo.getReadMethod() != null) {
-				getters.add(beanPropertyInfo);
-			}
-			if (beanPropertyInfo.getField() != null) {
-				if (Modifier.isStatic(beanPropertyInfo.getField().getModifiers())) {
-					staticFields.add(beanPropertyInfo);
-				} else {
-					fields.add(beanPropertyInfo);
-				}
-			}
-		}
-
+		BeanPropertyInfo.Classification classification = BeanPropertyInfo.classify(type);
 		String accessClassName = AccessClassLoader.buildAccessClassName(type, BeanAccess.class);
 		Class accessClass;
 		AccessClassLoader loader = AccessClassLoader.get(type);
 		synchronized (loader) {
 			accessClass = loader.loadAccessClass(accessClassName);
 			if (accessClass == null) {
-				accessClass = buildAccessClass(loader, accessClassName, type, setters, getters, fields, staticFields);
+				accessClass = buildAccessClass(loader, accessClassName, type, classification);
 			}
 		}
 		BeanAccess<T> access;
 		try {
 			access = (BeanAccess<T>) accessClass.newInstance();
-			access.properties = propertyInfoMap;
+			// 全部设为只读属性
+			access.properties = Collections.unmodifiableMap(classification.properties);
 			{
 				Map<String, Integer> setterIndices = new HashMap<>();
-				for (int i = 0; i < setters.size(); i++) {
-					setterIndices.put(setters.get(i).getPropertyName(), i);
+				for (int i = 0; i < classification.setters.size(); i++) {
+					setterIndices.put(classification.setters.get(i).getPropertyName(), i);
 				}
-				access.setterIndices = setterIndices;
+				access.setterIndices = Collections.unmodifiableMap(setterIndices);
 			}
 			{
 				Map<String, Integer> getterIndices = new HashMap<>();
-				for (int i = 0; i < getters.size(); i++) {
-					getterIndices.put(getters.get(i).getPropertyName(), i);
+				for (int i = 0; i < classification.getters.size(); i++) {
+					getterIndices.put(classification.getters.get(i).getPropertyName(), i);
 				}
-				access.getterIndices = getterIndices;
+				access.getterIndices = Collections.unmodifiableMap(getterIndices);
 			}
 			{
 				Map<String, Integer> fieldIndices = new HashMap<>();
-				for (int i = 0; i < fields.size(); i++) {
-					fieldIndices.put(fields.get(i).getPropertyName(), i);
+				for (int i = 0; i < classification.fields.size(); i++) {
+					fieldIndices.put(classification.fields.get(i).getPropertyName(), i);
 				}
-				access.fieldIndices = fieldIndices;
+				access.fieldIndices = Collections.unmodifiableMap(fieldIndices);
 			}
-			{
-				Map<String, Integer> staticFieldIndices = new HashMap<>();
-				for (int i = 0; i < staticFields.size(); i++) {
-					staticFieldIndices.put(staticFields.get(i).getPropertyName(), i);
-				}
-				access.staticFieldIndices = staticFieldIndices;
-			}
-
 		} catch (Throwable t) {
-			throw new IllegalStateException("实例化构造器访问类失败: " + accessClassName, t);
+			throw new IllegalStateException("创建访问类失败: " + accessClassName, t);
 		}
 		return access;
 	}
 
 	private static <T> Class buildAccessClass(AccessClassLoader loader
 		, String accessClassName, Class<T> type
-		, List<BeanPropertyInfo> setters, List<BeanPropertyInfo> getters
-		, List<BeanPropertyInfo> fields, List<BeanPropertyInfo> staticFields) {
+		, BeanPropertyInfo.Classification classification) {
 		String accessClassNameInternal = accessClassName.replace('.', '/');
 		String classNameInternal = type.getName().replace('.', '/');
 
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-		String superclassNameInternal = BeanAccess.class.getName().replace('.', '/');
+		String superClassNameInternal = BeanAccess.class.getName().replace('.', '/');
 		cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, accessClassNameInternal,
-			"L" + superclassNameInternal + "<L" + accessClassNameInternal + ";>;",
-			superclassNameInternal, null);
+			"L" + superClassNameInternal + "<L" + Type.getInternalName(type) + ";>;",
+			superClassNameInternal, null);
 		cw.visitInnerClass("java/lang/invoke/MethodHandles$Lookup", "java/lang/invoke/MethodHandles", "Lookup", ACC_PUBLIC | ACC_FINAL | ACC_STATIC);
 
-		insertSelfConstructor(cw, superclassNameInternal);
-		insertSetterInvokers(cw, accessClassNameInternal, type, setters);
-		insertGetterInvokers(cw, accessClassNameInternal, type, getters);
-		insertFieldInvokers(cw, accessClassNameInternal, type, fields);
-		insertStaticFieldInvokers(cw, accessClassNameInternal, type, staticFields);
+		AsmUtils.insertDefaultConstructor(cw, superClassNameInternal);
+		insertSetterInvokers(cw, accessClassNameInternal, type, classification.setters);
+		insertGetterInvokers(cw, accessClassNameInternal, type, classification.getters);
+		insertFieldInvokers(cw, accessClassNameInternal, type, classification.fields);
 
 		cw.visitEnd();
 		byte[] byteArray = cw.toByteArray();
 
 		return loader.defineAccessClass(accessClassName, byteArray);
-	}
-
-	private static void insertSelfConstructor(ClassWriter cw, String superclassNameInternal) {
-		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
-		mv.visitCode();
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitMethodInsn(INVOKESPECIAL, superclassNameInternal, "<init>", "()V", false);
-		mv.visitInsn(RETURN);
-		mv.visitMaxs(1, 1);
-		mv.visitEnd();
 	}
 
 	private static <T> void insertSetterInvokers(ClassWriter cw, String accessClassNameInternal, Class<T> type, List<BeanPropertyInfo> setters) {
@@ -420,7 +357,7 @@ public abstract class BeanAccess<T> {
 			return;
 		}
 
-		SerializableQuaternionConsumer<BeanAccess, Object, Integer, Object> setIndexProperty = BeanAccess::setIndexProperty;
+		SerializableQuaternionConsumer<BeanAccess<?>, Object, Integer, Object> setIndexProperty = BeanAccess::setIndexProperty;
 		// 生成各方法的索引式调用方法
 		{
 			MethodVisitor methodVisitor = cw.visitMethod(ACC_PROTECTED | ACC_VARARGS, setIndexProperty.serialized().getImplMethodName(), "(Ljava/lang/Object;ILjava/lang/Object;)V", null, null);
@@ -436,7 +373,6 @@ public abstract class BeanAccess<T> {
 				// case
 				for (int idxName = 0; idxName < setters.size(); idxName++) {
 					methodVisitor.visitLabel(labels[idxName]);
-					methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 					BeanPropertyInfo info = setters.get(idxName);
 					Method method = info.getWriteMethod();
 					String methodName = method.getName();
@@ -486,7 +422,6 @@ public abstract class BeanAccess<T> {
 						// catch
 						if (hasThrows) {
 							methodVisitor.visitLabel(labelCatch);
-							methodVisitor.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[]{"java/lang/Throwable"});
 							methodVisitor.visitVarInsn(ASTORE, 4);
 							methodVisitor.visitTypeInsn(NEW, Type.getInternalName(InvocationException.class));
 							methodVisitor.visitInsn(DUP);
@@ -499,7 +434,6 @@ public abstract class BeanAccess<T> {
 				}
 				// default
 				methodVisitor.visitLabel(labelDefault);
-				methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 				methodVisitor.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
 				methodVisitor.visitInsn(DUP);
 				methodVisitor.visitLdcInsn("Method not found");
@@ -508,7 +442,6 @@ public abstract class BeanAccess<T> {
 
 				// break
 				methodVisitor.visitLabel(labelBreak);
-				methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 			}
 
 			methodVisitor.visitInsn(RETURN);
@@ -522,7 +455,7 @@ public abstract class BeanAccess<T> {
 		if (getters.isEmpty()) {
 			return;
 		}
-		SerializableTernaryFunction<BeanAccess, Object, Integer, Object> getIndexProperty = BeanAccess::getIndexProperty;
+		SerializableTernaryFunction<BeanAccess<?>, Object, Integer, Object> getIndexProperty = BeanAccess::getIndexProperty;
 
 		// 生成各方法的索引式调用方法
 		{
@@ -539,7 +472,6 @@ public abstract class BeanAccess<T> {
 				// case
 				for (int idxName = 0; idxName < getters.size(); idxName++) {
 					methodVisitor.visitLabel(labels[idxName]);
-					methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 					BeanPropertyInfo info = getters.get(idxName);
 					Method method = info.getReadMethod();
 					String methodName = method.getName();
@@ -584,7 +516,6 @@ public abstract class BeanAccess<T> {
 						// catch
 						if (hasThrows) {
 							methodVisitor.visitLabel(labelCatch);
-							methodVisitor.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[]{"java/lang/Throwable"});
 							methodVisitor.visitVarInsn(ASTORE, 3);
 							methodVisitor.visitTypeInsn(NEW, Type.getInternalName(InvocationException.class));
 							methodVisitor.visitInsn(DUP);
@@ -596,7 +527,6 @@ public abstract class BeanAccess<T> {
 				}
 				// default
 				methodVisitor.visitLabel(labelDefault);
-				methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 				methodVisitor.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
 				methodVisitor.visitInsn(DUP);
 				methodVisitor.visitLdcInsn("Method not found");
@@ -613,22 +543,12 @@ public abstract class BeanAccess<T> {
 		if (fields.isEmpty()) {
 			return;
 		}
-		SerializableTernaryFunction<BeanAccess, Object, Integer, Object> getIndexField = BeanAccess::getIndexField;
-		SerializableQuaternionConsumer<BeanAccess, Object, Integer, Object> setIndexField = BeanAccess::setIndexField;
+		SerializableTernaryFunction<BeanAccess<?>, Object, Integer, Object> getIndexField = BeanAccess::getIndexField;
+		SerializableQuaternionConsumer<BeanAccess<?>, Object, Integer, Object> setIndexField = BeanAccess::setIndexField;
 		insertStdFieldInvoker(cw, type, fields, getIndexField, setIndexField);
 	}
 
-	private static <T> void insertStaticFieldInvokers(ClassWriter cw, String accessClassNameInternal, Class<T> type, List<BeanPropertyInfo> staticFields) {
-		// ignore
-		if (staticFields.isEmpty()) {
-			return;
-		}
-		SerializableQuaternionConsumer<BeanAccess, Object, Integer, Object> setIndexStaticField = BeanAccess::setIndexStaticField;
-		SerializableTernaryFunction<BeanAccess, Object, Integer, Object> getIndexStaticField = BeanAccess::getIndexStaticField;
-		insertStdFieldInvoker(cw, type, staticFields, getIndexStaticField, setIndexStaticField);
-	}
-
-	private static <T> void insertStdFieldInvoker(ClassWriter cw, Class<T> type, List<BeanPropertyInfo> fields, SerializableTernaryFunction<BeanAccess, Object, Integer, Object> getter, SerializableQuaternionConsumer<BeanAccess, Object, Integer, Object> setter) {
+	private static <T> void insertStdFieldInvoker(ClassWriter cw, Class<T> type, List<BeanPropertyInfo> fields, SerializableTernaryFunction<BeanAccess<?>, Object, Integer, Object> getter, SerializableQuaternionConsumer<BeanAccess<?>, Object, Integer, Object> setter) {
 		// getter
 		{
 			MethodVisitor methodVisitor = cw.visitMethod(ACC_PROTECTED, getter.serialized().getImplMethodName(), "(Ljava/lang/Object;I)Ljava/lang/Object;", null, null);
@@ -641,7 +561,6 @@ public abstract class BeanAccess<T> {
 
 			for (int idxField = 0; idxField < fields.size(); idxField++) {
 				methodVisitor.visitLabel(labels[idxField]);
-				methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 
 				BeanPropertyInfo info = fields.get(idxField);
 				Field field = info.getField();
@@ -662,7 +581,6 @@ public abstract class BeanAccess<T> {
 
 			// default
 			methodVisitor.visitLabel(labelDefault);
-			methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 			methodVisitor.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
 			methodVisitor.visitInsn(DUP);
 			methodVisitor.visitLdcInsn("Field not found");
@@ -685,7 +603,6 @@ public abstract class BeanAccess<T> {
 			methodVisitor.visitTableSwitchInsn(0, fields.size() - 1, labelDefault, labels);
 			for (int idxField = 0; idxField < fields.size(); idxField++) {
 				methodVisitor.visitLabel(labels[idxField]);
-				methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 
 				BeanPropertyInfo info = fields.get(idxField);
 				Field field = info.getField();
@@ -708,7 +625,6 @@ public abstract class BeanAccess<T> {
 			}
 			// default
 			methodVisitor.visitLabel(labelDefault);
-			methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 			methodVisitor.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
 			methodVisitor.visitInsn(DUP);
 			methodVisitor.visitLdcInsn("Field not found");

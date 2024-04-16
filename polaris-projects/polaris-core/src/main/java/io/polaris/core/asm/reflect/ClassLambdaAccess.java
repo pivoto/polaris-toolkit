@@ -519,7 +519,7 @@ public abstract class ClassLambdaAccess<T> {
 		try {
 			access = (ClassLambdaAccess<T>) accessClass.newInstance();
 		} catch (Throwable t) {
-			throw new IllegalStateException("实例化构造器访问类失败: " + accessClassName, t);
+			throw new IllegalStateException("创建访问类失败: " + accessClassName, t);
 		}
 		return access;
 	}
@@ -530,12 +530,12 @@ public abstract class ClassLambdaAccess<T> {
 		String classNameInternal = type.getName().replace('.', '/');
 
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-		String superclassNameInternal = ClassLambdaAccess.class.getName().replace('.', '/');
+		String superClassNameInternal = ClassLambdaAccess.class.getName().replace('.', '/');
 		cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, accessClassNameInternal, null,
-			superclassNameInternal, null);
+			superClassNameInternal, null);
 		cw.visitInnerClass("java/lang/invoke/MethodHandles$Lookup", "java/lang/invoke/MethodHandles", "Lookup", ACC_PUBLIC | ACC_FINAL | ACC_STATIC);
 
-		insertSelfConstructor(cw, superclassNameInternal);
+		AsmUtils.insertDefaultConstructor(cw, superClassNameInternal);
 		insertConstructorInvokers(cw, accessClassNameInternal, type);
 		insertMethodInvokers(cw, accessClassNameInternal, type);
 		insertFieldInvokers(cw, accessClassNameInternal, type);
@@ -544,17 +544,6 @@ public abstract class ClassLambdaAccess<T> {
 		byte[] byteArray = cw.toByteArray();
 
 		return loader.defineAccessClass(accessClassName, byteArray);
-	}
-
-
-	private static void insertSelfConstructor(ClassWriter cw, String superclassNameInternal) {
-		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
-		mv.visitCode();
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitMethodInsn(INVOKESPECIAL, superclassNameInternal, "<init>", "()V");
-		mv.visitInsn(RETURN);
-		mv.visitMaxs(1, 1);
-		mv.visitEnd();
 	}
 
 	private static <T> void insertConstructorInvokers(ClassWriter cw, String accessClassNameInternal, Class<T> type) {

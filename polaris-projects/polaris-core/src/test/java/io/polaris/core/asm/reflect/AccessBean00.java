@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.util.Date;
 
 import io.polaris.core.random.Randoms;
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,10 +26,23 @@ public class AccessBean00 {
 	private double doubleVal0;
 	private boolean booleanVal0;
 
+	private int[] intArrVal0;
+	private int[][] intArrArrVal0;
+
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
 	public String publicStrVal0;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
 	public int publicIntVal0;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
 	public long publicLongVal0;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
 	public double publicDoubleVal0;
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
 	public boolean publicBooleanVal0;
 
 	@Setter
@@ -144,4 +158,13 @@ public class AccessBean00 {
 	public byte[] randomBytes(int len) throws Exception {
 		return Randoms.randomBytes(len);
 	}
+
+
+	public Object getObjForError() throws Exception {
+		return new Object();
+	}
+
+	public void setObjForError(Object obj) throws Exception {
+	}
+
 }

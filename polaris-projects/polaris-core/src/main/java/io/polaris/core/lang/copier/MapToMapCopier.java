@@ -17,12 +17,13 @@ public class MapToMapCopier extends BaseCopier<Map, Map> {
 
 	/**
 	 * @param source      来源Map
+	 * @param sourceType  来源类型
 	 * @param target      目标Bean对象
-	 * @param targetType  目标泛型类型
+	 * @param targetType  目标类型
 	 * @param copyOptions 拷贝选项
 	 */
-	public MapToMapCopier(Map source, Map target, Type targetType, CopyOptions copyOptions) {
-		super(source, target, targetType, copyOptions);
+	public MapToMapCopier(Map source, Type sourceType, Map target, Type targetType, CopyOptions copyOptions) {
+		super(source, sourceType, target, targetType, copyOptions);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -37,36 +38,37 @@ public class MapToMapCopier extends BaseCopier<Map, Map> {
 				if (key == null) {
 					return;
 				}
-				if (options.isIgnoreNull() && value == null) {
+				if (options.ignoreNull() && value == null) {
 					return;
 				}
 
 				if (key instanceof String) {
-					final String keyStr = super.editKey(key.toString());
+					String key1 = key.toString();
+					final String keyStr = options.editKey(key1);
 					if (keyStr == null) {
 						return;
 					}
-					if (super.isIgnore(keyStr)) {
+					if (options.isIgnoredKey(keyStr)) {
 						return;
 					}
-					value = super.convert(valueType, value);
-					value = super.editValue(keyStr, value);
-					key = super.convert(keyType, keyStr);
+					value = options.convert(valueType, value);
+					value = options.editValue(keyStr, value);
+					key = options.convert(keyType, keyStr);
 				} else {
-					key = super.convert(keyType, key);
-					value = super.convert(valueType, value);
+					key = options.convert(keyType, key);
+					value = options.convert(valueType, value);
 				}
-				if (value == null && options.isIgnoreNull()) {
+				if (value == null && options.ignoreNull()) {
 					return;
 				}
-				if (!options.isOverride() && null != target.get(key)) {
+				if (!options.override() && null != target.get(key)) {
 					return;
 				}
 				// 目标赋值
 				target.put(key, value);
 			}));
 		} catch (Exception e) {
-			if (!options.isIgnoreError()) {
+			if (!options.ignoreError()) {
 				throw new UnsupportedOperationException(e);
 			} else {
 				log.warn("Copy failed：{}", e.getMessage());

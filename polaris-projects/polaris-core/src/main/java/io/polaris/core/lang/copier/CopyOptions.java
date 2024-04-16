@@ -3,23 +3,19 @@ package io.polaris.core.lang.copier;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
 import java.lang.reflect.Type;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import io.polaris.core.collection.Iterables;
 import io.polaris.core.converter.Converters;
-import io.polaris.core.function.TernaryFunction;
+import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.Types;
-import lombok.Getter;
 
 /**
  * @author Qt
  * @since 1.8
  */
-@Getter
 public class CopyOptions {
 
 	public static final BiFunction<Type, Object, Object> DEFAULT_CONVERTER = Converters::convertQuietly;
@@ -43,33 +39,26 @@ public class CopyOptions {
 		}
 		return value;
 	};
-	/**
-	 * 限制的类或接口，必须为目标对象的实现接口或父类，用于限制拷贝的属性，例如一个类我只想复制其父类的一些属性，就可以将editable设置为父类<br>
-	 * 如果目标对象是Map，源对象是Bean，则作用于源对象上
-	 */
-	private Class<?> editable;
-	/** 是否忽略空值，当源对象的值为null时，true: 忽略而不注入此值，false: 注入null */
-	private boolean ignoreNull = true;
 	/** 是否忽略属性注入错误 */
 	private boolean ignoreError = true;
+	/** 需要忽略的源属性名 */
+	private Set<String> ignoreKeys;
 	/** 是否忽略属性大小写 */
 	private boolean ignoreCase = false;
 	/** 是否忽略JavaBean属性的首字母大小写处理模式，可应对lombok对双大写字母前缀字段的错误处理 */
 	private boolean ignoreCapitalize = false;
 	/** 是否支持属性下划线转驼峰 */
-	private boolean underlineToCamelCase = false;
+	private boolean enableUnderlineToCamelCase = false;
 	/** 是否支持属性驼峰转下划线 */
-	private boolean camelToUnderlineCase = false;
+	private boolean enableCamelToUnderlineCase = false;
+	/** 是否忽略空值，当源对象的值为null时，true: 忽略而不注入此值，false: 注入null */
+	private boolean ignoreNull = true;
 	/** 是否覆盖目标值，如果不覆盖，会先读取目标对象的值，非null则写，否则忽略。如果覆盖，则不判断直接写 */
 	private boolean override = true;
-	/** 属性属性编辑器，用于自定义属性转换规则，例如驼峰转下划线等 */
+	/** 属性名转换编辑器，用于自定义属性转换规则，例如驼峰转下划线等 */
 	private Function<String, String> keyMapping;
-	/** 属性值编辑器，用于自定义属性值转换规则，例如null转""等 */
-	private BiFunction<String, Object, Object> valueEditor;
-	/** 需要忽略的属性名 */
-	private Set<String> ignoreKeys;
-	/** 属性过滤器，断言通过的属性才会被复制。<br> 断言参数中Field为源对象的属性对象,如果不存在则使用目标对象，Object为源对象的对应值 */
-	private TernaryFunction<String, Type, Object, Boolean> filter;
+	/** 属性值转换编辑器，用于自定义属性值转换规则，例如null转""等 */
+	private BiFunction<String, Object, Object> valueMapping;
 	/** 是否启用类型转换器 */
 	private boolean enableConverter = true;
 	/** 自定义类型转换器 */
@@ -80,14 +69,46 @@ public class CopyOptions {
 		return new CopyOptions();
 	}
 
-	/**
-	 * 限制的类或接口，必须为目标对象的实现接口或父类，用于限制拷贝的属性，例如一个类我只想复制其父类的一些属性，就可以将editable设置为父类<br>
-	 * 如果目标对象是Map，源对象是Bean，则作用于源对象上
-	 */
-	public CopyOptions editable(Class<?> editable) {
-		this.editable = editable;
-		return this;
+	public boolean hasKeyMapping() {
+		return keyMapping != null;
 	}
+
+	public boolean isIgnoredKey(String key) {
+		return ignoreKeys != null && ignoreKeys.contains(key);
+	}
+
+	public Object convert(Type type, Object value) {
+		if (value == null) {
+			return null;
+		}
+		if (JavaType.of(type).isInstance(value)) {
+			return value;
+		}
+		if (!enableConverter) {
+			return null;
+		}
+		if (converter == null) {
+			return null;
+		}
+		return converter.apply(type, value);
+	}
+
+	public String editKey(String key) {
+		if (keyMapping != null) {
+			return keyMapping.apply(key);
+		}
+		return key;
+	}
+
+	public Object editValue(String key, Object value) {
+		if (valueMapping != null) {
+			return valueMapping.apply(key, value);
+		}
+		return value;
+	}
+
+
+	// region setters
 
 	/** 是否忽略空值，当源对象的值为null时，true: 忽略而不注入此值，false: 注入null */
 	public CopyOptions ignoreNull(boolean ignoreNullValue) {
@@ -95,24 +116,10 @@ public class CopyOptions {
 		return this;
 	}
 
-	/** 是否忽略空值，当源对象的值为null时，true: 忽略而不注入此值，false: 注入null */
-	public CopyOptions ignoreNull() {
-		return ignoreNull(true);
-	}
 
-
-	/**
-	 * 属性过滤器，断言通过的属性才会被复制<br>
-	 * 断言参数中Field为源对象的属性对象,如果不存在则使用目标对象，Object为源对象的对应值
-	 */
-	public CopyOptions filter(TernaryFunction<String, Type, Object, Boolean> filter) {
-		this.filter = filter;
-		return this;
-	}
-
-	/** 源对象和目标对象都是Map 时, 需要忽略的源对象Map key */
-	public CopyOptions ignoreKeys(String... keys) {
-		this.ignoreKeys = Iterables.asCollection(HashSet::new, keys);
+	/** 需要忽略的源属性名 */
+	public CopyOptions ignoreKeys(Set<String> keys) {
+		this.ignoreKeys = keys;
 		return this;
 	}
 
@@ -122,20 +129,10 @@ public class CopyOptions {
 		return this;
 	}
 
-	/** 忽略属性注入错误 */
-	public CopyOptions ignoreError() {
-		return ignoreError(true);
-	}
-
 	/** 是否忽略属性大小写 */
 	public CopyOptions ignoreCase(boolean ignoreCase) {
 		this.ignoreCase = ignoreCase;
 		return this;
-	}
-
-	/** 忽略属性大小写 */
-	public CopyOptions ignoreCase() {
-		return ignoreCase(true);
 	}
 
 	/** 是否忽略JavaBean属性的首字母大小写处理模式，可应对lombok对双大写字母前缀字段的错误处理 */
@@ -144,31 +141,16 @@ public class CopyOptions {
 		return this;
 	}
 
-	/** 忽略JavaBean属性的首字母大小写处理模式，可应对lombok对双大写字母前缀字段的错误处理 */
-	public CopyOptions ignoreCapitalize() {
-		return ignoreCapitalize(true);
-	}
-
 	/** 是否支持属性下划线转驼峰 */
-	public CopyOptions underlineToCamelCase(boolean underlineToCamelCase) {
-		this.underlineToCamelCase = underlineToCamelCase;
+	public CopyOptions enableUnderlineToCamelCase(boolean underlineToCamelCase) {
+		this.enableUnderlineToCamelCase = underlineToCamelCase;
 		return this;
-	}
-
-	/** 支持属性下划线转驼峰 */
-	public CopyOptions underlineToCamelCase() {
-		return underlineToCamelCase(true);
 	}
 
 	/** 是否支持属性驼峰转下划线 */
-	public CopyOptions camelToUnderlineCase(boolean camelToUnderlineCase) {
-		this.camelToUnderlineCase = camelToUnderlineCase;
+	public CopyOptions enableCamelToUnderlineCase(boolean camelToUnderlineCase) {
+		this.enableCamelToUnderlineCase = camelToUnderlineCase;
 		return this;
-	}
-
-	/** 支持属性驼峰转下划线 */
-	public CopyOptions camelToUnderlineCase() {
-		return camelToUnderlineCase(true);
 	}
 
 	/** 属性名映射 */
@@ -183,8 +165,8 @@ public class CopyOptions {
 	}
 
 	/** 属性值编辑器 */
-	public CopyOptions valueEditor(BiFunction<String, Object, Object> valueEditor) {
-		this.valueEditor = valueEditor;
+	public CopyOptions valueMapping(BiFunction<String, Object, Object> valueMapping) {
+		this.valueMapping = valueMapping;
 		return this;
 	}
 
@@ -199,11 +181,6 @@ public class CopyOptions {
 	public CopyOptions enableConverter(boolean enableConverter) {
 		this.enableConverter = enableConverter;
 		return this;
-	}
-
-	/** 是否启用类型转换器 */
-	public CopyOptions enableConverter() {
-		return enableConverter(true);
 	}
 
 	/** 自定义类型转换器 */
@@ -222,5 +199,58 @@ public class CopyOptions {
 		return this;
 	}
 
+	// endregion setters
+
+	// region getters
+
+	public boolean ignoreNull() {
+		return ignoreNull;
+	}
+
+	public boolean ignoreError() {
+		return ignoreError;
+	}
+
+	public boolean ignoreCase() {
+		return ignoreCase;
+	}
+
+	public boolean ignoreCapitalize() {
+		return ignoreCapitalize;
+	}
+
+	public boolean enableUnderlineToCamelCase() {
+		return enableUnderlineToCamelCase;
+	}
+
+	public boolean enableCamelToUnderlineCase() {
+		return enableCamelToUnderlineCase;
+	}
+
+	public boolean override() {
+		return override;
+	}
+
+	public Function<String, String> keyMapping() {
+		return keyMapping;
+	}
+
+	public BiFunction<String, Object, Object> valueMapping() {
+		return valueMapping;
+	}
+
+	public Set<String> ignoreKeys() {
+		return ignoreKeys;
+	}
+
+	public boolean enableConverter() {
+		return enableConverter;
+	}
+
+	public BiFunction<Type, Object, Object> converter() {
+		return converter;
+	}
+
+	// endregion getters
 
 }

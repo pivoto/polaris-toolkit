@@ -80,14 +80,14 @@ public abstract class ConstructorAccess<T> {
 						throw new RuntimeException("非静态内部类的默认构造器方法不能声明为private: " + type.getName());
 					}
 				}
-				String superclassNameInternal = Modifier.isPublic(modifiers)
+				String superClassNameInternal = Modifier.isPublic(modifiers)
 					? PublicConstructorAccess.class.getName().replace('.', '/')
 					: ConstructorAccess.class.getName().replace('.', '/');
 
 				ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-				cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, accessClassNameInternal, null, superclassNameInternal, null);
+				cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, accessClassNameInternal, null, superClassNameInternal, null);
 
-				insertConstructor(cw, superclassNameInternal);
+				insertConstructor(cw, superClassNameInternal);
 				insertNewInstance(cw, classNameInternal);
 				insertNewInstanceInner(cw, classNameInternal, enclosingClassNameInternal);
 
@@ -99,7 +99,7 @@ public abstract class ConstructorAccess<T> {
 		try {
 			access = (ConstructorAccess<T>) accessClass.newInstance();
 		} catch (Throwable t) {
-			throw new RuntimeException("实例化构造器访问类失败: " + accessClassName, t);
+			throw new IllegalStateException("创建访问类失败: " + accessClassName, t);
 		}
 		if (!(access instanceof PublicConstructorAccess) && !AccessClassLoader.areInSameRuntimeClassLoader(type, accessClass)) {
 			// 判断构造器访问权限，非公有构造方法必须由相同类加载器下的类调用，否则会抛出IllegalAccessError
@@ -112,11 +112,11 @@ public abstract class ConstructorAccess<T> {
 		return access;
 	}
 
-	static private void insertConstructor(ClassWriter cw, String superclassNameInternal) {
+	static private void insertConstructor(ClassWriter cw, String superClassNameInternal) {
 		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
 		mv.visitCode();
 		mv.visitVarInsn(ALOAD, 0);
-		mv.visitMethodInsn(INVOKESPECIAL, superclassNameInternal, "<init>", "()V");
+		mv.visitMethodInsn(INVOKESPECIAL, superClassNameInternal, "<init>", "()V");
 		mv.visitInsn(RETURN);
 		mv.visitMaxs(1, 1);
 		mv.visitEnd();

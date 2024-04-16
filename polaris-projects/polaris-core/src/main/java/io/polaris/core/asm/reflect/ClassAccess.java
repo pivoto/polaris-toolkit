@@ -6,9 +6,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -131,19 +131,19 @@ public abstract class ClassAccess<T> {
 		return new Class[0];
 	}
 
-	protected Object newIndexInstance(int index, Object... args) {
+	public Object newIndexInstance(int index, Object... args) {
 		throw new IllegalArgumentException("Constructor not found");
 	}
 
-	protected Object invokeIndexMethod(Object instance, int index, int overloadIndex, Object... args) {
+	public Object invokeIndexMethod(Object instance, int index, int overloadIndex, Object... args) {
 		throw new IllegalArgumentException("Method not found");
 	}
 
-	protected Object getIndexField(Object instance, int index) {
+	public Object getIndexField(Object instance, int index) {
 		throw new IllegalArgumentException("Field not found");
 	}
 
-	protected void setIndexField(Object instance, int index, Object value) {
+	public void setIndexField(Object instance, int index, Object value) {
 		throw new IllegalArgumentException("Field not found");
 	}
 
@@ -230,7 +230,7 @@ public abstract class ClassAccess<T> {
 		}
 	}
 
-	private int getConstructorIndex(Class<?>... types) {
+	public int getConstructorIndex(Class<?>... types) {
 		if (types == null || types.length == 0) {
 			return defaultConstructorIndex;
 		}
@@ -251,7 +251,7 @@ public abstract class ClassAccess<T> {
 		return -1;
 	}
 
-	private int getConstructorIndex(Object... args) {
+	public int getConstructorIndex(Object... args) {
 		if (args.length == 0) {
 			return defaultConstructorIndex;
 		}
@@ -288,8 +288,12 @@ public abstract class ClassAccess<T> {
 
 	// region method access
 
-	public Set<String> getMethodNames() {
-		return new LinkedHashSet<>(methodIndices.keySet());
+	public Set<String> methodNames() {
+		return Collections.unmodifiableSet(methodIndices.keySet());
+	}
+
+	public Map<String, Integer> methodIndices() {
+		return Collections.unmodifiableMap(methodIndices);
 	}
 
 	public boolean containsMethod(String methodName) {
@@ -297,23 +301,27 @@ public abstract class ClassAccess<T> {
 	}
 
 	public boolean containsMethod(String methodName, Class... paramTypes) {
-		int methodIndex = getMethodIndex(methodName);
-		int methodOverloadIndex = getMethodOverloadIndex(methodIndex, paramTypes);
-		if (methodIndex < 0 || methodOverloadIndex < 0) {
-			return false;
-		}
-		return true;
+		return getMethodIndex(methodName, paramTypes) != null;
 	}
 
-	private int getMethodIndex(String methodName, Class... paramTypes) {
+	public int[] getMethodIndex(String methodName, Class... paramTypes) {
+		Integer i = this.methodIndices.get(methodName);
+		if (i == null) {
+			return null;
+		}
+		int j = getMethodOverloadIndex(i, paramTypes);
+		if (j < 0) {
+			return null;
+		}
+		return new int[]{i, j};
+	}
+
+	private int getMethodIndex(String methodName) {
+		// int idx = Arrays.binarySearch(methodNames, methodName, Comparator.naturalOrder());
 		Integer idx = this.methodIndices.get(methodName);
 		if (idx != null) {
 			return idx.intValue();
 		}
-//		int idx = Arrays.binarySearch(methodNames, methodName, Comparator.naturalOrder());
-//		if (idx >= 0) {
-//			return idx;
-//		}
 		return -1;
 	}
 
@@ -369,10 +377,21 @@ public abstract class ClassAccess<T> {
 		return -1;
 	}
 
+	public Object invokeIndexMethod(Object object, int[] index, Object... args) {
+		try {
+			return this.invokeIndexMethod(object, index[0], index[1], args);
+		} catch (Throwable e) {
+			throw InvocationException.of(e);
+		}
+	}
+
 	public Object invokeMethod(Object object, String methodName, Class[] paramTypes, Object... args) {
 		int methodIndex = getMethodIndex(methodName);
+		if (methodIndex < 0) {
+			throw new IllegalArgumentException("Method not found：" + methodName + " " + Arrays.toString(paramTypes));
+		}
 		int methodOverloadIndex = getMethodOverloadIndex(methodIndex, paramTypes);
-		if (methodIndex < 0 || methodOverloadIndex < 0) {
+		if (methodOverloadIndex < 0) {
 			throw new IllegalArgumentException("Method not found：" + methodName + " " + Arrays.toString(paramTypes));
 		}
 		try {
@@ -384,8 +403,11 @@ public abstract class ClassAccess<T> {
 
 	public Object invokeMethod(Object object, String methodName, Object... args) {
 		int methodIndex = getMethodIndex(methodName);
+		if (methodIndex < 0) {
+			throw new IllegalArgumentException("Method not found：" + methodName);
+		}
 		int methodOverloadIndex = getMethodOverloadIndex(methodIndex, args);
-		if (methodIndex < 0 || methodOverloadIndex < 0) {
+		if (methodOverloadIndex < 0) {
 			throw new IllegalArgumentException("Method not found：" + methodName);
 		}
 		try {
@@ -397,8 +419,11 @@ public abstract class ClassAccess<T> {
 
 	public Object invokeMethodOrNoop(Object object, String methodName, Class[] paramTypes, Object... args) {
 		int methodIndex = getMethodIndex(methodName);
+		if (methodIndex < 0) {
+			return null;
+		}
 		int methodOverloadIndex = getMethodOverloadIndex(methodIndex, paramTypes);
-		if (methodIndex < 0 || methodOverloadIndex < 0) {
+		if (methodOverloadIndex < 0) {
 			return null;
 		}
 		try {
@@ -410,8 +435,11 @@ public abstract class ClassAccess<T> {
 
 	public Object invokeMethodOrNoop(Object object, String methodName, Object... args) {
 		int methodIndex = getMethodIndex(methodName);
+		if (methodIndex < 0) {
+			return null;
+		}
 		int methodOverloadIndex = getMethodOverloadIndex(methodIndex, args);
-		if (methodIndex < 0 || methodOverloadIndex < 0) {
+		if (methodOverloadIndex < 0) {
 			return null;
 		}
 		try {
@@ -425,8 +453,12 @@ public abstract class ClassAccess<T> {
 
 	// region field access
 
-	public Set<String> getFieldNames() {
-		return new LinkedHashSet<>(fieldIndices.keySet());
+	public Set<String> fieldNames() {
+		return Collections.unmodifiableSet(fieldIndices.keySet());
+	}
+
+	public Map<String, Integer> fieldIndices() {
+		return Collections.unmodifiableMap(fieldIndices);
 	}
 
 	public boolean containsField(String fieldName) {
@@ -505,7 +537,7 @@ public abstract class ClassAccess<T> {
 		try {
 			access = (ClassAccess<T>) accessClass.newInstance();
 		} catch (Throwable t) {
-			throw new IllegalStateException("实例化构造器访问类失败: " + accessClassName, t);
+			throw new IllegalStateException("创建访问类失败: " + accessClassName, t);
 		}
 		return access;
 	}
@@ -516,13 +548,13 @@ public abstract class ClassAccess<T> {
 		String classNameInternal = type.getName().replace('.', '/');
 
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-		String superclassNameInternal = ClassAccess.class.getName().replace('.', '/');
+		String superClassNameInternal = ClassAccess.class.getName().replace('.', '/');
 		cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, accessClassNameInternal,
-			"L" + superclassNameInternal + "<L" + accessClassNameInternal + ";>;",
-			superclassNameInternal, null);
+			"L" + superClassNameInternal + "<L" + Type.getInternalName(type) + ";>;",
+			superClassNameInternal, null);
 		cw.visitInnerClass("java/lang/invoke/MethodHandles$Lookup", "java/lang/invoke/MethodHandles", "Lookup", ACC_PUBLIC | ACC_FINAL | ACC_STATIC);
 
-		insertSelfConstructor(cw, superclassNameInternal);
+		AsmUtils.insertDefaultConstructor(cw, superClassNameInternal);
 		insertConstructorInvokers(cw, accessClassNameInternal, type);
 		insertMethodInvokers(cw, accessClassNameInternal, type);
 		insertFieldInvokers(cw, accessClassNameInternal, type);
@@ -531,17 +563,6 @@ public abstract class ClassAccess<T> {
 		byte[] byteArray = cw.toByteArray();
 
 		return loader.defineAccessClass(accessClassName, byteArray);
-	}
-
-
-	private static void insertSelfConstructor(ClassWriter cw, String superclassNameInternal) {
-		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
-		mv.visitCode();
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitMethodInsn(INVOKESPECIAL, superclassNameInternal, "<init>", "()V");
-		mv.visitInsn(RETURN);
-		mv.visitMaxs(1, 1);
-		mv.visitEnd();
 	}
 
 	private static <T> void insertConstructorInvokers(ClassWriter cw, String accessClassNameInternal, Class<T> type) {
@@ -559,7 +580,7 @@ public abstract class ClassAccess<T> {
 
 		// 生成各构造器的参数类型列表
 		{
-			MethodVisitor methodVisitor = cw.visitMethod(ACC_PROTECTED, buildConstructorParamTypes.serialized().getImplMethodName(), "()[[Ljava/lang/Class;", null, null);
+			MethodVisitor methodVisitor = cw.visitMethod(ACC_PUBLIC, buildConstructorParamTypes.serialized().getImplMethodName(), "()[[Ljava/lang/Class;", null, null);
 			methodVisitor.visitCode();
 			methodVisitor.visitLdcInsn(Integer.valueOf(size));
 			methodVisitor.visitTypeInsn(ANEWARRAY, "[Ljava/lang/Class;");
@@ -595,7 +616,7 @@ public abstract class ClassAccess<T> {
 
 		// 生成各构造器的索引式调用方法
 		if (size > 0) {
-			MethodVisitor methodVisitor = cw.visitMethod(ACC_PROTECTED | ACC_VARARGS, newIndexInstance.serialized().getImplMethodName(), "(I[Ljava/lang/Object;)Ljava/lang/Object;", null, null);
+			MethodVisitor methodVisitor = cw.visitMethod(ACC_PUBLIC | ACC_VARARGS, newIndexInstance.serialized().getImplMethodName(), "(I[Ljava/lang/Object;)Ljava/lang/Object;", null, null);
 			methodVisitor.visitCode();
 			methodVisitor.visitVarInsn(ILOAD, 1);
 
@@ -751,7 +772,7 @@ public abstract class ClassAccess<T> {
 
 		// 生成各方法的索引式调用方法
 		if (methodEntryArray.length > 0) {
-			MethodVisitor methodVisitor = cw.visitMethod(ACC_PROTECTED | ACC_VARARGS, invokeIndexMethod.serialized().getImplMethodName(), "(Ljava/lang/Object;II[Ljava/lang/Object;)Ljava/lang/Object;", null, null);
+			MethodVisitor methodVisitor = cw.visitMethod(ACC_PUBLIC | ACC_VARARGS, invokeIndexMethod.serialized().getImplMethodName(), "(Ljava/lang/Object;II[Ljava/lang/Object;)Ljava/lang/Object;", null, null);
 			methodVisitor.visitCode();
 			// switch 方法名分支
 			{
@@ -993,7 +1014,7 @@ public abstract class ClassAccess<T> {
 
 		// getIndexField
 		if (fieldEntryArray.length > 0) {
-			MethodVisitor methodVisitor = cw.visitMethod(ACC_PROTECTED, getIndexField.serialized().getImplMethodName(), "(Ljava/lang/Object;I)Ljava/lang/Object;", null, null);
+			MethodVisitor methodVisitor = cw.visitMethod(ACC_PUBLIC, getIndexField.serialized().getImplMethodName(), "(Ljava/lang/Object;I)Ljava/lang/Object;", null, null);
 			methodVisitor.visitCode();
 			methodVisitor.visitVarInsn(ILOAD, 2);
 
@@ -1037,7 +1058,7 @@ public abstract class ClassAccess<T> {
 		}
 		// setIndexField
 		if (fieldEntryArray.length > 0) {
-			MethodVisitor methodVisitor = cw.visitMethod(ACC_PROTECTED, setIndexField.serialized().getImplMethodName(), "(Ljava/lang/Object;ILjava/lang/Object;)V", null, null);
+			MethodVisitor methodVisitor = cw.visitMethod(ACC_PUBLIC, setIndexField.serialized().getImplMethodName(), "(Ljava/lang/Object;ILjava/lang/Object;)V", null, null);
 			methodVisitor.visitCode();
 			methodVisitor.visitVarInsn(ILOAD, 2);
 

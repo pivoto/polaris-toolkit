@@ -26,27 +26,28 @@ public abstract class BaseToBeanCopier<S, T> extends BaseCopier<S, T> {
 
 	/**
 	 * @param source      来源Map
+	 * @param sourceType  来源类型
 	 * @param target      目标Bean对象
-	 * @param targetType  目标泛型类型
+	 * @param targetType  目标类型
 	 * @param copyOptions 拷贝选项
 	 */
-	public BaseToBeanCopier(S source, T target, Type targetType, CopyOptions copyOptions) {
-		super(source, target, targetType, copyOptions);
+	public BaseToBeanCopier(S source, Type sourceType, T target, Type targetType, CopyOptions copyOptions) {
+		super(source, sourceType, target, targetType, copyOptions);
 	}
 
 	@Nullable
 	protected SetMultiMap<String, String> createTargetBeanMapCandidateKeys(Map<String, PropertyAccessor> accessors) {
 		// 驼峰转下划线的操作会因下划线数量不一致导致不或逆，因此在源端转换处理`options.isUnderlineToCamelCase() `情况
-		if (!options.isIgnoreCase() && !options.isIgnoreCapitalize() && !options.isCamelToUnderlineCase()) {
+		if (!options.ignoreCase() && !options.ignoreCapitalize() && !options.enableUnderlineToCamelCase()) {
 			return null;
 		} else {
 			SetMultiMap<String, String> candidates = new SetMultiMap<>(LinkedHashSet::new);
-			if (options.isIgnoreCase()) {
+			if (options.ignoreCase()) {
 				for (String key : accessors.keySet()) {
 					candidates.putOne(key.toUpperCase(), key);
 					// 忽略大小写模式已包含`options.isIgnoreCapitalize()`场景，此处不作重复处理
 					// 下划线格式字段支持驼峰格式的源字段
-					if (key.indexOf('_') >= 0 && options.isCamelToUnderlineCase()) {
+					if (key.indexOf('_') >= 0 && options.enableUnderlineToCamelCase()) {
 						String sourceKey = StringCases.underlineToCamelCase(key);
 						candidates.putOne(sourceKey, key);
 						candidates.putOne(sourceKey.toUpperCase(), key);
@@ -54,7 +55,7 @@ public abstract class BaseToBeanCopier<S, T> extends BaseCopier<S, T> {
 				}
 			} else {
 				for (String key : accessors.keySet()) {
-					if (key.length() > 1 && options.isIgnoreCapitalize()) {
+					if (key.length() > 1 && options.ignoreCapitalize()) {
 						if (Character.isUpperCase(key.charAt(0))) {
 							candidates.putOne(Character.toLowerCase(key.charAt(0)) + key.substring(1), key);
 						} else {
@@ -62,7 +63,7 @@ public abstract class BaseToBeanCopier<S, T> extends BaseCopier<S, T> {
 						}
 					}
 					// 下划线格式字段支持驼峰格式的源字段
-					if (key.indexOf('_') >= 0 && options.isCamelToUnderlineCase()) {
+					if (key.indexOf('_') >= 0 && options.enableUnderlineToCamelCase()) {
 						candidates.putOne(StringCases.underlineToCamelCase(key), key);
 					}
 				}
@@ -80,22 +81,19 @@ public abstract class BaseToBeanCopier<S, T> extends BaseCopier<S, T> {
 			// 无此属性
 			return false;
 		}
-		Type type = accessor.type();
-		if (!this.filter(sourceKey, type, value)) {
-			return false;
-		}
-		if (!options.isOverride() && accessor.hasGetter()) {
+		if (!options.override() && accessor.hasGetter()) {
 			Object orig = accessor.get(target);
 			if (orig != null) {
 				return false;
 			}
 		}
-		Object newValue = this.convert(type, value);
-		newValue = this.editValue(sourceKey, newValue);
-		if (newValue == null && options.isIgnoreNull()) {
+		Type type = accessor.type();
+		value = options.editValue(sourceKey, value);
+		value = options.convert(type, value);
+		if (value == null && options.ignoreNull()) {
 			return false;
 		}
-		accessor.set(target, newValue);
+		accessor.set(target, value);
 		return true;
 	}
 
@@ -110,7 +108,7 @@ public abstract class BaseToBeanCopier<S, T> extends BaseCopier<S, T> {
 			}
 		}));
 		// 下划线映射驼峰
-		if (options.isUnderlineToCamelCase()) {
+		if (options.enableCamelToUnderlineCase()) {
 			sourceEntries.forEach(wrapConsumer(sourceEntry -> {
 				String sourceKey = sourceEntry.getFirst();
 				Object value = sourceEntry.getSecond();
@@ -139,26 +137,26 @@ public abstract class BaseToBeanCopier<S, T> extends BaseCopier<S, T> {
 		Set<String> targetKeys = candidates.get(sourceKey);
 		if (targetKeys != null) {
 			setCandidatesTargetValue(sourceKey, value, accessors, targetKeys, recorder);
-			if (targetKeys.isEmpty()){
+			if (targetKeys.isEmpty()) {
 				candidates.remove(sourceKey);
 			}
 		}
-		if (options.isIgnoreCase()) {
+		if (options.ignoreCase()) {
 			String upperSourceKey = sourceKey.toUpperCase();
 			Set<String> upperTargetKeys = candidates.get(upperSourceKey);
 			if (upperTargetKeys != null && upperTargetKeys != targetKeys) {
 				setCandidatesTargetValue(sourceKey, value, accessors, upperTargetKeys, recorder);
-				if (upperTargetKeys.isEmpty()){
+				if (upperTargetKeys.isEmpty()) {
 					candidates.remove(upperSourceKey);
 				}
 			}
 		}
-		if (options.isUnderlineToCamelCase()) {
+		if (options.enableCamelToUnderlineCase()) {
 			String camelSourceKeys = StringCases.underlineToCamelCase(sourceKey);
 			Set<String> camelTargetKeys = candidates.get(camelSourceKeys);
 			if (camelTargetKeys != null && camelTargetKeys != targetKeys) {
-				setCandidatesTargetValue(sourceKey, value, accessors, camelTargetKeys,recorder);
-				if (camelTargetKeys.isEmpty()){
+				setCandidatesTargetValue(sourceKey, value, accessors, camelTargetKeys, recorder);
+				if (camelTargetKeys.isEmpty()) {
 					candidates.remove(camelSourceKeys);
 				}
 			}

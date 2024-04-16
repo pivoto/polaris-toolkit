@@ -1,11 +1,12 @@
 package io.polaris.core.lang.bean;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
+import java.util.AbstractCollection;
+import java.util.AbstractSet;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,15 +24,34 @@ class BeanIndexedMap<T> extends BeanMap<T> {
 	private final BeanAccess<?> access;
 	private final Map<String, Integer> setterIndices;
 	private final Map<String, Integer> getterIndices;
-	private final Map<String, Integer> fieldIndices;
+	private final int fieldStartIndex;
+	private transient Set<Map.Entry<String, Object>> entrySet;
+	private transient Collection<Object> values;
 
-	public BeanIndexedMap(T bean, Class<?> beanType, BeanMapOptions options) {
+	BeanIndexedMap(T bean, Class<?> beanType, BeanMapOptions options) {
 		super(bean, beanType, options);
 		BeanAccess<?> access = BeanAccess.get(beanType);
 		this.access = access;
-		this.setterIndices = access.setterIndices();
-		this.getterIndices = access.getterIndices();
-		this.fieldIndices = access.fieldIndices();
+		if (includeFields) {
+			Map<String, Integer> setterIndices = access.setterIndices();
+			Map<String, Integer> getterIndices = access.getterIndices();
+			Map<String, Integer> fieldIndices = access.fieldIndices();
+			this.fieldStartIndex = Integer.max(setterIndices.size(), getterIndices.size());
+			Map<String, Integer> setterIndicesTmp = new HashMap<>(setterIndices.size() + fieldIndices.size());
+			Map<String, Integer> getterIndicesTmp = new HashMap<>(getterIndices.size() + fieldIndices.size());
+			setterIndicesTmp.putAll(setterIndices);
+			getterIndicesTmp.putAll(getterIndices);
+			for (Entry<String, Integer> entry : fieldIndices.entrySet()) {
+				setterIndicesTmp.put(entry.getKey(), fieldStartIndex + entry.getValue());
+				getterIndicesTmp.put(entry.getKey(), fieldStartIndex + entry.getValue());
+			}
+			this.setterIndices = Collections.unmodifiableMap(setterIndicesTmp);
+			this.getterIndices = Collections.unmodifiableMap(getterIndicesTmp);
+		} else {
+			this.setterIndices = access.setterIndices();
+			this.getterIndices = access.getterIndices();
+			this.fieldStartIndex = 0;
+		}
 	}
 
 	public Type getType(String key) {
@@ -41,18 +61,12 @@ class BeanIndexedMap<T> extends BeanMap<T> {
 	@Override
 	public Object get(Object key) {
 		if (key instanceof String) {
-			// property
-			{
-				Integer idx = getterIndices.get((String) key);
-				if (idx != null) {
+			Integer idx = getterIndices.get((String) key);
+			if (idx != null) {
+				if (idx < fieldStartIndex) {
 					return access.getIndexProperty(bean, idx);
-				}
-			}
-			// field
-			if (includeOpenFields) {
-				Integer idx = fieldIndices.get((String) key);
-				if (idx != null) {
-					return access.getIndexField(bean, idx);
+				} else {
+					return access.getIndexField(bean, idx - fieldStartIndex);
 				}
 			}
 			// fallback
@@ -66,7 +80,6 @@ class BeanIndexedMap<T> extends BeanMap<T> {
 
 	@Override
 	public Object put(String key, Object value) {
-		// property
 		{
 			Integer idx = setterIndices.get(key);
 			if (idx != null) {
@@ -74,19 +87,11 @@ class BeanIndexedMap<T> extends BeanMap<T> {
 					Type type = access.propertyGenericType(key);
 					value = options.converter().apply(type, value);
 				}
-				access.setIndexProperty(bean, idx, value);
-				return null;
-			}
-		}
-		// field
-		if (includeOpenFields) {
-			Integer idx = fieldIndices.get(key);
-			if (idx != null) {
-				if (hasConverter) {
-					Type type = access.propertyGenericType(key);
-					value = options.converter().apply(type, value);
+				if (idx < fieldStartIndex) {
+					access.setIndexProperty(bean, idx, value);
+				} else {
+					access.setIndexField(bean, idx - fieldStartIndex, value);
 				}
-				access.setIndexField(bean, idx, value);
 				return null;
 			}
 		}
@@ -97,10 +102,10 @@ class BeanIndexedMap<T> extends BeanMap<T> {
 		}
 		// noop
 		if (!ignoreUnknownKeys) {
-			throw new IllegalArgumentException("Unknown key：" + key);
+			throw new IllegalArgumentException("未知属性：" + key);
 		}
 		if (warnUnknownKeys) {
-			log.warn("Unknown key：{}.{}", beanType.getCanonicalName(), key);
+			log.warn("未知属性：{}.{}", beanType.getCanonicalName(), key);
 		}
 		return null;
 	}
@@ -112,108 +117,170 @@ class BeanIndexedMap<T> extends BeanMap<T> {
 
 	@Override
 	public int size() {
-		return includeOpenFields ? getterIndices.size() + fieldIndices.size()
-			: getterIndices.size();
+		return getterIndices.size();
 	}
 
 	@Override
 	public boolean isEmpty() {
-		return getterIndices.isEmpty() && (!includeOpenFields || fieldIndices.isEmpty());
+		return getterIndices.isEmpty();
 	}
 
 	@Override
 	public boolean containsKey(Object key) {
-		return getterIndices.containsKey(key) || includeOpenFields && fieldIndices.containsKey(key);
+		return getterIndices.containsKey(key);
 	}
 
 	@Override
 	public Set<String> keySet() {
-		LinkedHashSet<String> set = new LinkedHashSet<>(getterIndices.keySet());
-		if (includeOpenFields) {
-			set.addAll(fieldIndices.keySet());
-		}
-		return set;
+		return getterIndices.keySet();
 	}
 
 	@Override
 	public Collection<Object> values() {
-		List<Object> values = new ArrayList<>(size());
-
-		getterIndices.forEach((name, idx) -> {
-			Object obj = access.getIndexProperty(bean, idx);
-			values.add(obj);
-		});
-		if (includeOpenFields) {
-			fieldIndices.forEach((name, idx) -> {
-				Object obj = access.getIndexField(bean, idx);
-				values.add(obj);
-			});
+		Collection<Object> vs = values;
+		if (vs == null) {
+			vs = new InnerValues();
+			values = vs;
 		}
-		return values;
+		return vs;
 	}
+
 
 	@Override
 	public Set<Map.Entry<String, Object>> entrySet() {
-		Set<Map.Entry<String, Object>> set = new HashSet<>();
-		getterIndices.forEach((name, idx) -> {
-			Map.Entry<String, Object> entry = new Map.Entry<String, Object>() {
-				@Override
-				public String getKey() {
-					return name;
-				}
-
-				@Override
-				public Object getValue() {
-					return access.getIndexProperty(bean, idx);
-				}
-
-				@Override
-				public Object setValue(Object value) {
-					return put(name, value);
-				}
-			};
-			set.add(entry);
-		});
-		if (includeOpenFields) {
-			fieldIndices.forEach((name, idx) -> {
-				Map.Entry<String, Object> entry = new Map.Entry<String, Object>() {
-					@Override
-					public String getKey() {
-						return name;
-					}
-
-					@Override
-					public Object getValue() {
-						return access.getIndexField(bean, idx);
-					}
-
-					@Override
-					public Object setValue(Object value) {
-						return put(name, value);
-					}
-				};
-				set.add(entry);
-			});
-		}
-		return set;
+		Set<Map.Entry<String, Object>> es;
+		return (es = entrySet) == null ? (entrySet = new InnerEntrySet()) : es;
 	}
 
 	@Override
 	public boolean containsValue(Object value) {
 		for (Entry<String, Integer> entry : getterIndices.entrySet()) {
-			Object obj = access.getIndexProperty(bean, entry.getValue());
+			Integer idx = entry.getValue();
+			Object obj;
+
+			if (idx < fieldStartIndex) {
+				obj = (access.getIndexProperty(bean, idx));
+			} else {
+				obj = (access.getIndexField(bean, idx - fieldStartIndex));
+			}
 			if (Objs.equals(obj, value)) {
 				return true;
 			}
 		}
-		if (includeOpenFields) {
-			for (Entry<String, Integer> entry : fieldIndices.entrySet()) {
-				Object obj = access.getIndexField(bean, entry.getValue());
-				if (Objs.equals(obj, value)) {
-					return true;
-				}
-			}
-		}
 		return false;
 	}
+
+	final class InnerValues extends AbstractCollection<Object> {
+		@Override
+		public final int size() {
+			return BeanIndexedMap.this.size();
+		}
+
+		@Override
+		public final void clear() {
+			BeanIndexedMap.this.clear();
+		}
+
+		@Override
+		public final Iterator<Object> iterator() {
+			return new Iterator<Object>() {
+				private Set<Entry<String, Integer>> entrySet = BeanIndexedMap.this.getterIndices.entrySet();
+				private Iterator<Entry<String, Integer>> it = entrySet.iterator();
+
+				@Override
+				public boolean hasNext() {
+					return it.hasNext();
+				}
+
+				@Override
+				public Object next() {
+					Entry<String, Integer> next = it.next();
+					Integer idx = next.getValue();
+					if (idx < BeanIndexedMap.this.fieldStartIndex) {
+						return (BeanIndexedMap.this.access.getIndexProperty(BeanIndexedMap.this.bean, idx));
+					} else {
+						return (BeanIndexedMap.this.access.getIndexField(BeanIndexedMap.this.bean, idx - BeanIndexedMap.this.fieldStartIndex));
+					}
+				}
+			};
+		}
+
+		@Override
+		public final boolean contains(Object o) {
+			return BeanIndexedMap.this.containsValue(o);
+		}
+	}
+
+	final class InnerEntrySet extends AbstractSet<Entry<String, Object>> {
+
+		@Override
+		public int size() {
+			return BeanIndexedMap.this.size();
+		}
+
+		@Override
+		public void clear() {
+			BeanIndexedMap.this.clear();
+		}
+
+		@Override
+		public Iterator<Entry<String, Object>> iterator() {
+			return new Iterator<Entry<String, Object>>() {
+				private final Set<Entry<String, Integer>> entrySet = BeanIndexedMap.this.getterIndices.entrySet();
+				private final Iterator<Entry<String, Integer>> it = entrySet.iterator();
+
+				@Override
+				public boolean hasNext() {
+					return it.hasNext();
+				}
+
+				@Override
+				public Entry<String, Object> next() {
+					Entry<String, Integer> next = it.next();
+					return new Map.Entry<String, Object>() {
+						@Override
+						public String getKey() {
+							return next.getKey();
+						}
+
+						@Override
+						public Object getValue() {
+							Integer idx = next.getValue();
+							if (idx < BeanIndexedMap.this.fieldStartIndex) {
+								return (BeanIndexedMap.this.access.getIndexProperty(BeanIndexedMap.this.bean, idx));
+							} else {
+								return (BeanIndexedMap.this.access.getIndexField(BeanIndexedMap.this.bean, idx - BeanIndexedMap.this.fieldStartIndex));
+							}
+						}
+
+						@Override
+						public Object setValue(Object value) {
+							return BeanIndexedMap.this.put(next.getKey(), value);
+						}
+					};
+				}
+			};
+		}
+
+		@Override
+		public boolean contains(Object o) {
+			if (!(o instanceof Map.Entry)) {
+				return false;
+			}
+			@SuppressWarnings("unchecked")
+			Map.Entry<String, Object> e = (Map.Entry<String, Object>) o;
+			String key = e.getKey();
+			if (!BeanIndexedMap.this.containsKey(key)) {
+				return false;
+			}
+			Object val = BeanIndexedMap.this.get(key);
+			return Objs.equals(val, e.getValue());
+		}
+
+		@Override
+		public final boolean remove(Object o) {
+			throw new UnsupportedOperationException();
+		}
+	}
+
 }

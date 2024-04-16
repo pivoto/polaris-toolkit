@@ -1,16 +1,13 @@
 package io.polaris.core.lang.copier;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import io.polaris.core.TestConsole;
 import io.polaris.core.lang.TypeRef;
-import io.polaris.core.lang.copier.BeanToMapCopier;
-import io.polaris.core.lang.copier.CopyOptions;
-import io.polaris.core.lang.copier.MapToBeanCopier;
 import lombok.Data;
 import lombok.ToString;
 import org.junit.jupiter.api.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 
 class BeanToMapCopierTest {
 
@@ -20,9 +17,12 @@ class BeanToMapCopierTest {
 		b.id = "b";
 		b.name = "b.name";
 		Map<String, Object> m = new HashMap<>();
-		new BeanToMapCopier<>(b, m, new TypeRef<Map<String, Object>>() {
-		}.getType(),
-			CopyOptions.create().ignoreNull().override(false).ignoreCase()
+		CopyOptions copyOptions = CopyOptions.create();
+		CopyOptions copyOptions1 = copyOptions
+			.ignoreNull(true).override(false);
+		Copiers.create(b, m, new TypeRef<Map<String, Object>>() {
+			}.getType(),
+			copyOptions1.ignoreCase(true)
 		).copy();
 		TestConsole.println(b);
 		TestConsole.println(m);
@@ -37,8 +37,10 @@ class BeanToMapCopierTest {
 //		a.put("age", "18");
 		B b = new B();
 		b.name = "b.name";
-		new MapToBeanCopier<>(a, b, B.class,
-			CopyOptions.create().ignoreNull().override(false).ignoreCase()
+		CopyOptions copyOptions = CopyOptions.create();
+		CopyOptions copyOptions1 = copyOptions.ignoreNull(true).override(false);
+		Copiers.create(a, b, B.class,
+			copyOptions1.ignoreCase(true)
 		).copy();
 		TestConsole.println(a);
 		TestConsole.println(b);

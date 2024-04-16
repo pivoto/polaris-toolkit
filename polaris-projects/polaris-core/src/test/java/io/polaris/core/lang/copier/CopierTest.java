@@ -56,7 +56,10 @@ class CopierTest {
 		source.put("key5", new Object[]{"", ""});
 
 		CopyObj target = new CopyObj();
-		Copiers.copy(source, target, CopyOptions.create().override(false).ignoreCapitalize().underlineToCamelCase().camelToUnderlineCase());
+		CopyOptions copyOptions = CopyOptions.create().override(false);
+		CopyOptions copyOptions1 = copyOptions.ignoreCapitalize(true);
+		CopyOptions copyOptions2 = copyOptions1.enableUnderlineToCamelCase(true);
+		Copiers.copy(source, target, copyOptions2.enableCamelToUnderlineCase(true));
 
 		TestConsole.println("source:" + source);
 		TestConsole.println("target:" + target);
@@ -86,7 +89,10 @@ class CopierTest {
 		source.setKey5(new String[]{"x", "y"});
 
 		Map<Object, Object> target = new HashMap<>();
-		Copiers.copy(source, target, CopyOptions.create().override(false).ignoreCapitalize().underlineToCamelCase().camelToUnderlineCase());
+		CopyOptions copyOptions = CopyOptions.create().override(false);
+		CopyOptions copyOptions1 = copyOptions.ignoreCapitalize(true);
+		CopyOptions copyOptions2 = copyOptions1.enableUnderlineToCamelCase(true);
+		Copiers.copy(source, target, copyOptions2.enableCamelToUnderlineCase(true));
 
 		TestConsole.println("source:" + source);
 		TestConsole.println("target:" + target);
@@ -114,7 +120,10 @@ class CopierTest {
 		source.setKey5(new String[]{"x", "y"});
 
 		CopyObj target = new CopyObj();
-		Copiers.copy(source, target, CopyOptions.create().override(false).ignoreCapitalize().underlineToCamelCase().camelToUnderlineCase());
+		CopyOptions copyOptions = CopyOptions.create().override(false);
+		CopyOptions copyOptions1 = copyOptions.ignoreCapitalize(true);
+		CopyOptions copyOptions2 = copyOptions1.enableUnderlineToCamelCase(true);
+		Copiers.copy(source, target, copyOptions2.enableCamelToUnderlineCase(true));
 
 		TestConsole.println("source:" + source);
 		TestConsole.println("target:" + target);

@@ -40,10 +40,6 @@ public class BeanAccessTest {
 		Assertions.assertEquals("newStrVal",access.getField(o, "publicStrVal1"));
 		TestConsole.printx("get: {}", access.getField(o, "publicStrVal1"));
 
-		access.setStaticField(o, "publicStaticStrVal1", "newStrVal");
-		Assertions.assertEquals("newStrVal",access.getStaticField(o, "publicStaticStrVal1"));
-		TestConsole.printx("get: {}", access.getStaticField(o, "publicStaticStrVal1"));
-
 	}
 	@Test
 	void testBeanLambdaAccess() throws IOException {
@@ -61,10 +57,6 @@ public class BeanAccessTest {
 		access.setField(o, "publicStrVal1", "newStrVal");
 		Assertions.assertEquals("newStrVal",access.getField(o, "publicStrVal1"));
 		TestConsole.printx("get: {}", access.getField(o, "publicStrVal1"));
-
-		access.setStaticField(o, "publicStaticStrVal1", "newStrVal");
-		Assertions.assertEquals("newStrVal",access.getStaticField(o, "publicStaticStrVal1"));
-		TestConsole.printx("get: {}", access.getStaticField(o, "publicStaticStrVal1"));
 
 	}
 }

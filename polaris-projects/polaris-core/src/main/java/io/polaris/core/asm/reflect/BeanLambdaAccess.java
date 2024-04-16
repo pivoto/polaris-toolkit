@@ -3,12 +3,12 @@ package io.polaris.core.asm.reflect;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import io.polaris.core.asm.AsmUtils;
@@ -63,16 +63,13 @@ public abstract class BeanLambdaAccess<T> {
 	private Map<String, BiConsumer<Object, Object>> propertySetters;
 	private Map<String, Function<Object, Object>> fieldGetters;
 	private Map<String, BiConsumer<Object, Object>> fieldSetters;
-	private Map<String, Function<Object, Object>> staticFieldGetters;
-	private Map<String, BiConsumer<Object, Object>> staticFieldSetters;
 
 	protected BeanLambdaAccess() {
-		propertyGetters = buildPropertyGetters();
-		propertySetters = buildPropertySetters();
-		fieldGetters = buildFieldGetters();
-		fieldSetters = buildFieldSetters();
-		staticFieldGetters = buildStaticFieldGetters();
-		staticFieldSetters = buildStaticFieldSetters();
+		// 全部为只读属性
+		propertyGetters = Collections.unmodifiableMap(buildPropertyGetters());
+		propertySetters = Collections.unmodifiableMap(buildPropertySetters());
+		fieldGetters = Collections.unmodifiableMap(buildFieldGetters());
+		fieldSetters = Collections.unmodifiableMap(buildFieldSetters());
 	}
 
 
@@ -94,21 +91,13 @@ public abstract class BeanLambdaAccess<T> {
 		return Collections.emptyMap();
 	}
 
-	protected Map<String, Function<Object, Object>> buildStaticFieldGetters() {
-		return Collections.emptyMap();
-	}
-
-	protected Map<String, BiConsumer<Object, Object>> buildStaticFieldSetters() {
-		return Collections.emptyMap();
-	}
-
 	// endregion
 
 	// region info
 
 
 	public Map<String, BeanPropertyInfo> properties() {
-		return Collections.unmodifiableMap(properties);
+		return properties;
 	}
 
 	public boolean containsAny(String property) {
@@ -116,7 +105,7 @@ public abstract class BeanLambdaAccess<T> {
 	}
 
 	public Set<String> allPropertyNames() {
-		return Collections.unmodifiableSet(properties.keySet());
+		return properties.keySet();
 	}
 
 	public java.lang.reflect.Type propertyGenericType(String property) {
@@ -131,14 +120,71 @@ public abstract class BeanLambdaAccess<T> {
 
 	// endregion
 
+
+
+	// region property or field
+
+	public boolean containsSetterOrField(String key) {
+		BeanPropertyInfo info = properties.get(key);
+		if (info != null) {
+			return info.getField() != null || info.getWriteMethod() != null;
+		}
+		return false;
+	}
+
+	public boolean containsGetterOrField(String key) {
+		BeanPropertyInfo info = properties.get(key);
+		if (info != null) {
+			return info.getField() != null || info.getReadMethod() != null;
+		}
+		return false;
+	}
+
+	public boolean setPropertyOrField(Object o, String key, Object val){
+		BiConsumer<Object, Object> setter = getSetter(key);
+		if (setter != null) {
+			setter.accept(o,val);
+			return true;
+		}
+		setter = getFieldSetter(key);
+		if (setter != null) {
+			setter.accept(o,val);
+			return true;
+		}
+		return false;
+	}
+
+	public boolean setPropertyOrField(Object o, String key, Object val, BiFunction<java.lang.reflect.Type, Object, Object> converter){
+		BeanPropertyInfo info = this.properties.get(key);
+		if (info == null) {
+			return false;
+		}
+		java.lang.reflect.Type type = info.getPropertyGenericType();
+		if (info.getField() != null) {
+			setField(o,key,converter.apply(type,val));
+			return true;
+		}
+		if (info.getWriteMethod() != null) {
+			setProperty(o,key,converter.apply(type,val));
+			return true;
+		}
+		return false;
+	}
+
+	// endregion
+
 	// region setter
 
 	public boolean containsSetter(String property) {
 		return propertySetters.containsKey(property);
 	}
 
+	public Map<String, BiConsumer<Object, Object>> propertySetters() {
+		return propertySetters;
+	}
+
 	public Set<String> setterPropertyNames() {
-		return Collections.unmodifiableSet(propertySetters.keySet());
+		return propertySetters.keySet();
 	}
 
 	public BiConsumer<Object, Object> getSetter(String property) {
@@ -170,10 +216,13 @@ public abstract class BeanLambdaAccess<T> {
 		return propertyGetters.containsKey(property);
 	}
 
-	public Set<String> getterPropertyNames() {
-		return Collections.unmodifiableSet(propertyGetters.keySet());
+	public Map<String, Function<Object, Object>> propertyGetters() {
+		return propertyGetters;
 	}
 
+	public Set<String> getterPropertyNames() {
+		return propertyGetters.keySet();
+	}
 
 	public Function<Object, Object> getGetter(String property) {
 		return propertyGetters.get(property);
@@ -197,14 +246,22 @@ public abstract class BeanLambdaAccess<T> {
 
 	// endregion
 
-	// region normal field
+	// region field
 
 	public boolean containsField(String property) {
 		return fieldGetters.containsKey(property);
 	}
 
+	public Map<String, Function<Object, Object>> fieldGetters() {
+		return fieldGetters;
+	}
+
+	public Map<String, BiConsumer<Object, Object>> fieldSetters() {
+		return fieldSetters;
+	}
+
 	public Set<String> fieldNames() {
-		return Collections.unmodifiableSet(fieldGetters.keySet());
+		return fieldGetters.keySet();
 	}
 
 	public BiConsumer<Object, Object> getFieldSetter(String property) {
@@ -249,142 +306,58 @@ public abstract class BeanLambdaAccess<T> {
 
 	// endregion
 
-	// region static field
 
-	public boolean containsStaticField(String property) {
-		return staticFieldGetters.containsKey(property);
-	}
-
-	public Set<String> staticFieldNames() {
-		return Collections.unmodifiableSet(staticFieldGetters.keySet());
-	}
-
-	public BiConsumer<Object, Object> getStaticFieldSetter(String property) {
-		return staticFieldSetters.get(property);
-	}
-
-	public Function<Object, Object> getStaticFieldGetter(String property) {
-		return staticFieldGetters.get(property);
-	}
-
-	public void setStaticField(Object o, String property, Object val) {
-		BiConsumer<Object, Object> consumer = getStaticFieldSetter(property);
-		if (consumer == null) {
-			throw new IllegalArgumentException("Field not found");
-		}
-		consumer.accept(o, val);
-	}
-
-	public Object getStaticField(Object o, String property) {
-		Function<Object, Object> function = getStaticFieldGetter(property);
-		if (function == null) {
-			throw new IllegalArgumentException("Field not found");
-		}
-		return function.apply(o);
-	}
-
-	public void setStaticFieldOrNoop(Object o, String property, Object val) {
-		BiConsumer<Object, Object> consumer = getStaticFieldSetter(property);
-		if (consumer == null) {
-			return;
-		}
-		consumer.accept(o, val);
-	}
-
-	public Object getStaticFieldOrNoop(Object o, String property) {
-		Function<Object, Object> function = getStaticFieldGetter(property);
-		if (function == null) {
-			return null;
-		}
-		return function.apply(o);
-	}
-
-	// endregion
-
-
+	@SuppressWarnings("unchecked")
 	public static <T> BeanLambdaAccess<T> get(Class<T> type) {
 		return pool.computeIfAbsent(type, BeanLambdaAccess::create);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <T> BeanLambdaAccess<T> create(Class<T> type) {
-		Map<String, BeanPropertyInfo> propertyInfoMap = BeanPropertyInfo.mapOf(type);
-		List<BeanPropertyInfo> setters = new ArrayList<>();
-		List<BeanPropertyInfo> getters = new ArrayList<>();
-		List<BeanPropertyInfo> fields = new ArrayList<>();
-		List<BeanPropertyInfo> staticFields = new ArrayList<>();
-
-		for (Map.Entry<String, BeanPropertyInfo> entry : propertyInfoMap.entrySet()) {
-			BeanPropertyInfo beanPropertyInfo = entry.getValue();
-			if (beanPropertyInfo.getWriteMethod() != null) {
-				setters.add(beanPropertyInfo);
-			}
-			if (beanPropertyInfo.getReadMethod() != null) {
-				getters.add(beanPropertyInfo);
-			}
-			if (beanPropertyInfo.getField() != null) {
-				if (Modifier.isStatic(beanPropertyInfo.getField().getModifiers())) {
-					staticFields.add(beanPropertyInfo);
-				} else {
-					fields.add(beanPropertyInfo);
-				}
-			}
-		}
-
+		BeanPropertyInfo.Classification classification = BeanPropertyInfo.classify(type);
 		String accessClassName = AccessClassLoader.buildAccessClassName(type, BeanLambdaAccess.class);
 		Class accessClass;
 		AccessClassLoader loader = AccessClassLoader.get(type);
 		synchronized (loader) {
 			accessClass = loader.loadAccessClass(accessClassName);
 			if (accessClass == null) {
-				accessClass = buildAccessClass(loader, accessClassName, type, setters, getters, fields, staticFields);
+				accessClass = buildAccessClass(loader, accessClassName, type, classification);
 			}
 		}
 		BeanLambdaAccess<T> access;
 		try {
 			access = (BeanLambdaAccess<T>) accessClass.newInstance();
-			access.properties = propertyInfoMap;
+			// 全部设为只读属性
+			access.properties = Collections.unmodifiableMap(classification.properties);
 		} catch (Throwable t) {
-			throw new IllegalStateException("实例化构造器访问类失败: " + accessClassName, t);
+			throw new IllegalStateException("创建访问类失败: " + accessClassName, t);
 		}
 		return access;
 	}
 
 	private static <T> Class buildAccessClass(AccessClassLoader loader
 		, String accessClassName, Class<T> type
-		, List<BeanPropertyInfo> setters, List<BeanPropertyInfo> getters
-		, List<BeanPropertyInfo> fields, List<BeanPropertyInfo> staticFields) {
+		, BeanPropertyInfo.Classification classification) {
 		String accessClassNameInternal = accessClassName.replace('.', '/');
 		String classNameInternal = type.getName().replace('.', '/');
 
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-		String superclassNameInternal = BeanLambdaAccess.class.getName().replace('.', '/');
+		String superClassNameInternal = BeanLambdaAccess.class.getName().replace('.', '/');
 		cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, accessClassNameInternal,
-			"L" + superclassNameInternal + "<L" + accessClassNameInternal + ";>;",
-			superclassNameInternal, null);
+			"L" + superClassNameInternal + "<L" + Type.getInternalName(type) + ";>;",
+			superClassNameInternal, null);
 		cw.visitInnerClass("java/lang/invoke/MethodHandles$Lookup", "java/lang/invoke/MethodHandles", "Lookup", ACC_PUBLIC | ACC_FINAL | ACC_STATIC);
 
-		insertSelfConstructor(cw, superclassNameInternal);
-		insertSetterInvokers(cw, accessClassNameInternal, type, setters);
-		insertGetterInvokers(cw, accessClassNameInternal, type, getters);
-		insertFieldSetterInvokers(cw, accessClassNameInternal, type, fields);
-		insertFieldGetterInvokers(cw, accessClassNameInternal, type, fields);
-		insertStaticFieldSetterInvokers(cw, accessClassNameInternal, type, staticFields);
-		insertStaticFieldGetterInvokers(cw, accessClassNameInternal, type, staticFields);
+		AsmUtils.insertDefaultConstructor(cw, superClassNameInternal);
+		insertSetterInvokers(cw, accessClassNameInternal, type, classification.setters);
+		insertGetterInvokers(cw, accessClassNameInternal, type, classification.getters);
+		insertFieldSetterInvokers(cw, accessClassNameInternal, type, classification.fields);
+		insertFieldGetterInvokers(cw, accessClassNameInternal, type, classification.fields);
 
 		cw.visitEnd();
 		byte[] byteArray = cw.toByteArray();
 
 		return loader.defineAccessClass(accessClassName, byteArray);
-	}
-
-	private static void insertSelfConstructor(ClassWriter cw, String superclassNameInternal) {
-		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
-		mv.visitCode();
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitMethodInsn(INVOKESPECIAL, superclassNameInternal, "<init>", "()V", false);
-		mv.visitInsn(RETURN);
-		mv.visitMaxs(1, 1);
-		mv.visitEnd();
 	}
 
 	private static <T> void insertSetterInvokers(ClassWriter cw, String accessClassNameInternal, Class<T> type, List<BeanPropertyInfo> setters) {
@@ -636,26 +609,6 @@ public abstract class BeanLambdaAccess<T> {
 		}
 		SerializableFunction<BeanLambdaAccess, Map<String, Function<Object, Object>>> buildFieldGetters = BeanLambdaAccess::buildFieldGetters;
 		_insertFieldGetterInvokers(cw, accessClassNameInternal, type, fields, buildFieldGetters);
-	}
-
-	private static <T> void insertStaticFieldSetterInvokers(ClassWriter cw, String accessClassNameInternal, Class<T> type, List<BeanPropertyInfo> staticFields) {
-		// ignore
-		if (staticFields.isEmpty()) {
-			return;
-		}
-		SerializableFunction<BeanLambdaAccess, Map<String, BiConsumer<Object, Object>>> buildStaticFieldSetters = BeanLambdaAccess::buildStaticFieldSetters;
-
-		_insertFieldSetterInvokers(cw, accessClassNameInternal, type, staticFields, buildStaticFieldSetters);
-	}
-
-	private static <T> void insertStaticFieldGetterInvokers(ClassWriter cw, String accessClassNameInternal, Class<T> type, List<BeanPropertyInfo> staticFields) {
-		// ignore
-		if (staticFields.isEmpty()) {
-			return;
-		}
-		SerializableFunction<BeanLambdaAccess, Map<String, Function<Object, Object>>> buildStaticFieldGetters = BeanLambdaAccess::buildStaticFieldGetters;
-
-		_insertFieldGetterInvokers(cw, accessClassNameInternal, type, staticFields, buildStaticFieldGetters);
 	}
 
 	private static <T> void _insertFieldSetterInvokers(ClassWriter cw, String accessClassNameInternal, Class<T> type, List<BeanPropertyInfo> fields, SerializableFunction<BeanLambdaAccess, Map<String, BiConsumer<Object, Object>>> func) {

@@ -22,7 +22,7 @@ public class BeanMapOptions {
 	public static final BiFunction<Type, Object, Object> DEFAULT_CONVERTER = Converters::convert;
 
 	private BeanAccessMode mode = DEFAULT_MODE;
-	private boolean includeOpenFields = true;
+	private boolean includeFields = true;
 	private boolean enableConverter = true;
 	private boolean enableFallback = true;
 	private boolean ignoreUnknownKeys = true;

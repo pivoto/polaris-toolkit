@@ -1,8 +1,6 @@
 package io.polaris.core.lang.copier;
 
 import io.polaris.core.TestConsole;
-import io.polaris.core.lang.copier.BeanToBeanCopier;
-import io.polaris.core.lang.copier.CopyOptions;
 import lombok.Data;
 import lombok.ToString;
 import org.junit.jupiter.api.Assertions;
@@ -20,8 +18,10 @@ class BeanToBeanCopierTest {
 		a.nickname = "a.nickname";
 		b.name = "b.name";
 
-		B t = new BeanToBeanCopier<>(a, b, B.class,
-			CopyOptions.create().ignoreNull().override(false).ignoreCase()
+		CopyOptions copyOptions = CopyOptions.create();
+		CopyOptions copyOptions1 = copyOptions.ignoreNull(true).override(false);
+		B t = Copiers.create(a, b, B.class,
+			copyOptions1.ignoreCase(true)
 		).copy();
 		TestConsole.println(a);
 		TestConsole.println(b);

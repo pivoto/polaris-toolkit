@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.lang.bean.PropertyAccessor;
 import io.polaris.core.log.ILogger;
@@ -24,50 +25,45 @@ public class BeanToBeanCopier<S, T> extends BaseToBeanCopier<S, T> {
 
 	/**
 	 * @param source      来源Map
+	 * @param sourceType  来源类型
 	 * @param target      目标Bean对象
-	 * @param targetType  目标泛型类型
+	 * @param targetType  目标类型
 	 * @param copyOptions 拷贝选项
 	 */
-	public BeanToBeanCopier(S source, T target, Type targetType, CopyOptions copyOptions) {
-		super(source, target, targetType, copyOptions);
+	public BeanToBeanCopier(S source, Type sourceType, T target, Type targetType, CopyOptions copyOptions) {
+		super(source, sourceType, target, targetType, copyOptions);
 	}
 
 	@Override
 	public T copy() {
-		Class<?> actualEditable = target.getClass();
-		if (options.getEditable() != null && options.getEditable().isAssignableFrom(actualEditable)) {
-			actualEditable = options.getEditable();
-		}
-
 		try {
 			// 记录已复制key
 			final Set<String> recorder = new HashSet<>();
-			final Map<String, PropertyAccessor> accessors = Beans.getIndexedFieldAndPropertyAccessors(actualEditable);
+			final Map<String, PropertyAccessor> accessors = Beans.getIndexedFieldAndPropertyAccessors(JavaType.of(targetType).getRawClass());
 			final SetMultiMap<String, String> candidates = createTargetBeanMapCandidateKeys(accessors);
-
-			final Map<String, PropertyAccessor> sourceAccessors = Beans.getIndexedFieldAndPropertyAccessors(source.getClass());
+			final Map<String, PropertyAccessor> sourceAccessors = Beans.getIndexedFieldAndPropertyAccessors(JavaType.of(sourceType).getRawClass());
 			final List<Tuple2<String, Object>> sourceEntries = new ArrayList<>(sourceAccessors.size());
 			sourceAccessors.forEach(wrapConsumer((sourceKey, sourceAccessor) -> {
-				sourceKey = super.editKey(sourceKey);
+				sourceKey = options.editKey(sourceKey);
 				if (sourceKey == null) {
 					return;
 				}
-				if (super.isIgnore(sourceKey)) {
+				if (options.isIgnoredKey(sourceKey)) {
 					return;
 				}
-				if(!sourceAccessor.hasSetter()){
+				if (!sourceAccessor.hasSetter()) {
 					return;
 				}
 				Object value = sourceAccessor.get(source);
-				if (value == null && options.isIgnoreNull()) {
+				if (value == null && options.ignoreNull()) {
 					return;
 				}
 				sourceEntries.add(Tuple2.of(sourceKey, value));
 			}));
 			// set with candidates
-			setTargetValues(sourceEntries, accessors,candidates, recorder);
+			setTargetValues(sourceEntries, accessors, candidates, recorder);
 		} catch (Exception e) {
-			if (!options.isIgnoreError()) {
+			if (!options.ignoreError()) {
 				throw new UnsupportedOperationException(e);
 			} else {
 				log.warn("Copy failed：{}", e.getMessage());
