@@ -126,7 +126,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void importCsv(FileDto fileDto, ExcelConfig excelConfig) {
 		Consumer<Map<String, Object>> consumer = record -> {
-			${table.javaClassName}${env.entityClassSuffix} entity = Beans.newBeanMap(record).copyToBean(new ${table.javaClassName}${env.entityClassSuffix}());
+			${table.javaClassName}${env.entityClassSuffix} entity = Beans.copyBean(record, new ${table.javaClassName}${env.entityClassSuffix}());
 			insertSelective(entity);
 		};
 		importCsv(fileDto, excelConfig, consumer);
@@ -151,7 +151,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void importExcel(FileDto fileDto, ExcelConfig excelConfig) {
 		Consumer<Map<String, Object>> consumer = record -> {
-			${table.javaClassName}${env.entityClassSuffix} entity = Beans.newBeanMap(record).copyToBean(new ${table.javaClassName}${env.entityClassSuffix}());
+			${table.javaClassName}${env.entityClassSuffix} entity = Beans.copyBean(record, new ${table.javaClassName}${env.entityClassSuffix}());
 			insertSelective(entity);
 		};
 		importExcel(fileDto, this.defaultExcelConfig, consumer);

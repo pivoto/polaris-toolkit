@@ -92,7 +92,7 @@ public class ${table.javaClassName}${env.rpcClassSuffix}{
 	@OpenApi(inputSchema = ${table.javaClassName}${env.rpcGetInputClassSuffix}.class, outputSchema = ${table.javaClassName}${env.rpcGetOutputClassSuffix}.class)
 	public ${table.javaClassName}${env.rpcGetOutputClassSuffix} do$!{env.rpcCodePrefix}${table.javaClassName}Get(@Valid ${table.javaClassName}${env.rpcGetInputClassSuffix} input) {
 		${table.javaClassName}${env.entityClassSuffix} entity = ${table.javaVariableName}${env.serviceClassSuffix}.getUnique(
-			Beans.newBeanMap(input.getParam()).copyToBean(new ${table.javaClassName}${env.entityClassSuffix}())
+			Beans.copyBean(input.getParam(), new ${table.javaClassName}${env.entityClassSuffix}())
 		);
 		${table.javaClassName}${env.rpcGetOutputClassSuffix} output = new ${table.javaClassName}${env.rpcGetOutputClassSuffix}();
 		output.setEntity(entity);
