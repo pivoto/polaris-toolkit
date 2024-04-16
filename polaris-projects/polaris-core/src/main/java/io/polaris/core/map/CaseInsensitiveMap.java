@@ -2,28 +2,33 @@ package io.polaris.core.map;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * @author Qt
  * @since 1.8
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class CaseInsensitiveMap<K, V> extends TransformMap<K, V> {
+	private static final Function TRANSFORMER_UPPER_CASE = key -> (key instanceof CharSequence ? key.toString().toUpperCase() : key);
+	private static final Function TRANSFORMER_LOWER_CASE = key -> (key instanceof CharSequence ? key.toString().toLowerCase() : key);
 
 	public CaseInsensitiveMap() {
-		super(new LinkedHashMap<>(), key -> (K) (key instanceof CharSequence ? key.toString().toUpperCase() : key));
+		super(new LinkedHashMap<>(), TRANSFORMER_UPPER_CASE);
 	}
+
 	public CaseInsensitiveMap(boolean upperCase) {
-		super(new LinkedHashMap<>(), upperCase ? key -> (K) (key instanceof CharSequence ? key.toString().toUpperCase() : key)
-			: key -> (K) (key instanceof CharSequence ? key.toString().toLowerCase() : key));
+		super(new LinkedHashMap<>(), upperCase ? TRANSFORMER_UPPER_CASE : TRANSFORMER_LOWER_CASE);
 	}
 
 	public CaseInsensitiveMap(Map<K, V> raw) {
-		super(raw, key -> (K) (key instanceof CharSequence ? key.toString().toUpperCase() : key));
+		this();
+		putAll(raw);
 	}
 
 	public CaseInsensitiveMap(Map<K, V> raw, boolean upperCase) {
-		super(raw, upperCase ? key -> (K) (key instanceof CharSequence ? key.toString().toUpperCase() : key)
-			: key -> (K) (key instanceof CharSequence ? key.toString().toLowerCase() : key));
+		this(upperCase);
+		putAll(raw);
 	}
 
 }
