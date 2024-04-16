@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 import io.polaris.core.io.IO;
 import io.polaris.core.map.Maps;
@@ -19,7 +20,7 @@ import io.polaris.core.string.Strings;
  * @since 1.8,  Aug 04, 2023
  */
 @SuppressWarnings("all")
-class AccessClassLoader extends ClassLoader {
+public class AccessClassLoader extends ClassLoader {
 	private static final Map<ClassLoader, AccessClassLoader> accessClassLoaders = Maps.newSoftMap(new ConcurrentHashMap<>());
 	// Fast-path for classes loaded in the same ClassLoader as this class.
 	private static final ClassLoader selfContextParentClassLoader = getParentClassLoader(AccessClassLoader.class);
@@ -35,6 +36,9 @@ class AccessClassLoader extends ClassLoader {
 		registerBaseClass(
 			ClassAccess.class
 			, ClassLambdaAccess.class
+			, BeanCopier.class
+			, BeanAccess.class
+			, BeanLambdaAccess.class
 			, MethodAccess.class
 			, ConstructorAccess.class
 			, PublicConstructorAccess.class
@@ -42,8 +46,12 @@ class AccessClassLoader extends ClassLoader {
 		);
 		String tmpdir = System.getProperty("java.memory.bytecode.tmpdir");
 		if (Strings.isNotBlank(tmpdir)) {
-			classBytesCacheDir = tmpdir.trim();
-			classBytesCacheEnabled = true;
+			File dir = new File(tmpdir.trim());
+			if (!dir.exists()){
+				dir.mkdirs();
+			}
+			classBytesCacheDir = dir.getAbsolutePath();
+			classBytesCacheEnabled = dir.exists();
 		} else {
 			classBytesCacheDir = null;
 			classBytesCacheEnabled = false;
@@ -54,6 +62,19 @@ class AccessClassLoader extends ClassLoader {
 		super(parent);
 	}
 
+
+	public Class loadOrDefineClass(String name, Supplier<byte[]> byteGenerator) {
+		Class c = loadAccessClass(name);
+		if (c == null) {
+			synchronized (this) {
+				c = loadAccessClass(name);
+				if (c == null) {
+					c = defineAccessClass(name, byteGenerator.get());
+				}
+			}
+		}
+		return c;
+	}
 
 	/** Returns null if the access class has not yet been defined. */
 	Class loadAccessClass(String name) {
@@ -73,7 +94,7 @@ class AccessClassLoader extends ClassLoader {
 		if (classBytesCacheEnabled) {
 			try {
 				IO.writeBytes(new File(classBytesCacheDir + "/" + name.replace(".", "/") + ".class"), bytes);
-			} catch (IOException ignored) {
+			} catch (Throwable ignored) {
 			}
 		}
 		return defineClass(name, bytes);
@@ -117,13 +138,13 @@ class AccessClassLoader extends ClassLoader {
 		return loader1 == loader2;
 	}
 
-	static void registerBaseClass(Class<?>... classes) {
+	public static void registerBaseClass(Class<?>... classes) {
 		for (Class<?> c : classes) {
 			baseClasses.put(c.getName(), c);
 		}
 	}
 
-	static String buildAccessClassName(Class<?> type, Class<?> baseAccessClass) {
+	public static String buildAccessClassName(Class<?> type, Class<?> baseAccessClass) {
 		String className = type.getName();
 		String accessClassName = className + "$$" + baseAccessClass.getSimpleName() + "$";
 		if (accessClassName.startsWith("java.")) {
@@ -157,7 +178,7 @@ class AccessClassLoader extends ClassLoader {
 		return defineClassMethod;
 	}
 
-	static AccessClassLoader get(Class type) {
+	public static AccessClassLoader get(Class type) {
 		ClassLoader parent = getParentClassLoader(type);
 		// 1. fast-path:
 		if (selfContextParentClassLoader.equals(parent)) {

@@ -46,8 +46,12 @@ public class MemoryClassLoader extends URLClassLoader {
 	static{
 		String tmpdir = System.getProperty("java.memory.bytecode.tmpdir");
 		if (Strings.isNotBlank(tmpdir)){
-			classBytesCacheDir = tmpdir.trim();
-			classBytesCacheEnabled = true;
+			File dir = new File(tmpdir.trim());
+			if (!dir.exists()){
+				dir.mkdirs();
+			}
+			classBytesCacheDir = dir.getAbsolutePath();
+			classBytesCacheEnabled = dir.exists();
 		}else{
 			classBytesCacheDir = null;
 			classBytesCacheEnabled = false;
@@ -82,7 +86,7 @@ public class MemoryClassLoader extends URLClassLoader {
 				File file = new File(classBytesCacheDir + "/" + className.replace(".", "/") + ".class");
 				log.debug("缓存动态生成类的字节码：{}", file.getAbsolutePath());
 				IO.writeBytes(file, bytes);
-			} catch (IOException e) {
+			} catch (Throwable e) {
 				log.error("", e);
 			}
 		}
