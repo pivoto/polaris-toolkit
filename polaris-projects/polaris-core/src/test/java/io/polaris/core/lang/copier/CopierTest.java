@@ -41,6 +41,26 @@ class CopierTest {
 		TestConsole.println("target:" + target);
 		Assertions.assertEquals(source, target);
 	}
+	@Test
+	void test01_MapToMap_fast() {
+		Map<Object, Object> source = new HashMap<>();
+		source.put("objId1", "objId1");
+		source.put("obj_id1", "obj_id1");
+		source.put("vStr1", "vStr1");
+		source.put("VStr1", "VStr1");
+		source.put("key1", "val1");
+		source.put("key2", "val2");
+		source.put("key3", Integer.valueOf(123));
+		source.put("key4", new Object());
+		source.put("key5", new Object[]{"", ""});
+
+		Map<Object, Object> target = new HashMap<>();
+		Copiers.fastCopy(source, target, CopyOptions.create());
+
+		TestConsole.println("source:" + source);
+		TestConsole.println("target:" + target);
+		Assertions.assertEquals(source, target);
+	}
 
 	@Test
 	void test02_MapToBean() {
@@ -60,6 +80,38 @@ class CopierTest {
 		CopyOptions copyOptions1 = copyOptions.ignoreCapitalize(true);
 		CopyOptions copyOptions2 = copyOptions1.enableUnderlineToCamelCase(true);
 		Copiers.copy(source, target, copyOptions2.enableCamelToUnderlineCase(true));
+
+		TestConsole.println("source:" + source);
+		TestConsole.println("target:" + target);
+
+		Assertions.assertEquals("val1", target.getKey1());
+		Assertions.assertEquals("val2", target.getKey2());
+		Assertions.assertEquals(123L, target.getKey3());
+		Assertions.assertEquals(false, target.getKey4());
+		Assertions.assertEquals("vStr1", target.getvStr1());
+		Assertions.assertEquals("VStr1", target.getVStr1());
+		Assertions.assertEquals("objId1", target.getObjId1());
+		Assertions.assertEquals("obj_id1", target.getObj_id1());
+
+	}
+	@Test
+	void test02_MapToBean_Fast() {
+		Map<Object, Object> source = new HashMap<>();
+		source.put("objId1", "objId1");
+		source.put("obj_id1", "obj_id1");
+		source.put("vStr1", "vStr1");
+		source.put("VStr1", "VStr1");
+		source.put("key1", "val1");
+		source.put("key2", "val2");
+		source.put("key3", Integer.valueOf(123));
+		source.put("key4", new Object());
+		source.put("key5", new Object[]{"", ""});
+
+		CopyObj target = new CopyObj();
+		CopyOptions copyOptions = CopyOptions.create().override(false);
+		CopyOptions copyOptions1 = copyOptions.ignoreCapitalize(true);
+		CopyOptions copyOptions2 = copyOptions1.enableUnderlineToCamelCase(true);
+		Copiers.fastCopy(source, target, copyOptions2.enableCamelToUnderlineCase(true));
 
 		TestConsole.println("source:" + source);
 		TestConsole.println("target:" + target);
@@ -105,6 +157,36 @@ class CopierTest {
 		Assertions.assertEquals("objId1", target.get("objId1"));
 		Assertions.assertEquals("obj_id1", target.get("obj_id1"));
 	}
+	@Test
+	void test03_BeanToMap_fast() {
+		CopyObj source = new CopyObj();
+		source.setObjId1("objId1");
+		source.setObj_id1("obj_id1");
+		source.setvStr1("vStr1");
+		source.setVStr1("VStr1");
+		source.setKey1("val1");
+		source.setKey2("val2");
+		source.setKey3(123L);
+		source.setKey4(true);
+		source.setKey5(new String[]{"x", "y"});
+
+		Map<Object, Object> target = new HashMap<>();
+		CopyOptions copyOptions = CopyOptions.create().override(false);
+		CopyOptions copyOptions1 = copyOptions.ignoreCapitalize(true);
+		CopyOptions copyOptions2 = copyOptions1.enableUnderlineToCamelCase(true);
+		Copiers.fastCopy(source, target, copyOptions2.enableCamelToUnderlineCase(true));
+
+		TestConsole.println("source:" + source);
+		TestConsole.println("target:" + target);
+		Assertions.assertEquals("val1", target.get("key1"));
+		Assertions.assertEquals("val2", target.get("key2"));
+		Assertions.assertEquals(123L, target.get("key3"));
+		Assertions.assertEquals(true, target.get("key4"));
+		Assertions.assertEquals("vStr1", target.get("vStr1"));
+		Assertions.assertEquals("VStr1", target.get("VStr1"));
+		Assertions.assertEquals("objId1", target.get("objId1"));
+		Assertions.assertEquals("obj_id1", target.get("obj_id1"));
+	}
 
 	@Test
 	void test04_BeanToBean() {
@@ -124,6 +206,30 @@ class CopierTest {
 		CopyOptions copyOptions1 = copyOptions.ignoreCapitalize(true);
 		CopyOptions copyOptions2 = copyOptions1.enableUnderlineToCamelCase(true);
 		Copiers.copy(source, target, copyOptions2.enableCamelToUnderlineCase(true));
+
+		TestConsole.println("source:" + source);
+		TestConsole.println("target:" + target);
+		Assertions.assertEquals(source, target);
+	}
+
+	@Test
+	void test04_BeanToBean_fast() {
+		CopyObj source = new CopyObj();
+		source.setObjId1("objId1");
+		source.setObj_id1("obj_id1");
+		source.setvStr1("vStr1");
+		source.setVStr1("VStr1");
+		source.setKey1("val1");
+		source.setKey2("val2");
+		source.setKey3(123L);
+		source.setKey4(true);
+		source.setKey5(new String[]{"x", "y"});
+
+		CopyObj target = new CopyObj();
+		CopyOptions copyOptions = CopyOptions.create().override(false);
+		CopyOptions copyOptions1 = copyOptions.ignoreCapitalize(true);
+		CopyOptions copyOptions2 = copyOptions1.enableUnderlineToCamelCase(true);
+		Copiers.fastCopy(source, target, copyOptions2.enableCamelToUnderlineCase(true));
 
 		TestConsole.println("source:" + source);
 		TestConsole.println("target:" + target);

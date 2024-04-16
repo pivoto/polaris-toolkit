@@ -36,7 +36,7 @@ public abstract class BaseCopier<S, T> implements Copier<T> {
 				if (!options.ignoreError()) {
 					throw new UnsupportedOperationException(e);
 				} else {
-					log.warn("Copy failed：{}", e.getMessage());
+					log.warn("复制属性失败：{}", e.getMessage());
 					if (log.isDebugEnabled()) {
 						log.debug(e.getMessage(), e);
 					}
@@ -53,7 +53,7 @@ public abstract class BaseCopier<S, T> implements Copier<T> {
 				if (!options.ignoreError()) {
 					throw new UnsupportedOperationException(e);
 				} else {
-					log.warn("Copy failed：{}", e.getMessage());
+					log.warn("复制属性失败：{}", e.getMessage());
 					if (log.isDebugEnabled()) {
 						log.debug(e.getMessage(), e);
 					}

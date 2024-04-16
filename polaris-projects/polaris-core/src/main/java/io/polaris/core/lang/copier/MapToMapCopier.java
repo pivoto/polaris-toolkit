@@ -51,12 +51,12 @@ public class MapToMapCopier extends BaseCopier<Map, Map> {
 					if (options.isIgnoredKey(keyStr)) {
 						return;
 					}
-					value = options.convert(valueType, value);
 					value = options.editValue(keyStr, value);
+					value = options.convert(valueType, value);
 					key = options.convert(keyType, keyStr);
 				} else {
-					key = options.convert(keyType, key);
 					value = options.convert(valueType, value);
+					key = options.convert(keyType, key);
 				}
 				if (value == null && options.ignoreNull()) {
 					return;
@@ -71,7 +71,7 @@ public class MapToMapCopier extends BaseCopier<Map, Map> {
 			if (!options.ignoreError()) {
 				throw new UnsupportedOperationException(e);
 			} else {
-				log.warn("Copy failed：{}", e.getMessage());
+				log.warn("复制属性失败：{}", e.getMessage());
 				if (log.isDebugEnabled()) {
 					log.debug(e.getMessage(), e);
 				}

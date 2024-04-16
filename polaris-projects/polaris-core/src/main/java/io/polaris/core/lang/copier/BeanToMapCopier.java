@@ -73,7 +73,7 @@ public class BeanToMapCopier<T> extends BaseCopier<T, Map> {
 			if (!options.ignoreError()) {
 				throw new UnsupportedOperationException(e);
 			} else {
-				log.warn("Copy failed：{}", e.getMessage());
+				log.warn("复制属性失败：{}", e.getMessage());
 				if (log.isDebugEnabled()) {
 					log.debug(e.getMessage(), e);
 				}

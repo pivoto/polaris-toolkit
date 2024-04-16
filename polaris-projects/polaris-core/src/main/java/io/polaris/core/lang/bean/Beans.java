@@ -3,17 +3,7 @@ package io.polaris.core.lang.bean;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -24,6 +14,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.polaris.core.asm.reflect.BeanAccess;
+import io.polaris.core.asm.reflect.BeanCopier;
 import io.polaris.core.asm.reflect.BeanLambdaAccess;
 import io.polaris.core.asm.reflect.BeanPropertyInfo;
 import io.polaris.core.collection.Iterables;
@@ -79,8 +70,19 @@ public class Beans {
 			.build();
 	}
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	public static <T> T copyBean(Object source, T target) {
+		BeanCopier copier = BeanCopier.get(source.getClass());
+		copier.copyBeanToBean(source, target);
+		return target;
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	public static <T> T copyBean(Object source, Class<T> clazz) {
-		return copyBean(source, clazz, null);
+		T target = Reflects.newInstanceIfPossible(clazz);
+		BeanCopier copier = BeanCopier.get(source.getClass());
+		copier.copyBeanToBean(source, target);
+		return target;
 	}
 
 	public static <T> T copyBean(Object source, Class<T> clazz, CopyOptions options) {
@@ -100,7 +102,7 @@ public class Beans {
 		if (null == source) {
 			return;
 		}
-		Copiers.create(source, target, (copyOptions != null ? copyOptions : CopyOptions.create())).copy();
+		Copiers.fastCopy(source, target, (copyOptions != null ? copyOptions : CopyOptions.create()));
 	}
 
 	public static Map<String, Object> copyBean(Object bean, boolean isUnderlineCase, boolean ignoreNull) {
@@ -133,7 +135,7 @@ public class Beans {
 		if (null == bean) {
 			return null;
 		}
-		return Copiers.create(bean, targetMap, CopyOptions.create().ignoreNull(ignoreNull).keyMapping(keyMapping)).copy();
+		return Copiers.fastCopy(bean, targetMap, CopyOptions.create().ignoreNull(ignoreNull).keyMapping(keyMapping));
 	}
 
 
