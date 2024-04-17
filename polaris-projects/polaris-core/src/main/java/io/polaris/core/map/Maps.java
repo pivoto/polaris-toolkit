@@ -1,12 +1,17 @@
 package io.polaris.core.map;
 
+import java.lang.ref.Reference;
+import java.util.AbstractMap;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.function.Supplier;
+
 import io.polaris.core.map.reference.ReferenceType;
 import io.polaris.core.map.reference.ValueReference;
 import io.polaris.core.reflect.Reflects;
-
-import java.lang.ref.Reference;
-import java.util.*;
-import java.util.function.Supplier;
 
 /**
  * @author Qt
@@ -15,6 +20,14 @@ import java.util.function.Supplier;
 public class Maps {
 
 
+	/**
+	 * 创建指定类型的Map
+	 *
+	 * @param mapType
+	 * @param <K>
+	 * @param <V>
+	 * @return
+	 */
 	public static <K, V> Map<K, V> createMap(Class<?> mapType) {
 		if (null == mapType || mapType.isAssignableFrom(AbstractMap.class)) {
 			return new HashMap<>();
@@ -27,6 +40,14 @@ public class Maps {
 		}
 	}
 
+	/**
+	 * 反转键值生成新的Map对象
+	 *
+	 * @param map
+	 * @param <K>
+	 * @param <V>
+	 * @return
+	 */
 	public static <K, V> Map<V, K> inverse(Map<K, V> map) {
 		Map<V, K> result = createMap(map.getClass());
 		map.forEach((key, value) -> result.put(value, key));

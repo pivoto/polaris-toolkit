@@ -4,6 +4,8 @@ import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.function.BiFunction;
 
+import javax.annotation.Nonnull;
+
 import io.polaris.core.asm.reflect.BeanCopier;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.TypeRef;
@@ -16,16 +18,16 @@ public class Copiers {
 	// TODO fastCopy, deepCopy
 
 
-	public static <E> E fastCopy(Object source, E target) {
+	public static <E> E fastCopy(@Nonnull Object source, @Nonnull E target) {
 		return fastCopy(source, source.getClass(), target, target.getClass());
 	}
 
-	public static <E> E fastCopy(Object source, E target, Type targetType) {
+	public static <E> E fastCopy(@Nonnull Object source, @Nonnull E target, @Nonnull Type targetType) {
 		return fastCopy(source, source.getClass(), target, targetType);
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	public static <E> E fastCopy(Object source, Type sourceType, E target, Type targetType) {
+	public static <E> E fastCopy(@Nonnull Object source, @Nonnull Type sourceType, @Nonnull E target, @Nonnull Type targetType) {
 		if (source instanceof Map) {
 			if (target instanceof Map) {
 				((Map) target).putAll((Map) source);
@@ -42,16 +44,16 @@ public class Copiers {
 		return target;
 	}
 
-	public static <E> E fastCopy(Object source, E target, CopyOptions options) {
+	public static <E> E fastCopy(@Nonnull Object source, @Nonnull E target, @Nonnull CopyOptions options) {
 		return fastCopy(source, source.getClass(), target, target.getClass(), options);
 	}
 
-	public static <E> E fastCopy(Object source, E target, Type targetType, CopyOptions options) {
+	public static <E> E fastCopy(@Nonnull Object source, @Nonnull E target, @Nonnull Type targetType, @Nonnull CopyOptions options) {
 		return fastCopy(source, source.getClass(), target, targetType, options);
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	public static <E> E fastCopy(Object source, Type sourceType, E target, Type targetType, CopyOptions options) {
+	public static <E> E fastCopy(@Nonnull Object source, @Nonnull Type sourceType, @Nonnull E target, @Nonnull Type targetType, @Nonnull CopyOptions options) {
 		if (source instanceof Map) {
 			if (target instanceof Map) {
 				new MapToMapCopier((Map<?, ?>) source, targetType, (Map<?, ?>) target, options).copy();
@@ -69,166 +71,188 @@ public class Copiers {
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	public static <S> void fastCopyBeanToMap(S source, Map<String, Object> target) {
-		fastCopyBeanToMap((Class) source.getClass(), source, target);
+	public static <S> Map<String, Object> fastCopyBeanToMap(@Nonnull S source, @Nonnull Map<String, Object> target) {
+		return fastCopyBeanToMap((Class) source.getClass(), source, target);
 	}
 
-	public static <S> void fastCopyBeanToMap(Class<S> sourceType, S source, Map<String, Object> target) {
+	public static <S> Map<String, Object> fastCopyBeanToMap(@Nonnull Class<S> sourceType, @Nonnull S source, @Nonnull Map<String, Object> target) {
 		BeanCopier.get(sourceType).copyBeanToMap(source, target);
+		return target;
 	}
 
-	public static <S, K, V> void fastCopyBeanToMap(Class<S> sourceType, S source, Type targetType, Map<K, V> target, BiFunction<java.lang.reflect.Type, Object, Object> converter) {
+	public static <S, K, V> Map<K, V> fastCopyBeanToMap(@Nonnull Class<S> sourceType, @Nonnull S source, @Nonnull Type targetType, @Nonnull Map<K, V> target, BiFunction<java.lang.reflect.Type, Object, Object> converter) {
 		BeanCopier.get(sourceType).copyBeanToMap(source, targetType, target, converter);
+		return target;
 	}
 
-	public static <S> void fastCopyBeanToMap(Class<S> sourceType, S source, Map<String, Object> target, CopyOptions options) {
+	public static <S> Map<String, Object> fastCopyBeanToMap(@Nonnull Class<S> sourceType, @Nonnull S source, @Nonnull Map<String, Object> target, @Nonnull CopyOptions options) {
 		BeanCopier.get(sourceType).copyBeanToMap(source, target, options);
+		return target;
 	}
 
-	public static <S, K, V> void fastCopyBeanToMap(Class<S> sourceType, S source, Type targetType, Map<K, V> target, CopyOptions options) {
+	public static <S, K, V> Map<K, V> fastCopyBeanToMap(@Nonnull Class<S> sourceType, @Nonnull S source, @Nonnull Type targetType, @Nonnull Map<K, V> target, @Nonnull CopyOptions options) {
 		BeanCopier.get(sourceType).copyBeanToMap(source, targetType, target, options);
+		return target;
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	public static <T> void fastCopyMapToBean(Map<String, Object> source, T target) {
+	public static <T> T fastCopyMapToBean(@Nonnull Map<String, Object> source, @Nonnull T target) {
 		fastCopyMapToBean(source, (Class) target.getClass(), target);
+		return target;
 	}
 
-	public static <T> void fastCopyMapToBean(Map<String, Object> source, Class<T> targetType, T target) {
+	public static <T> T fastCopyMapToBean(@Nonnull Map<String, Object> source, @Nonnull Class<T> targetType, @Nonnull T target) {
 		BeanCopier.get(targetType).copyMapToBean(source, target);
+		return target;
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	public static <T> void fastCopyMapToBean(Map<String, Object> source, T target, BiFunction<Type, Object, Object> converter) {
-		fastCopyMapToBean(source, (Class) target.getClass(), target, converter);
+	public static <T> T fastCopyMapToBean(@Nonnull Map<String, Object> source, @Nonnull T target, BiFunction<Type, Object, Object> converter) {
+		return fastCopyMapToBean(source, (Class<T>) target.getClass(), target, converter);
 	}
 
-	public static <T> void fastCopyMapToBean(Map<String, Object> source, Class<T> targetType, T target, BiFunction<Type, Object, Object> converter) {
+	public static <T> T fastCopyMapToBean(@Nonnull Map<String, Object> source, @Nonnull Class<T> targetType, @Nonnull T target, BiFunction<Type, Object, Object> converter) {
 		BeanCopier.get(targetType).copyMapToBean(source, target, converter);
+		return target;
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	public static <T> void fastCopyMapToBean(Map<String, Object> source, T target, CopyOptions options) {
-		fastCopyMapToBean(source, (Class) target.getClass(), target, options);
+	public static <T> T fastCopyMapToBean(@Nonnull Map<String, Object> source, @Nonnull T target, @Nonnull CopyOptions options) {
+		return fastCopyMapToBean(source, (Class<T>) target.getClass(), target, options);
 	}
 
-	public static <T> void fastCopyMapToBean(Map<String, Object> source, Class<T> targetType, T target, CopyOptions options) {
+	public static <T> T fastCopyMapToBean(@Nonnull Map<String, Object> source, @Nonnull Class<T> targetType, @Nonnull T target, @Nonnull CopyOptions options) {
 		BeanCopier.get(targetType).copyMapToBean(source, target, options);
+		return target;
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	public static <S, T> void fastCopyBeanToBean(S source, T target) {
-		fastCopyBeanToBean((Class) source.getClass(), source, (Class) target.getClass(), target);
+	public static <S, T> T fastCopyBeanToBean(@Nonnull S source, @Nonnull T target) {
+		return fastCopyBeanToBean((Class<S>) source.getClass(), source, (Class<T>) target.getClass(), target);
 	}
 
-	public static <S, T> void fastCopyBeanToBean(Class<S> sourceType, S source, Class<T> targetType, T target) {
+	public static <S, T> T fastCopyBeanToBean(@Nonnull Class<S> sourceType, @Nonnull S source, @Nonnull Class<T> targetType, @Nonnull T target) {
 		BeanCopier.get(sourceType).copyBeanToBean(source, targetType, target);
+		return target;
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	public static <S, T> void fastCopyBeanToBean(S source, T target, CopyOptions options) {
-		fastCopyBeanToBean((Class) source.getClass(), source, (Class) target.getClass(), target, options);
+	@SuppressWarnings({"unchecked"})
+	public static <S, T> T fastCopyBeanToBean(@Nonnull S source, @Nonnull T target, @Nonnull CopyOptions options) {
+		return fastCopyBeanToBean((Class<S>) source.getClass(), source, (Class<T>) target.getClass(), target, options);
 	}
 
-	public static <S, T> void fastCopyBeanToBean(Class<S> sourceType, S source, Class<T> targetType, T target, CopyOptions options) {
+	public static <S, T> T fastCopyBeanToBean(@Nonnull Class<S> sourceType, @Nonnull S source, @Nonnull Class<T> targetType, @Nonnull T target, @Nonnull CopyOptions options) {
 		BeanCopier.get(sourceType).copyBeanToBean(source, targetType, target, options);
+		return target;
 	}
 
 
 	@SuppressWarnings("rawtypes")
-	public static void copyMapToMap(Map source, Map target, CopyOptions options) {
+	public static Map copyMapToMap(@Nonnull Map source, @Nonnull Map target, @Nonnull CopyOptions options) {
 		Copier<?> copier = new MapToMapCopier(source, new TypeRef<Map<String, Object>>() {}.getType(), target, options);
 		copier.copy();
+		return target;
 	}
 
 	@SuppressWarnings("rawtypes")
-	public static void copyMapToMap(Map source, Type targetType, Map target, CopyOptions options) {
+	public static Map copyMapToMap(@Nonnull Map source, @Nonnull Type targetType, @Nonnull Map target, @Nonnull CopyOptions options) {
 		Copier<?> copier = new MapToMapCopier(source, targetType, target, options);
 		copier.copy();
+		return target;
 	}
 
 	@SuppressWarnings("rawtypes")
-	public static <S> void copyBeanToMap(Type sourceType, S source, Type targetType, Map target, CopyOptions options) {
+	public static <S> Map copyBeanToMap(@Nonnull Type sourceType, @Nonnull S source, @Nonnull Type targetType, @Nonnull Map target, @Nonnull CopyOptions options) {
 		@SuppressWarnings("rawtypes")
 		Copier<Map> copier = new BeanToMapCopier<>(sourceType, source, targetType, target, options);
 		copier.copy();
+		return target;
 	}
 
 	@SuppressWarnings("rawtypes")
-	public static <S> void copyBeanToMap(Type sourceType, S source, Map target, CopyOptions options) {
+	public static <S> Map copyBeanToMap(@Nonnull Type sourceType, @Nonnull S source, @Nonnull Map target, @Nonnull CopyOptions options) {
 		@SuppressWarnings("rawtypes")
 		Copier<Map> copier = new BeanToMapCopier<>(sourceType, source, new TypeRef<Map<String, Object>>() {}.getType(), target, options);
 		copier.copy();
+		return target;
 	}
 
 	@SuppressWarnings("rawtypes")
-	public static <S> void copyBeanToMap(S source, Type targetType, Map target, CopyOptions options) {
+	public static <S> Map copyBeanToMap(@Nonnull S source, @Nonnull Type targetType, @Nonnull Map target, @Nonnull CopyOptions options) {
 		@SuppressWarnings("rawtypes")
 		Copier<Map> copier = new BeanToMapCopier<>(source.getClass(), source, targetType, target, options);
 		copier.copy();
+		return target;
 	}
 
 	@SuppressWarnings("rawtypes")
-	public static <S> void copyBeanToMap(S source, Map target, CopyOptions options) {
+	public static <S> Map copyBeanToMap(@Nonnull S source, @Nonnull Map target, @Nonnull CopyOptions options) {
 		@SuppressWarnings("rawtypes")
 		Copier<Map> copier = new BeanToMapCopier<>(source.getClass(), source, new TypeRef<Map<String, Object>>() {}.getType(), target, options);
 		copier.copy();
+		return target;
 	}
 
 	@SuppressWarnings("rawtypes")
-	public static <T> void copyMapToBean(Map source, Type targetType, T target, CopyOptions options) {
+	public static <T> T copyMapToBean(@Nonnull Map source, @Nonnull Type targetType, @Nonnull T target, @Nonnull CopyOptions options) {
 		Copier<T> copier = new MapToBeanCopier<>(source, targetType, target, options);
 		copier.copy();
+		return target;
 	}
 
 	@SuppressWarnings("rawtypes")
-	public static <T> void copyMapToBean(Map source, T target, CopyOptions options) {
+	public static <T> T copyMapToBean(@Nonnull Map source, @Nonnull T target, @Nonnull CopyOptions options) {
 		Copier<T> copier = new MapToBeanCopier<>(source, target.getClass(), target, options);
 		copier.copy();
+		return target;
 	}
 
-	public static <S, T> void copyBeanToBean(Type sourceType, S source, Type targetType, T target, CopyOptions options) {
+	public static <S, T> T copyBeanToBean(@Nonnull Type sourceType, @Nonnull S source, @Nonnull Type targetType, @Nonnull T target, @Nonnull CopyOptions options) {
 		Copier<T> copier = new BeanToBeanCopier<>(sourceType, source, targetType, target, options);
 		copier.copy();
+		return target;
 	}
 
-	public static <S, T> void copyBeanToBean(S source, Type targetType, T target, CopyOptions options) {
+	public static <S, T> T copyBeanToBean(@Nonnull S source, @Nonnull Type targetType, @Nonnull T target, @Nonnull CopyOptions options) {
 		Copier<T> copier = new BeanToBeanCopier<>(source.getClass(), source, targetType, target, options);
 		copier.copy();
+		return target;
 	}
 
-	public static <S, T> void copyBeanToBean(Type sourceType, S source, T target, CopyOptions options) {
+	public static <S, T> T copyBeanToBean(@Nonnull Type sourceType, @Nonnull S source, @Nonnull T target, @Nonnull CopyOptions options) {
 		Copier<T> copier = new BeanToBeanCopier<>(sourceType, source, target.getClass(), target, options);
 		copier.copy();
+		return target;
 	}
 
-	public static <S, T> void copyBeanToBean(S source, T target, CopyOptions options) {
+	public static <S, T> T copyBeanToBean(@Nonnull S source, @Nonnull T target, @Nonnull CopyOptions options) {
 		Copier<T> copier = new BeanToBeanCopier<>(source.getClass(), source, target.getClass(), target, options);
 		copier.copy();
+		return target;
 	}
 
-	public static <E> E copy(Object source, E target) {
+	public static <E> E copy(@Nonnull Object source, @Nonnull E target) {
 		return create(source.getClass(), source, target.getClass(), target, null).copy();
 	}
 
-	public static <E> E copy(Object source, E target, CopyOptions options) {
+	public static <E> E copy(@Nonnull Object source, @Nonnull E target, CopyOptions options) {
 		return create(source.getClass(), source, target.getClass(), target, options).copy();
 	}
 
-	public static <E> E copy(Object source, Type targetType, E target) {
+	public static <E> E copy(@Nonnull Object source, @Nonnull Type targetType, @Nonnull E target) {
 		return create(source.getClass(), source, targetType, target, null).copy();
 	}
 
-	public static <E> E copy(Object source, Type targetType, E target, CopyOptions options) {
+	public static <E> E copy(@Nonnull Object source, @Nonnull Type targetType, @Nonnull E target, CopyOptions options) {
 		return create(source.getClass(), source, targetType, target, options).copy();
 	}
 
-	public static <E> E copy(Type sourceType, Object source, E target, Type targetType, CopyOptions options) {
+	public static <E> E copy(@Nonnull Type sourceType, @Nonnull Object source, @Nonnull E target, @Nonnull Type targetType, CopyOptions options) {
 		return create(sourceType, source, targetType, target, options).copy();
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <E> Copier<E> create(Type sourceType, Object source, Type targetType, E target, CopyOptions options) {
+	public static <E> Copier<E> create(@Nonnull Type sourceType, @Nonnull Object source, @Nonnull Type targetType, @Nonnull E target, CopyOptions options) {
 		Copier<E> copier;
 		if (source instanceof Map) {
 			if (target instanceof Map) {
@@ -246,19 +270,19 @@ public class Copiers {
 		return copier;
 	}
 
-	public static <E> Copier<E> create(Object source, E target) {
+	public static <E> Copier<E> create(@Nonnull Object source, @Nonnull E target) {
 		return create(source.getClass(), source, target.getClass(), target, null);
 	}
 
-	public static <E> Copier<E> create(Object source, E target, CopyOptions options) {
+	public static <E> Copier<E> create(@Nonnull Object source, @Nonnull E target, CopyOptions options) {
 		return create(source.getClass(), source, target.getClass(), target, options);
 	}
 
-	public static <E> Copier<E> create(Object source, Type targetType, E target) {
+	public static <E> Copier<E> create(@Nonnull Object source, @Nonnull Type targetType, @Nonnull E target) {
 		return create(source.getClass(), source, targetType, target, null);
 	}
 
-	public static <E> Copier<E> create(Object source, Type targetType, E target, CopyOptions options) {
+	public static <E> Copier<E> create(@Nonnull Object source, @Nonnull Type targetType, @Nonnull E target, CopyOptions options) {
 		return create(source.getClass(), source, targetType, target, options);
 	}
 

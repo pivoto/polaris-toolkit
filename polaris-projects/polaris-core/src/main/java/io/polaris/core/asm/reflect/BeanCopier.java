@@ -14,6 +14,8 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import javax.annotation.Nonnull;
+
 import io.polaris.core.asm.AsmUtils;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.TypeRef;
@@ -63,29 +65,29 @@ public abstract class BeanCopier<S> {
 
 	protected abstract void initTypeFields();
 
-	public abstract void copyBeanToMap(S source, Map<String, Object> target);
+	public abstract void copyBeanToMap(@Nonnull S source, @Nonnull Map<String, Object> target);
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
-	public final <K, V> void copyBeanToMap(S source, java.lang.reflect.Type targetType, Map<K, V> target, BiFunction<java.lang.reflect.Type, Object, Object> converter) {
+	public final <K, V> void copyBeanToMap(@Nonnull S source, @Nonnull java.lang.reflect.Type targetType, @Nonnull Map<K, V> target, BiFunction<java.lang.reflect.Type, Object, Object> converter) {
 		JavaType javaType = JavaType.of(targetType);
 		JavaType keyType = JavaType.of(javaType.getActualType(Map.class, 0));
 		JavaType valueType = JavaType.of(javaType.getActualType(Map.class, 1));
 		copyBeanToMapByConverter(source, target, converter, keyType, valueType);
 	}
 
-	protected abstract void copyBeanToMapByConverter(Object source, Map target, BiFunction<java.lang.reflect.Type, Object, Object> converter, JavaType keyType, JavaType valueType);
+	protected abstract void copyBeanToMapByConverter(@Nonnull Object source, @Nonnull Map target, BiFunction<java.lang.reflect.Type, Object, Object> converter, @Nonnull JavaType keyType, @Nonnull JavaType valueType);
 
-	public abstract void copyMapToBean(Map<String, Object> source, S target);
+	public abstract void copyMapToBean(@Nonnull Map<String, Object> source, @Nonnull S target);
 
-	public abstract void copyMapToBean(Map<String, Object> source, S target, BiFunction<java.lang.reflect.Type, Object, Object> converter);
+	public abstract void copyMapToBean(@Nonnull Map<String, Object> source, @Nonnull S target, BiFunction<java.lang.reflect.Type, Object, Object> converter);
 
 	@SuppressWarnings({"unchecked"})
-	public final <T> void copyBeanToBean(S source, T target) {
+	public final <T> void copyBeanToBean(@Nonnull S source, @Nonnull T target) {
 		copyBeanToBean(source, (Class<T>) target.getClass(), target);
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	public final <T> void copyBeanToBean(S source, Class<T> type, T target) {
+	public final <T> void copyBeanToBean(@Nonnull S source, Class<T> type, @Nonnull T target) {
 		Class<T> targetType = type == null ? (Class<T>) target.getClass() : type;
 		// 完全相同时，直接拷贝同属性，否则即使有继承关系也可能存在属性、字段覆盖等问题，需要按不同类型处理
 		if (sourceType.equals(targetType)) {
@@ -97,23 +99,23 @@ public abstract class BeanCopier<S> {
 		}
 	}
 
-	protected abstract void copyBeanToBeanBySameType(S source, S target);
+	protected abstract void copyBeanToBeanBySameType(@Nonnull S source, @Nonnull S target);
 
-	public final void copyBeanToMap(S source, Map<String, Object> target, CopyOptions options) {
+	public final void copyBeanToMap(@Nonnull S source, @Nonnull Map<String, Object> target, @Nonnull CopyOptions options) {
 		copyBeanToMap(source, new TypeRef<Map<String, Object>>() {}.getType(), target, options);
 	}
 
-	public final <K, V> void copyBeanToMap(S source, java.lang.reflect.Type targetType, Map<K, V> target, CopyOptions options) {
+	public final <K, V> void copyBeanToMap(@Nonnull S source, @Nonnull java.lang.reflect.Type targetType, @Nonnull Map<K, V> target, @Nonnull CopyOptions options) {
 		JavaType javaType = JavaType.of(targetType);
 		JavaType keyType = JavaType.of(javaType.getActualType(Map.class, 0));
 		JavaType valueType = JavaType.of(javaType.getActualType(Map.class, 1));
 		copyBeanToMapByOptions(source, target, options, keyType, valueType);
 	}
 
-	protected abstract <K, V> void copyBeanToMapByOptions(S source, Map<K, V> target, CopyOptions options, JavaType keyType, JavaType valueType);
+	protected abstract <K, V> void copyBeanToMapByOptions(@Nonnull S source, @Nonnull Map<K, V> target, @Nonnull CopyOptions options, @Nonnull JavaType keyType, @Nonnull JavaType valueType);
 
 
-	protected final void copyBeanToMapWithKeyByOptions(Map target, CopyOptions options, JavaType keyType, JavaType valueType, String sourceKey, Object sourceValue) {
+	protected final void copyBeanToMapWithKeyByOptions(@Nonnull Map target, @Nonnull CopyOptions options, @Nonnull JavaType keyType, @Nonnull JavaType valueType, String sourceKey, Object sourceValue) {
 		if (sourceValue == null && options.ignoreNull()) {
 			return;
 		}
@@ -144,7 +146,7 @@ public abstract class BeanCopier<S> {
 	}
 
 
-	public final void copyMapToBean(Map<String, Object> source, S target, CopyOptions options) {
+	public final void copyMapToBean(@Nonnull Map<String, Object> source, @Nonnull S target, @Nonnull CopyOptions options) {
 		Set<String> targetKeys = new LinkedHashSet<>(this.properties.size());
 		this.properties.forEach((k, v) -> {
 			if (v.hasSetter()) {
@@ -216,23 +218,23 @@ public abstract class BeanCopier<S> {
 		}
 	}
 
-	protected abstract void copyMapToBeanWithCustomKeys(Map<String, Object> source, Object target, CopyOptions options, Set<String> targetKeys, Map<String, String> keyMapping);
+	protected abstract void copyMapToBeanWithCustomKeys(@Nonnull Map<String, Object> source, @Nonnull Object target, @Nonnull CopyOptions options, @Nonnull Set<String> targetKeys, @Nonnull Map<String, String> keyMapping);
 
-	protected abstract void copyMapToBeanWithSameKeys(Map<String, Object> source, Object target, CopyOptions options, Set<String> targetKeys);
+	protected abstract void copyMapToBeanWithSameKeys(@Nonnull Map<String, Object> source, @Nonnull Object target, @Nonnull CopyOptions options, @Nonnull Set<String> targetKeys);
 
-	protected abstract void copyMapToBeanWithCapitalizeKeys(Map<String, Object> source, Object target, CopyOptions options, Set<String> targetKeys);
+	protected abstract void copyMapToBeanWithCapitalizeKeys(@Nonnull Map<String, Object> source, @Nonnull Object target, @Nonnull CopyOptions options, @Nonnull Set<String> targetKeys);
 
-	protected abstract void copyMapToBeanWithUnderlineToCamelKeys(Map<String, Object> source, Object target, CopyOptions options, Set<String> targetKeys);
+	protected abstract void copyMapToBeanWithUnderlineToCamelKeys(@Nonnull Map<String, Object> source, @Nonnull Object target, @Nonnull CopyOptions options, @Nonnull Set<String> targetKeys);
 
-	protected abstract void copyMapToBeanWithCamelToUnderlineKeys(Map<String, Object> source, Object target, CopyOptions options, Set<String> targetKeys);
+	protected abstract void copyMapToBeanWithCamelToUnderlineKeys(@Nonnull Map<String, Object> source, @Nonnull Object target, @Nonnull CopyOptions options, @Nonnull Set<String> targetKeys);
 
 	@SuppressWarnings("unchecked")
-	public final <T> void copyBeanToBean(S source, T target, CopyOptions options) {
+	public final <T> void copyBeanToBean(@Nonnull S source, @Nonnull T target, @Nonnull CopyOptions options) {
 		copyBeanToBean(source, (Class<T>) target.getClass(), target, options);
 	}
 
 	@SuppressWarnings("unchecked")
-	public final <T> void copyBeanToBean(S source, Class<T> targetType, T target, CopyOptions options) {
+	public final <T> void copyBeanToBean(@Nonnull S source, @Nonnull Class<T> targetType, @Nonnull T target, @Nonnull CopyOptions options) {
 		if (!options.hasKeyMapping()) {
 			// 不需要动态处理key，生成静态代码
 			BeanOptionsCopier<S, T> copier = optionsCopiers.computeIfAbsent(targetType,
@@ -283,7 +285,7 @@ public abstract class BeanCopier<S> {
 		}
 	}
 
-	protected final <T> void copyBeanToBeanWithDynamicKeyMappings(BeanAccess<S> sourceBeanAccess, S source, BeanAccess<T> targetBeanAccess, T target, CopyOptions options, Set<String> targetKeys, List<Tuple2<BeanPropertyInfo, BeanPropertyInfo>> mapping) {
+	protected final <T> void copyBeanToBeanWithDynamicKeyMappings(@Nonnull BeanAccess<S> sourceBeanAccess, @Nonnull S source,@Nonnull  BeanAccess<T> targetBeanAccess, @Nonnull T target, @Nonnull CopyOptions options, @Nonnull Set<String> targetKeys, @Nonnull List<Tuple2<BeanPropertyInfo, BeanPropertyInfo>> mapping) {
 		for (Tuple2<BeanPropertyInfo, BeanPropertyInfo> tuple : mapping) {
 			String sourceKey = tuple.getFirst().getPropertyName();
 			String targetKey = tuple.getSecond().getPropertyName();
@@ -297,7 +299,7 @@ public abstract class BeanCopier<S> {
 		}
 	}
 
-	protected final <T> void copyBeanToBeanWithDynamicKeyMapping(BeanAccess<T> targetBeanAccess, T target, String sourceKey, String targetKey, Supplier<Object> valueSupplier, CopyOptions options, Set<String> targetKeys) {
+	protected final <T> void copyBeanToBeanWithDynamicKeyMapping(@Nonnull BeanAccess<T> targetBeanAccess,@Nonnull  T target, @Nonnull String sourceKey,@Nonnull  String targetKey, @Nonnull Supplier<Object> valueSupplier, @Nonnull CopyOptions options,@Nonnull  Set<String> targetKeys) {
 		if (options.isIgnoredKey(sourceKey) || !targetKeys.contains(targetKey)) {
 			return;
 		}
@@ -368,7 +370,7 @@ public abstract class BeanCopier<S> {
 		}
 	}
 
-	protected final void resolveCopyError(String propertyName, Throwable e, CopyOptions options) {
+	protected final void resolveCopyError(@Nonnull String propertyName, @Nonnull Throwable e, @Nonnull CopyOptions options) {
 		String msg = "复制属性[" + propertyName + "]失败";
 		if (options.ignoreError()) {
 			log.warn(msg + ": " + e.getMessage());
@@ -380,15 +382,15 @@ public abstract class BeanCopier<S> {
 		}
 	}
 
-	protected final java.lang.reflect.Type getPropertyGenericType(String propertyName) {
+	protected final java.lang.reflect.Type getPropertyGenericType(@Nonnull String propertyName) {
 		return properties.get(propertyName).getPropertyGenericType();
 	}
 
-	protected final Class<?> getPropertyType(String propertyName) {
+	protected final Class<?> getPropertyType(@Nonnull String propertyName) {
 		return properties.get(propertyName).getPropertyType();
 	}
 
-	protected final Object convert(java.lang.reflect.Type type, Object value, BiFunction<java.lang.reflect.Type, Object, Object> converter) {
+	protected final Object convert(@Nonnull java.lang.reflect.Type type, Object value, BiFunction<java.lang.reflect.Type, Object, Object> converter) {
 		if (value == null) {
 			return null;
 		}
@@ -402,12 +404,12 @@ public abstract class BeanCopier<S> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> BeanCopier<T> get(Class<T> type) {
+	public static <T> BeanCopier<T> get(@Nonnull Class<T> type) {
 		return pool.computeIfAbsent(type, BeanCopier::create);
 	}
 
 	@SuppressWarnings({"unchecked"})
-	public static <T> BeanCopier<T> create(Class<T> type) {
+	public static <T> BeanCopier<T> create(@Nonnull Class<T> type) {
 		BeanPropertyInfo.Classification classification = BeanPropertyInfo.classify(type);
 		String accessClassName = AccessClassLoader.buildAccessClassName(type, BeanCopier.class);
 

@@ -38,7 +38,7 @@ import io.polaris.core.string.StringCases;
 public class Beans {
 	private static final ILogger log = ILoggers.of(Beans.class);
 
-	public static boolean isBeanClass(Class clazz) {
+	public static boolean isBeanClass(@Nonnull Class clazz) {
 		for (Method method : clazz.getMethods()) {
 			// 检测包含标准的setter方法即视为标准的JavaBean
 			if (Reflects.isSetterMethod(method)) {
@@ -48,78 +48,62 @@ public class Beans {
 		return false;
 	}
 
-	public static <T> BeanMapBuilder<T> newBeanMapBuilder(T bean) {
+	public static <T> BeanMapBuilder<T> newBeanMapBuilder(@Nonnull T bean) {
 		return BeanMapBuilder.of(bean);
 	}
 
-	public static <T> BeanMap<T> newBeanMap(T bean, Class<?> beanType, BeanMapOptions options) {
+	public static <T> BeanMap<T> newBeanMap(@Nonnull T bean, @Nonnull Class<?> beanType, BeanMapOptions options) {
 		return BeanMapBuilder.of(bean).beanType(beanType).options(options).build();
 	}
 
-	public static <T> BeanMap<T> newBeanMap(T bean, Class<?> beanType) {
+	public static <T> BeanMap<T> newBeanMap(@Nonnull T bean, @Nonnull Class<?> beanType) {
 		return BeanMapBuilder.of(bean).beanType(beanType).build();
 	}
 
-	public static <T> BeanMap<T> newBeanMap(T bean) {
+	public static <T> BeanMap<T> newBeanMap(@Nonnull T bean) {
 		return new BeanMapBuilder<T>(bean).build();
 	}
 
-	public static <T> BeanMap<T> newBeanMap(T bean, BiFunction<Type, Object, Object> converter) {
+	public static <T> BeanMap<T> newBeanMap(@Nonnull T bean, BiFunction<Type, Object, Object> converter) {
 		return new BeanMapBuilder<T>(bean)
 			.options(BeanMapOptions.newOptions().enableConverter(true).converter(converter))
 			.build();
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
-	public static <T> T copyBean(Object source, T target) {
+	public static <T> T copyBean(@Nonnull Object source, @Nonnull T target) {
 		BeanCopier copier = BeanCopier.get(source.getClass());
 		copier.copyBeanToBean(source, target);
 		return target;
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
-	public static <T> T copyBean(Object source, Class<T> clazz) {
+	public static <T> T copyBean(@Nonnull Object source, @Nonnull Class<T> clazz) {
 		T target = Reflects.newInstanceIfPossible(clazz);
 		BeanCopier copier = BeanCopier.get(source.getClass());
 		copier.copyBeanToBean(source, target);
 		return target;
 	}
 
-	public static <T> T copyBean(Object source, Class<T> clazz, CopyOptions options) {
+	public static <T> T copyBean(@Nonnull Object source, @Nonnull Class<T> clazz, CopyOptions options) {
 		return copyBean(source, () -> Reflects.newInstanceIfPossible(clazz), options);
 	}
 
-	public static <T> T copyBean(Object source, Supplier<T> targetSupplier, CopyOptions options) {
-		if (null == source || null == targetSupplier) {
-			return null;
-		}
+	public static <T> T copyBean(@Nonnull Object source, @Nonnull Supplier<T> targetSupplier, CopyOptions options) {
 		T target = targetSupplier.get();
 		copyBean(source, target, options);
 		return target;
 	}
 
-	public static void copyBean(Object source, Object target, CopyOptions copyOptions) {
-		if (null == source) {
-			return;
-		}
-		Copiers.fastCopy(source, target, (copyOptions != null ? copyOptions : CopyOptions.create()));
+	public static void copyBean(@Nonnull Object source, @Nonnull Object target, @Nullable CopyOptions options) {
+		Copiers.fastCopy(source, target, (options != null ? options : CopyOptions.create()));
 	}
 
-	public static Map<String, Object> copyBean(Object bean, boolean isUnderlineCase, boolean ignoreNull) {
-		if (null == bean) {
-			return null;
-		}
-		return copyBean(bean, new LinkedHashMap<>(), isUnderlineCase, ignoreNull);
+	public static Map<String, Object> newMapFromBean(@Nonnull Object bean, boolean isUnderlineCase, boolean ignoreNull) {
+		return copyBeanToMap(bean, new LinkedHashMap<>(), isUnderlineCase, ignoreNull);
 	}
 
-	public static Map<String, Object> copyBean(Object bean, Map<String, Object> targetMap, boolean isUnderlineCase, boolean ignoreNull) {
-		if (null == bean) {
-			return null;
-		}
-		return copyBean(bean, targetMap, ignoreNull, key -> isUnderlineCase ? StringCases.camelToUnderlineCase(key) : key);
-	}
-
-	public static Map<String, Object> copyBean(Object bean, String... properties) {
+	public static Map<String, Object> newMapFromBean(@Nonnull Object bean, String... properties) {
 		int mapSize = 16;
 		Function<String, String> keyMapping = null;
 		if (properties.length > 0) {
@@ -128,35 +112,36 @@ public class Beans {
 			keyMapping = property -> propertiesSet.contains(property) ? property : null;
 		}
 		// 指明了要复制的属性 所以不忽略null值
-		return copyBean(bean, new LinkedHashMap<>(mapSize), false, keyMapping);
+		return copyBeanToMap(bean, new LinkedHashMap<>(mapSize), false, keyMapping);
 	}
 
-	public static Map<String, Object> copyBean(Object bean, Map<String, Object> targetMap, boolean ignoreNull, Function<String, String> keyMapping) {
-		if (null == bean) {
-			return null;
-		}
+	public static Map<String, Object> copyBeanToMap(@Nonnull Object bean, @Nonnull Map<String, Object> targetMap, boolean isUnderlineCase, boolean ignoreNull) {
+		return copyBeanToMap(bean, targetMap, ignoreNull, isUnderlineCase ? StringCases::camelToUnderlineCase : null);
+	}
+
+	public static Map<String, Object> copyBeanToMap(@Nonnull Object bean, @Nonnull Map<String, Object> targetMap, boolean ignoreNull, @Nullable Function<String, String> keyMapping) {
 		return Copiers.fastCopy(bean, targetMap, CopyOptions.create().ignoreNull(ignoreNull).keyMapping(keyMapping));
 	}
 
 
-	public static <T> PropertyBuilder<T> newPropertyBuilder(T dest) {
+	public static <T> PropertyBuilder<T> newPropertyBuilder(@Nonnull T dest) {
 		return new StdPropertyBuilder<>(dest);
 	}
 
-	public static <T> PropertyBuilder<T> newPropertyBuilder(Class<T> destType) {
+	public static <T> PropertyBuilder<T> newPropertyBuilder(@Nonnull Class<T> destType) {
 		return new StdPropertyBuilder<>(destType);
 	}
 
-	public static <T> PropertyBuilder<List<T>> newPropertyBuilder(List<T> list, Class<T> type) {
+	public static <T> PropertyBuilder<List<T>> newPropertyBuilder(@Nonnull List<T> list, @Nonnull Class<T> type) {
 		return new ListPropertyBuilder<T>(list, type);
 	}
 
-	public static <T> PropertyBuilder<List<T>> newPropertyBuilder(List<T> list, Class<T> type, int size) {
+	public static <T> PropertyBuilder<List<T>> newPropertyBuilder(@Nonnull List<T> list, @Nonnull Class<T> type, int size) {
 		return new ListPropertyBuilder<T>(list, type, size);
 	}
 
 
-	public static void setProperty(Object bean, String name, Object value) {
+	public static void setProperty(@Nonnull Object bean, @Nonnull String name, Object value) {
 		if (bean instanceof Map) {
 			//noinspection rawtypes,unchecked
 			((Map) bean).put(name, value);
@@ -184,7 +169,7 @@ public class Beans {
 	}
 
 
-	public static Object getProperty(Object bean, String name) {
+	public static Object getProperty(@Nonnull Object bean, @Nonnull String name) {
 		if (bean instanceof Map) {
 			//noinspection rawtypes
 			return ((Map) bean).get(name);
@@ -194,17 +179,17 @@ public class Beans {
 		}
 	}
 
-	public static Object getPathProperty(Object o, String property) {
+	public static Object getPathProperty(@Nonnull Object o, @Nonnull String property) {
 		return getPathProperty(o, parseProperty(property));
 	}
 
-	public static void setPathProperty(Object o, String property, Object val) {
+	public static void setPathProperty(@Nonnull Object o, @Nonnull String property, Object val) {
 		setPathProperty(o, parseProperty(property), val);
 	}
 
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	static void setPathProperty(Object obj, Deque<String> properties, Object val) {
+	private static void setPathProperty(@Nonnull Object obj, @Nonnull Deque<String> properties, Object val) {
 		String property = properties.pollLast();
 		Object matrix = obj;
 		if (!properties.isEmpty()) {
@@ -232,7 +217,7 @@ public class Beans {
 	}
 
 	@SuppressWarnings({"rawtypes"})
-	static Object getPathProperty(Object obj, Deque<String> properties) {
+	private static Object getPathProperty(@Nonnull Object obj, @Nonnull Deque<String> properties) {
 		Object val = obj;
 		for (String property : properties) {
 			try {
@@ -262,7 +247,7 @@ public class Beans {
 		return val;
 	}
 
-	public static Deque<String> parseProperty(String property) {
+	public static Deque<String> parseProperty(@Nonnull String property) {
 		char[] charArray = property.toCharArray();
 		StringBuilder sb = new StringBuilder();
 		boolean escape = false;
@@ -317,45 +302,45 @@ public class Beans {
 
 
 	@Nullable
-	public static <T> PropertyAccessor getIndexedPropertyAccessor(Class<T> beanType, String name) {
+	public static <T> PropertyAccessor getIndexedPropertyAccessor(@Nonnull Class<T> beanType, @Nonnull String name) {
 		return getIndexedPropertyAccessors(beanType).get(name);
 	}
 
 	@Nullable
-	public static <T> PropertyAccessor getIndexedFieldAndPropertyAccessor(Class<T> beanType, String name) {
+	public static <T> PropertyAccessor getIndexedFieldAndPropertyAccessor(@Nonnull Class<T> beanType, @Nonnull String name) {
 		return getIndexedFieldAndPropertyAccessors(beanType).get(name);
 	}
 
 	@Nullable
-	public static <T> PropertyAccessor getLambdaPropertyAccessor(Class<T> beanType, String name) {
+	public static <T> PropertyAccessor getLambdaPropertyAccessor(@Nonnull Class<T> beanType, @Nonnull String name) {
 		return getLambdaPropertyAccessors(beanType).get(name);
 	}
 
 	@Nullable
-	public static <T> PropertyAccessor getLambdaFieldAndPropertyAccessor(Class<T> beanType, String name) {
+	public static <T> PropertyAccessor getLambdaFieldAndPropertyAccessor(@Nonnull Class<T> beanType, @Nonnull String name) {
 		return getLambdaFieldAndPropertyAccessors(beanType).get(name);
 	}
 
 	@Nonnull
-	public static <T> Map<String, PropertyAccessor> getIndexedPropertyAccessors(Class<T> beanType) {
+	public static <T> Map<String, PropertyAccessor> getIndexedPropertyAccessors(@Nonnull Class<T> beanType) {
 		Map<String, PropertyAccessor>[] metadata = IndexedCache.getMetadata(beanType);
 		return metadata[0];
 	}
 
 	@Nonnull
-	public static <T> Map<String, PropertyAccessor> getIndexedFieldAndPropertyAccessors(Class<T> beanType) {
+	public static <T> Map<String, PropertyAccessor> getIndexedFieldAndPropertyAccessors(@Nonnull Class<T> beanType) {
 		Map<String, PropertyAccessor>[] metadata = IndexedCache.getMetadata(beanType);
 		return metadata[1];
 	}
 
 	@Nonnull
-	public static <T> Map<String, PropertyAccessor> getLambdaPropertyAccessors(Class<T> beanType) {
+	public static <T> Map<String, PropertyAccessor> getLambdaPropertyAccessors(@Nonnull Class<T> beanType) {
 		Map<String, PropertyAccessor>[] metadata = LambdaCache.getMetadata(beanType);
 		return metadata[0];
 	}
 
 	@Nonnull
-	public static <T> Map<String, PropertyAccessor> getLambdaFieldAndPropertyAccessors(Class<T> beanType) {
+	public static <T> Map<String, PropertyAccessor> getLambdaFieldAndPropertyAccessors(@Nonnull Class<T> beanType) {
 		Map<String, PropertyAccessor>[] metadata = LambdaCache.getMetadata(beanType);
 		return metadata[1];
 	}

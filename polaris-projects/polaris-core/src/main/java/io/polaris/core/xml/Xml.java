@@ -1125,7 +1125,7 @@ public class Xml {
 		if (null == bean) {
 			return null;
 		}
-		return mapToXml(Beans.copyBean(bean, false, ignoreNull),
+		return mapToXml(Beans.newMapFromBean(bean, false, ignoreNull),
 			bean.getClass().getSimpleName(), namespace);
 	}
 
