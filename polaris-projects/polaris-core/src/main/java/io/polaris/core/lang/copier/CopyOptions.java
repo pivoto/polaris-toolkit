@@ -8,11 +8,23 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import io.polaris.core.asm.reflect.BeanCopier;
 import io.polaris.core.converter.Converters;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.Types;
 
 /**
+ * 默认规则（与{@linkplain BeanCopier}默认规则尽量保持一致）：
+ * <ul>
+ * <li>ignoreError: true</li>
+ * <li>ignoreNull: true</li>
+ * <li>override: true</li>
+ * <li>ignoreCase: false</li>
+ * <li>ignoreCapitalize: false</li>
+ * <li>enableUnderlineToCamelCase: false</li>
+ * <li>enableCamelToUnderlineCase: false</li>
+ * <li>enableConverter: true</li>
+ * </ul>
  * @author Qt
  * @since 1.8
  */

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-BETA=0
-VER=3.1.26
+BETA=1
+VER=3.1.27
 if [[ ${BETA} -eq 1 ]];then
 	VER=${VER}-SNAPSHOT
 fi

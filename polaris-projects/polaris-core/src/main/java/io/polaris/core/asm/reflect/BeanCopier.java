@@ -35,6 +35,13 @@ import org.objectweb.asm.Type;
 import static org.objectweb.asm.Opcodes.*;
 
 /**
+ * 提供Bean属性复制方法，包含基本方法与可定制方法。
+ * <ul>
+ *   <li>基本方法：需要属性名完全匹配且字段类型兼容，复制过程忽略空值，非空值则直接覆盖目标属性值（无视目标属性原值），如提供类型转换器参数，则尽可能转换属性类型以适配目标</li>
+ *   <li>定制方法：可通过{@linkplain CopyOptions}参数定制规则，{@linkplain CopyOptions}参数默认值与基本复制方法规则保持一致，可定制如支持下划线与驼峰格式转换、不覆盖目标值、不忽略空值、属性key自定义转换、自定义类型转换器等规则</li>
+ * </ul>
+ * 定制方法与基本方法相关性能会有所影响。
+ *
  * @author Qt
  * @since 1.8,  Apr 14, 2024
  */
@@ -175,7 +182,7 @@ public abstract class BeanCopier<S> {
 			Map<String, Object> upperCaseSource = null;
 			if (!options.hasKeyMapping()) {
 				if (upperCaseSource == null) {
-					upperCaseSource = new CaseInsensitiveMap(HashMap::new,source);
+					upperCaseSource = new CaseInsensitiveMap(HashMap::new, source);
 				}
 				copyMapToBeanWithSameKeys(upperCaseSource, target, options, targetKeys);
 			} else {
@@ -196,13 +203,13 @@ public abstract class BeanCopier<S> {
 			}
 			if (options.enableUnderlineToCamelCase() && !targetKeys.isEmpty()) {
 				if (upperCaseSource == null) {
-					upperCaseSource = new CaseInsensitiveMap(HashMap::new,source);
+					upperCaseSource = new CaseInsensitiveMap(HashMap::new, source);
 				}
 				copyMapToBeanWithUnderlineToCamelKeys(upperCaseSource, target, options, targetKeys);
 			}
 			if (options.enableCamelToUnderlineCase() && !targetKeys.isEmpty()) {
 				if (upperCaseSource == null) {
-					upperCaseSource = new CaseInsensitiveMap(HashMap::new,source);
+					upperCaseSource = new CaseInsensitiveMap(HashMap::new, source);
 				}
 				copyMapToBeanWithCamelToUnderlineKeys(upperCaseSource, target, options, targetKeys);
 			}
