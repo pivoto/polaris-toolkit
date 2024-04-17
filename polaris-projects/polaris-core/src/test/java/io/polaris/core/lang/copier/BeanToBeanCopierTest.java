@@ -20,7 +20,7 @@ class BeanToBeanCopierTest {
 
 		CopyOptions copyOptions = CopyOptions.create();
 		CopyOptions copyOptions1 = copyOptions.ignoreNull(true).override(false);
-		B t = Copiers.create(a, b, B.class,
+		B t = Copiers.create(a, B.class, b,
 			copyOptions1.ignoreCase(true)
 		).copy();
 		TestConsole.println(a);

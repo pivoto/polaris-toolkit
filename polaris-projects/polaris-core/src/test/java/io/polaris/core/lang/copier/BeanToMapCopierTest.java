@@ -20,8 +20,8 @@ class BeanToMapCopierTest {
 		CopyOptions copyOptions = CopyOptions.create();
 		CopyOptions copyOptions1 = copyOptions
 			.ignoreNull(true).override(false);
-		Copiers.create(b, m, new TypeRef<Map<String, Object>>() {
-			}.getType(),
+		Copiers.create(b, new TypeRef<Map<String, Object>>() {
+			}.getType(), m,
 			copyOptions1.ignoreCase(true)
 		).copy();
 		TestConsole.println(b);
@@ -39,7 +39,7 @@ class BeanToMapCopierTest {
 		b.name = "b.name";
 		CopyOptions copyOptions = CopyOptions.create();
 		CopyOptions copyOptions1 = copyOptions.ignoreNull(true).override(false);
-		Copiers.create(a, b, B.class,
+		Copiers.create(a, B.class, b,
 			copyOptions1.ignoreCase(true)
 		).copy();
 		TestConsole.println(a);

@@ -21,21 +21,26 @@ import io.polaris.core.string.StringCases;
  * @since 1.8
  */
 @SuppressWarnings("rawtypes")
-public class MapToBeanCopier<T> extends BaseCopier<Map, T> {
+public class MapToBeanCopier<T> implements Copier<T> {
 	private static final ILogger log = ILoggers.of(MapToBeanCopier.class);
+	private final Map source;
+	private final T target;
+	private final Type targetType;
+	private final CopyOptions options;
 
 	/**
-	 * @param source      来源Map
-	 * @param sourceType  来源类型
-	 * @param target      目标Bean对象
-	 * @param targetType  目标类型
-	 * @param copyOptions 拷贝选项
+	 * @param source     来源Map
+	 * @param targetType 目标类型
+	 * @param target     目标Bean对象
+	 * @param options    拷贝选项
 	 */
-	public MapToBeanCopier(Map source, Type sourceType, T target, Type targetType, CopyOptions copyOptions) {
-		super(source, sourceType, target, targetType, copyOptions);
+	public MapToBeanCopier(Map source, Type targetType, T target, CopyOptions options) {
+		this.source = source;
+		this.target = target;
+		this.targetType = targetType != null ? targetType : target.getClass();
+		this.options = options != null ? options : CopyOptions.create();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public T copy() {
 		try {

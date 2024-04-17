@@ -1,12 +1,8 @@
 package io.polaris.core.lang.copier;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
 import io.polaris.core.lang.JavaType;
@@ -16,27 +12,33 @@ import io.polaris.core.lang.bean.PropertyAccessor;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
 import io.polaris.core.map.CaseInsensitiveMap;
-import io.polaris.core.map.SetMultiMap;
 import io.polaris.core.string.StringCases;
-import io.polaris.core.tuple.Tuple2;
 
 /**
  * @author Qt
  * @since 1.8
  */
-@SuppressWarnings("rawtypes")
-public class BeanToBeanCopier<S, T> extends BaseCopier<S, T> {
+public class BeanToBeanCopier<S, T> implements Copier<T> {
 	private static final ILogger log = ILoggers.of(BeanToBeanCopier.class);
+	private final S source;
+	private final T target;
+	private final Type sourceType;
+	private final Type targetType;
+	private final CopyOptions options;
 
 	/**
-	 * @param source      来源Map
-	 * @param sourceType  来源类型
-	 * @param target      目标Bean对象
-	 * @param targetType  目标类型
-	 * @param copyOptions 拷贝选项
+	 * @param sourceType 来源类型
+	 * @param source     来源Map
+	 * @param targetType 目标类型
+	 * @param target     目标Bean对象
+	 * @param options    拷贝选项
 	 */
-	public BeanToBeanCopier(S source, Type sourceType, T target, Type targetType, CopyOptions copyOptions) {
-		super(source, sourceType, target, targetType, copyOptions);
+	public BeanToBeanCopier(Type sourceType, S source, Type targetType, T target, CopyOptions options) {
+		this.source = source;
+		this.target = target;
+		this.sourceType = sourceType != null ? sourceType : source.getClass();
+		this.targetType = targetType != null ? targetType : target.getClass();
+		this.options = options != null ? options : CopyOptions.create();
 	}
 
 	@Override
@@ -59,7 +61,7 @@ public class BeanToBeanCopier<S, T> extends BaseCopier<S, T> {
 				if (mapping == null) {
 					mapping = Function.identity();
 				}
-				copyProperties(sourceAccessors,mapping, targetAccessors);
+				copyProperties(sourceAccessors, mapping, targetAccessors);
 				if (targetAccessors.isEmpty()) {
 					break action;
 				}
@@ -77,7 +79,7 @@ public class BeanToBeanCopier<S, T> extends BaseCopier<S, T> {
 						}
 						return null;
 					};
-					copyProperties(sourceAccessors,mapping, targetAccessors);
+					copyProperties(sourceAccessors, mapping, targetAccessors);
 					if (targetAccessors.isEmpty()) {
 						break action;
 					}
@@ -91,7 +93,7 @@ public class BeanToBeanCopier<S, T> extends BaseCopier<S, T> {
 						}
 						return null;
 					};
-					copyProperties(sourceAccessors,mapping, targetAccessors);
+					copyProperties(sourceAccessors, mapping, targetAccessors);
 					if (targetAccessors.isEmpty()) {
 						break action;
 					}
@@ -105,7 +107,7 @@ public class BeanToBeanCopier<S, T> extends BaseCopier<S, T> {
 						}
 						return null;
 					};
-					copyProperties(sourceAccessors,mapping, targetAccessors);
+					copyProperties(sourceAccessors, mapping, targetAccessors);
 					if (targetAccessors.isEmpty()) {
 						break action;
 					}
@@ -114,7 +116,7 @@ public class BeanToBeanCopier<S, T> extends BaseCopier<S, T> {
 				if (options.ignoreCase()) {
 					Map<String, PropertyAccessor> upperTargetAccessors = new CaseInsensitiveMap<>(HashMap::new, targetAccessors);
 					mapping = key -> options.editKey(key).toUpperCase();
-					copyProperties(sourceAccessors,mapping, upperTargetAccessors);
+					copyProperties(sourceAccessors, mapping, upperTargetAccessors);
 					if (upperTargetAccessors.isEmpty()) {
 						break action;
 					}
@@ -127,7 +129,7 @@ public class BeanToBeanCopier<S, T> extends BaseCopier<S, T> {
 							}
 							return null;
 						};
-						copyProperties(sourceAccessors,mapping, upperTargetAccessors);
+						copyProperties(sourceAccessors, mapping, upperTargetAccessors);
 						if (upperTargetAccessors.isEmpty()) {
 							break action;
 						}
@@ -141,7 +143,7 @@ public class BeanToBeanCopier<S, T> extends BaseCopier<S, T> {
 							}
 							return null;
 						};
-						copyProperties(sourceAccessors,mapping, upperTargetAccessors);
+						copyProperties(sourceAccessors, mapping, upperTargetAccessors);
 					}
 				}
 			}

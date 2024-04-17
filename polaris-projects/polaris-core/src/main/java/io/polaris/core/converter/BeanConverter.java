@@ -51,7 +51,7 @@ public class BeanConverter<T> extends AbstractConverter<T> {
 
 		if (value instanceof Map || Beans.isBeanClass(value.getClass())) {
 			T target = Reflects.newInstanceIfPossible(targetType.getRawClass());
-			return Copiers.copy(value, target, targetType.getRawType(), copyOptions);
+			return Copiers.copy(value, targetType.getRawType(), target, copyOptions);
 		}
 		if (value instanceof byte[]) {
 			return (T) Serializations.deserialize((byte[]) value);

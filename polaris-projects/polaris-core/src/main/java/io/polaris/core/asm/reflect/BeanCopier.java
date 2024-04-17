@@ -50,8 +50,8 @@ public abstract class BeanCopier<S> {
 	private static ILogger log = ILoggers.of(BeanCopier.class);
 	@SuppressWarnings({"rawtypes"})
 	private static final AccessPool<Class<?>, BeanCopier> pool = new AccessPool<>();
-	public static final String FIELD_PREFIX_TYPE = "type$";
-	public static final String FIELD_PREFIX_CLASS = "class$";
+	public static final String FIELD_PREFIX_TYPE = "type_";
+	public static final String FIELD_PREFIX_CLASS = "class_";
 	private final Map<Class<?>, BeanDirectCopier> fastCopiers = new ConcurrentHashMap<>();
 	private final Map<Class<?>, BeanOptionsCopier> optionsCopiers = new ConcurrentHashMap<>();
 
