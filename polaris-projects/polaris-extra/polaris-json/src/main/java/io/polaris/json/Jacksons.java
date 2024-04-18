@@ -223,6 +223,55 @@ public class Jacksons {
 		}
 	}
 
+	public static <T> T toJavaObject(byte[] json, TypeReference<T> type) {
+		try {
+			return MAPPER.readValue(json, type);
+		} catch (IOException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+
+	public static <T> T toJavaObjectOrNull(byte[] json, TypeReference<T> type) {
+		try {
+			return MAPPER.readValue(json, type);
+		} catch (IOException e) {
+			log.error("读取json失败,json:{}", json, e);
+			return null;
+		}
+	}
+
+
+	public static <T> T toJavaObject(byte[] json, TypeRef<T> type) {
+		return toJavaObject(json, type.getType());
+	}
+
+	public static <T> T toJavaObjectOrNull(byte[] json, TypeRef<T> type) {
+		return toJavaObjectOrNull(json, type.getType());
+	}
+
+	public static <T> T toJavaObject(byte[] json, Type type) {
+		try {
+			if (type instanceof io.polaris.core.lang.JavaType) {
+				return toJavaObject(json, ((io.polaris.core.lang.JavaType<?>) type).getRawType());
+			}
+			return MAPPER.readValue(json, MAPPER.constructType(type));
+		} catch (IOException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+
+	public static <T> T toJavaObjectOrNull(byte[] json, Type type) {
+		try {
+			if (type instanceof io.polaris.core.lang.JavaType) {
+				return toJavaObjectOrNull(json, ((io.polaris.core.lang.JavaType<?>) type).getRawType());
+			}
+			return MAPPER.readValue(json, MAPPER.constructType(type));
+		} catch (IOException e) {
+			log.error("读取json失败,json:{}", json, e);
+			return null;
+		}
+	}
+
 	public static <T> T toJavaObject(byte[] bytes, Class<T> clazz) {
 		try {
 			return MAPPER.readValue(bytes, clazz);

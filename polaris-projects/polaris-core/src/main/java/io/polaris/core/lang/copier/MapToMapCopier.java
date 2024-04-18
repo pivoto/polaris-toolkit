@@ -75,7 +75,7 @@ public class MapToMapCopier implements Copier<Map> {
 					target.put(key, value);
 				} catch (Exception e) {
 					if (!options.ignoreError()) {
-						throw new UnsupportedOperationException(e);
+						throw new IllegalArgumentException(e);
 					} else {
 						log.warn("复制属性[{}]失败：{}", sourceKey, e.getMessage());
 						if (log.isDebugEnabled()) {
@@ -86,7 +86,7 @@ public class MapToMapCopier implements Copier<Map> {
 			}
 		} catch (Exception e) {
 			if (!options.ignoreError()) {
-				throw new UnsupportedOperationException(e);
+				throw new IllegalArgumentException(e);
 			} else {
 				log.warn("复制属性失败：{}", e.getMessage());
 				if (log.isDebugEnabled()) {

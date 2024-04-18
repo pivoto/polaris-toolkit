@@ -147,7 +147,7 @@ public class MapToBeanCopier<T> implements Copier<T> {
 			}
 		} catch (Exception e) {
 			if (!options.ignoreError()) {
-				throw new UnsupportedOperationException(e);
+				throw new IllegalArgumentException(e);
 			} else {
 				log.warn("复制属性失败：{}", e.getMessage());
 				if (log.isDebugEnabled()) {
@@ -204,7 +204,7 @@ public class MapToBeanCopier<T> implements Copier<T> {
 				targetAccessors.remove(targetKey);
 			} catch (Exception e) {
 				if (!options.ignoreError()) {
-					throw new UnsupportedOperationException(e);
+					throw new IllegalArgumentException(e);
 				} else {
 					log.warn("复制属性失[{}]败：{}", sourceKey, e.getMessage());
 					if (log.isDebugEnabled()) {

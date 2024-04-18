@@ -83,14 +83,22 @@ class BeanIndexedMap<T> extends BeanMap<T> {
 		{
 			Integer idx = setterIndices.get(key);
 			if (idx != null) {
-				if (hasConverter) {
-					Type type = access.propertyGenericType(key);
-					value = options.converter().apply(type, value);
-				}
-				if (idx < fieldStartIndex) {
-					access.setIndexProperty(bean, idx, value);
-				} else {
-					access.setIndexField(bean, idx - fieldStartIndex, value);
+				try {
+					if (hasConverter) {
+						if (value != null) {
+							Type type = access.propertyGenericType(key);
+							value = options.converter().apply(type, value);
+						}
+					}
+					if (idx < fieldStartIndex) {
+						access.setIndexProperty(bean, idx, value);
+					} else {
+						access.setIndexField(bean, idx - fieldStartIndex, value);
+					}
+				} catch (Exception e) {
+					if (!ignoreError) {
+						throw new IllegalArgumentException("属性写入失败：" + beanType.getCanonicalName() + "." + key, e);
+					}
 				}
 				return null;
 			}

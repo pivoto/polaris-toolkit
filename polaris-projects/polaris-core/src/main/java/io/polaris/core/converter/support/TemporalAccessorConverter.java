@@ -1,6 +1,7 @@
 package io.polaris.core.converter.support;
 
 import io.polaris.core.converter.AbstractSimpleConverter;
+import io.polaris.core.converter.ConversionException;
 import io.polaris.core.date.Dates;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.string.Strings;
@@ -83,7 +84,7 @@ public class TemporalAccessorConverter<T extends TemporalAccessor> extends Abstr
 		if (YearMonth.class.equals(raw)) {
 			return (T) YearMonth.from(localDateTime);
 		}
-		throw new UnsupportedOperationException();
+		throw new ConversionException();
 	}
 
 

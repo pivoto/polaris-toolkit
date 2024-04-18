@@ -1,6 +1,7 @@
 package io.polaris.core.converter.support;
 
 import io.polaris.core.converter.AbstractSimpleConverter;
+import io.polaris.core.converter.ConversionException;
 import io.polaris.core.converter.Converters;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.Types;
@@ -9,6 +10,7 @@ import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Type;
+import java.util.function.Function;
 
 /**
  * @author Qt
@@ -16,13 +18,22 @@ import java.lang.reflect.Type;
  */
 public class ReferenceConverter<T extends Reference> extends AbstractSimpleConverter<T> {
 	private final JavaType<T> targetType;
+	private final Function<Object,T> factory;
 
 	public ReferenceConverter(Class<T> targetType) {
-		this.targetType = JavaType.of((Type) targetType);
+		this(JavaType.of((Type) targetType));
 	}
 
+	@SuppressWarnings("unchecked")
 	public ReferenceConverter(JavaType<T> targetType) {
 		this.targetType = targetType;
+		if (this.targetType.getRawClass() == WeakReference.class) {
+			factory = targetValue -> (T)new WeakReference<>(targetValue);
+		} else if (this.targetType.getRawClass() == SoftReference.class) {
+			factory = targetValue -> (T)new SoftReference<>(targetValue);
+		}else{
+			throw new IllegalArgumentException("目标类型不支持");
+		}
 	}
 
 	@Override
@@ -41,11 +52,6 @@ public class ReferenceConverter<T extends Reference> extends AbstractSimpleConve
 		if (targetValue == null) {
 			targetValue = value;
 		}
-		if (this.targetType.getRawClass() == WeakReference.class) {
-			return (T) new WeakReference(targetValue);
-		} else if (this.targetType.getRawClass() == SoftReference.class) {
-			return (T) new SoftReference(targetValue);
-		}
-		throw new UnsupportedOperationException();
+		return factory.apply(targetValue);
 	}
 }

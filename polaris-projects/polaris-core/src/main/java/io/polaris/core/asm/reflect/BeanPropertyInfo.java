@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.polaris.core.reflect.Reflects;
 import io.polaris.core.string.Strings;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -46,10 +47,11 @@ public class BeanPropertyInfo {
 		this.field = field;
 	}
 
-	public boolean hasSetter(){
+	public boolean hasSetter() {
 		return writeMethod != null || field != null;
 	}
-	public boolean hasGetter(){
+
+	public boolean hasGetter() {
 		return readMethod != null || field != null;
 	}
 
@@ -121,6 +123,9 @@ public class BeanPropertyInfo {
 		for (PropertyDescriptor pd : pds) {
 			Method writeMethod = pd.getWriteMethod();
 			Method readMethod = pd.getReadMethod();
+			if (Reflects.isGetClassMethod(pd.getReadMethod())) {
+				continue;
+			}
 			if (writeMethod != null || readMethod != null) {
 				BeanPropertyInfo info = BeanPropertyInfo.of(pd.getName(), writeMethod, readMethod, null);
 				rs.put(info.getPropertyName(), info);

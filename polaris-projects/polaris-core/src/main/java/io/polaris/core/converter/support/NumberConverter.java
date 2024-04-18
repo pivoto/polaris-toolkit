@@ -1,6 +1,7 @@
 package io.polaris.core.converter.support;
 
 import io.polaris.core.converter.AbstractSimpleConverter;
+import io.polaris.core.converter.ConversionException;
 import io.polaris.core.date.Dates;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.string.Strings;
@@ -214,7 +215,7 @@ public class NumberConverter<T extends Number> extends AbstractSimpleConverter<T
 			return (format.parse(str));
 		} catch (Exception ignore) {
 		}
-		throw new NumberFormatException(str);
+		throw new ConversionException("数值字符串无法解析："+str);
 	}
 
 	public BigDecimal toBigDecimal(Object value) {

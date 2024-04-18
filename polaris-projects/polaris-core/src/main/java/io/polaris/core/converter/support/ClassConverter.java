@@ -1,6 +1,7 @@
 package io.polaris.core.converter.support;
 
 import io.polaris.core.converter.AbstractSimpleConverter;
+import io.polaris.core.converter.ConversionException;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.reflect.Reflects;
 
@@ -25,7 +26,7 @@ public class ClassConverter extends AbstractSimpleConverter<Class<?>> {
 			Class<?> c = Reflects.loadClass(str.trim());
 			return c;
 		} catch (ClassNotFoundException e) {
-			throw new UnsupportedOperationException(e);
+			throw new ConversionException(e);
 		}
 	}
 }

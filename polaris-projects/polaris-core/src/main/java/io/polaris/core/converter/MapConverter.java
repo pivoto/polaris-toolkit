@@ -104,7 +104,7 @@ public class MapConverter<K, V> extends AbstractConverter<Map<K, V>> {
 				return optional.get().deserialize(json, targetType.getRawType());
 			}
 		}
-		throw new UnsupportedOperationException();
+		throw new ConversionException("源对象类型不支持");
 	}
 
 	private void convertMapToMap(Map<?, ?> srcMap, Map<K, V> targetMap) {

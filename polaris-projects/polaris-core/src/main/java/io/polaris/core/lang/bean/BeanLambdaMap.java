@@ -77,11 +77,19 @@ class BeanLambdaMap<T> extends BeanMap<T> {
 		{
 			BiConsumer<Object, Object> setter = setters.get(key);
 			if (setter != null) {
-				if (hasConverter) {
-					Type type = access.propertyGenericType(key);
-					value = options.converter().apply(type, value);
+				try {
+					if (hasConverter) {
+						if (value != null) {
+							Type type = access.propertyGenericType(key);
+							value = options.converter().apply(type, value);
+						}
+					}
+					setter.accept(bean, value);
+				} catch (Exception e) {
+					if (!ignoreError) {
+						throw new IllegalArgumentException("属性写入失败：" + beanType.getCanonicalName() + "." + key, e);
+					}
 				}
-				setter.accept(bean, value);
 				return null;
 			}
 		}

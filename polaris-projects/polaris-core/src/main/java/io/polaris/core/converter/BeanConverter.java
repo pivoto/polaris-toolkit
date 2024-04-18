@@ -66,6 +66,6 @@ public class BeanConverter<T> extends AbstractConverter<T> {
 			}
 		}
 
-		throw new UnsupportedOperationException();
+		throw new ConversionException("源对象类型不支持");
 	}
 }

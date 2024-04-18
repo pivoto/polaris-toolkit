@@ -1,6 +1,7 @@
 package io.polaris.core.converter.support;
 
 import io.polaris.core.converter.AbstractSimpleConverter;
+import io.polaris.core.converter.ConversionException;
 import io.polaris.core.io.IO;
 import io.polaris.core.lang.JavaType;
 
@@ -44,7 +45,7 @@ public class StringConverter extends AbstractSimpleConverter<String> {
 			reader = clob.getCharacterStream();
 			return IO.toString(reader);
 		} catch (Exception e) {
-			throw new UnsupportedOperationException(e);
+			throw new ConversionException(e);
 		} finally {
 			IO.close(reader);
 		}
@@ -56,7 +57,7 @@ public class StringConverter extends AbstractSimpleConverter<String> {
 			in = blob.getBinaryStream();
 			return IO.toString(in, StandardCharsets.UTF_8);
 		} catch (Exception e) {
-			throw new UnsupportedOperationException(e);
+			throw new ConversionException(e);
 		} finally {
 			IO.close(in);
 		}

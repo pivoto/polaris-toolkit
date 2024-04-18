@@ -1,5 +1,11 @@
 package io.polaris.core.converter;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Type;
+import java.util.*;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
+
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.consts.SymbolConsts;
 import io.polaris.core.json.JsonSerializer;
@@ -9,12 +15,6 @@ import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.service.StatefulServiceLoader;
-
-import java.lang.reflect.Array;
-import java.lang.reflect.Type;
-import java.util.*;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  * @author Qt
@@ -181,7 +181,7 @@ public class CollectionConverter<T extends Collection<E>, E> extends AbstractCon
 				if (null != superclass && collectionType != superclass) {
 					return create(superclass, elementType);
 				}
-				throw new UnsupportedOperationException(e);
+				throw new ConversionException("集合类型对象无法创建", e);
 			}
 		}
 		return c;

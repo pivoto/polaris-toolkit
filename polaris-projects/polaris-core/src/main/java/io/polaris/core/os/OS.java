@@ -1,8 +1,5 @@
 package io.polaris.core.os;
 
-import io.polaris.core.consts.StdConsts;
-import io.polaris.core.regex.Patterns;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -10,8 +7,16 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
+
+import io.polaris.core.consts.StdConsts;
+import io.polaris.core.regex.Patterns;
 
 /**
  * @author Qt
@@ -26,6 +31,7 @@ public class OS {
 	private static volatile List<String> CACHE_ALL_IPS;
 	private static volatile String OS_NAME;
 	private static volatile String HOST_NAME;
+	private static volatile long VM_START_TIME = -1;
 
 	public static String getOsName() {
 		if (OS_NAME == null) {
@@ -128,6 +134,22 @@ public class OS {
 		return null;
 	}
 
+	public static String getPriorOrFirstIp(String... regex) {
+		List<String> ips = getAllIps();
+		for (String re : regex) {
+			Pattern pattern = Patterns.getPattern(re);
+			for (String ip : ips) {
+				if (pattern.matcher(ip).find()) {
+					return ip;
+				}
+			}
+		}
+		if (ips.size() > 0) {
+			return ips.get(0);
+		}
+		return null;
+	}
+
 	public static List<String> getAllIps() {
 		if (CACHE_ALL_IPS != null) {
 			return CACHE_ALL_IPS;
@@ -217,7 +239,14 @@ public class OS {
 
 
 	public static long getVmStartTime() {
-		return ManagementFactory.getRuntimeMXBean().getStartTime();
+		if (VM_START_TIME == -1) {
+			try {
+				VM_START_TIME = ManagementFactory.getRuntimeMXBean().getStartTime();
+			} catch (Exception e) {
+				VM_START_TIME = 0;
+			}
+		}
+		return VM_START_TIME;
 	}
 
 	public static long getVmUpTime() {

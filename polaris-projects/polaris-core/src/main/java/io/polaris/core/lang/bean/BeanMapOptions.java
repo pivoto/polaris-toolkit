@@ -22,6 +22,8 @@ public class BeanMapOptions {
 	public static final BiFunction<Type, Object, Object> DEFAULT_CONVERTER = Converters::convert;
 
 	private BeanAccessMode mode = DEFAULT_MODE;
+	/** 是否忽略属性注入错误 */
+	private boolean ignoreError = true;
 	private boolean includeFields = true;
 	private boolean enableConverter = true;
 	private boolean enableFallback = true;
