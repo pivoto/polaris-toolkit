@@ -238,6 +238,16 @@
 				<artifactId>polaris-mybatis</artifactId>
 				<version>${project.polaris.revision}</version>
 			</dependency>
+			<dependency>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<artifactId>polaris-git</artifactId>
+				<version>${project.polaris.revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<artifactId>polaris-cluster</artifactId>
+				<version>${project.polaris.revision}</version>
+			</dependency>
 			<!-- endregion -->
 
 			<!-- region BuildTools -->

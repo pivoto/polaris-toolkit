@@ -22,6 +22,7 @@
 		<module>polaris-image</module>
 		<module>polaris-mybatis</module>
 		<module>polaris-git</module>
+		<module>polaris-cluster</module>
 	</modules>
 	<properties>
 		<dependency.bytebuddy.version>1.12.23</dependency.bytebuddy.version>
