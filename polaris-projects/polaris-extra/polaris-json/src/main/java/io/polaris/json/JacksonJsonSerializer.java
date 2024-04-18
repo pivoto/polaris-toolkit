@@ -4,11 +4,13 @@ import java.lang.reflect.Type;
 
 import io.polaris.core.json.JsonSerializer;
 import io.polaris.core.lang.TypeRef;
+import io.polaris.core.service.ServiceName;
 
 /**
  * @author Qt
  * @since 1.8,  Feb 04, 2024
  */
+@ServiceName("jackson")
 public class JacksonJsonSerializer implements JsonSerializer {
 	@Override
 	public String serialize(Object value) {
