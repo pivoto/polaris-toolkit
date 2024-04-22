@@ -1,11 +1,12 @@
 package io.polaris.core.guid;
 
 
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
@@ -38,42 +39,42 @@ public class Guid {
 	private final long maxSequence;
 	private final long startTimestamp;
 	private final Lock lock = new ReentrantLock();
-	private GuidNodeStrategy strategy;
 	private long lastTimestamp = -1L;
 	/** 序列号  max: 2^12-1 range: [0,4095] */
 	private long sequence = 0L;
 
-	Guid(GuidNodeStrategy strategy) {
-		if (strategy == null) {
-			final StackTraceElement[] traces = Thread.currentThread().getStackTrace();
-			final String app = traces[Integer.min(3, traces.length - 1)].getClassName();
-			strategy = LocalNodeStrategy.getInstance(app);
-		}
-		this.strategy = strategy;
-
+	Guid(int workerBitSize, int workerNodeId) {
 		timestampBits = 41L;
-		workerIdBits = Long.max(strategy.bitSize(), 12L);
+		workerIdBits = Long.max(workerBitSize, 12L);
 		sequenceBits = 63 - timestampBits - workerIdBits;
 
 		timestampShift = workerIdBits + sequenceBits;
 		sequenceShift = workerIdBits;
 		workerIdShift = 0;
-		workerId = strategy.nodeId();
-		maxSequence = -1L ^ (-1L << sequenceBits);
+		workerId = workerNodeId;
+		maxSequence = ~(-1L << sequenceBits);
 		startTimestamp = System.currentTimeMillis();
 	}
 
 
+	public static Guid newInstance(int workerBitSize, int workerNodeId) {
+		return new Guid(workerBitSize, workerNodeId);
+	}
+
 	public static Guid newInstance() {
-		return new Guid(null);
+		return newInstance(LocalNodeStrategy.getInstance(null));
 	}
 
 	public static Guid newInstance(String app) {
-		return new Guid(LocalNodeStrategy.getInstance(app));
+		return newInstance(LocalNodeStrategy.getInstance(app));
 	}
 
 	public static Guid newInstance(GuidNodeStrategy strategy) {
-		return new Guid(strategy);
+		if (strategy == null) {
+			String app = Guids.detectStackTraceClassName();
+			strategy = LocalNodeStrategy.getInstance(app);
+		}
+		return new Guid(strategy.bitSize(), strategy.nodeId());
 	}
 
 	public static String bin(long d) {

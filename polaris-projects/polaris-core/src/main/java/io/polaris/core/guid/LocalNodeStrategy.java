@@ -3,6 +3,8 @@ package io.polaris.core.guid;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.annotation.Nullable;
+
 /**
  * @author Qt
  * @since 1.8
@@ -14,17 +16,13 @@ public class LocalNodeStrategy implements GuidNodeStrategy {
 	private final int nodeId;
 	private final int bizSize;
 
-	public LocalNodeStrategy() {
-		this("java");
-	}
-
-	public LocalNodeStrategy(String appName) {
+	private LocalNodeStrategy(String appName) {
 		this.appName = appName;
 		this.bizSize = 12;
 		this.nodeId = LocalNode.nextNodeId(appName, 12);
 	}
 
-	public static LocalNodeStrategy getInstance(String name) {
+	public static LocalNodeStrategy getInstance(@Nullable String name) {
 		name = String.valueOf(name);
 		LocalNodeStrategy o = cache.get(name);
 		if (o == null) {
