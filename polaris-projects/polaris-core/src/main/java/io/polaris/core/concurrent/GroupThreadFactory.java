@@ -1,4 +1,4 @@
-package io.polaris.core.thread;
+package io.polaris.core.concurrent;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

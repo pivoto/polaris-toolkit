@@ -12,6 +12,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nonnull;
+
 /**
  * @author Qt
  * @since 1.8
