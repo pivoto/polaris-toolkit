@@ -23,6 +23,7 @@
 		<module>polaris-mybatis</module>
 		<module>polaris-git</module>
 		<module>polaris-cluster</module>
+		<module>polaris-concurrent</module>
 	</modules>
 	<properties>
 		<dependency.bytebuddy.version>1.12.23</dependency.bytebuddy.version>
