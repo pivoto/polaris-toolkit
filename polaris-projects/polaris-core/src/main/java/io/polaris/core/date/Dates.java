@@ -21,6 +21,10 @@ public class Dates {
 	public static final DateTimeFormatter YYYYMMDDHHMMSS = getFormatter(PATTERN_YYYYMMDDHHMMSS);
 	public static final String PATTERN_YYYYMMDDHHMMSSSSS = "yyyyMMddHHmmssSSS";
 	public static final DateTimeFormatter YYYYMMDDHHMMSSSSS = getFormatter(PATTERN_YYYYMMDDHHMMSSSSS);
+	public static final String PATTERN_HHMMSS = "HHmmss";
+	public static final DateTimeFormatter HHMMSS = getFormatter(PATTERN_HHMMSS);
+	public static final String PATTERN_HHMMSSSSS = "HHmmssSSS";
+	public static final DateTimeFormatter HHMMSSSSS = getFormatter(PATTERN_HHMMSSSSS);
 	public static final String PATTERN_YYYY_MM_DD = "yyyy-MM-dd";
 	public static final DateTimeFormatter YYYY_MM_DD = getFormatter(PATTERN_YYYY_MM_DD);
 	public static final String PATTERN_YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
