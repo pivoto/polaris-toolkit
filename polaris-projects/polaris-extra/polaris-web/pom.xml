@@ -51,5 +51,17 @@
 			<version>1.2.2</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.2</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<artifactId>javax.el-api</artifactId>
+			<groupId>javax.el</groupId>
+			<version>2.2.4</version>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 </project>
