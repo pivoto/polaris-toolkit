@@ -2,16 +2,16 @@ package io.polaris.core.jdbc.executor;
 
 import java.util.List;
 
-import io.polaris.core.jdbc.base.annotation.Key;
-import io.polaris.core.jdbc.base.annotation.SqlQuery;
-import io.polaris.core.jdbc.sql.annotation.EntityDelete;
-import io.polaris.core.jdbc.sql.annotation.EntityInsert;
-import io.polaris.core.jdbc.sql.annotation.EntitySelect;
-import io.polaris.core.jdbc.sql.annotation.SqlEntity;
-import io.polaris.core.jdbc.sql.annotation.SqlRaw;
-import io.polaris.core.jdbc.sql.annotation.SqlRawSimple;
-import io.polaris.core.jdbc.sql.annotation.segment.SqlRawItem;
-import io.polaris.core.jdbc.sql.annotation.segment.SqlRawItem1;
+import io.polaris.core.jdbc.annotation.Key;
+import io.polaris.core.jdbc.annotation.SqlQuery;
+import io.polaris.core.jdbc.annotation.EntityDelete;
+import io.polaris.core.jdbc.annotation.EntityInsert;
+import io.polaris.core.jdbc.annotation.EntitySelect;
+import io.polaris.core.jdbc.annotation.SqlEntity;
+import io.polaris.core.jdbc.annotation.SqlRaw;
+import io.polaris.core.jdbc.annotation.SqlRawSimple;
+import io.polaris.core.jdbc.annotation.segment.SqlRawItem;
+import io.polaris.core.jdbc.annotation.segment.SqlRawItem1;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 
 /**

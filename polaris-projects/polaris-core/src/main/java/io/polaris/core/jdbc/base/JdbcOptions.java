@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nullable;
 
-import io.polaris.core.jdbc.base.annotation.Options;
+import io.polaris.core.jdbc.annotation.Options;
 import lombok.Data;
 
 /**

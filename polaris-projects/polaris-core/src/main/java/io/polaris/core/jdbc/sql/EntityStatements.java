@@ -16,48 +16,48 @@ import io.polaris.core.converter.Converters;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.TableMetaKit;
-import io.polaris.core.jdbc.sql.annotation.EntityDelete;
-import io.polaris.core.jdbc.sql.annotation.EntityInsert;
-import io.polaris.core.jdbc.sql.annotation.EntityMerge;
-import io.polaris.core.jdbc.sql.annotation.EntitySelect;
-import io.polaris.core.jdbc.sql.annotation.EntityUpdate;
-import io.polaris.core.jdbc.sql.annotation.SqlDelete;
-import io.polaris.core.jdbc.sql.annotation.SqlEntity;
-import io.polaris.core.jdbc.sql.annotation.SqlInsert;
-import io.polaris.core.jdbc.sql.annotation.SqlRaw;
-import io.polaris.core.jdbc.sql.annotation.SqlRawSimple;
-import io.polaris.core.jdbc.sql.annotation.SqlSelect;
-import io.polaris.core.jdbc.sql.annotation.SqlSelectSet;
-import io.polaris.core.jdbc.sql.annotation.SqlUpdate;
-import io.polaris.core.jdbc.sql.annotation.segment.BindingKey;
-import io.polaris.core.jdbc.sql.annotation.segment.Condition;
-import io.polaris.core.jdbc.sql.annotation.segment.Criteria1;
-import io.polaris.core.jdbc.sql.annotation.segment.Criteria2;
-import io.polaris.core.jdbc.sql.annotation.segment.Criteria3;
-import io.polaris.core.jdbc.sql.annotation.segment.Criteria4;
-import io.polaris.core.jdbc.sql.annotation.segment.Criteria5;
-import io.polaris.core.jdbc.sql.annotation.segment.Criterion;
-import io.polaris.core.jdbc.sql.annotation.segment.Function;
-import io.polaris.core.jdbc.sql.annotation.segment.GroupBy;
-import io.polaris.core.jdbc.sql.annotation.segment.Having;
-import io.polaris.core.jdbc.sql.annotation.segment.InsertColumn;
-import io.polaris.core.jdbc.sql.annotation.segment.Join;
-import io.polaris.core.jdbc.sql.annotation.segment.JoinColumn;
-import io.polaris.core.jdbc.sql.annotation.segment.JoinCriterion;
-import io.polaris.core.jdbc.sql.annotation.segment.SelectColumn;
-import io.polaris.core.jdbc.sql.annotation.segment.SqlRawItem;
-import io.polaris.core.jdbc.sql.annotation.segment.SubCriteria;
-import io.polaris.core.jdbc.sql.annotation.segment.SubCriteria1;
-import io.polaris.core.jdbc.sql.annotation.segment.SubCriteria2;
-import io.polaris.core.jdbc.sql.annotation.segment.SubCriteria3;
-import io.polaris.core.jdbc.sql.annotation.segment.SubCriteria4;
-import io.polaris.core.jdbc.sql.annotation.segment.SubCriteria5;
-import io.polaris.core.jdbc.sql.annotation.segment.SubCriterion;
-import io.polaris.core.jdbc.sql.annotation.segment.SubHaving;
-import io.polaris.core.jdbc.sql.annotation.segment.SubSelect;
-import io.polaris.core.jdbc.sql.annotation.segment.SubWhere;
-import io.polaris.core.jdbc.sql.annotation.segment.UpdateColumn;
-import io.polaris.core.jdbc.sql.annotation.segment.Where;
+import io.polaris.core.jdbc.annotation.EntityDelete;
+import io.polaris.core.jdbc.annotation.EntityInsert;
+import io.polaris.core.jdbc.annotation.EntityMerge;
+import io.polaris.core.jdbc.annotation.EntitySelect;
+import io.polaris.core.jdbc.annotation.EntityUpdate;
+import io.polaris.core.jdbc.annotation.SqlDelete;
+import io.polaris.core.jdbc.annotation.SqlEntity;
+import io.polaris.core.jdbc.annotation.SqlInsert;
+import io.polaris.core.jdbc.annotation.SqlRaw;
+import io.polaris.core.jdbc.annotation.SqlRawSimple;
+import io.polaris.core.jdbc.annotation.SqlSelect;
+import io.polaris.core.jdbc.annotation.SqlSelectSet;
+import io.polaris.core.jdbc.annotation.SqlUpdate;
+import io.polaris.core.jdbc.annotation.segment.BindingKey;
+import io.polaris.core.jdbc.annotation.segment.Condition;
+import io.polaris.core.jdbc.annotation.segment.Criteria1;
+import io.polaris.core.jdbc.annotation.segment.Criteria2;
+import io.polaris.core.jdbc.annotation.segment.Criteria3;
+import io.polaris.core.jdbc.annotation.segment.Criteria4;
+import io.polaris.core.jdbc.annotation.segment.Criteria5;
+import io.polaris.core.jdbc.annotation.segment.Criterion;
+import io.polaris.core.jdbc.annotation.segment.Function;
+import io.polaris.core.jdbc.annotation.segment.GroupBy;
+import io.polaris.core.jdbc.annotation.segment.Having;
+import io.polaris.core.jdbc.annotation.segment.InsertColumn;
+import io.polaris.core.jdbc.annotation.segment.Join;
+import io.polaris.core.jdbc.annotation.segment.JoinColumn;
+import io.polaris.core.jdbc.annotation.segment.JoinCriterion;
+import io.polaris.core.jdbc.annotation.segment.SelectColumn;
+import io.polaris.core.jdbc.annotation.segment.SqlRawItem;
+import io.polaris.core.jdbc.annotation.segment.SubCriteria;
+import io.polaris.core.jdbc.annotation.segment.SubCriteria1;
+import io.polaris.core.jdbc.annotation.segment.SubCriteria2;
+import io.polaris.core.jdbc.annotation.segment.SubCriteria3;
+import io.polaris.core.jdbc.annotation.segment.SubCriteria4;
+import io.polaris.core.jdbc.annotation.segment.SubCriteria5;
+import io.polaris.core.jdbc.annotation.segment.SubCriterion;
+import io.polaris.core.jdbc.annotation.segment.SubHaving;
+import io.polaris.core.jdbc.annotation.segment.SubSelect;
+import io.polaris.core.jdbc.annotation.segment.SubWhere;
+import io.polaris.core.jdbc.annotation.segment.UpdateColumn;
+import io.polaris.core.jdbc.annotation.segment.Where;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.consts.JoinType;
 import io.polaris.core.jdbc.sql.consts.Relation;
@@ -636,7 +636,7 @@ public class EntityStatements {
 				addJoinSelectColumns(cache, bindings, joinSt, join.columns());
 				// on
 				WhereSegment<?, ?> on = joinSt.on();
-				for (io.polaris.core.jdbc.sql.annotation.segment.Criteria criteria : join.on()) {
+				for (io.polaris.core.jdbc.annotation.segment.Criteria criteria : join.on()) {
 					addWhereByCriteria(cache, bindings, criteria, on);
 				}
 				// where
@@ -736,7 +736,7 @@ public class EntityStatements {
 		if (where.relation() == Relation.OR) {
 			stWhere = stWhere.or();
 		}
-		for (io.polaris.core.jdbc.sql.annotation.segment.Criteria criteria : where.criteria()) {
+		for (io.polaris.core.jdbc.annotation.segment.Criteria criteria : where.criteria()) {
 			addWhereByCriteria(cache, bindings, criteria, stWhere);
 		}
 	}
@@ -772,25 +772,25 @@ public class EntityStatements {
 	}
 
 	private static void addJoinHavingClause(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, JoinSegment<?, ?> st, Having having) {
-		io.polaris.core.jdbc.sql.annotation.segment.Criteria[] havingCriteria = having.criteria();
+		io.polaris.core.jdbc.annotation.segment.Criteria[] havingCriteria = having.criteria();
 		Relation havingRelation = having.relation();
 		if (havingCriteria != null && havingCriteria.length > 0) {
 			WhereSegment<?, ?> ws = st.having();
 			if (havingRelation == Relation.OR) {
 				ws = ws.or();
 			}
-			for (io.polaris.core.jdbc.sql.annotation.segment.Criteria criteria : havingCriteria) {
+			for (io.polaris.core.jdbc.annotation.segment.Criteria criteria : havingCriteria) {
 				addWhereByCriteria(cache, bindings, criteria, ws);
 			}
 		}
 	}
 
 	private static void addJoinOrderByClause(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, JoinSegment<?, ?> st, Join sqlSelect) {
-		io.polaris.core.jdbc.sql.annotation.segment.OrderBy[] orderBys = sqlSelect.orderBy();
+		io.polaris.core.jdbc.annotation.segment.OrderBy[] orderBys = sqlSelect.orderBy();
 		if (orderBys.length > 0) {
-			List<io.polaris.core.jdbc.sql.annotation.segment.OrderBy> activeOrderBys = new ArrayList<>(orderBys.length);
-			io.polaris.core.jdbc.sql.annotation.segment.OrderBy defaultOrderBy = null;
-			for (io.polaris.core.jdbc.sql.annotation.segment.OrderBy orderBy : orderBys) {
+			List<io.polaris.core.jdbc.annotation.segment.OrderBy> activeOrderBys = new ArrayList<>(orderBys.length);
+			io.polaris.core.jdbc.annotation.segment.OrderBy defaultOrderBy = null;
+			for (io.polaris.core.jdbc.annotation.segment.OrderBy orderBy : orderBys) {
 				if (isDefaultCondition(orderBy.condition())) {
 					defaultOrderBy = orderBy;
 				}
@@ -802,7 +802,7 @@ public class EntityStatements {
 			if (activeOrderBys.isEmpty() && defaultOrderBy != null) {
 				activeOrderBys.add(defaultOrderBy);
 			}
-			for (io.polaris.core.jdbc.sql.annotation.segment.OrderBy orderBy : activeOrderBys) {
+			for (io.polaris.core.jdbc.annotation.segment.OrderBy orderBy : activeOrderBys) {
 				String raw = orderBy.raw();
 				if (Strings.isNotBlank(raw)) {
 					st.orderByRaw(raw);
@@ -843,7 +843,7 @@ public class EntityStatements {
 
 	private static void addWhereClause(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings,
 		WhereSegment<?, ?> ws, Where where,
-		io.polaris.core.jdbc.sql.annotation.segment.ColumnPredicate columnedPredicate) {
+		io.polaris.core.jdbc.annotation.segment.ColumnPredicate columnedPredicate) {
 		String entityIdKey = where.byEntityIdKey();
 		String entityKey = where.byEntityKey();
 		if (Strings.isNotBlank(entityIdKey)) {
@@ -861,7 +861,7 @@ public class EntityStatements {
 		if (where.relation() == Relation.OR) {
 			ws = ws.or();
 		}
-		for (io.polaris.core.jdbc.sql.annotation.segment.Criteria criteria : where.criteria()) {
+		for (io.polaris.core.jdbc.annotation.segment.Criteria criteria : where.criteria()) {
 			addWhereByCriteria(cache, bindings, criteria, ws);
 		}
 	}
@@ -897,14 +897,14 @@ public class EntityStatements {
 	}
 
 	private static void addHavingClause(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, SelectStatement<?> st, Having having) {
-		io.polaris.core.jdbc.sql.annotation.segment.Criteria[] havingCriteria = having.criteria();
+		io.polaris.core.jdbc.annotation.segment.Criteria[] havingCriteria = having.criteria();
 		Relation havingRelation = having.relation();
 		if (havingCriteria != null && havingCriteria.length > 0) {
 			WhereSegment<?, ?> ws = st.having();
 			if (havingRelation == Relation.OR) {
 				ws = ws.or();
 			}
-			for (io.polaris.core.jdbc.sql.annotation.segment.Criteria criteria : havingCriteria) {
+			for (io.polaris.core.jdbc.annotation.segment.Criteria criteria : havingCriteria) {
 				addWhereByCriteria(cache, bindings, criteria, ws);
 			}
 		}
@@ -927,11 +927,11 @@ public class EntityStatements {
 			}
 		}
 		if (!hasOrderByKey) {
-			io.polaris.core.jdbc.sql.annotation.segment.OrderBy[] orderBys = sqlSelect.orderBy();
+			io.polaris.core.jdbc.annotation.segment.OrderBy[] orderBys = sqlSelect.orderBy();
 			if (orderBys.length > 0) {
-				List<io.polaris.core.jdbc.sql.annotation.segment.OrderBy> activeOrderBys = new ArrayList<>(orderBys.length);
-				io.polaris.core.jdbc.sql.annotation.segment.OrderBy defaultOrderBy = null;
-				for (io.polaris.core.jdbc.sql.annotation.segment.OrderBy orderBy : orderBys) {
+				List<io.polaris.core.jdbc.annotation.segment.OrderBy> activeOrderBys = new ArrayList<>(orderBys.length);
+				io.polaris.core.jdbc.annotation.segment.OrderBy defaultOrderBy = null;
+				for (io.polaris.core.jdbc.annotation.segment.OrderBy orderBy : orderBys) {
 					if (isDefaultCondition(orderBy.condition())) {
 						defaultOrderBy = orderBy;
 					}
@@ -944,7 +944,7 @@ public class EntityStatements {
 					activeOrderBys.add(defaultOrderBy);
 				}
 
-				for (io.polaris.core.jdbc.sql.annotation.segment.OrderBy orderBy : activeOrderBys) {
+				for (io.polaris.core.jdbc.annotation.segment.OrderBy orderBy : activeOrderBys) {
 					String raw = orderBy.raw();
 					if (Strings.isNotBlank(raw)) {
 						st.orderByRaw(raw);
@@ -1120,7 +1120,7 @@ public class EntityStatements {
 	}
 
 	private static void addWhereByCriteria(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings,
-		io.polaris.core.jdbc.sql.annotation.segment.Criteria criteria, WhereSegment<?, ?> ws) {
+		io.polaris.core.jdbc.annotation.segment.Criteria criteria, WhereSegment<?, ?> ws) {
 		if (criteria.relation() == Relation.OR) {
 			ws = ws.or();
 		} else {
@@ -1915,7 +1915,7 @@ public class EntityStatements {
 
 	public static InsertStatement<?> buildInsert(Map<String, Object> bindings, Class<?> entityClass, String entityKey,
 		boolean enableReplace, boolean enableUpdateByDuplicateKey,
-		io.polaris.core.jdbc.sql.annotation.segment.ColumnPredicate predicate
+		io.polaris.core.jdbc.annotation.segment.ColumnPredicate predicate
 	) {
 
 		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings, predicate);
@@ -1944,7 +1944,7 @@ public class EntityStatements {
 
 	public static DeleteStatement<?> buildDelete(Map<String, Object> bindings, Class<?> entityClass, String tableAlias,
 		boolean byId, String entityKey, String whereKey,
-		io.polaris.core.jdbc.sql.annotation.segment.ColumnPredicate predicate
+		io.polaris.core.jdbc.annotation.segment.ColumnPredicate predicate
 	) {
 		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings, predicate);
 		return buildDelete(bindings, entityClass, tableAlias, byId, entityKey, whereKey, columnPredicate);
@@ -1990,8 +1990,8 @@ public class EntityStatements {
 
 	public static UpdateStatement<?> buildUpdate(Map<String, Object> bindings, Class<?> entityClass, String tableAlias,
 		boolean byId, String entityKey, String whereKey,
-		io.polaris.core.jdbc.sql.annotation.segment.ColumnPredicate predicate,
-		io.polaris.core.jdbc.sql.annotation.segment.ColumnPredicate wherePredicate
+		io.polaris.core.jdbc.annotation.segment.ColumnPredicate predicate,
+		io.polaris.core.jdbc.annotation.segment.ColumnPredicate wherePredicate
 	) {
 		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings, predicate);
 		ColumnPredicate whereColumnPredicate = ConfigurableColumnPredicate.of(bindings, wherePredicate);
@@ -2034,7 +2034,7 @@ public class EntityStatements {
 
 	public static SelectStatement<?> buildSelect(Map<String, Object> bindings, Class<?> entityClass, String tableAlias,
 		boolean byId, String entityKey, String whereKey, String orderByKey,
-		io.polaris.core.jdbc.sql.annotation.segment.ColumnPredicate predicate
+		io.polaris.core.jdbc.annotation.segment.ColumnPredicate predicate
 	) {
 		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings, predicate);
 		return buildSelect(bindings, entityClass, tableAlias, byId, entityKey, whereKey, orderByKey, columnPredicate);
@@ -2095,7 +2095,7 @@ public class EntityStatements {
 	public static MergeStatement<?> buildMerge(Map<String, Object> bindings, Class<?> entityClass,
 		String tableAlias, String entityKey,
 		boolean updateWhenMatched, boolean insertWhenNotMatched,
-		io.polaris.core.jdbc.sql.annotation.segment.ColumnPredicate predicate
+		io.polaris.core.jdbc.annotation.segment.ColumnPredicate predicate
 	) {
 		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings, predicate);
 		return buildMerge(bindings, entityClass, tableAlias, entityKey, updateWhenMatched, insertWhenNotMatched, columnPredicate);

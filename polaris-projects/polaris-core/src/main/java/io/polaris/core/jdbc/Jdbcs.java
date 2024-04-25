@@ -23,14 +23,8 @@ import javax.sql.DataSource;
 
 import io.polaris.core.collection.ObjectArrays;
 import io.polaris.core.collection.PrimitiveArrays;
-import io.polaris.core.jdbc.base.BeanMapping;
-import io.polaris.core.jdbc.base.DefaultParameterPreparer;
-import io.polaris.core.jdbc.base.JdbcOptions;
-import io.polaris.core.jdbc.base.ResultExtractor;
-import io.polaris.core.jdbc.base.ResultExtractors;
-import io.polaris.core.jdbc.base.ResultRowSimpleMapper;
-import io.polaris.core.jdbc.base.ResultSetVisitor;
-import io.polaris.core.jdbc.base.StatementPreparer;
+import io.polaris.core.function.Executable;
+import io.polaris.core.jdbc.base.*;
 import io.polaris.core.jdbc.executor.BatchResult;
 import io.polaris.core.jdbc.executor.JdbcBatch;
 import io.polaris.core.jdbc.executor.JdbcExecutors;
@@ -163,7 +157,30 @@ public class Jdbcs {
 
 	public static void rollback(Connection connection) throws SQLException {
 		if (connection != null) {
-			connection.commit();
+			connection.rollback();
+		}
+	}
+
+	public static boolean doTransaction(Connection conn, Executable runnable) throws Throwable {
+		boolean autoCommit = conn.getAutoCommit();
+		try {
+			conn.setAutoCommit(false);
+			runnable.execute();
+			conn.commit();
+			return true;
+		} catch (Throwable e) {
+			log.error(e, e.getMessage());
+			try {
+				conn.rollback();
+			} catch (SQLException ex) {
+				log.error(ex, ex.getMessage());
+			}
+			throw e;
+		} finally {
+			try {
+				conn.setAutoCommit(autoCommit);
+			} catch (SQLException ignored) {
+			}
 		}
 	}
 
@@ -179,6 +196,12 @@ public class Jdbcs {
 		, ResultExtractor<T> extractor) throws SQLException {
 		PreparedSql sql = sqlNode.asPreparedSql();
 		return query(conn, sql.getText(), preparerOfParameters(sql.getBindings()), extractor);
+	}
+
+	public static void query(Connection conn, SqlNode sqlNode
+		, ResultSetVisitor visitor) throws SQLException {
+		PreparedSql sql = sqlNode.asPreparedSql();
+		query(conn, sql.getText(), preparerOfParameters(sql.getBindings()), visitor);
 	}
 
 	public static <T> T query(Connection conn, SqlNode sqlNode, @Nonnull JdbcOptions options
@@ -198,13 +221,27 @@ public class Jdbcs {
 		return query(conn, sql, preparerOfParameters(parameters), extractor);
 	}
 
+	public static <T> void query(Connection conn, String sql, Iterable<?> parameters
+		, ResultSetVisitor visitor) throws SQLException {
+		query(conn, sql, preparerOfParameters(parameters), visitor);
+	}
+
 	public static <T> T query(Connection conn, String sql, Object[] parameters
 		, ResultExtractor<T> extractor) throws SQLException {
 		return query(conn, sql, preparerOfParameters(parameters), extractor);
 	}
 
+	public static <T> void query(Connection conn, String sql, Object[] parameters
+		, ResultSetVisitor visitor) throws SQLException {
+		query(conn, sql, preparerOfParameters(parameters), visitor);
+	}
+
 	public static <T> T query(Connection conn, String sql, ResultExtractor<T> extractor) throws SQLException {
 		return query(conn, sql, (StatementPreparer) null, extractor);
+	}
+
+	public static <T> void query(Connection conn, String sql, ResultSetVisitor visitor) throws SQLException {
+		query(conn, sql, (StatementPreparer) null, visitor);
 	}
 
 	public static <T> List<T> query(Connection conn, String sql, ResultRowSimpleMapper<T> mapper) throws SQLException {
@@ -217,6 +254,26 @@ public class Jdbcs {
 		});
 	}
 
+	public static <T> void query(Connection conn, String sql, ResultRowSimpleMapper<T> mapper, ResultVisitor<T> visitor) throws SQLException {
+		query(conn, sql, (StatementPreparer) null, (rs -> {
+			while (rs.next()) {
+				visitor.visit(mapper.map(rs));
+			}
+		}));
+	}
+
+
+	public static void queryForMapList(Connection conn, String sql, ResultVisitor<Map<String, Object>> visitor) throws SQLException {
+		query(conn, sql, (StatementPreparer) null, ResultSetVisitors.ofRows(ResultRowMappers.ofMap(), visitor));
+	}
+
+	public static void queryForMapList(Connection conn, String sql, Iterable<?> parameters, ResultVisitor<Map<String, Object>> visitor) throws SQLException {
+		query(conn, sql, preparerOfParameters(parameters), ResultSetVisitors.ofRows(ResultRowMappers.ofMap(), visitor));
+	}
+
+	public static void queryForMapList(Connection conn, String sql, Object[] parameters, ResultVisitor<Map<String, Object>> visitor) throws SQLException {
+		query(conn, sql, preparerOfParameters(parameters), ResultSetVisitors.ofRows(ResultRowMappers.ofMap(), visitor));
+	}
 
 	public static List<Map<String, Object>> queryForMapList(Connection conn, String sql) throws SQLException {
 		return query(conn, sql, (StatementPreparer) null, ResultExtractors.ofMapList());
@@ -229,6 +286,31 @@ public class Jdbcs {
 	public static List<Map<String, Object>> queryForMapList(Connection conn, String sql, Object[] parameters) throws SQLException {
 		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofMapList());
 	}
+
+	public static <T> void queryForList(Connection conn, String sql, Class<T> beanType, ResultVisitor<T> visitor) throws SQLException {
+		query(conn, sql, (StatementPreparer) null, ResultSetVisitors.ofRows(ResultRowMappers.ofBean(beanType), visitor));
+	}
+
+	public static <T> void queryForList(Connection conn, String sql, Iterable<?> parameters, Class<T> beanType, ResultVisitor<T> visitor) throws SQLException {
+		query(conn, sql, preparerOfParameters(parameters), ResultSetVisitors.ofRows(ResultRowMappers.ofBean(beanType), visitor));
+	}
+
+	public static <T> void queryForList(Connection conn, String sql, Object[] parameters, Class<T> beanType, ResultVisitor<T> visitor) throws SQLException {
+		query(conn, sql, preparerOfParameters(parameters), ResultSetVisitors.ofRows(ResultRowMappers.ofBean(beanType), visitor));
+	}
+
+	public static <T> void queryForList(Connection conn, String sql, BeanMapping<T> mapping, ResultVisitor<T> visitor) throws SQLException {
+		query(conn, sql, (StatementPreparer) null, ResultSetVisitors.ofRows(ResultRowMappers.ofMapping(mapping), visitor));
+	}
+
+	public static <T> void queryForList(Connection conn, String sql, Iterable<?> parameters, BeanMapping<T> mapping, ResultVisitor<T> visitor) throws SQLException {
+		query(conn, sql, preparerOfParameters(parameters), ResultSetVisitors.ofRows(ResultRowMappers.ofMapping(mapping), visitor));
+	}
+
+	public static <T> void queryForList(Connection conn, String sql, Object[] parameters, BeanMapping<T> mapping, ResultVisitor<T> visitor) throws SQLException {
+		query(conn, sql, preparerOfParameters(parameters), ResultSetVisitors.ofRows(ResultRowMappers.ofMapping(mapping), visitor));
+	}
+
 
 	public static <T> List<T> queryForList(Connection conn, String sql, Class<T> beanType) throws SQLException {
 		return query(conn, sql, (StatementPreparer) null, ResultExtractors.ofBeanList(beanType));
@@ -254,6 +336,18 @@ public class Jdbcs {
 		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofMappingList(mapping));
 	}
 
+	public static void queryForMap(Connection conn, String sql, ResultVisitor<Map<String, Object>> visitor) throws SQLException {
+		query(conn, sql, (StatementPreparer) null, ResultSetVisitors.ofRows(ResultRowMappers.ofMap(), visitor));
+	}
+
+	public static void queryForMap(Connection conn, String sql, Iterable<?> parameters, ResultVisitor<Map<String, Object>> visitor) throws SQLException {
+		query(conn, sql, preparerOfParameters(parameters), ResultSetVisitors.ofRows(ResultRowMappers.ofMap(), visitor));
+	}
+
+	public static void queryForMap(Connection conn, String sql, Object[] parameters, ResultVisitor<Map<String, Object>> visitor) throws SQLException {
+		query(conn, sql, preparerOfParameters(parameters), ResultSetVisitors.ofRow(ResultRowMappers.ofMap(), visitor));
+	}
+
 	public static Map<String, Object> queryForMap(Connection conn, String sql) throws SQLException {
 		return query(conn, sql, (StatementPreparer) null, ResultExtractors.ofMap());
 	}
@@ -266,16 +360,40 @@ public class Jdbcs {
 		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofMap());
 	}
 
+	public static <T> void queryForObject(Connection conn, String sql, Class<T> beanType, ResultVisitor<T> visitor) throws SQLException {
+		query(conn, sql, (StatementPreparer) null, ResultSetVisitors.ofRow(ResultRowMappers.ofBean(beanType), visitor));
+	}
+
+	public static <T> void queryForObject(Connection conn, String sql, Iterable<?> parameters, Class<T> beanType, ResultVisitor<T> visitor) throws SQLException {
+		query(conn, sql, preparerOfParameters(parameters), ResultSetVisitors.ofRow(ResultRowMappers.ofBean(beanType), visitor));
+	}
+
+	public static <T> void queryForObject(Connection conn, String sql, Object[] parameters, Class<T> beanType, ResultVisitor<T> visitor) throws SQLException {
+		query(conn, sql, preparerOfParameters(parameters), ResultSetVisitors.ofRow(ResultRowMappers.ofBean(beanType), visitor));
+	}
+
 	public static <T> T queryForObject(Connection conn, String sql, Class<T> beanType) throws SQLException {
 		return query(conn, sql, (StatementPreparer) null, ResultExtractors.ofBean(beanType));
 	}
 
 	public static <T> T queryForObject(Connection conn, String sql, Iterable<?> parameters, Class<T> beanType) throws SQLException {
-		return query(conn, sql, parameters, ResultExtractors.ofBean(beanType));
+		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofBean(beanType));
 	}
 
 	public static <T> T queryForObject(Connection conn, String sql, Object[] parameters, Class<T> beanType) throws SQLException {
-		return query(conn, sql, parameters, ResultExtractors.ofBean(beanType));
+		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofBean(beanType));
+	}
+
+	public static <T> void queryForMapping(Connection conn, String sql, BeanMapping<T> mapping, ResultVisitor<T> visitor) throws SQLException {
+		query(conn, sql, (StatementPreparer) null, ResultSetVisitors.ofRow(ResultRowMappers.ofMapping(mapping), visitor));
+	}
+
+	public static <T> void queryForMapping(Connection conn, String sql, Iterable<?> parameters, BeanMapping<T> mapping, ResultVisitor<T> visitor) throws SQLException {
+		query(conn, sql, parameters, ResultSetVisitors.ofRow(ResultRowMappers.ofMapping(mapping), visitor));
+	}
+
+	public static <T> void queryForMapping(Connection conn, String sql, Object[] parameters, BeanMapping<T> mapping, ResultVisitor<T> visitor) throws SQLException {
+		query(conn, sql, parameters, ResultSetVisitors.ofRow(ResultRowMappers.ofMapping(mapping), visitor));
 	}
 
 	public static <T> T queryForMapping(Connection conn, String sql, BeanMapping<T> mapping) throws SQLException {
@@ -290,6 +408,19 @@ public class Jdbcs {
 		return query(conn, sql, parameters, ResultExtractors.ofMapping(mapping));
 	}
 
+	public static void queryForSingle(Connection conn, String sql, ResultVisitor<Object> visitor) throws SQLException {
+		query(conn, sql, (StatementPreparer) null, ResultSetVisitors.ofRow(ResultRowMappers.ofSingle(Object.class), visitor));
+	}
+
+	public static void queryForSingle(Connection conn, String sql, Iterable<?> parameters, ResultVisitor<Object> visitor) throws SQLException {
+		query(conn, sql, preparerOfParameters(parameters), ResultSetVisitors.ofRow(ResultRowMappers.ofSingle(Object.class), visitor));
+	}
+
+	public static void queryForSingle(Connection conn, String sql, Object[] parameters, ResultVisitor<Object> visitor) throws SQLException {
+		query(conn, sql, preparerOfParameters(parameters), ResultSetVisitors.ofRow(ResultRowMappers.ofSingle(Object.class), visitor));
+	}
+
+
 	public static Object queryForSingle(Connection conn, String sql) throws SQLException {
 		return query(conn, sql, (StatementPreparer) null, ResultExtractors.ofSingle());
 	}
@@ -300,6 +431,30 @@ public class Jdbcs {
 
 	public static Object queryForSingle(Connection conn, String sql, Object[] parameters) throws SQLException {
 		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofSingle());
+	}
+
+	public static <T> void queryForSingle(Connection conn, String sql, Class<T> type, ResultVisitor<T> visitor) throws SQLException {
+		query(conn, sql, (StatementPreparer) null, ResultSetVisitors.ofRow(ResultRowMappers.ofSingle(type), visitor));
+	}
+
+	public static <T> void queryForSingle(Connection conn, String sql, Iterable<?> parameters, Class<T> type, ResultVisitor<T> visitor) throws SQLException {
+		query(conn, sql, preparerOfParameters(parameters), ResultSetVisitors.ofRow(ResultRowMappers.ofSingle(type), visitor));
+	}
+
+	public static <T> void queryForSingle(Connection conn, String sql, Object[] parameters, Class<T> type, ResultVisitor<T> visitor) throws SQLException {
+		query(conn, sql, preparerOfParameters(parameters), ResultSetVisitors.ofRow(ResultRowMappers.ofSingle(type), visitor));
+	}
+
+	public static <T> T queryForSingle(Connection conn, String sql, Class<T> type) throws SQLException {
+		return query(conn, sql, (StatementPreparer) null, ResultExtractors.ofSingle(type));
+	}
+
+	public static <T> T queryForSingle(Connection conn, String sql, Iterable<?> parameters, Class<T> type) throws SQLException {
+		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofSingle(type));
+	}
+
+	public static <T> T queryForSingle(Connection conn, String sql, Object[] parameters, Class<T> type) throws SQLException {
+		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofSingle(type));
 	}
 
 	public static int update(Connection conn, SqlNode sql) throws SQLException {

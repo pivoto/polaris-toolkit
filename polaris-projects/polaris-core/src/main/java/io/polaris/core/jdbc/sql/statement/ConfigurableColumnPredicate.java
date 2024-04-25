@@ -54,7 +54,7 @@ public class ConfigurableColumnPredicate implements ColumnPredicate {
 		return new ConfigurableColumnPredicate(isIncludeColumns, isExcludeColumns, isIncludeEmptyColumns, includeAllEmpty);
 	}
 
-	public static ColumnPredicate of(Map<String, Object> bindings, io.polaris.core.jdbc.sql.annotation.segment.ColumnPredicate predicate) {
+	public static ColumnPredicate of(Map<String, Object> bindings, io.polaris.core.jdbc.annotation.segment.ColumnPredicate predicate) {
 		return ConfigurableColumnPredicate.of(bindings,
 			predicate.includeColumns(), predicate.includeColumnsKey(),
 			predicate.excludeColumns(), predicate.excludeColumnsKey(),

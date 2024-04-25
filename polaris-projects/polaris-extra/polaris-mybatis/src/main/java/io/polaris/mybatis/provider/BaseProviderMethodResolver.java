@@ -6,9 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-import io.polaris.core.jdbc.sql.EntityStatements;
-import io.polaris.core.jdbc.sql.annotation.SqlEntity;
-import io.polaris.core.jdbc.sql.statement.segment.TableAccessible;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.Types;
 import io.polaris.core.lang.bean.BeanMap;

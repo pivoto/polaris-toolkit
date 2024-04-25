@@ -51,7 +51,7 @@ public class BaseTestJdbcExecutor {
 			try {
 				Jdbcs.rollback(conn);
 			} catch (SQLException ex) {
-				log.error(e, e.getMessage());
+				log.error(ex, ex.getMessage());
 			}
 			return false;
 		}

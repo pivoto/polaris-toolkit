@@ -10,12 +10,14 @@ import io.polaris.core.TestConsole;
 import io.polaris.core.jdbc.annotation.Column;
 import io.polaris.core.jdbc.annotation.Id;
 import io.polaris.core.jdbc.annotation.Table;
-import io.polaris.core.jdbc.base.annotation.Key;
+import io.polaris.core.jdbc.annotation.Key;
+import io.polaris.core.jdbc.annotation.SqlQuery;
 import io.polaris.core.jdbc.executor.JdbcExecutors;
-import io.polaris.core.jdbc.sql.annotation.EntityDelete;
-import io.polaris.core.jdbc.sql.annotation.EntityInsert;
-import io.polaris.core.jdbc.sql.annotation.EntitySelect;
+import io.polaris.core.jdbc.annotation.EntityDelete;
+import io.polaris.core.jdbc.annotation.EntityInsert;
+import io.polaris.core.jdbc.annotation.EntitySelect;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
+import io.polaris.core.jdbc.sql.statement.SelectStatement;
 import io.polaris.core.random.Randoms;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,7 +46,15 @@ public class JdbcExecutorsTest {
 			TestConsole.println("insert: {}", testInterface.insert(conn, entity));
 			conn.commit();
 
+			TestConsole.println("select: {}",testInterface.get(conn,
+				JobEnv.builder().id(sys).deleted(false).build()));
 			TestConsole.println("select: {}",testInterface.getList(conn, JobEnv.builder().build()));
+			TestConsole.println("select: {}",testInterface.getList(conn,
+				JobEnv.builder().profile("test").deleted(false).build()));
+			TestConsole.println("select: {}",testInterface.getList(conn,
+				JdbcExecutorsTest$JobEnvSql.select()
+					.selectAll().where().deleted().isFalse().end()
+			));
 
 			TestConsole.println("delete: {}", testInterface.delete(conn, entity));
 			conn.commit();
@@ -55,6 +65,9 @@ public class JdbcExecutorsTest {
 
 	public interface TestInterface {
 
+		@EntitySelect(table = JobEnv.class, byId = true)
+		JobEnv get(Connection conn, @Key(BindingKeys.ENTITY) JobEnv param);
+
 		@EntitySelect(table = JobEnv.class, byId = false)
 		List<JobEnv> getList(Connection conn, @Key(BindingKeys.ENTITY) JobEnv param);
 
@@ -63,6 +76,9 @@ public class JdbcExecutorsTest {
 
 		@EntityDelete(table = JobEnv.class, byId = true)
 		int delete(Connection conn, @Key(BindingKeys.ENTITY) JobEnv param);
+
+		@SqlQuery
+		List<JobEnv> getList(Connection conn,@Key(BindingKeys.SQL)  SelectStatement<?> sql);
 
 
 		default String test2() {
