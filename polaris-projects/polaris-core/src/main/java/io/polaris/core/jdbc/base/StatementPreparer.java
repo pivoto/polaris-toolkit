@@ -9,6 +9,6 @@ import java.sql.SQLException;
  */
 public interface StatementPreparer {
 
-	void set(PreparedStatement st) throws SQLException;
+	void setParameters(PreparedStatement st, ParameterPreparer parameterPreparer) throws SQLException;
 
 }

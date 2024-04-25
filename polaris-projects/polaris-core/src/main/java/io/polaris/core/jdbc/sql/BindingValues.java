@@ -33,7 +33,7 @@ public class BindingValues {
 	public static Object getValueForInsert(ColumnMeta meta, Object val) {
 		if (val == null) {
 			if (meta.isCreateTime() || meta.isUpdateTime()) {
-				val = Converters.convertQuietly(meta.getFieldType(), new Date());
+				val = Converters.convertQuietly(meta.getFieldType(), new java.sql.Timestamp(System.currentTimeMillis()));
 			}
 		}
 		if (val == null) {
@@ -58,7 +58,7 @@ public class BindingValues {
 	public static Object getValueForUpdate(ColumnMeta meta, Object val) {
 		if (val == null) {
 			if (meta.isUpdateTime()) {
-				val = Converters.convertQuietly(meta.getFieldType(), new Date());
+				val = Converters.convertQuietly(meta.getFieldType(), new java.sql.Timestamp(System.currentTimeMillis()));
 			}
 		}
 		if (val == null) {
@@ -116,14 +116,14 @@ public class BindingValues {
 	}
 
 	public static Object getDefaultTimeVal(Class<?> fieldType) {
-		if (fieldType.isAssignableFrom(Date.class)) {
-			return new Date();
-		}
 		if (fieldType.isAssignableFrom(Timestamp.class)) {
 			return new Timestamp(System.currentTimeMillis());
 		}
 		if (fieldType.isAssignableFrom(java.sql.Date.class)) {
-			return new Timestamp(System.currentTimeMillis());
+			return new java.sql.Date(System.currentTimeMillis());
+		}
+		if (fieldType.isAssignableFrom(Date.class)) {
+			return new Date();
 		}
 		if (fieldType.isAssignableFrom(LocalDateTime.class)) {
 			return LocalDateTime.now();

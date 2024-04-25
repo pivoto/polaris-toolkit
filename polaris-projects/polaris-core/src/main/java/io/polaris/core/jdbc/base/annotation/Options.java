@@ -7,6 +7,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import io.polaris.core.jdbc.base.DefaultParameterPreparer;
+import io.polaris.core.jdbc.base.ParameterPreparer;
+
 /**
  * @author Qt
  * @since 1.8,  Feb 06, 2024
@@ -26,5 +29,7 @@ public @interface Options {
 	String[] keyProperty() default {};
 
 	String[] keyColumn() default {};
+
+	Class<? extends ParameterPreparer> parameterPreparer() default DefaultParameterPreparer.class;
 
 }

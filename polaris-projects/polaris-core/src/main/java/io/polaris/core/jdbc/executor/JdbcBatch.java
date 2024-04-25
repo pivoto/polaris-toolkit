@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 
 import io.polaris.core.collection.ObjectArrays;
 import io.polaris.core.jdbc.Jdbcs;
+import io.polaris.core.jdbc.base.DefaultParameterPreparer;
 import io.polaris.core.jdbc.base.JdbcOptions;
 import io.polaris.core.jdbc.base.StatementPreparer;
 import io.polaris.core.jdbc.sql.PreparedSql;
@@ -81,7 +82,7 @@ public class JdbcBatch {
 
 		if (sql.equals(currentSql) && conn.equals(currentConnection)) {
 			if (preparer != null) {
-				preparer.set(currentStatement);
+				preparer.setParameters(currentStatement, DefaultParameterPreparer.orDefault(options.getParameterPreparer()));
 			}
 			if (currentBindingsList != null) {
 				currentBindingsList.add(generatedKeyBinding);
@@ -99,7 +100,7 @@ public class JdbcBatch {
 
 		PreparedStatement st = Jdbcs.prepareStatement(conn, sql, options);
 		if (preparer != null) {
-			preparer.set(st);
+			preparer.setParameters(st, null);
 		}
 		st.addBatch();
 		currentSql = sql;

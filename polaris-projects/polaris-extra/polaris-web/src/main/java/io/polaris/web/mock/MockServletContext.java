@@ -1,7 +1,6 @@
 package io.polaris.web.mock;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -137,9 +136,8 @@ public class MockServletContext implements ServletContext {
 
 	@Override
 	public Set<String> getResourcePaths(String path) {
-		String actualPath = (path.endsWith("/") ? path : path + "/");
 		try {
-			File[] files = new File(this.resourceBasePath + actualPath).listFiles();
+			File[] files = new File(this.resourceBasePath, path).listFiles();
 			Set<String> resourcePaths = new LinkedHashSet<String>(files.length);
 			for (File file : files) {
 				String resultPath = file.getName();
@@ -232,13 +230,7 @@ public class MockServletContext implements ServletContext {
 
 	@Override
 	public String getRealPath(String path) {
-		Resource resource = this.resourceLoader.getResource(getResourceLocation(path));
-		try {
-			return resource.getFile().getAbsolutePath();
-		} catch (IOException ex) {
-			log.warn("Couldn't determine real path of resource " + resource, ex);
-			return getResourceLocation(path);
-		}
+		return new File(this.resourceBasePath, path).getAbsolutePath();
 	}
 
 	@Override

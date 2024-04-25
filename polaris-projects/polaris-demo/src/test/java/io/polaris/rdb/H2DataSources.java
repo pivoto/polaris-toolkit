@@ -29,6 +29,7 @@ public class H2DataSources {
 	private static final String MODE_ORACLE = "Oracle";
 
 	public static void loadScripts(DataSource ds, String path, String encoding) throws IOException, SQLException {
+		Thread.currentThread().getContextClassLoader().getResources(path);
 		ResourcePatternResolver resolver = ResourcePatternUtils
 			.getResourcePatternResolver(new ClassRelativeResourceLoader(H2DataSources.class));
 		Resource[] resources = resolver.getResources(path);

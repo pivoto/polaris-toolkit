@@ -24,6 +24,7 @@ import javax.sql.DataSource;
 import io.polaris.core.collection.ObjectArrays;
 import io.polaris.core.collection.PrimitiveArrays;
 import io.polaris.core.jdbc.base.BeanMapping;
+import io.polaris.core.jdbc.base.DefaultParameterPreparer;
 import io.polaris.core.jdbc.base.JdbcOptions;
 import io.polaris.core.jdbc.base.ResultExtractor;
 import io.polaris.core.jdbc.base.ResultExtractors;
@@ -345,7 +346,7 @@ public class Jdbcs {
 			log.debug("执行查询SQL：{}", sql);
 			st = prepareStatement(conn, sql, options);
 			if (preparer != null) {
-				preparer.set(st);
+				preparer.setParameters(st, DefaultParameterPreparer.orDefault(options.getParameterPreparer()));
 			}
 			rs = st.executeQuery();
 			if (extractor != null) {
@@ -369,7 +370,7 @@ public class Jdbcs {
 			log.debug("执行查询SQL：{}", sql);
 			st = prepareStatement(conn, sql, options);
 			if (preparer != null) {
-				preparer.set(st);
+				preparer.setParameters(st, DefaultParameterPreparer.orDefault(options.getParameterPreparer()));
 			}
 			rs = st.executeQuery();
 			if (visitor != null) {
@@ -399,7 +400,7 @@ public class Jdbcs {
 			log.debug("执行SQL：{}", sql);
 			st = prepareStatement(conn, sql, options);
 			if (preparer != null) {
-				preparer.set(st);
+				preparer.setParameters(st, DefaultParameterPreparer.orDefault(options.getParameterPreparer()));
 			}
 			int rows = st.executeUpdate();
 			String[] keyProperties = options.getKeyProperties();
@@ -496,9 +497,9 @@ public class Jdbcs {
 	}
 
 	public static StatementPreparer preparerOfAll(StatementPreparer... preparers) {
-		return st -> {
+		return (st, p) -> {
 			for (StatementPreparer preparer : preparers) {
-				preparer.set(st);
+				preparer.setParameters(st, p);
 			}
 		};
 	}
@@ -506,13 +507,15 @@ public class Jdbcs {
 	public static StatementPreparer preparerOfParameters(Iterable<?> parameters) {
 		if (parameters instanceof List && parameters instanceof RandomAccess) {
 			List<?> list = (List<?>) parameters;
-			return st -> {
+			return (st, p) -> {
 				if (log.isDebugEnabled()) {
 					StringBuilder sb = new StringBuilder().append("[ ");
 					for (int i = 0; i < list.size(); i++) {
 						Object o = list.get(i);
 						if (o == null) {
 							st.setNull(i + 1, Types.VARCHAR);
+						} else if (p != null) {
+							p.set(st, i + 1, o);
 						} else {
 							st.setObject(i + 1, o);
 						}
@@ -535,13 +538,15 @@ public class Jdbcs {
 				}
 			};
 		}
-		return st -> {
+		return (st, p) -> {
 			int i = 1;
 			if (log.isDebugEnabled()) {
 				StringBuilder sb = new StringBuilder().append("[ ");
 				for (Object o : parameters) {
 					if (o == null) {
 						st.setNull(i, Types.VARCHAR);
+					} else if (p != null) {
+						p.set(st, i, o);
 					} else {
 						st.setObject(i, o);
 					}
