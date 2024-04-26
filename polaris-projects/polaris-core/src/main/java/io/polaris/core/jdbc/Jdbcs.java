@@ -161,6 +161,16 @@ public class Jdbcs {
 		}
 	}
 
+	public static void rollbackQuietly(Connection connection) {
+		if (connection != null) {
+			try {
+				connection.rollback();
+			} catch (SQLException e) {
+				log.error(e.getMessage(), e);
+			}
+		}
+	}
+
 	public static boolean doTransaction(Connection conn, Executable runnable) throws Throwable {
 		boolean autoCommit = conn.getAutoCommit();
 		try {
