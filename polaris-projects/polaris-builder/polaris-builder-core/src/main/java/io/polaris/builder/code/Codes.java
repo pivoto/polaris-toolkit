@@ -92,7 +92,6 @@ public class Codes {
 		generate(metadata, tables, targets);
 	}
 
-	@SuppressWarnings("AlibabaMethodTooLong")
 	private static void generate(Metadata metadata, Table[] tables, String... targets) throws IOException {
 		if (tables.length == 0) {
 			return;

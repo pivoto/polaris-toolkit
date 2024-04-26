@@ -18,7 +18,6 @@ import java.util.function.Function;
 /**
  * @author Qt
  */
-@SuppressWarnings({"AlibabaAvoidCommentBehindStatement"})
 @Data
 @XStreamAlias("column")
 public class ColumnDto implements Serializable {

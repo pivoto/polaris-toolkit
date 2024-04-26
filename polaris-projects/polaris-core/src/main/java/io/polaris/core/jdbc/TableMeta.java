@@ -15,7 +15,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @EqualsAndHashCode
-public class TableMeta {
+public class TableMeta implements Cloneable {
 	private final Class<?> entityClass;
 	private final String schema;
 	private final String catalog;
@@ -42,6 +42,24 @@ public class TableMeta {
 
 	public static Builder builder() {
 		return new Builder();
+	}
+
+	@Override
+	public TableMeta clone() {
+		Map<String, ColumnMeta> cloneColumns = new HashMap<>();
+		// clone columns
+		columns.forEach((key, value) -> {
+			cloneColumns.put(key, value.clone());
+		});
+		TableMeta clone = TableMeta.builder()
+			.entityClass(entityClass)
+			.schema(schema)
+			.catalog(catalog)
+			.table(table)
+			.alias(alias)
+			.columns(Collections.unmodifiableMap(cloneColumns))
+			.build();
+		return clone;
 	}
 
 	public static final class Builder {

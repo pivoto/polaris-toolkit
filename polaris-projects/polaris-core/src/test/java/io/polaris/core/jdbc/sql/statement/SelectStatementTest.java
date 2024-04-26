@@ -1,6 +1,8 @@
 package io.polaris.core.jdbc.sql.statement;
 
 import io.polaris.core.TestConsole;
+import io.polaris.core.jdbc.entity.Demo2Entity;
+import io.polaris.core.jdbc.entity.DemoEntity;
 import io.polaris.core.jdbc.sql.BoundSql;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.Criterion;

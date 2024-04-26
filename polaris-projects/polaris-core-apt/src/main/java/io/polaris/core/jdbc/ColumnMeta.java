@@ -12,7 +12,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @EqualsAndHashCode
-public class ColumnMeta {
+public class ColumnMeta implements Cloneable{
 	private final String catalog;
 	private final String schema;
 	private final String tableName;
@@ -58,5 +58,15 @@ public class ColumnMeta {
 		this.logicDeleted = logicDeleted;
 		this.createTime = createTime;
 		this.updateTime = updateTime;
+	}
+
+	@Override
+	public ColumnMeta clone() {
+		try {
+			ColumnMeta clone = (ColumnMeta) super.clone();
+			return clone;
+		} catch (CloneNotSupportedException e) {
+			throw new AssertionError();
+		}
 	}
 }

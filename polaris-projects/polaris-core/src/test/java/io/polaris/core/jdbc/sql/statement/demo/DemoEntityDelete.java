@@ -1,7 +1,7 @@
 package io.polaris.core.jdbc.sql.statement.demo;
 
 import io.polaris.core.jdbc.sql.statement.DeleteStatement;
-import io.polaris.core.jdbc.sql.statement.DemoEntity;
+import io.polaris.core.jdbc.entity.DemoEntity;
 
 /**
  * @author Qt

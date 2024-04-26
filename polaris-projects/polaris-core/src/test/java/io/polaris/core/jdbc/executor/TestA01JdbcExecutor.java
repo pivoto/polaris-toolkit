@@ -3,6 +3,8 @@ package io.polaris.core.jdbc.executor;
 import java.sql.SQLException;
 
 import io.polaris.core.jdbc.Jdbcs;
+import io.polaris.core.jdbc.entity.DemoTest01Entity;
+import io.polaris.core.jdbc.entity.DemoTest02Entity;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
 import org.junit.jupiter.api.AfterAll;

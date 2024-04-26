@@ -1,6 +1,7 @@
 package io.polaris.core.jdbc.sql.statement;
 
 import io.polaris.core.TestConsole;
+import io.polaris.core.jdbc.entity.DemoEntity;
 import io.polaris.core.jdbc.sql.statement.segment.TableField;
 import org.junit.jupiter.api.Test;
 

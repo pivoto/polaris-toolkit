@@ -1,4 +1,4 @@
-package io.polaris.core.jdbc.sql.statement;
+package io.polaris.core.jdbc.entity;
 
 import io.polaris.core.jdbc.annotation.Column;
 import io.polaris.core.jdbc.annotation.Id;
@@ -13,13 +13,13 @@ import lombok.experimental.FieldNameConstants;
  * @author Qt
  * @since 1.8,  Aug 23, 2023
  */
-@Table(value = "t_demo")
+@Table(value = "t_demo1")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldNameConstants
-public class DemoEntity {
+public class Demo1Entity {
 	@Id
 	private Long id;
 	private String name;

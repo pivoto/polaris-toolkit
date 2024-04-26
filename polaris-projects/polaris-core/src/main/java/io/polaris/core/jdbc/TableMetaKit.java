@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.polaris.core.annotation.Experimental;
 import io.polaris.core.asm.reflect.ClassAccess;
 import io.polaris.core.jdbc.annotation.Column;
 import io.polaris.core.jdbc.annotation.Id;
@@ -26,6 +27,7 @@ public class TableMetaKit {
 	private static final ILogger log = ILoggers.of(TableMetaKit.class);
 	private static final TableMetaKit instance = new TableMetaKit();
 	private final Map<Class<?>, TableMeta> cache = new ConcurrentHashMap<>();
+	private volatile Map<Class<?>, TableMeta> mutableCache = new ConcurrentHashMap<>();
 
 	public static TableMetaKit instance() {
 		return instance;
@@ -35,16 +37,36 @@ public class TableMetaKit {
 		return instance;
 	}
 
+	/**
+	 * 覆盖默认的实体表元数据配置信息，优先级高于默认配置
+	 * <p>
+	 * 建议只在需要动态修改表名、列名等场景下使用
+	 */
+	@Experimental
+	public TableMeta setMutable(Class<?> entityClass, TableMeta tableMeta) {
+		return mutableCache.put(entityClass, tableMeta);
+	}
+
+	@Experimental
+	public TableMeta removeMutable(Class<?> entityClass, TableMeta tableMeta) {
+		return mutableCache.remove(entityClass);
+	}
+
 	public TableMeta get(String entityClassName) {
 		try {
 			Class<?> type = Class.forName(entityClassName);
 			return get(type);
 		} catch (ClassNotFoundException e) {
-			return null;
+			throw new IllegalArgumentException(e);
 		}
 	}
 
 	public TableMeta get(Class<?> entityClass) {
+		// 优先使用动态覆写的配置
+		TableMeta meta = mutableCache.get(entityClass);
+		if (meta != null) {
+			return meta;
+		}
 		return cache.computeIfAbsent(entityClass, c -> parse(entityClass));
 	}
 

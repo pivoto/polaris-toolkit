@@ -1,7 +1,7 @@
 package io.polaris.core.jdbc.sql.statement.demo;
 
 import io.polaris.core.jdbc.sql.node.TextNode;
-import io.polaris.core.jdbc.sql.statement.DemoEntity;
+import io.polaris.core.jdbc.entity.DemoEntity;
 import io.polaris.core.jdbc.sql.statement.SelectStatement;
 import io.polaris.core.jdbc.sql.statement.segment.JoinBuilder;
 import io.polaris.core.jdbc.sql.statement.segment.JoinSegment;

@@ -1,6 +1,7 @@
 package io.polaris.core.jdbc.sql.statement;
 
 import io.polaris.core.TestConsole;
+import io.polaris.core.jdbc.entity.DemoEntity;
 import io.polaris.core.jdbc.sql.PreparedSql;
 import io.polaris.core.jdbc.sql.statement.segment.TableField;
 import net.sf.jsqlparser.JSQLParserException;

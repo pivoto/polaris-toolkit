@@ -187,7 +187,6 @@ public class SqlTextParsers {
 	 *   </li>
 	 * </ul>
 	 */
-	@SuppressWarnings("AlibabaMethodTooLong")
 	public static String resolveTableRef(String sql) {
 		if (Strings.isBlank(sql)) {
 			return sql;

@@ -1,4 +1,4 @@
-package io.polaris.core.jdbc.sql.statement;
+package io.polaris.core.jdbc.entity;
 
 import io.polaris.core.jdbc.annotation.Column;
 import io.polaris.core.jdbc.annotation.Id;
@@ -19,7 +19,7 @@ import lombok.experimental.FieldNameConstants;
 @AllArgsConstructor
 @Builder
 @FieldNameConstants
-public class Demo2Entity {
+public class Demo3Entity {
 	@Id
 	private Long id;
 	private String name;

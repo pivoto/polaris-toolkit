@@ -1,6 +1,6 @@
 package io.polaris.core.jdbc.sql.statement.demo;
 
-import io.polaris.core.jdbc.sql.statement.DemoEntity;
+import io.polaris.core.jdbc.entity.DemoEntity;
 import io.polaris.core.jdbc.sql.statement.SelectStatement;
 
 /**

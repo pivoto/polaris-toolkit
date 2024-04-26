@@ -12,6 +12,8 @@ import io.polaris.core.jdbc.annotation.SqlRaw;
 import io.polaris.core.jdbc.annotation.SqlRawSimple;
 import io.polaris.core.jdbc.annotation.segment.SqlRawItem;
 import io.polaris.core.jdbc.annotation.segment.SqlRawItem1;
+import io.polaris.core.jdbc.entity.DemoTest01Entity;
+import io.polaris.core.jdbc.entity.DemoTest02Entity;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 
 /**
