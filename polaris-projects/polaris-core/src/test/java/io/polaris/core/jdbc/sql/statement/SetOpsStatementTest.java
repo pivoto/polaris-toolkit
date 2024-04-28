@@ -1,6 +1,9 @@
 package io.polaris.core.jdbc.sql.statement;
 
 import io.polaris.core.TestConsole;
+import io.polaris.core.jdbc.entity.Demo2EntitySql;
+import io.polaris.core.jdbc.entity.Demo3EntitySql;
+import io.polaris.core.jdbc.entity.DemoEntitySql;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
