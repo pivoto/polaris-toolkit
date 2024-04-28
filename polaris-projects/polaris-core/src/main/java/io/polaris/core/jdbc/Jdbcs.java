@@ -604,15 +604,16 @@ public class Jdbcs {
 				st.setQueryTimeout(options.getTimeout());
 			}
 			if (parameters != null) {
+				ParameterPreparer parameterPreparer = DefaultParameterPreparer.orDefault(options.getParameterPreparer());
 				for (int i = 0; i < parameters.length; i++) {
 					Object parameter = parameters[i];
 					if (PrimitiveArrays.contains(outIndexes, i)) {
 						if (parameter != null) {
-							st.setObject(i + 1, parameter);
+							parameterPreparer.set(st, i + 1, parameter);
 						}
 					} else {
 						if (parameter != null) {
-							st.setObject(i + 1, parameter);
+							parameterPreparer.set(st, i + 1, parameter);
 						} else {
 							st.setNull(i + 1, Types.VARCHAR);
 						}
@@ -696,6 +697,8 @@ public class Jdbcs {
 						Object o = list.get(i);
 						if (o == null) {
 							st.setNull(i + 1, Types.VARCHAR);
+						} else if (p != null) {
+							p.set(st, i + 1, o);
 						} else {
 							st.setObject(i + 1, o);
 						}
@@ -727,6 +730,8 @@ public class Jdbcs {
 				for (Object o : parameters) {
 					if (o == null) {
 						st.setNull(i, Types.VARCHAR);
+					} else if (p != null) {
+						p.set(st, i, o);
 					} else {
 						st.setObject(i, o);
 					}
