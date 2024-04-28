@@ -19,7 +19,7 @@ import io.polaris.core.string.Strings;
  * @since 1.8,  Aug 20, 2023
  */
 @AnnotationProcessing
-public class ColumnSegment<O extends Segment<O>,S extends ColumnSegment<O,S>> extends BaseSegment<S> {
+public class ColumnSegment<O extends Segment<O>, S extends ColumnSegment<O, S>> extends BaseSegment<S> {
 
 	private final O owner;
 	private final TableSegment<?> table;
@@ -29,7 +29,7 @@ public class ColumnSegment<O extends Segment<O>,S extends ColumnSegment<O,S>> ex
 	/** 表达式 */
 	private ExpressionSegment<?> expression;
 
-	public <T extends TableSegment<?>> ColumnSegment(O owner,T table) {
+	public <T extends TableSegment<?>> ColumnSegment(O owner, T table) {
 		this.owner = owner;
 		this.table = table;
 	}
@@ -69,6 +69,10 @@ public class ColumnSegment<O extends Segment<O>,S extends ColumnSegment<O,S>> ex
 		return apply(Expressions.pattern(functionPattern));
 	}
 
+	public S apply(String functionPattern, Object[] bindings) {
+		return apply(Expressions.pattern(functionPattern), bindings);
+	}
+
 	public S apply(String functionPattern, Map<String, Object> bindings) {
 		return apply(Expressions.pattern(functionPattern), bindings);
 	}
@@ -93,6 +97,11 @@ public class ColumnSegment<O extends Segment<O>,S extends ColumnSegment<O,S>> ex
 
 	public S apply(Expression function) {
 		this.expression = new ExpressionSegment<>(this.expression, function, StdConsts.EMPTY_ARRAY);
+		return getThis();
+	}
+
+	public S apply(Expression function, Object[] bindings) {
+		this.expression = new ExpressionSegment<>(this.expression, function, bindings);
 		return getThis();
 	}
 
