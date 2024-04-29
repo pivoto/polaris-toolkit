@@ -67,6 +67,16 @@ public class Strings {
 		return (t == 0 ? "" : (t + "T ")) + (g == 0 ? "" : (g + "G ")) + (m == 0 ? "" : (m + "M ")) + (k == 0 ? "" : (k + "K ")) + (b == 0 ? "" : (b + "B"));
 	}
 
+	public static String truncate(String str, int maxLength) {
+		if (str == null) {
+			return null;
+		}
+		str = str.trim();
+		if (str.length() <= maxLength) {
+			return str;
+		}
+		return str.substring(0, maxLength);
+	}
 
 	public static String padStart(String str, int minLength, char pad) {
 		str = coalesce(str, "");
