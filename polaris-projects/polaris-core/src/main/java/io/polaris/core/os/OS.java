@@ -16,7 +16,9 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import io.polaris.core.consts.StdConsts;
+import io.polaris.core.env.GlobalStdEnv;
 import io.polaris.core.regex.Patterns;
+import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
@@ -25,10 +27,12 @@ import io.polaris.core.regex.Patterns;
 @SuppressWarnings("All")
 public class OS {
 
+	public static final String KEY_IP_REGEX = "ip.prior.regex";
 	private static volatile int PID = -1;
 	private static volatile String LOCAL_HOST_IP;
-	private static volatile String CACHE_ONE_IP;
 	private static volatile List<String> CACHE_ALL_IPS;
+	private static volatile String CACHE_IP;
+	private static volatile String CACHE_FIRST_IP;
 	private static volatile String OS_NAME;
 	private static volatile String HOST_NAME;
 	private static volatile long VM_START_TIME = -1;
@@ -80,9 +84,21 @@ public class OS {
 		return ip;
 	}
 
-	public static String getOneIp() {
-		if (null != CACHE_ONE_IP) {
-			return CACHE_ONE_IP;
+	public static String getIp() {
+		if (null != CACHE_IP) {
+			return CACHE_IP;
+		}
+		String ipRegex = GlobalStdEnv.get(KEY_IP_REGEX);
+		if (Strings.isNotBlank(ipRegex)) {
+			// 从系统属性中取优先IP范式，存在则使用
+			String[] arr = Strings.delimitedToArray(ipRegex, ",");
+			if (arr != null && arr.length > 0) {
+				String ip = getPriorIp(arr);
+				if (Strings.isNotBlank(ip)) {
+					CACHE_IP = ip;
+					return ip;
+				}
+			}
 		}
 		try {
 			String localIpAddress = null;
@@ -92,10 +108,9 @@ public class OS {
 				Enumeration<InetAddress> inetAddresses = ni.getInetAddresses();
 				while (inetAddresses.hasMoreElements()) {
 					InetAddress ipAddress = inetAddresses.nextElement();
-					System.out.println(ipAddress);
 					if (!ipAddress.isSiteLocalAddress() && !ipAddress.isLoopbackAddress() && !isV6IpAddress(ipAddress)) {
 						String publicIpAddress = ipAddress.getHostAddress();
-						CACHE_ONE_IP = publicIpAddress;
+						CACHE_IP = publicIpAddress;
 						return publicIpAddress;
 					}
 					if (ipAddress.isSiteLocalAddress() && !ipAddress.isLoopbackAddress() && !isV6IpAddress(ipAddress)) {
@@ -106,7 +121,7 @@ public class OS {
 			if (localIpAddress == null) {
 				localIpAddress = InetAddress.getLocalHost().getHostAddress();
 			}
-			CACHE_ONE_IP = localIpAddress;
+			CACHE_IP = localIpAddress;
 			return localIpAddress;
 		} catch (Throwable e) {
 			return null;
@@ -114,11 +129,14 @@ public class OS {
 	}
 
 	public static String getFirstIp() {
+		if (CACHE_FIRST_IP != null) {
+			return CACHE_FIRST_IP;
+		}
 		List<String> ips = getAllIps();
 		if (ips.size() > 0) {
-			return ips.get(0);
+			CACHE_FIRST_IP = ips.get(0);
 		}
-		return null;
+		return CACHE_FIRST_IP;
 	}
 
 	public static String getPriorIp(String... regex) {
