@@ -3,7 +3,7 @@ package io.polaris.core;
 import java.time.Instant;
 
 import io.polaris.core.converter.Converters;
-import io.polaris.core.date.Dates;
+import io.polaris.core.time.Dates;
 import io.polaris.core.string.Strings;
 
 /**

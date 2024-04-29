@@ -15,7 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAccessor;
 
-import io.polaris.core.date.Dates;
+import io.polaris.core.time.Dates;
 
 /**
  * @author Qt

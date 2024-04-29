@@ -3,7 +3,7 @@ package io.polaris.core.log;
 import java.time.Instant;
 
 import io.polaris.core.collection.ObjectArrays;
-import io.polaris.core.date.Dates;
+import io.polaris.core.time.Dates;
 import io.polaris.core.function.QuaternionConsumer;
 import io.polaris.core.string.Strings;
 

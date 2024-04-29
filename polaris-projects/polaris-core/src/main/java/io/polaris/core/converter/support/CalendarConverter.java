@@ -1,7 +1,7 @@
 package io.polaris.core.converter.support;
 
 import io.polaris.core.converter.AbstractSimpleConverter;
-import io.polaris.core.date.Dates;
+import io.polaris.core.time.Dates;
 import io.polaris.core.lang.JavaType;
 import lombok.Getter;
 import lombok.Setter;

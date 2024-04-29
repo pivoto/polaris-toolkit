@@ -5,7 +5,7 @@ import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
 import io.polaris.core.TestConsole;
-import io.polaris.core.date.Dates;
+import io.polaris.core.time.Dates;
 import io.polaris.core.json.Jsons;
 import io.polaris.core.reflect.Reflects;
 import org.junit.jupiter.api.Assertions;

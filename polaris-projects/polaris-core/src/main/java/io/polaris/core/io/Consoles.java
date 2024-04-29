@@ -1,6 +1,6 @@
 package io.polaris.core.io;
 
-import io.polaris.core.date.Dates;
+import io.polaris.core.time.Dates;
 import io.polaris.core.string.Strings;
 
 import java.time.Instant;

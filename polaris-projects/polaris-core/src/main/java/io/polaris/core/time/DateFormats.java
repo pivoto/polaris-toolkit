@@ -1,4 +1,4 @@
-package io.polaris.core.date;
+package io.polaris.core.time;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -18,7 +18,7 @@ public class DateFormats {
 		return LOCAL.get().computeIfAbsent(pattern, p -> new SimpleDateFormat(pattern));
 	}
 
-	public static String formatCurrentDate(String pattern) {
+	public static String formatNow(String pattern) {
 		return get(pattern).format(new Date());
 	}
 
