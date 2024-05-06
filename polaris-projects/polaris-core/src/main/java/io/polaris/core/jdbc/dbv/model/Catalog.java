@@ -1,6 +1,6 @@
 package io.polaris.core.jdbc.dbv.model;
 
-import io.polaris.core.jdbc.dbv.annotation.ColumnName;
+import io.polaris.core.jdbc.dbv.annotation.DbvColumn;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +15,6 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class Catalog {
 
-	@ColumnName("TABLE_CAT")
+	@DbvColumn("TABLE_CAT")
 	private String value;
 }

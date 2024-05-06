@@ -1,18 +1,24 @@
 package io.polaris.core.jdbc.dbv;
 
-import io.polaris.core.jdbc.Jdbcs;
-import io.polaris.core.jdbc.base.ResultRowSimpleMapper;
-import io.polaris.core.jdbc.dbv.model.*;
-import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
-import io.polaris.core.string.Strings;
-
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import io.polaris.core.jdbc.Jdbcs;
+import io.polaris.core.jdbc.base.ResultRowSimpleMapper;
+import io.polaris.core.jdbc.dbv.model.Catalog;
+import io.polaris.core.jdbc.dbv.model.Column;
+import io.polaris.core.jdbc.dbv.model.IndexInfo;
+import io.polaris.core.jdbc.dbv.model.PrimaryKey;
+import io.polaris.core.jdbc.dbv.model.Schema;
+import io.polaris.core.jdbc.dbv.model.Table;
+import io.polaris.core.jdbc.dbv.model.TableType;
+import io.polaris.core.log.ILogger;
+import io.polaris.core.log.ILoggers;
+import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
@@ -24,10 +30,10 @@ public class Dbv {
 	public static <T> List<T> read(ResultSet rs, List<T> list, final Class<? extends T> clazz)
 		throws InstantiationException, IllegalAccessException {
 		try {
-			ResultSetFetcher.ColumnFieldsMeta meta = ResultSetFetcher.getColumnFieldsMetadata(rs, clazz);
+			DbvColumnFieldsMeta meta = DbvResultSetFetcher.getColumnFieldsMetadata(rs, clazz);
 			while (rs.next()) {
 				final T object = clazz.newInstance();
-				ResultSetFetcher.fetch(meta, rs, object);
+				DbvResultSetFetcher.fetch(meta, rs, object);
 				list.add(object);
 			}
 		} catch (SQLException e) {
@@ -74,8 +80,8 @@ public class Dbv {
 	}
 
 	public static List<Table> readTablesWithoutIndexes(DatabaseMetaData metaData,
-																										 String catalog, String schema,
-																										 String tableName, String type) {
+		String catalog, String schema,
+		String tableName, String type) {
 		try {
 			List<Table> tables = new ArrayList<Table>(100);
 			ResultSet rs = metaData.getTables(catalog, schema, tableName, Strings.isEmpty(type) ? null
@@ -102,8 +108,17 @@ public class Dbv {
 	public static List<Table> readTables(DatabaseMetaData metaData, String catalog, String schema, String tableName, String type) {
 		try {
 			List<Table> tables = new ArrayList<>(100);
-			ResultSet rs = metaData.getTables(Strings.trimToNull(catalog), Strings.trimToNull(schema), Strings.trimToNull(tableName), Strings.isEmpty(type) ? null
-				: type.split("[,|;\\s]+"));
+			if (Strings.isEmpty(catalog)){
+				catalog = metaData.getConnection().getCatalog();
+			}
+			if (Strings.isEmpty(schema)){
+				schema = metaData.getConnection().getSchema();
+			}
+
+			ResultSet rs = metaData.getTables(Strings.trimToNull(catalog),
+				Strings.trimToNull(schema),
+				Strings.trimToNull(tableName),
+				Strings.isEmpty(type) ? null : type.split("[,|;\\s]+"));
 			read(rs, tables, Table.class);
 
 			for (final Table table : tables) {
@@ -141,7 +156,7 @@ public class Dbv {
 
 	public static List<IndexInfo> readIndexes(DatabaseMetaData metaData, String catalog, String schema, String tableName) {
 		try {
-//			boolean approximate = false;
+			// 如果为true，则允许结果反映近似值或超出数据值; 如果为false，则要求结果准确
 			boolean approximate = true;
 			List<IndexInfo> indexes = read(
 				metaData.getIndexInfo(catalog, schema, tableName, false, approximate),

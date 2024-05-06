@@ -1,6 +1,6 @@
 package io.polaris.core.jdbc.dbv.model;
 
-import io.polaris.core.jdbc.dbv.annotation.ColumnName;
+import io.polaris.core.jdbc.dbv.annotation.DbvColumn;
 import io.polaris.core.map.Maps;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -22,29 +22,29 @@ public class Table {
 	/**
 	 * catalog 目录名, 通常为数据库名称
 	 */
-	@ColumnName("TABLE_CAT")
+	@DbvColumn("TABLE_CAT")
 	private String tableCatalog;
 	/**
 	 * schema 模式名, 通常为用户名
 	 */
-	@ColumnName("TABLE_SCHEM")
+	@DbvColumn("TABLE_SCHEM")
 	private String tableSchema;
 	/**
 	 * 表名
 	 */
-	@ColumnName("TABLE_NAME")
+	@DbvColumn("TABLE_NAME")
 	private String tableName;
 	/**
 	 * 表类型
 	 * <p>
 	 * 典型的类型是“TABLE”，“VIEW”，“SYSTEM TABLE”，“GLOBAL TEMPORARY”，“LOCAL TEMPORARY”，“ALIAS”，“SYNONYM”
 	 */
-	@ColumnName("TABLE_TYPE")
+	@DbvColumn("TABLE_TYPE")
 	private String tableType;
 	/**
 	 * 表的备注/注释
 	 */
-	@ColumnName("REMARKS")
+	@DbvColumn("REMARKS")
 	private String remarks;
 	/**
 	 * 主键列表

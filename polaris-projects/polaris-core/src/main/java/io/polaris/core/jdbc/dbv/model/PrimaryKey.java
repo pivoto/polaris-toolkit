@@ -1,6 +1,6 @@
 package io.polaris.core.jdbc.dbv.model;
 
-import io.polaris.core.jdbc.dbv.annotation.ColumnName;
+import io.polaris.core.jdbc.dbv.annotation.DbvColumn;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,34 +19,34 @@ public class PrimaryKey {
 	 * catalog 目录名, 通常为数据库名称
 	 */
 	@ToString.Exclude
-	@ColumnName("TABLE_CAT")
+	@DbvColumn("TABLE_CAT")
 	private String tableCatalog;
 	/**
 	 * schema 模式名, 通常为用户名
 	 */
 	@ToString.Exclude
-	@ColumnName("TABLE_SCHEM")
+	@DbvColumn("TABLE_SCHEM")
 	private String tableSchema;
 	/**
 	 * 表名
 	 */
 	@ToString.Exclude
-	@ColumnName("TABLE_NAME")
+	@DbvColumn("TABLE_NAME")
 	private String tableName;
 	/**
 	 * 列名
 	 */
-	@ColumnName("COLUMN_NAME")
+	@DbvColumn("COLUMN_NAME")
 	private String columnName;
 	/**
 	 * 主键序号
 	 */
-	@ColumnName("KEY_SEQ")
+	@DbvColumn("KEY_SEQ")
 	private String keySeq;
 	/**
 	 * 主键名称
 	 */
-	@ColumnName("PK_NAME")
+	@DbvColumn("PK_NAME")
 	private String pkName;
 
 }

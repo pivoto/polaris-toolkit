@@ -45,9 +45,9 @@ class DbvTest {
 	@Test
 	void test00() throws SQLException {
 		DatabaseMetaData metaData = conn.getMetaData();
-		show(ResultSetFetcher.fetchList(metaData.getTableTypes()));
+		show(DbvResultSetFetcher.fetchList(metaData.getTableTypes()));
 		ResultSet rs = metaData.getTables(null, null, "BRM_USER", new String[]{"TABLE"});
-		List<Map<String, Object>> list = ResultSetFetcher.fetchList(rs);
+		List<Map<String, Object>> list = DbvResultSetFetcher.fetchList(rs);
 		show(list);
 	}
 

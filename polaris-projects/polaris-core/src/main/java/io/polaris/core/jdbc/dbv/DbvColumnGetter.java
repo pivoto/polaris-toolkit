@@ -6,7 +6,7 @@ import java.sql.SQLException;
 /**
  * @author Qt
  */
-public interface ColumnValueGetter<T> {
+public interface DbvColumnGetter<T> {
 
 	/**
 	 * get col value from rs

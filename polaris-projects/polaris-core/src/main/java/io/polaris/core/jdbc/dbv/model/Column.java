@@ -1,6 +1,6 @@
 package io.polaris.core.jdbc.dbv.model;
 
-import io.polaris.core.jdbc.dbv.annotation.ColumnName;
+import io.polaris.core.jdbc.dbv.annotation.DbvColumn;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -74,48 +74,48 @@ public class Column {
 	 * 表类别（可能为 null）
 	 */
 	@ToString.Exclude
-	@ColumnName("TABLE_CAT")
+	@DbvColumn("TABLE_CAT")
 	private String catalog;
 	/**
 	 * 表模式（可能为 null）
 	 */
 	@ToString.Exclude
-	@ColumnName("TABLE_SCHEM")
+	@DbvColumn("TABLE_SCHEM")
 	private String schema;
 	/**
 	 * 表名称
 	 */
-	@ColumnName("TABLE_NAME")
+	@DbvColumn("TABLE_NAME")
 	private String tableName;
 	/**
 	 * 列名称
 	 */
-	@ColumnName("COLUMN_NAME")
+	@DbvColumn("COLUMN_NAME")
 	private String columnName;
 	/**
 	 * java.sql.Types 的 SQL 类型
 	 */
-	@ColumnName("DATA_TYPE")
+	@DbvColumn("DATA_TYPE")
 	private int dataType;
 	/**
 	 * 数据源依赖的类型名称，对于 UDT，该类型名称是完全限定的
 	 */
-	@ColumnName("TYPE_NAME")
+	@DbvColumn("TYPE_NAME")
 	private String typeName;
 	/**
 	 * 列的大小
 	 */
-	@ColumnName("COLUMN_SIZE")
+	@DbvColumn("COLUMN_SIZE")
 	private int columnSize;
 	/**
 	 * 小数部分的位数。对于 DECIMAL_DIGITS 不适用的数据类型，则返回 Null
 	 */
-	@ColumnName("DECIMAL_DIGITS")
+	@DbvColumn("DECIMAL_DIGITS")
 	private int decimalDigits;
 	/**
 	 * 基数（通常为 10 或 2）
 	 */
-	@ColumnName("NUM_PREC_RADIX")
+	@DbvColumn("NUM_PREC_RADIX")
 	private int numPrecRadix;
 	/**
 	 * 是否允许使用 NULL
@@ -123,17 +123,17 @@ public class Column {
 	 * <li>DatabaseMetaData.columnNullable - 绝对允许NULL值</li>
 	 * <li>DatabaseMetaData.columnNullableUnknown - 可空性未知</li>
 	 */
-	@ColumnName("NULLABLE")
+	@DbvColumn("NULLABLE")
 	private int nullable;
 	/**
 	 * 描述列的注释（可为 null）
 	 */
-	@ColumnName("REMARKS")
+	@DbvColumn("REMARKS")
 	private String remarks;
 	/**
 	 * 该列的默认值，当值在单引号内时应被解释为一个字符串（可为 null）
 	 */
-	@ColumnName("COLUMN_DEF")
+	@DbvColumn("COLUMN_DEF")
 	private String columnDef;
 	/**
 	 * ISO规则用于确定列是否包括 null
@@ -141,7 +141,7 @@ public class Column {
 	 * <li>NO---不能包含NULL </li>
 	 * <li>空字符串---列的可空性是未知的 </li>
 	 */
-	@ColumnName("IS_NULLABLE")
+	@DbvColumn("IS_NULLABLE")
 	private String isNullable;
 	/**
 	 * 是否自增:YES/NO
@@ -149,7 +149,7 @@ public class Column {
 	 * <li>NO --- 否 </li>
 	 * <li>空字符串 --- 不确定</li>
 	 */
-	@ColumnName("IS_AUTOINCREMENT")
+	@DbvColumn("IS_AUTOINCREMENT")
 	private String isAutoincrement;
 	/**
 	 * 是否是生成的列 :YES/NO
@@ -157,7 +157,7 @@ public class Column {
 	 * <li>NO --- 否 </li>
 	 * <li>空字符串 --- 不确定</li>
 	 */
-	@ColumnName("IS_GENERATEDCOLUMN")
+	@DbvColumn("IS_GENERATEDCOLUMN")
 	private String isGeneratedcolumn;
 
 	/**
