@@ -8,6 +8,7 @@ import java.util.Map;
 
 import io.polaris.core.TestConsole;
 import io.polaris.core.json.DefaultJsonSerializer;
+import io.polaris.core.json.TestJsonSerializer;
 import io.polaris.core.time.Times;
 import jdk.nashorn.api.scripting.JSObject;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
@@ -28,7 +29,9 @@ public class EvaluatorTest {
 	public static class B {
 		private String id = "b";
 		private int age = 1;
+		private long longVal = System.currentTimeMillis();
 		private Integer intObj = Integer.valueOf(1);
+		private Long longObj = System.currentTimeMillis();
 		private boolean bool = true;
 		private Boolean boolObj = Boolean.TRUE;
 		private Date date = new Date();
@@ -141,14 +144,21 @@ public class EvaluatorTest {
 		Map<String, Object> map = new HashMap<>();
 		map.put("c", "123");
 		map.put("a", "123");
-		map.put("b", B.builder().id("test").age(12).build());
+		B b = new B();
+		map.put("b", b);
 		map.put("d", new ArrayList<>(Arrays.asList("a", "b", "c")));
 		map.put("e", new String[]{"a", "b", "c"});
 
-		TestConsole.println(new DefaultJsonSerializer().serialize(map));
-		TestConsole.println(JSON.toJSONString(map));
+		Object o = map;
 
-		TestConsole.println("elapse: {}ms",Times.millsTime(10000, () -> new DefaultJsonSerializer().serialize(map)));
-		TestConsole.println("elapse: {}ms",Times.millsTime(10000, () -> JSON.toJSONString(map)));
+		DefaultJsonSerializer defaultJsonSerializer = new DefaultJsonSerializer();
+		TestJsonSerializer testJsonSerializer = new TestJsonSerializer();
+		TestConsole.println(defaultJsonSerializer.serialize(o));
+		TestConsole.println(testJsonSerializer.serialize(o));
+		TestConsole.println(JSON.toJSONString(o));
+
+		TestConsole.println("elapse: {}ms",Times.millsTime(10000, () -> JSON.toJSONString(o)));
+		TestConsole.println("elapse: {}ms",Times.millsTime(10000, () -> defaultJsonSerializer.serialize(o)));
+		TestConsole.println("elapse: {}ms",Times.millsTime(10000, () -> testJsonSerializer.serialize(o)));
 	}
 }

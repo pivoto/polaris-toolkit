@@ -1,7 +1,18 @@
 package io.polaris.core.annotation.processing;
 
-import io.polaris.core.annotation.Access;
-import com.squareup.javapoet.*;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.AbstractMap;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -11,10 +22,10 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.*;
-import java.util.function.*;
+
+import io.polaris.core.annotation.Access;
+
+import com.squareup.javapoet.*;
 
 /**
  * @author Qt
@@ -135,6 +146,11 @@ public class AccessProcessor extends BaseProcessor {
 			.addSuperinterface(ParameterizedTypeName.get(ClassName.get(Map.class), ClassName.get(String.class), ClassName.get(Object.class)))
 			.superclass(ParameterizedTypeName.get(ClassName.get(AbstractMap.class), ClassName.get(String.class), ClassName.get(Object.class)))
 			.addField(
+				FieldSpec.builder(ParameterizedTypeName.get(
+						ClassName.get(Map.class), ClassName.get(String.class), ClassName.get(Type.class)),
+					"types", Modifier.STATIC, Modifier.FINAL, Modifier.PRIVATE).build()
+			)
+			.addField(
 				FieldSpec.builder(beanInfo.getBeanTypeName(), "bean", Modifier.FINAL, Modifier.PRIVATE).build()
 			)
 			.addField(
@@ -153,30 +169,24 @@ public class AccessProcessor extends BaseProcessor {
 			)
 			.addField(
 				FieldSpec.builder(ParameterizedTypeName.get(
-						ClassName.get(Map.class), ClassName.get(String.class), ClassName.get(Type.class)),
-					"types", Modifier.FINAL, Modifier.PRIVATE).build()
-			)
-			.addField(
-				FieldSpec.builder(ParameterizedTypeName.get(
-						ClassName.get(BiFunction.class), ClassName.get(Object.class), ClassName.get(Type.class), ClassName.get(Object.class)),
+						ClassName.get(BiFunction.class), ClassName.get(Type.class), ClassName.get(Object.class), ClassName.get(Object.class)),
 					"converter", Modifier.FINAL, Modifier.PRIVATE).build()
 			)
 			.addMethod(
 				MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC)
 					.addParameter(ParameterSpec.builder(beanInfo.getBeanTypeName(), "bean", Modifier.FINAL).build())
-					.addStatement("this(bean, (o,t)->$T.convert(t,o))", ClassName.get("io.polaris.core.converter", "Converters"))
+					.addStatement("this(bean, (t,o)->$T.convert(t,o))", ClassName.get("io.polaris.core.converter", "Converters"))
 					.build()
 			)
 			.addMethod(
 				MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC)
 					.addParameter(ParameterSpec.builder(beanInfo.getBeanTypeName(), "bean", Modifier.FINAL).build())
 					.addParameter(ParameterSpec.builder(ParameterizedTypeName.get(
-						ClassName.get(BiFunction.class), ClassName.get(Object.class), ClassName.get(Type.class), ClassName.get(Object.class)), "converter", Modifier.FINAL).build())
+						ClassName.get(BiFunction.class), ClassName.get(Type.class), ClassName.get(Object.class), ClassName.get(Object.class)), "converter", Modifier.FINAL).build())
 					.addStatement("this.bean = bean")
 					.addStatement("this.converter = converter")
 					.addStatement("this.getters = new $T()", TypeName.get(HashMap.class))
 					.addStatement("this.setters = new $T()", TypeName.get(HashMap.class))
-					.addStatement("this.types = new $T()", TypeName.get(HashMap.class))
 					.addStatement("this.init()")
 					.build()
 			)
@@ -194,10 +204,31 @@ public class AccessProcessor extends BaseProcessor {
 				.build()
 			);
 		{
+			// static init
+			CodeBlock.Builder staticInit = CodeBlock.builder()
+				.addStatement("types = new $T()", TypeName.get(HashMap.class));
+			for (AccessBeanInfo.FieldInfo field : beanInfo.getFields()) {
+				boolean accessGetter = field.isAccessGetter();
+				boolean accessSetter = field.isAccessSetter();
+				if (!accessGetter && !accessSetter) {
+					// ignore field
+					continue;
+				}
+				staticInit.add(CodeBlock.builder()
+					.beginControlFlow("try")
+					.addStatement("$T t = $T.class.getDeclaredField($S).getGenericType()", ClassName.get(Type.class),
+						field.getDeclaredClassName(), field.getFieldName())
+					.addStatement("types.put($S, t)", field.getFieldName())
+					.nextControlFlow("catch($T ignored)", ClassName.get(Exception.class))
+					.endControlFlow()
+					.build());
+			}
+			classBuilder.addStaticBlock(staticInit.build());
+		}
+		{
 			// init
 			MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("init")
 				.addModifiers(Modifier.PRIVATE);
-
 			for (AccessBeanInfo.FieldInfo field : beanInfo.getFields()) {
 				CodeBlock.Builder getterSetterCode = CodeBlock.builder().beginControlFlow("");
 				boolean accessGetter = field.isAccessGetter();
@@ -226,14 +257,6 @@ public class AccessProcessor extends BaseProcessor {
 						.addStatement("this.setters.put($S,setter)", field.getFieldName());
 				}
 				methodBuilder
-					.addCode(CodeBlock.builder()
-						.beginControlFlow("try")
-						.addStatement("$T t = $T.class.getDeclaredField($S).getGenericType()", ClassName.get(Type.class),
-							field.getDeclaredClassName(), field.getFieldName())
-						.addStatement("this.types.put($S, t)", field.getFieldName())
-						.nextControlFlow("catch($T ignored)", ClassName.get(Exception.class))
-						.endControlFlow()
-						.build())
 					.addCode(getterSetterCode.endControlFlow().build())
 				;
 			}
@@ -241,12 +264,12 @@ public class AccessProcessor extends BaseProcessor {
 		}
 
 		{
-			// get
+			// getType
 			classBuilder.addMethod(MethodSpec.methodBuilder("getType")
-				.addModifiers(Modifier.PUBLIC)
+				.addModifiers(Modifier.STATIC, Modifier.PUBLIC)
 				.returns(ClassName.get(Type.class))
 				.addParameter(ParameterSpec.builder(ClassName.get(String.class), "key").build())
-				.addStatement("return this.types.get(key)").build());
+				.addStatement("return types.get(key)").build());
 		}
 		{
 			// get
@@ -277,9 +300,16 @@ public class AccessProcessor extends BaseProcessor {
 				.returns(ClassName.get(Object.class))
 				.addParameter(ParameterSpec.builder(ClassName.get(String.class), "key").build())
 				.addParameter(ParameterSpec.builder(ClassName.get(Object.class), "value").build())
-				.addStatement("value = this.converter.apply(value, this.types.get(key))")
 				.addStatement("Object old = this.get(key)")
-				.addStatement("this.setters.get(key).accept(value)")
+				.addStatement("$T consumer = this.setters.get(key)", ParameterizedTypeName.get(ClassName.get(Consumer.class),
+					ClassName.get(Object.class)
+				))
+				.addCode(CodeBlock.builder()
+					.beginControlFlow("if (consumer != null)")
+					.addStatement("value = this.converter.apply(types.get(key), value)")
+					.addStatement("this.setters.get(key).accept(value)")
+					.endControlFlow()
+					.build())
 				.addStatement("return old")
 				.build());
 		}
