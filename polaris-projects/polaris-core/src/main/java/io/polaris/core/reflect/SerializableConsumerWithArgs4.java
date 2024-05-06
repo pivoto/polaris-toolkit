@@ -7,7 +7,7 @@ import java.io.Serializable;
  * @since 1.8
  */
 @FunctionalInterface
-public interface SerializableQuaternionConsumer<A, B, C, D> extends Serializable, MethodReferenceReflection {
+public interface SerializableConsumerWithArgs4<A, B, C, D> extends Serializable, MethodReferenceReflection {
 
 	void accept(A a, B b, C c, D d);
 }

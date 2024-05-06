@@ -7,7 +7,7 @@ import java.io.Serializable;
  * @since 1.8
  */
 @FunctionalInterface
-public interface SerializableQuaternionFunction<A, B, C, D, R> extends Serializable, MethodReferenceReflection {
+public interface SerializableFunctionWithArgs4<A, B, C, D, R> extends Serializable, MethodReferenceReflection {
 
 	R apply(A a, B b, C c, D d);
 }

@@ -7,7 +7,7 @@ import java.io.Serializable;
  * @since 1.8
  */
 @FunctionalInterface
-public interface SerializableSixElementConsumer<A, B, C, D, E, F> extends Serializable, MethodReferenceReflection {
+public interface SerializableConsumerWithArgs6<A, B, C, D, E, F> extends Serializable, MethodReferenceReflection {
 
 	void accept(A a, B b, C c, D d, E e, F f);
 }

@@ -5,7 +5,7 @@ package io.polaris.core.function;
  * @since 1.8
  */
 @FunctionalInterface
-public interface QuaternionFunction<A, B, C, D, R> {
+public interface ConsumerWithArgs3<A, B, C> {
 
-	R apply(A a, B b, C c, D d);
+	void accept(A a, B b, C c);
 }

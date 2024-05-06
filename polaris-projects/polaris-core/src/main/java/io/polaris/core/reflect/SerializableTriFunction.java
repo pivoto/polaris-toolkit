@@ -7,7 +7,7 @@ import java.io.Serializable;
  * @since 1.8
  */
 @FunctionalInterface
-public interface SerializableTernaryFunction<A, B, C, R> extends Serializable, MethodReferenceReflection {
+public interface SerializableTriFunction<A, B, C, R> extends Serializable, MethodReferenceReflection {
 
 	R apply(A a, B b, C c);
 }

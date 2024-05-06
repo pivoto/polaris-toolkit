@@ -7,7 +7,7 @@ import java.io.Serializable;
  * @since 1.8
  */
 @FunctionalInterface
-public interface SerializableSixElementFunction<A, B, C, D, E, F, R> extends Serializable, MethodReferenceReflection {
+public interface SerializableFunctionWithArgs6<A, B, C, D, E, F, R> extends Serializable, MethodReferenceReflection {
 
 	R apply(A a, B b, C c, D d, E e, F f);
 }

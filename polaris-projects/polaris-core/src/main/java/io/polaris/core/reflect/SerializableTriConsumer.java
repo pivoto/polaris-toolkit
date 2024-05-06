@@ -7,7 +7,7 @@ import java.io.Serializable;
  * @since 1.8
  */
 @FunctionalInterface
-public interface SerializableTernaryConsumer<A, B, C> extends Serializable, MethodReferenceReflection {
+public interface SerializableTriConsumer<A, B, C> extends Serializable, MethodReferenceReflection {
 
 	void accept(A a, B b, C c);
 }

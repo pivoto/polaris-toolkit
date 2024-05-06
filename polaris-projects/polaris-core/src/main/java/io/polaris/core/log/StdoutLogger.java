@@ -4,7 +4,7 @@ import java.time.Instant;
 
 import io.polaris.core.collection.ObjectArrays;
 import io.polaris.core.time.Dates;
-import io.polaris.core.function.QuaternionConsumer;
+import io.polaris.core.function.ConsumerWithArgs4;
 import io.polaris.core.string.Strings;
 
 /**
@@ -14,7 +14,7 @@ import io.polaris.core.string.Strings;
 public class StdoutLogger implements ILogger {
 	private final String name;
 	private final Level level;
-	private QuaternionConsumer<Level, String, Object[], Throwable> printer;
+	private ConsumerWithArgs4<Level, String, Object[], Throwable> printer;
 
 	public StdoutLogger(String name) {
 		this.name = name;
@@ -28,7 +28,7 @@ public class StdoutLogger implements ILogger {
 		this.level = level;
 	}
 
-	public StdoutLogger(String name, Level level, QuaternionConsumer<Level, String, Object[], Throwable> printer) {
+	public StdoutLogger(String name, Level level, ConsumerWithArgs4<Level, String, Object[], Throwable> printer) {
 		this.name = name;
 		this.level = level;
 		this.printer = printer;

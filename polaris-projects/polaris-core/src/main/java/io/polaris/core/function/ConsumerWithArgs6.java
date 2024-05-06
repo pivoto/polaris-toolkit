@@ -5,7 +5,7 @@ package io.polaris.core.function;
  * @since 1.8
  */
 @FunctionalInterface
-public interface SixElementConsumer<A, B, C, D, E, F> {
+public interface ConsumerWithArgs6<A, B, C, D, E, F> {
 
 	void accept(A a, B b, C c, D d, E e, F f);
 }

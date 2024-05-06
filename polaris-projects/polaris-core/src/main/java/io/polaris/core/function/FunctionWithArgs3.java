@@ -5,7 +5,7 @@ package io.polaris.core.function;
  * @since 1.8
  */
 @FunctionalInterface
-public interface FiveElementFunction<A, B, C, D, E, R> {
+public interface FunctionWithArgs3<A, B, C, R> {
 
-	R apply(A a, B b, C c, D d, E e);
+	R apply(A a, B b, C c);
 }

@@ -23,10 +23,10 @@ import io.polaris.core.lang.Types;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
 import io.polaris.core.reflect.Reflects;
-import io.polaris.core.reflect.SerializableFiveElementFunction;
+import io.polaris.core.reflect.SerializableFunctionWithArgs5;
 import io.polaris.core.reflect.SerializableFunction;
-import io.polaris.core.reflect.SerializableQuaternionConsumer;
-import io.polaris.core.reflect.SerializableTernaryFunction;
+import io.polaris.core.reflect.SerializableConsumerWithArgs4;
+import io.polaris.core.reflect.SerializableTriFunction;
 import io.polaris.core.tuple.Tuple2;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Handle;
@@ -579,7 +579,7 @@ public abstract class ClassAccessV2<T> {
 		}
 		int size = constructorList.size();
 		SerializableFunction<ClassAccessV2, Class[][]> buildConstructorParamTypes = ClassAccessV2::buildConstructorParamTypes;
-		SerializableTernaryFunction<ClassAccessV2, Integer, Object[], Object> newIndexInstance = ClassAccessV2::newIndexInstance;
+		SerializableTriFunction<ClassAccessV2, Integer, Object[], Object> newIndexInstance = ClassAccessV2::newIndexInstance;
 
 		SerializableFunction<ClassAccessV2, Function<Object[], Object>[]> buildConstructors = ClassAccessV2::buildConstructors;
 		final String lambdaPrefixOfConstructors = "lambda$" + buildConstructors.serialized().getImplMethodName() + "$";
@@ -861,7 +861,7 @@ public abstract class ClassAccessV2<T> {
 
 
 	private static <T> void insertMethodInvokers(ClassWriter cw, String accessClassNameInternal, Class<T> type) {
-		SerializableFiveElementFunction<ClassAccessV2, Object, Integer, Integer, Object[], Object> invokeIndexMethod = ClassAccessV2::invokeIndexMethod;
+		SerializableFunctionWithArgs5<ClassAccessV2, Object, Integer, Integer, Object[], Object> invokeIndexMethod = ClassAccessV2::invokeIndexMethod;
 		SerializableFunction<ClassAccessV2, String[]> buildMethodNames = ClassAccessV2::buildMethodNames;
 		SerializableFunction<ClassAccessV2, Class[][][]> buildMethodParamTypes = ClassAccessV2::buildMethodParamTypes;
 
@@ -1430,8 +1430,8 @@ public abstract class ClassAccessV2<T> {
 
 		SerializableFunction<ClassAccessV2, String[]> buildFieldNames = ClassAccessV2::buildFieldNames;
 		SerializableFunction<ClassAccessV2, Class[]> buildFieldTypes = ClassAccessV2::buildFieldTypes;
-		SerializableTernaryFunction<ClassAccessV2, Object,Integer,Object> getIndexField = ClassAccessV2::getIndexField;
-		SerializableQuaternionConsumer<ClassAccessV2, Object,Integer,Object> setIndexField = ClassAccessV2::setIndexField;
+		SerializableTriFunction<ClassAccessV2, Object,Integer,Object> getIndexField = ClassAccessV2::getIndexField;
+		SerializableConsumerWithArgs4<ClassAccessV2, Object,Integer,Object> setIndexField = ClassAccessV2::setIndexField;
 		Map.Entry<String, Field>[] fieldEntryArray = fields.entrySet().toArray(new Map.Entry[0]);
 
 		SerializableFunction<ClassAccessV2, Map<String, Tuple2<Function<Object, Object>, BiConsumer<Object, Object>>>> buildFields = ClassAccessV2::buildFields;

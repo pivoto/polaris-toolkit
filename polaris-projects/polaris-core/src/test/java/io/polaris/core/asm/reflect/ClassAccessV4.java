@@ -20,10 +20,10 @@ import io.polaris.core.lang.Types;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
 import io.polaris.core.reflect.Reflects;
-import io.polaris.core.reflect.SerializableFiveElementFunction;
+import io.polaris.core.reflect.SerializableFunctionWithArgs5;
 import io.polaris.core.reflect.SerializableFunction;
-import io.polaris.core.reflect.SerializableQuaternionConsumer;
-import io.polaris.core.reflect.SerializableTernaryFunction;
+import io.polaris.core.reflect.SerializableConsumerWithArgs4;
+import io.polaris.core.reflect.SerializableTriFunction;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -559,7 +559,7 @@ public abstract class ClassAccessV4<T> {
 		}
 		int size = constructorList.size();
 		SerializableFunction<ClassAccessV4, Class[][]> buildConstructorParamTypes = ClassAccessV4::buildConstructorParamTypes;
-		SerializableTernaryFunction<ClassAccessV4, Integer, Object[], Object> newIndexInstance = ClassAccessV4::newIndexInstance;
+		SerializableTriFunction<ClassAccessV4, Integer, Object[], Object> newIndexInstance = ClassAccessV4::newIndexInstance;
 
 		// 生成各构造器的参数类型列表
 		{
@@ -675,7 +675,7 @@ public abstract class ClassAccessV4<T> {
 
 
 	private static <T> void insertMethodInvokers(ClassWriter cw, String accessClassNameInternal, Class<T> type) {
-		SerializableFiveElementFunction<ClassAccessV4, Object, Integer, Integer, Object[], Object> invokeIndexMethod = ClassAccessV4::invokeIndexMethod;
+		SerializableFunctionWithArgs5<ClassAccessV4, Object, Integer, Integer, Object[], Object> invokeIndexMethod = ClassAccessV4::invokeIndexMethod;
 		SerializableFunction<ClassAccessV4, String[]> buildMethodNames = ClassAccessV4::buildMethodNames;
 		SerializableFunction<ClassAccessV4, Class[][][]> buildMethodParamTypes = ClassAccessV4::buildMethodParamTypes;
 
@@ -947,8 +947,8 @@ public abstract class ClassAccessV4<T> {
 
 		SerializableFunction<ClassAccessV4, String[]> buildFieldNames = ClassAccessV4::buildFieldNames;
 		SerializableFunction<ClassAccessV4, Class[]> buildFieldTypes = ClassAccessV4::buildFieldTypes;
-		SerializableTernaryFunction<ClassAccessV4, Object, Integer, Object> getIndexField = ClassAccessV4::getIndexField;
-		SerializableQuaternionConsumer<ClassAccessV4, Object, Integer, Object> setIndexField = ClassAccessV4::setIndexField;
+		SerializableTriFunction<ClassAccessV4, Object, Integer, Object> getIndexField = ClassAccessV4::getIndexField;
+		SerializableConsumerWithArgs4<ClassAccessV4, Object, Integer, Object> setIndexField = ClassAccessV4::setIndexField;
 		Map.Entry<String, Field>[] fieldEntryArray = fields.entrySet().toArray(new Map.Entry[0]);
 
 		// buildFieldNames

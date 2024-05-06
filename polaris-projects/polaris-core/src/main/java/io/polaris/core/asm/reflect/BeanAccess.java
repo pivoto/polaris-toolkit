@@ -14,8 +14,8 @@ import io.polaris.core.asm.AsmUtils;
 import io.polaris.core.err.InvocationException;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
-import io.polaris.core.reflect.SerializableQuaternionConsumer;
-import io.polaris.core.reflect.SerializableTernaryFunction;
+import io.polaris.core.reflect.SerializableConsumerWithArgs4;
+import io.polaris.core.reflect.SerializableTriFunction;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -357,7 +357,7 @@ public abstract class BeanAccess<T> {
 			return;
 		}
 
-		SerializableQuaternionConsumer<BeanAccess<?>, Object, Integer, Object> setIndexProperty = BeanAccess::setIndexProperty;
+		SerializableConsumerWithArgs4<BeanAccess<?>, Object, Integer, Object> setIndexProperty = BeanAccess::setIndexProperty;
 		// 生成各方法的索引式调用方法
 		{
 			MethodVisitor methodVisitor = cw.visitMethod(ACC_PROTECTED | ACC_VARARGS, setIndexProperty.serialized().getImplMethodName(), "(Ljava/lang/Object;ILjava/lang/Object;)V", null, null);
@@ -455,7 +455,7 @@ public abstract class BeanAccess<T> {
 		if (getters.isEmpty()) {
 			return;
 		}
-		SerializableTernaryFunction<BeanAccess<?>, Object, Integer, Object> getIndexProperty = BeanAccess::getIndexProperty;
+		SerializableTriFunction<BeanAccess<?>, Object, Integer, Object> getIndexProperty = BeanAccess::getIndexProperty;
 
 		// 生成各方法的索引式调用方法
 		{
@@ -543,12 +543,12 @@ public abstract class BeanAccess<T> {
 		if (fields.isEmpty()) {
 			return;
 		}
-		SerializableTernaryFunction<BeanAccess<?>, Object, Integer, Object> getIndexField = BeanAccess::getIndexField;
-		SerializableQuaternionConsumer<BeanAccess<?>, Object, Integer, Object> setIndexField = BeanAccess::setIndexField;
+		SerializableTriFunction<BeanAccess<?>, Object, Integer, Object> getIndexField = BeanAccess::getIndexField;
+		SerializableConsumerWithArgs4<BeanAccess<?>, Object, Integer, Object> setIndexField = BeanAccess::setIndexField;
 		insertStdFieldInvoker(cw, type, fields, getIndexField, setIndexField);
 	}
 
-	private static <T> void insertStdFieldInvoker(ClassWriter cw, Class<T> type, List<BeanPropertyInfo> fields, SerializableTernaryFunction<BeanAccess<?>, Object, Integer, Object> getter, SerializableQuaternionConsumer<BeanAccess<?>, Object, Integer, Object> setter) {
+	private static <T> void insertStdFieldInvoker(ClassWriter cw, Class<T> type, List<BeanPropertyInfo> fields, SerializableTriFunction<BeanAccess<?>, Object, Integer, Object> getter, SerializableConsumerWithArgs4<BeanAccess<?>, Object, Integer, Object> setter) {
 		// getter
 		{
 			MethodVisitor methodVisitor = cw.visitMethod(ACC_PROTECTED, getter.serialized().getImplMethodName(), "(Ljava/lang/Object;I)Ljava/lang/Object;", null, null);

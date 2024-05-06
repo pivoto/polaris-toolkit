@@ -3,7 +3,7 @@ package io.polaris.core.jdbc.sql.statement.expression;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import io.polaris.core.function.TernaryFunction;
+import io.polaris.core.function.FunctionWithArgs3;
 import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.DynamicNode;
 import io.polaris.core.jdbc.sql.node.SqlNode;
@@ -52,13 +52,13 @@ public class LikeExpression extends BaseExpression {
 	}
 
 	@Override
-	protected TernaryFunction<SqlNode, SqlNode[], Object[], ContainerNode> buildArrayFunction() {
+	protected FunctionWithArgs3<SqlNode, SqlNode[], Object[], ContainerNode> buildArrayFunction() {
 		return (baseSource, extSources, bindings) -> bind(baseSource, extSources,
 			() -> (CharSequence) (bindings == null || bindings.length == 0 ? null : bindings[0]));
 	}
 
 	@Override
-	protected TernaryFunction<SqlNode, SqlNode[], Map<String, Object>, ContainerNode> buildMapFunction() {
+	protected FunctionWithArgs3<SqlNode, SqlNode[], Map<String, Object>, ContainerNode> buildMapFunction() {
 		return (baseSource, extSources, bindings) -> bind(baseSource, extSources,
 			() -> (CharSequence) (bindings == null || bindings.isEmpty() ? null : bindings.values().iterator().next()));
 	}

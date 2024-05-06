@@ -5,7 +5,6 @@ package io.polaris.core.function;
  * @since 1.8
  */
 @FunctionalInterface
-public interface FiveElementConsumer<A, B, C, D, E> {
+public interface TetraFunction<A, B, C, D, R> extends FunctionWithArgs4<A, B, C, D, R>{
 
-	void accept(A a, B b, C c, D d, E e);
 }

@@ -1,6 +1,6 @@
 package io.polaris.core.map;
 
-import io.polaris.core.function.TernaryFunction;
+import io.polaris.core.function.FunctionWithArgs3;
 import io.polaris.core.map.reference.ReferenceType;
 import io.polaris.core.map.reference.ValueReference;
 
@@ -21,11 +21,11 @@ import java.util.function.Supplier;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ValueReferenceMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
 
-	private final TernaryFunction<K, V, ReferenceQueue<V>, ValueReference<K, V>> referenceFactory;
+	private final FunctionWithArgs3<K, V, ReferenceQueue<V>, ValueReference<K, V>> referenceFactory;
 	private final Map<K, ValueReference<K, V>> raw;
 	private final ReferenceQueue<V> queue = new ReferenceQueue<>();
 
-	public ValueReferenceMap(Map<K, ValueReference<K, V>> raw, TernaryFunction<K, V, ReferenceQueue<V>, ValueReference<K, V>> referenceFactory) {
+	public ValueReferenceMap(Map<K, ValueReference<K, V>> raw, FunctionWithArgs3<K, V, ReferenceQueue<V>, ValueReference<K, V>> referenceFactory) {
 		this.raw = raw;
 		this.referenceFactory = referenceFactory;
 	}

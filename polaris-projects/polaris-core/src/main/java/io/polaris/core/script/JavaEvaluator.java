@@ -15,7 +15,7 @@ import io.polaris.core.crypto.digest.Digests;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
 import io.polaris.core.reflect.Reflects;
-import io.polaris.core.reflect.SerializableQuaternionFunction;
+import io.polaris.core.reflect.SerializableFunctionWithArgs4;
 import io.polaris.core.service.ServiceDefault;
 import io.polaris.core.service.ServiceName;
 
@@ -77,7 +77,7 @@ public class JavaEvaluator implements Evaluator {
 		// region override
 		sb.append("public Object ")
 			.append(Reflects.getLambdaMethodName(
-				(SerializableQuaternionFunction<JavaEvaluatorFunction, Object, Object, Map<String, Object>, Object>) JavaEvaluatorFunction::doEval))
+				(SerializableFunctionWithArgs4<JavaEvaluatorFunction, Object, Object, Map<String, Object>, Object>) JavaEvaluatorFunction::doEval))
 			.append("(Object _input, Object _output, Map<String, Object> ").append(BINDINGS).append("){\n");
 		sb.append(inputType).append(" ").append(INPUT).append(" = (").append(inputType).append(")_input;").append("\n");
 		sb.append(outputType).append(" ").append(OUTPUT).append(" = (").append(outputType).append(")_output;").append("\n");

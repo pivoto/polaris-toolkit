@@ -14,11 +14,10 @@ import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
 import io.polaris.core.reflect.SerializableBiFunction;
 import io.polaris.core.reflect.SerializableConsumer;
-import io.polaris.core.reflect.SerializableTernaryConsumer;
+import io.polaris.core.reflect.SerializableTriConsumer;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import static org.objectweb.asm.Opcodes.*;
@@ -144,8 +143,8 @@ public abstract class BeanDirectCopier<S, T> {
 	@SuppressWarnings("all")
 	private static <S, T> void insertMethodCopy(ClassWriter cw, BeanCopier<S> beanCopier, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertyInfo.Classification classification) {
 
-		SerializableTernaryConsumer<BeanDirectCopier, String, Throwable> logCopyError = BeanDirectCopier::resolveCopyError;
-		SerializableTernaryConsumer<BeanDirectCopier, Object, Object> copy = BeanDirectCopier::copy;
+		SerializableTriConsumer<BeanDirectCopier, String, Throwable> logCopyError = BeanDirectCopier::resolveCopyError;
+		SerializableTriConsumer<BeanDirectCopier, Object, Object> copy = BeanDirectCopier::copy;
 		String copyName = copy.serialized().getImplMethodName();
 
 		// 重写方法
@@ -219,7 +218,7 @@ public abstract class BeanDirectCopier<S, T> {
 	}
 
 	private static void insertCodeMethodToField(MethodVisitor methodVisitor, BeanPropertyInfo sourceInfo, BeanPropertyInfo targetInfo) {
-		SerializableTernaryConsumer<BeanDirectCopier, String, Throwable> logCopyError = BeanDirectCopier::resolveCopyError;
+		SerializableTriConsumer<BeanDirectCopier, String, Throwable> logCopyError = BeanDirectCopier::resolveCopyError;
 		Method readMethod = sourceInfo.getReadMethod();
 		boolean hasThrows = readMethod.getExceptionTypes().length > 0;
 		Label labelStart = new Label();
@@ -276,7 +275,7 @@ public abstract class BeanDirectCopier<S, T> {
 	}
 
 	private static void insertCodeMethodToMethod(MethodVisitor methodVisitor, BeanPropertyInfo sourceInfo, BeanPropertyInfo targetInfo) {
-		SerializableTernaryConsumer<BeanDirectCopier, String, Throwable> logCopyError = BeanDirectCopier::resolveCopyError;
+		SerializableTriConsumer<BeanDirectCopier, String, Throwable> logCopyError = BeanDirectCopier::resolveCopyError;
 		Method readMethod = sourceInfo.getReadMethod();
 		Method writeMethod = targetInfo.getWriteMethod();
 		boolean hasThrows = readMethod.getExceptionTypes().length > 0
@@ -345,7 +344,7 @@ public abstract class BeanDirectCopier<S, T> {
 	}
 
 	private static void insertCodeFieldToMethod(MethodVisitor methodVisitor, BeanPropertyInfo sourceInfo, BeanPropertyInfo targetInfo) {
-		SerializableTernaryConsumer<BeanDirectCopier, String, Throwable> logCopyError = BeanDirectCopier::resolveCopyError;
+		SerializableTriConsumer<BeanDirectCopier, String, Throwable> logCopyError = BeanDirectCopier::resolveCopyError;
 		Method writeMethod = targetInfo.getWriteMethod();
 		boolean hasThrows = writeMethod.getExceptionTypes().length > 0;
 		Label labelStart = new Label();

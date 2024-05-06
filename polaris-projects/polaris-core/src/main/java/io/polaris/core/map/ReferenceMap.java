@@ -1,6 +1,6 @@
 package io.polaris.core.map;
 
-import io.polaris.core.function.TernaryFunction;
+import io.polaris.core.function.FunctionWithArgs3;
 import io.polaris.core.map.reference.ReferenceType;
 import io.polaris.core.map.reference.ValueReference;
 
@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 public class ReferenceMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
 
 	private final BiFunction<K, ReferenceQueue<K>, Reference<K>> keyRreferenceFactory;
-	private final TernaryFunction<Reference<K>, V, ReferenceQueue<V>, ValueReference<Reference<K>, V>> valueReferenceFactory;
+	private final FunctionWithArgs3<Reference<K>, V, ReferenceQueue<V>, ValueReference<Reference<K>, V>> valueReferenceFactory;
 	private final Map<Reference<K>, ValueReference<Reference<K>, V>> raw;
 	private final ReferenceQueue<K> keyQueue = new ReferenceQueue<>();
 	private final ReferenceQueue<V> valueQueue = new ReferenceQueue<>();

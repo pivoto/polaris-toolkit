@@ -533,8 +533,8 @@ public abstract class BeanCopier<S> {
 
 	@SuppressWarnings("all")
 	private static <T> void insertBeanToMap(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertyInfo.Classification classification) {
-		SerializableTernaryConsumer<BeanCopier, String, Throwable> resolveCopyError = BeanCopier::resolveCopyError;
-		SerializableTernaryConsumer<BeanCopier, Object, Map<String, Object>> copyBeanToMap = BeanCopier::copyBeanToMap;
+		SerializableTriConsumer<BeanCopier, String, Throwable> resolveCopyError = BeanCopier::resolveCopyError;
+		SerializableTriConsumer<BeanCopier, Object, Map<String, Object>> copyBeanToMap = BeanCopier::copyBeanToMap;
 		String copyBeanToMapName = copyBeanToMap.serialized().getImplMethodName();
 
 		// 重写方法
@@ -616,9 +616,9 @@ public abstract class BeanCopier<S> {
 
 	@SuppressWarnings("all")
 	private static <T> void insertBeanToMapByConverter(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertyInfo.Classification classification) {
-		SerializableTernaryConsumer<BeanCopier, String, Throwable> resolveCopyError = BeanCopier::resolveCopyError;
-		SerializableSixElementConsumer<BeanCopier, Object, Map, BiFunction<java.lang.reflect.Type, Object, Object>, JavaType, JavaType> copyBeanToMap = BeanCopier::copyBeanToMapByConverter;
-		SerializableQuaternionFunction<BeanCopier, java.lang.reflect.Type, Object, BiFunction<java.lang.reflect.Type, Object, Object>, Object> convert = BeanCopier::convert;
+		SerializableTriConsumer<BeanCopier, String, Throwable> resolveCopyError = BeanCopier::resolveCopyError;
+		SerializableConsumerWithArgs6<BeanCopier, Object, Map, BiFunction<java.lang.reflect.Type, Object, Object>, JavaType, JavaType> copyBeanToMap = BeanCopier::copyBeanToMapByConverter;
+		SerializableFunctionWithArgs4<BeanCopier, java.lang.reflect.Type, Object, BiFunction<java.lang.reflect.Type, Object, Object>, Object> convert = BeanCopier::convert;
 		// 重写方法
 		{
 			MethodVisitor methodVisitor = cw.visitMethod(ACC_PROTECTED, copyBeanToMap.serialized().getImplMethodName(),
@@ -706,8 +706,8 @@ public abstract class BeanCopier<S> {
 
 	@SuppressWarnings("all")
 	private static <T> void insertMapToBean(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertyInfo.Classification classification) {
-		SerializableTernaryConsumer<BeanCopier, String, Throwable> resolveCopyError = BeanCopier::resolveCopyError;
-		SerializableTernaryConsumer<BeanCopier, Map<String, Object>, Object> copyMapToBean = BeanCopier::copyMapToBean;
+		SerializableTriConsumer<BeanCopier, String, Throwable> resolveCopyError = BeanCopier::resolveCopyError;
+		SerializableTriConsumer<BeanCopier, Map<String, Object>, Object> copyMapToBean = BeanCopier::copyMapToBean;
 		String copyMapToBeanName = copyMapToBean.serialized().getImplMethodName();
 
 		// 重写方法
@@ -812,9 +812,9 @@ public abstract class BeanCopier<S> {
 
 	@SuppressWarnings("all")
 	private static <T> void insertMapToBeanByConverter(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertyInfo.Classification classification) {
-		SerializableQuaternionConsumer<BeanCopier, Map<String, Object>, Object, BiFunction<java.lang.reflect.Type, Object, Object>> copyMapToBean = BeanCopier::copyMapToBean;
-		SerializableQuaternionFunction<BeanCopier, java.lang.reflect.Type, Object, BiFunction<java.lang.reflect.Type, Object, Object>, Object> convert = BeanCopier::convert;
-		SerializableTernaryConsumer<BeanCopier, String, Throwable> resolveCopyError = BeanCopier::resolveCopyError;
+		SerializableConsumerWithArgs4<BeanCopier, Map<String, Object>, Object, BiFunction<java.lang.reflect.Type, Object, Object>> copyMapToBean = BeanCopier::copyMapToBean;
+		SerializableFunctionWithArgs4<BeanCopier, java.lang.reflect.Type, Object, BiFunction<java.lang.reflect.Type, Object, Object>, Object> convert = BeanCopier::convert;
+		SerializableTriConsumer<BeanCopier, String, Throwable> resolveCopyError = BeanCopier::resolveCopyError;
 
 		String copyMapToBeanName = copyMapToBean.serialized().getImplMethodName();
 
@@ -959,8 +959,8 @@ public abstract class BeanCopier<S> {
 
 	@SuppressWarnings("all")
 	private static <T> void insertBeanToBeanBySameType(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertyInfo.Classification classification) {
-		SerializableTernaryConsumer<BeanCopier, Object, Object> copyBeanToBeanBySameType = BeanCopier::copyBeanToBeanBySameType;
-		SerializableTernaryConsumer<BeanCopier, String, Throwable> resolveCopyError = BeanCopier::resolveCopyError;
+		SerializableTriConsumer<BeanCopier, Object, Object> copyBeanToBeanBySameType = BeanCopier::copyBeanToBeanBySameType;
+		SerializableTriConsumer<BeanCopier, String, Throwable> resolveCopyError = BeanCopier::resolveCopyError;
 
 		String copyBeanToSameName = copyBeanToBeanBySameType.serialized().getImplMethodName();
 		// 重写方法
@@ -1092,7 +1092,7 @@ public abstract class BeanCopier<S> {
 			insertBeanToMapWithKeyByOptions(cw, superClassNameInternal, accessClassNameInternal, type, info, subMethod);
 			subMethods.add(subMethod);
 		}
-		SerializableSixElementConsumer<BeanCopier, Object, Map, CopyOptions, JavaType, JavaType> copyBeanToMapByOptions = BeanCopier::copyBeanToMapByOptions;
+		SerializableConsumerWithArgs6<BeanCopier, Object, Map, CopyOptions, JavaType, JavaType> copyBeanToMapByOptions = BeanCopier::copyBeanToMapByOptions;
 		// 重写方法
 		{
 			MethodVisitor methodVisitor = cw.visitMethod(ACC_PROTECTED, copyBeanToMapByOptions.serialized().getImplMethodName(),
@@ -1212,7 +1212,7 @@ public abstract class BeanCopier<S> {
 		methodVisitor.visitVarInsn(ALOAD, 5);
 		methodVisitor.visitVarInsn(ALOAD, 6);
 		methodVisitor.visitVarInsn(ALOAD, 7);
-		SerializableSevenElementConsumer<BeanCopier, Map, CopyOptions, JavaType, JavaType, String, Object> copyBeanToMapWithKey = BeanCopier::copyBeanToMapWithKeyByOptions;
+		SerializableConsumerWithArgs7<BeanCopier, Map, CopyOptions, JavaType, JavaType, String, Object> copyBeanToMapWithKey = BeanCopier::copyBeanToMapWithKeyByOptions;
 		methodVisitor.visitMethodInsn(INVOKEVIRTUAL, accessClassNameInternal,
 			copyBeanToMapWithKey.serialized().getImplMethodName(),
 			"(Ljava/util/Map;" +
@@ -1229,7 +1229,7 @@ public abstract class BeanCopier<S> {
 		methodVisitor.visitLdcInsn(info.getPropertyName());
 		methodVisitor.visitVarInsn(ALOAD, 6);
 		methodVisitor.visitVarInsn(ALOAD, 3);
-		SerializableTernaryConsumer<BeanCopier, String, Throwable> resolveCopyError = BeanCopier::resolveCopyError;
+		SerializableTriConsumer<BeanCopier, String, Throwable> resolveCopyError = BeanCopier::resolveCopyError;
 		methodVisitor.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(BeanCopier.class), resolveCopyError.serialized().getImplMethodName(),
 			"(Ljava/lang/String;Ljava/lang/Throwable;" +
 				Type.getDescriptor(CopyOptions.class) + ")V", false);
@@ -1242,7 +1242,7 @@ public abstract class BeanCopier<S> {
 	@SuppressWarnings("all")
 	private static <T> void insertMapToBeanWithCustomKeys(ClassWriter cw, String accessClassNameInternal,
 		Class<T> type, BeanPropertyInfo.Classification classification) {
-		SerializableSixElementConsumer<BeanCopier, Map<String, Object>, Object, CopyOptions, Set<String>, Map<String, String>> copyMapToBeanWithCustomKeys = BeanCopier::copyMapToBeanWithCustomKeys;
+		SerializableConsumerWithArgs6<BeanCopier, Map<String, Object>, Object, CopyOptions, Set<String>, Map<String, String>> copyMapToBeanWithCustomKeys = BeanCopier::copyMapToBeanWithCustomKeys;
 		MethodVisitor methodVisitor = cw.visitMethod(ACC_PROTECTED,
 			copyMapToBeanWithCustomKeys.serialized().getImplMethodName(),
 			"(Ljava/util/Map;Ljava/lang/Object;" +
@@ -1288,7 +1288,7 @@ public abstract class BeanCopier<S> {
 	@SuppressWarnings("all")
 	private static <T> void insertMapToBeanWithSourceKeys(ClassWriter cw, String accessClassNameInternal,
 		Class<T> type, BeanPropertyInfo.Classification classification,
-		SerializableFiveElementConsumer<BeanCopier, Map<String, Object>, Object, CopyOptions, Set<String>> copyMethod,
+		SerializableConsumerWithArgs5<BeanCopier, Map<String, Object>, Object, CopyOptions, Set<String>> copyMethod,
 		Function<String, String> keyMapper) {
 		MethodVisitor methodVisitor = cw.visitMethod(ACC_PUBLIC, copyMethod.serialized().getImplMethodName(),
 			"(Ljava/util/Map;Ljava/lang/Object;" +
@@ -1452,7 +1452,7 @@ public abstract class BeanCopier<S> {
 			methodVisitor.visitVarInsn(ALOAD, 3);
 			methodVisitor.visitVarInsn(ALOAD, 5);
 			methodVisitor.visitVarInsn(ALOAD, 7);
-			SerializableTernaryFunction<CopyOptions, String, Object, Object> editValue = CopyOptions::editValue;
+			SerializableTriFunction<CopyOptions, String, Object, Object> editValue = CopyOptions::editValue;
 			methodVisitor.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(CopyOptions.class), editValue.serialized().getImplMethodName(), "(Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;", false);
 			/* value = options.convert(this.type$field, value); */
 			methodVisitor.visitVarInsn(ASTORE, 7);
@@ -1460,7 +1460,7 @@ public abstract class BeanCopier<S> {
 			methodVisitor.visitVarInsn(ALOAD, 0);
 			methodVisitor.visitFieldInsn(GETFIELD, accessClassNameInternal, FIELD_PREFIX_TYPE + info.getPropertyName(), "Ljava/lang/reflect/Type;");
 			methodVisitor.visitVarInsn(ALOAD, 7);
-			SerializableTernaryFunction<CopyOptions, java.lang.reflect.Type, Object, Object> convert = CopyOptions::convert;
+			SerializableTriFunction<CopyOptions, java.lang.reflect.Type, Object, Object> convert = CopyOptions::convert;
 			methodVisitor.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(CopyOptions.class), convert.serialized().getImplMethodName(), "(Ljava/lang/reflect/Type;Ljava/lang/Object;)Ljava/lang/Object;", false);
 			methodVisitor.visitVarInsn(ASTORE, 7);
 			/* if (value == null && (options.ignoreNull() || class$booleanVal0.isPrimitive())) {
@@ -1521,7 +1521,7 @@ public abstract class BeanCopier<S> {
 			methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false);
 			methodVisitor.visitVarInsn(ALOAD, 7);
 			methodVisitor.visitVarInsn(ALOAD, 3);
-			SerializableQuaternionConsumer<BeanCopier, String, Throwable, CopyOptions> resolveCopyError = BeanCopier::resolveCopyError;
+			SerializableConsumerWithArgs4<BeanCopier, String, Throwable, CopyOptions> resolveCopyError = BeanCopier::resolveCopyError;
 			methodVisitor.visitMethodInsn(INVOKESPECIAL, superClassNameInternal, resolveCopyError.serialized().getImplMethodName(), "(Ljava/lang/String;Ljava/lang/Throwable;" +
 				Type.getDescriptor(CopyOptions.class) +
 				")V", false);

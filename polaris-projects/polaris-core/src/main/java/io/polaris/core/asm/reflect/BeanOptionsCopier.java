@@ -16,10 +16,10 @@ import io.polaris.core.log.ILoggers;
 import io.polaris.core.map.Maps;
 import io.polaris.core.reflect.SerializableBiFunction;
 import io.polaris.core.reflect.SerializableConsumer;
-import io.polaris.core.reflect.SerializableFiveElementConsumer;
+import io.polaris.core.reflect.SerializableConsumerWithArgs5;
 import io.polaris.core.reflect.SerializableFunction;
-import io.polaris.core.reflect.SerializableQuaternionConsumer;
-import io.polaris.core.reflect.SerializableTernaryFunction;
+import io.polaris.core.reflect.SerializableConsumerWithArgs4;
+import io.polaris.core.reflect.SerializableTriFunction;
 import io.polaris.core.string.StringCases;
 import io.polaris.core.tuple.Tuple2;
 import org.objectweb.asm.ClassWriter;
@@ -310,7 +310,7 @@ public abstract class BeanOptionsCopier<S, T> {
 	private static <S, T> void insertCopyKeysMethod(ClassWriter cw, BeanCopier<S> beanCopier,
 		String superClassNameInternal, String accessClassNameInternal, Class<T> type,
 		List<Tuple2<BeanPropertyInfo, BeanPropertyInfo>> keyMapping,
-		SerializableFiveElementConsumer<BeanOptionsCopier, Object, Object, CopyOptions, Set<String>> copyKeysMethod) {
+		SerializableConsumerWithArgs5<BeanOptionsCopier, Object, Object, CopyOptions, Set<String>> copyKeysMethod) {
 
 		String copyKeysMethodName = copyKeysMethod.serialized().getImplMethodName();
 
@@ -389,7 +389,7 @@ public abstract class BeanOptionsCopier<S, T> {
 	private static <S, T> void insertCopyKeysSubMethod(ClassWriter cw, BeanCopier<S> beanCopier,
 		String superClassNameInternal, String accessClassNameInternal, Class<T> type,
 		BeanPropertyInfo sourceInfo, BeanPropertyInfo targetInfo,
-		SerializableFiveElementConsumer<BeanOptionsCopier, Object, Object, CopyOptions, Set<String>> copyKeysMethod) {
+		SerializableConsumerWithArgs5<BeanOptionsCopier, Object, Object, CopyOptions, Set<String>> copyKeysMethod) {
 		String methodName = copyKeysMethod.serialized().getImplMethodName() + "$" + sourceInfo.getPropertyName() + "$" + targetInfo.getPropertyName();
 
 		MethodVisitor methodVisitor = cw.visitMethod(ACC_PRIVATE, methodName, "(" +
@@ -512,14 +512,14 @@ public abstract class BeanOptionsCopier<S, T> {
 		methodVisitor.visitVarInsn(ALOAD, 3);
 		methodVisitor.visitVarInsn(ALOAD, 5);
 		methodVisitor.visitVarInsn(ALOAD, 7);
-		SerializableTernaryFunction<CopyOptions, String, Object, Object> editValue = CopyOptions::editValue;
+		SerializableTriFunction<CopyOptions, String, Object, Object> editValue = CopyOptions::editValue;
 		methodVisitor.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(CopyOptions.class), editValue.serialized().getImplMethodName(), "(Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;", false);
 		methodVisitor.visitVarInsn(ASTORE, 7);
 		methodVisitor.visitVarInsn(ALOAD, 3);
 		methodVisitor.visitVarInsn(ALOAD, 0);
 		methodVisitor.visitFieldInsn(GETFIELD, accessClassNameInternal, FIELD_PREFIX_TYPE + targetInfo.getPropertyName(), "Ljava/lang/reflect/Type;");
 		methodVisitor.visitVarInsn(ALOAD, 7);
-		SerializableTernaryFunction<CopyOptions, java.lang.reflect.Type, Object, Object> convert = CopyOptions::convert;
+		SerializableTriFunction<CopyOptions, java.lang.reflect.Type, Object, Object> convert = CopyOptions::convert;
 		methodVisitor.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(CopyOptions.class), convert.serialized().getImplMethodName(), "(Ljava/lang/reflect/Type;Ljava/lang/Object;)Ljava/lang/Object;", false);
 		methodVisitor.visitVarInsn(ASTORE, 7);
 		methodVisitor.visitVarInsn(ALOAD, 7);
@@ -570,7 +570,7 @@ public abstract class BeanOptionsCopier<S, T> {
 		methodVisitor.visitLdcInsn(sourceInfo.getPropertyName() + "->" + targetInfo.getPropertyName());
 		methodVisitor.visitVarInsn(ALOAD, 5);
 		methodVisitor.visitVarInsn(ALOAD, 3);
-		SerializableQuaternionConsumer<BeanOptionsCopier, String, Throwable,CopyOptions> resolveCopyError = BeanOptionsCopier::resolveCopyError;
+		SerializableConsumerWithArgs4<BeanOptionsCopier, String, Throwable,CopyOptions> resolveCopyError = BeanOptionsCopier::resolveCopyError;
 		methodVisitor.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(BeanOptionsCopier.class), resolveCopyError.serialized().getImplMethodName(), "(Ljava/lang/String;Ljava/lang/Throwable;" +
 			Type.getDescriptor(CopyOptions.class) + ")V", false);
 		methodVisitor.visitLabel(label11);
