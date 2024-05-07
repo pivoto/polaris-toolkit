@@ -11,26 +11,26 @@ import io.polaris.core.service.ServiceOrder;
  * @author Qt
  * @since 1.8,  Feb 04, 2024
  */
-@ServiceName("jackson")
-@ServiceOrder(0)
-public class JacksonJsonSerializer implements JsonSerializer {
+@ServiceName("fastjson")
+@ServiceOrder(10)
+public class FastjsonJsonSerializer implements JsonSerializer {
 	@Override
 	public String serialize(Object value) {
-		return Jacksons.toJsonString(value);
+		return Fastjsons.toJsonString(value);
 	}
 
 	@Override
 	public <T> T deserialize(String json, Type type) {
-		return Jacksons.toJavaObject(json, type);
+		return Fastjsons.toJavaObject(json, type);
 	}
 
 	@Override
 	public <T> T deserialize(String json, Class<? extends T> type) {
-		return Jacksons.toJavaObject(json, type);
+		return Fastjsons.toJavaObject(json, type);
 	}
 
 	@Override
 	public <T> T deserialize(String json, TypeRef<T> type) {
-		return Jacksons.toJavaObject(json, type);
+		return Fastjsons.toJavaObject(json, type);
 	}
 }

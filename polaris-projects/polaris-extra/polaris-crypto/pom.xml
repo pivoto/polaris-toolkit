@@ -20,11 +20,5 @@
 			<artifactId>bcprov-jdk18on</artifactId>
 			<version>1.75</version>
 		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-simple</artifactId>
-			<version>${dependency.slf4j.version}</version>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
 </project>

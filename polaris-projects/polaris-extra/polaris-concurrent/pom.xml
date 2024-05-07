@@ -63,12 +63,6 @@
 		<!-- endregion -->
 
 		<!-- region test -->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-simple</artifactId>
-			<version>${dependency.slf4j.version}</version>
-			<scope>test</scope>
-		</dependency>
 		<!-- endregion -->
 	</dependencies>
 </project>

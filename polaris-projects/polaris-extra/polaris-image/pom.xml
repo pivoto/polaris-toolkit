@@ -26,11 +26,5 @@
 			<artifactId>javase</artifactId>
 			<version>${zxing.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-simple</artifactId>
-			<version>${dependency.slf4j.version}</version>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
 </project>

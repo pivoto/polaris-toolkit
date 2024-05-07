@@ -21,12 +21,6 @@
 			<artifactId>okhttp</artifactId>
 			<version>${okhttp.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-simple</artifactId>
-			<version>${dependency.slf4j.version}</version>
-			<scope>test</scope>
-		</dependency>
 		<!--<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
