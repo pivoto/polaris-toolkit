@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.function.BiFunction;
 
 import io.polaris.core.asm.AsmUtils;
-import io.polaris.core.err.InvocationException;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
 import io.polaris.core.reflect.SerializableConsumerWithArgs4;
@@ -423,10 +422,10 @@ public abstract class BeanAccess<T> {
 						if (hasThrows) {
 							methodVisitor.visitLabel(labelCatch);
 							methodVisitor.visitVarInsn(ASTORE, 4);
-							methodVisitor.visitTypeInsn(NEW, Type.getInternalName(InvocationException.class));
+							methodVisitor.visitTypeInsn(NEW, Type.getInternalName(IllegalArgumentException.class));
 							methodVisitor.visitInsn(DUP);
 							methodVisitor.visitVarInsn(ALOAD, 4);
-							methodVisitor.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(InvocationException.class), "<init>", "(Ljava/lang/Throwable;)V", false);
+							methodVisitor.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(IllegalArgumentException.class), "<init>", "(Ljava/lang/Throwable;)V", false);
 							methodVisitor.visitInsn(ATHROW);
 						}
 
@@ -517,10 +516,10 @@ public abstract class BeanAccess<T> {
 						if (hasThrows) {
 							methodVisitor.visitLabel(labelCatch);
 							methodVisitor.visitVarInsn(ASTORE, 3);
-							methodVisitor.visitTypeInsn(NEW, Type.getInternalName(InvocationException.class));
+							methodVisitor.visitTypeInsn(NEW, Type.getInternalName(IllegalArgumentException.class));
 							methodVisitor.visitInsn(DUP);
 							methodVisitor.visitVarInsn(ALOAD, 3);
-							methodVisitor.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(InvocationException.class), "<init>", "(Ljava/lang/Throwable;)V", false);
+							methodVisitor.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(IllegalArgumentException.class), "<init>", "(Ljava/lang/Throwable;)V", false);
 							methodVisitor.visitInsn(ATHROW);
 						}
 					}

@@ -83,7 +83,7 @@ public class AccessClassLoader extends ClassLoader {
 			try {
 				return loadClass(name, false);
 			} catch (ClassNotFoundException ex) {
-				throw new RuntimeException(ex); // Should not happen, since we know the class has been defined.
+				throw new IllegalArgumentException(ex); // Should not happen, since we know the class has been defined.
 			}
 		}
 		return null;

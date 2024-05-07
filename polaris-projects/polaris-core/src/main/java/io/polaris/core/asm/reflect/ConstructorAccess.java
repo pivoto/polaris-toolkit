@@ -65,7 +65,7 @@ public abstract class ConstructorAccess<T> {
 						throw new RuntimeException("缺少默认无参构造器方法: " + type.getName(), ex);
 					}
 					if (Modifier.isPrivate(modifiers)) {
-						throw new RuntimeException("默认无参构造器方法不能声明为private: " + type.getName());
+						throw new IllegalArgumentException("默认无参构造器方法不能声明为private: " + type.getName());
 					}
 				} else {
 					enclosingClassNameInternal = enclosingType.getName().replace('.', '/');
@@ -74,10 +74,10 @@ public abstract class ConstructorAccess<T> {
 						constructor = type.getDeclaredConstructor(enclosingType);
 						modifiers = constructor.getModifiers();
 					} catch (Exception ex) {
-						throw new RuntimeException("非静态内部类缺少默认构造器方法: " + type.getName(), ex);
+						throw new IllegalArgumentException("非静态内部类缺少默认构造器方法: " + type.getName(), ex);
 					}
 					if (Modifier.isPrivate(modifiers)) {
-						throw new RuntimeException("非静态内部类的默认构造器方法不能声明为private: " + type.getName());
+						throw new IllegalArgumentException("非静态内部类的默认构造器方法不能声明为private: " + type.getName());
 					}
 				}
 				String superClassNameInternal = Modifier.isPublic(modifiers)
@@ -103,7 +103,7 @@ public abstract class ConstructorAccess<T> {
 		}
 		if (!(access instanceof PublicConstructorAccess) && !AccessClassLoader.areInSameRuntimeClassLoader(type, accessClass)) {
 			// 判断构造器访问权限，非公有构造方法必须由相同类加载器下的类调用，否则会抛出IllegalAccessError
-			throw new RuntimeException((!isNonStaticMemberClass
+			throw new IllegalArgumentException((!isNonStaticMemberClass
 				? "默认无参构造器未声明为public，且无法定义同类加载器下的访问类: "
 				: "非静态成员内部类的构造器未声明为public，且无法定义同类加载器下的访问类: ")
 				+ type.getName());

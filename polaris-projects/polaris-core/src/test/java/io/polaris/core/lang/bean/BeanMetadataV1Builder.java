@@ -17,7 +17,6 @@ import javax.lang.model.element.Modifier;
 import io.polaris.core.asm.AsmTypeSignatures;
 import io.polaris.core.compiler.MemoryClassLoader;
 import io.polaris.core.compiler.MemoryCompiler;
-import io.polaris.core.err.InvocationException;
 import io.polaris.core.lang.TypeRef;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.reflect.SerializableFunction;
@@ -38,27 +37,7 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
-import static org.objectweb.asm.Opcodes.ACC_FINAL;
-import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
-import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
-import static org.objectweb.asm.Opcodes.ACC_STATIC;
-import static org.objectweb.asm.Opcodes.ACC_SUPER;
-import static org.objectweb.asm.Opcodes.ACC_SYNTHETIC;
-import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.ARETURN;
-import static org.objectweb.asm.Opcodes.ASTORE;
-import static org.objectweb.asm.Opcodes.ATHROW;
-import static org.objectweb.asm.Opcodes.CHECKCAST;
-import static org.objectweb.asm.Opcodes.DUP;
-import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
-import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
-import static org.objectweb.asm.Opcodes.INVOKESTATIC;
-import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
-import static org.objectweb.asm.Opcodes.NEW;
-import static org.objectweb.asm.Opcodes.POP;
-import static org.objectweb.asm.Opcodes.PUTFIELD;
-import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.V1_8;
+import static org.objectweb.asm.Opcodes.*;
 
 /**
  * @author Qt
@@ -371,10 +350,10 @@ class BeanMetadataV1Builder {
 					mv.visitLabel(label2);
 					mv.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[]{"java/lang/Throwable"});
 					mv.visitVarInsn(ASTORE, 2);
-					mv.visitTypeInsn(NEW, org.objectweb.asm.Type.getInternalName(InvocationException.class));
+					mv.visitTypeInsn(NEW, org.objectweb.asm.Type.getInternalName(IllegalArgumentException.class));
 					mv.visitInsn(DUP);
 					mv.visitVarInsn(ALOAD, 2);
-					mv.visitMethodInsn(INVOKESPECIAL, org.objectweb.asm.Type.getInternalName(InvocationException.class), "<init>", "(Ljava/lang/Throwable;)V", false);
+					mv.visitMethodInsn(INVOKESPECIAL, org.objectweb.asm.Type.getInternalName(IllegalArgumentException.class), "<init>", "(Ljava/lang/Throwable;)V", false);
 					mv.visitInsn(ATHROW);
 				}
 				mv.visitMaxs(1, 1);
@@ -454,10 +433,10 @@ class BeanMetadataV1Builder {
 					mv.visitLabel(label2);
 					mv.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[]{"java/lang/Throwable"});
 					mv.visitVarInsn(ASTORE, 2);
-					mv.visitTypeInsn(NEW, org.objectweb.asm.Type.getInternalName(InvocationException.class));
+					mv.visitTypeInsn(NEW, org.objectweb.asm.Type.getInternalName(IllegalArgumentException.class));
 					mv.visitInsn(DUP);
 					mv.visitVarInsn(ALOAD, 2);
-					mv.visitMethodInsn(INVOKESPECIAL, org.objectweb.asm.Type.getInternalName(InvocationException.class), "<init>", "(Ljava/lang/Throwable;)V", false);
+					mv.visitMethodInsn(INVOKESPECIAL, org.objectweb.asm.Type.getInternalName(IllegalArgumentException.class), "<init>", "(Ljava/lang/Throwable;)V", false);
 					mv.visitInsn(ATHROW);
 				}
 				mv.visitMaxs(2, 2);

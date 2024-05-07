@@ -17,7 +17,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import io.polaris.core.asm.AsmUtils;
-import io.polaris.core.err.InvocationException;
 import io.polaris.core.lang.Types;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
@@ -31,37 +30,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import static org.objectweb.asm.Opcodes.AALOAD;
-import static org.objectweb.asm.Opcodes.AASTORE;
-import static org.objectweb.asm.Opcodes.ACC_FINAL;
-import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
-import static org.objectweb.asm.Opcodes.ACC_PROTECTED;
-import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
-import static org.objectweb.asm.Opcodes.ACC_STATIC;
-import static org.objectweb.asm.Opcodes.ACC_SUPER;
-import static org.objectweb.asm.Opcodes.ACC_SYNTHETIC;
-import static org.objectweb.asm.Opcodes.ACONST_NULL;
-import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.ANEWARRAY;
-import static org.objectweb.asm.Opcodes.ARETURN;
-import static org.objectweb.asm.Opcodes.ASTORE;
-import static org.objectweb.asm.Opcodes.ATHROW;
-import static org.objectweb.asm.Opcodes.BIPUSH;
-import static org.objectweb.asm.Opcodes.CHECKCAST;
-import static org.objectweb.asm.Opcodes.DUP;
-import static org.objectweb.asm.Opcodes.GETFIELD;
-import static org.objectweb.asm.Opcodes.GETSTATIC;
-import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
-import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
-import static org.objectweb.asm.Opcodes.INVOKESTATIC;
-import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
-import static org.objectweb.asm.Opcodes.NEW;
-import static org.objectweb.asm.Opcodes.POP;
-import static org.objectweb.asm.Opcodes.PUTFIELD;
-import static org.objectweb.asm.Opcodes.PUTSTATIC;
-import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.SIPUSH;
-import static org.objectweb.asm.Opcodes.V1_8;
+import static org.objectweb.asm.Opcodes.*;
 
 /**
  * @author Qt
@@ -143,7 +112,7 @@ public abstract class ClassLambdaAccess<T> {
 			try {
 				return (T) constructors[constructorIndex].apply(new Object[0]);
 			} catch (Throwable e) {
-				throw InvocationException.of(e);
+				throw new IllegalArgumentException(e);
 			}
 		}
 		throw new IllegalArgumentException("Constructor not found");
@@ -160,7 +129,7 @@ public abstract class ClassLambdaAccess<T> {
 				try {
 					return (T) constructors[i].apply(args);
 				} catch (Throwable e) {
-					throw InvocationException.of(e);
+					throw new IllegalArgumentException(e);
 				}
 			}
 		}
@@ -171,7 +140,7 @@ public abstract class ClassLambdaAccess<T> {
 				try {
 					return (T) constructors[i].apply(args);
 				} catch (Throwable e) {
-					throw InvocationException.of(e);
+					throw new IllegalArgumentException(e);
 				}
 			}
 		}
@@ -206,7 +175,7 @@ public abstract class ClassLambdaAccess<T> {
 					try {
 						return (T) constructors[i].apply(args);
 					} catch (Throwable e) {
-						throw InvocationException.of(e);
+						throw new IllegalArgumentException(e);
 					}
 				}
 			}
@@ -219,7 +188,7 @@ public abstract class ClassLambdaAccess<T> {
 			try {
 				return (T) constructors[constructorIndex].apply(new Object[0]);
 			} catch (Throwable e) {
-				throw InvocationException.of(e);
+				throw new IllegalArgumentException(e);
 			}
 		}
 		return null;
@@ -236,7 +205,7 @@ public abstract class ClassLambdaAccess<T> {
 				try {
 					return (T) constructors[i].apply(args);
 				} catch (Throwable e) {
-					throw InvocationException.of(e);
+					throw new IllegalArgumentException(e);
 				}
 			}
 		}
@@ -247,7 +216,7 @@ public abstract class ClassLambdaAccess<T> {
 				try {
 					return (T) constructors[i].apply(args);
 				} catch (Throwable e) {
-					throw InvocationException.of(e);
+					throw new IllegalArgumentException(e);
 				}
 			}
 		}
@@ -282,7 +251,7 @@ public abstract class ClassLambdaAccess<T> {
 					try {
 						return (T) constructors[i].apply(args);
 					} catch (Throwable e) {
-						throw InvocationException.of(e);
+						throw new IllegalArgumentException(e);
 					}
 				}
 			}
@@ -333,7 +302,7 @@ public abstract class ClassLambdaAccess<T> {
 				try {
 					return tuple.getSecond().apply(object, args);
 				} catch (Throwable e) {
-					throw InvocationException.of(e);
+					throw new IllegalArgumentException(e);
 				}
 			}
 		}
@@ -343,7 +312,7 @@ public abstract class ClassLambdaAccess<T> {
 				try {
 					return tuple.getSecond().apply(object, args);
 				} catch (Throwable e) {
-					throw InvocationException.of(e);
+					throw new IllegalArgumentException(e);
 				}
 			}
 		}
@@ -381,7 +350,7 @@ public abstract class ClassLambdaAccess<T> {
 				try {
 					return tuple.getSecond().apply(object, args);
 				} catch (Throwable e) {
-					throw InvocationException.of(e);
+					throw new IllegalArgumentException(e);
 				}
 			}
 		}
@@ -399,7 +368,7 @@ public abstract class ClassLambdaAccess<T> {
 				try {
 					return tuple.getSecond().apply(object, args);
 				} catch (Throwable e) {
-					throw InvocationException.of(e);
+					throw new IllegalArgumentException(e);
 				}
 			}
 		}
@@ -409,7 +378,7 @@ public abstract class ClassLambdaAccess<T> {
 				try {
 					return tuple.getSecond().apply(object, args);
 				} catch (Throwable e) {
-					throw InvocationException.of(e);
+					throw new IllegalArgumentException(e);
 				}
 			}
 		}
@@ -447,7 +416,7 @@ public abstract class ClassLambdaAccess<T> {
 				try {
 					return tuple.getSecond().apply(object, args);
 				} catch (Throwable e) {
-					throw InvocationException.of(e);
+					throw new IllegalArgumentException(e);
 				}
 			}
 		}
@@ -669,10 +638,10 @@ public abstract class ClassLambdaAccess<T> {
 					mv.visitLabel(label2);
 					mv.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[]{"java/lang/Throwable"});
 					mv.visitVarInsn(ASTORE, 2);
-					mv.visitTypeInsn(NEW, Type.getInternalName(InvocationException.class));
+					mv.visitTypeInsn(NEW, Type.getInternalName(IllegalArgumentException.class));
 					mv.visitInsn(DUP);
 					mv.visitVarInsn(ALOAD, 2);
-					mv.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(InvocationException.class), "<init>", "(Ljava/lang/Throwable;)V", false);
+					mv.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(IllegalArgumentException.class), "<init>", "(Ljava/lang/Throwable;)V", false);
 					mv.visitInsn(ATHROW);
 				}
 
@@ -836,10 +805,10 @@ public abstract class ClassLambdaAccess<T> {
 						mv.visitLabel(labelCatch);
 						mv.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[]{"java/lang/Throwable"});
 						mv.visitVarInsn(ASTORE, 2);
-						mv.visitTypeInsn(NEW, Type.getInternalName(InvocationException.class));
+						mv.visitTypeInsn(NEW, Type.getInternalName(IllegalArgumentException.class));
 						mv.visitInsn(DUP);
 						mv.visitVarInsn(ALOAD, 2);
-						mv.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(InvocationException.class), "<init>", "(Ljava/lang/Throwable;)V", false);
+						mv.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(IllegalArgumentException.class), "<init>", "(Ljava/lang/Throwable;)V", false);
 						mv.visitInsn(ATHROW);
 					}
 
