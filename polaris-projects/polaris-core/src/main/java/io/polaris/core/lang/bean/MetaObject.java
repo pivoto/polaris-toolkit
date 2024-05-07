@@ -2,13 +2,14 @@ package io.polaris.core.lang.bean;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.DoubleAdder;
+import java.util.concurrent.atomic.LongAdder;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -36,6 +37,7 @@ public abstract class MetaObject<T> {
 	public static final int CASE_INSENSITIVE = 1;
 	public static final int CASE_CAMEL = 2;
 	private static final ILogger log = ILoggers.of(MetaObject.class);
+	private static final Set<Class> basicTypes;
 	private final JavaType<T> beanType;
 	private int state = INIT;
 
@@ -51,6 +53,43 @@ public abstract class MetaObject<T> {
 
 	private MetaObject<?> keyType;
 	private MetaObject<?> elementType;
+
+	static{
+		Set<Class> set =  new HashSet<>();
+		set.add(Class.class);
+		set.add(String.class);
+		set.add(CharSequence.class);
+		set.add(StringBuilder.class);
+		set.add(StringBuffer.class);
+		set.add(AtomicInteger.class);
+		set.add(AtomicLong.class);
+		set.add(AtomicBoolean.class);
+		set.add(LongAdder.class);
+		set.add(DoubleAdder.class);
+		set.add(BigDecimal.class);
+		set.add(BigInteger.class);
+
+		/* set.add(Date.class);
+		set.add(java.sql.Date.class);
+		set.add(java.sql.Time.class);
+		set.add(java.sql.Timestamp.class);
+		set.add(Instant.class);
+		set.add(LocalDateTime.class);
+		set.add(LocalDate.class);
+		set.add(LocalTime.class);
+		set.add(ZonedDateTime.class);
+		set.add(OffsetDateTime.class);
+		set.add(OffsetTime.class);
+		set.add(DayOfWeek.class);
+		set.add(Month.class);
+		set.add(MonthDay.class);
+		set.add(Year.class);
+		set.add(YearMonth.class);
+		set.add(Period.class);
+		set.add(ChronoPeriod.class);
+		set.add(Duration.class); */
+		basicTypes = Collections.unmodifiableSet(set);
+	}
 
 	protected MetaObject(JavaType<T> beanType) {
 		this.beanType = beanType;
@@ -74,6 +113,8 @@ public abstract class MetaObject<T> {
 				this.isBasic = true;
 			} else if (Types.isPrimitiveWrapper(rawClass)) {
 				this.isPrimitiveWrapper = true;
+				this.isBasic = true;
+			} else if (basicTypes.contains(rawClass)) {
 				this.isBasic = true;
 			} else if (rawClass.isEnum()) {
 				this.isEnum = true;

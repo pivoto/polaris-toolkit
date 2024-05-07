@@ -102,8 +102,8 @@ public class ConverterRegistry {
 		standardConverters.put(DayOfWeek.class, new TemporalAccessorConverter(DayOfWeek.class));
 		standardConverters.put(Month.class, new TemporalAccessorConverter(Month.class));
 		standardConverters.put(MonthDay.class, new TemporalAccessorConverter(MonthDay.class));
-		standardConverters.put(Year.class, new TemporalAccessorConverter(MonthDay.class));
-		standardConverters.put(YearMonth.class, new TemporalAccessorConverter(MonthDay.class));
+		standardConverters.put(Year.class, new TemporalAccessorConverter(Year.class));
+		standardConverters.put(YearMonth.class, new TemporalAccessorConverter(YearMonth.class));
 		standardConverters.put(Period.class, new PeriodConverter());
 		standardConverters.put(ChronoPeriod.class, new PeriodConverter());
 		standardConverters.put(Duration.class, new DurationConverter());

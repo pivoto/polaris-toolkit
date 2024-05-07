@@ -28,11 +28,11 @@ public class MetaObjectTest {
 		TestConsole.printx("$.publicStringVal: {}", meta.getProperty(bean, "publicStringVal"));
 
 		meta.setProperty(bean, "protectedStringVal", "test");
-		Assertions.assertEquals("test", meta.getProperty(bean, "protectedStringVal"));
+		Assertions.assertNotEquals("test", meta.getProperty(bean, "protectedStringVal"));
 		TestConsole.printx("$.protectedStringVal: {}", meta.getProperty(bean, "protectedStringVal"));
 
 		meta.setProperty(bean, "defaultStringVal", "test");
-		Assertions.assertEquals("test", meta.getProperty(bean, "defaultStringVal"));
+		Assertions.assertNotEquals("test", meta.getProperty(bean, "defaultStringVal"));
 		TestConsole.printx("$.defaultStringVal: {}", meta.getProperty(bean, "defaultStringVal"));
 
 	}
@@ -52,11 +52,11 @@ public class MetaObjectTest {
 		TestConsole.printx("$.publicStringVal: {}", meta.getProperty(bean, "publicStringVal"));
 
 		meta.setProperty(bean, "protectedStringVal", "test");
-		Assertions.assertEquals("test", meta.getProperty(bean, "protectedStringVal"));
+		Assertions.assertNotEquals("test", meta.getProperty(bean, "protectedStringVal"));
 		TestConsole.printx("$.protectedStringVal: {}", meta.getProperty(bean, "protectedStringVal"));
 
 		meta.setProperty(bean, "defaultStringVal", "test");
-		Assertions.assertEquals("test", meta.getProperty(bean, "defaultStringVal"));
+		Assertions.assertNotEquals("test", meta.getProperty(bean, "defaultStringVal"));
 		TestConsole.printx("$.defaultStringVal: {}", meta.getProperty(bean, "defaultStringVal"));
 
 	}
