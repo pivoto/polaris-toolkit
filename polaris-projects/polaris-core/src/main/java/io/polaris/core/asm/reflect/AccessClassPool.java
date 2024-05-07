@@ -10,20 +10,20 @@ import java.util.function.Function;
  * @author Qt
  * @since 1.8,  Apr 11, 2024
  */
-public class AccessPool<K, V> {
+class AccessClassPool<K, V> {
 	private final LimitedLinkedHashMap<K, V> raw;
 	private final Map<K, V> pool;
 
-	public AccessPool(int maxCapacity, int initialCapacity) {
+	public AccessClassPool(int maxCapacity, int initialCapacity) {
 		raw = new LimitedLinkedHashMap<>(maxCapacity, true, initialCapacity);
 		pool = Collections.synchronizedMap(raw);
 	}
 
-	public AccessPool(int maxCapacity) {
+	public AccessClassPool(int maxCapacity) {
 		this(maxCapacity, 128);
 	}
 
-	public AccessPool() {
+	public AccessClassPool() {
 		this(10240);
 	}
 

@@ -67,7 +67,7 @@ import static org.objectweb.asm.Opcodes.V1_8;
  */
 @SuppressWarnings("all")
 public abstract class ClassAccessV4<T> {
-	private static final AccessPool<Class, ClassAccessV4> pool = new AccessPool<>();
+	private static final AccessClassPool<Class, ClassAccessV4> pool = new AccessClassPool<>();
 	private static ILogger log = ILoggers.of(ClassAccessV4.class);
 	private final int defaultConstructorIndex;
 	private final Class[][] constructorParamTypes;

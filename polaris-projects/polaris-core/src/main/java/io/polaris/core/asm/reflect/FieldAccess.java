@@ -20,7 +20,7 @@ import static org.objectweb.asm.Opcodes.*;
  * @since 1.8,  Aug 04, 2023
  */
 public abstract class FieldAccess {
-	private static final AccessPool<Class, FieldAccess> pool = new AccessPool<>();
+	private static final AccessClassPool<Class, FieldAccess> pool = new AccessClassPool<>();
 	private String[] fieldNames;
 	private Class[] fieldTypes;
 	private Field[] fields;

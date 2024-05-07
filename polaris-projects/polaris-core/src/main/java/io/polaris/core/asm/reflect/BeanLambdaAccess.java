@@ -54,7 +54,7 @@ import static org.objectweb.asm.Opcodes.V1_8;
  * @since 1.8,  Apr 11, 2024
  */
 public abstract class BeanLambdaAccess<T> {
-	private static final AccessPool<Class, BeanLambdaAccess> pool = new AccessPool<>();
+	private static final AccessClassPool<Class, BeanLambdaAccess> pool = new AccessClassPool<>();
 	private static ILogger log = ILoggers.of(BeanLambdaAccess.class);
 
 

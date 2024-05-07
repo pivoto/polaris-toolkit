@@ -15,7 +15,7 @@ import static org.objectweb.asm.Opcodes.*;
  */
 public abstract class ConstructorAccess<T> {
 
-	private static final AccessPool<Class, ConstructorAccess> pool = new AccessPool<>();
+	private static final AccessClassPool<Class, ConstructorAccess> pool = new AccessClassPool<>();
 	/** 是否非静态成员内部类 */
 	private boolean isNonStaticMemberClass;
 	/**

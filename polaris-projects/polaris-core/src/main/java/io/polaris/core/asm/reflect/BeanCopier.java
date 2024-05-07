@@ -51,7 +51,7 @@ import static org.objectweb.asm.Opcodes.*;
 public abstract class BeanCopier<S> {
 	private static ILogger log = ILoggers.of(BeanCopier.class);
 	@SuppressWarnings({"rawtypes"})
-	private static final AccessPool<Class<?>, BeanCopier> pool = new AccessPool<>();
+	private static final AccessClassPool<Class<?>, BeanCopier> pool = new AccessClassPool<>();
 	public static final String FIELD_PREFIX_TYPE = "type_";
 	public static final String FIELD_PREFIX_CLASS = "class_";
 	private final Map<Class<?>, BeanDirectCopier> fastCopiers = new ConcurrentHashMap<>();

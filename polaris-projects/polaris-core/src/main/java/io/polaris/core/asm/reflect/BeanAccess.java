@@ -31,7 +31,7 @@ import static org.objectweb.asm.Opcodes.*;
 public abstract class BeanAccess<T> {
 	private static ILogger log = ILoggers.of(BeanAccess.class);
 	@SuppressWarnings({"rawtypes"})
-	private static final AccessPool<Class<?>, BeanAccess> pool = new AccessPool<>();
+	private static final AccessClassPool<Class<?>, BeanAccess> pool = new AccessClassPool<>();
 
 	private Map<String, BeanPropertyInfo> properties;
 	private Map<String, Integer> setterIndices;

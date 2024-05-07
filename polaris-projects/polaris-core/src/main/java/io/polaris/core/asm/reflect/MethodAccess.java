@@ -40,7 +40,7 @@ import static org.objectweb.asm.Opcodes.V1_8;
  * @since 1.8,  Aug 04, 2023
  */
 public abstract class MethodAccess {
-	private static final AccessPool<Class, MethodAccess> pool = new AccessPool<>();
+	private static final AccessClassPool<Class, MethodAccess> pool = new AccessClassPool<>();
 	private String[] methodNames;
 	private Class[][] parameterTypes;
 	private Class[] returnTypes;

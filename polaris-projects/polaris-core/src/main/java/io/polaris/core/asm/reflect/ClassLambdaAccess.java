@@ -69,7 +69,7 @@ import static org.objectweb.asm.Opcodes.V1_8;
  */
 @SuppressWarnings("all")
 public abstract class ClassLambdaAccess<T> {
-	private static final AccessPool<Class, ClassLambdaAccess> pool = new AccessPool<>();
+	private static final AccessClassPool<Class, ClassLambdaAccess> pool = new AccessClassPool<>();
 	private static ILogger log = ILoggers.of(ClassLambdaAccess.class);
 	private int constructorIndex = -1;
 	private Class[][] constructorParamTypes;
