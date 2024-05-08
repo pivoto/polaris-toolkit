@@ -32,10 +32,6 @@
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>cn.pivoto.polaris.plugins</groupId>
-				<artifactId>properties-maven-plugin</artifactId>
-			</plugin>
 			<!-- region check -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -53,28 +49,6 @@
 		</plugins>
 		<pluginManagement>
 			<plugins>
-				<plugin>
-					<groupId>cn.pivoto.polaris.plugins</groupId>
-					<artifactId>properties-maven-plugin</artifactId>
-					<version>${project.polaris.revision}</version>
-					<executions>
-						<execution>
-							<id>transform-resources</id>
-							<goals>
-								<goal>transform</goal>
-							</goals>
-							<phase>process-resources</phase>
-						</execution>
-						<execution>
-							<id>transform-test-resources</id>
-							<goals>
-								<goal>transform</goal>
-							</goals>
-							<phase>process-test-resources</phase>
-						</execution>
-					</executions>
-				</plugin>
-
 				<!-- region check -->
 				<!-- findbugs 静态分析工具 -->
 				<plugin>

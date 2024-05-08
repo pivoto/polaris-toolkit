@@ -954,15 +954,31 @@
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>native2ascii-maven-plugin</artifactId>
-					<version>2.0.1</version>
+					<version>2.1.0</version>
 					<executions>
 						<execution>
+							<id>native2ascii-resources</id>
 							<phase>process-resources</phase>
 							<goals>
-								<goal>resources</goal>
+								<goal>inplace</goal>
 							</goals>
 							<configuration>
 								<encoding>${project.build.sourceEncoding}</encoding>
+								<dir>${project.build.outputDirectory}</dir>
+								<includes>
+									<include>**/*.properties</include>
+								</includes>
+							</configuration>
+						</execution>
+						<execution>
+							<id>native2ascii-test-resources</id>
+							<phase>process-test-resources</phase>
+							<goals>
+								<goal>inplace</goal>
+							</goals>
+							<configuration>
+								<encoding>${project.build.sourceEncoding}</encoding>
+								<dir>${project.build.testOutputDirectory}</dir>
 								<includes>
 									<include>**/*.properties</include>
 								</includes>
@@ -1172,6 +1188,10 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>native2ascii-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
