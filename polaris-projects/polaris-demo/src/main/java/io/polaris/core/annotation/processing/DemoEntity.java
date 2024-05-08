@@ -20,4 +20,7 @@ public class DemoEntity  {
 	private String fieldStr1;
 	private String fieldStr2;
 	private String fieldStr3;
+
+	@Column(ignored = true)
+	private String aId;
 }

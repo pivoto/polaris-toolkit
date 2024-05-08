@@ -34,12 +34,16 @@
 		<project.build.sourceEncoding>${file.encoding}</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>${file.encoding}</project.reporting.outputEncoding>
 		<project.dependencies.scope.provided>provided</project.dependencies.scope.provided>
+		<project.sourceDirectory>src/main/java</project.sourceDirectory>
 		<project.profiles.dir>src/profiles</project.profiles.dir>
 		<project.activeProfile>dev</project.activeProfile>
 		<project.resources.profile>${project.profiles.dir}/${project.activeProfile}/resources</project.resources.profile>
 		<project.resources.ext>src/ext/resources</project.resources.ext>
 		<project.resources.addition>src/main/config</project.resources.addition>
 		<project.testResources.addition>src/test/config</project.testResources.addition>
+
+		<lombok.sourceDirectory>src/main/lombok</lombok.sourceDirectory>
+		<lombok.outputDirectory>${project.build.directory}/generated-sources/delombok</lombok.outputDirectory>
 
 		<maven.test.skip>false</maven.test.skip>
 		<maven.install.skip>false</maven.install.skip>
@@ -169,6 +173,11 @@
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-plugins-build-tools</artifactId>
+				<version>${project.polaris.revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<artifactId>properties-maven-plugin</artifactId>
 				<version>${project.polaris.revision}</version>
 			</dependency>
 			<dependency>
@@ -443,6 +452,7 @@
 	<build>
 		<defaultGoal>install</defaultGoal>
 		<finalName>${project.artifactId}-${project.version}</finalName>
+		<sourceDirectory>${project.sourceDirectory}</sourceDirectory>
 
 		<resources>
 			<resource>
@@ -562,11 +572,6 @@
 					<artifactId>wrapper-maven-plugin</artifactId>
 					<version>0.0.5</version>
 				</plugin>-->
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>exec-maven-plugin</artifactId>
-					<version>1.6.0</version>
-				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>flatten-maven-plugin</artifactId>
@@ -707,8 +712,14 @@
 					<groupId>org.projectlombok</groupId>
 					<artifactId>lombok-maven-plugin</artifactId>
 					<version>1.18.20.0</version>
+					<!-- 注： 1.18.20.0版本尚不支持`lombok.accessors.capitalization=BEANSPEC`配置 -->
 					<configuration>
 						<encoding>${project.build.sourceEncoding}</encoding>
+						<sourceDirectory>${lombok.sourceDirectory}</sourceDirectory>
+						<outputDirectory>${lombok.outputDirectory}</outputDirectory>
+						<formatPreferences>
+							<pretty/>
+						</formatPreferences>
 					</configuration>
 					<executions>
 						<execution>
@@ -718,13 +729,13 @@
 								<goal>delombok</goal>
 							</goals>
 						</execution>
-						<execution>
+						<!--<execution>
 							<id>generate-test-sources</id>
 							<phase>generate-test-sources</phase>
 							<goals>
 								<goal>testDelombok</goal>
 							</goals>
-						</execution>
+						</execution>-->
 					</executions>
 				</plugin>
 
@@ -1035,6 +1046,11 @@
 					<version>1.3.72</version>
 				</plugin>
 				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>exec-maven-plugin</artifactId>
+					<version>3.2.0</version>
+				</plugin>
+				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-antrun-plugin</artifactId>
 					<version>3.0.0</version>
@@ -1131,6 +1147,10 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
 			</plugin>
 			<plugin>
@@ -1152,10 +1172,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>native2ascii-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -1389,6 +1405,17 @@
 				</plugins>
 			</build>
 		</profile>
+
+		<!-- region delombok -->
+		<profile>
+			<id>delombok</id>
+			<properties>
+				<lombok.sourceDirectory>src/main/java</lombok.sourceDirectory>
+				<lombok.outputDirectory>${project.build.directory}/generated-sources/delombok-java</lombok.outputDirectory>
+				<project.sourceDirectory>${project.build.directory}/generated-sources/delombok-java</project.sourceDirectory>
+			</properties>
+		</profile>
+		<!-- endregion -->
 
 		<!-- region development -->
 		<profile>

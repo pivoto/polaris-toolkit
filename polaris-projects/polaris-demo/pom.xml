@@ -182,6 +182,43 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<artifactId>properties-maven-plugin</artifactId>
+				<version>${project.polaris.revision}</version>
+				<configuration>
+					<duplicateFiles>
+						<duplicateFile>
+							<src>application.properties</src>
+							<dest>application-dev.properties</dest>
+						</duplicateFile>
+						<duplicateFile>
+							<src>application-sit.properties</src>
+							<dest>application-dev.properties</dest>
+						</duplicateFile>
+						<duplicateFile>
+							<src>application-pro.properties</src>
+							<dest>application-dev.properties</dest>
+						</duplicateFile>
+					</duplicateFiles>
+				</configuration>
+				<executions>
+					<execution>
+						<id>transform-resources</id>
+						<goals>
+							<goal>transform</goal>
+						</goals>
+						<phase>process-resources</phase>
+					</execution>
+					<execution>
+						<id>transform-test-resources</id>
+						<goals>
+							<goal>transform</goal>
+						</goals>
+						<phase>process-test-resources</phase>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-install-plugin</artifactId>
 				<configuration>
