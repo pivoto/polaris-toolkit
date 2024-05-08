@@ -182,9 +182,8 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<groupId>cn.pivoto.polaris.plugins</groupId>
 				<artifactId>properties-maven-plugin</artifactId>
-				<version>${project.polaris.revision}</version>
 				<configuration>
 					<duplicateFiles>
 						<duplicateFile>

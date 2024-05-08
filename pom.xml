@@ -165,19 +165,19 @@
 		<dependencies>
 			<!-- region Modules -->
 			<dependency>
+				<groupId>cn.pivoto.polaris.plugins</groupId>
+				<artifactId>polaris-build-tools</artifactId>
+				<version>${project.polaris.revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.pivoto.polaris.plugins</groupId>
+				<artifactId>properties-maven-plugin</artifactId>
+				<version>${project.polaris.revision}</version>
+			</dependency>
+			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-all</artifactId>
 				<type>pom</type>
-				<version>${project.polaris.revision}</version>
-			</dependency>
-			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit</groupId>
-				<artifactId>polaris-plugins-build-tools</artifactId>
-				<version>${project.polaris.revision}</version>
-			</dependency>
-			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit</groupId>
-				<artifactId>properties-maven-plugin</artifactId>
 				<version>${project.polaris.revision}</version>
 			</dependency>
 			<dependency>

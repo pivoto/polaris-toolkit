@@ -33,7 +33,7 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<groupId>cn.pivoto.polaris.plugins</groupId>
 				<artifactId>properties-maven-plugin</artifactId>
 			</plugin>
 			<!-- region check -->
@@ -54,7 +54,7 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
-					<groupId>cn.pivoto.polaris.toolkit</groupId>
+					<groupId>cn.pivoto.polaris.plugins</groupId>
 					<artifactId>properties-maven-plugin</artifactId>
 					<version>${project.polaris.revision}</version>
 					<executions>
@@ -113,8 +113,8 @@
 					</configuration>
 					<dependencies>
 						<dependency>
-							<groupId>cn.pivoto.polaris.toolkit</groupId>
-							<artifactId>polaris-plugins-build-tools</artifactId>
+							<groupId>cn.pivoto.polaris.plugins</groupId>
+							<artifactId>polaris-build-tools</artifactId>
 							<version>${project.polaris.revision}</version>
 						</dependency>
 					</dependencies>
