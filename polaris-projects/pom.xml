@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>cn.pivoto.polaris.toolkit</groupId>
 		<artifactId>polaris-toolkit</artifactId>
-		<version>3.1.36</version>
+		<version>3.1.37-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
@@ -20,7 +20,6 @@
 		<module>polaris-extra</module>
 		<module>polaris-builder</module>
 		<module>polaris-all</module>
-		<module>polaris-demo</module>
 	</modules>
 	<properties>
 	</properties>
@@ -137,7 +136,6 @@
 		</pluginManagement>
 	</build>
 
-
 	<reporting>
 		<excludeDefaults>true</excludeDefaults>
 		<outputDirectory>${project.build.directory}/site/${project.artifactId}</outputDirectory>
@@ -157,12 +155,18 @@
 		</plugins>
 	</reporting>
 
-	<!--<profiles>
+	<profiles>
 		<profile>
 			<id>withDemo</id>
+			<activation>
+				<property>
+					<name>idea.version</name>
+				</property>
+			</activation>
 			<modules>
 				<module>polaris-demo</module>
 			</modules>
 		</profile>
-	</profiles>-->
+	</profiles>
+
 </project>
