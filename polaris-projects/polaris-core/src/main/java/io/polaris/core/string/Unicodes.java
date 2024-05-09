@@ -10,7 +10,7 @@ public class Unicodes {
 		StringBuilder sb = new StringBuilder();
 		char[] chs = s.toCharArray();
 		for (int i = 0; i < chs.length; i++) {
-			if (chs[i] > 0 && chs[i] < 127 && chs[i] != '\\') {
+			if (chs[i] > 0 && chs[i] < 127) {
 				sb.append(chs[i]);
 			} else {
 				String str = Integer.toString(chs[i], 16);

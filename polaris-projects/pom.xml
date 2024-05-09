@@ -158,6 +158,12 @@
 	<profiles>
 		<profile>
 			<id>withDemo</id>
+			<modules>
+				<module>polaris-demo</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>ide-idea</id>
 			<activation>
 				<property>
 					<name>idea.version</name>
