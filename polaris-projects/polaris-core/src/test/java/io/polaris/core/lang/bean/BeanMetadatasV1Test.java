@@ -4,11 +4,12 @@ import java.io.IOException;
 
 import io.polaris.core.TestConsole;
 import io.polaris.core.asm.internal.AsmPrint;
+import io.polaris.core.consts.SystemKeys;
 import org.junit.jupiter.api.Test;
 
 class BeanMetadatasV1Test {
 	static {
-		System.setProperty("java.memory.bytecode.tmpdir", "/data/classes");
+		System.setProperty(SystemKeys.JAVA_CLASS_BYTES_TMPDIR, "/data/classes");
 	}
 
 

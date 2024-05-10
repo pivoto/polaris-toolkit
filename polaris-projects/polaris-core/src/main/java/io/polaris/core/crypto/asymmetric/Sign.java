@@ -1,6 +1,5 @@
 package io.polaris.core.crypto.asymmetric;
 
-import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -8,7 +7,7 @@ import java.security.Signature;
 import java.security.SignatureException;
 
 import io.polaris.core.crypto.CryptoKeys;
-import io.polaris.core.err.CryptoRuntimeException;
+import io.polaris.core.crypto.CryptoRuntimeException;
 
 /**
  * @author Qt

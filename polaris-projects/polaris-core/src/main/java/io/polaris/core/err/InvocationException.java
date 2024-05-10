@@ -4,7 +4,7 @@ package io.polaris.core.err;
  * @author Qt
  * @since  Aug 06, 2023
  */
-public class InvocationException extends RuntimeException {
+public class InvocationException extends UncheckedException {
 	private static final long serialVersionUID = 1L;
 
 	public InvocationException(Throwable cause) {

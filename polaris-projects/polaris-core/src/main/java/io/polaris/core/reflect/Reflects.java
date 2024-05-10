@@ -1,16 +1,22 @@
 package io.polaris.core.reflect;
 
+import java.beans.Introspector;
+import java.lang.reflect.*;
+import java.util.*;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.function.Predicate;
+
+import javax.annotation.Nonnull;
+
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.consts.CharConsts;
 import io.polaris.core.lang.Types;
 import io.polaris.core.map.Maps;
-
-import javax.annotation.Nonnull;
-import java.beans.Introspector;
-import java.lang.reflect.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.function.Predicate;
 
 /**
  * @author Qt
@@ -598,6 +604,14 @@ public class Reflects {
 
 	public static <T> T newInstance(String className) throws ReflectiveOperationException {
 		return (T) newInstance(Class.forName(className));
+	}
+
+	public static <T> T newInstance(Class<T> clazz, Class[] paramTypes, Object[] params) throws ReflectiveOperationException {
+		Constructor<T> constructor = getConstructor(clazz, paramTypes);
+		if (constructor != null) {
+			return constructor.newInstance(params);
+		}
+		throw new NoSuchMethodException();
 	}
 
 	public static <T> T newInstance(Class<T> clazz, Object... params) throws ReflectiveOperationException {

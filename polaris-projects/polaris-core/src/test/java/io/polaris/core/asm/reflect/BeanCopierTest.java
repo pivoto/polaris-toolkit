@@ -7,6 +7,7 @@ import io.polaris.core.TestConsole;
 import io.polaris.core.asm.reflect.copy.CopyBean00;
 import io.polaris.core.asm.reflect.copy.sub.SubCopyBean00;
 import io.polaris.core.collection.Iterables;
+import io.polaris.core.consts.SystemKeys;
 import io.polaris.core.converter.Converters;
 import io.polaris.core.lang.copier.CopyOptions;
 import org.junit.jupiter.api.Assertions;
@@ -18,7 +19,7 @@ import org.junit.jupiter.api.Test;
  */
 public class BeanCopierTest {
 	static {
-		System.setProperty("java.memory.bytecode.tmpdir", "/data/classes");
+		System.setProperty(SystemKeys.JAVA_CLASS_BYTES_TMPDIR, "/data/classes");
 	}
 
 	private CopyBean00 source = new CopyBean00();

@@ -30,13 +30,15 @@
 
 package io.polaris.core.crypto.otp;
 
+import io.polaris.core.err.UncheckedException;
+
 /**
  * Date: 12/02/14
  * Time: 13:36
  *
  * @author Enrico M. Crisostomo
  */
-public class GoogleAuthenticatorException extends RuntimeException {
+public class GoogleAuthenticatorException extends UncheckedException {
 
 	private static final long serialVersionUID = 1L;
 

@@ -1,10 +1,12 @@
 package io.polaris.core.converter;
 
+import io.polaris.core.err.UncheckedException;
+
 /**
  * @author Qt
  * @since  Apr 17, 2024
  */
-public class ConversionException extends RuntimeException {
+public class ConversionException extends UncheckedException {
 
 	private static final long serialVersionUID = 1L;
 

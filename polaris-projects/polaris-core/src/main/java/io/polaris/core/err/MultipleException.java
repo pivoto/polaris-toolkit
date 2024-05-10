@@ -1,6 +1,7 @@
 package io.polaris.core.err;
 
 import io.polaris.core.collection.Iterables;
+import io.polaris.core.consts.StdConsts;
 
 import java.util.Collections;
 import java.util.List;
@@ -11,8 +12,6 @@ import java.util.List;
  */
 public class MultipleException extends IllegalArgumentException {
 	private static final long serialVersionUID = 1L;
-	// System.getProperty("line.separator");
-	private static final String EOL = System.lineSeparator();
 	private final List<Throwable> failures;
 
 	public MultipleException(String message, List<Throwable> failures) {
@@ -50,10 +49,10 @@ public class MultipleException extends IllegalArgumentException {
 			.append(failureCount).append(" ")
 			.append(failureCount == 1 ? "failure" : "failures")
 			.append(")")
-			.append(EOL);
+			.append(StdConsts.EOL);
 		int lastIndex = failureCount - 1;
 		for (Throwable failure : this.failures.subList(0, lastIndex)) {
-			builder.append("\t").append(nullSafeMessage(failure)).append(EOL);
+			builder.append("\t").append(nullSafeMessage(failure)).append(StdConsts.EOL);
 		}
 		builder.append('\t').append(nullSafeMessage(this.failures.get(lastIndex)));
 

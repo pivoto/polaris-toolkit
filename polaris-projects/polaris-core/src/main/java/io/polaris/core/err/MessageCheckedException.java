@@ -7,7 +7,7 @@ import io.polaris.core.string.Strings;
  * @author Qt
  * @since 1.8
  */
-public class MessageCheckedException extends Exception implements IErrorCode {
+public class MessageCheckedException extends CheckedException implements IErrorCode {
 	private static final long serialVersionUID = 1L;
 	private String code;
 	private String message;

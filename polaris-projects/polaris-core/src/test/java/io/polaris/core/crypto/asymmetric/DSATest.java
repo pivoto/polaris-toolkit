@@ -2,10 +2,9 @@ package io.polaris.core.crypto.asymmetric;
 
 import java.security.KeyPair;
 
-import io.polaris.core.TestConsole;
 import io.polaris.core.crypto.symmetric.AES;
 import io.polaris.core.crypto.symmetric.DES;
-import io.polaris.core.err.CryptoRuntimeException;
+import io.polaris.core.crypto.CryptoRuntimeException;
 import io.polaris.core.random.Randoms;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

@@ -7,7 +7,7 @@ import java.security.Signature;
 import java.security.SignatureException;
 
 import io.polaris.core.crypto.CryptoKeys;
-import io.polaris.core.err.CryptoRuntimeException;
+import io.polaris.core.crypto.CryptoRuntimeException;
 
 /**
  * @author Qt

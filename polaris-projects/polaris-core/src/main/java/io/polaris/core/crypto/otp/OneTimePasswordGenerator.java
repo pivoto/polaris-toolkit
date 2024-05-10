@@ -11,7 +11,7 @@ import javax.crypto.ShortBufferException;
 import javax.crypto.spec.SecretKeySpec;
 
 import io.polaris.core.codec.Base32;
-import io.polaris.core.err.CryptoRuntimeException;
+import io.polaris.core.crypto.CryptoRuntimeException;
 
 /**
  * @author Qt

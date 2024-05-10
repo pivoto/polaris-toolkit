@@ -1,10 +1,12 @@
 package io.polaris.core.jdbc.dbv;
 
+import io.polaris.core.err.UncheckedException;
+
 /**
  * @author Qt
  * @since 1.8
  */
-public class DbvException extends RuntimeException {
+public class DbvException extends UncheckedException {
 
 	private static final long serialVersionUID = 1L;
 

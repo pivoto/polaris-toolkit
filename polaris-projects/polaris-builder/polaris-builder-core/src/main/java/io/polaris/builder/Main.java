@@ -1,6 +1,7 @@
 package io.polaris.builder;
 
 import io.polaris.builder.code.Codes;
+import io.polaris.core.consts.SystemKeys;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -13,7 +14,7 @@ import java.io.IOException;
  */
 public class Main {
 	public static void main(String[] args) throws IOException {
-		String userDir = System.getProperty("user.dir");
+		String userDir = System.getProperty(SystemKeys.USER_DIR);
 		System.out.println("当前运行目录: " + userDir);
 		Arguments arguments = new Arguments();
 		for (int i = 0; i < args.length; i++) {

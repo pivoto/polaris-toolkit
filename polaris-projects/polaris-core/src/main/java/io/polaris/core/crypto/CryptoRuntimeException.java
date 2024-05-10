@@ -1,10 +1,12 @@
-package io.polaris.core.err;
+package io.polaris.core.crypto;
+
+import io.polaris.core.err.UncheckedException;
 
 /**
  * @author Qt
  * @since  Jan 19, 2024
  */
-public class CryptoRuntimeException extends RuntimeException{
+public class CryptoRuntimeException extends UncheckedException {
 
 	private static final long serialVersionUID = 1L;
 

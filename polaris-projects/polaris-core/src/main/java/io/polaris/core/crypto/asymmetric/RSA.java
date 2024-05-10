@@ -29,7 +29,7 @@ import javax.crypto.NoSuchPaddingException;
 
 import io.polaris.core.consts.StdConsts;
 import io.polaris.core.crypto.CryptoKeys;
-import io.polaris.core.err.CryptoRuntimeException;
+import io.polaris.core.crypto.CryptoRuntimeException;
 import io.polaris.core.io.IO;
 
 /**

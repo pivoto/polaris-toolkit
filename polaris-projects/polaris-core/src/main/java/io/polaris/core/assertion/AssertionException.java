@@ -1,4 +1,4 @@
-package io.polaris.core.err;
+package io.polaris.core.assertion;
 
 import io.polaris.core.tuple.ValueRef;
 

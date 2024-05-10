@@ -7,7 +7,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import io.polaris.core.err.AssertionException;
 import io.polaris.core.err.MultipleException;
 import io.polaris.core.function.Executable;
 import io.polaris.core.lang.Other;

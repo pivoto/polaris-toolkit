@@ -3,6 +3,7 @@ package io.polaris.core.asm.reflect;
 import java.io.IOException;
 
 import io.polaris.core.TestConsole;
+import io.polaris.core.consts.SystemKeys;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +13,7 @@ import org.junit.jupiter.api.Test;
  */
 public class BeanAccessTest {
 	static {
-		System.setProperty("java.memory.bytecode.tmpdir", "/data/classes");
+		System.setProperty(SystemKeys.JAVA_CLASS_BYTES_TMPDIR, "/data/classes");
 	}
 
 	@Test

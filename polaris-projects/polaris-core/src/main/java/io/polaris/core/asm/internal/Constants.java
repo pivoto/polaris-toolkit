@@ -1,12 +1,14 @@
 package io.polaris.core.asm.internal;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
  * @author Qt
- * @since  May 09, 2024
+ * @since May 09, 2024
  */
 public interface Constants extends org.objectweb.asm.Opcodes {
+	int ASM_API = Opcodes.ASM9;
 
 	Class[] EMPTY_CLASS_ARRAY = {};
 	Type[] TYPES_EMPTY = {};

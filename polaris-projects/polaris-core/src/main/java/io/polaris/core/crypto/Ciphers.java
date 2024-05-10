@@ -7,8 +7,6 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 
-import io.polaris.core.err.CryptoRuntimeException;
-
 /**
  * @author Qt
  * @since 1.8

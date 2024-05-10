@@ -1,7 +1,6 @@
 package io.polaris.core.asm.reflect;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 import java.util.Collections;
@@ -10,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
+import io.polaris.core.consts.SystemKeys;
 import io.polaris.core.io.IO;
 import io.polaris.core.map.Maps;
 import io.polaris.core.string.Strings;
@@ -44,7 +44,7 @@ public class AccessClassLoader extends ClassLoader {
 			, PublicConstructorAccess.class
 			, FieldAccess.class
 		);
-		String tmpdir = System.getProperty("java.memory.bytecode.tmpdir");
+		String tmpdir = System.getProperty(SystemKeys.JAVA_CLASS_BYTES_TMPDIR);
 		if (Strings.isNotBlank(tmpdir)) {
 			File dir = new File(tmpdir.trim());
 			if (!dir.exists()){

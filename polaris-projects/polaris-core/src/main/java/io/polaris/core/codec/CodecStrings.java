@@ -3,6 +3,8 @@ package io.polaris.core.codec;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
+import io.polaris.core.consts.SystemKeys;
+
 /**
  * @author Qt
  * @since 1.8
@@ -14,7 +16,7 @@ class CodecStrings {
 		try {
 			LINE_SEPARATOR = AccessController.doPrivileged(new PrivilegedAction<String>() {
 				public String run() {
-					return System.getProperty("line.separator");
+					return System.getProperty(SystemKeys.LINE_SEPARATOR);
 				}
 			});
 		} catch (Exception e) {

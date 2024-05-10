@@ -1,10 +1,12 @@
 package io.polaris.core.script;
 
+import io.polaris.core.err.UncheckedException;
+
 /**
  * @author Qt
  * @since 1.8
  */
-public class ScriptEvalException extends RuntimeException{
+public class ScriptEvalException extends UncheckedException {
 
 	private static final long serialVersionUID = 1L;
 

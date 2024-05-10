@@ -48,7 +48,6 @@ import javax.crypto.spec.SecretKeySpec;
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.consts.CharConsts;
 import io.polaris.core.crypto.asymmetric.AsymmetricAlgorithm;
-import io.polaris.core.err.CryptoRuntimeException;
 import io.polaris.core.crypto.symmetric.SymmetricAlgorithm;
 import io.polaris.core.io.IO;
 import io.polaris.core.random.Randoms;

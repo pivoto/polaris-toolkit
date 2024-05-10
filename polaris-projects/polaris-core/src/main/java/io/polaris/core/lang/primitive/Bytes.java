@@ -1,5 +1,6 @@
 package io.polaris.core.lang.primitive;
 
+import io.polaris.core.consts.SystemKeys;
 import io.polaris.core.lang.Numbers;
 
 import javax.annotation.Nonnull;
@@ -41,7 +42,7 @@ public class Bytes {
 		try {
 			byteOrder = ByteOrder.nativeOrder();
 		} catch (Throwable e) {
-			byteOrder = "little".equals(System.getProperty("sun.cpu.endian")) ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+			byteOrder = "little".equals(System.getProperty(SystemKeys.SUN_CPU_ENDIAN)) ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
 		}
 		CPU_ENDIAN = byteOrder;
 	}

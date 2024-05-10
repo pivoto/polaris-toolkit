@@ -16,6 +16,7 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import io.polaris.core.consts.StdConsts;
+import io.polaris.core.consts.SystemKeys;
 import io.polaris.core.env.GlobalStdEnv;
 import io.polaris.core.regex.Patterns;
 import io.polaris.core.string.Strings;
@@ -27,7 +28,7 @@ import io.polaris.core.string.Strings;
 @SuppressWarnings("All")
 public class OS {
 
-	public static final String KEY_IP_REGEX = "ip.prior.regex";
+	public static final String KEY_IP_REGEX = "ip.regex";
 	private static volatile int PID = -1;
 	private static volatile String LOCAL_HOST_IP;
 	private static volatile List<String> CACHE_ALL_IPS;
@@ -39,7 +40,7 @@ public class OS {
 
 	public static String getOsName() {
 		if (OS_NAME == null) {
-			OS_NAME = System.getProperty("os.name");
+			OS_NAME = System.getProperty(SystemKeys.OS_NAME);
 		}
 		return OS_NAME;
 	}

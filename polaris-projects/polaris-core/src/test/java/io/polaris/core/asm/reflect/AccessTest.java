@@ -1,6 +1,7 @@
 package io.polaris.core.asm.reflect;
 
 import io.polaris.core.TestConsole;
+import io.polaris.core.consts.SystemKeys;
 import io.polaris.core.string.StringCases;
 import lombok.Data;
 import org.junit.jupiter.api.Assertions;
@@ -8,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 class AccessTest {
 	static {
-		System.setProperty("java.memory.bytecode.tmpdir", "/data/classes");
+		System.setProperty(SystemKeys.JAVA_CLASS_BYTES_TMPDIR, "/data/classes");
 	}
 
 	@Test

@@ -3,13 +3,14 @@ package io.polaris.core.log;
 import java.time.Instant;
 
 import io.polaris.core.collection.ObjectArrays;
-import io.polaris.core.time.Dates;
+import io.polaris.core.consts.SystemKeys;
 import io.polaris.core.function.ConsumerWithArgs4;
 import io.polaris.core.string.Strings;
+import io.polaris.core.time.Dates;
 
 /**
  * @author Qt
- * @since  Aug 04, 2023
+ * @since Aug 04, 2023
  */
 public class StdoutLogger implements ILogger {
 	private final String name;
@@ -20,7 +21,7 @@ public class StdoutLogger implements ILogger {
 		this.name = name;
 		Level level;
 		try {
-			String levelStr = System.getProperty("logger.level." + name);
+			String levelStr = System.getProperty(SystemKeys.LOGGER_LEVEL + "." + name);
 			level = Level.valueOf(Strings.coalesce(levelStr, Level.DEBUG.name()).toLowerCase());
 		} catch (Throwable e) {
 			level = Level.DEBUG;
