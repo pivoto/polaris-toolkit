@@ -5,7 +5,7 @@ import java.util.function.Function;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 01, 2023
+ * @since  Aug 01, 2023
  */
 public class BitSetMultiHashBloomFilter extends AbstractMultiHashBloomFilter implements BloomFilter {
 	private final BitSet bitSet;

@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 20, 2023
+ * @since  Aug 20, 2023
  */
 @SuppressWarnings("all")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)

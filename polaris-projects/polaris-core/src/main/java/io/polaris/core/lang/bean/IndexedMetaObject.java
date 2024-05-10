@@ -19,7 +19,7 @@ import io.polaris.core.string.StringCases;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 12, 2024
+ * @since  Apr 12, 2024
  */
 public class IndexedMetaObject<T> extends MetaObject<T> {
 	private static final ILogger log = ILoggers.of(IndexedMetaObject.class);

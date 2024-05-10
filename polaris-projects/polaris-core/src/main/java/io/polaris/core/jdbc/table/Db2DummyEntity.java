@@ -10,7 +10,7 @@ import lombok.experimental.FieldNameConstants;
  * DB2的伪表SYSIBM.SYSDUMMY1
  *
  * @author Qt
- * @since 1.8,  Aug 31, 2023
+ * @since  Aug 31, 2023
  */
 @Table(value = "SYSIBM.SYSDUMMY1", sqlGenerated = false)
 @FieldNameConstants

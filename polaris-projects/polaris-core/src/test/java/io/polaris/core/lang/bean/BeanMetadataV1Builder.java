@@ -14,7 +14,7 @@ import java.util.function.Function;
 
 import javax.lang.model.element.Modifier;
 
-import io.polaris.core.asm.AsmTypeSignatures;
+import io.polaris.core.asm.internal.AsmTypes;
 import io.polaris.core.compiler.MemoryClassLoader;
 import io.polaris.core.compiler.MemoryCompiler;
 import io.polaris.core.lang.TypeRef;
@@ -41,7 +41,7 @@ import static org.objectweb.asm.Opcodes.*;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 03, 2023
+ * @since  Aug 03, 2023
  */
 class BeanMetadataV1Builder {
 	private static final AtomicLong seq = new AtomicLong(0);
@@ -452,7 +452,7 @@ class BeanMetadataV1Builder {
 
 		ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
 		classWriter.visit(V1_8, ACC_PUBLIC + ACC_SUPER, outerName + "$" + innerSimpleName,
-			"L" + typeRefClassName + "<" + AsmTypeSignatures.toAsmTypeSignature(type) + ">;", typeRefClassName,
+			"L" + typeRefClassName + "<" + AsmTypes.toTypeSignature(type) + ">;", typeRefClassName,
 			null);
 		classWriter.visitInnerClass(outerName + "$" + innerSimpleName, outerName, innerSimpleName, ACC_PUBLIC);
 		{

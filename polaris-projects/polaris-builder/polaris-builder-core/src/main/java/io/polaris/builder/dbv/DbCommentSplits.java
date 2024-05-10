@@ -6,7 +6,7 @@ import io.polaris.core.tuple.Tuples;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 08, 2023
+ * @since  Aug 08, 2023
  */
 public class DbCommentSplits {
 

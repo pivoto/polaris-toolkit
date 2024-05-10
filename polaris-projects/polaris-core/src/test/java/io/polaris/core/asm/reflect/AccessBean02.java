@@ -2,7 +2,7 @@ package io.polaris.core.asm.reflect;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 14, 2024
+ * @since  Apr 14, 2024
  */
 public class AccessBean02 {
 

@@ -11,7 +11,7 @@ import io.polaris.core.jdbc.sql.consts.BindingKeys;
 
 /**
  * @author Qt
- * @since 1.8,  Jan 29, 2024
+ * @since  Jan 29, 2024
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})

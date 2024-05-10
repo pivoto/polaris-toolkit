@@ -10,7 +10,7 @@ import java.sql.*;
 /**
  * @author Qt
  * @see BlankableEnumOrdinalTypeHandler
- * @since 1.8,  Aug 28, 2023
+ * @since  Aug 28, 2023
  */
 @Slf4j
 @Alias("dynamicEnumOrdinalTypeHandler" )

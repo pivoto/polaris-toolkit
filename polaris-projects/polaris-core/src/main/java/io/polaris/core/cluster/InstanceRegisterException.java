@@ -2,7 +2,7 @@ package io.polaris.core.cluster;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 17, 2024
+ * @since  Apr 17, 2024
  */
 public class InstanceRegisterException extends RuntimeException {
 

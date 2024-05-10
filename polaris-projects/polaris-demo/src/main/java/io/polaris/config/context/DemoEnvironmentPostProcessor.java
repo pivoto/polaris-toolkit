@@ -15,7 +15,7 @@ import org.springframework.core.env.PropertySource;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 23, 2024
+ * @since  Apr 23, 2024
  */
 @Slf4j
 public class DemoEnvironmentPostProcessor implements EnvironmentPostProcessor {

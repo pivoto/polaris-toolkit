@@ -4,7 +4,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 /**
  * @author Qt
- * @since 1.8,  May 08, 2024
+ * @since  May 08, 2024
  */
 public class DuplicateFile {
 	/** src properties files to duplicate. */

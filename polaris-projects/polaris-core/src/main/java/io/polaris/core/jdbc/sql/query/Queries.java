@@ -21,7 +21,7 @@ import java.util.function.Function;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 11, 2023
+ * @since  Aug 11, 2023
  */
 public class Queries {
 

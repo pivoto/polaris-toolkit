@@ -11,7 +11,7 @@ import java.sql.SQLException;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 28, 2023
+ * @since  Aug 28, 2023
  */
 public abstract class StringTokenizerTypeHandler<T> extends BaseTypeHandler<T[]> {
 	private Class<T> clazz;

@@ -11,7 +11,7 @@ import java.util.Objects;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 11, 2023
+ * @since  Aug 11, 2023
  */
 public class MixedNode extends VarNode implements Cloneable {
 

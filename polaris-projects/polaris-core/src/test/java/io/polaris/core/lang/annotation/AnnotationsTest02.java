@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 
 /**
  * @author Qt
- * @since 1.8,  Jan 07, 2024
+ * @since  Jan 07, 2024
  */
 public class AnnotationsTest02 {
 

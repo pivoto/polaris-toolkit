@@ -4,7 +4,7 @@ import java.lang.reflect.Type;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 12, 2024
+ * @since  Apr 12, 2024
  */
 public interface PropertyAccessor {
 

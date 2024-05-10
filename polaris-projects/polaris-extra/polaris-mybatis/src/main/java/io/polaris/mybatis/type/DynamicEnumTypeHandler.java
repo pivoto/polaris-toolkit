@@ -10,7 +10,7 @@ import java.sql.*;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 28, 2023
+ * @since  Aug 28, 2023
  */
 @Slf4j
 @Alias("dynamicEnumTypeHandler")

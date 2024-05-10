@@ -10,7 +10,7 @@ import java.util.Map;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 12, 2023
+ * @since  Aug 12, 2023
  */
 @EqualsAndHashCode
 @Getter

@@ -11,7 +11,7 @@ import java.util.Date;
  * @author Qt
  * @see DateTypeHandler
  * @see LocalDateTypeHandler
- * @since 1.8,  Aug 28, 2023
+ * @since  Aug 28, 2023
  */
 @Slf4j
 @MappedTypes(Time.class)

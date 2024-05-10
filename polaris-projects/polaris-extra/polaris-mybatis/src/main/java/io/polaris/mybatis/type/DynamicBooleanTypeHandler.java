@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * @author Qt
  * @see BooleanTypeHandler
- * @since 1.8,  Aug 28, 2023
+ * @since  Aug 28, 2023
  */
 @Slf4j
 @Alias("dynamicBooleanTypeHandler" )

@@ -17,7 +17,7 @@ import io.polaris.core.string.Strings;
 /**
  * @author Qt
  * @see <a href="https://github.com/EsotericSoftware/reflectasm">https://github.com/EsotericSoftware/reflectasm</a>
- * @since 1.8,  Aug 04, 2023
+ * @since  Aug 04, 2023
  */
 @SuppressWarnings("all")
 public class AccessClassLoader extends ClassLoader {

@@ -11,7 +11,7 @@ import java.util.function.BiPredicate;
 
 /**
  * @author Qt
- * @since 1.8,  Jan 28, 2024
+ * @since  Jan 28, 2024
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})

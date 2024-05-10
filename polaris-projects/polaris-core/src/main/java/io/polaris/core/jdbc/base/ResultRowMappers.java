@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  * @author Qt
- * @since 1.8,  Feb 06, 2024
+ * @since  Feb 06, 2024
  */
 public class ResultRowMappers {
 	public static final ResultRowMapMapper<Map<String, Object>> MAP_MAPPER = new ResultRowMapMapper<>();

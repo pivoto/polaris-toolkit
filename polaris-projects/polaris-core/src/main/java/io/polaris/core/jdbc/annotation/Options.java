@@ -12,7 +12,7 @@ import io.polaris.core.jdbc.base.ParameterPreparer;
 
 /**
  * @author Qt
- * @since 1.8,  Feb 06, 2024
+ * @since  Feb 06, 2024
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})

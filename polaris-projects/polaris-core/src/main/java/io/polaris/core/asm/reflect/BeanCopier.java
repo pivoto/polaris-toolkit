@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 
-import io.polaris.core.asm.AsmUtils;
+import io.polaris.core.asm.internal.AsmUtils;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.TypeRef;
 import io.polaris.core.lang.Types;
@@ -45,7 +45,7 @@ import static org.objectweb.asm.Opcodes.*;
  * 定制方法与基本方法相关性能会有所影响。
  *
  * @author Qt
- * @since 1.8,  Apr 14, 2024
+ * @since  Apr 14, 2024
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class BeanCopier<S> {

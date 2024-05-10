@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 12, 2023
+ * @since  Aug 12, 2023
  */
 public class SqlStatement {
 	private final List<String> tables = new ArrayList<>();

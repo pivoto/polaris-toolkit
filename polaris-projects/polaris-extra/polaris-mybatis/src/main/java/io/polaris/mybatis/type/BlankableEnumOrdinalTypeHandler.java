@@ -12,7 +12,7 @@ import java.sql.SQLException;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 28, 2023
+ * @since  Aug 28, 2023
  */
 @Slf4j
 @Alias("blankableEnumOrdinalTypeHandler")

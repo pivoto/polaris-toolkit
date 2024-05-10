@@ -16,7 +16,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import io.polaris.core.asm.AsmUtils;
+import io.polaris.core.asm.internal.AsmUtils;
 import io.polaris.core.lang.Types;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
@@ -34,7 +34,7 @@ import static org.objectweb.asm.Opcodes.*;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 05, 2023
+ * @since  Aug 05, 2023
  */
 @SuppressWarnings("all")
 public abstract class ClassLambdaAccess<T> {

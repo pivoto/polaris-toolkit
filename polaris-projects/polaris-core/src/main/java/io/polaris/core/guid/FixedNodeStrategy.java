@@ -2,7 +2,7 @@ package io.polaris.core.guid;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 22, 2024
+ * @since  Apr 22, 2024
  */
 public class FixedNodeStrategy implements GuidNodeStrategy {
 	private final int nodeId;

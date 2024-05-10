@@ -11,7 +11,7 @@ import io.polaris.core.string.Strings;
  * 常规的查询谓语
  *
  * @author Qt
- * @since 1.8,  Aug 11, 2023
+ * @since  Aug 11, 2023
  */
 @SuppressWarnings("all")
 public enum Operator {

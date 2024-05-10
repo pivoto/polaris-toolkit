@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 23, 2023
+ * @since  Aug 23, 2023
  */
 public class DemoEntityInsert extends InsertStatement<DemoEntityInsert> {
 	public DemoEntityInsert() {

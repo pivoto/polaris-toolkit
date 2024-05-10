@@ -13,7 +13,7 @@ import io.polaris.core.map.Maps;
 
 /**
  * @author Qt
- * @since 1.8,  Feb 05, 2024
+ * @since  Feb 05, 2024
  */
 @SuppressWarnings("unused")
 public class JdbcExecutors {

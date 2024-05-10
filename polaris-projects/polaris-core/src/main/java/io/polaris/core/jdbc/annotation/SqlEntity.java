@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  * 声明实体类型与别名
  *
  * @author Qt
- * @since 1.8,  Jan 28, 2024
+ * @since  Jan 28, 2024
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})

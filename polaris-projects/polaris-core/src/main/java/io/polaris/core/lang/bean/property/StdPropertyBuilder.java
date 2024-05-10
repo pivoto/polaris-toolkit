@@ -4,7 +4,7 @@ import io.polaris.core.lang.bean.Beans;
 
 /**
  * @author Qt
- * @since 1.8,  Dec 28, 2023
+ * @since  Dec 28, 2023
  */
 public class StdPropertyBuilder<T> extends AbstractPropertyBuilder<T> implements PropertyBuilder<T> {
 	private final T dest;

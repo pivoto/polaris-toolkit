@@ -4,7 +4,7 @@ import java.util.Date;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 10, 2024
+ * @since  Apr 10, 2024
  */
 public class AccessBean01_ClassAccess extends ClassAccessV2<AccessBean01> {
 

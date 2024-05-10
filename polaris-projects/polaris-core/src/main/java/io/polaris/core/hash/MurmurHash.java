@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets;
  *
  * @author looly, Simhash4J
  * @author Qt
- * @since 1.8,  Aug 01, 2023
+ * @since  Aug 01, 2023
  */
 public class MurmurHash {
 

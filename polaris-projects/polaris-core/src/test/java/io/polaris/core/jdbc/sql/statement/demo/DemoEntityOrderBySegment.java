@@ -6,7 +6,7 @@ import io.polaris.core.jdbc.sql.statement.segment.TableSegment;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 23, 2023
+ * @since  Aug 23, 2023
  */
 public class DemoEntityOrderBySegment<O extends Segment<O>> extends OrderBySegment<O,DemoEntityOrderBySegment<O>> {
 	public DemoEntityOrderBySegment(O owner, TableSegment<?> table) {

@@ -16,7 +16,7 @@ import static org.objectweb.asm.Opcodes.*;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 04, 2023
+ * @since  Aug 04, 2023
  */
 public class AsmTest {
 

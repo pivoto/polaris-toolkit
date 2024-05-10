@@ -13,7 +13,7 @@ import java.util.Map;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 25, 2023
+ * @since  Aug 25, 2023
  */
 public interface EntitySelectListMapper<E> extends EntityMapper<E> {
 

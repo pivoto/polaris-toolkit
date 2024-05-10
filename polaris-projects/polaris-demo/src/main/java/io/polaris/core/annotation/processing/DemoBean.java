@@ -12,7 +12,7 @@ import java.util.Set;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 12, 2023
+ * @since  Aug 12, 2023
  */
 @Data
 @Access(map = true)

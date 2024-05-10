@@ -11,7 +11,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import io.polaris.core.asm.AsmUtils;
+import io.polaris.core.asm.internal.AsmUtils;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
 import io.polaris.core.reflect.SerializableFunction;
@@ -26,7 +26,7 @@ import static org.objectweb.asm.Opcodes.*;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 11, 2024
+ * @since  Apr 11, 2024
  */
 public abstract class BeanLambdaAccess<T> {
 	private static final AccessClassPool<Class, BeanLambdaAccess> pool = new AccessClassPool<>();

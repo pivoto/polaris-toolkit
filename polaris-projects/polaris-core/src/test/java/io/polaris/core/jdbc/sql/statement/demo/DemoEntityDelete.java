@@ -5,7 +5,7 @@ import io.polaris.core.jdbc.entity.DemoEntity;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 23, 2023
+ * @since  Aug 23, 2023
  */
 public class DemoEntityDelete extends DeleteStatement<DemoEntityDelete> {
 	public DemoEntityDelete() {

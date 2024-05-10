@@ -2,7 +2,7 @@ package io.polaris.core.err;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 06, 2023
+ * @since  Aug 06, 2023
  */
 public class UnimplementedException extends RuntimeException {
 	private static final long serialVersionUID = 1L;

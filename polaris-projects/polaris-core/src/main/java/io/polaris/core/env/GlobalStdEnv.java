@@ -16,7 +16,7 @@ import io.polaris.core.log.ILoggers;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 23, 2024
+ * @since  Apr 23, 2024
  */
 public class GlobalStdEnv {
 	private static final ILogger log = ILoggers.of(GlobalStdEnv.class);

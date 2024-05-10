@@ -8,7 +8,7 @@ import java.util.function.Function;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 10, 2024
+ * @since  Apr 10, 2024
  */
 public abstract class AccessBean01_BeanAccess extends BeanLambdaAccess<AccessBean01> {
 	@Override

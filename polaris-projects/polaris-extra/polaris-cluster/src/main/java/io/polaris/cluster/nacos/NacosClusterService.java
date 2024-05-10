@@ -27,7 +27,7 @@ import com.alibaba.nacos.common.utils.CollectionUtils;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 17, 2024
+ * @since  Apr 17, 2024
  */
 @SuppressWarnings("ALL")
 @Slf4j

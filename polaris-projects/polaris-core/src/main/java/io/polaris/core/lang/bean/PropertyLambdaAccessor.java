@@ -8,7 +8,7 @@ import io.polaris.core.asm.reflect.BeanLambdaAccess;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 12, 2024
+ * @since  Apr 12, 2024
  */
 class PropertyLambdaAccessor implements PropertyAccessor {
 	private final BeanLambdaAccess<?> access;

@@ -10,7 +10,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 24, 2024
+ * @since  Apr 24, 2024
  */
 public class OracleDataSources {
 

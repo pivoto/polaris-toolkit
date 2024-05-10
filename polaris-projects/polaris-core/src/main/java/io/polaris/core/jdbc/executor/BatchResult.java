@@ -4,7 +4,7 @@ import lombok.Getter;
 
 /**
  * @author Qt
- * @since 1.8,  Feb 07, 2024
+ * @since  Feb 07, 2024
  */
 @Getter
 public class BatchResult {

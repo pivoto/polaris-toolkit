@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 /**
  * @author Qt
- * @since 1.8,  Feb 04, 2024
+ * @since  Feb 04, 2024
  */
 public abstract class BaseJacksonDeserializer<T> extends JsonDeserializer<T> {
 

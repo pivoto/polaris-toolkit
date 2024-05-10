@@ -3,7 +3,7 @@ package io.polaris.core.lang.bean;
 import java.io.IOException;
 
 import io.polaris.core.TestConsole;
-import io.polaris.core.asm.AsmPrint;
+import io.polaris.core.asm.internal.AsmPrint;
 import org.junit.jupiter.api.Test;
 
 class BeanMetadatasV1Test {

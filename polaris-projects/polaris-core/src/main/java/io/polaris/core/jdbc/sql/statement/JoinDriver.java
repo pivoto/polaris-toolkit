@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 23, 2023
+ * @since  Aug 23, 2023
  */
 public class JoinDriver<O extends SelectStatement<O>, J extends JoinSegment<O, J>> extends BaseSegment<JoinDriver<O, J>> {
 	private final O owner;

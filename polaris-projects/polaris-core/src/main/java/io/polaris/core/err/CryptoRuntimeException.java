@@ -2,7 +2,7 @@ package io.polaris.core.err;
 
 /**
  * @author Qt
- * @since 1.8,  Jan 19, 2024
+ * @since  Jan 19, 2024
  */
 public class CryptoRuntimeException extends RuntimeException{
 

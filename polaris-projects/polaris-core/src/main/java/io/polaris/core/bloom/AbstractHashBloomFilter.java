@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 01, 2023
+ * @since  Aug 01, 2023
  */
 public abstract class AbstractHashBloomFilter implements BloomFilter {
 

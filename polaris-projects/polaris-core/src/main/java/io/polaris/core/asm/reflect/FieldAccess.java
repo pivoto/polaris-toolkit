@@ -1,6 +1,6 @@
 package io.polaris.core.asm.reflect;
 
-import io.polaris.core.asm.AsmUtils;
+import io.polaris.core.asm.internal.AsmUtils;
 import io.polaris.core.collection.Iterables;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -17,7 +17,7 @@ import static org.objectweb.asm.Opcodes.*;
 /**
  * @author Qt
  * @see <a href="https://github.com/EsotericSoftware/reflectasm">https://github.com/EsotericSoftware/reflectasm</a>
- * @since 1.8,  Aug 04, 2023
+ * @since  Aug 04, 2023
  */
 public abstract class FieldAccess {
 	private static final AccessClassPool<Class, FieldAccess> pool = new AccessClassPool<>();

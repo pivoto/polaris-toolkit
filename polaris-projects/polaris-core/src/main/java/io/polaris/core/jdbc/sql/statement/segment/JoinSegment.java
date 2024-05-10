@@ -19,7 +19,7 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 20, 2023
+ * @since  Aug 20, 2023
  */
 @AnnotationProcessing
 public class JoinSegment<O extends Segment<O>, S extends JoinSegment<O, S>> extends BaseSegment<S> implements TableAccessible {

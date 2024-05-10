@@ -14,7 +14,7 @@ import org.junit.jupiter.api.TestInfo;
 
 /**
  * @author Qt
- * @since 1.8,  Feb 08, 2024
+ * @since  Feb 08, 2024
  */
 public class TestA01JdbcExecutor extends BaseTestJdbcExecutor {
 	private static final ILogger log = ILoggers.of();

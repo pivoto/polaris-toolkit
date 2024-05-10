@@ -2,7 +2,7 @@ package io.polaris.mybatis.consts;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 25, 2023
+ * @since  Aug 25, 2023
  */
 public interface MapperProviderKeys {
 

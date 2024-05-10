@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import io.polaris.core.asm.AsmUtils;
+import io.polaris.core.asm.internal.AsmUtils;
 import io.polaris.core.lang.Types;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
@@ -33,7 +33,7 @@ import static org.objectweb.asm.Opcodes.*;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 05, 2023
+ * @since  Aug 05, 2023
  */
 @SuppressWarnings("all")
 public abstract class ClassAccess<T> {

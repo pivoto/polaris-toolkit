@@ -14,7 +14,7 @@ import com.alibaba.fastjson2.JSON;
 
 /**
  * @author Qt
- * @since 1.8,  May 06, 2024
+ * @since  May 06, 2024
  */
 public class DefaultJsonSerializerTest {
 

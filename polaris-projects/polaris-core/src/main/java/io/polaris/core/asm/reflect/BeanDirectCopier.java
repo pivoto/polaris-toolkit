@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-import io.polaris.core.asm.AsmUtils;
+import io.polaris.core.asm.internal.AsmUtils;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.Types;
 import io.polaris.core.lang.copier.CopyOptions;
@@ -24,7 +24,7 @@ import static org.objectweb.asm.Opcodes.*;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 14, 2024
+ * @since  Apr 14, 2024
  */
 public abstract class BeanDirectCopier<S, T> {
 	private static ILogger log = ILoggers.of(BeanCopier.class);

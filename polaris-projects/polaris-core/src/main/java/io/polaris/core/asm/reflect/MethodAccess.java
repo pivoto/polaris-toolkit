@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import io.polaris.core.asm.AsmUtils;
+import io.polaris.core.asm.internal.AsmUtils;
 import io.polaris.core.collection.Iterables;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -37,7 +37,7 @@ import static org.objectweb.asm.Opcodes.V1_8;
 /**
  * @author Qt
  * @see <a href="https://github.com/EsotericSoftware/reflectasm">https://github.com/EsotericSoftware/reflectasm</a>
- * @since 1.8,  Aug 04, 2023
+ * @since  Aug 04, 2023
  */
 public abstract class MethodAccess {
 	private static final AccessClassPool<Class, MethodAccess> pool = new AccessClassPool<>();

@@ -5,7 +5,7 @@ import lombok.Getter;
 
 /**
  * @author Qt
- * @since 1.8,  Dec 28, 2023
+ * @since  Dec 28, 2023
  */
 @Getter
 public class BeanPropertyMapping {

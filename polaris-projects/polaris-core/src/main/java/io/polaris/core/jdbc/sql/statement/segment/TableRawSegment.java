@@ -9,7 +9,7 @@ import java.util.*;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 20, 2023
+ * @since  Aug 20, 2023
  */
 @Experimental
 public class TableRawSegment<S extends TableRawSegment<S>> extends TableSegment<S> {

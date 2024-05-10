@@ -11,7 +11,7 @@ import java.security.NoSuchAlgorithmException;
  * Ketama算法，用于在一致性Hash中快速定位服务器位置
  *
  * @author Qt
- * @since 1.8,  Aug 01, 2023
+ * @since  Aug 01, 2023
  */
 public class KetamaHash  {
 

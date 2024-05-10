@@ -5,7 +5,7 @@ import java.util.*;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 11, 2023
+ * @since  Aug 11, 2023
  */
 public abstract class VarNode implements SqlNode {
 	/** 绑定变量名 */

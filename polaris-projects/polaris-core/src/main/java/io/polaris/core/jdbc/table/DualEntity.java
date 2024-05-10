@@ -11,7 +11,7 @@ import lombok.experimental.FieldNameConstants;
  * Oracle的dual伪表
  *
  * @author Qt
- * @since 1.8,  Aug 31, 2023
+ * @since  Aug 31, 2023
  */
 @Table(value = "DUAL", sqlGenerated = false)
 @FieldNameConstants

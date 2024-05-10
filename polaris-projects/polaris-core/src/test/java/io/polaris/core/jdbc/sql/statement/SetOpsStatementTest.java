@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 /**
  * @author Qt
- * @since 1.8,  Dec 30, 2023
+ * @since  Dec 30, 2023
  */
 public class SetOpsStatementTest {
 

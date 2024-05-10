@@ -4,7 +4,7 @@ import org.apache.logging.log4j.ThreadContext;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 04, 2023
+ * @since  Aug 04, 2023
  */
 class Log4j2Stack implements IStack {
 

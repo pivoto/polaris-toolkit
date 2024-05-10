@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 
-import io.polaris.core.asm.AsmUtils;
+import io.polaris.core.asm.internal.AsmUtils;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
 import io.polaris.core.reflect.SerializableConsumerWithArgs4;
@@ -25,7 +25,7 @@ import static org.objectweb.asm.Opcodes.*;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 11, 2024
+ * @since  Apr 11, 2024
  */
 public abstract class BeanAccess<T> {
 	private static ILogger log = ILoggers.of(BeanAccess.class);

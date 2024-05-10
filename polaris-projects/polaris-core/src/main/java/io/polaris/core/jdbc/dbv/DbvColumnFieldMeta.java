@@ -6,7 +6,7 @@ import lombok.Data;
 
 /**
  * @author Qt
- * @since 1.8,  May 06, 2024
+ * @since  May 06, 2024
  */
 @Data
 public class DbvColumnFieldMeta {

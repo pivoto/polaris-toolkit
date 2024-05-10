@@ -2,7 +2,7 @@ package io.polaris.core.jdbc.sql.statement;
 
 /**
  * @author Qt
- * @since 1.8,  Jan 29, 2024
+ * @since  Jan 29, 2024
  */
 public class DefaultColumnPredicate implements ColumnPredicate {
 	private final boolean includeAllEmptyColumns;

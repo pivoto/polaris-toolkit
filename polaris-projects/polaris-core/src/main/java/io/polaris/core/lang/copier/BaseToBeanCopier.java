@@ -19,7 +19,7 @@
 //
 ///**
 // * @author Qt
-// * @since 1.8,  Apr 12, 2024
+// * @since  Apr 12, 2024
 // */
 //public abstract class BaseToBeanCopier<S, T> extends BaseCopier<S, T> {
 //	private static final ILogger log = ILoggers.of(BeanToBeanCopier.class);

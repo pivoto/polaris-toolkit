@@ -19,7 +19,7 @@ import org.apache.ibatis.builder.annotation.ProviderMethodResolver;
 
 /**
  * @author Qt
- * @since 1.8,  Sep 11, 2023
+ * @since  Sep 11, 2023
  */
 public abstract class BaseProviderMethodResolver implements ProviderMethodResolver {
 

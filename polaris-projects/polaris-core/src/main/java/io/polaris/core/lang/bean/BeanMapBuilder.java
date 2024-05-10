@@ -9,7 +9,7 @@ import lombok.experimental.Accessors;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 06, 2023
+ * @since  Aug 06, 2023
  */
 @Accessors(chain = true, fluent = true)
 @Setter

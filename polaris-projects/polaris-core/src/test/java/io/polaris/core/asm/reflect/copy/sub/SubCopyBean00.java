@@ -9,7 +9,7 @@ import lombok.experimental.FieldNameConstants;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 14, 2024
+ * @since  Apr 14, 2024
  */
 @ToString
 @FieldNameConstants

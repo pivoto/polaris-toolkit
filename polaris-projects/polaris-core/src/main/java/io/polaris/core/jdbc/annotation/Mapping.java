@@ -11,7 +11,7 @@ import lombok.Getter;
 
 /**
  * @author Qt
- * @since 1.8,  Feb 05, 2024
+ * @since  Feb 05, 2024
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})

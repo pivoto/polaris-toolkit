@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * 声明实体类型与别名
  *
  * @author Qt
- * @since 1.8,  Aug 24, 2023
+ * @since  Aug 24, 2023
  */
 @Documented
 @Target(ElementType.METHOD)

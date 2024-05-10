@@ -22,7 +22,7 @@ import io.polaris.core.log.ILoggers;
 
 /**
  * @author Qt
- * @since 1.8,  Feb 07, 2024
+ * @since  Feb 07, 2024
  */
 public class JdbcBatch {
 	private static final ILogger log = ILoggers.of(JdbcBatch.class);

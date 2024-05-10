@@ -11,7 +11,7 @@ import java.util.Set;
 
 /**
  * @author Qt
- * @since 1.8,  Nov 12, 2023
+ * @since  Nov 12, 2023
  */
 public class Annotations {
 

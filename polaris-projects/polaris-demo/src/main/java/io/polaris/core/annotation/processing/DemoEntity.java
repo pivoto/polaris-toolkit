@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 20, 2023
+ * @since  Aug 20, 2023
  */
 @Data
 @Table(value = "t_demo")

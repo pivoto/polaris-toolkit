@@ -11,7 +11,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 23, 2024
+ * @since  Apr 23, 2024
  */
 public class GroupEnv implements Env {
 

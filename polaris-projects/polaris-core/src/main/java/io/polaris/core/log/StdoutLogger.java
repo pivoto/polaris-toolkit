@@ -9,7 +9,7 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 04, 2023
+ * @since  Aug 04, 2023
  */
 public class StdoutLogger implements ILogger {
 	private final String name;

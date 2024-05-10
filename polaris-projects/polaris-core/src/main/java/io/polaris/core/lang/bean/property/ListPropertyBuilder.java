@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * @author Qt
- * @since 1.8,  Dec 28, 2023
+ * @since  Dec 28, 2023
  */
 public class ListPropertyBuilder<T> extends AbstractPropertyBuilder<List<T>> implements PropertyBuilder<List<T>> {
 	private List<T> list;

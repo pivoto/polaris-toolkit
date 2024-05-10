@@ -8,7 +8,7 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since 1.8,  Feb 18, 2024
+ * @since  Feb 18, 2024
  */
 public class TestConsole {
 	private static boolean printable = Converters.convertQuietly(boolean.class, System.getProperty("test.console.printable", "true"), true);

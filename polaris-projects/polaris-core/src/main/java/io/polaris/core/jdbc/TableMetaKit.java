@@ -21,7 +21,7 @@ import io.polaris.core.log.ILoggers;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 20, 2023
+ * @since  Aug 20, 2023
  */
 public class TableMetaKit {
 	private static final ILogger log = ILoggers.of(TableMetaKit.class);

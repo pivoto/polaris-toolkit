@@ -10,7 +10,7 @@ import java.util.Set;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 25, 2023
+ * @since  Aug 25, 2023
  */
 public interface EntityUpdateByIdMapper<E> extends EntityMapper<E> {
 

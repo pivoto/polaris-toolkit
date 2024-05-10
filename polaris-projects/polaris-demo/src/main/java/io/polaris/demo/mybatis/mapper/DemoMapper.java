@@ -44,7 +44,7 @@ import org.apache.ibatis.annotations.UpdateProvider;
 
 /**
  * @author Qt
- * @since 1.8,  Jan 30, 2024
+ * @since  Jan 30, 2024
  */
 @Mapper
 public interface DemoMapper {

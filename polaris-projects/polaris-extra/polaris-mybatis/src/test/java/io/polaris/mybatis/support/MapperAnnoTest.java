@@ -13,7 +13,7 @@ import java.util.Map;
 
 /**
  * @author Qt
- * @since 1.8,  Sep 11, 2023
+ * @since  Sep 11, 2023
  */
 public class MapperAnnoTest {
 

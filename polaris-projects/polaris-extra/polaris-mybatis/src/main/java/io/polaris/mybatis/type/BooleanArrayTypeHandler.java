@@ -7,7 +7,7 @@ import org.apache.ibatis.type.MappedTypes;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 28, 2023
+ * @since  Aug 28, 2023
  */
 @MappedTypes(Boolean[].class)
 @MappedJdbcTypes({JdbcType.VARCHAR, JdbcType.CHAR})

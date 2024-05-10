@@ -4,7 +4,7 @@ import java.util.Map;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 07, 2023
+ * @since  Aug 07, 2023
  */
 public interface IBeanMap<T> extends Map<String, Object> {
 

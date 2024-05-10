@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 /**
  * @author Qt
- * @since 1.8,  Feb 06, 2024
+ * @since  Feb 06, 2024
  */
 public class ResultRowSetVisitor<T> implements ResultSetVisitor {
 	private final ResultRowMapper<T> mapper;

@@ -12,7 +12,7 @@ import java.util.*;
 
 /**
  * @author Qt
- * @since 1.8,  Jan 06, 2024
+ * @since  Jan 06, 2024
  */
 class MergedAnnotations {
 	private SortedMap<Integer, Set<MergedAnnotation>> sortedAnnotations = new TreeMap<>();

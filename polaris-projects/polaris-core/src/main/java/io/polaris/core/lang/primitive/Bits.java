@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
  * see java.nio.Bits
  *
  * @author Qt
- * @since 1.8,  Aug 03, 2023
+ * @since  Aug 03, 2023
  */
 public class Bits {
 

@@ -17,7 +17,7 @@ import io.polaris.core.jdbc.annotation.segment.Where;
 
 /**
  * @author Qt
- * @since 1.8,  Jan 27, 2024
+ * @since  Jan 27, 2024
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})

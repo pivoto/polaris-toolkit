@@ -9,7 +9,7 @@ import java.util.Map;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 22, 2023
+ * @since  Aug 22, 2023
  */
 public class ExpressionSegment<S extends ExpressionSegment<S>> extends BaseSegment<S> {
 

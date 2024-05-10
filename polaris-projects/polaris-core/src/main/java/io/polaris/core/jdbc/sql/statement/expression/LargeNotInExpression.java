@@ -4,7 +4,7 @@ import io.polaris.core.jdbc.sql.node.SqlNodes;
 
 /**
  * @author Qt
- * @since 1.8,  Nov 07, 2023
+ * @since  Nov 07, 2023
  */
 public class LargeNotInExpression extends LargeInOrNotExpression {
 	public static final LargeNotInExpression DEFAULT = new LargeNotInExpression();

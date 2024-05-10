@@ -12,7 +12,7 @@ import org.apache.ibatis.session.Configuration;
 
 /**
  * @author Qt
- * @since 1.8,  Feb 21, 2024
+ * @since  Feb 21, 2024
  */
 public class TableRefResolvableDriver extends XMLLanguageDriver {
 

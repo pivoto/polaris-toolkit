@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 12, 2024
+ * @since  Apr 12, 2024
  */
 public class MetaObjectTest {
 

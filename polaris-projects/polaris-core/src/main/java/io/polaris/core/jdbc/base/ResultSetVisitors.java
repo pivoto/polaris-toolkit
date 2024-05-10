@@ -2,7 +2,7 @@ package io.polaris.core.jdbc.base;
 
 /**
  * @author Qt
- * @since 1.8,  Feb 06, 2024
+ * @since  Feb 06, 2024
  */
 public class ResultSetVisitors {
 	public static <T> ResultSetVisitor ofRows(ResultRowMapper<T> mapper, ResultVisitor<T> visitor) {

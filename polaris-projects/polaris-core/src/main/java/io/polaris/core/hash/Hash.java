@@ -5,7 +5,7 @@ package io.polaris.core.hash;
  *
  * @param <T> 被计算hash的对象类型
  * @author Qt
- * @since 1.8,  Aug 01, 2023
+ * @since  Aug 01, 2023
  */
 @FunctionalInterface
 public interface Hash<T> {

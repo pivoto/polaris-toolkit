@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 /**
  * @author Qt
- * @since 1.8,  Feb 06, 2024
+ * @since  Feb 06, 2024
  */
 @FunctionalInterface
 public interface GeneratedKeyConsumer {

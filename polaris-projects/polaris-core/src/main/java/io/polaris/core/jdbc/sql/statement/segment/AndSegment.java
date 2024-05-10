@@ -6,7 +6,7 @@ import io.polaris.core.jdbc.sql.statement.Segment;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 20, 2023
+ * @since  Aug 20, 2023
  */
 @AnnotationProcessing
 public class AndSegment<O extends Segment<O>, S extends AndSegment<O, S>> extends WhereSegment<O,S> {

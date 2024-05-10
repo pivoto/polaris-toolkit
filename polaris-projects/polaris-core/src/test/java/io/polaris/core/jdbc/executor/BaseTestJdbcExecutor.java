@@ -17,7 +17,7 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since 1.8,  Feb 08, 2024
+ * @since  Feb 08, 2024
  */
 public class BaseTestJdbcExecutor {
 	private static final ILogger log = ILoggers.of(BaseTestJdbcExecutor.class);

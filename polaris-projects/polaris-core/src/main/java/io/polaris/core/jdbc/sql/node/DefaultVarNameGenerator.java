@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 29, 2023
+ * @since  Aug 29, 2023
  */
 public class DefaultVarNameGenerator implements VarNameGenerator {
 

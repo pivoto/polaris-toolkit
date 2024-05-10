@@ -7,7 +7,7 @@ import org.apache.maven.plugin.logging.Log;
 
 /**
  * @author Qt
- * @since 1.8,  May 08, 2024
+ * @since  May 08, 2024
  */
 public class PropertiesKit {
 

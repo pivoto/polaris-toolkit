@@ -9,7 +9,7 @@ import lombok.experimental.FieldNameConstants;
 
 /**
  * @author Qt
- * @since 1.8,  May 06, 2024
+ * @since  May 06, 2024
  */
 @Access(
 	fields = true,

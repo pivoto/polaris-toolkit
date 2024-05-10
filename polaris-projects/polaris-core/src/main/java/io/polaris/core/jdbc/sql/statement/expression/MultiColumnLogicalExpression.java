@@ -2,7 +2,7 @@ package io.polaris.core.jdbc.sql.statement.expression;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 22, 2023
+ * @since  Aug 22, 2023
  */
 public enum MultiColumnLogicalExpression {
 	EQ(Expressions.pattern("${ref} = ${ref1}")),

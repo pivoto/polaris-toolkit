@@ -8,7 +8,7 @@ import java.util.*;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 11, 2023
+ * @since  Aug 11, 2023
  */
 public class DynamicNode extends VarNode implements Cloneable {
 	public DynamicNode(String varName) {

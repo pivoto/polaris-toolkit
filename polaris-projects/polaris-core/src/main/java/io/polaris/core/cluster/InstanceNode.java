@@ -11,7 +11,7 @@ import lombok.ToString;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 17, 2024
+ * @since  Apr 17, 2024
  */
 @ToString
 public class InstanceNode implements Comparable<InstanceNode> {

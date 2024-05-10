@@ -2,7 +2,7 @@ package io.polaris.core.jdbc.sql.query;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 29, 2023
+ * @since  Aug 29, 2023
  */
 public interface Pageable {
 

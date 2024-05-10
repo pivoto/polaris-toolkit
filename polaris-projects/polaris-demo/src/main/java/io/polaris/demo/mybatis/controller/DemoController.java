@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 25, 2023
+ * @since  Aug 25, 2023
  */
 @RestController
 @RequestMapping("demo")

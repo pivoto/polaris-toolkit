@@ -2,7 +2,7 @@ package io.polaris.core.hash;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 01, 2023
+ * @since  Aug 01, 2023
  */
 @FunctionalInterface
 public interface Hash32<T> extends Hash<T> {

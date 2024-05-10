@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 22, 2023
+ * @since  Aug 22, 2023
  */
 public class PatternExpression extends BaseExpression {
 	public static final String REF_PREFIX = "ref";

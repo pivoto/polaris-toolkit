@@ -8,7 +8,7 @@ import lombok.Setter;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 24, 2024
+ * @since  Apr 24, 2024
  */
 @Getter
 public class ConnProps {

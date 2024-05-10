@@ -14,7 +14,7 @@ import java.util.Map;
  * @author Qt
  * @see AntPathMatcher
  * @since 1.2
- * @since 1.8,  Jan 12, 2024
+ * @since  Jan 12, 2024
  */
 public interface PathMatcher {
 

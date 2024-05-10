@@ -1,6 +1,6 @@
 package io.polaris.core.lang;
 
-import io.polaris.core.asm.AsmTypeSignatures;
+import io.polaris.core.asm.internal.AsmTypes;
 import io.polaris.core.compiler.MemoryClassLoader;
 import io.polaris.core.compiler.MemoryCompiler;
 import io.polaris.core.log.ILogger;
@@ -258,21 +258,21 @@ public class TypeRefs {
 	static TypeRef<?> createTypeRefByAsm(TypeName typeName, String packageName, String simpleName) {
 		try {
 			String typeRefClassName = TypeRef.class.getName().replace('.', '/');
-			ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-			classWriter.visit(V1_8, ACC_PUBLIC + ACC_SUPER, packageName.replace('.', '/') + "/" + simpleName,
-				"L" + typeRefClassName + "<" + AsmTypeSignatures.toAsmTypeSignature(typeName) + ">;", typeRefClassName,
+			ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+			cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, packageName.replace('.', '/') + "/" + simpleName,
+				"L" + typeRefClassName + "<" + AsmTypes.toTypeSignature(typeName) + ">;", typeRefClassName,
 				null);
 			{
-				MethodVisitor methodVisitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
-				methodVisitor.visitCode();
-				methodVisitor.visitVarInsn(ALOAD, 0);
-				methodVisitor.visitMethodInsn(INVOKESPECIAL, typeRefClassName, "<init>", "()V", false);
-				methodVisitor.visitInsn(RETURN);
-				methodVisitor.visitMaxs(1, 1);
-				methodVisitor.visitEnd();
+				MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+				mv.visitCode();
+				mv.visitVarInsn(ALOAD, 0);
+				mv.visitMethodInsn(INVOKESPECIAL, typeRefClassName, "<init>", "()V", false);
+				mv.visitInsn(RETURN);
+				mv.visitMaxs(1, 1);
+				mv.visitEnd();
 			}
-			classWriter.visitEnd();
-			byte[] byteArray = classWriter.toByteArray();
+			cw.visitEnd();
+			byte[] byteArray = cw.toByteArray();
 			MemoryClassLoader loader = MemoryClassLoader.getInstance();
 			loader.add(packageName + "." + simpleName, byteArray);
 			Class<?> c = loader.loadClass(packageName + "." + simpleName);

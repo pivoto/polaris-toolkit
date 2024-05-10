@@ -6,7 +6,7 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since 1.8,  Jan 31, 2024
+ * @since  Jan 31, 2024
  */
 public interface Arguments {
 

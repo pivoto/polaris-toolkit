@@ -16,7 +16,7 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 20, 2023
+ * @since  Aug 20, 2023
  */
 @AnnotationProcessing
 public class ColumnSegment<O extends Segment<O>, S extends ColumnSegment<O, S>> extends BaseSegment<S> {

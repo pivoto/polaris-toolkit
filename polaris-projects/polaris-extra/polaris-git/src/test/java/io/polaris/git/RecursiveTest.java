@@ -9,7 +9,7 @@ import java.util.function.Function;
 
 /**
  * @author Qt
- * @since 1.8,  Sep 03, 2023
+ * @since  Sep 03, 2023
  */
 public class RecursiveTest {
 

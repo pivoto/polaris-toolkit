@@ -1,4 +1,4 @@
-package io.polaris.core.asm;
+package io.polaris.core.asm.internal;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -17,7 +17,7 @@ import static org.objectweb.asm.Opcodes.RETURN;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 11, 2024
+ * @since  Apr 11, 2024
  */
 public class AsmUtils {
 

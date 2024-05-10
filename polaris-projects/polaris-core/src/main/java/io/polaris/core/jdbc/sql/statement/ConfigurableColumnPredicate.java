@@ -10,7 +10,7 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since 1.8,  Jan 28, 2024
+ * @since  Jan 28, 2024
  */
 public class ConfigurableColumnPredicate implements ColumnPredicate {
 	private final Predicate<String> isIncludeColumns;

@@ -4,7 +4,7 @@ import io.polaris.core.jdbc.sql.statement.DeleteStatement;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 23, 2023
+ * @since  Aug 23, 2023
  */
 public class AnyDeleteStatement extends DeleteStatement<AnyDeleteStatement> {
 	public AnyDeleteStatement(Class<?> entityClass) {

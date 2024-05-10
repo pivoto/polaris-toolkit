@@ -27,7 +27,7 @@ import lombok.Setter;
 
 /**
  * @author Qt
- * @since 1.8,  Dec 28, 2023
+ * @since  Dec 28, 2023
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class MetaObject<T> {

@@ -2,7 +2,7 @@
 //
 ///**
 // * @author Qt
-// * @since 1.8,  Jan 30, 2024
+// * @since  Jan 30, 2024
 // */
 //public class LogLevels {
 //

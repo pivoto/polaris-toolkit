@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Qt
- * @since 1.8,  Jan 19, 2024
+ * @since  Jan 19, 2024
  */
 public class DateFormats {
 	private static ThreadLocal<Map<String, DateFormat>> LOCAL = ThreadLocal.withInitial(ConcurrentHashMap::new);

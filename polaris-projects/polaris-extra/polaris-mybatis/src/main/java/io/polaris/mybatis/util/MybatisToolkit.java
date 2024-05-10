@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 28, 2023
+ * @since  Aug 28, 2023
  */
 @Alias("mkit")
 public class MybatisToolkit {

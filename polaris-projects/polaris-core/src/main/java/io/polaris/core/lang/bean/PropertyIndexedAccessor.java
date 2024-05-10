@@ -6,7 +6,7 @@ import io.polaris.core.asm.reflect.BeanAccess;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 12, 2024
+ * @since  Apr 12, 2024
  */
 class PropertyIndexedAccessor implements PropertyAccessor {
 	private final BeanAccess<?> access;

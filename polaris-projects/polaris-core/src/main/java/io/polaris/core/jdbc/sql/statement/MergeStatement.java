@@ -26,7 +26,7 @@ import io.polaris.core.string.Strings;
  * Oracle Merge Into
  *
  * @author Qt
- * @since 1.8,  Aug 30, 2023
+ * @since  Aug 30, 2023
  */
 @SuppressWarnings({"unused", "UnusedReturnValue"})
 public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S> implements TableAccessible {

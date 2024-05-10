@@ -4,7 +4,7 @@ import io.polaris.core.jdbc.sql.statement.UpdateStatement;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 23, 2023
+ * @since  Aug 23, 2023
  */
 public class AnyUpdateStatement extends UpdateStatement<AnyUpdateStatement> {
 	public AnyUpdateStatement(Class<?> entityClass) {

@@ -9,7 +9,7 @@ import io.polaris.core.lang.bean.Beans;
 
 /**
  * @author Qt
- * @since 1.8,  Dec 28, 2023
+ * @since  Dec 28, 2023
  */
 public abstract class AbstractPropertyBuilder<T> implements PropertyBuilder<T> {
 	private final Deque<Operation> actionQueue = new ArrayDeque<>();
@@ -87,7 +87,7 @@ public abstract class AbstractPropertyBuilder<T> implements PropertyBuilder<T> {
 
 	/**
 	 * @author Qt
-	 * @since 1.8,  Dec 28, 2023
+	 * @since  Dec 28, 2023
 	 */
 	protected static class Operation {
 		Object orig;

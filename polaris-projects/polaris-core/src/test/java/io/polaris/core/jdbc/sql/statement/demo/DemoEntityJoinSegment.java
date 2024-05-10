@@ -8,7 +8,7 @@ import io.polaris.core.jdbc.sql.statement.segment.JoinSegment;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 23, 2023
+ * @since  Aug 23, 2023
  */
 public class DemoEntityJoinSegment<O extends SelectStatement<O>>
 	extends JoinSegment<O, DemoEntityJoinSegment<O>> {

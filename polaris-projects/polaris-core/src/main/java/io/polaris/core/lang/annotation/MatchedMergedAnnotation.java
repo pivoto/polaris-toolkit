@@ -17,7 +17,7 @@ import lombok.ToString;
 
 /**
  * @author Qt
- * @since 1.8,  Jan 07, 2024
+ * @since  Jan 07, 2024
  */
 @EqualsAndHashCode
 @ToString

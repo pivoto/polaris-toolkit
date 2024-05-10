@@ -29,7 +29,7 @@ import io.polaris.core.reflect.Reflects;
 
 /**
  * @author Qt
- * @since 1.8,  Feb 06, 2024
+ * @since  Feb 06, 2024
  */
 public class JdbcExecutor<T> implements InvocationHandler, InvocationHandlerHolder {
 	private static final int ALLOWED_MODES = MethodHandles.Lookup.PRIVATE | MethodHandles.Lookup.PROTECTED

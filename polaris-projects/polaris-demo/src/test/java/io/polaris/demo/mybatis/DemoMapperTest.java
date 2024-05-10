@@ -19,7 +19,7 @@ import org.springframework.context.ApplicationContext;
 
 /**
  * @author Qt
- * @since 1.8,  Jan 30, 2024
+ * @since  Jan 30, 2024
  */
 @SpringBootTest(classes = DemoApp.class)
 @TestMethodOrder(MethodOrderer.MethodName.class)

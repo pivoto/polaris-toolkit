@@ -7,7 +7,7 @@ import java.time.Instant;
 
 /**
  * @author Qt
- * @since 1.8,  Sep 08, 2023
+ * @since  Sep 08, 2023
  */
 public class Consoles {
 

@@ -12,7 +12,7 @@ import java.util.Date;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 25, 2023
+ * @since  Aug 25, 2023
  */
 @Data
 @Table(value = "demo_user")

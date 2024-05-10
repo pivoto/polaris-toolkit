@@ -40,6 +40,11 @@ public class Maps {
 		}
 	}
 
+	public static <K, V> Map<V, K> reverse(Map<K, V> map, Map<V, K> target) {
+		map.forEach((key, value) -> target.put(value, key));
+		return target;
+	}
+
 	/**
 	 * 反转键值生成新的Map对象
 	 *
@@ -48,10 +53,18 @@ public class Maps {
 	 * @param <V>
 	 * @return
 	 */
-	public static <K, V> Map<V, K> inverse(Map<K, V> map) {
+	public static <K, V> Map<V, K> reverse(Map<K, V> map) {
 		Map<V, K> result = createMap(map.getClass());
 		map.forEach((key, value) -> result.put(value, key));
 		return result;
+	}
+
+	public static <K, V> Map<V, K> inverse(Map<K, V> map, Map<V, K> target) {
+		return reverse(map, target);
+	}
+
+	public static <K, V> Map<V, K> inverse(Map<K, V> map) {
+		return reverse(map);
 	}
 
 

@@ -4,7 +4,7 @@ import io.polaris.core.jdbc.sql.statement.SelectStatement;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 22, 2023
+ * @since  Aug 22, 2023
  */
 public class AnySelectStatement extends SelectStatement<AnySelectStatement> {
 	public AnySelectStatement(Class<?> entityClass) {

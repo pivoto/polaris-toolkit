@@ -98,7 +98,7 @@ import io.polaris.core.tuple.ValueRef;
 
 /**
  * @author Qt
- * @since 1.8,  Jan 27, 2024
+ * @since  Jan 27, 2024
  */
 @SuppressWarnings({"all"})
 public class EntityStatements {

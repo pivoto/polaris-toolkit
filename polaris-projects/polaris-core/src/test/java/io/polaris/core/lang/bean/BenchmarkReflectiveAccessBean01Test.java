@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 05, 2023
+ * @since  Aug 05, 2023
  */
 @BenchmarkMode(Mode.All) // 吞吐量
 @OutputTimeUnit(TimeUnit.MILLISECONDS) // 结果所使用的时间单位

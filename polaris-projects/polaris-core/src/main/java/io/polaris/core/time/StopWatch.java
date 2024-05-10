@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author Qt
- * @since 1.8,  Dec 25, 2023
+ * @since  Dec 25, 2023
  */
 @NotThreadSafe
 public class StopWatch {

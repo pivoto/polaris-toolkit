@@ -8,7 +8,7 @@ import java.util.function.Function;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 11, 2024
+ * @since  Apr 11, 2024
  */
 class AccessClassPool<K, V> {
 	private final LimitedLinkedHashMap<K, V> raw;

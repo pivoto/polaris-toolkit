@@ -14,7 +14,7 @@ import java.util.Arrays;
  *
  * @author hexiufeng
  * @author Qt
- * @since 1.8,  Aug 01, 2023
+ * @since  Aug 01, 2023
  */
 public class CityHash {
 

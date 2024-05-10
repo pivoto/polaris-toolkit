@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 11, 2023
+ * @since  Aug 11, 2023
  */
 public class ContainerNode implements SqlNode, Cloneable {
 	public static final ContainerNode EMPTY = new ContainerNode(Collections.emptyList());

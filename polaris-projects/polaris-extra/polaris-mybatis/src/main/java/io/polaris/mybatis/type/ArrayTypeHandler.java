@@ -6,7 +6,7 @@ import java.sql.*;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 28, 2023
+ * @since  Aug 28, 2023
  */
 @MappedTypes(Object[].class)
 @MappedJdbcTypes({JdbcType.ARRAY,JdbcType.VARCHAR,JdbcType.CHAR})

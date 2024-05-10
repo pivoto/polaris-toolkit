@@ -11,7 +11,7 @@ import io.polaris.core.jdbc.sql.node.SqlNodes;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 22, 2023
+ * @since  Aug 22, 2023
  */
 public class LikeExpression extends BaseExpression {
 	public static final LikeExpression CONTAINS = new LikeExpression(true, true, false);

@@ -2,7 +2,7 @@ package io.polaris.core.jdbc.sql.statement.expression;
 
 /**
  * @author Qt
- * @since 1.8,  Sep 01, 2023
+ * @since  Sep 01, 2023
  */
 public class Expressions {
 	public static PatternExpression pattern(String pattern) {

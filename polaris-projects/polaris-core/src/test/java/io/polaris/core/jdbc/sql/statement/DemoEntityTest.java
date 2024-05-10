@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 24, 2023
+ * @since  Aug 24, 2023
  */
 public class DemoEntityTest {
 

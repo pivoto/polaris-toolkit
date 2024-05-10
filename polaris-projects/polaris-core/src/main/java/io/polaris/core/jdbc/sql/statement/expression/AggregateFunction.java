@@ -6,7 +6,7 @@ import java.util.Map;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 23, 2023
+ * @since  Aug 23, 2023
  */
 public enum AggregateFunction implements Expression {
 

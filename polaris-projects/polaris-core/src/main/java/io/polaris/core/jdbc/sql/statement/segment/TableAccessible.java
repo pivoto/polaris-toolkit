@@ -4,7 +4,7 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 22, 2023
+ * @since  Aug 22, 2023
  */
 public interface TableAccessible extends TableAccessibleHolder {
 

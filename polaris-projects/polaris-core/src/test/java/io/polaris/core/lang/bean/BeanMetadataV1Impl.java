@@ -7,7 +7,7 @@ import java.util.function.Function;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 05, 2023
+ * @since  Aug 05, 2023
  */
 public class BeanMetadataV1Impl implements BeanMetadataV1 {
 	@Override

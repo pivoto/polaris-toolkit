@@ -1399,7 +1399,7 @@ public class Xml {
 		 */
 		@Override
 		public String getPrefix(String namespaceURI) {
-			return (Maps.inverse(prefixUri)).get(namespaceURI);
+			return (Maps.reverse(prefixUri)).get(namespaceURI);
 		}
 
 		@Override

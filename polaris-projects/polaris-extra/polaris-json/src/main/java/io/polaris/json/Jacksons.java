@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 /**
  * @author Qt
- * @since 1.8,  Feb 04, 2024
+ * @since  Feb 04, 2024
  */
 @Slf4j
 public class Jacksons {

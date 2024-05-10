@@ -2,7 +2,7 @@ package io.polaris.core.lang.bean.property;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 28, 2023
+ * @since  Aug 28, 2023
  */
 public interface PropertyBuilder<T> {
 

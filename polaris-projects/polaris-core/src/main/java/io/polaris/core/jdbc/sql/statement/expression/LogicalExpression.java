@@ -6,7 +6,7 @@ import io.polaris.core.jdbc.sql.node.SqlNode;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 22, 2023
+ * @since  Aug 22, 2023
  */
 @SuppressWarnings("all")
 public enum LogicalExpression implements Expression {

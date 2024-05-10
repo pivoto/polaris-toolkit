@@ -7,7 +7,7 @@ import lombok.Getter;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 23, 2024
+ * @since  Apr 23, 2024
  */
 class InternalProperties {
 	public static final String INTERNAL_PROPERTIES_PATH = "META-INF/polaris/internal.properties";

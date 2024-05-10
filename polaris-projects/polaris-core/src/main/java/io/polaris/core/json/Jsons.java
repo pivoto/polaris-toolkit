@@ -15,7 +15,7 @@ import io.polaris.core.tuple.ValueRef;
 
 /**
  * @author Qt
- * @since 1.8,  Feb 04, 2024
+ * @since  Feb 04, 2024
  */
 public class Jsons {
 	private static final ILogger log = ILoggers.of(Jsons.class);

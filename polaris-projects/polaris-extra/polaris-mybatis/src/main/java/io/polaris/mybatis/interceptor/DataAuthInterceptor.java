@@ -17,7 +17,7 @@ import java.util.Properties;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 28, 2023
+ * @since  Aug 28, 2023
  */
 @Intercepts({
 	@Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class})

@@ -37,7 +37,7 @@ import static io.polaris.core.lang.Objs.isNotEmpty;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 22, 2023
+ * @since  Aug 22, 2023
  */
 @SuppressWarnings({"UnusedReturnValue", "unused"})
 @AnnotationProcessing

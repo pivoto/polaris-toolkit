@@ -18,7 +18,7 @@ import io.polaris.core.jdbc.sql.consts.BindingKeys;
 
 /**
  * @author Qt
- * @since 1.8,  Feb 08, 2024
+ * @since  Feb 08, 2024
  */
 public interface DemoTestExecutor {
 

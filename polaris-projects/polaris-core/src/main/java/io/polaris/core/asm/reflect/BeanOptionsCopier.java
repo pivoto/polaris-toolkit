@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import io.polaris.core.asm.AsmUtils;
+import io.polaris.core.asm.internal.AsmUtils;
 import io.polaris.core.lang.Types;
 import io.polaris.core.lang.copier.CopyOptions;
 import io.polaris.core.log.ILogger;
@@ -31,7 +31,7 @@ import static org.objectweb.asm.Opcodes.*;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 14, 2024
+ * @since  Apr 14, 2024
  */
 public abstract class BeanOptionsCopier<S, T> {
 	private static ILogger log = ILoggers.of(BeanOptionsCopier.class);

@@ -7,7 +7,7 @@ import java.util.Objects;
  *
  * @author hexiufeng
  * @author Qt
- * @since 1.8,  Aug 01, 2023
+ * @since  Aug 01, 2023
  */
 public class Number128 extends Number {
 	private static final long serialVersionUID = 1L;

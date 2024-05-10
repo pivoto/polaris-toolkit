@@ -22,7 +22,7 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 20, 2023
+ * @since  Aug 20, 2023
  */
 @AnnotationProcessing
 public class OrderBySegment<O extends Segment<O>, S extends OrderBySegment<O, S>> extends BaseSegment<S> implements SqlNodeBuilder {

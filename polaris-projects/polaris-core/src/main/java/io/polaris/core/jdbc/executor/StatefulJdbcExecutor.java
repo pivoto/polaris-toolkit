@@ -15,7 +15,7 @@ import io.polaris.core.reflect.Reflects;
 
 /**
  * @author Qt
- * @since 1.8,  Feb 07, 2024
+ * @since  Feb 07, 2024
  */
 public class StatefulJdbcExecutor<T> extends JdbcExecutor<T> implements JdbcBatchExecutor {
 	private final Connection connection;

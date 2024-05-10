@@ -15,7 +15,7 @@ import org.codehaus.plexus.util.FileUtils;
 
 /**
  * @author Qt
- * @since 1.8,  May 08, 2024
+ * @since  May 08, 2024
  */
 @Mojo(name = "transform", threadSafe = true, defaultPhase = LifecyclePhase.PROCESS_RESOURCES)
 public class PropertiesTransformMojo extends AbstractMojo {

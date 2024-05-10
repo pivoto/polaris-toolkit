@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 31, 2023
+ * @since  Aug 31, 2023
  */
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)

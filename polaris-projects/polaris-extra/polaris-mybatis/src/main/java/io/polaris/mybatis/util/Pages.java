@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 
 /**
  * @author Qt
- * @since 1.8,  Sep 06, 2023
+ * @since  Sep 06, 2023
  */
 public class Pages {
 

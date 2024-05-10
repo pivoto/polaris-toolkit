@@ -11,7 +11,7 @@ import io.polaris.core.reflect.Reflects;
 
 /**
  * @author Qt
- * @since 1.8,  Feb 06, 2024
+ * @since  Feb 06, 2024
  */
 public class ResultRowMapMapper<T extends Map<String, Object>> extends BaseResultRowMapper<T> {
 

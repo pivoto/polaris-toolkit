@@ -14,7 +14,7 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 20, 2023
+ * @since  Aug 20, 2023
  */
 public class TableEntitySegment<S extends TableEntitySegment<S>> extends TableSegment<S> {
 	private final TableMeta tableMeta;

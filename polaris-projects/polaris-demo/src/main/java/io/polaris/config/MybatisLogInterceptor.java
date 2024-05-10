@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author Qt
- * @since 1.8,  Jan 31, 2024
+ * @since  Jan 31, 2024
  */
 @Intercepts({
 	@Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class}),

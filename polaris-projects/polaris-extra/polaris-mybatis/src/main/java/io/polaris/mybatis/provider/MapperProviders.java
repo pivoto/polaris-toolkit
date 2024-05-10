@@ -11,7 +11,7 @@ import org.apache.ibatis.builder.annotation.ProviderContext;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 24, 2023
+ * @since  Aug 24, 2023
  */
 @Published
 public class MapperProviders {

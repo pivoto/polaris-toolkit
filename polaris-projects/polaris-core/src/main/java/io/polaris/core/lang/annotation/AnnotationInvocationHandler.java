@@ -13,7 +13,7 @@ import java.util.Map;
 
 /**
  * @author Qt
- * @since 1.8,  Jan 06, 2024
+ * @since  Jan 06, 2024
  */
 public class AnnotationInvocationHandler implements InvocationHandler {
 	private final Class<? extends Annotation> annotationType;

@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 28, 2023
+ * @since  Aug 28, 2023
  */
 @MappedTypes(BigDecimal[].class)
 @MappedJdbcTypes({JdbcType.VARCHAR,JdbcType.CHAR})

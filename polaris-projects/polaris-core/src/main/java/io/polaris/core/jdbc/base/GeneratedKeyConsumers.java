@@ -4,7 +4,7 @@ import io.polaris.core.lang.bean.MetaObject;
 
 /**
  * @author Qt
- * @since 1.8,  Feb 06, 2024
+ * @since  Feb 06, 2024
  */
 public class GeneratedKeyConsumers {
 

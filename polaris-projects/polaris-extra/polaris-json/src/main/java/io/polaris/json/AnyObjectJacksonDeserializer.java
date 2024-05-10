@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.node.ValueNode;
 
 /**
  * @author Qt
- * @since 1.8,  Feb 04, 2024
+ * @since  Feb 04, 2024
  */
 public class AnyObjectJacksonDeserializer extends BaseJacksonDeserializer<Object> {
 

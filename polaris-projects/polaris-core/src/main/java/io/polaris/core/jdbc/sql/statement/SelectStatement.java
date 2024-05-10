@@ -22,7 +22,7 @@ import java.util.function.Function;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 20, 2023
+ * @since  Aug 20, 2023
  */
 @AnnotationProcessing
 public class SelectStatement<S extends SelectStatement<S>> extends BaseStatement<S> implements TableAccessible {

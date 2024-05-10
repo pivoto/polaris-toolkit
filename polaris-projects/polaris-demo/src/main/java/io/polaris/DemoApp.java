@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 24, 2023
+ * @since  Aug 24, 2023
  */
 @SpringBootApplication
 @EnableAspectJAutoProxy

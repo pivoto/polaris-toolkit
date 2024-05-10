@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 12, 2024
+ * @since  Apr 12, 2024
  */
 @Accessors(chain = true, fluent = true)
 @Setter

@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 23, 2023
+ * @since  Aug 23, 2023
  */
 public class TableViewSegment<S extends TableViewSegment<S>> extends TableSegment<S> {
 

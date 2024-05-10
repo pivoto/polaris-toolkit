@@ -9,7 +9,7 @@ import java.lang.annotation.*;
 
 /**
  * @author Qt
- * @since 1.8,  Jan 07, 2024
+ * @since  Jan 07, 2024
  */
 public class AnnotationsTest03 {
 

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 11, 2024
+ * @since  Apr 11, 2024
  */
 public class BeanAccessTest {
 	static {

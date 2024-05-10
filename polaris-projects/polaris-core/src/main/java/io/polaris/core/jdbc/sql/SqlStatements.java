@@ -27,7 +27,7 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since 1.8,  Jan 27, 2024
+ * @since  Jan 27, 2024
  */
 @SuppressWarnings("ALL")
 public class SqlStatements {

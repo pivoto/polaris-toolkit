@@ -12,7 +12,7 @@ import java.util.*;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 22, 2023
+ * @since  Aug 22, 2023
  */
 class LargeInOrNotExpression extends BaseExpression {
 	private final int limit;

@@ -7,7 +7,7 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since 1.8,  Jan 10, 2024
+ * @since  Jan 10, 2024
  */
 public class ILoggers {
 	private static final Map<String, ILogger> CACHE = new ConcurrentHashMap<>();

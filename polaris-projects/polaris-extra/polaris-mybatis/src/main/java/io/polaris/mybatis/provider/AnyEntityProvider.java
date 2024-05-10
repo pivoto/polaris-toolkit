@@ -13,7 +13,7 @@ import org.apache.ibatis.builder.annotation.ProviderContext;
 
 /**
  * @author Qt
- * @since 1.8,  Jan 28, 2024
+ * @since  Jan 28, 2024
  */
 @Slf4j
 public class AnyEntityProvider extends BaseProviderMethodResolver {

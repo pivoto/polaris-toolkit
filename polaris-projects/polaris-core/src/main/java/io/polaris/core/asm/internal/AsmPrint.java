@@ -1,4 +1,4 @@
-package io.polaris.core.asm;
+package io.polaris.core.asm.internal;
 
 import io.polaris.core.io.IO;
 import org.objectweb.asm.ClassReader;
@@ -13,7 +13,7 @@ import java.io.PrintWriter;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 03, 2023
+ * @since  Aug 03, 2023
  */
 public class AsmPrint {
 

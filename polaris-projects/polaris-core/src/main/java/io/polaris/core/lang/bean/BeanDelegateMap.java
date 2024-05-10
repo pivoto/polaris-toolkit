@@ -11,7 +11,7 @@ import io.polaris.core.log.ILoggers;
 
 /**
  * @author Qt
- * @since 1.8,  Apr 12, 2024
+ * @since  Apr 12, 2024
  */
 class BeanDelegateMap<T> extends BeanMap<T> {
 	private static final ILogger log = ILoggers.of(BeanDelegateMap.class);

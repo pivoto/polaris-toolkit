@@ -10,7 +10,7 @@ import org.apache.ibatis.session.Configuration;
 
 /**
  * @author Qt
- * @since 1.8,  Feb 07, 2024
+ * @since  Feb 07, 2024
  */
 public class ProviderSqlSourceDriver extends XMLLanguageDriver {
 

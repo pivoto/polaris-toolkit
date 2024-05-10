@@ -21,7 +21,7 @@ import java.util.Set;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 20, 2023
+ * @since  Aug 20, 2023
  */
 @Data
 public class JdbcBeanInfo {

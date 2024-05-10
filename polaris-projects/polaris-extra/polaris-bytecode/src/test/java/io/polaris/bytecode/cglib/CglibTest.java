@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author Qt
- * @since 1.8,  Aug 25, 2023
+ * @since  Aug 25, 2023
  */
 public class CglibTest {
 	@Test
