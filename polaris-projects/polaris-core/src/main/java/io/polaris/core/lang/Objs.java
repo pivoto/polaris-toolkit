@@ -51,7 +51,7 @@ public class Objs {
 	}
 
 	/** @see Arrays#hashCode(Object[]) */
-	public static int hash(Object... values) {
+	public static int hashCode(Object... values) {
 		return Arrays.hashCode(values);
 	}
 

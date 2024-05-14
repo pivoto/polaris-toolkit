@@ -604,7 +604,6 @@ public abstract class ClassAccess<T> {
 				int len = parameterTypes.length;
 
 				methodVisitor.visitLabel(labels[idx]);
-				methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 
 				MethodVisitor mv = methodVisitor;
 				{
@@ -635,7 +634,6 @@ public abstract class ClassAccess<T> {
 					methodVisitor.visitInsn(ARETURN);
 					if (hasThrows) {
 						mv.visitLabel(labelCatch);
-						mv.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[]{"java/lang/Throwable"});
 						mv.visitVarInsn(ASTORE, 2);
 						mv.visitTypeInsn(NEW, Type.getInternalName(IllegalArgumentException.class));
 						mv.visitInsn(DUP);
@@ -647,7 +645,6 @@ public abstract class ClassAccess<T> {
 
 			}
 			methodVisitor.visitLabel(labelDefault);
-			methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 			methodVisitor.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
 			methodVisitor.visitInsn(DUP);
 			methodVisitor.visitLdcInsn("Constructor not found");
@@ -754,7 +751,6 @@ public abstract class ClassAccess<T> {
 				// case
 				for (int idxName = 0; idxName < methodEntryArray.length; idxName++) {
 					methodVisitor.visitLabel(labels[idxName]);
-					methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 
 					Map.Entry<String, List<Method>> entry = methodEntryArray[idxName];
 					String methodName = entry.getKey();
@@ -778,7 +774,6 @@ public abstract class ClassAccess<T> {
 							for (int idxOverload = 0; idxOverload < count; idxOverload++) {
 								if (count > 1) {
 									methodVisitor.visitLabel(labelsInner[idxOverload]);
-									methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 								}
 								Method method = list.get(idxOverload);
 								boolean hasThrows = method.getExceptionTypes().length > 0;
@@ -833,7 +828,6 @@ public abstract class ClassAccess<T> {
 									// catch
 									if (hasThrows) {
 										methodVisitor.visitLabel(labelCatch);
-										methodVisitor.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[]{"java/lang/Throwable"});
 										methodVisitor.visitVarInsn(ASTORE, 5);
 										methodVisitor.visitTypeInsn(NEW, Type.getInternalName(IllegalArgumentException.class));
 										methodVisitor.visitInsn(DUP);
@@ -845,7 +839,6 @@ public abstract class ClassAccess<T> {
 							}
 							if (count > 1) {
 								methodVisitor.visitLabel(labelInnerDefault);
-								methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 								methodVisitor.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
 								methodVisitor.visitInsn(DUP);
 								methodVisitor.visitLdcInsn("Method not found");
@@ -857,7 +850,6 @@ public abstract class ClassAccess<T> {
 				}
 				// default
 				methodVisitor.visitLabel(labelDefault);
-				methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 				methodVisitor.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
 				methodVisitor.visitInsn(DUP);
 				methodVisitor.visitLdcInsn("Method not found");
@@ -996,7 +988,6 @@ public abstract class ClassAccess<T> {
 			methodVisitor.visitTableSwitchInsn(0, fieldEntryArray.length - 1, labelDefault, labels);
 			for (int idxField = 0; idxField < fieldEntryArray.length; idxField++) {
 				methodVisitor.visitLabel(labels[idxField]);
-				methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 
 				Map.Entry<String, Field> entry = fieldEntryArray[idxField];
 				String fieldName = entry.getKey();
@@ -1016,7 +1007,6 @@ public abstract class ClassAccess<T> {
 			}
 			// default
 			methodVisitor.visitLabel(labelDefault);
-			methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 			methodVisitor.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
 			methodVisitor.visitInsn(DUP);
 			methodVisitor.visitLdcInsn("Field not found");
@@ -1040,7 +1030,6 @@ public abstract class ClassAccess<T> {
 			methodVisitor.visitTableSwitchInsn(0, fieldEntryArray.length - 1, labelDefault, labels);
 			for (int idxField = 0; idxField < fieldEntryArray.length; idxField++) {
 				methodVisitor.visitLabel(labels[idxField]);
-				methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 
 				Map.Entry<String, Field> entry = fieldEntryArray[idxField];
 				String fieldName = entry.getKey();
@@ -1064,7 +1053,6 @@ public abstract class ClassAccess<T> {
 			}
 			// default
 			methodVisitor.visitLabel(labelDefault);
-			methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
 			methodVisitor.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
 			methodVisitor.visitInsn(DUP);
 			methodVisitor.visitLdcInsn("Field not found");

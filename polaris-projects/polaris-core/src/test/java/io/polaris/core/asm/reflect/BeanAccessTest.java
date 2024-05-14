@@ -3,18 +3,15 @@ package io.polaris.core.asm.reflect;
 import java.io.IOException;
 
 import io.polaris.core.TestConsole;
-import io.polaris.core.consts.SystemKeys;
+import io.polaris.core.asm.BaseAsmTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
  * @author Qt
- * @since  Apr 11, 2024
+ * @since Apr 11, 2024
  */
-public class BeanAccessTest {
-	static {
-		System.setProperty(SystemKeys.JAVA_CLASS_BYTES_TMPDIR, "/data/classes");
-	}
+public class BeanAccessTest extends BaseAsmTest {
 
 	@Test
 	void testGenerate() throws IOException {
@@ -34,14 +31,15 @@ public class BeanAccessTest {
 		TestConsole.printx(access.getterPropertyNames());
 
 		access.setProperty(o, "publicStrVal0", "newStrVal");
-		Assertions.assertEquals("newStrVal",access.getProperty(o, "publicStrVal0"));
+		Assertions.assertEquals("newStrVal", access.getProperty(o, "publicStrVal0"));
 		TestConsole.printx("get: {}", access.getProperty(o, "publicStrVal0"));
 
 		access.setField(o, "publicStrVal1", "newStrVal");
-		Assertions.assertEquals("newStrVal",access.getField(o, "publicStrVal1"));
+		Assertions.assertEquals("newStrVal", access.getField(o, "publicStrVal1"));
 		TestConsole.printx("get: {}", access.getField(o, "publicStrVal1"));
 
 	}
+
 	@Test
 	void testBeanLambdaAccess() throws IOException {
 		BeanLambdaAccess<AccessBean01> access = BeanLambdaAccess.get(AccessBean01.class);
@@ -52,11 +50,11 @@ public class BeanAccessTest {
 		TestConsole.printx(access.getterPropertyNames());
 
 		access.setProperty(o, "publicStrVal0", "newStrVal");
-		Assertions.assertEquals("newStrVal",access.getProperty(o, "publicStrVal0"));
+		Assertions.assertEquals("newStrVal", access.getProperty(o, "publicStrVal0"));
 		TestConsole.printx("get: {}", access.getProperty(o, "publicStrVal0"));
 
 		access.setField(o, "publicStrVal1", "newStrVal");
-		Assertions.assertEquals("newStrVal",access.getField(o, "publicStrVal1"));
+		Assertions.assertEquals("newStrVal", access.getField(o, "publicStrVal1"));
 		TestConsole.printx("get: {}", access.getField(o, "publicStrVal1"));
 
 	}

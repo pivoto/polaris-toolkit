@@ -11,7 +11,7 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import io.polaris.core.assertion.Arguments;
+import io.polaris.core.assertion.Assertions;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -27,7 +27,7 @@ public class MatchedMergedAnnotation<A extends Annotation> {
 	private final List<MergedAnnotation> aliases;
 
 	public MatchedMergedAnnotation(@Nonnull Class<A> annotationType, MergedAnnotation matched, List<MergedAnnotation> aliases) {
-		Arguments.notNull(annotationType, "annotationType is null");
+		Assertions.assertNotNull(annotationType, "annotationType is null");
 		this.annotationType = annotationType;
 		this.matched = matched;
 		this.aliases = aliases == null ? Collections.emptyList() : aliases;

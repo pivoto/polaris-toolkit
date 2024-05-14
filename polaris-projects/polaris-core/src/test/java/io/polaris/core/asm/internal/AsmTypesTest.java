@@ -25,6 +25,8 @@ class AsmTypesTest {
 
 	@Test
 	void test_getType() {
+		TestConsole.printx(Type.getType(Object[][].class));
+		TestConsole.printx(Type.getType(String[][].class));
 		Type result = AsmTypes.getType(String.class.getName());
 		TestConsole.printx(result);
 		Assertions.assertEquals(Type.getType(String.class), result);

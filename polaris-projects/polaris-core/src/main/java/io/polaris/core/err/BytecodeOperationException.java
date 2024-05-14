@@ -1,6 +1,4 @@
-package io.polaris.core.asm;
-
-import io.polaris.core.err.UncheckedException;
+package io.polaris.core.err;
 
 /**
  * @author Qt

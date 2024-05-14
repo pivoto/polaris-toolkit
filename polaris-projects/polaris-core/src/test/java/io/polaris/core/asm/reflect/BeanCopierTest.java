@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.polaris.core.TestConsole;
+import io.polaris.core.asm.BaseAsmTest;
 import io.polaris.core.asm.reflect.copy.CopyBean00;
 import io.polaris.core.asm.reflect.copy.sub.SubCopyBean00;
 import io.polaris.core.collection.Iterables;
@@ -17,10 +18,7 @@ import org.junit.jupiter.api.Test;
  * @author Qt
  * @since  Apr 14, 2024
  */
-public class BeanCopierTest {
-	static {
-		System.setProperty(SystemKeys.JAVA_CLASS_BYTES_TMPDIR, "/data/classes");
-	}
+public class BeanCopierTest extends BaseAsmTest {
 
 	private CopyBean00 source = new CopyBean00();
 

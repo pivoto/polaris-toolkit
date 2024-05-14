@@ -23,8 +23,10 @@ import org.objectweb.asm.Type;
 import static org.objectweb.asm.Opcodes.*;
 
 /**
+ * 默认规则下的Bean属性复制，不接受CopyOptions参数
+ *
  * @author Qt
- * @since  Apr 14, 2024
+ * @since Apr 14, 2024
  */
 public abstract class BeanDirectCopier<S, T> {
 	private static ILogger log = ILoggers.of(BeanCopier.class);

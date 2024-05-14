@@ -440,7 +440,6 @@ public abstract class BeanLambdaAccess<T> {
 				mv.visitInsn(RETURN);
 				if (hasThrows) {
 					mv.visitLabel(labelCatch);
-					mv.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[]{"java/lang/Throwable"});
 					mv.visitVarInsn(ASTORE, 2);
 					mv.visitTypeInsn(NEW, Type.getInternalName(IllegalArgumentException.class));
 					mv.visitInsn(DUP);
@@ -551,7 +550,6 @@ public abstract class BeanLambdaAccess<T> {
 				mv.visitInsn(ARETURN);
 				if (hasThrows) {
 					mv.visitLabel(labelCatch);
-					mv.visitFrame(Opcodes.F_SAME1, 0, null, 1, new Object[]{"java/lang/Throwable"});
 					mv.visitVarInsn(ASTORE, 2);
 					mv.visitTypeInsn(NEW, Type.getInternalName(IllegalArgumentException.class));
 					mv.visitInsn(DUP);

@@ -16,9 +16,9 @@ import io.polaris.core.log.ILoggers;
 import io.polaris.core.map.Maps;
 import io.polaris.core.reflect.SerializableBiFunction;
 import io.polaris.core.reflect.SerializableConsumer;
+import io.polaris.core.reflect.SerializableConsumerWithArgs4;
 import io.polaris.core.reflect.SerializableConsumerWithArgs5;
 import io.polaris.core.reflect.SerializableFunction;
-import io.polaris.core.reflect.SerializableConsumerWithArgs4;
 import io.polaris.core.reflect.SerializableTriFunction;
 import io.polaris.core.string.StringCases;
 import io.polaris.core.tuple.Tuple2;
@@ -30,8 +30,10 @@ import org.objectweb.asm.Type;
 import static org.objectweb.asm.Opcodes.*;
 
 /**
+ * 接受CopyOptions参数的自定义规则的Bean属性复制
+ *
  * @author Qt
- * @since  Apr 14, 2024
+ * @since Apr 14, 2024
  */
 public abstract class BeanOptionsCopier<S, T> {
 	private static ILogger log = ILoggers.of(BeanOptionsCopier.class);
@@ -115,7 +117,7 @@ public abstract class BeanOptionsCopier<S, T> {
 
 	// endregion
 
-	 static List<Tuple2<BeanPropertyInfo, BeanPropertyInfo>> buildCustomKeyMapping(Map<String, BeanPropertyInfo> sourceProperties, Map<String, BeanPropertyInfo> targetProperties, Function<String, String> mapper,boolean ignoreCase) {
+	static List<Tuple2<BeanPropertyInfo, BeanPropertyInfo>> buildCustomKeyMapping(Map<String, BeanPropertyInfo> sourceProperties, Map<String, BeanPropertyInfo> targetProperties, Function<String, String> mapper, boolean ignoreCase) {
 		// 自定义映射字段，从来源keys映射到目标keys
 		List<Tuple2<BeanPropertyInfo, BeanPropertyInfo>> list = new ArrayList<>(sourceProperties.size());
 		for (Map.Entry<String, BeanPropertyInfo> entry : sourceProperties.entrySet()) {
@@ -125,8 +127,8 @@ public abstract class BeanOptionsCopier<S, T> {
 				BeanPropertyInfo targetInfo = targetProperties.get(mapKey);
 				BeanPropertyInfo sourceInfo = entry.getValue();
 				if (targetInfo != null && sourceInfo.hasGetter() && targetInfo.hasSetter()) {
-					if (ignoreCase){
-						if (key.equals(sourceInfo.getPropertyName())){
+					if (ignoreCase) {
+						if (key.equals(sourceInfo.getPropertyName())) {
 							continue;
 						}
 					}
@@ -136,15 +138,16 @@ public abstract class BeanOptionsCopier<S, T> {
 		}
 		return list;
 	}
-	 static List<Tuple2<BeanPropertyInfo, BeanPropertyInfo>> buildSameKeyMapping(Map<String, BeanPropertyInfo> sourceProperties, Map<String, BeanPropertyInfo> targetProperties, boolean ignoreCase) {
+
+	static List<Tuple2<BeanPropertyInfo, BeanPropertyInfo>> buildSameKeyMapping(Map<String, BeanPropertyInfo> sourceProperties, Map<String, BeanPropertyInfo> targetProperties, boolean ignoreCase) {
 		List<Tuple2<BeanPropertyInfo, BeanPropertyInfo>> list = new ArrayList<>(targetProperties.size());
 		for (Map.Entry<String, BeanPropertyInfo> entry : targetProperties.entrySet()) {
 			String key = entry.getKey();
 			BeanPropertyInfo sourceInfo = sourceProperties.get(key);
 			BeanPropertyInfo targetInfo = entry.getValue();
 			if (sourceInfo != null && sourceInfo.hasGetter() && targetInfo.hasSetter()) {
-				if (ignoreCase){
-					if (key.equals(sourceInfo.getPropertyName())){
+				if (ignoreCase) {
+					if (key.equals(sourceInfo.getPropertyName())) {
 						continue;
 					}
 				}
@@ -154,7 +157,7 @@ public abstract class BeanOptionsCopier<S, T> {
 		return list;
 	}
 
-	 static List<Tuple2<BeanPropertyInfo, BeanPropertyInfo>> buildCapitalizeKeyMapping(Map<String, BeanPropertyInfo> sourceProperties, Map<String, BeanPropertyInfo> targetProperties) {
+	static List<Tuple2<BeanPropertyInfo, BeanPropertyInfo>> buildCapitalizeKeyMapping(Map<String, BeanPropertyInfo> sourceProperties, Map<String, BeanPropertyInfo> targetProperties) {
 		List<Tuple2<BeanPropertyInfo, BeanPropertyInfo>> list = new ArrayList<>(targetProperties.size());
 		for (Map.Entry<String, BeanPropertyInfo> entry : targetProperties.entrySet()) {
 			String key = entry.getKey();
@@ -176,7 +179,7 @@ public abstract class BeanOptionsCopier<S, T> {
 		return list;
 	}
 
-	 static List<Tuple2<BeanPropertyInfo, BeanPropertyInfo>> buildUnderlineToCamelKeyMapping(Map<String, BeanPropertyInfo> sourceProperties, Map<String, BeanPropertyInfo> targetProperties, boolean ignoreCase) {
+	static List<Tuple2<BeanPropertyInfo, BeanPropertyInfo>> buildUnderlineToCamelKeyMapping(Map<String, BeanPropertyInfo> sourceProperties, Map<String, BeanPropertyInfo> targetProperties, boolean ignoreCase) {
 		List<Tuple2<BeanPropertyInfo, BeanPropertyInfo>> list = new ArrayList<>(targetProperties.size());
 		for (Map.Entry<String, BeanPropertyInfo> entry : targetProperties.entrySet()) {
 			String key = entry.getKey();
@@ -186,9 +189,9 @@ public abstract class BeanOptionsCopier<S, T> {
 				BeanPropertyInfo sourceInfo = sourceProperties.get(mapKey);
 				BeanPropertyInfo targetInfo = entry.getValue();
 				if (sourceInfo != null && sourceInfo.hasGetter() && targetInfo.hasSetter()) {
-					if (ignoreCase){
+					if (ignoreCase) {
 						// 已存在完全匹配则忽略
-						if (targetProperties.containsKey(mapKey)){
+						if (targetProperties.containsKey(mapKey)) {
 							continue;
 						}
 					}
@@ -199,7 +202,7 @@ public abstract class BeanOptionsCopier<S, T> {
 		return list;
 	}
 
-	 static List<Tuple2<BeanPropertyInfo, BeanPropertyInfo>> buildCamelToUnderlineKeyMapping(Map<String, BeanPropertyInfo> sourceProperties, Map<String, BeanPropertyInfo> targetProperties, boolean ignoreCase) {
+	static List<Tuple2<BeanPropertyInfo, BeanPropertyInfo>> buildCamelToUnderlineKeyMapping(Map<String, BeanPropertyInfo> sourceProperties, Map<String, BeanPropertyInfo> targetProperties, boolean ignoreCase) {
 		List<Tuple2<BeanPropertyInfo, BeanPropertyInfo>> list = new ArrayList<>(targetProperties.size());
 		for (Map.Entry<String, BeanPropertyInfo> entry : targetProperties.entrySet()) {
 			String key = entry.getKey();
@@ -209,9 +212,9 @@ public abstract class BeanOptionsCopier<S, T> {
 				BeanPropertyInfo sourceInfo = sourceProperties.get(mapKey);
 				BeanPropertyInfo targetInfo = entry.getValue();
 				if (sourceInfo != null && sourceInfo.hasGetter() && targetInfo.hasSetter()) {
-					if (ignoreCase){
+					if (ignoreCase) {
 						// 已存在完全匹配则忽略
-						if (targetProperties.containsKey(mapKey)){
+						if (targetProperties.containsKey(mapKey)) {
 							continue;
 						}
 					}
@@ -570,7 +573,7 @@ public abstract class BeanOptionsCopier<S, T> {
 		methodVisitor.visitLdcInsn(sourceInfo.getPropertyName() + "->" + targetInfo.getPropertyName());
 		methodVisitor.visitVarInsn(ALOAD, 5);
 		methodVisitor.visitVarInsn(ALOAD, 3);
-		SerializableConsumerWithArgs4<BeanOptionsCopier, String, Throwable,CopyOptions> resolveCopyError = BeanOptionsCopier::resolveCopyError;
+		SerializableConsumerWithArgs4<BeanOptionsCopier, String, Throwable, CopyOptions> resolveCopyError = BeanOptionsCopier::resolveCopyError;
 		methodVisitor.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(BeanOptionsCopier.class), resolveCopyError.serialized().getImplMethodName(), "(Ljava/lang/String;Ljava/lang/Throwable;" +
 			Type.getDescriptor(CopyOptions.class) + ")V", false);
 		methodVisitor.visitLabel(label11);

@@ -18,7 +18,7 @@ import static org.objectweb.asm.Opcodes.*;
  * @author Qt
  * @since  Aug 04, 2023
  */
-public class AsmTest {
+public class AsmTest extends BaseAsmTest{
 
 	@Test
 	void test01() throws ClassNotFoundException, InstantiationException, IllegalAccessException {

@@ -2,7 +2,6 @@ package io.polaris.core.asm.internal;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 import org.objectweb.asm.Type;
 
 /**
@@ -12,12 +11,12 @@ import org.objectweb.asm.Type;
 @EqualsAndHashCode
 @Getter
 public class Signature {
-	private String name;
-	private String desc;
+	private final String name;
+	private final String descriptor;
 
-	public Signature(String name, String desc) {
+	public Signature(String name, String descriptor) {
 		this.name = name;
-		this.desc = desc;
+		this.descriptor = descriptor;
 	}
 
 	public Signature(String name, Type returnType, Type[] argumentTypes) {
@@ -25,15 +24,15 @@ public class Signature {
 	}
 
 	public Type getReturnType() {
-		return Type.getReturnType(desc);
+		return Type.getReturnType(descriptor);
 	}
 
 	public Type[] getArgumentTypes() {
-		return Type.getArgumentTypes(desc);
+		return Type.getArgumentTypes(descriptor);
 	}
 
 	public String toString() {
-		return name + desc;
+		return name + descriptor;
 	}
 
 

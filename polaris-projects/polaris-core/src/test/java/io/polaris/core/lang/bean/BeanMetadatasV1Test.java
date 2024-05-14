@@ -3,15 +3,11 @@ package io.polaris.core.lang.bean;
 import java.io.IOException;
 
 import io.polaris.core.TestConsole;
+import io.polaris.core.asm.BaseAsmTest;
 import io.polaris.core.asm.internal.AsmPrint;
-import io.polaris.core.consts.SystemKeys;
 import org.junit.jupiter.api.Test;
 
-class BeanMetadatasV1Test {
-	static {
-		System.setProperty(SystemKeys.JAVA_CLASS_BYTES_TMPDIR, "/data/classes");
-	}
-
+class BeanMetadatasV1Test extends BaseAsmTest {
 
 	@Test
 	void test01() throws IOException {

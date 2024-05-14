@@ -212,7 +212,7 @@ public class PrimitiveArrays {
 	 * @param arrays 数组集合
 	 * @return 合并后的数组
 	 */
-	public static byte[] addAll(byte[]... arrays) {
+	public static byte[] join(byte[]... arrays) {
 		if (arrays.length == 1) {
 			return arrays[0];
 		}
@@ -243,7 +243,7 @@ public class PrimitiveArrays {
 	 * @param arrays 数组集合
 	 * @return 合并后的数组
 	 */
-	public static int[] addAll(int[]... arrays) {
+	public static int[] join(int[]... arrays) {
 		if (arrays.length == 1) {
 			return arrays[0];
 		}
@@ -274,7 +274,7 @@ public class PrimitiveArrays {
 	 * @param arrays 数组集合
 	 * @return 合并后的数组
 	 */
-	public static long[] addAll(long[]... arrays) {
+	public static long[] join(long[]... arrays) {
 		if (arrays.length == 1) {
 			return arrays[0];
 		}
@@ -305,7 +305,7 @@ public class PrimitiveArrays {
 	 * @param arrays 数组集合
 	 * @return 合并后的数组
 	 */
-	public static double[] addAll(double[]... arrays) {
+	public static double[] join(double[]... arrays) {
 		if (arrays.length == 1) {
 			return arrays[0];
 		}
@@ -336,7 +336,7 @@ public class PrimitiveArrays {
 	 * @param arrays 数组集合
 	 * @return 合并后的数组
 	 */
-	public static float[] addAll(float[]... arrays) {
+	public static float[] join(float[]... arrays) {
 		if (arrays.length == 1) {
 			return arrays[0];
 		}
@@ -367,7 +367,7 @@ public class PrimitiveArrays {
 	 * @param arrays 数组集合
 	 * @return 合并后的数组
 	 */
-	public static char[] addAll(char[]... arrays) {
+	public static char[] join(char[]... arrays) {
 		if (arrays.length == 1) {
 			return arrays[0];
 		}
@@ -398,7 +398,7 @@ public class PrimitiveArrays {
 	 * @param arrays 数组集合
 	 * @return 合并后的数组
 	 */
-	public static boolean[] addAll(boolean[]... arrays) {
+	public static boolean[] join(boolean[]... arrays) {
 		if (arrays.length == 1) {
 			return arrays[0];
 		}
@@ -429,7 +429,7 @@ public class PrimitiveArrays {
 	 * @param arrays 数组集合
 	 * @return 合并后的数组
 	 */
-	public static short[] addAll(short[]... arrays) {
+	public static short[] join(short[]... arrays) {
 		if (arrays.length == 1) {
 			return arrays[0];
 		}

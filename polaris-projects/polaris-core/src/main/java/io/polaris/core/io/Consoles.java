@@ -26,4 +26,6 @@ public class Consoles {
 			Strings.padStart(Thread.currentThread().getName(), 10, ' '),
 			Strings.format(msg, args));
 	}
+
+
 }

@@ -1180,7 +1180,7 @@ public class ObjectArrays extends PrimitiveArrays {
 	 * @return 连接后的字符串
 	 */
 	public static <T> String join(T[] array, CharSequence conjunction) {
-		return join(array, conjunction, null, null);
+		return join(array, conjunction, "", "");
 	}
 
 	/**

@@ -1,16 +1,14 @@
 package io.polaris.core.asm.reflect;
 
 import io.polaris.core.TestConsole;
+import io.polaris.core.asm.BaseAsmTest;
 import io.polaris.core.consts.SystemKeys;
 import io.polaris.core.string.StringCases;
 import lombok.Data;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class AccessTest {
-	static {
-		System.setProperty(SystemKeys.JAVA_CLASS_BYTES_TMPDIR, "/data/classes");
-	}
+class AccessTest extends BaseAsmTest {
 
 	@Test
 	void testClassAccess(){

@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
-import io.polaris.core.assertion.Arguments;
+import io.polaris.core.assertion.Assertions;
 
 /**
  * 从 spring-framework 源码复制，稍作修改
@@ -101,7 +101,7 @@ public class AntPathMatcher implements PathMatcher {
 	 * @since 4.1
 	 */
 	public AntPathMatcher(String pathSeparator) {
-		Arguments.notNull(pathSeparator, "'pathSeparator' is required");
+		Assertions.assertNotNull(pathSeparator, "'pathSeparator' is required");
 		this.pathSeparator = pathSeparator;
 		this.pathSeparatorPatternCache = new PathSeparatorPatternCache(pathSeparator);
 	}
