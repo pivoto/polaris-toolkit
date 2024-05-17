@@ -73,7 +73,7 @@
 
 		<dependency.spring-boot.version>2.3.10.RELEASE</dependency.spring-boot.version>
 		<dependency.spring-cloud.version>Hoxton.SR10</dependency.spring-cloud.version>
-		<dependency.log4j2.version>2.20.0</dependency.log4j2.version>
+		<dependency.log4j2.version>2.23.0</dependency.log4j2.version>
 		<dependency.slf4j.version>1.7.36</dependency.slf4j.version>
 		<!--<dependency.slf4j.version>2.0.5</dependency.slf4j.version>-->
 		<dependency.disruptor.version>3.4.4</dependency.disruptor.version>
