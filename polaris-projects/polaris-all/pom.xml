@@ -53,9 +53,5 @@
 			<groupId>cn.pivoto.polaris.toolkit</groupId>
 			<artifactId>polaris-mybatis</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>cn.pivoto.polaris.toolkit</groupId>
-			<artifactId>polaris-cluster</artifactId>
-		</dependency>
 	</dependencies>
 </project>

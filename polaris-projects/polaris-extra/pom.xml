@@ -22,7 +22,8 @@
 		<module>polaris-image</module>
 		<module>polaris-mybatis</module>
 		<module>polaris-git</module>
-		<module>polaris-cluster</module>
+		<module>polaris-cluster-zookeeper</module>
+		<module>polaris-cluster-nacos</module>
 		<module>polaris-concurrent</module>
 	</modules>
 	<properties>
