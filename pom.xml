@@ -27,10 +27,6 @@
 		<file.encoding>UTF-8</file.encoding>
 		<resource.delimiter>@</resource.delimiter>
 		<!--<resource.delimiter>#{*}</resource.delimiter>-->
-		<maven.compiler.source>${java.version}</maven.compiler.source>
-		<maven.compiler.target>${java.version}</maven.compiler.target>
-		<maven.compiler.verbose>false</maven.compiler.verbose>
-		<maven.compiler.useIncrementalCompilation>false</maven.compiler.useIncrementalCompilation>
 		<project.build.sourceEncoding>${file.encoding}</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>${file.encoding}</project.reporting.outputEncoding>
 		<project.dependencies.scope.provided>provided</project.dependencies.scope.provided>
@@ -55,6 +51,8 @@
 		<package.dependencyDirectory>libs</package.dependencyDirectory>
 		<includeScope>runtime</includeScope>
 		<maven.clean.failOnError>false</maven.clean.failOnError>
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<maven.compiler.failOnError>true</maven.compiler.failOnError>
 		<maven.compiler.fork>false</maven.compiler.fork>
 		<maven.compiler.verbose>false</maven.compiler.verbose>
@@ -796,6 +794,7 @@
 					<version>3.2.1</version>
 					<configuration>
 						<attach>true</attach>
+						<!--<excludes>**/*</excludes>-->
 					</configuration>
 					<executions>
 						<execution>
@@ -804,6 +803,12 @@
 							<goals>
 								<goal>jar-no-fork</goal>
 							</goals>
+							<configuration>
+								<excludes>
+									<exclude>rebel.xml</exclude>
+									<exclude>.gitkeep*</exclude>
+								</excludes>
+							</configuration>
 						</execution>
 					</executions>
 				</plugin>
