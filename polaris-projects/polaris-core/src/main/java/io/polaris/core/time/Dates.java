@@ -13,28 +13,18 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 1.8
  */
 @SuppressWarnings("SpellCheckingInspection")
-public class Dates {
-	private static Map<String, DateTimeFormatter> formatterCache = new ConcurrentHashMap<>();
+public class Dates implements DateConsts {
+	private static final Map<String, DateTimeFormatter> formatterCache = new ConcurrentHashMap<>();
 
-	public static final String PATTERN_YYYYMMDD = "yyyyMMdd";
 	public static final DateTimeFormatter YYYYMMDD = getFormatter(PATTERN_YYYYMMDD);
-	public static final String PATTERN_YYYYMMDDHHMMSS = "yyyyMMddHHmmss";
 	public static final DateTimeFormatter YYYYMMDDHHMMSS = getFormatter(PATTERN_YYYYMMDDHHMMSS);
-	public static final String PATTERN_YYYYMMDDHHMMSSSSS = "yyyyMMddHHmmssSSS";
 	public static final DateTimeFormatter YYYYMMDDHHMMSSSSS = getFormatter(PATTERN_YYYYMMDDHHMMSSSSS);
-	public static final String PATTERN_HHMMSS = "HHmmss";
 	public static final DateTimeFormatter HHMMSS = getFormatter(PATTERN_HHMMSS);
-	public static final String PATTERN_HHMMSSSSS = "HHmmssSSS";
 	public static final DateTimeFormatter HHMMSSSSS = getFormatter(PATTERN_HHMMSSSSS);
-	public static final String PATTERN_YYYY_MM_DD = "yyyy-MM-dd";
 	public static final DateTimeFormatter YYYY_MM_DD = getFormatter(PATTERN_YYYY_MM_DD);
-	public static final String PATTERN_YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
 	public static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS = getFormatter(PATTERN_YYYY_MM_DD_HH_MM_SS);
-	public static final String PATTERN_YYYY_MM_DD_HH_MM_SS_SSS = "yyyy-MM-dd HH:mm:ss.SSS";
 	public static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS_SSS = getFormatter(PATTERN_YYYY_MM_DD_HH_MM_SS_SSS);
-	public static final String PATTERN_HH_MM_SS = "HH:mm:ss";
 	public static final DateTimeFormatter HH_MM_SS = getFormatter(PATTERN_HH_MM_SS);
-	public static final String PATTERN_HH_MM_SS_SSS = "HH:mm:ss.SSS";
 	public static final DateTimeFormatter HH_MM_SS_SSS = getFormatter(PATTERN_HH_MM_SS_SSS);
 
 	public static DateTimeFormatter getFormatter(String formatterStr) {
@@ -65,6 +55,14 @@ public class Dates {
 
 	public static String format(String format, TemporalAccessor temporal) {
 		return getFormatter(format).format(temporal);
+	}
+
+	public static String formatDefault(Date date) {
+		return YYYY_MM_DD_HH_MM_SS_SSS.format(toLocalDateTime(date));
+	}
+
+	public static String format(String format, Date date) {
+		return getFormatter(format).format(toLocalDateTime(date));
 	}
 
 	public static TemporalAccessor parse(String format, String temporal) {
@@ -323,6 +321,75 @@ public class Dates {
 	private static int getChronoFieldOrDefault(TemporalAccessor temporal, ChronoField field) {
 		return (temporal.isSupported(field)) ?
 			temporal.get(field) : (int) field.range().getMinimum();
+	}
+
+	public static int diffYears(Date t1, Date t2) {
+		return diffYears(toLocalDateTime(t1), toLocalDateTime(t2));
+	}
+
+	public static int diffMonths(Date t1, Date t2) {
+		return diffYears(toLocalDateTime(t1), toLocalDateTime(t2));
+	}
+
+	public static int diffDays(Date t1, Date t2) {
+		return diffYears(toLocalDateTime(t1), toLocalDateTime(t2));
+	}
+
+
+	public static long diffHours(Date t1, Date t2) {
+		return diffHours(toLocalDateTime(t1), toLocalDateTime(t2));
+	}
+
+	public static long diffMinutes(Date t1, Date t2) {
+		return diffMinutes(toLocalDateTime(t1), toLocalDateTime(t2));
+	}
+
+	public static long diffSeconds(Date t1, Date t2) {
+		return diffSeconds(toLocalDateTime(t1), toLocalDateTime(t2));
+	}
+
+	public static long diffMillis(Date t1, Date t2) {
+		return diffMillis(toLocalDateTime(t1), toLocalDateTime(t2));
+	}
+
+	public static int diffYears(TemporalAccessor t1, TemporalAccessor t2) {
+		Period period = Period.between(toLocalDate(t1), toLocalDate(t2));
+		return period.getYears();
+	}
+
+	public static int diffMonths(TemporalAccessor t1, TemporalAccessor t2) {
+		Period period = Period.between(toLocalDate(t1), toLocalDate(t2));
+		return period.getYears()* 12 + period.getMonths();
+	}
+
+	public static long diffDays(TemporalAccessor t1, TemporalAccessor t2) {
+		Duration duration = Duration.between(toLocalDateTime(t1), toLocalDateTime(t2));
+		return duration.toDays();
+	}
+
+	public static long diffHours(TemporalAccessor t1, TemporalAccessor t2) {
+		Duration duration = Duration.between(toLocalDateTime(t1), toLocalDateTime(t2));
+		return duration.toHours();
+	}
+
+	public static long diffMinutes(TemporalAccessor t1, TemporalAccessor t2) {
+		Duration duration = Duration.between(toLocalDateTime(t1), toLocalDateTime(t2));
+		return duration.toMinutes();
+	}
+
+	public static long diffSeconds(TemporalAccessor t1, TemporalAccessor t2) {
+		Duration duration = Duration.between(toLocalDateTime(t1), toLocalDateTime(t2));
+		return duration.toMillis() / 1000L;
+	}
+
+	public static long diffMillis(TemporalAccessor t1, TemporalAccessor t2) {
+		Duration duration = Duration.between(toLocalDateTime(t1), toLocalDateTime(t2));
+		return duration.toMillis();
+	}
+
+	public static long diffNanos(TemporalAccessor t1, TemporalAccessor t2) {
+		Duration duration = Duration.between(toLocalDateTime(t1), toLocalDateTime(t2));
+		return duration.toNanos();
 	}
 
 }

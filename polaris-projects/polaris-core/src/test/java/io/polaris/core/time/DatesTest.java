@@ -1,6 +1,7 @@
 package io.polaris.core.time;
 
 import java.time.*;
+import java.time.temporal.TemporalAccessor;
 
 import io.polaris.core.TestConsole;
 import org.junit.jupiter.api.Test;
@@ -60,5 +61,22 @@ class DatesTest {
 		TestConsole.printx(Dates.toLocalDate(MonthDay.now()));
 		TestConsole.printx(Dates.toLocalDate(Month.from(LocalDate.now())));
 		TestConsole.printx(Dates.toLocalDate(DayOfWeek.from(LocalDate.now())));
+	}
+
+
+	@Test
+	void test_diff() {
+		{
+			TemporalAccessor t1 = Dates.parse("2020-03-15 11:30:00.000");
+			TemporalAccessor t2 = Dates.parse("2022-03-16 12:30:00.000");
+			TestConsole.printx("diffYears: {}", Dates.diffYears(t1, t2));
+			TestConsole.printx("diffMonths: {}", Dates.diffMonths(t1, t2));
+			TestConsole.printx("diffDays: {}", Dates.diffDays(t1, t2));
+			TestConsole.printx("diffHours: {}", Dates.diffHours(t1, t2));
+			TestConsole.printx("diffMinutes: {}", Dates.diffMinutes(t1, t2));
+			TestConsole.printx("diffSeconds: {}", Dates.diffSeconds(t1, t2));
+			TestConsole.printx("diffMillis: {}", Dates.diffMillis(t1, t2));
+			TestConsole.printx("diffNanos: {}", Dates.diffNanos(t1, t2));
+		}
 	}
 }
