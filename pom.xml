@@ -252,7 +252,7 @@
 			</dependency>
 			<dependency>
 				<groupId>cn.pivoto.polaris.toolkit</groupId>
-				<artifactId>polaris-cluster-zookeeper</artifactId>
+				<artifactId>polaris-zookeeper</artifactId>
 				<version>${project.polaris.revision}</version>
 			</dependency>
 			<dependency>
