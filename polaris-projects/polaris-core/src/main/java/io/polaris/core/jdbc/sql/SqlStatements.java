@@ -26,8 +26,10 @@ import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.string.Strings;
 
 /**
+ * 用于Mybatis扩展生成Sql
+ *
  * @author Qt
- * @since  Jan 27, 2024
+ * @since Jan 27, 2024
  */
 @SuppressWarnings("ALL")
 public class SqlStatements {
@@ -97,10 +99,15 @@ public class SqlStatements {
 	public static String buildDeleteByAny(Map<String, Object> bindings, Class<?> entityClass) {
 		String entityKey = BindingKeys.ENTITY;
 		String whereKey = BindingKeys.WHERE;
-		String includeColumnsKey = BindingKeys.INCLUDE_COLUMNS;
+		/* String includeColumnsKey = BindingKeys.INCLUDE_COLUMNS;
 		String excludeColumnsKey = BindingKeys.EXCLUDE_COLUMNS;
 		String includeEmptyColumnsKey = BindingKeys.INCLUDE_EMPTY_COLUMNS;
-		String includeAllEmptyKey = BindingKeys.INCLUDE_EMPTY;
+		String includeAllEmptyKey = BindingKeys.INCLUDE_EMPTY; */
+		// 兼容 where keys
+		String[] includeColumnsKey = {BindingKeys.WHERE_INCLUDE_COLUMNS, BindingKeys.INCLUDE_COLUMNS};
+		String[] excludeColumnsKey = {BindingKeys.WHERE_EXCLUDE_COLUMNS, BindingKeys.EXCLUDE_COLUMNS};
+		String[] includeEmptyColumnsKey = {BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS, BindingKeys.INCLUDE_EMPTY_COLUMNS};
+		String[] includeAllEmptyKey = {BindingKeys.WHERE_INCLUDE_EMPTY, BindingKeys.INCLUDE_EMPTY};
 		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings,
 			null, includeColumnsKey, null, excludeColumnsKey,
 			null, includeEmptyColumnsKey, false, includeAllEmptyKey);
@@ -345,10 +352,15 @@ public class SqlStatements {
 	public static String buildCount(Map<String, Object> bindings, Class<?> entityClass) {
 		String entityKey = BindingKeys.ENTITY;
 		String whereKey = BindingKeys.WHERE;
-		String includeColumnsKey = BindingKeys.INCLUDE_COLUMNS;
+		/* String includeColumnsKey = BindingKeys.INCLUDE_COLUMNS;
 		String excludeColumnsKey = BindingKeys.EXCLUDE_COLUMNS;
 		String includeEmptyColumnsKey = BindingKeys.INCLUDE_EMPTY_COLUMNS;
-		String includeAllEmptyKey = BindingKeys.INCLUDE_EMPTY;
+		String includeAllEmptyKey = BindingKeys.INCLUDE_EMPTY; */
+		// 兼容 where keys
+		String[] includeColumnsKey = {BindingKeys.WHERE_INCLUDE_COLUMNS, BindingKeys.INCLUDE_COLUMNS};
+		String[] excludeColumnsKey = {BindingKeys.WHERE_EXCLUDE_COLUMNS, BindingKeys.EXCLUDE_COLUMNS};
+		String[] includeEmptyColumnsKey = {BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS, BindingKeys.INCLUDE_EMPTY_COLUMNS};
+		String[] includeAllEmptyKey = {BindingKeys.WHERE_INCLUDE_EMPTY, BindingKeys.INCLUDE_EMPTY};
 
 		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings,
 			null, includeColumnsKey,
@@ -396,11 +408,16 @@ public class SqlStatements {
 	public static String buildSelectByAny(Map<String, Object> bindings, Class<?> entityClass) {
 		String entityKey = BindingKeys.ENTITY;
 		String whereKey = BindingKeys.WHERE;
-		String includeColumnsKey = BindingKeys.INCLUDE_COLUMNS;
+		String orderByKey = BindingKeys.ORDER_BY;
+		/* String includeColumnsKey = BindingKeys.INCLUDE_COLUMNS;
 		String excludeColumnsKey = BindingKeys.EXCLUDE_COLUMNS;
 		String includeEmptyColumnsKey = BindingKeys.INCLUDE_EMPTY_COLUMNS;
-		String includeAllEmptyKey = BindingKeys.INCLUDE_EMPTY;
-		String orderByKey = BindingKeys.ORDER_BY;
+		String includeAllEmptyKey = BindingKeys.INCLUDE_EMPTY; */
+		// 兼容 where keys
+		String[] includeColumnsKey = {BindingKeys.WHERE_INCLUDE_COLUMNS, BindingKeys.INCLUDE_COLUMNS};
+		String[] excludeColumnsKey = {BindingKeys.WHERE_EXCLUDE_COLUMNS, BindingKeys.EXCLUDE_COLUMNS};
+		String[] includeEmptyColumnsKey = {BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS, BindingKeys.INCLUDE_EMPTY_COLUMNS};
+		String[] includeAllEmptyKey = {BindingKeys.WHERE_INCLUDE_EMPTY, BindingKeys.INCLUDE_EMPTY};
 
 		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings,
 			null, includeColumnsKey, null, excludeColumnsKey,
