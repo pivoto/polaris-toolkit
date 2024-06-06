@@ -1,6 +1,12 @@
 package io.polaris.core.jdbc.sql.query;
 
+import java.util.Iterator;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.regex.Pattern;
+
 import io.polaris.core.collection.Iterables;
+import io.polaris.core.consts.SymbolConsts;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.TableMetaKit;
@@ -11,19 +17,95 @@ import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
 import io.polaris.core.jdbc.sql.node.TextNode;
+import io.polaris.core.jdbc.sql.statement.segment.TableSegment;
 import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.string.Strings;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.function.Function;
-
 /**
  * @author Qt
- * @since  Aug 11, 2023
+ * @since Aug 11, 2023
  */
 public class Queries {
+
+	public static Function<String, String> newColumnDiscovery(Class<?> entityClass) {
+		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
+		return field -> {
+			String[] arr = field.split(Pattern.quote(SymbolConsts.DOT), 2);
+			String alias = null;
+			if (arr.length == 2) {
+				alias = arr[0].trim();
+				field = arr[1].trim();
+			}
+			if (alias != null) {
+				if (Strings.equalsIgnoreCase(alias, tableMeta.getAlias())) {
+					ColumnMeta columnMeta = tableMeta.getColumns().get(field);
+					if (columnMeta != null) {
+						return alias + SymbolConsts.DOT + columnMeta.getColumnName();
+					}
+				}
+			} else {
+				ColumnMeta columnMeta = tableMeta.getColumns().get(field);
+				if (columnMeta != null) {
+					return columnMeta.getColumnName();
+				}
+			}
+			return null;
+		};
+	}
+
+	public static Function<String, String> newColumnDiscovery(Class<?> entityClass, String alias) {
+		return newColumnDiscovery(TableSegment.fromEntity(entityClass, alias));
+	}
+
+	public static Function<String, String> newColumnDiscovery(
+		Class<?> entityClass1, String alias1,
+		Class<?> entityClass2, String alias2
+	) {
+		return newColumnDiscovery(
+			TableSegment.fromEntity(entityClass1, alias1),
+			TableSegment.fromEntity(entityClass2, alias2)
+		);
+	}
+
+	public static Function<String, String> newColumnDiscovery(
+		Class<?> entityClass1, String alias1,
+		Class<?> entityClass2, String alias2,
+		Class<?> entityClass3, String alias3
+	) {
+		return newColumnDiscovery(
+			TableSegment.fromEntity(entityClass1, alias1),
+			TableSegment.fromEntity(entityClass2, alias2),
+			TableSegment.fromEntity(entityClass3, alias3)
+		);
+	}
+
+	public static Function<String, String> newColumnDiscovery(TableSegment<?>... tables) {
+		return field -> {
+			String[] arr = field.split(Pattern.quote(SymbolConsts.DOT), 2);
+			String alias = null;
+			if (arr.length == 2) {
+				alias = arr[0].trim();
+				field = arr[1].trim();
+			}
+			try {
+				if (tables != null) {
+					for (TableSegment<?> table : tables) {
+						if (alias != null && !Strings.equalsIgnoreCase(alias, table.getTableAlias())) {
+							// 不匹配表别名
+							continue;
+						}
+						String col = table.getColumnExpression(field);
+						if (Strings.isNotBlank(col)) {
+							return col;
+						}
+					}
+				}
+			} catch (Exception e) {// 未找到对应的列，忽略此条件字段
+			}
+			return null;
+		};
+	}
 
 	public static Criteria newCriteria(Object entity) {
 		return newCriteria(entity, null);
