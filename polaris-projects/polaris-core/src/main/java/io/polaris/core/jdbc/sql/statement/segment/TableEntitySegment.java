@@ -115,7 +115,7 @@ public class TableEntitySegment<S extends TableEntitySegment<S>> extends TableSe
 	public String getColumnName(String field) {
 		ColumnMeta columnMeta = this.tableMeta.getColumns().get(field);
 		if (columnMeta == null) {
-			throw new IllegalStateException("找不到表对应的列信息：" + field);
+			throw new IllegalArgumentException("找不到表对应的列信息：" + field);
 		}
 		String columnName = columnMeta.getColumnName();
 		return columnName;

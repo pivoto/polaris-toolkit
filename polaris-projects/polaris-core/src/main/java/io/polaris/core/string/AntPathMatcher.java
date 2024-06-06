@@ -507,7 +507,7 @@ public class AntPathMatcher implements PathMatcher {
 		Map<String, String> variables = new LinkedHashMap<>();
 		boolean result = doMatch(pattern, path, true, variables);
 		if (!result) {
-			throw new IllegalStateException("Pattern \"" + pattern + "\" is not a match for \"" + path + "\"");
+			throw new IllegalArgumentException("Pattern \"" + pattern + "\" is not a match for \"" + path + "\"");
 		}
 		return variables;
 	}

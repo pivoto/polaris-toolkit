@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import io.polaris.core.jdbc.JdbcException;
 import io.polaris.core.jdbc.Jdbcs;
 import io.polaris.core.jdbc.base.ResultRowSimpleMapper;
 import io.polaris.core.jdbc.dbv.model.Catalog;
@@ -58,7 +59,7 @@ public class Dbv {
 		return list;
 	}
 
-	public static List<Catalog> readCatalog(DatabaseMetaData metaData) throws DbvException {
+	public static List<Catalog> readCatalog(DatabaseMetaData metaData) throws JdbcException {
 		try {
 			List<Catalog> list = new ArrayList<Catalog>(20);
 			read(metaData.getCatalogs(), list, Catalog.class);

@@ -43,7 +43,7 @@ public class StatefulJdbcExecutor<T> extends JdbcExecutor<T> implements JdbcBatc
 		if (conn != null) {
 			return conn;
 		}
-		throw new IllegalStateException("缺少数据库连接对象");
+		throw new IllegalArgumentException("缺少数据库连接对象");
 	}
 
 	@Override

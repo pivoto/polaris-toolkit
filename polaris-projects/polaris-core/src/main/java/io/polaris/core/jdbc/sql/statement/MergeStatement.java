@@ -194,7 +194,7 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 		TableMeta tableMeta = table.getTableMeta();
 		if (tableMeta != null) {
 			if (tableMeta.getColumns().values().stream().noneMatch(ColumnMeta::isPrimaryKey)) {
-				throw new IllegalStateException("未配置主键列：" + tableMeta.getEntityClass().getName());
+				throw new IllegalArgumentException("未配置主键列：" + tableMeta.getEntityClass().getName());
 			}
 
 			@SuppressWarnings("unchecked")

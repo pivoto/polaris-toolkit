@@ -87,7 +87,7 @@ public class TableViewSegment<S extends TableViewSegment<S>> extends TableSegmen
 		if (select.hasSelectRawColumn(field)) {
 			return field;
 		}
-		throw new IllegalStateException("找不到表对应的列信息：" + field);
+		throw new IllegalArgumentException("找不到表对应的列信息：" + field);
 	}
 
 

@@ -399,7 +399,7 @@ public class EntityStatements {
 	public static DeleteStatement<?> buildDelete(Map<String, Object> bindings, SqlDelete sqlDelete) {
 		Class<?> entityClass = sqlDelete.table();
 		if (entityClass == null || entityClass == void.class) {
-			throw new IllegalStateException("实体类型不能为空");
+			throw new IllegalArgumentException("实体类型不能为空");
 		}
 		DeleteStatement<?> st = new DeleteStatement<>(entityClass,
 			Strings.coalesce(sqlDelete.alias(), DEFAULT_TABLE_ALIAS));
@@ -589,7 +589,7 @@ public class EntityStatements {
 						seg.aliasPrefix(col.aliasPrefix());
 						seg.aliasSuffix(col.aliasSuffix());
 					} else {
-						throw new IllegalStateException("未指定字段名或固定键值");
+						throw new IllegalArgumentException("未指定字段名或固定键值");
 					}
 				}
 			}
@@ -620,10 +620,10 @@ public class EntityStatements {
 				Class<?> joinTable = join.table();
 				String joinAlias = join.alias();
 				if (joinTable == null || joinTable == void.class) {
-					throw new IllegalStateException("未指定连接表实体类型");
+					throw new IllegalArgumentException("未指定连接表实体类型");
 				}
 				if (Strings.isBlank(joinAlias)) {
-					throw new IllegalStateException("未指定连接表别名");
+					throw new IllegalArgumentException("未指定连接表别名");
 				}
 				JoinType joinType = join.type();
 				JoinSegment<?, ?> joinSt =
@@ -705,7 +705,7 @@ public class EntityStatements {
 						seg.aliasPrefix(col.aliasPrefix());
 						seg.aliasSuffix(col.aliasSuffix());
 					} else {
-						throw new IllegalStateException("未指定字段名或固定键值");
+						throw new IllegalArgumentException("未指定字段名或固定键值");
 					}
 				}
 			}
@@ -810,7 +810,7 @@ public class EntityStatements {
 				}
 				String field = orderBy.field();
 				if (Strings.isBlank(field)) {
-					throw new IllegalStateException("未指定排序字段名");
+					throw new IllegalArgumentException("未指定排序字段名");
 				}
 				OrderBySegment<?, ?> seg = st.orderBy();
 				seg.column(field);
@@ -952,7 +952,7 @@ public class EntityStatements {
 					}
 					String field = orderBy.field();
 					if (Strings.isBlank(field)) {
-						throw new IllegalStateException("未指定排序字段名");
+						throw new IllegalArgumentException("未指定排序字段名");
 					}
 					OrderBySegment<?, ?> seg = st.orderBy();
 					seg.column(field);

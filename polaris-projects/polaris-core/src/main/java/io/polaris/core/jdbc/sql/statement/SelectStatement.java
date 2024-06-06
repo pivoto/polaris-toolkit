@@ -560,7 +560,7 @@ public class SelectStatement<S extends SelectStatement<S>> extends BaseStatement
 
 	public S selectAll() {
 		if (this.table == null) {
-			throw new IllegalStateException("no table");
+			throw new IllegalArgumentException("no table");
 		}
 		SelectSegment<S, ?> segment = buildSelect().column(SymbolConsts.ASTERISK);
 		selects.add(segment);

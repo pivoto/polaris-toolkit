@@ -165,7 +165,7 @@ class Calculator {
 				result = Numbers.toBigDecimal(firstValue).remainder(Numbers.toBigDecimal(secondValue));
 				break;
 			default:
-				throw new IllegalStateException("Unexpected value: " + currentOp);
+				throw new IllegalArgumentException("Unexpected value: " + currentOp);
 		}
 		return result;
 	}

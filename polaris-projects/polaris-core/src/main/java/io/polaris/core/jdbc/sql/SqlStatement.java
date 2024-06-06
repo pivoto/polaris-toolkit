@@ -1,15 +1,15 @@
 package io.polaris.core.jdbc.sql;
 
-import io.polaris.core.consts.SymbolConsts;
-import io.polaris.core.string.Strings;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import io.polaris.core.consts.SymbolConsts;
+import io.polaris.core.string.Strings;
+
 /**
  * @author Qt
- * @since  Aug 12, 2023
+ * @since Aug 12, 2023
  */
 public class SqlStatement {
 	private final List<String> tables = new ArrayList<>();
@@ -206,7 +206,7 @@ public class SqlStatement {
 			case UPDATE:
 				return updateSQL(builder);
 			default:
-				throw new IllegalStateException();
+				throw new IllegalArgumentException("未知Sql类型：" + statementType);
 		}
 	}
 

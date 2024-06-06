@@ -186,7 +186,7 @@ public class JdbcExecutor<T> implements InvocationHandler, InvocationHandlerHold
 			conn = JdbcExecutors.getCurrentConnection();
 		}
 		if (conn == null) {
-			throw new IllegalStateException("缺少数据库连接对象");
+			throw new IllegalArgumentException("缺少数据库连接对象");
 		}
 		return conn;
 	}

@@ -146,7 +146,7 @@ public class SqlStatements {
 		}
 
 		if (!sql.where().hasConditions()) {
-			throw new IllegalStateException("缺少条件子句");
+			throw new IllegalArgumentException("缺少条件子句");
 		}
 		return sql.toSqlString();
 	}
@@ -176,7 +176,7 @@ public class SqlStatements {
 		}
 
 		if (!sql.where().hasConditions()) {
-			throw new IllegalStateException("缺少条件子句");
+			throw new IllegalArgumentException("缺少条件子句");
 		}
 		return sql.toSqlString();
 	}
@@ -263,7 +263,7 @@ public class SqlStatements {
 		}
 
 		if (!sql.where().hasConditions()) {
-			throw new IllegalStateException("缺少条件子句");
+			throw new IllegalArgumentException("缺少条件子句");
 		}
 		return sql.toSqlString();
 	}
@@ -344,7 +344,7 @@ public class SqlStatements {
 		}
 
 		if (!sql.where().hasConditions()) {
-			throw new IllegalStateException("缺少条件子句");
+			throw new IllegalArgumentException("缺少条件子句");
 		}
 		return sql.toSqlString();
 	}
@@ -459,7 +459,7 @@ public class SqlStatements {
 			}
 		}
 		if (!sql.where().hasConditions()) {
-			throw new IllegalStateException("缺少条件子句");
+			throw new IllegalArgumentException("缺少条件子句");
 		}
 		return sql.toSqlString();
 	}
