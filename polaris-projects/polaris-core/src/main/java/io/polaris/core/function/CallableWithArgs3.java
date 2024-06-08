@@ -5,6 +5,8 @@ package io.polaris.core.function;
  * @since 1.8
  */
 @FunctionalInterface
-public interface TetraFunction<A, B, C, D, R> extends FunctionWithArgs4<A, B, C, D, R> {
+public interface CallableWithArgs3<V, A, B, C> {
+
+	V call(A a, B b, C c) throws Exception;
 
 }

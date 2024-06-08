@@ -5,8 +5,8 @@ package io.polaris.core.function;
  * @since 1.8
  */
 @FunctionalInterface
-public interface ExecutableWithArg2<A, B> {
+public interface ExecutableWithArgs3<A, B, C> {
 
-	void execute(A a, B b) throws Exception;
+	void execute(A a, B b, C c) throws Exception;
 
 }

@@ -5,8 +5,8 @@ package io.polaris.core.function;
  * @since 1.8
  */
 @FunctionalInterface
-public interface CallableWithArg1<V, T> {
+public interface CallableWithArgs2<V, A, B> {
 
-	V call(T t) throws Exception;
+	V call(A a, B b) throws Exception;
 
 }

@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.collection.ObjectArrays;
 import io.polaris.core.function.Executable;
-import io.polaris.core.function.ExecutableWithArg1;
+import io.polaris.core.function.ExecutableWithArgs1;
 import io.polaris.core.io.IO;
 import io.polaris.core.jdbc.Jdbcs;
 import io.polaris.core.log.ILogger;
@@ -26,7 +26,7 @@ public class BaseTestJdbcExecutor {
 		return Jdbcs.getConnection("jdbc:oracle:thin:@localhost:1521/cmisdb", "basesv", "basesv");
 	}
 
-	protected static void doWithConnection(ExecutableWithArg1<Connection> consumer) {
+	protected static void doWithConnection(ExecutableWithArgs1<Connection> consumer) {
 		Connection conn = null;
 		try {
 			conn = getConnection();

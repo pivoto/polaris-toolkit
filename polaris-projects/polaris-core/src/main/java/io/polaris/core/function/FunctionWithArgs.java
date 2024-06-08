@@ -1,12 +1,14 @@
 package io.polaris.core.function;
 
+import java.util.Objects;
+
 /**
  * @author Qt
  * @since 1.8
  */
 @FunctionalInterface
-public interface CallableWithArg2<V, A, B> {
+public interface FunctionWithArgs<T, R> {
 
-	V call(A a, B b) throws Exception;
+	R apply(T... args);
 
 }
