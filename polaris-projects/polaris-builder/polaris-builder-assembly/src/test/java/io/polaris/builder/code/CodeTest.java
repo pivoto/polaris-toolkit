@@ -67,8 +67,7 @@ public class CodeTest {
 		},
 		templates = {
 			//@Template(path = Template.VM_PATH_EXAMPLE, filename = Template.FILENAME_EXAMPLE, dirname = Template.DIRNAME_EXAMPLE),
-			@Template(path = Template.VM_PATH_ENTITY_FLUENT_MYBATIS, filename = Template.FILENAME_ENTITY, dirname = Template.DIRNAME_ENTITY),
-			//@Template(path = VM_PATH_ENTITY, filename = FILENAME_ENTITY, dirname = DIRNAME_ENTITY),
+			@Template(path = VM_PATH_ENTITY, filename = FILENAME_ENTITY, dirname = DIRNAME_ENTITY),
 
 			@Template(path = VM_PATH_MAPPER, filename = FILENAME_MAPPER, dirname = DIRNAME_MAPPER),
 			@Template(path = VM_PATH_MAPPER_XML, filename = FILENAME_MAPPER_XML, dirname = DIRNAME_MAPPER_XML),

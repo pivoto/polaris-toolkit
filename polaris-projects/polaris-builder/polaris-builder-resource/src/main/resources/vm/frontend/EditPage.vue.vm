@@ -6,6 +6,7 @@
 #foreach($col in $table.columns)
 #if(${col.javaVariableName.equals('crtUser')} || ${col.javaVariableName.equals('uptUser')}
 	|| ${col.javaVariableName.equals('crtUserName')} || ${col.javaVariableName.equals('uptUserName')}
+	|| ${col.javaVariableName.equals('crtUserId')} || ${col.javaVariableName.equals('uptUserId')}
 	|| ${col.javaVariableName.equals('crtUserRealName')} || ${col.javaVariableName.equals('uptUserRealName')}
 	|| ${col.javaVariableName.equals('crtDt')} || ${col.javaVariableName.equals('uptDt')}
 	|| ${col.primary})

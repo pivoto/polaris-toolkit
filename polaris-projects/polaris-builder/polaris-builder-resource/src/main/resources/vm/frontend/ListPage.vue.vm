@@ -72,11 +72,19 @@
 		#if(${col.name.toLowerCase().endsWith('_sts')})
 				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center"
 					:dict="[{value:'A',label:'生效',tag:{effect:'dark'}},{value:'I',label:'失效',tag:{effect:'dark',type:'danger'}}]" />
-		#elseif(${col.javaVariableName.equals('crtUser')})
+		#elseif(${col.javaVariableName.equals('crtUserId')} )
 			#if(!$table.containsColumnVariableName('crtUserName'))
 				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center" format-user="crtUserName" />
 			#end
-		#elseif(${col.javaVariableName.equals('uptUser')})
+		#elseif(${col.javaVariableName.equals('crtUser')} && ${col.javaTypeSimpleName} == 'Long')
+			#if(!$table.containsColumnVariableName('crtUserName'))
+				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center" format-user="crtUserName" />
+			#end
+		#elseif(${col.javaVariableName.equals('uptUserId')})
+			#if(!$table.containsColumnVariableName('uptUserName'))
+				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center" format-user="uptUserName" />
+			#end
+		#elseif(${col.javaVariableName.equals('uptUser')} && ${col.javaTypeSimpleName} == 'Long')
 			#if(!$table.containsColumnVariableName('uptUserName'))
 				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center" format-user="uptUserName" />
 			#end

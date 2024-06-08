@@ -72,17 +72,29 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		return new ExcelConfig()
 			#foreach($col in $table.columns)
 				#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
-				.withDateColumn("${col.javaVariableName}", "#if(${col.label})${col.label}#else${col.name}#end", Dates.PATTERN_YYYY_MM_DD_HH_MM_SS)
-				#elseif(!$table.containsColumnVariableName('crtUserName') && ${col.javaVariableName.equals('crtUser')})
-				.withColumn("crtUserName", "#if(${col.label})${col.label}#else${col.name}#end")
-				#elseif(!$table.containsColumnVariableName('crtUserRealName') && ${col.javaVariableName.equals('crtUser')})
-				.withColumn("crtUserRealName", "#if(${col.label})${col.label}#else${col.name}#end")
-				#elseif(!$table.containsColumnVariableName('uptUserName') && ${col.javaVariableName.equals('uptUser')})
-				.withColumn("uptUserName", "#if(${col.label})${col.label}#else${col.name}#end")
-				#elseif(!$table.containsColumnVariableName('uptUserRealName') && ${col.javaVariableName.equals('uptUser')})
-				.withColumn("uptUserRealName", "#if(${col.label})${col.label}#else${col.name}#end")
+				.withDateColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.${col.javaVariableName}, "#if(${col.label})${col.label}#else${col.name}#end", Dates.PATTERN_YYYY_MM_DD_HH_MM_SS)
+				#elseif(!$table.containsColumnVariableName('crtUserName')
+					&& (
+						${col.javaVariableName.equals('crtUserId')} || (${col.javaVariableName.equals('crtUser')} && ${col.javaTypeSimpleName} == 'Long')
+					) )
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.crtUserName, "#if(${col.label})${col.label}#else${col.name}#end")
+				#elseif(!$table.containsColumnVariableName('crtUserRealName')
+					&& (
+						${col.javaVariableName.equals('crtUserId')} || ${col.javaVariableName.equals('crtUserName')} || ${col.javaVariableName.equals('crtUser')}
+					) )
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.crtUserRealName, "#if(${col.label})${col.label}#else${col.name}#end")
+				#elseif(!$table.containsColumnVariableName('uptUserName')
+					&& (
+						${col.javaVariableName.equals('uptUserId')} || (${col.javaVariableName.equals('uptUser')} && ${col.javaTypeSimpleName} == 'Long')
+					) )
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.uptUserName, "#if(${col.label})${col.label}#else${col.name}#end")
+				#elseif(!$table.containsColumnVariableName('uptUserRealName')
+					&& (
+						${col.javaVariableName.equals('uptUserId')} || ${col.javaVariableName.equals('uptUserName')} || ${col.javaVariableName.equals('uptUser')}
+					) )
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.uptUserRealName, "#if(${col.label})${col.label}#else${col.name}#end")
 				#else
-				.withColumn("${col.javaVariableName}", "#if(${col.label})${col.label}#else${col.name}#end")
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.${col.javaVariableName}, "#if(${col.label})${col.label}#else${col.name}#end")
 				#end
 			#end
 			;

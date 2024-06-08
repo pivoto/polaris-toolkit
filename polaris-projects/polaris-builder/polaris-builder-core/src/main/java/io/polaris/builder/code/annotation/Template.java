@@ -16,7 +16,6 @@ public @interface Template {
 	String VM_PATH_EXAMPLE = "/vm/example.txt.vm";
 	String VM_PATH_ENTITY = "/vm/java/base/entity/Entity.java.vm";
 	String VM_PATH_ENTITY_COMPLEX = "/vm/java/base/entity/EntityComplex.java.vm";
-	String VM_PATH_ENTITY_FLUENT_MYBATIS = "/vm/java/base/entity/FluentMybatisEntity.java.vm";
 	String VM_PATH_MAPPER = "/vm/java/base/mapper/Mapper.java.vm";
 	String VM_PATH_MAPPER_COMPLEX = "/vm/java/base/mapper/MapperComplex.java.vm";
 	String VM_PATH_SERVICE = "/vm/java/base/service/Service.java.vm";
