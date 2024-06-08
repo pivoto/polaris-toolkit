@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cn.pivoto.polaris.toolkit</groupId>
 	<artifactId>polaris-toolkit</artifactId>
-	<version>3.1.42</version>
+	<version>3.1.43-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>polaris-toolkit</name>
@@ -21,7 +21,7 @@
 	</modules>
 
 	<properties>
-		<project.polaris.revision>3.1.42</project.polaris.revision>
+		<project.polaris.revision>3.1.43-SNAPSHOT</project.polaris.revision>
 		<start-class></start-class>
 		<java.version>1.8</java.version>
 		<file.encoding>UTF-8</file.encoding>

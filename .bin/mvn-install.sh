@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 goal=$*
 if [[ -z $goal ]];then

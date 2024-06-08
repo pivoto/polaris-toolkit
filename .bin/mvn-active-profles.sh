@@ -1,2 +1,2 @@
-#!/usr/bin/env bash
+#!/bin/bash
 mvn -f ../pom.xml -DskipTests help:active-profiles
