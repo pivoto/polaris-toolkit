@@ -20,6 +20,7 @@
 		<module>polaris-extra</module>
 		<module>polaris-builder</module>
 		<module>polaris-all</module>
+		<module>polaris-boot</module>
 	</modules>
 	<properties>
 	</properties>
@@ -154,25 +155,5 @@
 			</plugin>
 		</plugins>
 	</reporting>
-
-	<profiles>
-		<profile>
-			<id>withDemo</id>
-			<modules>
-				<module>polaris-demo</module>
-			</modules>
-		</profile>
-		<profile>
-			<id>ide-idea</id>
-			<activation>
-				<property>
-					<name>idea.version</name>
-				</property>
-			</activation>
-			<modules>
-				<module>polaris-demo</module>
-			</modules>
-		</profile>
-	</profiles>
 
 </project>

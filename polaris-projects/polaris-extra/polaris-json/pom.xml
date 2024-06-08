@@ -12,30 +12,28 @@
 	<packaging>jar</packaging>
 
 	<properties>
-		<jackson.version>2.14.2</jackson.version>
-		<fastjson2.version>2.0.45</fastjson2.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
-			<version>${jackson.version}</version>
+			<version>${dependency.jackson.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
-			<version>${jackson.version}</version>
+			<version>${dependency.jackson.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>${jackson.version}</version>
+			<version>${dependency.jackson.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.alibaba.fastjson2</groupId>
 			<artifactId>fastjson2</artifactId>
-			<version>${fastjson2.version}</version>
+			<version>${dependency.fastjson2.version}</version>
 		</dependency>
 	</dependencies>
 </project>
