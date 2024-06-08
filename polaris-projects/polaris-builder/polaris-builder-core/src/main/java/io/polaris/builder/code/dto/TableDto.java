@@ -1,20 +1,24 @@
 package io.polaris.builder.code.dto;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+
 import io.polaris.builder.code.config.ConfigColumn;
 import io.polaris.builder.dbv.DbCommentSplits;
-import io.polaris.core.string.Strings;
 import io.polaris.core.tuple.Tuple2;
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import lombok.Data;
 import lombok.ToString;
 import org.apache.commons.lang3.SerializationUtils;
 
-import java.io.Serializable;
-import java.util.*;
-import java.util.function.Function;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import com.thoughtworks.xstream.annotations.XStreamImplicit;
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 /**
  * @author Qt
@@ -162,21 +166,39 @@ public class TableDto implements Serializable {
 	}
 
 
-	public boolean containsColumnName(String columnName){
+	public boolean containsColumnName(String columnName) {
 		for (ColumnDto column : columns) {
-			if (column.getName().equals(columnName)){
+			if (column.getName().equals(columnName)) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public boolean containsColumnVariableName(String columnVariableName){
+	public boolean containsColumnVariableName(String columnVariableName) {
 		for (ColumnDto column : columns) {
-			if (column.getJavaVariableName().equals(columnVariableName)){
+			if (column.getJavaVariableName().equals(columnVariableName)) {
 				return true;
 			}
 		}
 		return false;
+	}
+
+	public ColumnDto getColumnByName(String columnName) {
+		for (ColumnDto column : columns) {
+			if (column.getName().equals(columnName)) {
+				return column;
+			}
+		}
+		return null;
+	}
+
+	public ColumnDto getColumnByVariableName(String columnVariableName) {
+		for (ColumnDto column : columns) {
+			if (column.getJavaVariableName().equals(columnVariableName)) {
+				return column;
+			}
+		}
+		return null;
 	}
 }
