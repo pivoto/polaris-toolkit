@@ -96,21 +96,21 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 #end
 
 #if(!$table.containsColumnVariableName('crtUserId'))
-	#if(!$table.containsColumnVariableName('crtUser')
-		|| $table.getColumnVariableName('crtUser').javaTypeSimpleName == 'String')
-		#if($table.containsColumnVariableName('crtUserName'))
+	#if($table.containsColumnVariableName('crtUser') && $table.getColumnByVariableName('crtUser').javaTypeSimpleName == 'String')
 	@Column(ignored = true)
 	private Long crtUserId;
-		#end
+	#elseif($table.containsColumnVariableName('crtUserName'))
+	@Column(ignored = true)
+	private Long crtUserId;
 	#end
 #end
 #if(!$table.containsColumnVariableName('crtUserName'))
-	#if(!$table.containsColumnVariableName('crtUser')
-		|| $table.getColumnVariableName('crtUser').javaTypeSimpleName == 'Long')
-		#if($table.containsColumnVariableName('crtUser') || $table.containsColumnVariableName('crtUserId'))
+	#if($table.containsColumnVariableName('crtUser') && $table.getColumnByVariableName('crtUser').javaTypeSimpleName == 'Long')
 	@Column(ignored = true)
 	private String crtUserName;
-		#end
+	#elseif($table.containsColumnVariableName('crtUserId'))
+	@Column(ignored = true)
+	private String crtUserName;
 	#end
 #end
 #if(!$table.containsColumnVariableName('crtUserRealName'))
@@ -121,21 +121,21 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 	#end
 #end
 #if(!$table.containsColumnVariableName('uptUserId'))
-	#if(!$table.containsColumnVariableName('uptUser')
-		|| $table.getColumnVariableName('uptUser').javaTypeSimpleName == 'String')
-		#if($table.containsColumnVariableName('uptUserName'))
+	#if($table.containsColumnVariableName('uptUser') && $table.getColumnByVariableName('uptUser').javaTypeSimpleName == 'String')
 	@Column(ignored = true)
 	private Long uptUserId;
-		#end
+	#elseif($table.containsColumnVariableName('uptUserName'))
+	@Column(ignored = true)
+	private Long uptUserId;
 	#end
 #end
 #if(!$table.containsColumnVariableName('uptUserName'))
-	#if(!$table.containsColumnVariableName('uptUser')
-		|| $table.getColumnVariableName('uptUser').javaTypeSimpleName == 'Long')
-		#if($table.containsColumnVariableName('uptUser') || $table.containsColumnVariableName('uptUserId'))
+	#if($table.containsColumnVariableName('uptUser') && $table.getColumnByVariableName('uptUser').javaTypeSimpleName == 'Long')
 	@Column(ignored = true)
 	private String uptUserName;
-		#end
+	#elseif($table.containsColumnVariableName('uptUserId'))
+	@Column(ignored = true)
+	private String uptUserName;
 	#end
 #end
 #if(!$table.containsColumnVariableName('uptUserRealName'))

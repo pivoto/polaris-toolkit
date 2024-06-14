@@ -20,7 +20,7 @@ public interface DemoUserEntityMapper extends
 	InsertStatementMapper,
 	DeleteStatementMapper,
 	UpdateStatementMapper,
-	MergeStatementMapper,
+	EntityMergeMapper<DemoUserEntity>,
 	SelectStatementMapper<DemoUserEntity> {
 
 }
