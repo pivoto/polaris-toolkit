@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<groupId>cn.fossc.polaris.toolkit</groupId>
+		<artifactId>polaris-toolkit</artifactId>
+		<version>3.2.0</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>polaris-all</artifactId>
+	<packaging>pom</packaging>
+
+	<properties>
+		<maven.test.skip>true</maven.test.skip>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>cn.fossc.polaris.toolkit</groupId>
+			<artifactId>polaris-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>cn.fossc.polaris.toolkit</groupId>
+			<artifactId>polaris-logging</artifactId>
+			<type>pom</type>
+		</dependency>
+		<dependency>
+			<groupId>cn.fossc.polaris.toolkit</groupId>
+			<artifactId>polaris-validator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>cn.fossc.polaris.toolkit</groupId>
+			<artifactId>polaris-bytecode</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>cn.fossc.polaris.toolkit</groupId>
+			<artifactId>polaris-json</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>cn.fossc.polaris.toolkit</groupId>
+			<artifactId>polaris-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>cn.fossc.polaris.toolkit</groupId>
+			<artifactId>polaris-crypto</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>cn.fossc.polaris.toolkit</groupId>
+			<artifactId>polaris-image</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>cn.fossc.polaris.toolkit</groupId>
+			<artifactId>polaris-mybatis</artifactId>
+		</dependency>
+	</dependencies>
+</project>

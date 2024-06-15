@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<groupId>cn.fossc.polaris.toolkit</groupId>
+		<artifactId>polaris-toolkit</artifactId>
+		<version>3.2.0</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>polaris-core-apt</artifactId>
+
+
+	<properties>
+		<maven.install.skip>false</maven.install.skip>
+		<maven.deploy.skip>true</maven.deploy.skip>
+		<dependency.javapoet.version>1.13.0</dependency.javapoet.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.squareup</groupId>
+			<artifactId>javapoet</artifactId>
+			<version>${dependency.javapoet.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>cn.fossc.jdk</groupId>
+			<artifactId>tools</artifactId>
+			<version>1.8</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+				<configuration>
+					<skip>${maven.install.skip}</skip>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<configuration>
+					<skip>${maven.deploy.skip}</skip>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

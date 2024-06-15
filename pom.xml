@@ -3,25 +3,32 @@
 				 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 				 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>cn.pivoto.polaris.toolkit</groupId>
+	<groupId>cn.fossc.polaris.toolkit</groupId>
 	<artifactId>polaris-toolkit</artifactId>
-	<version>3.1.43</version>
+	<version>3.2.0</version>
 	<packaging>pom</packaging>
 
 	<name>polaris-toolkit</name>
-	<url>https://www.pivoto.cn</url>
-	<description>pivoto</description>
+	<url>https://www.fossc.cn</url>
+	<description>fossc</description>
 	<organization>
-		<name>pivoto</name>
-		<url>https://www.pivoto.cn</url>
+		<name>fossc</name>
+		<url>https://www.fossc.cn</url>
 	</organization>
 	<modules>
-		<module>polaris-plugins</module>
-		<module>polaris-projects</module>
+		<module>polaris-logging</module>
+		<module>polaris-logging-test</module>
+		<module>polaris-core-apt</module>
+		<module>polaris-core</module>
+		<module>polaris-extra</module>
+		<module>polaris-builder</module>
+		<module>polaris-all</module>
+		<module>polaris-boot</module>
 	</modules>
 
 	<properties>
-		<project.polaris.revision>3.1.43</project.polaris.revision>
+		<project.polaris-toolkit.revision>3.2.0</project.polaris-toolkit.revision>
+		<deploymentName>cn.fossc.polaris.toolkit:polaris-toolkit:${project.version}</deploymentName>
 		<start-class></start-class>
 		<java.version>1.8</java.version>
 		<file.encoding>UTF-8</file.encoding>
@@ -69,6 +76,7 @@
 		<maven.lombok.version>1.18.32</maven.lombok.version>
 		<maven.groovy.version>2.5.22</maven.groovy.version>
 
+		<dependency.polaris-plugins.version>3.2.0</dependency.polaris-plugins.version>
 		<dependency.spring-boot.version>2.3.10.RELEASE</dependency.spring-boot.version>
 		<dependency.spring-cloud.version>Hoxton.SR10</dependency.spring-cloud.version>
 		<dependency.log4j2.version>2.23.0</dependency.log4j2.version>
@@ -165,102 +173,92 @@
 		<dependencies>
 			<!-- region Modules -->
 			<dependency>
-				<groupId>cn.pivoto.polaris.plugins</groupId>
-				<artifactId>polaris-build-tools</artifactId>
-				<version>${project.polaris.revision}</version>
-			</dependency>
-			<dependency>
-				<groupId>cn.pivoto.polaris.plugins</groupId>
-				<artifactId>properties-maven-plugin</artifactId>
-				<version>${project.polaris.revision}</version>
-			</dependency>
-			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-all</artifactId>
 				<type>pom</type>
-				<version>${project.polaris.revision}</version>
+				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-logging</artifactId>
 				<type>pom</type>
-				<version>${project.polaris.revision}</version>
+				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-logging-test</artifactId>
 				<type>pom</type>
-				<version>${project.polaris.revision}</version>
+				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-core-apt</artifactId>
-				<version>${project.polaris.revision}</version>
+				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-core</artifactId>
-				<version>${project.polaris.revision}</version>
+				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-builder-core</artifactId>
-				<version>${project.polaris.revision}</version>
+				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-builder-resource</artifactId>
-				<version>${project.polaris.revision}</version>
+				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-validator</artifactId>
-				<version>${project.polaris.revision}</version>
+				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-bytecode</artifactId>
-				<version>${project.polaris.revision}</version>
+				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-json</artifactId>
-				<version>${project.polaris.revision}</version>
+				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-web</artifactId>
-				<version>${project.polaris.revision}</version>
+				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-crypto</artifactId>
-				<version>${project.polaris.revision}</version>
+				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-image</artifactId>
-				<version>${project.polaris.revision}</version>
+				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-mybatis</artifactId>
-				<version>${project.polaris.revision}</version>
+				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-git</artifactId>
-				<version>${project.polaris.revision}</version>
+				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-zookeeper</artifactId>
-				<version>${project.polaris.revision}</version>
+				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.pivoto.polaris.toolkit</groupId>
+				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-concurrent</artifactId>
-				<version>${project.polaris.revision}</version>
+				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<!-- endregion -->
 
@@ -866,10 +864,13 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>3.2.0</version>
+					<version>3.5.0</version>
 					<configuration>
 						<!--<additionalparam>-Xdoclint:none</additionalparam>-->
 						<doclint>none</doclint>
+						<encoding>${project.build.sourceEncoding}</encoding>
+						<charset>${project.reporting.outputEncoding}</charset>
+						<docencoding>${project.reporting.outputEncoding}</docencoding>
 					</configuration>
 					<executions>
 						<execution>
@@ -1116,6 +1117,90 @@
 					</configuration>
 				</plugin>
 
+				<!-- region check -->
+				<!-- findbugs 静态分析工具 -->
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>findbugs-maven-plugin</artifactId>
+					<version>3.0.5</version>
+					<configuration>
+						<skip>${findbugs.skip}</skip>
+						<failOnError>false</failOnError>
+						<xmlOutput>true</xmlOutput>
+						<findbugsXmlOutput>true</findbugsXmlOutput>
+					</configuration>
+					<executions>
+						<execution>
+							<phase>compile</phase>
+							<goals>
+								<goal>findbugs</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<!-- 代码风格检查 -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-checkstyle-plugin</artifactId>
+					<version>3.1.2</version>
+					<configuration>
+						<skip>${checkstyle.skip}</skip>
+						<failsOnError>true</failsOnError>
+						<failOnViolation>true</failOnViolation>
+						<logViolationsToConsole>true</logViolationsToConsole>
+						<encoding>${project.build.sourceEncoding}</encoding>
+						<consoleOutput>true</consoleOutput>
+						<configLocation>checkstyle/checkstyle.xml</configLocation>
+					</configuration>
+					<dependencies>
+						<dependency>
+							<groupId>cn.fossc.polaris.plugins</groupId>
+							<artifactId>polaris-build-tools</artifactId>
+							<version>${dependency.polaris-plugins.version}</version>
+						</dependency>
+					</dependencies>
+					<executions>
+						<execution>
+							<phase>validate</phase>
+							<goals>
+								<goal>checkstyle</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<!-- pmd Java程序代码检查工具 -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-pmd-plugin</artifactId>
+					<version>3.8</version>
+					<configuration>
+						<skip>${pmd.skip}</skip>
+						<failOnViolation>false</failOnViolation>
+						<printFailingErrors>true</printFailingErrors>
+						<rulesets>
+							<ruleset>rulesets/java/ali-comment.xml</ruleset>
+							<ruleset>rulesets/java/ali-concurrent.xml</ruleset>
+							<ruleset>rulesets/java/ali-constant.xml</ruleset>
+							<ruleset>rulesets/java/ali-exception.xml</ruleset>
+							<ruleset>rulesets/java/ali-flowcontrol.xml</ruleset>
+							<ruleset>rulesets/java/ali-naming.xml</ruleset>
+							<ruleset>rulesets/java/ali-oop.xml</ruleset>
+							<ruleset>rulesets/java/ali-orm.xml</ruleset>
+							<ruleset>rulesets/java/ali-other.xml</ruleset>
+							<ruleset>rulesets/java/ali-set.xml</ruleset>
+						</rulesets>
+					</configuration>
+					<dependencies>
+						<dependency>
+							<!-- 需要使用阿里的一些xml文件，因此需要这里增加p3c的依赖 -->
+							<groupId>com.alibaba.p3c</groupId>
+							<artifactId>p3c-pmd</artifactId>
+							<version>1.3.0</version>
+						</dependency>
+					</dependencies>
+				</plugin>
+				<!-- endregion-->
 			</plugins>
 		</pluginManagement>
 
@@ -1216,6 +1301,21 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
 			</plugin>
+
+			<!-- region check -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+			</plugin>
+			<!-- endregion -->
 		</plugins>
 	</build>
 
@@ -1321,6 +1421,21 @@
 				<artifactId>taglist-maven-plugin</artifactId>
 				<version>2.4</version>
 			</plugin>
+
+			<!-- region check -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+			</plugin>
+			<!-- endregion -->
 		</plugins>
 	</reporting>
 
@@ -1328,7 +1443,7 @@
 		<developer>
 			<name>Qt</name>
 			<email>kylinmania@163.com</email>
-			<url>https://www.pivoto.cn/</url>
+			<url>https://www.fossc.cn/</url>
 			<roles>
 				<role>software engineer</role>
 			</roles>
@@ -1345,7 +1460,7 @@
 
 	<ciManagement>
 		<system>continuum</system>
-		<url>http://www.pivoto.cn</url>
+		<url>http://www.fossc.cn</url>
 		<notifiers>
 			<notifier>
 				<type>mail</type>
@@ -1362,7 +1477,7 @@
 
 	<issueManagement>
 		<system>issue</system>
-		<url>http://www.pivoto.cn</url>
+		<url>http://www.fossc.cn</url>
 	</issueManagement>
 
 	<distributionManagement>
@@ -1398,7 +1513,7 @@
 			</activation>
 			<dependencies>
 				<dependency>
-					<groupId>cn.pivoto.jdk</groupId>
+					<groupId>cn.fossc.jdk</groupId>
 					<artifactId>tools</artifactId>
 					<version>1.8</version>
 					<scope>provided</scope>
@@ -1407,30 +1522,6 @@
 					<optional>true</optional>-->
 				</dependency>
 			</dependencies>
-		</profile>
-		<profile>
-			<id>withDoc</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-javadoc-plugin</artifactId>
-						<configuration>
-							<attach>true</attach>
-							<doclint>none</doclint>
-						</configuration>
-						<executions>
-							<execution>
-								<id>javadoc-package</id>
-								<phase>package</phase>
-								<goals>
-									<goal>aggregate-jar</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
 		</profile>
 
 		<!-- region delombok -->
@@ -1513,9 +1604,9 @@
 		</profile>
 		<!-- endregion -->
 
-		<!-- region src-groovy -->
+		<!-- region withGroovy -->
 		<profile>
-			<id>src-groovy</id>
+			<id>withGroovy</id>
 			<activation>
 				<file>
 					<exists>src/main/groovy</exists>
@@ -1592,7 +1683,7 @@
 		</profile>
 		<!--
 		<profile>
-			<id>src-groovy-eclipse</id>
+			<id>withGroovyEclipse</id>
 			<dependencies>
 				<dependency>
 					<groupId>org.codehaus.groovy</groupId>
@@ -1724,9 +1815,9 @@
 		-->
 		<!-- endregion -->
 
-		<!-- region package-run -->
+		<!-- region withRun -->
 		<profile>
-			<id>package-run</id>
+			<id>withRun</id>
 			<build>
 				<pluginManagement>
 					<plugins>
@@ -1756,7 +1847,7 @@
 									</goals>
 								</execution>
 								<execution>
-									<id>package-run-jar</id>
+									<id>withRun-jar</id>
 									<phase>package</phase>
 									<goals>
 										<goal>jar</goal>
@@ -1810,9 +1901,9 @@
 		</profile>
 		<!-- endregion -->
 
-		<!-- region ide-idea -->
+		<!-- region withIdea -->
 		<profile>
-			<id>ide-idea</id>
+			<id>withIdea</id>
 			<activation>
 				<property>
 					<name>idea.version</name>
@@ -1826,112 +1917,9 @@
 		</profile>
 		<!-- endregion -->
 
-		<!-- region repos-me -->
+		<!-- region withExt -->
 		<profile>
-			<id>repos-me</id>
-			<repositories>
-				<repository>
-					<id>me</id>
-					<name>me</name>
-					<url>http://localhost:8081/repository/maven-public/</url>
-					<releases>
-						<enabled>true</enabled>
-						<updatePolicy>always</updatePolicy>
-					</releases>
-					<snapshots>
-						<enabled>true</enabled>
-						<updatePolicy>always</updatePolicy>
-					</snapshots>
-				</repository>
-			</repositories>
-			<pluginRepositories>
-				<pluginRepository>
-					<id>me</id>
-					<name>me</name>
-					<url>http://localhost:8081/repository/maven-public/</url>
-					<releases>
-						<enabled>true</enabled>
-						<updatePolicy>always</updatePolicy>
-					</releases>
-					<snapshots>
-						<enabled>true</enabled>
-						<updatePolicy>always</updatePolicy>
-					</snapshots>
-				</pluginRepository>
-			</pluginRepositories>
-			<distributionManagement>
-				<repository>
-					<id>me</id>
-					<name>me</name>
-					<url>http://localhost:8081/repository/maven-releases/</url>
-				</repository>
-				<snapshotRepository>
-					<id>me</id>
-					<name>me</name>
-					<url>http://localhost:8081/repository/maven-snapshots/</url>
-				</snapshotRepository>
-			</distributionManagement>
-		</profile>
-		<!-- endregion -->
-
-		<!-- region repos-jcfc -->
-		<profile>
-			<id>repos-jcfc</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<repositories>
-				<repository>
-					<id>jcfc</id>
-					<name>jcfc</name>
-					<url>http://repository.jcfc.cn/repository/jenkins-group</url>
-					<releases>
-						<enabled>true</enabled>
-						<checksumPolicy>warn</checksumPolicy>
-						<updatePolicy>always</updatePolicy>
-					</releases>
-					<snapshots>
-						<enabled>true</enabled>
-						<checksumPolicy>warn</checksumPolicy>
-						<updatePolicy>always</updatePolicy>
-					</snapshots>
-				</repository>
-			</repositories>
-			<pluginRepositories>
-				<pluginRepository>
-					<id>jcfc</id>
-					<name>jcfc</name>
-					<url>http://repository.jcfc.cn/repository/jenkins-group</url>
-					<releases>
-						<enabled>true</enabled>
-						<checksumPolicy>warn</checksumPolicy>
-						<updatePolicy>always</updatePolicy>
-					</releases>
-					<snapshots>
-						<enabled>true</enabled>
-						<checksumPolicy>warn</checksumPolicy>
-						<updatePolicy>always</updatePolicy>
-					</snapshots>
-				</pluginRepository>
-			</pluginRepositories>
-			<distributionManagement>
-				<repository>
-					<id>jcfc</id>
-					<name>jcfc-releases</name>
-					<url>http://repository.jcfc.cn/repository/releases</url>
-				</repository>
-				<snapshotRepository>
-					<id>jcfc</id>
-					<name>jcfc-snapshots</name>
-					<url>http://repository.jcfc.cn/repository/snapshots</url>
-				</snapshotRepository>
-			</distributionManagement>
-		</profile>
-		<!-- endregion -->
-
-		<!-- region repos-ext -->
-		<profile>
-			<id>repos-ext</id>
+			<id>withExt</id>
 			<!-- 使用第三方镜像仓库 -->
 			<repositories>
 				<repository>
@@ -2013,16 +2001,15 @@
 		</profile>
 		<!-- endregion -->
 
-		<!-- region repos-oss -->
+		<!-- region dist -->
 		<profile>
-			<id>repos-oss</id>
+			<id>dist</id>
 			<build>
 				<plugins>
 					<!-- Source -->
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-source-plugin</artifactId>
-						<version>3.2.1</version>
 						<configuration>
 							<attach>true</attach>
 							<!--<excludes>**/*</excludes>-->
@@ -2048,7 +2035,6 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-javadoc-plugin</artifactId>
-						<version>3.2.0</version>
 						<configuration>
 							<attach>true</attach>
 							<doclint>none</doclint>
@@ -2080,13 +2066,126 @@
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-deploy-plugin</artifactId>
 					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<!-- endregion -->
+
+		<!-- region dist-me -->
+		<profile>
+			<id>dist-me</id>
+			<repositories>
+				<repository>
+					<id>me</id>
+					<name>me</name>
+					<url>http://localhost:8081/repository/maven-public/</url>
+					<releases>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+					</snapshots>
+				</repository>
+			</repositories>
+			<pluginRepositories>
+				<pluginRepository>
+					<id>me</id>
+					<name>me</name>
+					<url>http://localhost:8081/repository/maven-public/</url>
+					<releases>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+					</snapshots>
+				</pluginRepository>
+			</pluginRepositories>
+			<distributionManagement>
+				<repository>
+					<id>me</id>
+					<name>me</name>
+					<url>http://localhost:8081/repository/maven-releases/</url>
+				</repository>
+				<snapshotRepository>
+					<id>me</id>
+					<name>me</name>
+					<url>http://localhost:8081/repository/maven-snapshots/</url>
+				</snapshotRepository>
+			</distributionManagement>
+		</profile>
+		<!-- endregion -->
+
+		<!-- region dist-jcfc -->
+		<profile>
+			<id>dist-jcfc</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<repositories>
+				<repository>
+					<id>jcfc</id>
+					<name>jcfc</name>
+					<url>http://repository.jcfc.cn/repository/jenkins-group</url>
+					<releases>
+						<enabled>true</enabled>
+						<checksumPolicy>warn</checksumPolicy>
+						<updatePolicy>always</updatePolicy>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<checksumPolicy>warn</checksumPolicy>
+						<updatePolicy>always</updatePolicy>
+					</snapshots>
+				</repository>
+			</repositories>
+			<pluginRepositories>
+				<pluginRepository>
+					<id>jcfc</id>
+					<name>jcfc</name>
+					<url>http://repository.jcfc.cn/repository/jenkins-group</url>
+					<releases>
+						<enabled>true</enabled>
+						<checksumPolicy>warn</checksumPolicy>
+						<updatePolicy>always</updatePolicy>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<checksumPolicy>warn</checksumPolicy>
+						<updatePolicy>always</updatePolicy>
+					</snapshots>
+				</pluginRepository>
+			</pluginRepositories>
+			<distributionManagement>
+				<repository>
+					<id>jcfc</id>
+					<name>jcfc-releases</name>
+					<url>http://repository.jcfc.cn/repository/releases</url>
+				</repository>
+				<snapshotRepository>
+					<id>jcfc</id>
+					<name>jcfc-snapshots</name>
+					<url>http://repository.jcfc.cn/repository/snapshots</url>
+				</snapshotRepository>
+			</distributionManagement>
+		</profile>
+		<!-- endregion -->
+
+		<!-- region dist-ossrh -->
+		<profile>
+			<id>dist-ossrh</id>
+			<build>
+				<plugins>
 					<plugin>
 						<groupId>org.sonatype.plugins</groupId>
 						<artifactId>nexus-staging-maven-plugin</artifactId>
 						<version>1.6.7</version>
 						<extensions>true</extensions>
 						<configuration>
-							<serverId>oss</serverId>
+							<serverId>ossrh</serverId>
 							<!--<nexusUrl>https://oss.sonatype.org/</nexusUrl>-->
 							<nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
 							<autoReleaseAfterClose>true</autoReleaseAfterClose>
@@ -2100,20 +2199,54 @@
 			</build>
 			<distributionManagement>
 				<!--<snapshotRepository>
-					<id>oss</id>
+					<id>ossrh</id>
 					<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
 				</snapshotRepository>
 				<repository>
-					<id>oss</id>
+					<id>ossrh</id>
 					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 				</repository>-->
 				<snapshotRepository>
-					<id>oss</id>
+					<id>ossrh</id>
 					<url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
 				</snapshotRepository>
 				<repository>
-					<id>oss</id>
+					<id>ossrh</id>
 					<url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+				</repository>
+			</distributionManagement>
+		</profile>
+		<!-- endregion -->
+
+		<!-- region dist-central -->
+		<profile>
+			<id>dist-central</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.sonatype.central</groupId>
+						<artifactId>central-publishing-maven-plugin</artifactId>
+						<version>0.4.0</version>
+						<extensions>true</extensions>
+						<configuration>
+							<publishingServerId>central</publishingServerId>
+							<tokenAuth>true</tokenAuth>
+							<autoPublish>true</autoPublish>
+							<waitUntil>validated</waitUntil>
+							<!--<waitUntil>published</waitUntil>-->
+							<deploymentName>${deploymentName}</deploymentName>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+			<distributionManagement>
+				<snapshotRepository>
+					<id>central</id>
+					<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+				</snapshotRepository>
+				<repository>
+					<id>central</id>
+					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 				</repository>
 			</distributionManagement>
 		</profile>
