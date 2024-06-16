@@ -1,5 +1,7 @@
 package io.polaris.core.asm.internal;
 
+import java.util.Arrays;
+
 import io.polaris.core.TestConsole;
 import io.polaris.core.err.CheckedException;
 import io.polaris.core.reflect.Reflects;
@@ -15,7 +17,7 @@ public class AsmReflectsTest {
 	@Test
 	void test01() throws RuntimeException, CheckedException {
 		Type[] types = AsmReflects.getExceptionTypes(Reflects.getMethodByName(getClass(), "test01"));
-		TestConsole.printx("types: {}", types);
+		TestConsole.printx("types: {}", Arrays.asList(types));
 
 	}
 }

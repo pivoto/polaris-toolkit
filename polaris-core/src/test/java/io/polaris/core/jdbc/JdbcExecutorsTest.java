@@ -111,10 +111,13 @@ public class JdbcExecutorsTest {
 		private String zkRegPath;
 		@Column(value = "ZK_JOB_NAMESPACE")
 		private String zkJobNamespace;
+		@Builder.Default
 		@Column(value = "BASE_SLEEP_TIME")
 		private Integer baseSleepTime = 1000;
+		@Builder.Default
 		@Column(value = "MAX_SLEEP_TIME")
 		private Integer maxSleepTime = 3000;
+		@Builder.Default
 		@Column(value = "MAX_RETRIES")
 		private Integer maxRetries = 3;
 		@Column(value = "SESSION_TIMEOUT")

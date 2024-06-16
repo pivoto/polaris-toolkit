@@ -27,13 +27,21 @@ public class EvaluatorTest {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class B {
+		@Builder.Default
 		private String id = "b";
+		@Builder.Default
 		private int age = 1;
+		@Builder.Default
 		private long longVal = System.currentTimeMillis();
+		@Builder.Default
 		private Integer intObj = Integer.valueOf(1);
+		@Builder.Default
 		private Long longObj = System.currentTimeMillis();
+		@Builder.Default
 		private boolean bool = true;
+		@Builder.Default
 		private Boolean boolObj = Boolean.TRUE;
+		@Builder.Default
 		private Date date = new Date();
 	}
 
