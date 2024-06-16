@@ -20,12 +20,6 @@
 			<artifactId>polaris-core-apt</artifactId>
 		</dependency>
 
-		<!-- 只依赖日志、JSR标准等基础库，不依赖其他功能扩展库 -->
-		<dependency>
-			<groupId>com.google.code.findbugs</groupId>
-			<artifactId>jsr305</artifactId>
-			<version>3.0.2</version>
-		</dependency>
 
 		<!-- region shade jar -->
 		<dependency>
@@ -43,6 +37,12 @@
 		<dependency>
 			<groupId>org.ow2.asm</groupId>
 			<artifactId>asm-util</artifactId>
+		</dependency>
+		<!-- 只依赖JSR标准等基础库，不依赖其他功能扩展库 -->
+		<dependency>
+			<groupId>com.google.code.findbugs</groupId>
+			<artifactId>jsr305</artifactId>
+			<version>3.0.2</version>
 		</dependency>
 		<!-- endregion shade jar-->
 
@@ -219,11 +219,11 @@
 						<includes>
 							<include>org.ow2.asm:*</include>
 							<include>com.squareup:*</include>
-							<include>cn.pivoto.polaris.toolkit:polaris-core-apt</include>
+							<include>cn.fossc.polaris.toolkit:polaris-core-apt</include>
+							<include>com.google.code.findbugs:jsr305</include>
 						</includes>
 						<excludes>
 							<exclude>org.slf4j:*</exclude>
-							<exclude>com.google.code.findbugs:jsr305</exclude>
 						</excludes>
 					</artifactSet>
 					<relocations>

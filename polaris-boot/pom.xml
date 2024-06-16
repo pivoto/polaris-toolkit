@@ -53,7 +53,7 @@
 			</modules>
 		</profile>
 		<profile>
-			<id>ide-idea</id>
+			<id>withIdea</id>
 			<activation>
 				<property>
 					<name>idea.version</name>
