@@ -1,7 +1,8 @@
 #!/bin/bash
 
 set -Ee
-#set -uo pipefail
+set -o pipefail
+#set -u
 #set -xv
 
 ## 脚本名称及路径
