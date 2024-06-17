@@ -2001,6 +2001,33 @@
 		</profile>
 		<!-- endregion -->
 
+		<!-- region withDoc -->
+		<profile>
+			<id>withDoc</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<configuration>
+							<attach>true</attach>
+							<doclint>none</doclint>
+						</configuration>
+						<executions>
+							<execution>
+								<id>javadoc-package</id>
+								<phase>package</phase>
+								<goals>
+									<goal>aggregate-jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<!-- endregion withDoc -->
+
 		<!-- region dist -->
 		<profile>
 			<id>dist</id>

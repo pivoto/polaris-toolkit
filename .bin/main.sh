@@ -178,7 +178,7 @@ if [[ -z ${profile} ]]; then
 	elif [[ -n "$(filter_true ${ARGS[ossrh]})" ]];then
 		profile="dist,dist-ossrh"
 	elif [[ -n "$(filter_true ${ARGS[jcfc]})" ]];then
-		profile="dist,dist-jcfc"
+		profile="withDoc,dist-jcfc"
 	fi
 fi
 

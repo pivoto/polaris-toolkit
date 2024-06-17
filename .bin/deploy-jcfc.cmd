@@ -1,5 +1,5 @@
 @echo off
-call mvn -f ../pom.xml -Dmaven.test.skip=true  -P dist,dist-jcfc  clean deploy
+call mvn -f ../pom.xml -Dmaven.test.skip=true  -P withDoc,dist-jcfc  clean deploy
 pause
 
 
