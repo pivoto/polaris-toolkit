@@ -43,11 +43,11 @@ public class StringCases {
 	}
 
 	public static String kebabToPascalCase(CharSequence name) {
-		return toCamelCase(name, '-', false);
+		return toCamelCase(name, '-', true);
 	}
 
 	public static String underlineToPascalCase(CharSequence name) {
-		return toCamelCase(name, '_', false);
+		return toCamelCase(name, '_', true);
 	}
 
 	public static String kebabToCamelCase(CharSequence name) {
