@@ -37,9 +37,9 @@ public class Version implements Comparable<Version> {
 	}
 
 	public Version(String version) {
-		String[] arr = version.replaceAll("-\\w+$", "").split("\\.");
+		String[] arr = version.replaceAll("[^.\\d]", "").split("\\.");
 		String[] vs = new String[]{"0", "0", "0"};
-		System.arraycopy(arr, 0, vs, 0, arr.length);
+		System.arraycopy(arr, 0, vs, 0, vs.length);
 		int major = 0, minor = 0, patch = 0;
 		try {
 			major = Integer.parseInt(vs[0]);
