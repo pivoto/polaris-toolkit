@@ -850,7 +850,7 @@
 						<prependGroupId>true</prependGroupId>
 						<includeScope>${includeScope}</includeScope>
 					</configuration>
-					<executions>
+					<!--<executions>
 						<execution>
 							<id>copy</id>
 							<phase>package</phase>
@@ -858,7 +858,7 @@
 								<goal>copy-dependencies</goal>
 							</goals>
 						</execution>
-					</executions>
+					</executions>-->
 				</plugin>
 
 				<plugin>
@@ -1821,6 +1821,33 @@
 			<build>
 				<pluginManagement>
 					<plugins>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-dependency-plugin</artifactId>
+							<configuration>
+								<outputDirectory>${project.build.directory}/${package.dependencyDirectory}</outputDirectory>
+								<overWriteReleases>false</overWriteReleases>
+								<overWriteSnapshots>false</overWriteSnapshots>
+								<overWriteIfNewer>true</overWriteIfNewer>
+								<!-- 表示是否不包含间接依赖的包 -->
+								<excludeTransitive>false</excludeTransitive>
+								<!-- 表示复制的jar文件去掉版本信息 -->
+								<stripVersion>false</stripVersion>
+								<!-- 表示是否建立依赖包的maven风格的目录结构 -->
+								<useRepositoryLayout>false</useRepositoryLayout>
+								<prependGroupId>true</prependGroupId>
+								<includeScope>${includeScope}</includeScope>
+							</configuration>
+							<executions>
+								<execution>
+									<id>copy</id>
+									<phase>package</phase>
+									<goals>
+										<goal>copy-dependencies</goal>
+									</goals>
+								</execution>
+							</executions>
+						</plugin>
 						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-jar-plugin</artifactId>
