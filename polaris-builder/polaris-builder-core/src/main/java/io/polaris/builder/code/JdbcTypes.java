@@ -5,7 +5,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.sql.Types;
-import java.util.*;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
 
 /**
  * @author Qt
@@ -142,13 +146,16 @@ public class JdbcTypes {
 	public static Class getJavaType(int type) {
 		return javaTypes.get(type);
 	}
+
 	public static Class getJavaType(int type, int columnSize, int decimalDigits) {
 		Class c = javaTypes.get(type);
-		if (c == BigDecimal.class) {
+		if (Number.class.isAssignableFrom(c)) {
 			if (decimalDigits == 0) {
-				if (columnSize<=9){
+				if (columnSize == 1) {
+					c = Boolean.class;
+				} else if (columnSize <= 10) {
 					c = Integer.class;
-				}else {
+				} else {
 					c = Long.class;
 				}
 			}
