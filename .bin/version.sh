@@ -1,7 +1,7 @@
 #!/bin/bash
 
 BETA=0
-VER=3.2.2
+VER=3.2.3
 if [[ ${BETA} -eq 1 ]];then
 	VER=${VER}-SNAPSHOT
 fi
