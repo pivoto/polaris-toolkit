@@ -1,8 +1,9 @@
 #!/bin/bash
 
 WORK_DIR=${PWD}
-SHELL_DIR=$(cd $(dirname $0) && pwd -P)
-cd ${SHELL_DIR}/..
+SHELL_DIR=$(cd "$(dirname "$0")" && pwd -P)
+cd "${SHELL_DIR}"/.. || exit
+
 find . -name "pom.xml" | while read file;do
 	sed -i -e "s|<groupId>cn.pivoto.|<groupId>cn.fossc.|g" ${file}
 	sed -i -e "s|<deploymentName>cn.pivoto.|<deploymentName>cn.fossc.|g" ${file}
