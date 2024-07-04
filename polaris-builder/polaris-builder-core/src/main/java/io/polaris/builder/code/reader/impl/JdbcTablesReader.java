@@ -75,7 +75,7 @@ public class JdbcTablesReader implements TablesReader {
 					column.setAutoincrement(col.isAutoincrement());
 					column.setGenerated(col.isGenerated());
 					column.setJdbcType(JdbcTypes.getTypeName(col.getDataType()));
-					column.setJavaType(JdbcTypes.getJavaType(col.getDataType(), col.getColumnSize(), col.getDecimalDigits()).getName());
+					column.setJavaType(JdbcTypes.getJavaType(col.getDataType(), col.getColumnSize(), col.getDecimalDigits()).getCanonicalName());
 					table.getColumns().add(column);
 					if (pkColumns.contains(col.getColumnName())) {
 						column.setPrimary(true);
