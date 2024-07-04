@@ -11,6 +11,7 @@ import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * 通过`@Lang(TableRefResolvableDriver.class)`配置添加对解析实体表与字段的引用表达式的支持
  * @author Qt
  * @since  Feb 21, 2024
  */

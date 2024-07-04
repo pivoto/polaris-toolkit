@@ -20,7 +20,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Builder
 public class DemoUserEntity {
-	@Id
+	@Id(auto = true)
 	@Column
 	private Long id;
 	private String name;

@@ -23,7 +23,6 @@
 		<module>polaris-extra</module>
 		<module>polaris-builder</module>
 		<module>polaris-all</module>
-		<module>polaris-boot</module>
 	</modules>
 
 	<properties>
@@ -1506,6 +1505,7 @@
 	</scm>
 
 	<profiles>
+
 		<profile>
 			<id>jdk8</id>
 			<activation>
@@ -1928,6 +1928,15 @@
 		</profile>
 		<!-- endregion -->
 
+		<!-- region withDemo -->
+		<profile>
+			<id>withDemo</id>
+			<modules>
+				<module>polaris-boot</module>
+			</modules>
+		</profile>
+		<!-- endregion -->
+
 		<!-- region withIdea -->
 		<profile>
 			<id>withIdea</id>
@@ -1936,6 +1945,9 @@
 					<name>idea.version</name>
 				</property>
 			</activation>
+			<modules>
+				<module>polaris-boot</module>
+			</modules>
 			<properties>
 				<project.dependencies.scope.provided>compile</project.dependencies.scope.provided>
 				<maven.test.skip>false</maven.test.skip>

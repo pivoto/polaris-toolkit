@@ -10,3 +10,9 @@ Content-Type: application/json
 {}
 
 ###
+POST http://localhost:6666/demo/addUser
+Content-Type: application/json
+
+{}
+
+###

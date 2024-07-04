@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Set;
 
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
+import io.polaris.mybatis.annotation.DynamicUseGeneratedKeys;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
 import org.apache.ibatis.annotations.InsertProvider;
@@ -15,6 +16,7 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface EntityInsertMapper<E> extends EntityMapper<E> {
 
+	@DynamicUseGeneratedKeys(value = BindingKeys.ENTITY)
 	@InsertProvider(type = MapperProviders.class, method = MapperProviderKeys.insertEntity)
 	int insertEntity(@Param(BindingKeys.ENTITY) E entity
 		, @Param(BindingKeys.INCLUDE_EMPTY) boolean includeEmpty
@@ -39,6 +41,7 @@ public interface EntityInsertMapper<E> extends EntityMapper<E> {
 	}
 
 
+	@DynamicUseGeneratedKeys(value = BindingKeys.ENTITY)
 	@InsertProvider(type = MapperProviders.class, method = MapperProviderKeys.insertEntity)
 	int insertEntityByMap(@Param(BindingKeys.ENTITY) Map<String, Object> entity
 		, @Param(BindingKeys.INCLUDE_EMPTY) boolean includeEmpty

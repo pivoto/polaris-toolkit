@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * 声明实体类型与别名
  *
  * @author Qt
- * @since  Aug 24, 2023
+ * @since Aug 24, 2023
  */
 @Documented
 @Target(ElementType.METHOD)
@@ -19,5 +19,11 @@ public @interface MapperEntity {
 
 	Class<?> entity();
 
+	/**
+	 * 是否自动检测实体
+	 * @return
+	 */
+	boolean detectGeneratedKeys() default false;
 
+	String entityKey() default "";
 }

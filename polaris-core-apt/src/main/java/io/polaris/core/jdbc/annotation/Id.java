@@ -15,7 +15,7 @@ public @interface Id {
 	boolean auto() default false;
 
 	/**
-	 * 自增主键产生的sequence name
+	 * 主键产生的sequence name
 	 */
 	String seqName() default "";
 
