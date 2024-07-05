@@ -299,18 +299,20 @@ public class Changer {
 		String lineSeparator = "\n";
 		try (RandomAccessFile raf = new RandomAccessFile(src, "r");) {
 			String line = raf.readLine();
-			raf.seek(line.getBytes("ISO-8859-1").length);
-			if (raf.getFilePointer() < raf.length()) {
-				byte b = raf.readByte();
-				if (b == 0x0A) {
-					lineSeparator = "\n";
-				} else if (b == 0x0D) {
-					lineSeparator = "\r";
-					//lineSeparator = "\r\n";
-					if (raf.getFilePointer() < raf.length()) {
-						b = raf.readByte();
-						if (b == 0x0A) {
-							lineSeparator = "\r\n";
+			if (line != null) {
+				raf.seek(line.getBytes("ISO-8859-1").length);
+				if (raf.getFilePointer() < raf.length()) {
+					byte b = raf.readByte();
+					if (b == 0x0A) {
+						lineSeparator = "\n";
+					} else if (b == 0x0D) {
+						lineSeparator = "\r";
+						//lineSeparator = "\r\n";
+						if (raf.getFilePointer() < raf.length()) {
+							b = raf.readByte();
+							if (b == 0x0A) {
+								lineSeparator = "\r\n";
+							}
 						}
 					}
 				}
