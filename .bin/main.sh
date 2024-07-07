@@ -200,6 +200,7 @@ fi
 
 CMD="${CMD} ${goal}"
 export MAVEN_OPTS="-Dfile.encoding=UTF-8"
+export JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8"
 log_debug "当前目录: ${PWD}"
 log_debug "执行命令: ${CMD}"
 ${CMD}
