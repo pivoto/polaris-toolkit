@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nullable;
 
-import io.polaris.core.string.Strings;
+import io.polaris.core.service.StatefulServiceLoader;
 
 /**
  * @author Qt
@@ -13,20 +13,33 @@ import io.polaris.core.string.Strings;
  */
 public class Guids {
 	private static final Map<String, Guid> guidCache = new ConcurrentHashMap<>();
+	private static final StatefulServiceLoader<GuidNodeStrategyProvider> guidNodeStrategyProvider = StatefulServiceLoader.load(GuidNodeStrategyProvider.class);
+
+	public static GuidNodeStrategy getNodeStrategy() {
+		return guidNodeStrategyProvider.optionalService()
+			.map(GuidNodeStrategyProvider::get)
+			.orElse(LocalNodeStrategy.getInstance(null));
+	}
+
+	public static GuidNodeStrategy getNodeStrategy(String app) {
+		return guidNodeStrategyProvider.optionalService()
+			.map(p -> p.get(app))
+			.orElse(LocalNodeStrategy.getInstance(app));
+	}
 
 	public static Guid getInstance() {
 		return getInstance(null);
 	}
 
-	public static Guid getInstance(String name) {
-		name = String.valueOf(name);
-		Guid guid = guidCache.get(name);
+	public static Guid getInstance(String app) {
+		app = String.valueOf(app);
+		Guid guid = guidCache.get(app);
 		if (guid == null) {
 			synchronized (guidCache) {
-				guid = guidCache.get(name);
+				guid = guidCache.get(app);
 				if (guid == null) {
-					guid = Guid.newInstance(LocalNodeStrategy.getInstance(name));
-					guidCache.put(name, guid);
+					guid = Guid.newInstance(Guids.getNodeStrategy(app));
+					guidCache.put(app, guid);
 				}
 			}
 		}

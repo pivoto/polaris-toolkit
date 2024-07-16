@@ -62,17 +62,17 @@ public class Guid {
 	}
 
 	public static Guid newInstance() {
-		return newInstance(LocalNodeStrategy.getInstance(null));
+		return newInstance(Guids.getNodeStrategy());
 	}
 
 	public static Guid newInstance(String app) {
-		return newInstance(LocalNodeStrategy.getInstance(app));
+		return newInstance(Guids.getNodeStrategy(app));
 	}
 
 	public static Guid newInstance(GuidNodeStrategy strategy) {
 		if (strategy == null) {
 			String app = Guids.detectStackTraceClassName();
-			strategy = LocalNodeStrategy.getInstance(app);
+			strategy = Guids.getNodeStrategy(app);
 		}
 		return new Guid(strategy.bitSize(), strategy.nodeId());
 	}
