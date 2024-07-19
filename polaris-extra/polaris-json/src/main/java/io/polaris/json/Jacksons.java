@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import io.polaris.core.lang.TypeRef;
 import io.polaris.core.service.StatefulServiceLoader;
@@ -46,6 +48,10 @@ public class Jacksons {
 		mapper.enable(JsonParser.Feature.IGNORE_UNDEFINED);
 		mapper.enable(JsonGenerator.Feature.IGNORE_UNKNOWN);
 		mapper.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
+
+		// 使用系统默认时区
+		mapper.setTimeZone(TimeZone.getDefault());
+		mapper.setLocale(Locale.getDefault());
 
 		// JsonInclude
 		//mapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
