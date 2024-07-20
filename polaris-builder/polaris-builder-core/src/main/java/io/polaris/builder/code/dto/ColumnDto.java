@@ -1,19 +1,20 @@
 package io.polaris.builder.code.dto;
 
+import java.io.Serializable;
+import java.util.Map;
+import java.util.function.Function;
+
 import io.polaris.builder.code.JdbcTypes;
 import io.polaris.builder.code.config.ConfigColumn;
 import io.polaris.builder.dbv.DbCommentSplits;
 import io.polaris.core.string.Strings;
 import io.polaris.core.tuple.Tuple2;
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import lombok.Data;
 import org.apache.commons.lang3.SerializationUtils;
 
-import java.io.Serializable;
-import java.util.Map;
-import java.util.function.Function;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 /**
  * @author Qt
@@ -51,6 +52,8 @@ public class ColumnDto implements Serializable {
 	@XStreamAlias("javaType")
 	private String javaType; // 列的映射类型
 
+	@XStreamOmitField
+	private Map<String, String> property;
 	@XStreamOmitField
 	private String javaTypeSimpleName;
 	@XStreamOmitField
@@ -115,6 +118,7 @@ public class ColumnDto implements Serializable {
 		prepare4Type();
 
 		ConfigColumn configColumn = columnMap.get(this.name);
+		this.property = configColumn == null ? null : configColumn.getProperty();
 		if (configColumn != null && Strings.isNotBlank(configColumn.getJavaType())) {
 			this.javaType = configColumn.getJavaType();
 		} else {

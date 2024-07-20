@@ -1,7 +1,11 @@
 package io.polaris.builder.code.config;
 
+import java.util.Map;
+
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
+import com.thoughtworks.xstream.annotations.XStreamConverter;
+
 import lombok.*;
 
 /**
@@ -21,4 +25,8 @@ public class ConfigColumn {
 	@XStreamAsAttribute
 	@XStreamAlias("javaType")
 	private String javaType; // 列的映射类型
+	/** 列扩展属性 */
+	@XStreamAlias("property")
+	@XStreamConverter(ConfigParser.PropertyConverter.class)
+	private Map<String, String> property;
 }

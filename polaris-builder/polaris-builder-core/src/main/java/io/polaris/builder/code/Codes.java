@@ -202,7 +202,15 @@ public class Codes {
 			}
 			Set<ConfigColumn> columns = new HashSet<>();
 			for (Column column : table.columns()) {
-				columns.add(new ConfigColumn(column.name(), column.javaType()));
+				Map<String, String> columnProperty = new LinkedHashMap<>(tableProperty);
+				for (Property p : column.property()) {
+					columnProperty.put(p.key(), p.value());
+				}
+				ConfigColumn configColumn = new ConfigColumn();
+				configColumn.setJavaType(column.javaType());
+				configColumn.setName(column.name());
+				configColumn.setProperty(columnProperty);
+				columns.add(configColumn);
 			}
 			codeGroupBuilder.addTable()
 				.catalog(table.catalog())

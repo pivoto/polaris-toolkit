@@ -117,7 +117,11 @@ public class CodeTableBuilder {
 		if (target.getColumns() == null) {
 			target.setColumns(new LinkedHashSet<>());
 		}
-		target.getColumns().add(new ConfigColumn(name, javaType));
+		ConfigColumn column = new ConfigColumn();
+		column.setName(name);
+		column.setJavaType(javaType);
+		target.getColumns().add(column);
 		return this;
 	}
+
 }

@@ -18,4 +18,7 @@ public @interface Column {
 
 	/** 自定义的Java映射类型，覆盖默认配置 */
 	String javaType();
+
+	Property[] property() default {};
+
 }
