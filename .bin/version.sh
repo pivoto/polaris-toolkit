@@ -4,8 +4,8 @@ WORK_DIR=${PWD}
 SHELL_DIR=$(cd "$(dirname "$0")" && pwd -P)
 cd "${SHELL_DIR}"/ || exit
 
-BETA=1
-VER=3.2.9
+BETA=0
+VER=3.2.10
 if [[ ${BETA} -eq 1 ]];then
 	VER=${VER}-SNAPSHOT
 fi
