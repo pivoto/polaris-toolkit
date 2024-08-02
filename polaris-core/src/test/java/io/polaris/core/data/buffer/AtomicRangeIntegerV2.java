@@ -16,37 +16,37 @@
  *
  */
 
-package io.polaris.core.datacarrier.buffer;
+package io.polaris.core.data.buffer;
 
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * This is moved from SkyWalking 6.1
+ * This comes from PR#2874
  */
-public class AtomicRangeIntegerV1 extends Number implements Serializable {
-
+public class AtomicRangeIntegerV2 extends Number implements Serializable {
     private static final long serialVersionUID = -4099792402691141643L;
     private AtomicInteger value;
     private int startValue;
     private int endValue;
 
-    public AtomicRangeIntegerV1(int startValue, int maxValue) {
+    public AtomicRangeIntegerV2(int startValue, int maxValue) {
         this.value = new AtomicInteger(startValue);
         this.startValue = startValue;
         this.endValue = maxValue - 1;
     }
 
     public final int getAndIncrement() {
-        int current;
         int next;
         do {
-            current = this.value.get();
-            next = current >= this.endValue ? this.startValue : current + 1;
+            next = this.value.incrementAndGet();
+            if (next > endValue && this.value.compareAndSet(next, startValue)) {
+                return endValue;
+            }
         }
-        while (!this.value.compareAndSet(current, next));
+        while (next > endValue);
 
-        return current;
+        return next - 1;
     }
 
     public final int get() {

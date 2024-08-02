@@ -1,13 +1,13 @@
-package io.polaris.core.datacarrier;
+package io.polaris.core.data;
 
-import io.polaris.core.datacarrier.buffer.BufferChannel;
-import io.polaris.core.datacarrier.buffer.BufferStrategy;
-import io.polaris.core.datacarrier.consumer.ConsumeDriver;
-import io.polaris.core.datacarrier.consumer.IBulkConsumerDriver;
-import io.polaris.core.datacarrier.consumer.IConsumer;
-import io.polaris.core.datacarrier.consumer.IConsumerDriver;
-import io.polaris.core.datacarrier.partition.IDataPartitioner;
-import io.polaris.core.datacarrier.partition.SimpleRollingPartitioner;
+import io.polaris.core.data.buffer.BufferChannel;
+import io.polaris.core.data.consumer.ConsumeDriver;
+import io.polaris.core.data.consumer.IConsumer;
+import io.polaris.core.data.buffer.BufferStrategy;
+import io.polaris.core.data.consumer.IBulkConsumerDriver;
+import io.polaris.core.data.consumer.IConsumerDriver;
+import io.polaris.core.data.partition.IDataPartitioner;
+import io.polaris.core.data.partition.SimpleRollingPartitioner;
 
 /**
  * @author Qt

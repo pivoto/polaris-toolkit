@@ -1,4 +1,4 @@
-package io.polaris.core.datacarrier;
+package io.polaris.core.data;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

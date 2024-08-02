@@ -1,7 +1,7 @@
-package io.polaris.core.datacarrier;
+package io.polaris.core.data;
 
-import io.polaris.core.datacarrier.consumer.BulkConsumeDriver;
-import io.polaris.core.datacarrier.consumer.IConsumer;
+import io.polaris.core.data.consumer.BulkConsumeDriver;
+import io.polaris.core.data.consumer.IConsumer;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
 import org.junit.jupiter.api.Test;

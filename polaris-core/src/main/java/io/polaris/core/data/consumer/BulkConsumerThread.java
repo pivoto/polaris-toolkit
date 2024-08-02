@@ -1,7 +1,7 @@
-package io.polaris.core.datacarrier.consumer;
+package io.polaris.core.data.consumer;
 
-import io.polaris.core.datacarrier.buffer.BufferChannel;
-import io.polaris.core.datacarrier.buffer.IQueueBuffer;
+import io.polaris.core.data.buffer.BufferChannel;
+import io.polaris.core.data.buffer.IQueueBuffer;
 import io.polaris.core.tuple.Tuple2;
 
 import java.util.ArrayList;

@@ -1,6 +1,6 @@
-package io.polaris.core.datacarrier.buffer;
+package io.polaris.core.data.buffer;
 
-import io.polaris.core.datacarrier.partition.IDataPartitioner;
+import io.polaris.core.data.partition.IDataPartitioner;
 
 /**
  * @author Qt

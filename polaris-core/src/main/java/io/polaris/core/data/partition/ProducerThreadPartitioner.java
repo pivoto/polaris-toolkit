@@ -1,4 +1,4 @@
-package io.polaris.core.datacarrier.partition;
+package io.polaris.core.data.partition;
 
 /**
  * @author Qt

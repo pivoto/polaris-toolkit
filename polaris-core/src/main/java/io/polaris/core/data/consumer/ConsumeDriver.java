@@ -1,6 +1,6 @@
-package io.polaris.core.datacarrier.consumer;
+package io.polaris.core.data.consumer;
 
-import io.polaris.core.datacarrier.buffer.BufferChannel;
+import io.polaris.core.data.buffer.BufferChannel;
 
 import java.util.concurrent.locks.ReentrantLock;
 

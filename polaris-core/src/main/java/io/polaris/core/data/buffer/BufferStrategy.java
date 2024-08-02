@@ -1,4 +1,4 @@
-package io.polaris.core.datacarrier.buffer;
+package io.polaris.core.data.buffer;
 
 /**
  * @author Qt

@@ -1,4 +1,4 @@
-package io.polaris.core.datacarrier.consumer;
+package io.polaris.core.data.consumer;
 
 import java.util.List;
 
