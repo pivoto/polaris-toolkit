@@ -171,7 +171,10 @@ public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement
 	public S withEntity(Object entity, ColumnPredicate columnPredicate) {
 		TableMeta tableMeta = table.getTableMeta();
 		if (tableMeta != null) {
-			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, tableMeta.getEntityClass());
+			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
+				(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
+					? Beans.newBeanMap(entity, tableMeta.getEntityClass())
+					: Beans.newBeanMap(entity));
 
 			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
 				String name = entry.getKey();

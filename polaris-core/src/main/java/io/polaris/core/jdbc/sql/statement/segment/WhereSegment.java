@@ -225,7 +225,10 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 	public S byEntityId(Object entity) {
 		TableMeta tableMeta = table.getTableMeta();
 		if (tableMeta != null) {
-			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, tableMeta.getEntityClass());
+			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
+				(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
+					? Beans.newBeanMap(entity, tableMeta.getEntityClass())
+					: Beans.newBeanMap(entity));
 			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
 				String name = entry.getKey();
 				ColumnMeta meta = entry.getValue();
@@ -246,7 +249,10 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 	public S byEntityIdAndVersion(Object entity) {
 		TableMeta tableMeta = table.getTableMeta();
 		if (tableMeta != null) {
-			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, tableMeta.getEntityClass());
+			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
+				(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
+					? Beans.newBeanMap(entity, tableMeta.getEntityClass())
+					: Beans.newBeanMap(entity));
 			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
 				String name = entry.getKey();
 				ColumnMeta meta = entry.getValue();

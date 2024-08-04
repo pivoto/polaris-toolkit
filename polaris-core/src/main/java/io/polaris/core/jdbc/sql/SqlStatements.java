@@ -58,7 +58,10 @@ public class SqlStatements {
 		SqlStatement sql = SqlStatement.of();
 		sql.insert(tableMeta.getTable());
 
-		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, entityClass);
+		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
+			(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
+				? Beans.newBeanMap(entity, tableMeta.getEntityClass())
+				: Beans.newBeanMap(entity));
 		for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
 			String name = entry.getKey();
 			ColumnMeta meta = entry.getValue();
@@ -125,7 +128,10 @@ public class SqlStatements {
 		if (entity == null) {
 			entity = BindingValues.getBindingValueOrDefault(bindings, whereKey, Collections.emptyMap());
 		}
-		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, entityClass);
+		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
+			(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
+				? Beans.newBeanMap(entity, tableMeta.getEntityClass())
+				: Beans.newBeanMap(entity));
 
 		for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
 			String name = entry.getKey();
@@ -206,7 +212,10 @@ public class SqlStatements {
 		if (entity == null) {
 			entity = BindingValues.getBindingValueOrDefault(bindings, whereKey, Collections.emptyMap());
 		}
-		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, entityClass);
+		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
+			(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
+				? Beans.newBeanMap(entity, tableMeta.getEntityClass())
+				: Beans.newBeanMap(entity));
 
 		for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
 			String name = entry.getKey();
@@ -300,7 +309,10 @@ public class SqlStatements {
 		VarNameGenerator whereKeyGen = VarNameGenerator.newInstance(KEY_WHERE_PREFIX);
 		Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, Collections.emptyMap());
 		Object where = BindingValues.getBindingValueOrDefault(bindings, whereKey, Collections.emptyMap());
-		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, entityClass);
+		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
+			(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
+				? Beans.newBeanMap(entity, tableMeta.getEntityClass())
+				: Beans.newBeanMap(entity));
 		for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
 			String name = entry.getKey();
 			ColumnMeta meta = entry.getValue();
@@ -437,7 +449,10 @@ public class SqlStatements {
 		if (entity == null) {
 			entity = BindingValues.getBindingValueOrDefault(bindings, whereKey, Collections.emptyMap());
 		}
-		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, entityClass);
+		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
+			(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
+				? Beans.newBeanMap(entity, tableMeta.getEntityClass())
+				: Beans.newBeanMap(entity));
 
 		for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
 			String name = entry.getKey();
@@ -522,7 +537,10 @@ public class SqlStatements {
 		, TableMeta tableMeta, SqlStatement sql, VarNameGenerator whereKeyGen
 		, Object entity, ColumnPredicate columnPredicate) {
 		// 实体查询条件
-		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, entityClass);
+		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
+			(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
+				? Beans.newBeanMap(entity, tableMeta.getEntityClass())
+				: Beans.newBeanMap(entity));
 		for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
 			String name = entry.getKey();
 

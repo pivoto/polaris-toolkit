@@ -198,7 +198,10 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 			}
 
 			@SuppressWarnings("unchecked")
-			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, tableMeta.getEntityClass());
+			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
+				(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
+					? Beans.newBeanMap(entity, tableMeta.getEntityClass())
+					: Beans.newBeanMap(entity));
 
 			SelectStatement<?> using = new SelectStatement<>(DualEntity.class);
 			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {

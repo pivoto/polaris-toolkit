@@ -176,7 +176,10 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 		TableMeta tableMeta = this.table.getTableMeta();
 		if (tableMeta != null) {
 			@SuppressWarnings("unchecked")
-			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, tableMeta.getEntityClass());
+			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
+				(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
+					? Beans.newBeanMap(entity, tableMeta.getEntityClass())
+					: Beans.newBeanMap(entity));
 
 			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
 				String name = entry.getKey();
