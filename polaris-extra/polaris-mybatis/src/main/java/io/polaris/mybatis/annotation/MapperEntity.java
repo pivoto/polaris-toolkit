@@ -19,11 +19,4 @@ public @interface MapperEntity {
 
 	Class<?> entity();
 
-	/**
-	 * 是否自动检测实体
-	 * @return
-	 */
-	boolean detectGeneratedKeys() default false;
-
-	String entityKey() default "";
 }
