@@ -28,18 +28,31 @@ public class Guids {
 	}
 
 	public static Guid getInstance() {
-		return getInstance(null);
+		return getInstance(detectStackTraceClassName(), null);
 	}
 
-	public static Guid getInstance(String app) {
+	public static Guid getInstance(Class<?> key) {
+		return getInstance(key.getName(), null);
+	}
+
+	public static Guid getInstance(String key) {
+		return getInstance(key, null);
+	}
+
+	public static Guid getInstance(Class<?> key, String app) {
+		return getInstance(key.getName(), app);
+	}
+
+	public static Guid getInstance(String key, String app) {
+		key = String.valueOf(key);
 		app = String.valueOf(app);
-		Guid guid = guidCache.get(app);
+		Guid guid = guidCache.get(key);
 		if (guid == null) {
 			synchronized (guidCache) {
-				guid = guidCache.get(app);
+				guid = guidCache.get(key);
 				if (guid == null) {
 					guid = Guid.newInstance(Guids.getNodeStrategy(app));
-					guidCache.put(app, guid);
+					guidCache.put(key, guid);
 				}
 			}
 		}
