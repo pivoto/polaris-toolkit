@@ -18,7 +18,7 @@
 - 只依赖核心库
 ```xml
 <dependency>
-  <groupId>cn.pivoto.polaris.toolkit</groupId>
+  <groupId>cn.fossc.polaris.toolkit</groupId>
   <artifactId>polaris-core</artifactId>
   <version>${polaris-version}</version>
 </dependency>
@@ -27,9 +27,11 @@
 - 依赖通用库（包含常用扩展）
 ```xml
 <dependency>
-  <groupId>cn.pivoto.polaris.toolkit</groupId>
+  <groupId>cn.fossc.polaris.toolkit</groupId>
   <artifactId>polaris-all</artifactId>
   <type>pom</type>
   <version>${polaris-version}</version>
 </dependency>
 ```
+
+> 注：3.2.0之后的版本，统一使用`<groupId>cn.fossc.polaris.toolkit</groupId>`，对于3.2.0之前的版本，使用`<groupId>cn.pivoto.polaris.toolkit</groupId>`
