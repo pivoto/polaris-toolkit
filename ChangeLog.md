@@ -1,5 +1,43 @@
 ## 版本变更说明
 
+### 3.2.13
+- 添加ExtendedBeanMap类
+- 优化Sql构造方法，支持非目标实体类型传参的BeanMap
+
+### 3.2.12
+- 添加Guids中工具方法
+
+### 3.2.11
+- 添加LazyRef类
+- 删除MapperEntity注解不用的属性
+
+### 3.2.10
+- 添加滑动窗口通用实现类SlidingWindow
+
+### 3.2.9
+- 添加批量数据处理通用实现类BatchDataCollector
+
+### 3.2.8
+- Sql构建器对count子查询添加别名，防止如mysql库报错：`Every derived table must have its own alias`
+- 代码生成器支持配置列扩展属性以应用于模板
+
+### 3.2.7
+- 设置jackson默认时区
+
+### 3.2.6
+- 添加GuidNodeStrategyProvider机制
+
+### 3.2.5
+- 优化Mybatis扩展插件相关功能，添加DynamicUseGeneratedKeys以支持插入语句实现中使用GeneratedKeys
+
+### 3.2.4
+- 优化生成器类型处理
+- 更新构建脚本
+
+### 3.2.3
+- 优化生成器类型处理
+- 优化版本号解析方法
+
 ### 3.2.2
 - 修复StringCases工具类bug
 
@@ -8,6 +46,7 @@
 
 ### 3.2.0
 - 拆分插件工程
+- 更新groupId命名
 
 ### 3.1.43
 - 添加 EntityMergeMapper
