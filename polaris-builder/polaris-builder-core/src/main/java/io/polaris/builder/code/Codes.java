@@ -9,6 +9,7 @@ import io.polaris.builder.code.reader.impl.JdbcTablesReader;
 import io.polaris.builder.dbv.cfg.DatabaseCfg;
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.concurrent.Executors;
+import io.polaris.core.env.GlobalStdEnv;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 
 import java.io.IOException;
@@ -102,22 +103,22 @@ public class Codes {
 			DefaultProperty defaultProperty = metadata.defaultProperty;
 			if (defaultProperty != null) {
 				for (Property p : defaultProperty.value()) {
-					property.put(p.key(), p.value());
+					property.put(GlobalStdEnv.resolveRef(p.key()), GlobalStdEnv.resolveRef(p.value()));
 				}
 			}
 			for (Property p : code.property()) {
-				property.put(p.key(), p.value());
+				property.put(GlobalStdEnv.resolveRef(p.key()), GlobalStdEnv.resolveRef(p.value()));
 			}
 		}
 		Set<TypeMapping> mappings = new HashSet<>();
 		{  // 优先自定义映射
 			for (Mapping mapping : code.mapping()) {
-				mappings.add(new TypeMapping(mapping.jdbcType(), mapping.javaType()));
+				mappings.add(new TypeMapping(GlobalStdEnv.resolveRef(mapping.jdbcType()), GlobalStdEnv.resolveRef(mapping.javaType())));
 			}
 			DefaultMapping defaultMapping = metadata.defaultMapping;
 			if (defaultMapping != null) {
 				for (Mapping mapping : defaultMapping.value()) {
-					mappings.add(new TypeMapping(mapping.jdbcType(), mapping.javaType()));
+					mappings.add(new TypeMapping(GlobalStdEnv.resolveRef(mapping.jdbcType()), GlobalStdEnv.resolveRef(mapping.javaType())));
 				}
 			}
 		}
@@ -156,31 +157,31 @@ public class Codes {
 		CodeGenerator generator = generator().logWithStd(code.logWithStd());
 		CodeEnvBuilder codeEnvBuilder = generator.codeEnvBuilder();
 		codeEnvBuilder
-			.outdir(code.outDir())
+			.outdir(GlobalStdEnv.resolveRef(code.outDir()))
 			.property(property)
 			.mappings(mappings)
-			.tablePrefix(code.tablePrefix())
-			.tableSuffix(code.tableSuffix())
-			.columnPrefix(code.columnPrefix())
-			.columnSuffix(code.columnSuffix());
+			.tablePrefix(GlobalStdEnv.resolveRef(code.tablePrefix()))
+			.tableSuffix(GlobalStdEnv.resolveRef(code.tableSuffix()))
+			.columnPrefix(GlobalStdEnv.resolveRef(code.columnPrefix()))
+			.columnSuffix(GlobalStdEnv.resolveRef(code.columnSuffix()));
 
 		CodeGroupBuilder codeGroupBuilder = codeEnvBuilder.group()
 			.property(property)
 			.mappings(mappings)
-			.tablePrefix(code.tablePrefix())
-			.tableSuffix(code.tableSuffix())
-			.columnPrefix(code.columnPrefix())
-			.columnSuffix(code.columnSuffix());
+			.tablePrefix(GlobalStdEnv.resolveRef(code.tablePrefix()))
+			.tableSuffix(GlobalStdEnv.resolveRef(code.tableSuffix()))
+			.columnPrefix(GlobalStdEnv.resolveRef(code.columnPrefix()))
+			.columnSuffix(GlobalStdEnv.resolveRef(code.columnSuffix()));
 
 		for (Template template : templates) {
 			Map<String, String> templateProperty = new LinkedHashMap<>(property);
 			for (Property p : template.property()) {
-				templateProperty.put(p.key(), p.value());
+				templateProperty.put(GlobalStdEnv.resolveRef(p.key()),GlobalStdEnv.resolveRef (p.value()));
 			}
 			codeGroupBuilder.addTemplate()
-				.path(template.path())
-				.filename(template.filename())
-				.outdir(template.dirname())
+				.path(GlobalStdEnv.resolveRef(template.path()))
+				.filename(GlobalStdEnv.resolveRef(template.filename()))
+				.outdir(GlobalStdEnv.resolveRef(template.dirname()))
 				.property(templateProperty)
 			;
 		}
@@ -198,39 +199,39 @@ public class Codes {
 			}
 			Map<String, String> tableProperty = new LinkedHashMap<>(property);
 			for (Property p : table.property()) {
-				tableProperty.put(p.key(), p.value());
+				tableProperty.put(GlobalStdEnv.resolveRef(p.key()), GlobalStdEnv.resolveRef(p.value()));
 			}
 			Set<ConfigColumn> columns = new HashSet<>();
 			for (Column column : table.columns()) {
 				Map<String, String> columnProperty = new LinkedHashMap<>(tableProperty);
 				for (Property p : column.property()) {
-					columnProperty.put(p.key(), p.value());
+					columnProperty.put(GlobalStdEnv.resolveRef(p.key()), GlobalStdEnv.resolveRef(p.value()));
 				}
 				ConfigColumn configColumn = new ConfigColumn();
-				configColumn.setJavaType(column.javaType());
-				configColumn.setName(column.name());
+				configColumn.setJavaType(GlobalStdEnv.resolveRef(column.javaType()));
+				configColumn.setName(GlobalStdEnv.resolveRef(column.name()));
 				configColumn.setProperty(columnProperty);
 				columns.add(configColumn);
 			}
 			codeGroupBuilder.addTable()
-				.catalog(table.catalog())
-				.schema(table.schema())
-				.name(table.name())
-				.javaPackage(table.javaPackage())
+				.catalog(GlobalStdEnv.resolveRef(table.catalog()))
+				.schema(GlobalStdEnv.resolveRef(table.schema()))
+				.name(GlobalStdEnv.resolveRef(table.name()))
+				.javaPackage(GlobalStdEnv.resolveRef(table.javaPackage()))
 				.property(tableProperty)
 				.columns(columns)
 				.mappings(mappings)
-				.tablePrefix(code.tablePrefix())
-				.tableSuffix(code.tableSuffix())
-				.columnPrefix(code.columnPrefix())
-				.columnSuffix(code.columnSuffix());
+				.tablePrefix(GlobalStdEnv.resolveRef(code.tablePrefix()))
+				.tableSuffix(GlobalStdEnv.resolveRef(code.tableSuffix()))
+				.columnPrefix(GlobalStdEnv.resolveRef(code.columnPrefix()))
+				.columnSuffix(GlobalStdEnv.resolveRef(code.columnSuffix()));
 		}
 
 		DatabaseCfg cfg = new DatabaseCfg();
-		cfg.setJdbcDriver(code.jdbcDriver());
-		cfg.setJdbcUrl(code.jdbcUrl());
-		cfg.setJdbcUsername(code.jdbcUsername());
-		cfg.setJdbcPassword(code.jdbcPassword());
+		cfg.setJdbcDriver(GlobalStdEnv.resolveRef(code.jdbcDriver()));
+		cfg.setJdbcUrl(GlobalStdEnv.resolveRef(code.jdbcUrl()));
+		cfg.setJdbcUsername(GlobalStdEnv.resolveRef(code.jdbcUsername()));
+		cfg.setJdbcPassword(GlobalStdEnv.resolveRef(code.jdbcPassword()));
 		generator.tablesReader(new JdbcTablesReader(cfg));
 
 		generator.generate();
