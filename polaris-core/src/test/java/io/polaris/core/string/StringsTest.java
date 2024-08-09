@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import io.polaris.core.TestConsole;
 import io.polaris.core.junit.Fast;
@@ -73,4 +74,18 @@ class StringsTest {
 		Assertions.assertEquals(3, Strings.tokenizeToArray("aaa,|bbb||ccc", ",|").length);
 		Assertions.assertEquals(2, Strings.delimitedToArray("aaa,|bbb||ccc", ",|").length);
 	}
+
+	@Test
+	void test06() {
+		Map<String, String> map = new HashMap<>();
+		map.put("ctx.aaa", "aaa123");
+		map.put("ctx.bbb", "bbb123");
+		TestConsole.println(Strings.resolvePlaceholders("aaa ${ctx.ccc:${ctx.ddd:${eee}}}", map::get));
+		TestConsole.println(Strings.resolvePlaceholders("aaa ${ctx.ccc:${ctx.ddd:${eee:-xx}}}", map::get));
+		TestConsole.println(Strings.resolvePlaceholders("aaa ${ctx.ccc:${ctx.ddd:${eee:xx}}}", map::get));
+		map.put("eee", "");
+		TestConsole.println(Strings.resolvePlaceholders("aaa ${ctx.ccc:${ctx.ddd:${eee:-xx}}}", map::get));
+		TestConsole.println(Strings.resolvePlaceholders("aaa ${ctx.ccc:${ctx.ddd:${eee:xx}}}", map::get));
+	}
+
 }

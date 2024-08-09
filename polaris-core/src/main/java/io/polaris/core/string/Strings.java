@@ -1,21 +1,6 @@
 package io.polaris.core.string;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.StringTokenizer;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -29,6 +14,8 @@ import io.polaris.core.collection.PrimitiveArrays;
 import io.polaris.core.consts.StdConsts;
 import io.polaris.core.lang.primitive.Chars;
 import io.polaris.core.regex.Patterns;
+import io.polaris.core.tuple.Ref;
+import io.polaris.core.tuple.ValueRef;
 import io.polaris.core.ulid.UlidCreator;
 
 /**
@@ -37,9 +24,9 @@ import io.polaris.core.ulid.UlidCreator;
  */
 public class Strings {
 
-	private static final ThreadLocal<Map<String, String>> resolvedKeysLocal = new ThreadLocal<>();
-	private static final Pattern patternPlaceholder = Pattern.compile("\\$\\{([\\w\\.\\-]+(?::([^${}]*))?)\\}");
-	private static final String patternPlaceholderSeparator = "\\Q:\\E";
+	private static final ThreadLocal<Map<String, Ref<String>>> resolvedKeysLocal = new ThreadLocal<>();
+	private static final Pattern patternPlaceholder = Pattern.compile("\\$\\{([\\w\\.\\-]+)(?:(:-?)([^${}]*))?\\}");
+	////private static final String patternPlaceholderSeparator = "\\Q:\\E";
 	private static final Pattern patternDigits = Pattern.compile("(?<!\\\\)\\{(\\d+)\\}");
 	private static final Pattern patternEmpty = Pattern.compile("(?<!\\\\)\\{\\}");
 
@@ -250,15 +237,23 @@ public class Strings {
 	 * @return
 	 */
 	public static String resolvePlaceholders(String origin, Function<String, String> getter) {
-		return resolvePlaceholders(origin, patternPlaceholder, patternPlaceholderSeparator, getter);
+		return resolvePlaceholders(origin, patternPlaceholder, getter);
 	}
 
-	public static String resolvePlaceholders(String origin, Pattern placeholderPattern, String placeholderSeparator, Function<String, String> getter) {
+	public static String resolvePlaceholders(String origin, Function<String, String> getter, boolean defaultAsEmpty) {
+		return resolvePlaceholders(origin, patternPlaceholder, getter, defaultAsEmpty);
+	}
+
+	public static String resolvePlaceholders(String origin, Pattern placeholderPattern, Function<String, String> getter) {
+		return resolvePlaceholders(origin, placeholderPattern, getter, true);
+	}
+
+	public static String resolvePlaceholders(String origin, Pattern placeholderPattern, Function<String, String> getter, boolean defaultAsEmpty) {
 		if (origin == null) {
 			return origin;
 		}
 		boolean hasInit = false;
-		Map<String, String> resovedKeys = resolvedKeysLocal.get();
+		Map<String, Ref<String>> resovedKeys = resolvedKeysLocal.get();
 		if (resovedKeys == null) {
 			hasInit = true;
 			resolvedKeysLocal.set(resovedKeys = new HashMap<>());
@@ -267,33 +262,60 @@ public class Strings {
 			Matcher matcher = placeholderPattern.matcher(origin);
 			StringBuffer sb = new StringBuffer();
 			while (matcher.find()) {
-				String placeholder = matcher.group(1);
-				String[] arr = placeholder.split(placeholderSeparator, 2);
-				String k = arr[0].trim();
-				String defVal = arr.length > 1 ? arr[1].trim() : "";
+				String group = matcher.group();
+				if (resovedKeys.containsKey(group)) {
+					matcher.appendReplacement(sb, resovedKeys.get(group).get());
+					continue;
+				}
+				String k = matcher.group(1);
+				int groupCount = matcher.groupCount();
+				String separator = groupCount >= 3 ? matcher.group(2) : ":";
+				String defVal = groupCount >= 3 ? matcher.group(3) : groupCount == 2 ? matcher.group(2) : null;
 				String v = null;
 				if (resovedKeys.containsKey(k)) {
-					v = resovedKeys.get(k);
+					v = resovedKeys.get(k).get();
 				} else {
-					resovedKeys.put(k, "");
+					// 防止递归死循环
+					resovedKeys.put(k, ValueRef.of(null));
 					v = getter.apply(k);
-					resovedKeys.put(k, v);
+					resovedKeys.put(k, new ValueRef<>(v));
 				}
+				// `:`替换null, `:-`替换空字符串
+				if (defVal != null) {
+					if (v == null || v.isEmpty() && separator != null && separator.length() > 1) {
+						v = defVal;
+					}
+				}
+
+				String replacement;
 				if (v == null) {
-					v = defVal;
+					replacement = defaultAsEmpty ? "" : group;
+				} else {
+					replacement = v;
 				}
-				v = v.replace("\\", "\\\\").replace("$", "\\$");
-				matcher.appendReplacement(sb, v);
+				replacement = replacement.replace("\\", "\\\\").replace("$", "\\$");
+				resovedKeys.put(group, new ValueRef<>(replacement));
+				matcher.appendReplacement(sb, replacement);
 			}
 			matcher.appendTail(sb);
 			String rs = sb.toString();
+
+			boolean hasNextMatcher = false;
 			Matcher nextMatcher = placeholderPattern.matcher(rs);
-			if (nextMatcher.find()) {
-				rs = resolvePlaceholders(rs, placeholderPattern, placeholderSeparator, getter);
+			while (nextMatcher.find()) {
+				String group = nextMatcher.group();
+				if (!resovedKeys.containsKey(group)) {
+					hasNextMatcher = true;
+					break;
+				}
+			}
+			if (hasNextMatcher) {
+				rs = resolvePlaceholders(rs, placeholderPattern, getter, defaultAsEmpty);
 			}
 			return rs;
 		} finally {
 			if (hasInit) {
+				resolvedKeysLocal.get().clear();
 				resolvedKeysLocal.remove();
 			}
 		}

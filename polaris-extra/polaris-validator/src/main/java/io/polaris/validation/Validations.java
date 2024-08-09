@@ -207,7 +207,7 @@ public class Validations {
 				return "";
 			}
 			ResourceBundle bundle = getDefaultResourceBundleLocator().getResourceBundle(Locale.getDefault());
-			return Strings.resolvePlaceholders(messageTemplate, patternPlaceholder, "\\Q:\\E", key -> {
+			return Strings.resolvePlaceholders(messageTemplate, patternPlaceholder, key -> {
 				String v = "";
 				if (bundle.containsKey(key)) {
 					v = bundle.getString(key);
