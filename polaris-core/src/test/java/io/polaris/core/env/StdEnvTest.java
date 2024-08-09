@@ -69,7 +69,19 @@ class StdEnvTest {
 	@Test
 	void test06() {
 		GlobalStdEnv.addEnvFirst(Env.delegate(GlobalStdEnv.env()));
-		TestConsole.println("key: {}",GlobalStdEnv.get("kkk"));
-		TestConsole.println("keys: {}",GlobalStdEnv.keys());
+		TestConsole.println("key: {}", GlobalStdEnv.get("kkk"));
+		TestConsole.println("keys: {}", GlobalStdEnv.keys());
+	}
+
+	@Test
+	@Order(7)
+	void test07() {
+		GlobalStdEnv.set("aaa","${bbb}");
+		GlobalStdEnv.set("bbb","${ccc}");
+		GlobalStdEnv.set("ccc","${aaa}");
+		TestConsole.println(GlobalStdEnv.resolveRef("${sys['test']}"));
+		TestConsole.println(GlobalStdEnv.resolveRef("test:  ${java.home} | ${test.home:-${test.home2:-/a/b/c}}"));
+		TestConsole.println(GlobalStdEnv.resolveRef("test: ${unknown.key} ${aaa} ${user.home} | ${java.home} | ${test.home:-${test.home2:-/a/b/c}}"));
+		TestConsole.println(GlobalStdEnv.resolveRef("test: ${unknown.key} ${aaa} ${user.home} | ${java.home} | ${test.home:${test.home2:/a/b/c}}"));
 	}
 }

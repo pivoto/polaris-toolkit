@@ -14,25 +14,20 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import io.polaris.core.service.StatefulServiceLoader;
 import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since  Apr 23, 2024
+ * @since Apr 23, 2024
  */
 public class StdEnv implements Env {
-	private static final Pattern pattern = Pattern.compile("\\$\\{([^{}]+)\\}");
-	private static final ThreadLocal<Map<String, String>> resolvedKeysLocal = new ThreadLocal<>();
 	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -234,46 +229,7 @@ public class StdEnv implements Env {
 	}
 
 	public String resolveRef(String origin, Function<String, String> getter) {
-		if (origin == null) {
-			return origin;
-		}
-		boolean hasInit = false;
-		Map<String, String> resovedKeys = resolvedKeysLocal.get();
-		if (resovedKeys == null) {
-			hasInit = true;
-			resolvedKeysLocal.set(resovedKeys = new HashMap<>());
-		}
-		try {
-			Matcher matcher = pattern.matcher(origin);
-			StringBuffer sb = new StringBuffer();
-			while (matcher.find()) {
-				String[] arr = matcher.group(1).split(":-", 2);
-				String k = arr[0].trim();
-				String defVal = arr.length > 1 ? arr[1].trim() : "";
-				String v = null;
-				if (resovedKeys.containsKey(k)) {
-					v = resovedKeys.get(k);
-				} else {
-					v = getter.apply(k);
-					resovedKeys.put(k, v);
-				}
-				if (v == null) {
-					v = defVal;
-				}
-				v = v.replace("$", "\\$").replace("\\", "\\\\");
-				matcher.appendReplacement(sb, v);
-			}
-			matcher.appendTail(sb);
-			String result = sb.toString();
-			if (pattern.matcher(result).find()) {
-				return resolveRef(result, getter);
-			}
-			return result;
-		} finally {
-			if (hasInit) {
-				resolvedKeysLocal.remove();
-			}
-		}
+		return Strings.resolvePlaceholders(origin, getter, false);
 	}
 
 	public String resolveRef(String origin) {
