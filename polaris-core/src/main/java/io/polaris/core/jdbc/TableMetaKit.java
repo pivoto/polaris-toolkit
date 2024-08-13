@@ -4,13 +4,13 @@ import java.io.ObjectStreamException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import io.polaris.core.annotation.Experimental;
 import io.polaris.core.asm.reflect.ClassAccess;
 import io.polaris.core.jdbc.annotation.Column;
 import io.polaris.core.jdbc.annotation.Id;
@@ -21,13 +21,14 @@ import io.polaris.core.log.ILoggers;
 
 /**
  * @author Qt
- * @since  Aug 20, 2023
+ * @since Aug 20, 2023
  */
 public class TableMetaKit {
 	private static final ILogger log = ILoggers.of(TableMetaKit.class);
 	private static final TableMetaKit instance = new TableMetaKit();
 	private final Map<Class<?>, TableMeta> cache = new ConcurrentHashMap<>();
-	private volatile Map<Class<?>, TableMeta> mutableCache = new ConcurrentHashMap<>();
+	private final Map<Class<?>, TableMeta> mutableCache = new ConcurrentHashMap<>();
+	private final ThreadLocal<Map<Class<?>, TableMetaMutation>> mutationsLocal = new ThreadLocal<>();
 
 	public static TableMetaKit instance() {
 		return instance;
@@ -40,16 +41,56 @@ public class TableMetaKit {
 	/**
 	 * 覆盖默认的实体表元数据配置信息，优先级高于默认配置
 	 * <p>
-	 * 建议只在需要动态修改表名、列名等场景下使用
+	 * 在需要动态修改表名、列名等场景下使用
 	 */
-	@Experimental
-	public TableMeta setMutable(Class<?> entityClass, TableMeta tableMeta) {
-		return mutableCache.put(entityClass, tableMeta);
+	public void addMutation(TableMetaMutation mutation) {
+		if (mutation == null) {
+			return;
+		}
+		Class<?> entityClass = mutation.entityClass();
+		if (!mutation.mutable()) {
+			// 还原
+			mutableCache.remove(entityClass);
+			return;
+		}
+		TableMeta origin = getOrigin(entityClass);
+		TableMeta tableMeta = mutation.apply(origin);
+		mutableCache.put(entityClass, tableMeta);
 	}
 
-	@Experimental
-	public TableMeta removeMutable(Class<?> entityClass, TableMeta tableMeta) {
-		return mutableCache.remove(entityClass);
+	public void removeMutation(Class<?> entityClass) {
+		mutableCache.remove(entityClass);
+	}
+
+	public void clearMutationsInCurrentThread() {
+		mutationsLocal.remove();
+	}
+
+	public void addMutationInCurrentThread(TableMetaMutation mutation) {
+		mutationsInCurrentThread().put(mutation.entityClass(), mutation);
+	}
+
+	public void removeMutationInCurrentThread(TableMetaMutation mutation) {
+		mutationsInCurrentThread().remove(mutation.entityClass());
+	}
+
+	public void addMutationsInCurrentThread(TableMetaMutation... mutations) {
+		if (mutations.length == 0) {
+			return;
+		}
+		Map<Class<?>, TableMetaMutation> map = mutationsInCurrentThread();
+		for (TableMetaMutation mutation : mutations) {
+			map.put(mutation.entityClass(), mutation);
+		}
+	}
+
+	private Map<Class<?>, TableMetaMutation> mutationsInCurrentThread() {
+		Map<Class<?>, TableMetaMutation> map = mutationsLocal.get();
+		if (map == null) {
+			map = new HashMap<>();
+			mutationsLocal.set(map);
+		}
+		return map;
 	}
 
 	public TableMeta get(String entityClassName) {
@@ -63,10 +104,21 @@ public class TableMetaKit {
 
 	public TableMeta get(Class<?> entityClass) {
 		// 优先使用动态覆写的配置
-		TableMeta meta = mutableCache.get(entityClass);
-		if (meta != null) {
-			return meta;
+		Map<Class<?>, TableMetaMutation> map = mutationsLocal.get();
+		if (map != null) {
+			TableMetaMutation mutation = map.get(entityClass);
+			if (mutation != null) {
+				return mutation.apply(getOrigin(entityClass));
+			}
 		}
+		TableMeta meta = mutableCache.get(entityClass);
+		if (meta == null) {
+			meta = getOrigin(entityClass);
+		}
+		return meta;
+	}
+
+	private TableMeta getOrigin(Class<?> entityClass) {
 		return cache.computeIfAbsent(entityClass, c -> parse(entityClass));
 	}
 
@@ -93,6 +145,7 @@ public class TableMetaKit {
 				String catalog = (String) classAccess.getField(null, "CATALOG");
 				String table = (String) classAccess.getField(null, "TABLE");
 				String alias = (String) classAccess.getField(null, "ALIAS");
+				@SuppressWarnings("unchecked")
 				Map<String, ColumnMeta> columns = (Map<String, ColumnMeta>) classAccess.getField(null, "COLUMNS");
 				return TableMeta.builder().entityClass(entityClass)
 					.table(table).alias(alias)

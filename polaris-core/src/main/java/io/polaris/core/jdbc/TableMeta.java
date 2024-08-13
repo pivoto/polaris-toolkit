@@ -15,7 +15,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @EqualsAndHashCode
-public class TableMeta implements Cloneable {
+public final class TableMeta implements Cloneable {
 	private final Class<?> entityClass;
 	private final String schema;
 	private final String catalog;
@@ -30,7 +30,12 @@ public class TableMeta implements Cloneable {
 		this.catalog = catalog;
 		this.table = table;
 		this.alias = alias == null ? "" : alias;
-		this.columns = columns;
+		String canonicalName = columns.getClass().getName();
+		if (canonicalName.equals("java.util.Collections$UnmodifiableMap")){
+			this.columns = columns;
+		}else{
+			this.columns = Collections.unmodifiableMap(columns);
+		}
 		Map<String, ColumnMeta> pkColumns = new HashMap<>();
 		columns.forEach((key, value) -> {
 			if (value.isPrimaryKey()) {
@@ -44,6 +49,7 @@ public class TableMeta implements Cloneable {
 		return new Builder();
 	}
 
+	@SuppressWarnings("MethodDoesntCallSuperMethod")
 	@Override
 	public TableMeta clone() {
 		Map<String, ColumnMeta> cloneColumns = new HashMap<>();
@@ -51,7 +57,7 @@ public class TableMeta implements Cloneable {
 		columns.forEach((key, value) -> {
 			cloneColumns.put(key, value.clone());
 		});
-		TableMeta clone = TableMeta.builder()
+		return TableMeta.builder()
 			.entityClass(entityClass)
 			.schema(schema)
 			.catalog(catalog)
@@ -59,7 +65,6 @@ public class TableMeta implements Cloneable {
 			.alias(alias)
 			.columns(Collections.unmodifiableMap(cloneColumns))
 			.build();
-		return clone;
 	}
 
 	public static final class Builder {
