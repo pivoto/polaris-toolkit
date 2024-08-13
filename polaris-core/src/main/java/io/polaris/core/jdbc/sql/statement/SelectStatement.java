@@ -132,7 +132,7 @@ public class SelectStatement<S extends SelectStatement<S>> extends BaseStatement
 		sqlGroupBy(sql);
 		sqlHaving(sql);
 		sql.addNode(SqlNodes.LF);
-		sql.addNode(new TextNode(") _tbl"));
+		sql.addNode(new TextNode(") tbl"));
 		return sql;
 	}
 

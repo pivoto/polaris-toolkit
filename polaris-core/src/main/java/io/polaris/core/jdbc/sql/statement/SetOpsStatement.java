@@ -35,7 +35,7 @@ public class SetOpsStatement<S extends SetOpsStatement<S>> extends BaseStatement
 		sql.addNode(SqlNodes.LF);
 		sql.addNode(toSqlNode());
 		sql.addNode(SqlNodes.LF);
-		sql.addNode(new TextNode(") _tbl"));
+		sql.addNode(new TextNode(") tbl"));
 		return sql;
 	}
 
