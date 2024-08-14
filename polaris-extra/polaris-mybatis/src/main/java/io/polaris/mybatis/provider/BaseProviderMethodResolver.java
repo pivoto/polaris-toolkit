@@ -19,11 +19,26 @@ import org.apache.ibatis.builder.annotation.ProviderMethodResolver;
 
 /**
  * @author Qt
- * @since  Sep 11, 2023
+ * @since Sep 11, 2023
  */
 public abstract class BaseProviderMethodResolver implements ProviderMethodResolver {
 
 	static final ThreadLocal<Tuple2<Object, Map<String, Object>>> ADDITIONAL_PARAMETERS = new ThreadLocal<>();
+	static final ThreadLocal<Boolean> QUERY_EXISTS_BY_COUNT = new ThreadLocal<>();
+
+
+	public static boolean isQueryExistsByCount() {
+		Boolean bool = QUERY_EXISTS_BY_COUNT.get();
+		return bool == null || bool;
+	}
+
+	public static void setQueryExistsByCount(boolean withoutCount) {
+		QUERY_EXISTS_BY_COUNT.set(withoutCount);
+	}
+
+	public static void clearQueryExistsByCount() {
+		QUERY_EXISTS_BY_COUNT.remove();
+	}
 
 	static void bindAdditionalParameters(Object parameterObject, Map<String, Object> additionalParameters) {
 		ADDITIONAL_PARAMETERS.set(Tuple2.of(parameterObject, additionalParameters));

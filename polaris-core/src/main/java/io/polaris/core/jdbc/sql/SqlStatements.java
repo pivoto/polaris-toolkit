@@ -410,21 +410,59 @@ public class SqlStatements {
 		return sql.toSqlString();
 	}
 
-	public static String buildSelectById(Map<String, Object> bindings, Class<?> entityClass) {
+
+	public static String buildExistsById(Map<String, Object> bindings, Class<?> entityClass) {
 		String entityKey = BindingKeys.ENTITY;
 		String whereKey = BindingKeys.WHERE;
-		String orderByKey = BindingKeys.ORDER_BY;
-		return buildSelectById(bindings, entityClass, entityKey, whereKey, orderByKey);
+		return buildExistsById(bindings, entityClass, entityKey, whereKey);
 	}
 
-	public static String buildSelectByAny(Map<String, Object> bindings, Class<?> entityClass) {
+	public static String buildExistsById(Map<String, Object> bindings, Class<?> entityClass,
+		String entityKey, String whereKey) {
+
+		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
+		SqlStatement sql = SqlStatement.of();
+		sql.from(tableMeta.getTable());
+		sql.select("COUNT(*) EXISTED");
+
+		Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, null);
+		if (entity == null) {
+			entity = BindingValues.getBindingValueOrDefault(bindings, whereKey, Collections.emptyMap());
+		}
+		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
+			(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
+				? Beans.newBeanMap(entity, tableMeta.getEntityClass())
+				: Beans.newBeanMap(entity));
+
+		for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
+			String name = entry.getKey();
+			ColumnMeta meta = entry.getValue();
+			String columnName = meta.getColumnName();
+			boolean primaryKey = meta.isPrimaryKey();
+			boolean version = meta.isVersion();
+			Object val = entityMap.get(name);
+			if (primaryKey) {
+				if (val == null) {
+					sql.where(columnName + " IS NULL");
+				} else {
+					sql.where(columnName + " = #{" + KEY_WHERE_PREFIX + name + "}");
+					bindings.put(KEY_WHERE_PREFIX + name, val);
+				}
+			}
+		}
+		if (!sql.where().hasConditions()) {
+			throw new IllegalArgumentException("缺少条件子句");
+		}
+		return sql.toSqlString();
+	}
+
+	public static String buildExistsByAny(Map<String, Object> bindings, Class<?> entityClass) {
+		return buildExistsByAny(bindings, entityClass, false);
+	}
+
+	public static String buildExistsByAny(Map<String, Object> bindings, Class<?> entityClass, boolean queryByCount) {
 		String entityKey = BindingKeys.ENTITY;
 		String whereKey = BindingKeys.WHERE;
-		String orderByKey = BindingKeys.ORDER_BY;
-		/* String includeColumnsKey = BindingKeys.INCLUDE_COLUMNS;
-		String excludeColumnsKey = BindingKeys.EXCLUDE_COLUMNS;
-		String includeEmptyColumnsKey = BindingKeys.INCLUDE_EMPTY_COLUMNS;
-		String includeAllEmptyKey = BindingKeys.INCLUDE_EMPTY; */
 		// 兼容 where keys
 		String[] includeColumnsKey = {BindingKeys.WHERE_INCLUDE_COLUMNS, BindingKeys.INCLUDE_COLUMNS};
 		String[] excludeColumnsKey = {BindingKeys.WHERE_EXCLUDE_COLUMNS, BindingKeys.EXCLUDE_COLUMNS};
@@ -434,9 +472,55 @@ public class SqlStatements {
 		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings,
 			null, includeColumnsKey, null, excludeColumnsKey,
 			null, includeEmptyColumnsKey, false, includeAllEmptyKey);
-		return buildSelectByAny(bindings, entityClass, entityKey, whereKey, orderByKey, columnPredicate);
+		return buildExistsByAny(bindings, entityClass, entityKey, whereKey, columnPredicate, queryByCount);
 	}
 
+
+	public static String buildExistsByAny(Map<String, Object> bindings, Class<?> entityClass,
+		String entityKey, String whereKey, ColumnPredicate columnPredicate) {
+		return buildExistsByAny(bindings, entityClass, entityKey, whereKey, columnPredicate, false);
+	}
+
+
+	public static String buildExistsByAny(Map<String, Object> bindings, Class<?> entityClass,
+		String entityKey, String whereKey, ColumnPredicate columnPredicate, boolean queryByCount) {
+
+		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
+		SqlStatement sql = SqlStatement.of();
+		sql.from(tableMeta.getTable());
+		if (queryByCount) {
+			sql.select("COUNT(*) EXISTED");
+		} else {
+			sql.select("1 EXISTED");
+		}
+
+		VarNameGenerator whereKeyGen = VarNameGenerator.newInstance(KEY_WHERE_PREFIX);
+
+		Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, null);
+		if (entity != null) {
+			if (entity instanceof Criteria) {
+				appendSqlWhereWithCriteria(bindings, tableMeta, sql, whereKeyGen, entity);
+			} else {
+				appendSqlWhereWithEntity(bindings, entityClass, tableMeta, sql, whereKeyGen, entity, columnPredicate);
+			}
+		}
+		entity = BindingValues.getBindingValueOrDefault(bindings, whereKey, null);
+		if (entity != null) {
+			if (entity instanceof Criteria) {
+				appendSqlWhereWithCriteria(bindings, tableMeta, sql, whereKeyGen, entity);
+			} else {
+				appendSqlWhereWithEntity(bindings, entityClass, tableMeta, sql, whereKeyGen, entity, columnPredicate);
+			}
+		}
+		return sql.toSqlString();
+	}
+
+	public static String buildSelectById(Map<String, Object> bindings, Class<?> entityClass) {
+		String entityKey = BindingKeys.ENTITY;
+		String whereKey = BindingKeys.WHERE;
+		String orderByKey = BindingKeys.ORDER_BY;
+		return buildSelectById(bindings, entityClass, entityKey, whereKey, orderByKey);
+	}
 
 	public static String buildSelectById(Map<String, Object> bindings, Class<?> entityClass,
 		String entityKey, String whereKey, String orderByKey) {
@@ -459,12 +543,12 @@ public class SqlStatements {
 			ColumnMeta meta = entry.getValue();
 			String columnName = meta.getColumnName();
 			boolean primaryKey = meta.isPrimaryKey();
-			boolean version = meta.isVersion();
+			//boolean version = meta.isVersion();
 			Object val = entityMap.get(name);
 
 			sql.select(columnName + " " + name);
 
-			if (primaryKey || version) {
+			if (primaryKey) {
 				if (val == null) {
 					sql.where(columnName + " IS NULL");
 				} else {
@@ -478,6 +562,27 @@ public class SqlStatements {
 		}
 		return sql.toSqlString();
 	}
+
+	public static String buildSelectByAny(Map<String, Object> bindings, Class<?> entityClass) {
+		String entityKey = BindingKeys.ENTITY;
+		String whereKey = BindingKeys.WHERE;
+		String orderByKey = BindingKeys.ORDER_BY;
+		/* String includeColumnsKey = BindingKeys.INCLUDE_COLUMNS;
+		String excludeColumnsKey = BindingKeys.EXCLUDE_COLUMNS;
+		String includeEmptyColumnsKey = BindingKeys.INCLUDE_EMPTY_COLUMNS;
+		String includeAllEmptyKey = BindingKeys.INCLUDE_EMPTY; */
+		// 兼容 where keys
+		String[] includeColumnsKey = {BindingKeys.WHERE_INCLUDE_COLUMNS, BindingKeys.INCLUDE_COLUMNS};
+		String[] excludeColumnsKey = {BindingKeys.WHERE_EXCLUDE_COLUMNS, BindingKeys.EXCLUDE_COLUMNS};
+		String[] includeEmptyColumnsKey = {BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS, BindingKeys.INCLUDE_EMPTY_COLUMNS};
+		String[] includeAllEmptyKey = {BindingKeys.WHERE_INCLUDE_EMPTY, BindingKeys.INCLUDE_EMPTY};
+
+		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings,
+			null, includeColumnsKey, null, excludeColumnsKey,
+			null, includeEmptyColumnsKey, false, includeAllEmptyKey);
+		return buildSelectByAny(bindings, entityClass, entityKey, whereKey, orderByKey, columnPredicate);
+	}
+
 
 	public static String buildSelectByAny(Map<String, Object> bindings, Class<?> entityClass,
 		String entityKey, String whereKey, String orderByKey, ColumnPredicate columnPredicate) {

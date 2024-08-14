@@ -13,6 +13,7 @@ public interface MapperProviderKeys {
 	String updateBySql = "updateBySql";
 	String selectBySql = "selectBySql";
 	String countBySql = "countBySql";
+	String existsBySql = "existsBySql";
 	String mergeBySql = "mergeBySql";
 
 
@@ -23,6 +24,9 @@ public interface MapperProviderKeys {
 
 	String updateEntityById = "updateEntityById";
 	String updateEntityByAny = "updateEntityByAny";
+
+	String existsEntityById = "existsEntityById";
+	String existsEntity = "existsEntity";
 
 	String selectEntityById = "selectEntityById";
 	String selectEntity = "selectEntity";

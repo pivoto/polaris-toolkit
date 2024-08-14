@@ -1,14 +1,20 @@
 package io.polaris.mybatis.mapper;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import io.polaris.core.annotation.Internal;
+import io.polaris.core.io.IO;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.mybatis.consts.MapperProviderKeys;
+import io.polaris.mybatis.provider.EntityExistsByAnyProvider;
 import io.polaris.mybatis.provider.MapperProviders;
+import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.SelectProvider;
+import org.apache.ibatis.cursor.Cursor;
 
 /**
  * @author Qt
@@ -19,7 +25,6 @@ public interface EntitySelectMapper<E> extends EntityMapper<E> {
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityById)
 	E selectEntityById(@Param(BindingKeys.ENTITY) E entity);
-
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	E selectEntity(@Param(BindingKeys.WHERE) E entity
@@ -153,7 +158,120 @@ public interface EntitySelectMapper<E> extends EntityMapper<E> {
 		return selectMapByCriteria(criteria, includeEmpty, (Set<String>) null, (Set<String>) null);
 	}
 
-	default Map<String, Object> selectMapByCriteria(Criteria entity) {
-		return selectMapByCriteria(entity, false);
+	default Map<String, Object> selectMapByCriteria(Criteria criteria) {
+		return selectMapByCriteria(criteria, false);
 	}
+
+
+	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.existsEntityById)
+	boolean existsById(@Param(BindingKeys.ENTITY) E entity);
+
+	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.existsEntity)
+	@Options(fetchSize = 1)
+	@Internal("考虑到查询性能或分页实现的兼容性，声明此此方法，实际开发中不直接调用")
+	Cursor<Boolean> existsInnerByAny(@Param(BindingKeys.WHERE) Object entity
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields
+		, @Param(BindingKeys.WHERE_EXCLUDE_COLUMNS) Set<String> excludeFields);
+
+	default boolean exists(E entity, boolean includeEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
+		EntityExistsByAnyProvider.setQueryExistsByCount(false);
+		Cursor<Boolean> cursor = null;
+		try {
+			cursor = existsInnerByAny(entity, includeEmpty, includeEmptyFields, excludeFields);
+			Iterator<Boolean> iter = cursor.iterator();
+			if (iter.hasNext()) {
+				Boolean next = iter.next();
+				return Boolean.TRUE.equals(next);
+			}
+			return false;
+		} finally {
+			EntityExistsByAnyProvider.clearQueryExistsByCount();
+			IO.close(cursor);
+		}
+	}
+
+	default boolean exists(E entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
+		return exists(entity, false, includeEmptyFields, excludeFields);
+	}
+
+	default boolean exists(E entity, Set<String> includeEmptyFields) {
+		return exists(entity, false, includeEmptyFields, (Set<String>) null);
+	}
+
+	default boolean exists(E entity, boolean includeEmpty) {
+		return exists(entity, includeEmpty, (Set<String>) null, (Set<String>) null);
+	}
+
+	default boolean exists(E entity) {
+		return exists(entity, false);
+	}
+
+	default boolean existsByMap(Map<String, Object> entity, boolean includeEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
+		EntityExistsByAnyProvider.setQueryExistsByCount(false);
+		Cursor<Boolean> cursor = null;
+		try {
+			cursor = existsInnerByAny(entity, includeEmpty, includeEmptyFields, excludeFields);
+			Iterator<Boolean> iter = cursor.iterator();
+			if (iter.hasNext()) {
+				Boolean next = iter.next();
+				return Boolean.TRUE.equals(next);
+			}
+			return false;
+		} finally {
+			EntityExistsByAnyProvider.clearQueryExistsByCount();
+			IO.close(cursor);
+		}
+	}
+
+	default boolean existsByMap(Map<String, Object> entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
+		return existsByMap(entity, false, includeEmptyFields, excludeFields);
+	}
+
+	default boolean existsByMap(Map<String, Object> entity, Set<String> includeEmptyFields) {
+		return existsByMap(entity, false, includeEmptyFields, null);
+	}
+
+	default boolean existsByMap(Map<String, Object> entity, boolean includeEmpty) {
+		return existsByMap(entity, includeEmpty, (Set<String>) null, (Set<String>) null);
+	}
+
+	default boolean existsByMap(Map<String, Object> entity) {
+		return existsByMap(entity, false);
+	}
+
+	default boolean existsByCriteria(Criteria criteria, boolean includeEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
+		EntityExistsByAnyProvider.setQueryExistsByCount(false);
+		Cursor<Boolean> cursor = null;
+		try {
+			cursor = existsInnerByAny(criteria, includeEmpty, includeEmptyFields, excludeFields);
+			Iterator<Boolean> iter = cursor.iterator();
+			if (iter.hasNext()) {
+				Boolean next = iter.next();
+				return Boolean.TRUE.equals(next);
+			}
+			return false;
+		} finally {
+			EntityExistsByAnyProvider.clearQueryExistsByCount();
+			IO.close(cursor);
+		}
+	}
+
+	default boolean existsByCriteria(Criteria criteria, Set<String> includeEmptyFields, Set<String> excludeFields) {
+		return existsByCriteria(criteria, false, includeEmptyFields, excludeFields);
+	}
+
+	default boolean existsByCriteria(Criteria criteria, Set<String> includeEmptyFields) {
+		return existsByCriteria(criteria, false, includeEmptyFields, (Set<String>) null);
+	}
+
+	default boolean existsByCriteria(Criteria criteria, boolean includeEmpty) {
+		return existsByCriteria(criteria, includeEmpty, (Set<String>) null, (Set<String>) null);
+	}
+
+	default boolean existsByCriteria(Criteria criteria) {
+		return existsByCriteria(criteria, false);
+	}
+
+
 }

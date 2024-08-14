@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 /**
  * @author Qt
  * @since  Aug 25, 2023
@@ -31,7 +33,9 @@ public class DemoUserEntity {
 	@Column(logicDeleted = true, insertDefault = "0", updateDefault = "0")
 	private Boolean deleted;
 	@Column(createTime = true)
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	private Date crtDt;
 	@Column(createTime = true, updateTime = true)
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date uptDt;
 }

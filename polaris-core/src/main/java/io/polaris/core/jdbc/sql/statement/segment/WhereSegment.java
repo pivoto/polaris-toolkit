@@ -232,7 +232,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
 				String name = entry.getKey();
 				ColumnMeta meta = entry.getValue();
-				if (meta.isPrimaryKey() || meta.isVersion()) {
+				if (meta.isPrimaryKey()) {
 					Object val = entityMap.get(name);
 					if (val == null) {
 						this.column(name).isNull();
@@ -256,7 +256,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
 				String name = entry.getKey();
 				ColumnMeta meta = entry.getValue();
-				if (meta.isPrimaryKey()) {
+				if (meta.isPrimaryKey() || meta.isVersion()) {
 					Object val = entityMap.get(name);
 					if (val == null) {
 						this.column(name).isNull();

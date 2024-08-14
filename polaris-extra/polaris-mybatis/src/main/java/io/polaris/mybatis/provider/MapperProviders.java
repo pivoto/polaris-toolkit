@@ -27,6 +27,7 @@ public class MapperProviders {
 		map.put(MapperProviderKeys.updateBySql, MapperProviders::updateBySql);
 		map.put(MapperProviderKeys.selectBySql, MapperProviders::selectBySql);
 		map.put(MapperProviderKeys.countBySql, MapperProviders::countBySql);
+		map.put(MapperProviderKeys.existsBySql, MapperProviders::existsBySql);
 		map.put(MapperProviderKeys.mergeBySql, MapperProviders::mergeBySql);
 
 		map.put(MapperProviderKeys.insertEntity, MapperProviders::insertEntity);
@@ -36,6 +37,9 @@ public class MapperProviders {
 
 		map.put(MapperProviderKeys.updateEntityById, MapperProviders::updateEntityById);
 		map.put(MapperProviderKeys.updateEntityByAny, MapperProviders::updateEntityByAny);
+
+		map.put(MapperProviderKeys.existsEntity, MapperProviders::existsEntity);
+		map.put(MapperProviderKeys.existsEntityById, MapperProviders::existsEntityById);
 
 		map.put(MapperProviderKeys.selectEntity, MapperProviders::selectEntity);
 		map.put(MapperProviderKeys.selectEntityById, MapperProviders::selectEntityById);
@@ -100,6 +104,16 @@ public class MapperProviders {
 		return EntityCountProvider.provideSql(parameterObject, context);
 	}
 
+	@Published
+	public static String existsEntityById(Object parameterObject, ProviderContext context) {
+		return EntityExistsByIdProvider.provideSql(parameterObject, context);
+	}
+
+	@Published
+	public static String existsEntity(Object parameterObject, ProviderContext context) {
+		return EntityExistsByAnyProvider.provideSql(parameterObject, context);
+	}
+
 
 	@Published
 	public static String selectEntityById(Object parameterObject, ProviderContext context) {
@@ -136,6 +150,11 @@ public class MapperProviders {
 	@Published
 	public static String countBySql(Object parameterObject, ProviderContext context) {
 		return SqlCountProvider.provideSql(parameterObject, context);
+	}
+
+	@Published
+	public static String existsBySql(Object parameterObject, ProviderContext context) {
+		return SqlExistsProvider.provideSql(parameterObject, context);
 	}
 
 	@Published

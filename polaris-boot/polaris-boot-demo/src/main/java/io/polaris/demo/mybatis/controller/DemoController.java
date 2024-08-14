@@ -12,6 +12,7 @@ import io.polaris.demo.mybatis.entity.DemoUserEntitySql;
 import io.polaris.demo.mybatis.service.DemoService;
 import io.polaris.demo.mybatis.service.DemoUserService;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -56,6 +57,29 @@ public class DemoController {
 			return mapper.selectEntityListBySql(DemoUserEntitySql.select().selectAll());
 		});
 		return list;
+//		return Jacksons.toJsonString(list);
+	}
+
+
+	@PostMapping("existsUser")
+	public Object exists(@RequestBody DemoUserEntity param) {
+		return demoUserService.doTransaction(mapper -> {
+			return mapper.exists(param);
+		});
+	}
+
+	@PostMapping("existsUserBySql")
+	public Object existsBySql(@RequestBody DemoUserEntity param) {
+		return demoUserService.doTransaction(mapper -> {
+			return mapper.existsBySql(DemoUserEntitySql.select().selectAll().where().byEntity(param).end());
+		});
+	}
+
+	@PostMapping("existsUserById")
+	public Object existsById(@RequestBody DemoUserEntity param) {
+		return demoUserService.doTransaction(mapper -> {
+			return mapper.existsById(param);
+		});
 	}
 
 	@PostMapping("addUser")

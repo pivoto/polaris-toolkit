@@ -3,16 +3,88 @@ Content-Type: application/json
 
 {}
 
-###
+### listUser
 POST http://localhost:6666/demo/listUser
 Content-Type: application/json
 
 {}
 
-###
+### addUser
 POST http://localhost:6666/demo/addUser
 Content-Type: application/json
 
-{}
+{
+}
+
+### existsUserById
+POST http://localhost:6666/demo/existsUserById
+Content-Type: application/json
+
+{
+  "id": 1
+}
+
+### existsUser
+POST http://localhost:6666/demo/existsUser
+Content-Type: application/json
+
+{
+}
+
+### existsUser admin
+POST http://localhost:6666/demo/existsUser
+Content-Type: application/json
+
+{
+  "name": "admin"
+}
+
+### existsUser adm
+POST http://localhost:6666/demo/existsUser
+Content-Type: application/json
+
+{
+  "name": "adm"
+}
+
+### existsUser adm%
+POST http://localhost:6666/demo/existsUser
+Content-Type: application/json
+
+{
+  "name": "adm%"
+}
+
+
+### existsUserBySql
+POST http://localhost:6666/demo/existsUserBySql
+Content-Type: application/json
+
+{
+}
+
+### existsUserBySql admin
+POST http://localhost:6666/demo/existsUserBySql
+Content-Type: application/json
+
+{
+  "name": "admin"
+}
+
+### existsUserBySql adm
+POST http://localhost:6666/demo/existsUserBySql
+Content-Type: application/json
+
+{
+  "name": "adm"
+}
+
+### existsUserBySql adm%
+POST http://localhost:6666/demo/existsUserBySql
+Content-Type: application/json
+
+{
+  "name": "adm%"
+}
 
 ###

@@ -1,5 +1,10 @@
 package io.polaris.core.jdbc.sql.statement;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 import io.polaris.core.annotation.AnnotationProcessing;
 import io.polaris.core.consts.SymbolConsts;
 import io.polaris.core.jdbc.sql.SqlTextParsers;
@@ -10,19 +15,23 @@ import io.polaris.core.jdbc.sql.node.TextNode;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.OrderBy;
 import io.polaris.core.jdbc.sql.query.Queries;
-import io.polaris.core.jdbc.sql.statement.segment.*;
+import io.polaris.core.jdbc.sql.statement.segment.AndSegment;
+import io.polaris.core.jdbc.sql.statement.segment.GroupBySegment;
+import io.polaris.core.jdbc.sql.statement.segment.JoinBuilder;
+import io.polaris.core.jdbc.sql.statement.segment.JoinSegment;
+import io.polaris.core.jdbc.sql.statement.segment.OrderBySegment;
+import io.polaris.core.jdbc.sql.statement.segment.SelectSegment;
+import io.polaris.core.jdbc.sql.statement.segment.TableAccessible;
+import io.polaris.core.jdbc.sql.statement.segment.TableAccessibleHolder;
+import io.polaris.core.jdbc.sql.statement.segment.TableSegment;
 import io.polaris.core.lang.Objs;
 import io.polaris.core.reflect.GetterFunction;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.string.Strings;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-
 /**
  * @author Qt
- * @since  Aug 20, 2023
+ * @since Aug 20, 2023
  */
 @AnnotationProcessing
 public class SelectStatement<S extends SelectStatement<S>> extends BaseStatement<S> implements TableAccessible {
@@ -133,6 +142,26 @@ public class SelectStatement<S extends SelectStatement<S>> extends BaseStatement
 		sqlHaving(sql);
 		sql.addNode(SqlNodes.LF);
 		sql.addNode(new TextNode(") tbl"));
+		return sql;
+	}
+
+	public SqlNode toExistsSqlNode(boolean queryByCount) {
+		ContainerNode sql = new ContainerNode();
+		if (queryByCount) {
+			sql.addNode(new TextNode("SELECT COUNT(*) EXISTED FROM ("));
+			sqlSelect(sql);
+		}else{
+			sql.addNode(new TextNode("SELECT 1 EXISTED "));
+		}
+		sqlFrom(sql);
+		sqlJoin(sql);
+		sqlWhere(sql);
+		sqlGroupBy(sql);
+		sqlHaving(sql);
+		if (queryByCount) {
+			sql.addNode(SqlNodes.LF);
+			sql.addNode(new TextNode(") tbl"));
+		}
 		return sql;
 	}
 
@@ -309,7 +338,7 @@ public class SelectStatement<S extends SelectStatement<S>> extends BaseStatement
 		if (!this.joins.isEmpty()) {
 			for (JoinSegment<S, ?> join : joins) {
 				List<? extends GroupBySegment<?, ?>> joinGroupBys = join.getGroupBys();
-				if (joinGroupBys != null &&!joinGroupBys.isEmpty()){
+				if (joinGroupBys != null && !joinGroupBys.isEmpty()) {
 					for (GroupBySegment<?, ?> groupBy : joinGroupBys) {
 						SqlNode sqlNode = groupBy.toSqlNode();
 						if (sqlNode.isSkipped()) {
@@ -393,7 +422,7 @@ public class SelectStatement<S extends SelectStatement<S>> extends BaseStatement
 		if (!this.joins.isEmpty()) {
 			for (JoinSegment<S, ?> join : joins) {
 				List<? extends OrderBySegment<?, ?>> joinOrderBys = join.getOrderBys();
-				if (joinOrderBys != null &&!joinOrderBys.isEmpty()){
+				if (joinOrderBys != null && !joinOrderBys.isEmpty()) {
 					for (OrderBySegment<?, ?> orderBy : joinOrderBys) {
 						SqlNode sqlNode = orderBy.toSqlNode();
 						if (sqlNode.isSkipped()) {
