@@ -1,11 +1,19 @@
 package io.polaris.core.service;
 
-import lombok.AccessLevel;
-import lombok.Getter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nullable;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+
+import io.polaris.core.log.ILogger;
+import io.polaris.core.log.ILoggers;
+import lombok.AccessLevel;
+import lombok.Getter;
 
 /**
  * @author Qt
@@ -13,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 1.8
  */
 public class StatefulServiceLoader<S> implements Iterable<S> {
+	private static final ILogger log = ILoggers.of(StatefulServiceLoader.class);
 	private final static Map<Class<?>, State<?>> store = new ConcurrentHashMap<>();
 	private final ServiceLoader<S> serviceLoader;
 
@@ -86,30 +95,56 @@ public class StatefulServiceLoader<S> implements Iterable<S> {
 	}
 
 	public Optional<S> optionalService() {
-		return Optional.ofNullable(serviceLoader.get()).map(Service::getSingleton);
+		return Optional.ofNullable(serviceLoader.get())
+			.map(s -> {
+				try {
+					return s.getSingleton();
+				} catch (Throwable e) {
+					log.error(e.getMessage(), e);
+					return null;
+				}
+			});
 	}
 
 	@Nullable
 	public S service() {
-		return serviceLoader.getSingleton();
+		return optionalService().orElse(null);
 	}
 
 	@Nullable
 	public S service(String propertyName, String propertyValue) {
-		return serviceLoader.getSingleton(propertyName, propertyValue);
+		return Optional.ofNullable(serviceLoader.get(propertyName, propertyValue))
+		.map(s -> {
+			try {
+				return s.getSingleton();
+			} catch (Throwable e) {
+				log.error(e.getMessage(), e);
+				return null;
+			}
+		}).orElse(null);
 	}
 
 	public List<S> serviceList() {
 		List<S> list = new ArrayList<>();
 		for (Service<S> service : serviceLoader) {
-			list.add(service.getSingleton());
+			try {
+				list.add(service.getSingleton());
+			} catch (Throwable e) {
+				log.error(e.getMessage(), e);
+			}
 		}
 		return list;
 	}
 
 	public Map<String, S> serviceMap() {
 		Map<String, S> map = new HashMap<>();
-		serviceLoader.getNamings().forEach((k, v) -> map.put(k, v.getSingleton()));
+		serviceLoader.getNamings().forEach((k, v) -> {
+			try {
+				map.put(k, v.getSingleton());
+			} catch (Throwable e) {
+				log.error(e.getMessage(), e);
+			}
+		});
 		return map;
 	}
 
