@@ -32,8 +32,9 @@ import org.springframework.util.Assert;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.jcfc.framework.jtc.brm.session.AppSessions;
-import com.jcfc.framework.jtc.brm.cache.BrmCaches;
+import io.polaris.framework.core.context.bean.BeanRef;
+import io.polaris.framework.infra.session.AppSessions;
+import io.polaris.framework.infra.cache.BrmCaches;
 
 import ${pkgPrefix}${env.mapperPackage.replace('/','.')}.${table.javaClassName}${env.mapperClassSuffix};
 import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
@@ -47,6 +48,7 @@ import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}$
 @Slf4j
 @Service
 public class ${table.javaClassName}${env.serviceClassSuffix} {
+	public static final BeanRef<${table.javaClassName}${env.serviceClassSuffix}> REF = BeanRef.of(${table.javaClassName}${env.serviceClassSuffix}.class);
 
 	private final ${table.javaClassName}${env.mapperClassSuffix} mapper;
 

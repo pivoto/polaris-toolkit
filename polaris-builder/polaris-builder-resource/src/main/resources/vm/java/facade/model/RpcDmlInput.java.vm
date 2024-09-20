@@ -18,9 +18,9 @@ import lombok.*;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
 
-import com.jcfc.bf.core.context.domain.ExchangeDto;
-import com.jcfc.bf.core.data.consts.Dml;
-import com.jcfc.bf.core.fs.domain.FileDto;
+import io.polaris.framework.core.context.domain.ExchangeDto;
+import io.polaris.framework.core.data.consts.Dml;
+import io.polaris.framework.core.fs.domain.FileDto;
 
 import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
 
@@ -33,7 +33,7 @@ import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}$
 @Data
 @FieldNameConstants
 @CustomValidated(${table.javaClassName}${env.rpcDmlInputClassSuffix}.Validator.class)
-public class ${table.javaClassName}${env.rpcDmlInputClassSuffix} extends ExchangeDto{
+public class ${table.javaClassName}${env.rpcDmlInputClassSuffix} extends ExchangeDto {
 
 	@Schema(description = "操作类型")
 	@NotNull(message = "操作类型[type]不能为空")

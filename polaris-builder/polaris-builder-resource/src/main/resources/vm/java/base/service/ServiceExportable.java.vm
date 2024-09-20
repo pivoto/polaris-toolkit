@@ -36,12 +36,13 @@ import org.springframework.util.Assert;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.jcfc.bf.core.fs.domain.CsvFileDto;
-import com.jcfc.bf.core.fs.domain.ExcelFileDto;
-import com.jcfc.bf.core.fs.domain.FileDto;
-import com.jcfc.bf.core.fs.excel.ExcelConfig;
-import com.jcfc.framework.jtc.brm.session.AppSessions;
-import com.jcfc.framework.jtc.brm.cache.BrmCaches;
+import io.polaris.framework.core.context.bean.BeanRef;
+import io.polaris.framework.core.fs.domain.CsvFileDto;
+import io.polaris.framework.core.fs.domain.ExcelFileDto;
+import io.polaris.framework.core.fs.domain.FileDto;
+import io.polaris.framework.core.fs.excel.ExcelConfig;
+import io.polaris.framework.infra.cache.BrmCaches;
+import io.polaris.framework.infra.session.AppSessions;
 
 import ${pkgPrefix}${env.mapperPackage.replace('/','.')}.${table.javaClassName}${env.mapperClassSuffix};
 import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
@@ -55,6 +56,7 @@ import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}$
 @Slf4j
 @Service
 public class ${table.javaClassName}${env.serviceClassSuffix} {
+	public static final BeanRef<${table.javaClassName}${env.serviceClassSuffix}> REF = BeanRef.of(${table.javaClassName}${env.serviceClassSuffix}.class);
 
 	private final ${table.javaClassName}${env.mapperClassSuffix} mapper;
 	private final ExcelConfig defaultExcelConfig = buildDefaultExcelConfig();
@@ -73,29 +75,110 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 			#foreach($col in $table.columns)
 				#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
 				.withDateColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.${col.javaVariableName}, "#if(${col.label})${col.label}#else${col.name}#end", Dates.PATTERN_YYYY_MM_DD_HH_MM_SS)
-				#elseif(!$table.containsColumnVariableName('crtUserName')
-					&& (
-						${col.javaVariableName.equals('crtUserId')} || (${col.javaVariableName.equals('crtUser')} && ${col.javaTypeSimpleName} == 'Long')
-					) )
-				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.crtUserName, "#if(${col.label})${col.label}#else${col.name}#end")
-				#elseif(!$table.containsColumnVariableName('crtUserRealName')
-					&& (
-						${col.javaVariableName.equals('crtUserId')} || ${col.javaVariableName.equals('crtUserName')} || ${col.javaVariableName.equals('crtUser')}
-					) )
-				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.crtUserRealName, "#if(${col.label})${col.label}#else${col.name}#end")
-				#elseif(!$table.containsColumnVariableName('uptUserName')
-					&& (
-						${col.javaVariableName.equals('uptUserId')} || (${col.javaVariableName.equals('uptUser')} && ${col.javaTypeSimpleName} == 'Long')
-					) )
-				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.uptUserName, "#if(${col.label})${col.label}#else${col.name}#end")
-				#elseif(!$table.containsColumnVariableName('uptUserRealName')
-					&& (
-						${col.javaVariableName.equals('uptUserId')} || ${col.javaVariableName.equals('uptUserName')} || ${col.javaVariableName.equals('uptUser')}
-					) )
-				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.uptUserRealName, "#if(${col.label})${col.label}#else${col.name}#end")
-				#else
+				#elseif(
+					!${col.javaVariableName.equals('createUser')} && !${col.javaVariableName.equals('createUserId')}
+					&& !${col.javaVariableName.equals('createUserName')} && !${col.javaVariableName.equals('createUserRealName')}
+					&& !${col.javaVariableName.equals('updateUser')} && !${col.javaVariableName.equals('updateUserId')}
+					&& !${col.javaVariableName.equals('updateUserName')} && !${col.javaVariableName.equals('updateUserRealName')}
+					&& !${col.javaVariableName.equals('crtUserId')} && !${col.javaVariableName.equals('crtUserName')}
+					&& !${col.javaVariableName.equals('crtUser')} && !${col.javaVariableName.equals('crtUserRealName')}
+					&& !${col.javaVariableName.equals('uptUserId')} && !${col.javaVariableName.equals('uptUserName')}
+					&& !${col.javaVariableName.equals('uptUser')} && !${col.javaVariableName.equals('uptUserRealName')}
+				)
 				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.${col.javaVariableName}, "#if(${col.label})${col.label}#else${col.name}#end")
 				#end
+			#end
+			#if(${table.containsColumnVariableName('createUserName')})
+				#set($col=${table.getColumnByVariableName('createUserName')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.createUserName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#elseif( ${table.containsColumnVariableName('createUserId')})
+				#set($col=${table.getColumnByVariableName('createUserId')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.createUserName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#elseif(${table.containsColumnVariableName('createUser')} && ${table.getColumnByVariableName('createUser').javaTypeSimpleName} == 'Long')
+				#set($col=${table.getColumnByVariableName('createUser')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.createUserName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#end
+			#if(${table.containsColumnVariableName('createUserRealName')})
+				#set($col=${table.getColumnByVariableName('createUserRealName')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.createUserRealName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#elseif( ${table.containsColumnVariableName('createUserId')})
+				#set($col=${table.getColumnByVariableName('createUserId')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.createUserRealName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#elseif(${table.containsColumnVariableName('createUserName')})
+				#set($col=${table.getColumnByVariableName('createUserName')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.createUserRealName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#elseif(${table.containsColumnVariableName('createUser')})
+				#set($col=${table.getColumnByVariableName('createUser')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.createUserRealName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#end
+			#if(${table.containsColumnVariableName('updateUserName')})
+				#set($col=${table.getColumnByVariableName('updateUserName')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.updateUserName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#elseif( ${table.containsColumnVariableName('updateUserId')})
+				#set($col=${table.getColumnByVariableName('updateUserId')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.updateUserName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#elseif(${table.containsColumnVariableName('updateUser')} && ${table.getColumnByVariableName('updateUser').javaTypeSimpleName} == 'Long')
+				#set($col=${table.getColumnByVariableName('updateUser')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.updateUserName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#end
+			#if(${table.containsColumnVariableName('updateUserRealName')})
+				#set($col=${table.getColumnByVariableName('updateUserRealName')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.updateUserRealName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#elseif( ${table.containsColumnVariableName('updateUserId')})
+				#set($col=${table.getColumnByVariableName('updateUserId')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.updateUserRealName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#elseif(${table.containsColumnVariableName('updateUserName')})
+				#set($col=${table.getColumnByVariableName('updateUserName')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.updateUserRealName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#elseif(${table.containsColumnVariableName('updateUser')})
+				#set($col=${table.getColumnByVariableName('updateUser')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.updateUserRealName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#end
+			#if(${table.containsColumnVariableName('crtUserName')})
+				#set($col=${table.getColumnByVariableName('crtUserName')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.crtUserName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#elseif( ${table.containsColumnVariableName('crtUserId')})
+				#set($col=${table.getColumnByVariableName('crtUserId')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.crtUserName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#elseif(${table.containsColumnVariableName('crtUser')} && ${table.getColumnByVariableName('crtUser').javaTypeSimpleName} == 'Long')
+				#set($col=${table.getColumnByVariableName('crtUser')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.crtUserName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#end
+			#if(${table.containsColumnVariableName('crtUserRealName')})
+				#set($col=${table.getColumnByVariableName('crtUserRealName')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.crtUserRealName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#elseif( ${table.containsColumnVariableName('crtUserId')})
+				#set($col=${table.getColumnByVariableName('crtUserId')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.crtUserRealName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#elseif(${table.containsColumnVariableName('crtUserName')})
+				#set($col=${table.getColumnByVariableName('crtUserName')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.crtUserRealName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#elseif(${table.containsColumnVariableName('crtUser')})
+				#set($col=${table.getColumnByVariableName('crtUser')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.crtUserRealName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#end
+			#if(${table.containsColumnVariableName('uptUserName')})
+				#set($col=${table.getColumnByVariableName('uptUserName')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.uptUserName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#elseif( ${table.containsColumnVariableName('uptUserId')})
+				#set($col=${table.getColumnByVariableName('uptUserId')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.uptUserName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#elseif(${table.containsColumnVariableName('uptUser')} && ${table.getColumnByVariableName('uptUser').javaTypeSimpleName} == 'Long')
+				#set($col=${table.getColumnByVariableName('uptUser')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.uptUserName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#end
+			#if(${table.containsColumnVariableName('uptUserRealName')})
+				#set($col=${table.getColumnByVariableName('uptUserRealName')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.uptUserRealName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#elseif( ${table.containsColumnVariableName('uptUserId')})
+				#set($col=${table.getColumnByVariableName('uptUserId')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.uptUserRealName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#elseif(${table.containsColumnVariableName('uptUserName')})
+				#set($col=${table.getColumnByVariableName('uptUserName')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.uptUserRealName, "#if(${col.label})${col.label}#else${col.name}#end")
+			#elseif(${table.containsColumnVariableName('uptUser')})
+				#set($col=${table.getColumnByVariableName('uptUser')})
+				.withColumn(${table.javaClassName}${env.entityClassSuffix}.Fields.uptUserRealName, "#if(${col.label})${col.label}#else${col.name}#end")
 			#end
 			;
 	}
@@ -107,7 +190,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		}
 		FileDto fileDto = new FileDto().withFileName(fileName);
 		ExcelFileDto excel = fileDto.toExcelFile(config);
-		excel.toFile(MybatisToolkit.buildVisitable(cursor, e-> ${table.javaClassName}${env.entityClassSuffix}.translate(e)));
+		excel.toFile(MybatisToolkit.buildVisitable(cursor, e-> Beans.newBeanMap(${table.javaClassName}${env.entityClassSuffix}.translate(e))));
 		return fileDto;
 	}
 
@@ -122,7 +205,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		}
 		FileDto fileDto = new FileDto().withFileName(fileName);
 		CsvFileDto csv = fileDto.toCsvGbkFile(config);
-		csv.toFile(MybatisToolkit.buildVisitable(cursor, e-> ${table.javaClassName}${env.entityClassSuffix}.translate(e)));
+		csv.toFile(MybatisToolkit.buildVisitable(cursor, e-> Beans.newBeanMap(${table.javaClassName}${env.entityClassSuffix}.translate(e))));
 		return fileDto;
 	}
 

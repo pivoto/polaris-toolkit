@@ -17,7 +17,7 @@ import io.polaris.validation.group.*;
 import lombok.*;
 import lombok.experimental.FieldNameConstants;
 
-import com.jcfc.framework.jtc.brm.cache.BrmCaches;
+import io.polaris.framework.infra.cache.BrmCaches;
 
 #foreach($name in $table.columnJavaTypes)
 import $name;
@@ -63,7 +63,7 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 #foreach($col in $table.pkColumns)
 	/** 主键字段: #if(${col.comment})$!{col.name} $!{col.comment}#else$!{col.name}#end */
 	@Schema(description = "#if(${col.label})$!{col.label}#else$!{col.name}#end")
-	@Id
+	@Id#if(${col.autoincrement})(auto = true)#end
 	@Column(value = "$!{col.name}")
 	#if(${col.javaTypeSimpleName}=='String')
 	@NotEmpty(groups = {Create.class, Update.class, Delete.class, Retrieve.class, UpdateEntire.class}, message = "#if($col.label)$col.label#else$col.name#end[${col.javaVariableName}]不能为空")
@@ -76,11 +76,13 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 #foreach($col in $table.normalColumns)
 	/** #if(${col.comment})$!{col.name} $!{col.comment}#else$!{col.name}#end */
 	@Schema(description = "#if(${col.label})$!{col.label}#else$!{col.name}#end")
-	#if(${col.javaVariableName}=='crtDt')
+	#if(${col.javaVariableName}=='createDate' || ${col.javaVariableName}=='crtDt')
 	@Column(value = "$!{col.name}", updatable = false, createTime = true)
+	#elseif(${col.javaVariableName}=='createUser' || ${col.javaVariableName}=='createUserName' || ${col.javaVariableName}=='createUserRealName')
+	@Column(value = "$!{col.name}", updatable = false)
 	#elseif(${col.javaVariableName}=='crtUser' || ${col.javaVariableName}=='crtUserId' || ${col.javaVariableName}=='crtUserName' || ${col.javaVariableName}=='crtUserRealName')
 	@Column(value = "$!{col.name}", updatable = false)
-	#elseif(${col.javaVariableName}=='uptDt')
+	#elseif(${col.javaVariableName}=='updateDate' || ${col.javaVariableName}=='uptDt')
 	@Column(value = "$!{col.name}", updateTime = true)
 	#else
 	@Column(value = "$!{col.name}")
@@ -95,6 +97,42 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 	private ${col.javaTypeSimpleName} ${col.javaVariableName};
 #end
 
+#if(!$table.containsColumnVariableName('createUser'))
+	#if($table.containsColumnVariableName('createUserName') && $table.getColumnByVariableName('createUserName').javaTypeSimpleName == 'String')
+	@Column(ignored = true)
+	private Long createUser;
+	#end
+#end
+#if(!$table.containsColumnVariableName('createUserName'))
+	#if($table.containsColumnVariableName('createUser') && $table.getColumnByVariableName('createUser').javaTypeSimpleName == 'Long')
+	@Column(ignored = true)
+	private String createUserName;
+	#end
+#end
+#if(!$table.containsColumnVariableName('createUserRealName'))
+	#if($table.containsColumnVariableName('createUser') || $table.containsColumnVariableName('createUserName'))
+	@Column(ignored = true)
+	private String createUserRealName;
+	#end
+#end
+#if(!$table.containsColumnVariableName('updateUser'))
+	#if($table.containsColumnVariableName('updateUserName') && $table.getColumnByVariableName('updateUserName').javaTypeSimpleName == 'String')
+	@Column(ignored = true)
+	private Long updateUser;
+	#end
+#end
+#if(!$table.containsColumnVariableName('updateUserName'))
+	#if($table.containsColumnVariableName('updateUser') && $table.getColumnByVariableName('updateUser').javaTypeSimpleName == 'Long')
+	@Column(ignored = true)
+	private String updateUserName;
+	#end
+#end
+#if(!$table.containsColumnVariableName('updateUserRealName'))
+	#if($table.containsColumnVariableName('updateUser') || $table.containsColumnVariableName('updateUserName'))
+	@Column(ignored = true)
+	private String updateUserRealName;
+	#end
+#end
 #if(!$table.containsColumnVariableName('crtUserId'))
 	#if($table.containsColumnVariableName('crtUser') && $table.getColumnByVariableName('crtUser').javaTypeSimpleName == 'String')
 	@Column(ignored = true)
@@ -157,14 +195,15 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 
 
 	public static ${table.javaClassName}${env.entityClassSuffix} translate(${table.javaClassName}${env.entityClassSuffix} entity){
-		BrmCaches.transCreatable(entity);
-		BrmCaches.transUpdatable(entity);
+		BrmCaches.transRecordable(entity);
 		return entity;
 	}
 
 	public static List<${table.javaClassName}${env.entityClassSuffix}> translate(List<${table.javaClassName}${env.entityClassSuffix}> list) {
-		BrmCaches.transCreatable(list);
-		BrmCaches.transUpdatable(list);
+		// BrmCaches.transRecordable(list);
+		for (${table.javaClassName}${env.entityClassSuffix} e : list) {
+			${table.javaClassName}${env.entityClassSuffix}.translate(e);
+		}
 		return list;
 	}
 

@@ -4,12 +4,16 @@
 		<el-form ref="refForm" v-loading="vLoadingForm" :rules="vFormRules" :model="vFormData" label-width="90px">
 			<v-row :gutter="5">
 #foreach($col in $table.columns)
-#if(${col.javaVariableName.equals('crtUser')} || ${col.javaVariableName.equals('uptUser')}
-	|| ${col.javaVariableName.equals('crtUserName')} || ${col.javaVariableName.equals('uptUserName')}
-	|| ${col.javaVariableName.equals('crtUserId')} || ${col.javaVariableName.equals('uptUserId')}
-	|| ${col.javaVariableName.equals('crtUserRealName')} || ${col.javaVariableName.equals('uptUserRealName')}
+#if( ${col.javaVariableName.equals('createUser')} || ${col.javaVariableName.equals('updateUser')}
+	|| ${col.javaVariableName.equals('createDate')} || ${col.javaVariableName.equals('updateDate')}
+	|| ${col.javaVariableName.equals('createUserName')} || ${col.javaVariableName.equals('updateUserName')}
+	|| ${col.javaVariableName.equals('createUserRealName')} || ${col.javaVariableName.equals('updateUserRealName')}
+	|| ${col.javaVariableName.equals('crtUser')} || ${col.javaVariableName.equals('uptUser')}
 	|| ${col.javaVariableName.equals('crtDt')} || ${col.javaVariableName.equals('uptDt')}
-	|| ${col.primary})
+	|| ${col.javaVariableName.equals('crtUserId')} || ${col.javaVariableName.equals('uptUserId')}
+	|| ${col.javaVariableName.equals('crtUserName')} || ${col.javaVariableName.equals('uptUserName')}
+	|| ${col.javaVariableName.equals('crtUserRealName')} || ${col.javaVariableName.equals('uptUserRealName')}
+	)
 	#set($env.editPageColReadonly='readonly disabled')
 #else
 	#set($env.editPageColReadonly=':readonly="props.readonly" :disabled="props.readonly"')
@@ -39,8 +43,12 @@
 #elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL')
 				<v-col-form-item type="input" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
 					clearable ${env.editPageColReadonly} item-style="width: 200px;" />
+#elseif(${col.jdbcType} == 'BIT' || ${col.jdbcType} == 'BOOLEAN')
+				<v-col-form-item type="switch" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
+					clearable ${env.editPageColReadonly}
+					:switch-props="{width:60,inlinePrompt:true,activeValue:true,inactiveValue:false,activeText:'是',inactiveText:'否'}" />
 #else
-	#if(${col.name.toLowerCase().endsWith('_sts')})
+	#if(${col.name.toLowerCase().endsWith('_sts')} || ${col.name.toLowerCase().endsWith('_status')})
 				<v-col-form-item type="switch" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
 					clearable ${env.editPageColReadonly}
 					:switch-props="{width:60,inlinePrompt:true,activeValue:'A',inactiveValue:'I',activeText:'生效',inactiveText:'失效'}" />
@@ -115,6 +123,8 @@ type ParamType = {
 	${col.javaVariableName}#if(${col.nullable})?#end: number,
 	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL')
 	${col.javaVariableName}#if(${col.nullable})?#end: string,
+	#elseif(${col.jdbcType} == 'BIT' || ${col.jdbcType} == 'BOOLEAN')
+	${col.javaVariableName}#if(${col.nullable})?#end: boolean,
 	#else
 	${col.javaVariableName}#if(${col.nullable})?#end: string,
 	#end
@@ -124,16 +134,6 @@ type FormType = {
 #foreach($col in $table.columns)
 	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
 	${col.javaVariableName}?: number,
-	#elseif(${env.entityExtInterface.contains('Creatable')} && ${col.javaVariableName.equals('crtUser')})
-	crtUser?: string,
-	#if(!$table.containsColumnVariableName('crtUserName'))
-	crtUserName?: string,
-	#end
-	#elseif(${env.entityExtInterface.contains('Updatable')} && ${col.javaVariableName.equals('uptUser')})
-	uptUser?: string,
-	#if(!$table.containsColumnVariableName('uptUserName'))
-	uptUserName?: string,
-	#end
 	#elseif(${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT')
 	${col.javaVariableName}?: number,
 	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'BIGINT')
@@ -142,8 +142,80 @@ type FormType = {
 	${col.javaVariableName}?: number,
 	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL')
 	${col.javaVariableName}?: string,
+	#elseif(${col.jdbcType} == 'BIT' || ${col.jdbcType} == 'BOOLEAN')
+	${col.javaVariableName}?: boolean,
 	#else
 	${col.javaVariableName}?: string,
+	#end
+#end
+#if(!$table.containsColumnVariableName('createUser'))
+	#if($table.containsColumnVariableName('createUserName') && $table.getColumnByVariableName('createUserName').javaTypeSimpleName == 'String')
+	createUser?: string,
+	#end
+#end
+#if(!$table.containsColumnVariableName('createUserName'))
+	#if($table.containsColumnVariableName('createUser') && $table.getColumnByVariableName('createUser').javaTypeSimpleName == 'Long')
+	createUserName?: string,
+	#end
+#end
+#if(!$table.containsColumnVariableName('createUserRealName'))
+	#if($table.containsColumnVariableName('createUser') || $table.containsColumnVariableName('createUserName'))
+	createUserRealName?: string,
+	#end
+#end
+#if(!$table.containsColumnVariableName('updateUser'))
+	#if($table.containsColumnVariableName('updateUserName') && $table.getColumnByVariableName('updateUserName').javaTypeSimpleName == 'String')
+	updateUser?: string,
+	#end
+#end
+#if(!$table.containsColumnVariableName('updateUserName'))
+	#if($table.containsColumnVariableName('updateUser') && $table.getColumnByVariableName('updateUser').javaTypeSimpleName == 'Long')
+	updateUserName?: string,
+	#end
+#end
+#if(!$table.containsColumnVariableName('updateUserRealName'))
+	#if($table.containsColumnVariableName('updateUser') || $table.containsColumnVariableName('updateUserName'))
+	updateUserRealName?: string,
+	#end
+#end
+#if(!$table.containsColumnVariableName('crtUserId'))
+	#if($table.containsColumnVariableName('crtUser') && $table.getColumnByVariableName('crtUser').javaTypeSimpleName == 'String')
+	crtUserId?: string,
+	#elseif($table.containsColumnVariableName('crtUserName'))
+	crtUserId?: string,
+	#end
+#end
+#if(!$table.containsColumnVariableName('crtUserName'))
+	#if($table.containsColumnVariableName('crtUser') && $table.getColumnByVariableName('crtUser').javaTypeSimpleName == 'Long')
+	crtUserName?: string,
+	#elseif($table.containsColumnVariableName('crtUserId'))
+	crtUserName?: string,
+	#end
+#end
+#if(!$table.containsColumnVariableName('crtUserRealName'))
+	#if($table.containsColumnVariableName('crtUser')
+	|| $table.containsColumnVariableName('crtUserId') || $table.containsColumnVariableName('crtUserName'))
+	crtUserRealName?: string,
+	#end
+#end
+#if(!$table.containsColumnVariableName('uptUserId'))
+	#if($table.containsColumnVariableName('uptUser') && $table.getColumnByVariableName('uptUser').javaTypeSimpleName == 'String')
+	uptUserId?: string,
+	#elseif($table.containsColumnVariableName('uptUserName'))
+	uptUserId?: string,
+	#end
+#end
+#if(!$table.containsColumnVariableName('uptUserName'))
+	#if($table.containsColumnVariableName('uptUser') && $table.getColumnByVariableName('uptUser').javaTypeSimpleName == 'Long')
+	uptUserName?: string,
+	#elseif($table.containsColumnVariableName('uptUserId'))
+	uptUserName?: string,
+	#end
+#end
+#if(!$table.containsColumnVariableName('uptUserRealName'))
+	#if($table.containsColumnVariableName('uptUser')
+	|| $table.containsColumnVariableName('uptUserId') || $table.containsColumnVariableName('uptUserName'))
+	uptUserRealName?: string,
 	#end
 #end
 }
@@ -217,8 +289,16 @@ const vFormRules = ref<FormRules<FormType>>({});
 		};
 	}
 #foreach($col in $table.columns)
-	#if(${col.javaVariableName.equals('crtUser')} || ${col.javaVariableName.equals('uptUser')}
-	|| ${col.javaVariableName.equals('crtDt')} || ${col.javaVariableName.equals('uptDt')})
+	#if( ${col.javaVariableName.equals('createUser')} || ${col.javaVariableName.equals('updateUser')}
+		|| ${col.javaVariableName.equals('createDate')} || ${col.javaVariableName.equals('updateDate')}
+		|| ${col.javaVariableName.equals('createUserName')} || ${col.javaVariableName.equals('updateUserName')}
+		|| ${col.javaVariableName.equals('createUserRealName')} || ${col.javaVariableName.equals('updateUserRealName')}
+		|| ${col.javaVariableName.equals('crtUser')} || ${col.javaVariableName.equals('uptUser')}
+		|| ${col.javaVariableName.equals('crtDt')} || ${col.javaVariableName.equals('uptDt')}
+		|| ${col.javaVariableName.equals('crtUserId')} || ${col.javaVariableName.equals('uptUserId')}
+		|| ${col.javaVariableName.equals('crtUserName')} || ${col.javaVariableName.equals('uptUserName')}
+		|| ${col.javaVariableName.equals('crtUserRealName')} || ${col.javaVariableName.equals('uptUserRealName')}
+	)
 ## ignore
 	#elseif(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
 		#if(!${col.nullable})

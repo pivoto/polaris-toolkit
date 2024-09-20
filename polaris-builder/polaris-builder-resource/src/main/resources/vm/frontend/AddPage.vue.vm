@@ -4,11 +4,16 @@
 		<el-form ref="refForm" :rules="vFormRules" :model="vFormData" label-width="90px">
 			<v-row :gutter="5">
 #foreach($col in $table.columns)
-#if(${col.javaVariableName.equals('crtUser')} || ${col.javaVariableName.equals('uptUser')}
+#if( ${col.javaVariableName.equals('createUser')} || ${col.javaVariableName.equals('updateUser')}
+	|| ${col.javaVariableName.equals('createDate')} || ${col.javaVariableName.equals('updateDate')}
+	|| ${col.javaVariableName.equals('createUserName')} || ${col.javaVariableName.equals('updateUserName')}
+	|| ${col.javaVariableName.equals('createUserRealName')} || ${col.javaVariableName.equals('updateUserRealName')}
+	|| ${col.javaVariableName.equals('crtUser')} || ${col.javaVariableName.equals('uptUser')}
+	|| ${col.javaVariableName.equals('crtDt')} || ${col.javaVariableName.equals('uptDt')}
 	|| ${col.javaVariableName.equals('crtUserId')} || ${col.javaVariableName.equals('uptUserId')}
 	|| ${col.javaVariableName.equals('crtUserName')} || ${col.javaVariableName.equals('uptUserName')}
 	|| ${col.javaVariableName.equals('crtUserRealName')} || ${col.javaVariableName.equals('uptUserRealName')}
-	|| ${col.javaVariableName.equals('crtDt')} || ${col.javaVariableName.equals('uptDt')})
+	)
 ## ignore
 #elseif(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
 				<v-col-form-item type="datetime" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
@@ -25,8 +30,11 @@
 #elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL')
 				<v-col-form-item type="input" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
 					clearable item-style="width: 200px;" />
+#elseif(${col.jdbcType} == 'BIT' || ${col.jdbcType} == 'BOOLEAN')
+				<v-col-form-item type="switch" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
+					clearable :switch-props="{width:60,inlinePrompt:true,activeValue:true,inactiveValue:false,activeText:'是',inactiveText:'否'}" />
 #else
-	#if(${col.name.toLowerCase().endsWith('_sts')})
+	#if(${col.name.toLowerCase().endsWith('_sts')} || ${col.name.toLowerCase().endsWith('_status')})
 				<v-col-form-item type="switch" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
 					clearable :switch-props="{width:60,inlinePrompt:true,activeValue:'A',inactiveValue:'I',activeText:'生效',inactiveText:'失效'}" />
 	#else
@@ -128,11 +136,13 @@ const vFormData = ref<FormType>({
 #elseif(${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT')
 	${col.javaVariableName}: #if(${col.nullable}) undefined #else 0 #end,
 #elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'BIGINT')
-	${col.javaVariableName}: #if(${col.nullable}) undefined #else '0' #end,
+	${col.javaVariableName}: #if(${col.nullable}) undefined #else 0 #end,
 #elseif(${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
 	${col.javaVariableName}: #if(${col.nullable}) undefined #else 0 #end,
 #elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL')
-	${col.javaVariableName}: #if(${col.nullable}) undefined #else '0' #end,
+	${col.javaVariableName}: #if(${col.nullable}) undefined #else 0 #end,
+#elseif(${col.jdbcType} == 'BIT' || ${col.jdbcType} == 'BOOLEAN')
+	${col.javaVariableName}: #if(${col.nullable}) undefined #else false #end,
 #else
 	${col.javaVariableName}: #if(${col.nullable}) undefined #else '' #end,
 #end
@@ -142,6 +152,16 @@ const vFormRules = ref<FormRules<FormType>>({});
 
 // validators
 {
+	const buildRequiredValidator:()=>RuleItem = ()=>{
+		return {
+			validator: (rule, value, callback) => {
+					if (value == null) {
+						return new Error('不能为空');
+					}
+				callback();
+			}
+		};
+	}
 	const buildRequiredNumberValidator:()=>RuleItem = ()=>{
 		return {
 			validator: (rule, value, callback) => {
@@ -166,8 +186,16 @@ const vFormRules = ref<FormRules<FormType>>({});
 		};
 	}
 #foreach($col in $table.columns)
-	#if(${col.javaVariableName.equals('crtUser')} || ${col.javaVariableName.equals('uptUser')}
-	|| ${col.javaVariableName.equals('crtDt')} || ${col.javaVariableName.equals('uptDt')})
+	#if( ${col.javaVariableName.equals('createUser')} || ${col.javaVariableName.equals('updateUser')}
+	|| ${col.javaVariableName.equals('createDate')} || ${col.javaVariableName.equals('updateDate')}
+	|| ${col.javaVariableName.equals('createUserName')} || ${col.javaVariableName.equals('updateUserName')}
+	|| ${col.javaVariableName.equals('createUserRealName')} || ${col.javaVariableName.equals('updateUserRealName')}
+	|| ${col.javaVariableName.equals('crtUser')} || ${col.javaVariableName.equals('uptUser')}
+	|| ${col.javaVariableName.equals('crtDt')} || ${col.javaVariableName.equals('uptDt')}
+	|| ${col.javaVariableName.equals('crtUserId')} || ${col.javaVariableName.equals('uptUserId')}
+	|| ${col.javaVariableName.equals('crtUserName')} || ${col.javaVariableName.equals('uptUserName')}
+	|| ${col.javaVariableName.equals('crtUserRealName')} || ${col.javaVariableName.equals('uptUserRealName')}
+	)
 ## ignore
 	#elseif(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
 		#if(!${col.nullable})
@@ -176,6 +204,10 @@ const vFormRules = ref<FormRules<FormType>>({});
 	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT' || ${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
 		#if(!${col.nullable})
 	vFormRules.value.${col.javaVariableName} = [buildRequiredNumberValidator()];
+		#end
+	#elseif(${col.jdbcType} == 'BIT' || ${col.jdbcType} == 'BOOLEAN')
+		#if(!${col.nullable})
+	vFormRules.value.${col.javaVariableName} = [buildRequiredValidator()];
 		#end
 	#else
 		#if(!${col.nullable})

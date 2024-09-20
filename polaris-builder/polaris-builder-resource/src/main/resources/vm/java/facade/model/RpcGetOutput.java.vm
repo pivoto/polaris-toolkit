@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.Accessors;
 
-import com.jcfc.bf.core.context.domain.ExchangeDto;
+import io.polaris.framework.core.context.domain.ExchangeDto;
 
 import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
 
@@ -22,7 +22,7 @@ import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}$
 ## * @since ${current.date}
  */
 @Data
-public class ${table.javaClassName}${env.rpcGetOutputClassSuffix} extends ExchangeDto{
+public class ${table.javaClassName}${env.rpcGetOutputClassSuffix} extends ExchangeDto {
 
 	private ${table.javaClassName}${env.entityClassSuffix} entity;
 

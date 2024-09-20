@@ -15,9 +15,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.Accessors;
 
-import com.jcfc.bf.core.context.domain.ExchangeDto;
-import com.jcfc.bf.core.data.domain.Page;
-import com.jcfc.bf.core.data.consts.Dml;
+import io.polaris.framework.core.context.domain.ExchangeDto;
+import io.polaris.framework.core.data.domain.Page;
+import io.polaris.framework.core.data.consts.Dml;
 
 import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
 

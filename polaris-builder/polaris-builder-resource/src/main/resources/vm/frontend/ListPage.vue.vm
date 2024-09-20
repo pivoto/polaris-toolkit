@@ -16,18 +16,22 @@
 						clearable item-style="width: 200px;" :number-props="{precision:${col.decimalDigits}}" />
 	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' )
 					<v-col-form-item type="input" label="${col.label}" prop="${col.javaVariableName}" v-model="vQueryForm.queryForm.${col.javaVariableName}"
-						clearable item-style="width: 180px;" />
+						clearable item-style="width: 200px;" />
 	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'BIGINT')
 					<v-col-form-item type="input" label="${col.label}" prop="${col.javaVariableName}" v-model="vQueryForm.queryForm.${col.javaVariableName}"
-						clearable item-style="width: 180px;" />
+						clearable item-style="width: 200px;" />
+	#elseif(${col.jdbcType} == 'BIT' || ${col.jdbcType} == 'BOOLEAN')
+					<v-col-form-item type="select" label="${col.label}" prop="${col.javaVariableName}" v-model="vQueryForm.queryForm.${col.javaVariableName}"
+						clearable item-style="width: 200px;"
+						:data="[{value:true,label:'是',tag:{effect:'dark'}},{value:false,label:'否',tag:{effect:'dark',type:'danger'}}]" />
 	#else
-		#if(${col.name.toLowerCase().endsWith('_sts')})
+		#if(${col.name.toLowerCase().endsWith('_sts')} || ${col.name.toLowerCase().endsWith('_status')})
 					<v-col-form-item type="select" label="${col.label}" prop="${col.javaVariableName}" v-model="vQueryForm.queryForm.${col.javaVariableName}"
 						clearable item-style="width: 200px;"
 						:data="[{value:'A',label:'生效',tag:{effect:'dark'}},{value:'I',label:'失效',tag:{effect:'dark',type:'danger'}}]" />
 		#else
 					<v-col-form-item type="input" label="${col.label}" prop="${col.javaVariableName}" v-model="vQueryForm.queryForm.${col.javaVariableName}"
-						clearable item-style="width: 180px;" />
+						clearable item-style="width: 200px;" />
 		#end
 	#end
 #end
@@ -69,9 +73,13 @@
 	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
 				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center" format-time />
 	#else
-		#if(${col.name.toLowerCase().endsWith('_sts')})
+		#if(${col.name.toLowerCase().endsWith('_sts')} || ${col.name.toLowerCase().endsWith('_status')})
 				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center"
 					:dict="[{value:'A',label:'生效',tag:{effect:'dark'}},{value:'I',label:'失效',tag:{effect:'dark',type:'danger'}}]" />
+		#elseif(${col.javaVariableName.equals('createUser')} )
+			#if(!$table.containsColumnVariableName('createUserName'))
+				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center" format-user="createUserName" />
+			#end
 		#elseif(${col.javaVariableName.equals('crtUserId')} )
 			#if(!$table.containsColumnVariableName('crtUserName'))
 				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center" format-user="crtUserName" />
@@ -79,6 +87,10 @@
 		#elseif(${col.javaVariableName.equals('crtUser')} && ${col.javaTypeSimpleName} == 'Long')
 			#if(!$table.containsColumnVariableName('crtUserName'))
 				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center" format-user="crtUserName" />
+			#end
+		#elseif(${col.javaVariableName.equals('updateUser')} )
+			#if(!$table.containsColumnVariableName('updateUserName'))
+				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center" format-user="updateUserName" />
 			#end
 		#elseif(${col.javaVariableName.equals('uptUserId')})
 			#if(!$table.containsColumnVariableName('uptUserName'))
@@ -189,7 +201,7 @@ type EntityType = {
 #end
 #end
 }
-interface FormType extends Partial<Omit<EntityType,'crtDt'|'uptDt'>> {
+interface FormType extends Partial<Omit<EntityType,'createDate'|'updateDate'|'crtDt'|'uptDt'>> {
 	[key:string]: any,
 }
 interface ImportFormType {
@@ -319,7 +331,7 @@ async function doFetchData() {
 		}
 		for (let key in FieldsLike) {
 			if (input.param[key]) {
-				input.param[key] = input.param[key].replace(/^%*|%*$/g, '%');
+				typeof input.param[key] === 'string' && (input.param[key] = input.param[key].replace(/^%*|%*$/g, '%'));
 			}
 		}
 		//let rs = await mockTableData(input.page.pageIdx, input.page.pageSize);
@@ -479,12 +491,19 @@ function onExportRecord(useCsv?: boolean){
 					return;
 				}
 				let output = rs.output;
-				let cmisDownload = output.cmis_download;
-				if (cmisDownload && cmisDownload.fileurl){
-					if (cmisDownload.filename){
-						msg.success('请下载导出结果文件：'+cmisDownload.filename);
+				let downloadFile = null;//download
+				if(output.value && output.value.fileurl){
+					downloadFile = output.value;
+				}else if(output.download && output.download.fileurl){
+					downloadFile = output.download;
+				}else if(output.cmis_download && output.cmis_download.fileurl){
+					downloadFile = output.cmis_download;
 					}
-					window.open(cmisDownload.fileurl)
+				if (downloadFile && downloadFile.fileurl){
+					if (downloadFile.filename){
+						msg.success('请下载导出结果文件：'+downloadFile.filename);
+					}
+					window.open(downloadFile.fileurl)
 				}else{
 					msg.warn('无结果文件，请确认导出接口是否正确！')
 				}
@@ -588,7 +607,7 @@ function mockTableData(pageIdx: number, pageSize: number): Promise<PromiseResult
 	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
 				${col.javaVariableName}: new Date().getTime(),
 	#else
-		#if(${col.name.toLowerCase().endsWith('_sts')})
+		#if(${col.name.toLowerCase().endsWith('_sts')} || ${col.name.toLowerCase().endsWith('_status')})
 				${col.javaVariableName}: ['A', 'I'][Math.floor(Math.random() * 2)],
 		#else
 				${col.javaVariableName}: 'Data' + (Math.round(Math.random() * 1000)),
