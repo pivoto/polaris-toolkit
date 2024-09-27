@@ -18,18 +18,22 @@ public class TableMetaMutation {
 	private final Class<?> entityClass;
 	private final String newTableName;
 	private final Map<String, ValueRef<String>> newColumnNames;
+	private final Map<String, ColumnMeta> newColumnMetas;
 	private final boolean mutable;
 
-	private TableMetaMutation(Class<?> entityClass, String newTableName, Map<String, ValueRef<String>> newColumnNames) {
+	private TableMetaMutation(Class<?> entityClass, String newTableName, Map<String, ValueRef<String>> newColumnNames, Map<String, ColumnMeta> newColumnMetas) {
 		this.entityClass = entityClass;
 		this.newTableName = newTableName;
 		this.newColumnNames = newColumnNames;
+		this.newColumnMetas = newColumnMetas;
 		this.mutable = Strings.isNotBlank(newTableName)
-			|| (newColumnNames != null && !newColumnNames.isEmpty());
+			|| (newColumnNames != null && !newColumnNames.isEmpty())
+			|| (newColumnMetas != null && !newColumnMetas.isEmpty())
+		;
 	}
 
 	public static TableMetaMutation origin(Class<?> entityClass) {
-		return new TableMetaMutation(entityClass, null, null);
+		return new TableMetaMutation(entityClass, null, null, null);
 	}
 
 	public static Builder builder(Class<?> entityClass) {
@@ -41,12 +45,17 @@ public class TableMetaMutation {
 		if (this == o) return true;
 		if (!(o instanceof TableMetaMutation)) return false;
 		TableMetaMutation that = (TableMetaMutation) o;
-		return mutable == that.mutable && Objects.equals(entityClass, that.entityClass) && Objects.equals(newTableName, that.newTableName) && Objects.equals(newColumnNames, that.newColumnNames);
+		return mutable == that.mutable
+			&& Objects.equals(entityClass, that.entityClass)
+			&& Objects.equals(newTableName, that.newTableName)
+			&& Objects.equals(newColumnNames, that.newColumnNames)
+			&& Objects.equals(newColumnMetas, that.newColumnMetas)
+			;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(entityClass, newTableName, newColumnNames, mutable);
+		return Objects.hash(entityClass, newTableName, newColumnNames, newColumnMetas, mutable);
 	}
 
 	public TableMeta apply(TableMeta origin) {
@@ -55,39 +64,51 @@ public class TableMetaMutation {
 		}
 		String tableName = Strings.isBlank(newTableName) ? origin.getTable() : newTableName;
 		Map<String, ColumnMeta> columns = origin.getColumns();
-		if (newColumnNames != null && !newColumnNames.isEmpty()) {
+
+		if ((newColumnMetas != null && !newColumnMetas.isEmpty())
+			|| (newColumnNames != null && !newColumnNames.isEmpty())
+		) {
 			Map<String, ColumnMeta> newColumns = new HashMap<>(columns);
-			columns.forEach((key, value) -> {
-				ValueRef<String> ref = newColumnNames.get(key);
-				if (ref != null && Strings.isBlank(ref.get())) {
-					// 删除字段
-					return;
-				}
-				String columnName = ref == null ? value.getColumnName() : ref.get();
-				ColumnMeta columnMeta = ColumnMeta.builder()
-					.tableName(tableName)
-					.schema(value.getSchema())
-					.catalog(value.getCatalog())
-					.fieldName(value.getFieldName())
-					.fieldType(value.getFieldType())
-					.columnName(columnName)
-					.jdbcType(value.getJdbcType())
-					.jdbcTypeValue(value.getJdbcTypeValue())
-					.updateDefault(value.getUpdateDefault())
-					.insertDefault(value.getInsertDefault())
-					.nullable(value.isNullable())
-					.insertable(value.isInsertable())
-					.updatable(value.isUpdatable())
-					.version(value.isVersion())
-					.logicDeleted(value.isLogicDeleted())
-					.createTime(value.isCreateTime())
-					.updateTime(value.isUpdateTime())
-					.primaryKey(value.isPrimaryKey())
-					.autoIncrement(value.isAutoIncrement())
-					.seqName(value.getSeqName())
-					.build();
-				newColumns.put(key, columnMeta);
-			});
+
+			if (newColumnNames != null && !newColumnNames.isEmpty()) {
+				columns.forEach((key, value) -> {
+					ValueRef<String> ref = newColumnNames.get(key);
+					if (ref != null && Strings.isBlank(ref.get())) {
+						// 删除字段
+						newColumns.remove(key);
+						return;
+					}
+					String columnName = ref == null ? value.getColumnName() : ref.get();
+					ColumnMeta columnMeta = ColumnMeta.builder()
+						.tableName(tableName)
+						.schema(value.getSchema())
+						.catalog(value.getCatalog())
+						.fieldName(value.getFieldName())
+						.fieldType(value.getFieldType())
+						.columnName(columnName)
+						.jdbcType(value.getJdbcType())
+						.jdbcTypeValue(value.getJdbcTypeValue())
+						.updateDefault(value.getUpdateDefault())
+						.insertDefault(value.getInsertDefault())
+						.nullable(value.isNullable())
+						.insertable(value.isInsertable())
+						.updatable(value.isUpdatable())
+						.version(value.isVersion())
+						.logicDeleted(value.isLogicDeleted())
+						.createTime(value.isCreateTime())
+						.updateTime(value.isUpdateTime())
+						.primaryKey(value.isPrimaryKey())
+						.autoIncrement(value.isAutoIncrement())
+						.seqName(value.getSeqName())
+						.build();
+					newColumns.put(key, columnMeta);
+				});
+			}
+
+			if (newColumnMetas != null && !newColumnMetas.isEmpty()) {
+				newColumns.putAll(newColumnMetas);
+			}
+
 			columns = Collections.unmodifiableMap(newColumns);
 		}
 		return TableMeta.builder().entityClass(origin.getEntityClass())
@@ -119,6 +140,7 @@ public class TableMetaMutation {
 		private final Class<?> entityClass;
 		private String newTableName;
 		private Map<String, ValueRef<String>> newColumnNames;
+		private Map<String, ColumnMeta> newColumnMetas;
 
 		public Builder(Class<?> entityClass) {
 			this.entityClass = entityClass;
@@ -141,9 +163,19 @@ public class TableMetaMutation {
 			return renameColumn(columnName, null);
 		}
 
+		public Builder addColumn(ColumnMeta columnMeta) {
+			if (newColumnMetas == null) {
+				newColumnMetas = new HashMap<>();
+			}
+			newColumnMetas.put(columnMeta.getFieldName(), columnMeta);
+			return this;
+		}
+
 		public TableMetaMutation build() {
-			return new TableMetaMutation(entityClass, newTableName,
-				newColumnNames == null ? Collections.emptyMap() : Collections.unmodifiableMap(newColumnNames));
+			return new TableMetaMutation(entityClass, newTableName
+				, newColumnNames == null ? Collections.emptyMap() : Collections.unmodifiableMap(newColumnNames)
+				, newColumnMetas == null ? Collections.emptyMap() : Collections.unmodifiableMap(newColumnMetas)
+			);
 		}
 
 
