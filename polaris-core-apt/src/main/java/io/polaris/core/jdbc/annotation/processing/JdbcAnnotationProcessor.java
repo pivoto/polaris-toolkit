@@ -2,6 +2,7 @@ package io.polaris.core.jdbc.annotation.processing;
 
 import io.polaris.core.annotation.processing.BaseProcessor;
 import io.polaris.core.jdbc.ColumnMeta;
+import io.polaris.core.jdbc.ExpressionMeta;
 import io.polaris.core.jdbc.IEntityMeta;
 import io.polaris.core.jdbc.annotation.Table;
 import com.squareup.javapoet.*;
@@ -51,6 +52,7 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 		ClassName className = beanInfo.getMetaClassName();
 		ClassName entityMetaClassName = ClassName.get(IEntityMeta.class);
 		ClassName columnMetaClassName = ClassName.get(ColumnMeta.class);
+		ClassName expressionMetaClassName = ClassName.get(ExpressionMeta.class);
 
 		TypeSpec.Builder classBuilder = TypeSpec.classBuilder(className)
 			.addModifiers(Modifier.PUBLIC)
@@ -63,6 +65,14 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 				.addModifiers(Modifier.PUBLIC, Modifier.STATIC);
 
 			for (JdbcBeanInfo.FieldInfo field : beanInfo.getFields()) {
+				fieldsClassBuilder.addField(
+					FieldSpec.builder(ClassName.get(String.class), field.getFieldName(), Modifier.PUBLIC,
+							Modifier.STATIC, Modifier.FINAL)
+						.initializer("$S", field.getFieldName())
+						.build()
+				);
+			}
+			for (JdbcBeanInfo.ExpressionInfo field : beanInfo.getExpressions()) {
 				fieldsClassBuilder.addField(
 					FieldSpec.builder(ClassName.get(String.class), field.getFieldName(), Modifier.PUBLIC,
 							Modifier.STATIC, Modifier.FINAL)
@@ -87,11 +97,20 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 						.build()
 				);
 			}
+			for (JdbcBeanInfo.ExpressionInfo field : beanInfo.getExpressions()) {
+				columnsClassBuilder.addField(
+					FieldSpec.builder(ClassName.get(String.class), field.getFieldName(), Modifier.PUBLIC,
+							Modifier.STATIC, Modifier.FINAL)
+						.initializer("$S", field.getExpression())
+						.build()
+				);
+			}
 
 			classBuilder.addType(columnsClassBuilder.build());
 		}
 
 		ParameterizedTypeName columnMetaMapTypeName = ParameterizedTypeName.get(ClassName.get(Map.class), ClassName.get(String.class), columnMetaClassName);
+		ParameterizedTypeName expressionMetaMapTypeName = ParameterizedTypeName.get(ClassName.get(Map.class), ClassName.get(String.class), expressionMetaClassName);
 		classBuilder.addField(
 			FieldSpec.builder(ClassName.get(String.class),
 				"SCHEMA", Modifier.FINAL, Modifier.PUBLIC, Modifier.STATIC
@@ -115,6 +134,11 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 		classBuilder.addField(
 			FieldSpec.builder(columnMetaMapTypeName,
 				"COLUMNS", Modifier.FINAL, Modifier.PUBLIC, Modifier.STATIC
+			).build()
+		);
+		classBuilder.addField(
+			FieldSpec.builder(expressionMetaMapTypeName,
+				"EXPRESSIONS", Modifier.FINAL, Modifier.PUBLIC, Modifier.STATIC
 			).build()
 		);
 		{
@@ -169,6 +193,41 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 			}
 			classBuilder.addStaticBlock(
 				codeBlock.addStatement("COLUMNS = $T.unmodifiableMap(map)", ClassName.get(Collections.class))
+					.build()
+			);
+		}
+		{
+			CodeBlock.Builder codeBlock = CodeBlock.builder()
+				.addStatement("$T map = new $T<>()", expressionMetaMapTypeName, ClassName.get(LinkedHashMap.class));
+			for (JdbcBeanInfo.ExpressionInfo field : beanInfo.getExpressions()) {
+				codeBlock.addStatement(
+					"map.put($S,$T.builder()" +
+						".schema($S)" +
+						".catalog($S)" +
+						".tableName($S)" +
+						".fieldName($S)" +
+						".fieldType($T.class)" +
+						".expression($S)" +
+						".jdbcType($S)" +
+						".jdbcTypeValue($L)" +
+						".tableAliasPlaceholder($S)" +
+						".selectable($L)" +
+						".build())",
+					field.getFieldName(), expressionMetaClassName
+					, beanInfo.getTableSchema()
+					, beanInfo.getTableCatalog()
+					, beanInfo.getTableName()
+					, field.getFieldName()
+					, field.getFieldRawTypeName()
+					, field.getExpression()
+					, field.getJdbcTypeName()
+					, field.getJdbcTypeValue()
+					, field.getTableAliasPlaceholder()
+					, field.isSelectable()
+				);
+			}
+			classBuilder.addStaticBlock(
+				codeBlock.addStatement("EXPRESSIONS = $T.unmodifiableMap(map)", ClassName.get(Collections.class))
 					.build()
 			);
 		}

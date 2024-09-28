@@ -19,21 +19,31 @@ public class TableMetaMutation {
 	private final String newTableName;
 	private final Map<String, ValueRef<String>> newColumnNames;
 	private final Map<String, ColumnMeta> newColumnMetas;
+	private final Map<String, ValueRef<String>> newExpressionNames;
+	private final Map<String, ExpressionMeta> newExpressionMetas;
 	private final boolean mutable;
 
-	private TableMetaMutation(Class<?> entityClass, String newTableName, Map<String, ValueRef<String>> newColumnNames, Map<String, ColumnMeta> newColumnMetas) {
+	private TableMetaMutation(Class<?> entityClass, String newTableName
+		, Map<String, ValueRef<String>> newColumnNames
+		, Map<String, ColumnMeta> newColumnMetas
+		, Map<String, ValueRef<String>> newExpressionNames
+		, Map<String, ExpressionMeta> newExpressionMetas) {
 		this.entityClass = entityClass;
 		this.newTableName = newTableName;
 		this.newColumnNames = newColumnNames;
 		this.newColumnMetas = newColumnMetas;
+		this.newExpressionNames = newExpressionNames;
+		this.newExpressionMetas = newExpressionMetas;
 		this.mutable = Strings.isNotBlank(newTableName)
 			|| (newColumnNames != null && !newColumnNames.isEmpty())
 			|| (newColumnMetas != null && !newColumnMetas.isEmpty())
+			|| (newExpressionNames != null && !newExpressionNames.isEmpty())
+			|| (newExpressionMetas != null && !newExpressionMetas.isEmpty())
 		;
 	}
 
 	public static TableMetaMutation origin(Class<?> entityClass) {
-		return new TableMetaMutation(entityClass, null, null, null);
+		return new TableMetaMutation(entityClass, null, null, null, null, null);
 	}
 
 	public static Builder builder(Class<?> entityClass) {
@@ -50,12 +60,14 @@ public class TableMetaMutation {
 			&& Objects.equals(newTableName, that.newTableName)
 			&& Objects.equals(newColumnNames, that.newColumnNames)
 			&& Objects.equals(newColumnMetas, that.newColumnMetas)
+			&& Objects.equals(newExpressionNames, that.newExpressionNames)
+			&& Objects.equals(newExpressionMetas, that.newExpressionMetas)
 			;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(entityClass, newTableName, newColumnNames, newColumnMetas, mutable);
+		return Objects.hash(entityClass, newTableName, newColumnNames, newColumnMetas, newExpressionNames, newExpressionMetas, mutable);
 	}
 
 	public TableMeta apply(TableMeta origin) {
@@ -64,6 +76,7 @@ public class TableMetaMutation {
 		}
 		String tableName = Strings.isBlank(newTableName) ? origin.getTable() : newTableName;
 		Map<String, ColumnMeta> columns = origin.getColumns();
+		Map<String, ExpressionMeta> expressions = origin.getExpressions();
 
 		if ((newColumnMetas != null && !newColumnMetas.isEmpty())
 			|| (newColumnNames != null && !newColumnNames.isEmpty())
@@ -111,9 +124,45 @@ public class TableMetaMutation {
 
 			columns = Collections.unmodifiableMap(newColumns);
 		}
+		if ((newExpressionMetas != null && !newExpressionMetas.isEmpty())
+			|| (newExpressionNames != null && !newExpressionNames.isEmpty())
+		) {
+			Map<String, ExpressionMeta> newExpressions = new HashMap<>(expressions);
+
+			if (newExpressionNames != null && !newExpressionNames.isEmpty()) {
+				expressions.forEach((key, value) -> {
+					ValueRef<String> ref = newExpressionNames.get(key);
+					if (ref != null && Strings.isBlank(ref.get())) {
+						// 删除字段
+						newExpressions.remove(key);
+						return;
+					}
+					String expression = ref == null ? value.getExpression() : ref.get();
+					ExpressionMeta columnMeta = ExpressionMeta.builder()
+						.tableName(tableName)
+						.schema(value.getSchema())
+						.catalog(value.getCatalog())
+						.fieldName(value.getFieldName())
+						.fieldType(value.getFieldType())
+						.expression(expression)
+						.jdbcType(value.getJdbcType())
+						.jdbcTypeValue(value.getJdbcTypeValue())
+						.tableAliasPlaceholder(value.getTableAliasPlaceholder())
+						.selectable(value.isSelectable())
+						.build();
+					newExpressions.put(key, columnMeta);
+				});
+			}
+
+			if (newExpressionMetas != null && !newExpressionMetas.isEmpty()) {
+				newExpressions.putAll(newExpressionMetas);
+			}
+			expressions = Collections.unmodifiableMap(newExpressions);
+		}
 		return TableMeta.builder().entityClass(origin.getEntityClass())
 			.table(tableName).alias(origin.getAlias())
 			.columns(columns)
+			.expressions(expressions)
 			.schema(origin.getSchema()).catalog(origin.getCatalog()).build();
 	}
 
@@ -126,13 +175,6 @@ public class TableMetaMutation {
 		return entityClass;
 	}
 
-	public String newTableName() {
-		return newTableName;
-	}
-
-	public Map<String, ValueRef<String>> newColumnNames() {
-		return newColumnNames;
-	}
 
 	@NotThreadSafe
 	public static final class Builder {
@@ -141,6 +183,8 @@ public class TableMetaMutation {
 		private String newTableName;
 		private Map<String, ValueRef<String>> newColumnNames;
 		private Map<String, ColumnMeta> newColumnMetas;
+		private Map<String, ValueRef<String>> newExpressionNames;
+		private Map<String, ExpressionMeta> newExpressionMetas;
 
 		public Builder(Class<?> entityClass) {
 			this.entityClass = entityClass;
@@ -151,16 +195,16 @@ public class TableMetaMutation {
 			return this;
 		}
 
-		public Builder renameColumn(String columnName, String newColumnName) {
+		public Builder renameColumn(String fieldName, String columnName) {
 			if (newColumnNames == null) {
 				newColumnNames = new HashMap<>();
 			}
-			newColumnNames.put(columnName, ValueRef.of(newColumnName));
+			newColumnNames.put(fieldName, ValueRef.of(columnName));
 			return this;
 		}
 
-		public Builder deleteColumn(String columnName) {
-			return renameColumn(columnName, null);
+		public Builder deleteColumn(String fieldName) {
+			return renameColumn(fieldName, null);
 		}
 
 		public Builder addColumn(ColumnMeta columnMeta) {
@@ -171,10 +215,32 @@ public class TableMetaMutation {
 			return this;
 		}
 
+		public Builder renameExpression(String fieldName, String expression) {
+			if (newExpressionNames == null) {
+				newExpressionNames = new HashMap<>();
+			}
+			newExpressionNames.put(fieldName, ValueRef.of(expression));
+			return this;
+		}
+
+		public Builder deleteExpression(String fieldName) {
+			return renameExpression(fieldName, null);
+		}
+
+		public Builder addExpression(ExpressionMeta expressionMeta) {
+			if (newExpressionMetas == null) {
+				newExpressionMetas = new HashMap<>();
+			}
+			newExpressionMetas.put(expressionMeta.getFieldName(), expressionMeta);
+			return this;
+		}
+
 		public TableMetaMutation build() {
 			return new TableMetaMutation(entityClass, newTableName
 				, newColumnNames == null ? Collections.emptyMap() : Collections.unmodifiableMap(newColumnNames)
 				, newColumnMetas == null ? Collections.emptyMap() : Collections.unmodifiableMap(newColumnMetas)
+				, newExpressionNames == null ? Collections.emptyMap() : Collections.unmodifiableMap(newExpressionNames)
+				, newExpressionMetas == null ? Collections.emptyMap() : Collections.unmodifiableMap(newExpressionMetas)
 			);
 		}
 

@@ -11,13 +11,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.polaris.core.annotation.processing.AnnotationProcessorUtils;
 import io.polaris.core.asm.reflect.ClassAccess;
 import io.polaris.core.jdbc.annotation.Column;
+import io.polaris.core.jdbc.annotation.Expression;
 import io.polaris.core.jdbc.annotation.Id;
 import io.polaris.core.jdbc.annotation.Table;
 import io.polaris.core.jdbc.annotation.processing.JdbcBeanInfo;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
+
+import com.squareup.javapoet.TypeName;
 
 /**
  * @author Qt
@@ -122,12 +126,20 @@ public class TableMetaKit {
 		return cache.computeIfAbsent(entityClass, c -> parse(entityClass));
 	}
 
-	public Map<String, ColumnMeta> getColumn(Class<?> entityClass) {
+	public Map<String, ColumnMeta> getColumns(Class<?> entityClass) {
 		return get(entityClass).getColumns();
 	}
 
 	public ColumnMeta getColumn(Class<?> entityClass, String fieldName) {
 		return get(entityClass).getColumns().get(fieldName);
+	}
+
+	public Map<String, ExpressionMeta> getExpressions(Class<?> entityClass) {
+		return get(entityClass).getExpressions();
+	}
+
+	public ExpressionMeta getExpression(Class<?> entityClass, String fieldName) {
+		return get(entityClass).getExpressions().get(fieldName);
 	}
 
 	private TableMeta parse(Class<?> entityClass) {
@@ -147,9 +159,13 @@ public class TableMetaKit {
 				String alias = (String) classAccess.getField(null, "ALIAS");
 				@SuppressWarnings("unchecked")
 				Map<String, ColumnMeta> columns = (Map<String, ColumnMeta>) classAccess.getField(null, "COLUMNS");
+				@SuppressWarnings("unchecked")
+				Map<String, ExpressionMeta> expressions = (Map<String, ExpressionMeta>) classAccess.getField(null, "EXPRESSIONS");
 				return TableMeta.builder().entityClass(entityClass)
 					.table(table).alias(alias)
-					.columns(columns).schema(schema).catalog(catalog).build();
+					.columns(columns)
+					.expressions(expressions)
+					.schema(schema).catalog(catalog).build();
 			}
 		} catch (Throwable e) {
 			log.error("", e);
@@ -157,6 +173,7 @@ public class TableMetaKit {
 
 		Set<String> retrieved = new HashSet<>();
 		Map<String, ColumnMeta> columns = new LinkedHashMap<>();
+		Map<String, ExpressionMeta> expressions = new LinkedHashMap<>();
 		Class<?> targetClass = entityClass;
 		do {
 			Field[] fields = targetClass.getDeclaredFields();
@@ -175,6 +192,28 @@ public class TableMetaKit {
 						continue;
 					}
 				}
+				Expression expression = field.getAnnotation(Expression.class);
+				if (expression != null) {
+					if (expression.value() != null && !expression.value().trim().isEmpty()){
+						JdbcBeanInfo.ExpressionInfo expressionInfo = new JdbcBeanInfo.ExpressionInfo();
+						expressionInfo.readExpression(fieldName, expression);
+						ExpressionMeta expressionMeta = ExpressionMeta.builder()
+							.tableName(annotation.value())
+							.schema(annotation.schema())
+							.catalog(annotation.catalog())
+							.fieldName(fieldName)
+							.fieldType(field.getType())
+							.expression(expressionInfo.getExpression())
+							.jdbcType(expressionInfo.getJdbcTypeName())
+							.jdbcTypeValue(expressionInfo.getJdbcTypeValue())
+							.tableAliasPlaceholder(expressionInfo.getTableAliasPlaceholder())
+							.selectable(expressionInfo.isSelectable())
+							.build();
+						expressions.put(fieldName, expressionMeta);
+						continue;
+					}
+				}
+
 				JdbcBeanInfo.FieldInfo fieldInfo = new JdbcBeanInfo.FieldInfo();
 				fieldInfo.readColumn(fieldName, column, field.getAnnotation(Id.class));
 				ColumnMeta columnMeta = ColumnMeta.builder()
@@ -206,6 +245,7 @@ public class TableMetaKit {
 		return TableMeta.builder().entityClass(entityClass)
 			.table(annotation.value()).alias(annotation.alias())
 			.columns(Collections.unmodifiableMap(columns))
+			.expressions(Collections.unmodifiableMap(expressions))
 			.schema(annotation.schema()).catalog(annotation.catalog()).build();
 	}
 

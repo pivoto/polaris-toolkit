@@ -1,7 +1,9 @@
 package io.polaris.core.jdbc.annotation.processing;
 
 import io.polaris.core.annotation.processing.AnnotationProcessorUtils;
+import io.polaris.core.jdbc.ExpressionMeta;
 import io.polaris.core.jdbc.annotation.Column;
+import io.polaris.core.jdbc.annotation.Expression;
 import io.polaris.core.jdbc.annotation.Id;
 import io.polaris.core.jdbc.annotation.Table;
 import com.squareup.javapoet.ClassName;
@@ -35,6 +37,7 @@ public class JdbcBeanInfo {
 	private ClassName beanClassName;
 	private ClassName metaClassName;
 	private List<FieldInfo> fields = new ArrayList<>();
+	private List<ExpressionInfo> expressions =  new ArrayList<>();
 	private boolean sqlGenerated;
 	private String sqlSuffix;
 	private ClassName sqlClassName;
@@ -93,6 +96,19 @@ public class JdbcBeanInfo {
 								continue;
 							}
 						}
+						Expression expression = variableElement.getAnnotation(Expression.class);
+						if (expression != null) {
+							if (expression.value() != null && !expression.value().trim().isEmpty()){
+								ExpressionInfo expressionInfo = new ExpressionInfo();
+								expressionInfo.declaredTypeName = declaredTypeName;
+								expressionInfo.declaredClassName = declaredClassName;
+								expressionInfo.fieldTypeName = TypeName.get(variableElement.asType());
+								expressionInfo.fieldRawTypeName =AnnotationProcessorUtils.rawType(expressionInfo.fieldTypeName);
+								expressionInfo.readExpression(fieldName, expression);
+								expressions.add(expressionInfo);
+								continue;
+							}
+						}
 
 						FieldInfo fieldInfo = new FieldInfo();
 						fieldInfo.declaredTypeName = declaredTypeName;
@@ -110,6 +126,36 @@ public class JdbcBeanInfo {
 				break;
 			}
 			element = (TypeElement) ((DeclaredType) typeMirror).asElement();
+		}
+	}
+
+	@Data
+	public static class ExpressionInfo {
+		private TypeName declaredTypeName;
+		private ClassName declaredClassName;
+		private String fieldName;
+		private TypeName fieldTypeName;
+		private TypeName fieldRawTypeName;
+		private int jdbcTypeValue;
+		private String jdbcTypeName;
+		private String expression;
+		private String tableAliasPlaceholder;
+		private boolean selectable = true;
+
+		public void readExpression(String fieldName, Expression expression) {
+			this.fieldName = fieldName;
+			this.expression = expression.value().trim();
+			this.jdbcTypeName = expression.jdbcType().trim().toUpperCase();
+			this.tableAliasPlaceholder = expression.tableAliasPlaceholder().trim().toUpperCase();
+			this.selectable = expression.selectable();
+
+			if (!this.jdbcTypeName.isEmpty()) {
+				try {
+					Field declaredField = Types.class.getDeclaredField(this.jdbcTypeName);
+					this.jdbcTypeValue = declaredField.getInt(null);
+				} catch (Exception ignore) {
+				}
+			}
 		}
 	}
 
@@ -151,7 +197,7 @@ public class JdbcBeanInfo {
 				this.createTime = column.createTime();
 				this.updateTime = column.updateTime();
 			}
-			if (this.jdbcTypeName != null && this.jdbcTypeName.length() > 0) {
+			if (this.jdbcTypeName != null && !this.jdbcTypeName.isEmpty()) {
 				try {
 					Field declaredField = Types.class.getDeclaredField(this.jdbcTypeName);
 					this.jdbcTypeValue = declaredField.getInt(null);
@@ -163,7 +209,7 @@ public class JdbcBeanInfo {
 				this.autoIncrement = id.auto();
 				this.seqName = id.seqName();
 			}
-			if (this.columnName == null || this.columnName.length() == 0) {
+			if (this.columnName == null || this.columnName.isEmpty()) {
 				this.columnName = AnnotationProcessorUtils.camelToUnderlineUpperCase(this.fieldName);
 			}
 		}
