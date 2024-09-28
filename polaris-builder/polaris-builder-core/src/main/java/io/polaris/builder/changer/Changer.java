@@ -1,18 +1,25 @@
 package io.polaris.builder.changer;
 
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.annotation.Nonnull;
+
 import io.polaris.core.crypto.digest.Digests;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.*;
-import java.nio.charset.Charset;
-import java.security.NoSuchAlgorithmException;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Qt
@@ -27,47 +34,56 @@ public class Changer {
 	@Getter
 	@Setter
 	private Charset charset = Charset.defaultCharset();
-	/**
-	 * 来源根目录
-	 */
+	/** 来源根目录 */
 	@Getter
 	@Setter
 	private File srcRoot;
-	/**
-	 * 目标根目录
-	 */
+	/** 目标根目录 */
 	@Getter
 	@Setter
 	private File destRoot;
-	/**
-	 * 指定源代码相对路径
-	 */
-	private List<String> sourcePaths = new ArrayList<>();
-	/**
-	 * 需要处理文件的扩展名
-	 */
-	private List<String> extensions = new ArrayList<>();
-	/**
-	 * 需要处理文件的匹配模式
-	 */
-	private List<Pattern> namePatterns = new ArrayList<>();
-	/**
-	 * 映射关系
-	 */
-	private List<Mapping> mappings = new ArrayList<>();
+	/** 指定源代码相对路径 */
+	private final List<String> sourcePaths = new ArrayList<>();
+	/** 需要处理文件的扩展名,与文件模式匹配是或的关系 */
+	private final List<String> extensions = new ArrayList<>();
+	/** 需要处理文件的匹配模式,与文件扩展名匹配是或的关系 */
+	private final List<Pattern> namePatterns = new ArrayList<>();
+	/** 映射关系 */
+	private final List<Mapping> mappings = new ArrayList<>();
+	/** 忽略的文件匹配模式，匹配的文件将完全忽略，既不映射处理，也不复制 */
+	private final List<Pattern> ignorePatterns = new ArrayList<>();
+	/** 忽略映射处理的文件匹配模式 */
+	private final List<Pattern> ignoreMappingPatterns = new ArrayList<>();
 
-	/**
-	 * 是否复制未映射的文件
-	 */
+	/** 是否复制未映射的文件 */
 	@Getter
 	@Setter
 	private boolean copyAll = true;
-	/**
-	 * 是否同时处理符合映射关系的文件名
-	 */
+	/** 是否同时处理符合映射关系的文件名 */
 	@Getter
 	@Setter
 	private boolean includeFileName = true;
+
+	public void execute() throws IOException, NoSuchAlgorithmException {
+		check();
+
+		if (sourcePaths.isEmpty()) {
+			String srcPath = srcRoot.getAbsolutePath().replace("\\", "/").replaceFirst("/$", "");
+			String destPath = destRoot.getAbsolutePath().replace("\\", "/").replaceFirst("/$", "");
+			log.info("[Changing] {}", srcRoot.getPath());
+			doChange(srcPath, destPath, srcRoot);
+		} else {
+			for (String sourcePath : sourcePaths) {
+				sourcePath = sourcePath.replace("\\", "/");
+				File from = new File(srcRoot, sourcePath);
+				File to = new File(destRoot, sourcePath);
+				String srcPath = from.getAbsolutePath().replace("\\", "/").replaceFirst("/$", "");
+				String destPath = to.getAbsolutePath().replace("\\", "/").replaceFirst("/$", "");
+				log.info("[Changing] {}", from.getPath());
+				doChange(srcPath, destPath, from);
+			}
+		}
+	}
 
 	public String format(String s, Object... args) {
 		if (s == null || s.isEmpty()) {
@@ -121,6 +137,112 @@ public class Changer {
 		return s;
 	}
 
+	private void doChange(String srcPath, String destPath, File from) throws IOException, NoSuchAlgorithmException {
+		if (!from.isDirectory()) {
+			return;
+		}
+		File[] files = from.listFiles();
+		if (files == null) {
+			return;
+		}
+		for (File file : files) {
+			String filePath = file.getAbsolutePath().replace("\\", "/").replaceFirst("/$", "");
+			if (filePath.length() <= srcPath.length() + 1 || !filePath.startsWith(srcPath)) {
+				throw new IllegalArgumentException("path:" + filePath);
+			}
+			if (file.isFile()) {
+				String fileName = file.getName();
+				filePath = filePath.substring(srcPath.length() + 1
+					, filePath.length() - fileName.length());
+				String mappingFile = createMappingFile(filePath, fileName);
+				if (mappingFile != null) {
+					File newFile = new File(destPath, mappingFile);
+					newFile.getParentFile().mkdirs();
+					if (!ignore(filePath, fileName)) {
+						if (matches(filePath, fileName)) {
+							doChange(file, newFile);
+						} else {
+							copy(file, newFile);
+						}
+					}
+				}
+			} else {
+				filePath = filePath.substring(srcPath.length() + 1);
+				if (maybe(filePath)) {
+					doChange(srcPath, destPath, file);
+				}
+			}
+		}
+	}
+
+	private void doChange(final File src, final File dest) throws IOException, NoSuchAlgorithmException {
+		String lineSeparator = "\n";
+		try (RandomAccessFile raf = new RandomAccessFile(src, "r");) {
+			String line = raf.readLine();
+			if (line != null) {
+				raf.seek(line.getBytes(StandardCharsets.ISO_8859_1).length);
+				if (raf.getFilePointer() < raf.length()) {
+					byte b = raf.readByte();
+					if (b == 0x0A) {
+						lineSeparator = "\n";
+					} else if (b == 0x0D) {
+						lineSeparator = "\r";
+						//lineSeparator = "\r\n";
+						if (raf.getFilePointer() < raf.length()) {
+							b = raf.readByte();
+							if (b == 0x0A) {
+								lineSeparator = "\r\n";
+							}
+						}
+					}
+				}
+			}
+		}
+		if (dest.exists()) {
+			// 存在时判断一致性
+			StringBuilder sb = new StringBuilder();
+			try (FileInputStream fis = new FileInputStream(src);
+					 BufferedReader br = new BufferedReader(new InputStreamReader(fis, charset));) {
+				for (String line = br.readLine(); line != null; line = br.readLine()) {
+					String s = doChangeForLine(line);
+					sb.append(s).append(lineSeparator);
+				}
+			}
+			String data = sb.toString();
+			byte[] sha1 = Digests.sha1(data);
+			byte[] sha1t;
+			try (FileInputStream fis = new FileInputStream(dest);) {
+				sha1t = Digests.sha1(fis);
+			}
+			if (Arrays.equals(sha1, sha1t)) {
+				// 存在文件且完全一致，忽略
+				return;
+			}
+			log.info("[Change-Of] {}", src.getPath());
+			log.info("[Change-To] {}", dest.getPath());
+			try (FileOutputStream fos = new FileOutputStream(dest);
+					 BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos, charset));) {
+				bw.write(data);
+				bw.flush();
+			}
+		} else {
+			// 不存在则写入
+			log.info("[Change-Of] {}", src.getPath());
+			log.info("[Change-To] {}", dest.getPath());
+			try (FileInputStream fis = new FileInputStream(src);
+					 FileOutputStream fos = new FileOutputStream(dest);
+					 BufferedReader br = new BufferedReader(new InputStreamReader(fis, charset));
+					 BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos, charset));) {
+				for (String line = br.readLine(); line != null; line = br.readLine()) {
+					String s = doChangeForLine(line);
+					bw.write(s);
+					bw.write(lineSeparator);
+				}
+				bw.flush();
+			}
+		}
+	}
+
 	private int copy(final File src, final File dest) throws IOException, NoSuchAlgorithmException {
 		if (dest.exists() && src.length() == dest.length()) {
 			byte[] sha1s;
@@ -160,28 +282,26 @@ public class Changer {
 		return (int) count;
 	}
 
-	public void execute() throws IOException, NoSuchAlgorithmException {
-		check();
-
-		if (sourcePaths.isEmpty()) {
-			String srcPath = srcRoot.getAbsolutePath().replace("\\", "/").replaceFirst("/$", "");
-			String destPath = destRoot.getAbsolutePath().replace("\\", "/").replaceFirst("/$", "");
-			log.info("[Changing] {}", srcRoot.getPath());
-			doChange(srcPath, destPath, srcRoot);
-		} else {
-			for (String sourcePath : sourcePaths) {
-				sourcePath = sourcePath.replace("\\", "/");
-				File from = new File(srcRoot, sourcePath);
-				File to = new File(destRoot, sourcePath);
-				String srcPath = from.getAbsolutePath().replace("\\", "/").replaceFirst("/$", "");
-				String destPath = to.getAbsolutePath().replace("\\", "/").replaceFirst("/$", "");
-				log.info("[Changing] {}", from.getPath());
-				doChange(srcPath, destPath, from);
+	private boolean ignore(String filePath, String fileName) {
+		if (ignorePatterns.isEmpty()) {
+			return false;
+		}
+		for (Pattern ignorePattern : ignorePatterns) {
+			if (ignorePattern.matcher(filePath + fileName).find()) {
+				return true;
 			}
 		}
+		return false;
 	}
 
 	private boolean matches(String filePath, String fileName) {
+		if (!ignoreMappingPatterns.isEmpty()) {
+			for (Pattern ignoreMappingPattern : ignoreMappingPatterns) {
+				if (ignoreMappingPattern.matcher(filePath + fileName).find()) {
+					return false;
+				}
+			}
+		}
 		if (extensions.isEmpty() && namePatterns.isEmpty()) {
 			return true;
 		}
@@ -196,42 +316,6 @@ public class Changer {
 			}
 		}
 		return false;
-	}
-
-	private void doChange(String srcPath, String destPath, File from) throws IOException, NoSuchAlgorithmException {
-		if (!from.isDirectory()) {
-			return;
-		}
-		File[] files = from.listFiles();
-		if (files == null) {
-			return;
-		}
-		for (File file : files) {
-			String filePath = file.getAbsolutePath().replace("\\", "/").replaceFirst("/$", "");
-			if (filePath.length() <= srcPath.length() + 1 || !filePath.startsWith(srcPath)) {
-				throw new IllegalArgumentException("path:" + filePath);
-			}
-			if (file.isFile()) {
-				String fileName = file.getName();
-				filePath = filePath.substring(srcPath.length() + 1
-					, filePath.length() - fileName.length());
-				String mappingFile = createMappingFile(filePath, fileName);
-				if (mappingFile != null) {
-					File newFile = new File(destPath, mappingFile);
-					newFile.getParentFile().mkdirs();
-					if (matches(filePath, fileName)) {
-						doChange(file, newFile);
-					} else {
-						copy(file, newFile);
-					}
-				}
-			} else {
-				filePath = filePath.substring(srcPath.length() + 1);
-				if (maybe(filePath)) {
-					doChange(srcPath, destPath, file);
-				}
-			}
-		}
 	}
 
 	private boolean maybe(String filePath) {
@@ -295,74 +379,6 @@ public class Changer {
 		return null;
 	}
 
-	private void doChange(final File src, final File dest) throws IOException, NoSuchAlgorithmException {
-		String lineSeparator = "\n";
-		try (RandomAccessFile raf = new RandomAccessFile(src, "r");) {
-			String line = raf.readLine();
-			if (line != null) {
-				raf.seek(line.getBytes("ISO-8859-1").length);
-				if (raf.getFilePointer() < raf.length()) {
-					byte b = raf.readByte();
-					if (b == 0x0A) {
-						lineSeparator = "\n";
-					} else if (b == 0x0D) {
-						lineSeparator = "\r";
-						//lineSeparator = "\r\n";
-						if (raf.getFilePointer() < raf.length()) {
-							b = raf.readByte();
-							if (b == 0x0A) {
-								lineSeparator = "\r\n";
-							}
-						}
-					}
-				}
-			}
-		}
-		if (dest.exists()) {
-			// 存在时判断一致性
-			StringBuilder sb = new StringBuilder();
-			try (FileInputStream fis = new FileInputStream(src);
-					 BufferedReader br = new BufferedReader(new InputStreamReader(fis, charset));) {
-				for (String line = br.readLine(); line != null; line = br.readLine()) {
-					String s = doChangeForLine(line);
-					sb.append(s).append(lineSeparator);
-				}
-			}
-			String data = sb.toString();
-			byte[] sha1 = Digests.sha1(data);
-			byte[] sha1t;
-			try (FileInputStream fis = new FileInputStream(dest);) {
-				sha1t = Digests.sha1(fis);
-			}
-			if (Arrays.equals(sha1, sha1t)) {
-				// 存在文件且完全一致，忽略
-				return;
-			}
-			log.info("[Change-Of] {}", src.getPath());
-			log.info("[Change-To] {}", dest.getPath());
-			try (FileOutputStream fos = new FileOutputStream(dest);
-					 BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos, charset));) {
-				bw.write(data);
-				bw.flush();
-			}
-		} else {
-			// 不存在则写入
-			log.info("[Change-Of] {}", src.getPath());
-			log.info("[Change-To] {}", dest.getPath());
-			try (FileInputStream fis = new FileInputStream(src);
-					 FileOutputStream fos = new FileOutputStream(dest);
-					 BufferedReader br = new BufferedReader(new InputStreamReader(fis, charset));
-					 BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos, charset));) {
-				for (String line = br.readLine(); line != null; line = br.readLine()) {
-					String s = doChangeForLine(line);
-					bw.write(s);
-					bw.write(lineSeparator);
-				}
-				bw.flush();
-			}
-		}
-	}
-
 	private String doChangeForLine(String line) {
 		String s = line;
 		for (Mapping mapping : mappings) {
@@ -389,9 +405,7 @@ public class Changer {
 
 
 	public void addSourcePath(String... paths) {
-		for (String path : paths) {
-			this.sourcePaths.add(path);
-		}
+		this.sourcePaths.addAll(Arrays.asList(paths));
 	}
 
 	public void addExtension(String... extensions) {
@@ -401,26 +415,46 @@ public class Changer {
 	}
 
 	public void addNamePatterns(Pattern... patterns) {
-		for (Pattern pattern : patterns) {
-			this.namePatterns.add(pattern);
-		}
+		this.namePatterns.addAll(Arrays.asList(patterns));
+	}
+
+	public void addIgnorePatterns(Pattern... patterns) {
+		this.ignorePatterns.addAll(Arrays.asList(patterns));
+	}
+
+	public void addIgnoreMappingPatterns(Pattern... patterns) {
+		this.ignoreMappingPatterns.addAll(Arrays.asList(patterns));
 	}
 
 	public void addMapping(String src, String dest) {
 		this.mappings.add(new Mapping(src, dest));
 	}
 
-	public void addMapping(Mapping... mappings) {
-		for (Mapping mapping : mappings) {
-			this.mappings.add(mapping);
-		}
+	public void addMapping(@Nonnull Map<String, String> mappings) {
+		mappings.forEach(this::addMapping);
 	}
 
-	public void addMapping(Collection<Mapping> mappings) {
-		this.mappings.addAll(mappings);
+	public void clearSourcePaths() {
+		this.sourcePaths.clear();
 	}
 
-	public void clearMapping() {
+	public void clearExtensions() {
+		this.extensions.clear();
+	}
+
+	public void clearIgnorePatterns() {
+		this.ignorePatterns.clear();
+	}
+
+	public void clearIgnoreMappingPatterns() {
+		this.ignoreMappingPatterns.clear();
+	}
+
+	public void clearNamePatterns() {
+		this.namePatterns.clear();
+	}
+
+	public void clearMappings() {
 		this.mappings.clear();
 	}
 

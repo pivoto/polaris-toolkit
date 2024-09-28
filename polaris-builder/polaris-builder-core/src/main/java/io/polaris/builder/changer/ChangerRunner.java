@@ -52,51 +52,83 @@ public class ChangerRunner {
 		if (StringUtils.isNotBlank(dest)) {
 			dto.setDest(dest);
 		}
-		String copyALl = element.elementTextTrim("copy-all");
-		if (copyALl != null && copyALl.length() > 0) {
-			dto.setCopyAll(Boolean.valueOf(copyALl));
+		String copyAll = element.elementTextTrim("copy-all");
+		if (copyAll != null && !copyAll.isEmpty()) {
+			dto.setCopyAll(Boolean.valueOf(copyAll));
 		}
 		String includeFileName = element.elementTextTrim("include-filename");
-		if (includeFileName != null && includeFileName.length() > 0) {
+		if (includeFileName != null && !includeFileName.isEmpty()) {
 			dto.setIncludeFilename(Boolean.valueOf(includeFileName));
 		}
 		String extensions = element.elementTextTrim("extensions");
-		if (extensions != null && extensions.length() > 0) {
+		if (extensions != null && !extensions.isEmpty()) {
 			dto.setExtensions(extensions);
 		}
-		List<Element> namePatterns = element.elements("name-pattern");
-		for (Element e : namePatterns) {
-			String s = e.getTextTrim();
-			if (StringUtils.isBlank(s)) {
-				continue;
+		{
+			List<Element> namePatterns = element.elements("name-pattern");
+			for (Element e : namePatterns) {
+				String s = e.getTextTrim();
+				if (StringUtils.isBlank(s)) {
+					continue;
+				}
+				if (dto.getNamePatterns() == null) {
+					dto.setNamePatterns(new LinkedHashSet<>());
+				}
+				dto.getNamePatterns().add(s);
 			}
-			if (dto.getNamePatterns() == null) {
-				dto.setNamePatterns(new LinkedHashSet<>());
-			}
-			dto.getNamePatterns().add(s);
 		}
-		List<Element> sourcePathList = element.elements("source-path");
-		for (Element e : sourcePathList) {
-			String s = e.getTextTrim();
-			if (StringUtils.isBlank(s)) {
-				continue;
+		{
+			List<Element> ignorePatterns = element.elements("ignore-pattern");
+			for (Element e : ignorePatterns) {
+				String s = e.getTextTrim();
+				if (StringUtils.isBlank(s)) {
+					continue;
+				}
+				if (dto.getIgnorePatterns() == null) {
+					dto.setIgnorePatterns(new LinkedHashSet<>());
+				}
+				dto.getIgnorePatterns().add(s);
 			}
-			if (dto.getSourcePaths() == null) {
-				dto.setSourcePaths(new LinkedHashSet<>());
-			}
-			dto.getSourcePaths().add(s);
 		}
-		List<Element> packageList = element.elements("package");
-		for (Element e : packageList) {
-			String name = e.attributeValue("name");
-			String mapping = e.attributeValue("mapping");
-			if (StringUtils.isBlank(name) || StringUtils.isBlank(mapping)) {
-				continue;
+		{
+			List<Element> ignoreMappingPatterns = element.elements("ignore-mapping-pattern");
+			for (Element e : ignoreMappingPatterns) {
+				String s = e.getTextTrim();
+				if (StringUtils.isBlank(s)) {
+					continue;
+				}
+				if (dto.getIgnoreMappingPatterns() == null) {
+					dto.setIgnoreMappingPatterns(new LinkedHashSet<>());
+				}
+				dto.getIgnoreMappingPatterns().add(s);
 			}
-			if (dto.getPackageMapping() == null) {
-				dto.setPackageMapping(new LinkedHashMap<>());
+		}
+		{
+			List<Element> sourcePathList = element.elements("source-path");
+			for (Element e : sourcePathList) {
+				String s = e.getTextTrim();
+				if (StringUtils.isBlank(s)) {
+					continue;
+				}
+				if (dto.getSourcePaths() == null) {
+					dto.setSourcePaths(new LinkedHashSet<>());
+				}
+				dto.getSourcePaths().add(s);
 			}
-			dto.getPackageMapping().put(name, mapping);
+		}
+		{
+			List<Element> packageList = element.elements("package");
+			for (Element e : packageList) {
+				String name = e.attributeValue("name");
+				String mapping = e.attributeValue("mapping");
+				if (StringUtils.isBlank(name) || StringUtils.isBlank(mapping)) {
+					continue;
+				}
+				if (dto.getPackageMapping() == null) {
+					dto.setPackageMapping(new LinkedHashMap<>());
+				}
+				dto.getPackageMapping().put(name, mapping);
+			}
 		}
 		return dto;
 	}
@@ -113,53 +145,85 @@ public class ChangerRunner {
 				ChangerDto dto = parse(change);
 				dto.mergeFrom(parent);
 
-				Changer pc = new Changer();
-				pc.setCharset(dto.getCharset());
-				pc.setSrcRoot(new File(dto.getSrc()));
-				pc.setDestRoot(new File(dto.getDest()));
-				if (dto.getCopyAll() != null) {
-					pc.setCopyAll(dto.getCopyAll());
-				}
-				if (dto.getIncludeFilename() != null) {
-					pc.setIncludeFileName(dto.getIncludeFilename());
-				}
-				String extensions = dto.getExtensions();
-				if (extensions != null && extensions.length() > 0) {
-					String[] arr = extensions.split("[,;|\\s]+");
-					for (String s : arr) {
-						if (s.trim().length() > 0) {
-							pc.addExtension(s.trim());
-						}
-					}
-				}
-				Set<String> namePatterns = dto.getNamePatterns();
-				if (namePatterns != null) {
-					for (String namePattern : namePatterns) {
-						if (namePattern.trim().length() > 0) {
-							pc.addNamePatterns(Pattern.compile(namePattern.trim()));
-						}
-					}
-				}
-				Set<String> sourcePaths = dto.getSourcePaths();
-				if (sourcePaths != null) {
-					for (String path : sourcePaths) {
-						if (path.trim().length() > 0) {
-							pc.addSourcePath(path.trim());
-						}
-					}
-				}
-				Map<String, String> packageMapping = dto.getPackageMapping();
-				if (packageMapping != null) {
-					packageMapping.forEach((k, v) -> pc.addMapping(k, v));
-				}
-
-				// execute
-				pc.execute();
+				change(dto);
 			} catch (Exception e) {
 				log.error("", e);
 			}
 		}
 
+	}
+
+	public static void change(ChangerDto dto) throws IOException, NoSuchAlgorithmException {
+		Changer pc = new Changer();
+		pc.setCharset(dto.getCharset());
+		pc.setSrcRoot(new File(dto.getSrc()));
+		pc.setDestRoot(new File(dto.getDest()));
+		if (dto.getCopyAll() != null) {
+			pc.setCopyAll(dto.getCopyAll());
+		}
+		if (dto.getIncludeFilename() != null) {
+			pc.setIncludeFileName(dto.getIncludeFilename());
+		}
+		{
+			String extensions = dto.getExtensions();
+			if (extensions != null && !extensions.isEmpty()) {
+				String[] arr = extensions.split("[,;|\\s]+");
+				for (String s : arr) {
+					if (!s.trim().isEmpty()) {
+						pc.addExtension(s.trim());
+					}
+				}
+			}
+		}
+		{
+			Set<String> namePatterns = dto.getNamePatterns();
+			if (namePatterns != null) {
+				for (String namePattern : namePatterns) {
+					if (!namePattern.trim().isEmpty()) {
+						pc.addNamePatterns(Pattern.compile(namePattern.trim()));
+					}
+				}
+			}
+		}
+		{
+			Set<String> ignoreMappingPatterns = dto.getIgnoreMappingPatterns();
+			if (ignoreMappingPatterns != null) {
+				for (String ignoreMappingPattern : ignoreMappingPatterns) {
+					if (!ignoreMappingPattern.trim().isEmpty()) {
+						pc.addIgnoreMappingPatterns(Pattern.compile(ignoreMappingPattern.trim()));
+					}
+				}
+			}
+		}
+		{
+			Set<String> ignorePatterns = dto.getIgnorePatterns();
+			if (ignorePatterns != null) {
+				for (String ignorePattern : ignorePatterns) {
+					if (!ignorePattern.trim().isEmpty()) {
+						pc.addIgnorePatterns(Pattern.compile(ignorePattern.trim()));
+					}
+				}
+			}
+		}
+		{
+			Set<String> sourcePaths = dto.getSourcePaths();
+			if (sourcePaths != null) {
+				for (String path : sourcePaths) {
+					if (!path.trim().isEmpty()) {
+						pc.addSourcePath(path.trim());
+					}
+				}
+			}
+		}
+		{
+			Map<String, String> packageMapping = dto.getPackageMapping();
+			if (packageMapping != null) {
+				packageMapping.forEach(pc::addMapping);
+			}
+		}
+
+		// execute
+		pc.execute();
 	}
 
 

@@ -48,6 +48,16 @@
 					<xs:documentation>需要处理文件名模式，extensions与name-pattern匹配一个即认为匹配</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element type="xs:string" name="ignore-pattern" maxOccurs="unbounded" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>忽略的文件匹配模式，匹配的文件将完全忽略，既不映射处理，也不复制</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element type="xs:string" name="ignore-mapping-pattern" maxOccurs="unbounded" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>忽略映射处理的文件匹配模式</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element type="xs:string" name="source-path" maxOccurs="unbounded" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>源代码相对路径</xs:documentation>

@@ -20,6 +20,8 @@ public class ChangerDto {
 	private Boolean includeFilename;
 	private String extensions;
 	private Set<String> namePatterns;
+	private Set<String> ignorePatterns;
+	private Set<String> ignoreMappingPatterns;
 	private Set<String> sourcePaths;
 	private Map<String, String> packageMapping;
 
@@ -56,6 +58,20 @@ public class ChangerDto {
 		}else{
 			if (parent.namePatterns != null) {
 				this.namePatterns.addAll(parent.namePatterns);
+			}
+		}
+		if (ignoreMappingPatterns == null) {
+			this.ignoreMappingPatterns = parent.ignoreMappingPatterns;
+		}else{
+			if (parent.ignoreMappingPatterns != null) {
+				this.ignoreMappingPatterns.addAll(parent.ignoreMappingPatterns);
+			}
+		}
+		if (ignorePatterns == null) {
+			this.ignorePatterns = parent.ignorePatterns;
+		}else{
+			if (parent.ignorePatterns != null) {
+				this.ignorePatterns.addAll(parent.ignorePatterns);
 			}
 		}
 		if (sourcePaths == null) {

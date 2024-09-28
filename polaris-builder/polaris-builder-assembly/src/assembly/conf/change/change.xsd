@@ -10,10 +10,10 @@
 			<xs:extension base="baseChangeType">
 				<xs:sequence>
 					<xs:choice minOccurs="0" maxOccurs="unbounded">
-					<xs:element type="chan:packageType" name="package" maxOccurs="unbounded" minOccurs="1"
-						xmlns:chan="http://polaris.pivoto.cn/schema/change"/>
-					<xs:element type="chan:changeType" name="change" maxOccurs="unbounded" minOccurs="0"
-						xmlns:chan="http://polaris.pivoto.cn/schema/change"/>
+						<xs:element type="chan:packageType" name="package" maxOccurs="unbounded" minOccurs="1"
+							xmlns:chan="http://polaris.pivoto.cn/schema/change"/>
+						<xs:element type="chan:changeType" name="change" maxOccurs="unbounded" minOccurs="0"
+							xmlns:chan="http://polaris.pivoto.cn/schema/change"/>
 					</xs:choice>
 				</xs:sequence>
 			</xs:extension>
@@ -23,36 +23,46 @@
 	<xs:complexType name="baseChangeType" abstract="true">
 		<xs:sequence>
 			<xs:choice minOccurs="0" maxOccurs="unbounded">
-			<xs:element type="xs:string" name="charset" minOccurs="0" maxOccurs="1">
-				<xs:annotation>
-					<xs:documentation>文件编码</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element type="xs:boolean" name="copy-all" minOccurs="0" maxOccurs="1">
-				<xs:annotation>
-					<xs:documentation>是否复制未映射的文件。默认true</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element type="xs:boolean" name="include-filename" minOccurs="0" maxOccurs="1">
-				<xs:annotation>
-					<xs:documentation>是否同时处理符合映射关系的文件名。默认true</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element type="xs:string" name="extensions" minOccurs="0" maxOccurs="1">
-				<xs:annotation>
-					<xs:documentation>需要处理文件的扩展名，以逗号分隔，extensions与name-pattern匹配一个即认为匹配</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element type="xs:string" name="name-pattern" maxOccurs="unbounded" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>需要处理文件名模式，extensions与name-pattern匹配一个即认为匹配</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element type="xs:string" name="source-path" maxOccurs="unbounded" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>源代码相对路径</xs:documentation>
-				</xs:annotation>
-			</xs:element>
+				<xs:element type="xs:string" name="charset" minOccurs="0" maxOccurs="1">
+					<xs:annotation>
+						<xs:documentation>文件编码</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element type="xs:boolean" name="copy-all" minOccurs="0" maxOccurs="1">
+					<xs:annotation>
+						<xs:documentation>是否复制未映射的文件。默认true</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element type="xs:boolean" name="include-filename" minOccurs="0" maxOccurs="1">
+					<xs:annotation>
+						<xs:documentation>是否同时处理符合映射关系的文件名。默认true</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element type="xs:string" name="extensions" minOccurs="0" maxOccurs="1">
+					<xs:annotation>
+						<xs:documentation>需要处理文件的扩展名，以逗号分隔，extensions与name-pattern匹配一个即认为匹配</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element type="xs:string" name="name-pattern" maxOccurs="unbounded" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>需要处理文件名模式，extensions与name-pattern匹配一个即认为匹配</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element type="xs:string" name="ignore-pattern" maxOccurs="unbounded" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>忽略的文件匹配模式，匹配的文件将完全忽略，既不映射处理，也不复制</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element type="xs:string" name="ignore-mapping-pattern" maxOccurs="unbounded" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>忽略映射处理的文件匹配模式</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element type="xs:string" name="source-path" maxOccurs="unbounded" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>源代码相对路径</xs:documentation>
+					</xs:annotation>
+				</xs:element>
 			</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
@@ -64,18 +74,18 @@
 			<xs:extension base="baseChangeType">
 				<xs:sequence>
 					<xs:choice minOccurs="0" maxOccurs="unbounded">
-					<xs:element type="xs:string" name="src" minOccurs="1" maxOccurs="1">
-						<xs:annotation>
-							<xs:documentation>来源根目录</xs:documentation>
-						</xs:annotation>
-					</xs:element>
-					<xs:element type="xs:string" name="dest" minOccurs="1" maxOccurs="1">
-						<xs:annotation>
-							<xs:documentation>目标根目录</xs:documentation>
-						</xs:annotation>
-					</xs:element>
-					<xs:element type="chan:packageType" name="package" maxOccurs="unbounded" minOccurs="0"
-						xmlns:chan="http://polaris.pivoto.cn/schema/change"/>
+						<xs:element type="xs:string" name="src" minOccurs="1" maxOccurs="1">
+							<xs:annotation>
+								<xs:documentation>来源根目录</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element type="xs:string" name="dest" minOccurs="1" maxOccurs="1">
+							<xs:annotation>
+								<xs:documentation>目标根目录</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element type="chan:packageType" name="package" maxOccurs="unbounded" minOccurs="0"
+							xmlns:chan="http://polaris.pivoto.cn/schema/change"/>
 					</xs:choice>
 				</xs:sequence>
 			</xs:extension>
