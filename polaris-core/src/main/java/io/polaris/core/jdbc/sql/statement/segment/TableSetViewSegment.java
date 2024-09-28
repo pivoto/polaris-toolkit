@@ -1,5 +1,7 @@
 package io.polaris.core.jdbc.sql.statement.segment;
 
+import java.util.List;
+
 import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
@@ -7,11 +9,9 @@ import io.polaris.core.jdbc.sql.node.TextNode;
 import io.polaris.core.jdbc.sql.statement.SetOpsStatement;
 import io.polaris.core.string.Strings;
 
-import java.util.List;
-
 /**
  * @author Qt
- * @since  Aug 23, 2023
+ * @since Aug 23, 2023
  */
 public class TableSetViewSegment<S extends TableSetViewSegment<S>> extends TableSegment<S> {
 
@@ -49,20 +49,20 @@ public class TableSetViewSegment<S extends TableSetViewSegment<S>> extends Table
 		return alias;
 	}
 
-	@Override
-	public String getAllColumnExpression(boolean aliasWithField, boolean quotaAlias, String aliasPrefix, String aliasSuffix) {
-		return getAllColumnExpression(quotaAlias);
-	}
 
 	@Override
-	public String getAllColumnExpression(boolean quotaAlias) {
+	public String getAllColumnExpression(boolean withTableAlias, boolean aliasWithField, boolean quotaAlias, String aliasPrefix, String aliasSuffix) {
 		List<String> selectColumns = this.select.getSelectRawColumns();
 		StringBuilder sb = new StringBuilder();
 		for (String selectColumn : selectColumns) {
 			if (sb.length() > 0) {
 				sb.append(", ");
 			}
-			sb.append(alias).append(".").append(selectColumn);
+			if (withTableAlias) {
+				sb.append(alias).append(".").append(selectColumn);
+			} else {
+				sb.append(selectColumn);
+			}
 		}
 		return sb.toString();
 	}
@@ -78,8 +78,12 @@ public class TableSetViewSegment<S extends TableSetViewSegment<S>> extends Table
 	}
 
 	@Override
-	public String getColumnExpression(String field) {
-		return this.alias + "." + getColumnName(field);
+	public String getColumnExpression(String field, boolean withTableAlias) {
+		if (withTableAlias) {
+			return this.alias + "." + getColumnName(field);
+		} else {
+			return getColumnName(field);
+		}
 	}
 
 	@Override

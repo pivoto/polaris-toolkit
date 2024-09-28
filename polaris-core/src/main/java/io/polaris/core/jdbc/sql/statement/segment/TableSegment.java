@@ -15,7 +15,7 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since  Aug 20, 2023
+ * @since Aug 20, 2023
  */
 @AnnotationProcessing
 public abstract class TableSegment<S extends TableSegment<S>> extends BaseSegment<S> implements SqlNodeBuilder {
@@ -76,22 +76,39 @@ public abstract class TableSegment<S extends TableSegment<S>> extends BaseSegmen
 
 	public abstract String getTableAlias();
 
-	/**
-	 * 返回所有的含表别名前缀的列名表达式，逗号分隔
-	 */
+	/** 返回所有的含表别名前缀的列名表达式，逗号分隔 */
 	public String getAllColumnExpression(boolean quotaAlias) {
-		return getAllColumnExpression(false, quotaAlias, "", "");
+		return getAllColumnExpression(true, quotaAlias);
+	}
+
+	/** 返回所有的含表别名前缀的列名表达式，逗号分隔 */
+	public String getAllColumnExpression(boolean withTableAlias, boolean quotaAlias) {
+		return getAllColumnExpression(withTableAlias, false, quotaAlias, "", "");
 	}
 
 	/**
 	 * 返回所有的含表别名前缀的列名表达式，逗号分隔，使用实体字段名作为列的别名时同时添加前缀和后缀
 	 */
-	public abstract String getAllColumnExpression(boolean aliasWithField, boolean quotaAlias, String aliasPrefix, String aliasSuffix);
+	public String getAllColumnExpression(boolean aliasWithField, boolean quotaAlias, String aliasPrefix, String aliasSuffix) {
+		return getAllColumnExpression(true, aliasWithField, quotaAlias, aliasPrefix, aliasSuffix);
+	}
+
+	/**
+	 * 返回所有的含表别名前缀的列名表达式，逗号分隔，使用实体字段名作为列的别名时同时添加前缀和后缀
+	 */
+	public abstract String getAllColumnExpression(boolean withTableAlias, boolean aliasWithField, boolean quotaAlias, String aliasPrefix, String aliasSuffix);
 
 	/**
 	 * 返回含表别名前缀的列名表达式
 	 */
-	public abstract String getColumnExpression(String field);
+	public String getColumnExpression(String field) {
+		return getColumnExpression(field, true);
+	}
+
+	/**
+	 * 返回含表别名前缀的列名表达式
+	 */
+	public abstract String getColumnExpression(String field, boolean withTableAlias);
 
 	public abstract List<String> getAllColumnNames();
 

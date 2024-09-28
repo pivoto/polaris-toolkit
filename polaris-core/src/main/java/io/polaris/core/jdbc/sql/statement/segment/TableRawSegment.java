@@ -1,15 +1,16 @@
 package io.polaris.core.jdbc.sql.statement.segment;
 
+import java.util.Collections;
+import java.util.List;
+
 import io.polaris.core.annotation.Experimental;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.TextNode;
 import io.polaris.core.string.Strings;
 
-import java.util.*;
-
 /**
  * @author Qt
- * @since  Aug 20, 2023
+ * @since Aug 20, 2023
  */
 @Experimental
 public class TableRawSegment<S extends TableRawSegment<S>> extends TableSegment<S> {
@@ -44,15 +45,10 @@ public class TableRawSegment<S extends TableRawSegment<S>> extends TableSegment<
 	}
 
 	@Override
-	public String getAllColumnExpression(boolean quotaAlias) {
-		return getAllColumnExpression(false, quotaAlias, "", "");
-	}
-
-	@Override
-	public String getAllColumnExpression(boolean aliasWithField, boolean quotaAlias, String aliasPrefix, String aliasSuffix) {
+	public String getAllColumnExpression(boolean withTableAlias, boolean aliasWithField, boolean quotaAlias, String aliasPrefix, String aliasSuffix) {
 		String alias = getTableAlias();
 		StringBuilder sb = new StringBuilder();
-		if (Strings.isNotBlank(alias)) {
+		if (Strings.isNotBlank(alias) && withTableAlias) {
 			sb.append(alias).append(".");
 		}
 		sb.append("*");
@@ -60,7 +56,7 @@ public class TableRawSegment<S extends TableRawSegment<S>> extends TableSegment<
 	}
 
 	@Override
-	public String getColumnExpression(String field) {
+	public String getColumnExpression(String field, boolean withTableAlias) {
 		throw new UnsupportedOperationException();
 	}
 
