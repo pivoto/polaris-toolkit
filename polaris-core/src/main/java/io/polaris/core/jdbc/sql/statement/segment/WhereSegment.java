@@ -16,6 +16,7 @@ import io.polaris.core.collection.Iterables;
 import io.polaris.core.collection.ObjectArrays;
 import io.polaris.core.converter.Converters;
 import io.polaris.core.jdbc.ColumnMeta;
+import io.polaris.core.jdbc.ExpressionMeta;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.sql.BindingValues;
 import io.polaris.core.jdbc.sql.SqlTextParsers;
@@ -155,25 +156,33 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 				}
 				ColumnMeta meta = entry.getValue();
 				Object val = entityMap.get(name);
-				addWhereSqlByColumnValue(meta, val, columnPredicate);
+				addWhereSqlByColumnValue(meta.getFieldName(), meta.getFieldType(), val, columnPredicate);
+			}
+			for (Map.Entry<String, ExpressionMeta> entry : tableMeta.getExpressions().entrySet()) {
+				String name = entry.getKey();
+				// 不在包含列表
+				if (!columnPredicate.isIncludedColumn(name)) {
+					continue;
+				}
+				ExpressionMeta meta = entry.getValue();
+				Object val = entityMap.get(name);
+				addWhereSqlByColumnValue(meta.getFieldName(), meta.getFieldType(), val, columnPredicate);
 			}
 		}
 		return getThis();
 	}
 
-	private void addWhereSqlByColumnValue(ColumnMeta meta, Object val
-		, ColumnPredicate columnPredicate) {
+	private void addWhereSqlByColumnValue(String fieldName, Class<?> fieldType, Object val, ColumnPredicate columnPredicate) {
 		if (isNotEmpty(val)) {
-			Class<?> fieldType = meta.getFieldType();
 			// 日期字段
 			if (Date.class.isAssignableFrom(fieldType)) {
 				Date[] range = BindingValues.getDateRangeOrNull(val);
 				if (range != null) {
 					if (range[0] != null) {
-						this.column(meta.getFieldName()).ge(range[0]);
+						this.column(fieldName).ge(range[0]);
 					}
 					if (range[1] != null) {
-						this.column(meta.getFieldName()).le(range[1]);
+						this.column(fieldName).le(range[1]);
 					}
 					// 完成条件绑定
 					return;
@@ -182,32 +191,32 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 			// 文本字段
 			else if (String.class.isAssignableFrom(fieldType)) {
 				if (val instanceof String && (((String) val).startsWith("%") || ((String) val).endsWith("%"))) {
-					this.column(meta.getFieldName()).like((String) val);
+					this.column(fieldName).like((String) val);
 					// 完成条件绑定
 					return;
 				}
 			}
 			if (val instanceof Collection) {
 				List<Object> list = new ArrayList<>((Collection<?>) val);
-				this.column(meta.getFieldName()).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
+				this.column(fieldName).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
 			} else if (val instanceof Iterable) {
 				@SuppressWarnings("unchecked")
 				List<Object> list = Iterables.asCollection(ArrayList::new, (Iterable<Object>) val);
-				this.column(meta.getFieldName()).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
+				this.column(fieldName).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
 			} else if (val instanceof Iterator) {
 				@SuppressWarnings("unchecked")
 				List<Object> list = Iterables.asCollection(ArrayList::new, (Iterator<Object>) val);
-				this.column(meta.getFieldName()).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
+				this.column(fieldName).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
 			} else if (val.getClass().isArray()) {
 				List<Object> list = ObjectArrays.toList(val);
-				this.column(meta.getFieldName()).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
+				this.column(fieldName).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
 			} else {
-				this.column(meta.getFieldName()).eq((Object) Converters.convertQuietly(fieldType, val));
+				this.column(fieldName).eq((Object) Converters.convertQuietly(fieldType, val));
 			}
 		} else {
 			// 需要包含空值字段
-			if (columnPredicate.isIncludedEmptyColumn(meta.getFieldName())) {
-				this.column(meta.getFieldName()).isNull();
+			if (columnPredicate.isIncludedEmptyColumn(fieldName)) {
+				this.column(fieldName).isNull();
 			}
 		}
 	}

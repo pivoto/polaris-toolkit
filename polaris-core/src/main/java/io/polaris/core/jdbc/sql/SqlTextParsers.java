@@ -158,17 +158,9 @@ public class SqlTextParsers {
 						}
 					}
 				} else if (SymbolConsts.ASTERISK.equals(tableField)) {
-					if (excludeAlias) {
-						node.bindVarValue(Strings.join(", ", table.getAllColumnNames()));
-					} else {
-						node.bindVarValue(table.getAllColumnExpression(false));
-					}
+					node.bindVarValue(table.getAllColumnExpression(!excludeAlias, false));
 				} else {
-					if (excludeAlias) {
-						node.bindVarValue(table.getColumnName(tableField));
-					} else {
-						node.bindVarValue(table.getColumnExpression(tableField));
-					}
+					node.bindVarValue(table.getColumnExpression(tableField, !excludeAlias));
 				}
 			}
 		});
@@ -261,11 +253,7 @@ public class SqlTextParsers {
 						node.bindVarValue(table.getAllColumnExpression(false));
 					}
 				} else {
-					if (excludeAlias) {
-						node.bindVarValue(table.getColumnName(tableField));
-					} else {
-						node.bindVarValue(table.getColumnExpression(tableField));
-					}
+					node.bindVarValue(table.getColumnExpression(tableField,!excludeAlias));
 				}
 			}
 		});

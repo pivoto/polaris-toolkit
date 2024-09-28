@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.consts.SymbolConsts;
 import io.polaris.core.jdbc.ColumnMeta;
+import io.polaris.core.jdbc.ExpressionMeta;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.TableMetaKit;
 import io.polaris.core.jdbc.sql.consts.Direction;
@@ -30,6 +31,9 @@ public class Queries {
 
 	public static Function<String, String> newColumnDiscovery(Class<?> entityClass) {
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
+		return newColumnDiscovery(tableMeta);
+	}
+	public static Function<String, String> newColumnDiscovery(TableMeta tableMeta) {
 		return field -> {
 			String[] arr = field.split(Pattern.quote(SymbolConsts.DOT), 2);
 			String alias = null;
@@ -43,11 +47,27 @@ public class Queries {
 					if (columnMeta != null) {
 						return alias + SymbolConsts.DOT + columnMeta.getColumnName();
 					}
+					ExpressionMeta expressionMeta = tableMeta.getExpressions().get(field);
+					if (expressionMeta != null) {
+						if (Strings.isNotBlank(expressionMeta.getTableAliasPlaceholder())) {
+							return expressionMeta.getExpression().replace(expressionMeta.getTableAliasPlaceholder(), alias + SymbolConsts.DOT);
+						} else {
+							return expressionMeta.getExpression();
+						}
+					}
 				}
 			} else {
 				ColumnMeta columnMeta = tableMeta.getColumns().get(field);
 				if (columnMeta != null) {
 					return columnMeta.getColumnName();
+				}
+				ExpressionMeta expressionMeta = tableMeta.getExpressions().get(field);
+				if (expressionMeta != null) {
+					if (Strings.isNotBlank(expressionMeta.getTableAliasPlaceholder())) {
+						return expressionMeta.getExpression().replace(expressionMeta.getTableAliasPlaceholder(), "");
+					} else {
+						return expressionMeta.getExpression();
+					}
 				}
 			}
 			return null;
@@ -121,6 +141,31 @@ public class Queries {
 		for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
 			String name = entry.getKey();
 			ColumnMeta meta = entry.getValue();
+			Object val = entityMap.get(name);
+			if (Objs.isNotEmpty(val)) {
+				if (val instanceof Iterable || val instanceof Iterator) {
+					criteria.addSubset(Criteria.newCriteria().field(name)
+						.criterion(Criterion.newCriterion().operator(Operator.IN).value(val)));
+				} else if (val.getClass().isArray()) {
+					criteria.addSubset(Criteria.newCriteria().field(name)
+						.criterion(Criterion.newCriterion().operator(Operator.IN).value(val)));
+				} else if (String.class == meta.getFieldType() && val instanceof String) {
+					if (((String) val).startsWith("%") || ((String) val).endsWith("%")) {
+						criteria.addSubset(Criteria.newCriteria().field(name)
+							.criterion(Criterion.newCriterion().operator(Operator.LIKE).value(val)));
+					} else {
+						criteria.addSubset(Criteria.newCriteria().field(name)
+							.criterion(Criterion.newCriterion().operator(Operator.EQ).value(val)));
+					}
+				} else {
+					criteria.addSubset(Criteria.newCriteria().field(name)
+						.criterion(Criterion.newCriterion().operator(Operator.EQ).value(val)));
+				}
+			}
+		}
+		for (Map.Entry<String, ExpressionMeta> entry : tableMeta.getExpressions().entrySet()) {
+			String name = entry.getKey();
+			ExpressionMeta meta = entry.getValue();
 			Object val = entityMap.get(name);
 			if (Objs.isNotEmpty(val)) {
 				if (val instanceof Iterable || val instanceof Iterator) {

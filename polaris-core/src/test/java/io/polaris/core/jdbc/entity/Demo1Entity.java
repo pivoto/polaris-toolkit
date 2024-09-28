@@ -1,6 +1,7 @@
 package io.polaris.core.jdbc.entity;
 
 import io.polaris.core.jdbc.annotation.Column;
+import io.polaris.core.jdbc.annotation.Expression;
 import io.polaris.core.jdbc.annotation.Id;
 import io.polaris.core.jdbc.annotation.Table;
 import lombok.AllArgsConstructor;
@@ -34,4 +35,6 @@ public class Demo1Entity {
 	private Integer col3;
 	private Integer col4;
 	private Integer col5;
+	@Expression("ID+1")
+	private Long id2;
 }

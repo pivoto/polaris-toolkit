@@ -99,7 +99,9 @@ class QueriesTest {
 		{
 			OrderBy orderBy = OrderBy.newOrderBy()
 				.by(Direction.ASC, Demo1Entity.Fields.fieldStr1)
-				.by(Direction.DESC, Demo1Entity.Fields.fieldStr2);
+				.by(Direction.DESC, Demo1Entity.Fields.fieldStr2)
+				.by(Direction.DESC, Demo1Entity.Fields.id2)
+				;
 			SqlNode sql = Queries.parse(orderBy, Queries.newColumnDiscovery(Demo1Entity.class));
 			TestConsole.println(sql.toString());
 		}

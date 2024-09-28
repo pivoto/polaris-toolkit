@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 
 import io.polaris.core.converter.Converters;
 import io.polaris.core.jdbc.ColumnMeta;
+import io.polaris.core.jdbc.ExpressionMeta;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.TableMetaKit;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
@@ -600,6 +601,14 @@ public class SqlStatements {
 			String columnName = meta.getColumnName();
 			sql.select(columnName + " " + name);
 		}
+		for (Map.Entry<String, ExpressionMeta> entry : tableMeta.getExpressions().entrySet()) {
+			String name = entry.getKey();
+			ExpressionMeta meta = entry.getValue();
+			if (meta.isSelectable()) {
+				String columnName = meta.getExpressionWithoutTableAlias();
+				sql.select(columnName + " " + name);
+			}
+		}
 
 		Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, null);
 		if (entity != null) {
@@ -628,10 +637,16 @@ public class SqlStatements {
 		if (orderBy != null) {
 			for (OrderBy.Item item : orderBy.getItems()) {
 				ColumnMeta columnMeta = tableMeta.getColumns().get(item.getField());
-				if (columnMeta == null) {
+				if (columnMeta != null) {
+					sql.orderBy(columnMeta.getColumnName() + " " + item.getDirection().getSqlText());
 					continue;
 				}
-				sql.orderBy(columnMeta.getColumnName() + " " + item.getDirection().getSqlText());
+
+				ExpressionMeta expressionMeta = tableMeta.getExpressions().get(item.getField());
+				if (expressionMeta != null) {
+					sql.orderBy(expressionMeta.getExpressionWithoutTableAlias() + " " + item.getDirection().getSqlText());
+					continue;
+				}
 			}
 		}
 
@@ -668,19 +683,36 @@ public class SqlStatements {
 				}
 			}
 		}
+		for (Map.Entry<String, ExpressionMeta> entry : tableMeta.getExpressions().entrySet()) {
+			String name = entry.getKey();
+
+			// 不在包含列表
+			if (!columnPredicate.isIncludedColumn(name)) {
+				continue;
+			}
+
+			ExpressionMeta meta = entry.getValue();
+			String columnName = Strings.isNotBlank(meta.getTableAliasPlaceholder()) ?
+				meta.getExpression().replace(meta.getTableAliasPlaceholder(), "") : meta.getExpression();
+			Object val = entityMap.get(name);
+
+			if (Objs.isNotEmpty(val)) {
+				appendSqlWhereWithVal(bindings, sql, meta, val, whereKeyGen.generate());
+			} else {
+				// 需要包含空值字段
+				boolean include = columnPredicate.isIncludedEmptyColumn(name);
+				if (include) {
+					sql.where(columnName + " IS NULL");
+				}
+			}
+		}
 	}
 
 	private static void appendSqlWhereWithCriteria(Map<String, Object> bindings
 		, TableMeta tableMeta, SqlStatement sql, VarNameGenerator whereKeyGen, Object criteria) {
 		// 追加查询条件
 		if (criteria instanceof Criteria) {
-			Function<String, String> columnDiscovery = field -> {
-				ColumnMeta columnMeta = tableMeta.getColumns().get(field);
-				if (columnMeta != null) {
-					return columnMeta.getColumnName();
-				}
-				return null;
-			};
+			Function<String, String> columnDiscovery = Queries.newColumnDiscovery(tableMeta);
 			SqlNode sqlNode = Queries.parse((Criteria) criteria, false, columnDiscovery);
 			if (!sqlNode.isSkipped()) {
 				BoundSql boundSql = sqlNode.asBoundSql(whereKeyGen);
@@ -694,9 +726,23 @@ public class SqlStatements {
 	 * 添加查询条件， 支持处理集合与数组类型
 	 */
 	private static void appendSqlWhereWithVal(@Nonnull Map<String, Object> bindings
+		, @Nonnull SqlStatement sql, @Nonnull ExpressionMeta meta, @Nonnull Object val, String key) {
+		String columnName = Strings.isNotBlank(meta.getTableAliasPlaceholder()) ? meta.getExpression().replace(meta.getTableAliasPlaceholder(), "") : meta.getExpression();
+		Class<?> fieldType = meta.getFieldType();
+		appendSqlWhereWithVal(bindings, sql, columnName, fieldType, val, key);
+	}
+
+	/**
+	 * 添加查询条件， 支持处理集合与数组类型
+	 */
+	private static void appendSqlWhereWithVal(@Nonnull Map<String, Object> bindings
 		, @Nonnull SqlStatement sql, @Nonnull ColumnMeta meta, @Nonnull Object val, String key) {
 		String columnName = meta.getColumnName();
 		Class<?> fieldType = meta.getFieldType();
+		appendSqlWhereWithVal(bindings, sql, columnName, fieldType, val, key);
+	}
+
+	private static void appendSqlWhereWithVal(Map<String, Object> bindings, SqlStatement sql, String columnName, Class<?> fieldType, Object val, String key) {
 		// 日期字段
 		if (Date.class.isAssignableFrom(fieldType)) {
 			// 两个元素的日期类字段特殊处理，认为是日期范围条件
@@ -775,5 +821,6 @@ public class SqlStatements {
 			bindings.put(key, Converters.convertQuietly(fieldType, val));
 		}
 	}
+
 
 }
