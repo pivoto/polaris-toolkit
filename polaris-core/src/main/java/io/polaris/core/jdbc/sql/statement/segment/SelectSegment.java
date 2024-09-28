@@ -184,7 +184,7 @@ public class SelectSegment<O extends Segment<O>, S extends SelectSegment<O, S>> 
 					if (Strings.isBlank(fieldAlias) && aliasWithField) {
 						fieldAlias = field;
 					}
-					if (Strings.isBlank(fieldAlias)) {
+					if (Strings.isNotBlank(fieldAlias)) {
 						return Iterables.asList(fieldAlias);
 					} else {
 						return Iterables.asList(table.getColumnName(field));
@@ -221,7 +221,7 @@ public class SelectSegment<O extends Segment<O>, S extends SelectSegment<O, S>> 
 					if (Strings.isBlank(fieldAlias) && aliasWithField) {
 						fieldAlias = field;
 					}
-					if (Strings.isBlank(fieldAlias)) {
+					if (Strings.isNotBlank(fieldAlias)) {
 						return columnOrAlias.equals(fieldAlias);
 					} else {
 						String columnName = table.getColumnName(field);
