@@ -189,7 +189,7 @@ public class Objs {
 			}
 			return false;
 		}
-		if (obj.getClass().isArray() == true) {
+		if (obj.getClass().isArray()) {
 			final int len = Array.getLength(obj);
 			for (int i = 0; i < len; i++) {
 				final Object o = Array.get(obj, i);

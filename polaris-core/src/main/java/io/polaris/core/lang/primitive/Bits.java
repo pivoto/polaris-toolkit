@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
  * see java.nio.Bits
  *
  * @author Qt
- * @since  Aug 03, 2023
+ * @since Aug 03, 2023
  */
 public class Bits {
 
@@ -204,7 +204,7 @@ public class Bits {
 	// -- get/put long --
 
 	static private long makeLong(byte b7, byte b6, byte b5, byte b4,
-								 byte b3, byte b2, byte b1, byte b0) {
+		byte b3, byte b2, byte b1, byte b0) {
 		return ((((long) b7) << 56) |
 			(((long) b6 & 0xff) << 48) |
 			(((long) b5 & 0xff) << 40) |

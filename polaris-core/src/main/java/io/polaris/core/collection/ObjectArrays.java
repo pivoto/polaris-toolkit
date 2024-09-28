@@ -1,5 +1,12 @@
 package io.polaris.core.collection;
 
+import java.lang.reflect.Array;
+import java.nio.ByteBuffer;
+import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
 import io.polaris.core.assertion.Assertions;
 import io.polaris.core.collection.comparator.Comparators;
 import io.polaris.core.consts.StdConsts;
@@ -8,13 +15,6 @@ import io.polaris.core.converter.Converters;
 import io.polaris.core.lang.Objs;
 import io.polaris.core.random.Randoms;
 import io.polaris.core.string.Strings;
-
-import java.lang.reflect.Array;
-import java.nio.ByteBuffer;
-import java.util.*;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * @author Qt
@@ -86,7 +86,6 @@ public class ObjectArrays extends PrimitiveArrays {
 		return true;
 	}
 
-	// ---------------------------------------------------------------------- isNotEmpty
 
 	/**
 	 * 数组是否为非空
@@ -205,7 +204,7 @@ public class ObjectArrays extends PrimitiveArrays {
 			}
 		}
 
-		return INDEX_NOT_FOUND;
+		return  -1;
 	}
 
 	/**
@@ -777,39 +776,38 @@ public class ObjectArrays extends PrimitiveArrays {
 		return zip(keys, values, false);
 	}
 
-	// ------------------------------------------------------------------- indexOf and lastIndexOf and contains
 
 	/**
-	 * 返回数组中指定元素所在位置，未找到返回{@link #INDEX_NOT_FOUND}
+	 * 返回数组中指定元素所在位置，未找到返回 -1
 	 *
 	 * @param <T>               数组类型
 	 * @param array             数组
 	 * @param value             被检查的元素
 	 * @param beginIndexInclude 检索开始的位置
-	 * @return 数组中指定元素所在位置，未找到返回{@link #INDEX_NOT_FOUND}
+	 * @return 数组中指定元素所在位置，未找到返回 -1
 	 */
 	public static <T> int indexOf(T[] array, Object value, int beginIndexInclude) {
 		return matchIndex((obj) -> Objs.equals(value, obj), beginIndexInclude, array);
 	}
 
 	/**
-	 * 返回数组中指定元素所在位置，未找到返回{@link #INDEX_NOT_FOUND}
+	 * 返回数组中指定元素所在位置，未找到返回 -1
 	 *
 	 * @param <T>   数组类型
 	 * @param array 数组
 	 * @param value 被检查的元素
-	 * @return 数组中指定元素所在位置，未找到返回{@link #INDEX_NOT_FOUND}
+	 * @return 数组中指定元素所在位置，未找到返回 -1
 	 */
 	public static <T> int indexOf(T[] array, Object value) {
 		return matchIndex((obj) -> Objs.equals(value, obj), array);
 	}
 
 	/**
-	 * 返回数组中指定元素所在位置，忽略大小写，未找到返回{@link #INDEX_NOT_FOUND}
+	 * 返回数组中指定元素所在位置，忽略大小写，未找到返回 -1
 	 *
 	 * @param array 数组
 	 * @param value 被检查的元素
-	 * @return 数组中指定元素所在位置，未找到返回{@link #INDEX_NOT_FOUND}
+	 * @return 数组中指定元素所在位置，未找到返回 -1
 	 */
 	public static int indexOfIgnoreCase(CharSequence[] array, CharSequence value) {
 		if (null != array) {
@@ -819,32 +817,32 @@ public class ObjectArrays extends PrimitiveArrays {
 				}
 			}
 		}
-		return INDEX_NOT_FOUND;
+		return  -1;
 	}
 
 	/**
-	 * 返回数组中指定元素所在最后的位置，未找到返回{@link #INDEX_NOT_FOUND}
+	 * 返回数组中指定元素所在最后的位置，未找到返回 -1
 	 *
 	 * @param <T>   数组类型
 	 * @param array 数组
 	 * @param value 被检查的元素
-	 * @return 数组中指定元素所在位置，未找到返回{@link #INDEX_NOT_FOUND}
+	 * @return 数组中指定元素所在位置，未找到返回 -1
 	 */
 	public static <T> int lastIndexOf(T[] array, Object value) {
 		if (isEmpty(array)) {
-			return INDEX_NOT_FOUND;
+			return  -1;
 		}
 		return lastIndexOf(array, value, array.length - 1);
 	}
 
 	/**
-	 * 返回数组中指定元素所在最后的位置，未找到返回{@link #INDEX_NOT_FOUND}
+	 * 返回数组中指定元素所在最后的位置，未找到返回 -1
 	 *
 	 * @param <T>        数组类型
 	 * @param array      数组
 	 * @param value      被检查的元素
 	 * @param endInclude 查找方式为从后向前查找，查找的数组结束位置，一般为array.length-1
-	 * @return 数组中指定元素所在位置，未找到返回{@link #INDEX_NOT_FOUND}
+	 * @return 数组中指定元素所在位置，未找到返回 -1
 	 */
 	public static <T> int lastIndexOf(T[] array, Object value, int endInclude) {
 		if (isNotEmpty(array)) {
@@ -854,7 +852,7 @@ public class ObjectArrays extends PrimitiveArrays {
 				}
 			}
 		}
-		return INDEX_NOT_FOUND;
+		return  -1;
 	}
 
 	/**
@@ -866,7 +864,7 @@ public class ObjectArrays extends PrimitiveArrays {
 	 * @return 是否包含
 	 */
 	public static <T> boolean contains(T[] array, T value) {
-		return indexOf(array, value) > INDEX_NOT_FOUND;
+		return indexOf(array, value) >  -1;
 	}
 
 	/**
@@ -913,10 +911,9 @@ public class ObjectArrays extends PrimitiveArrays {
 	 * @return 是否包含
 	 */
 	public static boolean containsIgnoreCase(CharSequence[] array, CharSequence value) {
-		return indexOfIgnoreCase(array, value) > INDEX_NOT_FOUND;
+		return indexOfIgnoreCase(array, value) >  -1;
 	}
 
-	// ------------------------------------------------------------------- Wrap and unwrap
 
 	/**
 	 * 包装数组对象
@@ -1309,7 +1306,6 @@ public class ObjectArrays extends PrimitiveArrays {
 		return collection.toArray(newArray(componentType, 0));
 	}
 
-	// ---------------------------------------------------------------------- remove
 
 	/**
 	 * 移除数组中对应位置的元素<br>
@@ -1321,12 +1317,25 @@ public class ObjectArrays extends PrimitiveArrays {
 	 * @return 去掉指定元素后的新数组或原数组
 	 * @throws IllegalArgumentException 参数对象不为数组对象
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "SuspiciousSystemArraycopy"})
 	public static <T> T[] remove(T[] array, int index) throws IllegalArgumentException {
-		return (T[]) remove((Object) array, index);
+		if (null == array) {
+			return null;
+		}
+		int length = Array.getLength(array);
+		if (index < 0 || index >= length) {
+			return array;
+		}
+
+		final Object result = Array.newInstance(array.getClass().getComponentType(), length - 1);
+		System.arraycopy(array, 0, result, 0, index);
+		if (index < length - 1) {
+			// 后半部分
+			System.arraycopy(array, index + 1, result, index, length - index - 1);
+		}
+		return (T[]) result;
 	}
 
-	// ---------------------------------------------------------------------- removeEle
 
 	/**
 	 * 移除数组中指定的元素<br>
@@ -1338,11 +1347,10 @@ public class ObjectArrays extends PrimitiveArrays {
 	 * @return 去掉指定元素后的新数组或原数组
 	 * @throws IllegalArgumentException 参数对象不为数组对象
 	 */
-	public static <T> T[] removeEle(T[] array, T element) throws IllegalArgumentException {
+	public static <T> T[] removeElement(T[] array, T element) throws IllegalArgumentException {
 		return remove(array, indexOf(array, element));
 	}
 
-	// ---------------------------------------------------------------------- Reverse array
 
 	/**
 	 * 反转数组，会变更原数组
@@ -1381,7 +1389,6 @@ public class ObjectArrays extends PrimitiveArrays {
 		return reverse(array, 0, array.length);
 	}
 
-	// ------------------------------------------------------------------------------------------------------------ min and max
 
 	/**
 	 * 取最小值
@@ -1447,7 +1454,6 @@ public class ObjectArrays extends PrimitiveArrays {
 		return max;
 	}
 
-	// 使用Fisher–Yates洗牌算法，以线性时间复杂度打乱数组顺序
 
 	/**
 	 * 打乱数组顺序，会变更原数组
@@ -1472,7 +1478,7 @@ public class ObjectArrays extends PrimitiveArrays {
 		if (array == null || random == null || array.length <= 1) {
 			return array;
 		}
-
+		// 使用Fisher–Yates洗牌算法，以线性时间复杂度打乱数组顺序
 		for (int i = array.length; i > 1; i--) {
 			swap(array, i - 1, random.nextInt(i));
 		}
@@ -1750,7 +1756,7 @@ public class ObjectArrays extends PrimitiveArrays {
 	 * @return 子数组的开始位置，即子数字第一个元素在数组中的位置
 	 */
 	public static <T> boolean isSub(T[] array, T[] subArray) {
-		return indexOfSub(array, subArray) > INDEX_NOT_FOUND;
+		return indexOfSub(array, subArray) >  -1;
 	}
 
 	/**
@@ -1776,11 +1782,11 @@ public class ObjectArrays extends PrimitiveArrays {
 	 */
 	public static <T> int indexOfSub(T[] array, int beginInclude, T[] subArray) {
 		if (isEmpty(array) || isEmpty(subArray) || subArray.length > array.length) {
-			return INDEX_NOT_FOUND;
+			return  -1;
 		}
 		int firstIndex = indexOf(array, subArray[0], beginInclude);
 		if (firstIndex < 0 || firstIndex + subArray.length > array.length) {
-			return INDEX_NOT_FOUND;
+			return  -1;
 		}
 
 		for (int i = 0; i < subArray.length; i++) {
@@ -1802,7 +1808,7 @@ public class ObjectArrays extends PrimitiveArrays {
 	 */
 	public static <T> int lastIndexOfSub(T[] array, T[] subArray) {
 		if (isEmpty(array) || isEmpty(subArray)) {
-			return INDEX_NOT_FOUND;
+			return  -1;
 		}
 		return lastIndexOfSub(array, array.length - 1, subArray);
 	}
@@ -1818,12 +1824,12 @@ public class ObjectArrays extends PrimitiveArrays {
 	 */
 	public static <T> int lastIndexOfSub(T[] array, int endInclude, T[] subArray) {
 		if (isEmpty(array) || isEmpty(subArray) || subArray.length > array.length || endInclude < 0) {
-			return INDEX_NOT_FOUND;
+			return  -1;
 		}
 
 		int firstIndex = lastIndexOf(array, subArray[0]);
 		if (firstIndex < 0 || firstIndex + subArray.length > array.length) {
-			return INDEX_NOT_FOUND;
+			return  -1;
 		}
 
 		for (int i = 0; i < subArray.length; i++) {
@@ -1835,10 +1841,11 @@ public class ObjectArrays extends PrimitiveArrays {
 		return firstIndex;
 	}
 
-	// O(n)时间复杂度检查数组是否有序
 
 	/**
 	 * 检查数组是否有序，即comparator.compare(array[i], array[i + 1]) &lt;= 0，若传入空数组或空比较器，则返回false
+	 * <p>
+	 * O(n)时间复杂度
 	 *
 	 * @param array      数组
 	 * @param comparator 比较器
