@@ -27,6 +27,8 @@ public class DemoEntityTest {
 			.select().id().end()
 			.select().name().end()
 			.col1().col2().col3("x_col3")
+//			.col6()
+			.select(DemoEntity.Fields.col6)
 
 			.join(DemoEntitySql.join()).left().alias("t2")
 			.on().id().eq(TableField.of("x", DemoEntityMeta.FieldName.id))
@@ -39,7 +41,7 @@ public class DemoEntityTest {
 
 			.where()
 			.id().in(ids)
-			;
+		;
 
 //		new SelectStatement<>(null).where()
 //			.column("a").eq(1)

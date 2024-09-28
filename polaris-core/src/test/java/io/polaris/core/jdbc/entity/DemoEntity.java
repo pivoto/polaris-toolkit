@@ -1,6 +1,7 @@
 package io.polaris.core.jdbc.entity;
 
 import io.polaris.core.jdbc.annotation.Column;
+import io.polaris.core.jdbc.annotation.Expression;
 import io.polaris.core.jdbc.annotation.Id;
 import io.polaris.core.jdbc.annotation.Table;
 import lombok.AllArgsConstructor;
@@ -34,4 +35,7 @@ public class DemoEntity {
 	private Integer col3;
 	private Integer col4;
 	private Integer col5;
+	@Expression(value = "CASE WHEN col6 IS NULL THEN 0 ELSE col6 END", jdbcType = "INTEGER")
+	private Integer col6;
+
 }

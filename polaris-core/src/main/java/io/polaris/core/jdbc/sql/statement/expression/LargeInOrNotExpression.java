@@ -35,15 +35,15 @@ class LargeInOrNotExpression extends BaseExpression {
 				list.add((List<Object>) varValue);
 				return list;
 			}
-			for (int i = 0; i < size; i++) {
+			for (int i = 0; i < size; ) {
 				int count = Integer.min(size - i, this.limit);
 				List<Object> args = new ArrayList<>(count);
 				for (int j = 0; j < count; j++) {
-					Object o = ((List<?>) varValue).get(i);
+					Object o = ((List<?>) varValue).get(i+j);
 					args.add(o);
-					i++;
 				}
 				list.add(args);
+				i += count;
 			}
 			return list;
 		}
