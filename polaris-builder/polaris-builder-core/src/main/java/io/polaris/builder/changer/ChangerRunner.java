@@ -38,7 +38,7 @@ public class ChangerRunner {
 	}
 
 
-	private static ChangerDto parse(Element element) {
+	public static ChangerDto parse(Element element) {
 		ChangerDto dto = new ChangerDto();
 		String charset = element.elementTextTrim("charset");
 		if (StringUtils.isNotBlank(charset)) {

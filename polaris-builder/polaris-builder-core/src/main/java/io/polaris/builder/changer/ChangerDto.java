@@ -1,5 +1,6 @@
 package io.polaris.builder.changer;
 
+import io.polaris.core.map.Maps;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
@@ -88,5 +89,21 @@ public class ChangerDto {
 				this.packageMapping.putAll(parent.packageMapping);
 			}
 		}
+	}
+
+	public ChangerDto reverse() {
+		ChangerDto changerDto = new ChangerDto();
+		changerDto.setCharset(this.getCharset());
+		changerDto.setSrc(this.getDest());
+		changerDto.setDest(this.getSrc());
+		changerDto.setCopyAll(this.getCopyAll());
+		changerDto.setIncludeFilename(this.getIncludeFilename());
+		changerDto.setExtensions(this.getExtensions());
+		changerDto.setNamePatterns(this.getNamePatterns());
+		changerDto.setIgnorePatterns(this.getIgnorePatterns());
+		changerDto.setIgnoreMappingPatterns(this.getIgnoreMappingPatterns());
+		changerDto.setSourcePaths(this.getSourcePaths());
+		changerDto.setPackageMapping(Maps.reverse(this.getPackageMapping()));
+		return changerDto;
 	}
 }
