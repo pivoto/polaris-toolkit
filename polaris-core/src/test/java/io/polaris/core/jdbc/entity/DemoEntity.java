@@ -23,6 +23,9 @@ import lombok.experimental.FieldNameConstants;
 public class DemoEntity {
 	@Id
 	private Long id;
+	@Column(version = true)
+	private Long version;
+
 	private String name;
 	private Double score;
 	@Column("FIELD_STR")
@@ -35,7 +38,7 @@ public class DemoEntity {
 	private Integer col3;
 	private Integer col4;
 	private Integer col5;
-	@Expression(value = "CASE WHEN col6 IS NULL THEN 0 ELSE col6 END", jdbcType = "INTEGER")
+	@Expression(value = "(CASE WHEN $T.col6 IS NULL THEN 0 ELSE $T.col6 END)", jdbcType = "INTEGER")
 	private Integer col6;
 
 }

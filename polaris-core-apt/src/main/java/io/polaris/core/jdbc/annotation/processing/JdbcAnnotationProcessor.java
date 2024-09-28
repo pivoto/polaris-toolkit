@@ -1,11 +1,12 @@
 package io.polaris.core.jdbc.annotation.processing;
 
-import io.polaris.core.annotation.processing.BaseProcessor;
-import io.polaris.core.jdbc.ColumnMeta;
-import io.polaris.core.jdbc.ExpressionMeta;
-import io.polaris.core.jdbc.IEntityMeta;
-import io.polaris.core.jdbc.annotation.Table;
-import com.squareup.javapoet.*;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.BiPredicate;
+import java.util.function.Supplier;
 
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -15,20 +16,23 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
-import java.io.IOException;
-import java.util.*;
-import java.util.function.BiPredicate;
-import java.util.function.Supplier;
+
+import io.polaris.core.annotation.processing.BaseProcessor;
+import io.polaris.core.jdbc.ColumnMeta;
+import io.polaris.core.jdbc.ExpressionMeta;
+import io.polaris.core.jdbc.IEntityMeta;
+import io.polaris.core.jdbc.annotation.Table;
+
+import com.squareup.javapoet.*;
 
 /**
  * @author Qt
- * @since  Aug 20, 2023
+ * @since Aug 20, 2023
  */
 @SuppressWarnings("all")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedAnnotationTypes("io.polaris.core.jdbc.annotation.Table")
 public class JdbcAnnotationProcessor extends BaseProcessor {
-
 
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
@@ -282,20 +286,9 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 		ClassName classNameAnd = sqlClassName.nestedClass("And");
 		ClassName classNameOr = sqlClassName.nestedClass("Or");
 
-		/* Set<String> keywords = new HashSet<>();
-		keywords.add("columnDiscovery");
-		keywords.add("buildSelect");
-		keywords.add("buildWhere");
-		keywords.add("buildGroupBy");
-		keywords.add("buildOrderBy");
-		keywords.add("toCountSqlNode");
-		keywords.add("toSqlNode");
-		keywords.add("select");
-		keywords.add("where");
-		keywords.add("groupBy");
-		keywords.add("having");
-		keywords.add("orderBy"); */
-		// select
+		// region inner class
+
+		// region select
 		{
 			TypeSpec.Builder nestedBuilder = TypeSpec.classBuilder(classNameSelect)
 				.addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -385,10 +378,26 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 						.addStatement("return select($S, alias)", fieldName)
 						.build());
 				}
+				// 支持表达式字段
+				for (JdbcBeanInfo.ExpressionInfo expression : beanInfo.getExpressions()) {
+					String fieldName = expression.getFieldName();
+					nestedBuilder.addMethod(MethodSpec.methodBuilder(fieldName)
+						.addModifiers(Modifier.PUBLIC)
+						.returns(classNameSelect)
+						.addStatement("return select($S)", fieldName)
+						.build());
+					nestedBuilder.addMethod(MethodSpec.methodBuilder(fieldName)
+						.addModifiers(Modifier.PUBLIC)
+						.returns(classNameSelect)
+						.addParameter(ParameterSpec.builder(ClassName.get(String.class), "alias").build())
+						.addStatement("return select($S, alias)", fieldName)
+						.build());
+				}
 			}
 			classBuilder.addType(nestedBuilder.build());
 		}
-		// insert
+		// endregion select
+		// region insert
 		{
 			TypeSpec.Builder nestedBuilder = TypeSpec.classBuilder(classNameInsert)
 				.addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -413,7 +422,7 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 					nestedBuilder.addMethod(MethodSpec.methodBuilder(fieldName)
 						.addModifiers(Modifier.PUBLIC)
 						.returns(ParameterizedTypeName.get(classNameColumnSegment,
-							classNameInsert,WildcardTypeName.subtypeOf(TypeName.OBJECT)))
+							classNameInsert, WildcardTypeName.subtypeOf(TypeName.OBJECT)))
 						.addStatement("return column($S)", fieldName)
 						.build());
 
@@ -450,7 +459,8 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 			}
 			classBuilder.addType(nestedBuilder.build());
 		}
-		// update
+		// endregion insert
+		// region update
 		{
 			TypeSpec.Builder nestedBuilder = TypeSpec.classBuilder(classNameUpdate)
 				.addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -489,7 +499,7 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 					nestedBuilder.addMethod(MethodSpec.methodBuilder(fieldName)
 						.addModifiers(Modifier.PUBLIC)
 						.returns(ParameterizedTypeName.get(classNameColumnSegment,
-							classNameUpdate,WildcardTypeName.subtypeOf(TypeName.OBJECT)))
+							classNameUpdate, WildcardTypeName.subtypeOf(TypeName.OBJECT)))
 						.addStatement("return column($S)", fieldName)
 						.build());
 
@@ -526,7 +536,8 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 
 			classBuilder.addType(nestedBuilder.build());
 		}
-		// delete
+		// endregion update
+		// region delete
 		{
 			TypeSpec.Builder nestedBuilder = TypeSpec.classBuilder(classNameDelete)
 				.addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -563,8 +574,9 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 
 			classBuilder.addType(nestedBuilder.build());
 		}
+		// endregion delete
 
-		// selectCol
+		// region selectCol
 		{
 			TypeSpec.Builder nestedBuilder = TypeSpec.classBuilder(classNameSelectCol)
 				.addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -594,9 +606,20 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 					.addStatement("return column($S)", fieldName)
 					.build());
 			}
+			// 支持表达式字段
+			for (JdbcBeanInfo.ExpressionInfo expression : beanInfo.getExpressions()) {
+				String fieldName = expression.getFieldName();
+				nestedBuilder.addMethod(MethodSpec.methodBuilder(fieldName)
+					.addModifiers(Modifier.PUBLIC)
+					.returns(ParameterizedTypeName.get(classNameSelectCol, TypeVariableName.get("O")))
+					.addStatement("return column($S)", fieldName)
+					.build());
+			}
 			classBuilder.addType(nestedBuilder.build());
 		}
-		// join
+		// endregion selectCol
+
+		// region join
 		{
 			TypeSpec.Builder nestedBuilder = TypeSpec.classBuilder(classNameJoin)
 				.addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -670,7 +693,7 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 					.addAnnotation(Override.class)
 					.addModifiers(Modifier.PROTECTED)
 					.returns(ParameterizedTypeName.get(classNameGroupBy, ParameterizedTypeName.get(classNameJoin, TypeVariableName.get("O"))
-						))
+					))
 					.addStatement("return new $T<>(getThis(), getTable())", classNameGroupBy)
 					.build());
 				nestedBuilder.addMethod(MethodSpec.methodBuilder("buildOrderBy")
@@ -744,10 +767,26 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 						.addStatement("return select($S, alias)", fieldName)
 						.build());
 				}
+				// 支持表达式字段
+				for (JdbcBeanInfo.ExpressionInfo expression : beanInfo.getExpressions()) {
+					String fieldName = expression.getFieldName();
+					nestedBuilder.addMethod(MethodSpec.methodBuilder(fieldName)
+						.addModifiers(Modifier.PUBLIC)
+						.returns(ParameterizedTypeName.get(classNameJoin, TypeVariableName.get("O")))
+						.addStatement("return select($S)", fieldName)
+						.build());
+					nestedBuilder.addMethod(MethodSpec.methodBuilder(fieldName)
+						.addModifiers(Modifier.PUBLIC)
+						.returns(ParameterizedTypeName.get(classNameJoin, TypeVariableName.get("O")))
+						.addParameter(ParameterSpec.builder(ClassName.get(String.class), "alias").build())
+						.addStatement("return select($S, alias)", fieldName)
+						.build());
+				}
 			}
 			classBuilder.addType(nestedBuilder.build());
 		}
-		// group by
+		// endregion join
+		// region group by
 		{
 			TypeSpec.Builder nestedBuilder = TypeSpec.classBuilder(classNameGroupBy)
 				.addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -779,10 +818,20 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 						.addStatement("return column($S)", fieldName)
 						.build());
 				}
+				// 支持表达式字段
+				for (JdbcBeanInfo.ExpressionInfo expression : beanInfo.getExpressions()) {
+					String fieldName = expression.getFieldName();
+					nestedBuilder.addMethod(MethodSpec.methodBuilder(fieldName)
+						.addModifiers(Modifier.PUBLIC)
+						.returns(ParameterizedTypeName.get(classNameGroupBy, TypeVariableName.get("O")))
+						.addStatement("return column($S)", fieldName)
+						.build());
+				}
 			}
 			classBuilder.addType(nestedBuilder.build());
 		}
-		// order by
+		// endregion group by
+		// region order by
 		{
 			TypeSpec.Builder nestedBuilder = TypeSpec.classBuilder(classNameOrderBy)
 				.addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -814,10 +863,20 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 						.addStatement("return column($S)", fieldName)
 						.build());
 				}
+				// 支持表达式字段
+				for (JdbcBeanInfo.ExpressionInfo expression : beanInfo.getExpressions()) {
+					String fieldName = expression.getFieldName();
+					nestedBuilder.addMethod(MethodSpec.methodBuilder(fieldName)
+						.addModifiers(Modifier.PUBLIC)
+						.returns(ParameterizedTypeName.get(classNameOrderBy, TypeVariableName.get("O")))
+						.addStatement("return column($S)", fieldName)
+						.build());
+				}
 			}
 			classBuilder.addType(nestedBuilder.build());
 		}
-		// and
+		// endregion order by
+		// region and
 		{
 			ParameterizedTypeName andWithO = ParameterizedTypeName.get(classNameAnd, TypeVariableName.get("O"));
 			TypeSpec.Builder nestedBuilder = TypeSpec.classBuilder(classNameAnd)
@@ -879,10 +938,21 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 						.addStatement("return column($S)", fieldName)
 						.build());
 				}
+				// 支持表达式字段
+				for (JdbcBeanInfo.ExpressionInfo expression : beanInfo.getExpressions()) {
+					String fieldName = expression.getFieldName();
+					nestedBuilder.addMethod(MethodSpec.methodBuilder(fieldName)
+						.addModifiers(Modifier.PUBLIC)
+						.returns(ParameterizedTypeName.get(classNameBaseCriterion,
+							andWithO, WildcardTypeName.subtypeOf(TypeName.OBJECT)))
+						.addStatement("return column($S)", fieldName)
+						.build());
+				}
 			}
 			classBuilder.addType(nestedBuilder.build());
 		}
-		// or
+		// endregion and
+		// region or
 		{
 			ParameterizedTypeName orWithO = ParameterizedTypeName.get(classNameOr, TypeVariableName.get("O"));
 			TypeSpec.Builder nestedBuilder = TypeSpec.classBuilder(classNameOr)
@@ -943,12 +1013,24 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 						.addStatement("return column($S)", fieldName)
 						.build());
 				}
+				// 支持表达式字段
+				for (JdbcBeanInfo.ExpressionInfo expression : beanInfo.getExpressions()) {
+					String fieldName = expression.getFieldName();
+					nestedBuilder.addMethod(MethodSpec.methodBuilder(fieldName)
+						.addModifiers(Modifier.PUBLIC)
+						.returns(ParameterizedTypeName.get(classNameBaseCriterion,
+							orWithO, WildcardTypeName.subtypeOf(TypeName.OBJECT)))
+						.addStatement("return column($S)", fieldName)
+						.build());
+				}
 			}
 			classBuilder.addType(nestedBuilder.build());
 		}
+		// endregion or
 
+		// endregion inner class
 
-		// static
+		// region static method
 		{
 			classBuilder.addMethod(MethodSpec.methodBuilder("join")
 				.addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -1013,6 +1095,7 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 				.build());
 
 		}
+		// endregion static method
 
 		JavaFile javaFile = JavaFile.builder(sqlClassName.packageName(), classBuilder.build()).build();
 		try {

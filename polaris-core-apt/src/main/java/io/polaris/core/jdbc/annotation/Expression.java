@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Expression {
 
-	/** 数据库字段表达式 */
+	/** 数据库字段表达式，注意表别名的占位符使用，以防止在多表关联等场景下字段混淆 */
 	String value();
 
 	/** 是否可查询 */

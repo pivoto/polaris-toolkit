@@ -15,8 +15,9 @@ public class DeleteStatementTest {
 			.end();
 		s.where(Queries.newCriteria(DemoEntity.builder()
 			.name("%123%")
+			.col6(1)
 			.build()));
-		TestConsole.println( s.toSqlNode().asBoundSql());
+		TestConsole.println(s.toSqlNode().asBoundSql());
 	}
 
 }

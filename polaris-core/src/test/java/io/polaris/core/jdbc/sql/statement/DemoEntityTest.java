@@ -27,8 +27,8 @@ public class DemoEntityTest {
 			.select().id().end()
 			.select().name().end()
 			.col1().col2().col3("x_col3")
-//			.col6()
-			.select(DemoEntity.Fields.col6)
+			.col6()
+//			.select(DemoEntity.Fields.col6)
 
 			.join(DemoEntitySql.join()).left().alias("t2")
 			.on().id().eq(TableField.of("x", DemoEntityMeta.FieldName.id))
@@ -53,7 +53,12 @@ public class DemoEntityTest {
 
 	@Test
 	void test02() {
-		DemoEntity entity = DemoEntity.builder().id(1L).name("demo").col1(1).fieldStr1("f1").fieldStr2("f2").build();
+		DemoEntity entity = DemoEntity.builder().id(1L).version(0L)
+			.name("demo")
+			.col1(1)
+			.fieldStr1("f1").fieldStr2("f2")
+			.col6(6)
+			.build();
 
 		TestConsole.println();
 		TestConsole.println("select>");
@@ -62,7 +67,13 @@ public class DemoEntityTest {
 			.select().value(1, "a")
 			.select().all().end()
 			.where().byEntity(entity)
+			.col6().notNull()
+//			.column(DemoEntityMeta.FieldName.col6).notNull()
 			.end()
+			.orderBy()
+			.col6().desc()
+//			.groupBy().col6()
+//			.end()
 			.toSqlNode().asBoundSql());
 
 		TestConsole.println();
@@ -76,15 +87,23 @@ public class DemoEntityTest {
 		TestConsole.println(DemoEntitySql.insert()
 			.withEntity(entity)
 			.toSqlNode().asBoundSql());
+
 		TestConsole.println();
-		TestConsole.println("insert>");
+		TestConsole.println("insert-onDuplicateKeyUpdate>");
 		TestConsole.println(DemoEntitySql.insert()
 			.withEntity(entity)
 			.enableUpdateByDuplicateKey(true)
 			.toSqlNode().asBoundSql());
 
 		TestConsole.println();
-		TestConsole.println("update>");
+		TestConsole.println("insert-replace>");
+		TestConsole.println(DemoEntitySql.insert()
+			.withEntity(entity)
+			.enableReplace(true)
+			.toSqlNode().asBoundSql());
+
+		TestConsole.println();
+		TestConsole.println("update-byId>");
 		TestConsole.println(DemoEntitySql.update()
 			.withEntity(entity)
 			.where().byEntityId(entity)
@@ -92,9 +111,39 @@ public class DemoEntityTest {
 			.toSqlNode().asBoundSql());
 
 		TestConsole.println();
-		TestConsole.println("delete>");
+		TestConsole.println("update-byIdAndVersion>");
+		TestConsole.println(DemoEntitySql.update()
+			.withEntity(entity)
+			.where().byEntityIdAndVersion(entity)
+			.end()
+			.toSqlNode().asBoundSql());
+
+		TestConsole.println();
+		TestConsole.println("update-byAny>");
+		TestConsole.println(DemoEntitySql.update()
+			.withEntity(entity)
+			.where().byEntity(entity)
+			.end()
+			.toSqlNode().asBoundSql());
+
+		TestConsole.println();
+		TestConsole.println("delete-byId>");
 		TestConsole.println(DemoEntitySql.delete()
 			.where().byEntityId(entity)
+			.end()
+			.toSqlNode().asBoundSql());
+
+		TestConsole.println();
+		TestConsole.println("delete-byIdAndVersion>");
+		TestConsole.println(DemoEntitySql.delete()
+			.where().byEntityIdAndVersion(entity)
+			.end()
+			.toSqlNode().asBoundSql());
+
+		TestConsole.println();
+		TestConsole.println("delete-byAny>");
+		TestConsole.println(DemoEntitySql.delete()
+			.where().byEntity(entity)
 			.end()
 			.toSqlNode().asBoundSql());
 	}
