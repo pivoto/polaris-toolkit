@@ -97,7 +97,7 @@
 		<dependency.javapoet.version>1.13.0</dependency.javapoet.version>
 		<dependency.mybatis-spring.version>2.1.4</dependency.mybatis-spring.version>
 		<dependency.jackson.version>2.14.2</dependency.jackson.version>
-		<dependency.fastjson2.version>2.0.45</dependency.fastjson2.version>
+		<dependency.fastjson2.version>2.0.53</dependency.fastjson2.version>
 	</properties>
 
 	<dependencies>
