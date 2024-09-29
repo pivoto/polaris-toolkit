@@ -993,6 +993,27 @@
 						</execution>
 					</executions>
 				</plugin>
+				<plugin>
+					<groupId>cn.fossc.polaris.plugins</groupId>
+					<artifactId>properties-maven-plugin</artifactId>
+					<version>${dependency.polaris-plugins.version}</version>
+					<executions>
+						<execution>
+							<id>transform-resources</id>
+							<goals>
+								<goal>transform</goal>
+							</goals>
+							<phase>process-resources</phase>
+						</execution>
+						<execution>
+							<id>transform-test-resources</id>
+							<goals>
+								<goal>transform</goal>
+							</goals>
+							<phase>process-test-resources</phase>
+						</execution>
+					</executions>
+				</plugin>
 
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -1280,9 +1301,13 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
 			</plugin>
-			<plugin>
+			<!--<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>native2ascii-maven-plugin</artifactId>
+			</plugin>-->
+			<plugin>
+				<groupId>cn.fossc.polaris.plugins</groupId>
+				<artifactId>properties-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
