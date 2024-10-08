@@ -7,12 +7,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import io.polaris.core.asm.internal.*;
+import io.polaris.core.asm.internal.AsmConsts;
+import io.polaris.core.asm.internal.AsmTypes;
+import io.polaris.core.asm.internal.Block;
+import io.polaris.core.asm.internal.ClassEmitter;
+import io.polaris.core.asm.internal.CodeEmitter;
+import io.polaris.core.asm.internal.Emitters;
+import io.polaris.core.asm.internal.Local;
+import io.polaris.core.asm.internal.MethodInfo;
+import io.polaris.core.asm.internal.Signature;
 import io.polaris.core.err.BytecodeOperationException;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
 
 /**
+ * 作为{@link Enhancer} 的变种，支持添加多个拦截器，可通过传入方法匹配器参数以决定目标方法对应的实际生效的拦截器。
+ *
  * @author Qt
  * @since May 11, 2024
  */
@@ -20,7 +30,7 @@ public class BulkEnhancer extends AbstractEnhancer {
 	protected static final Type TYPE_BULK_ENHANCER = Type.getType(BulkEnhancer.class);
 	protected static final Type TYPE_BULK_INVOCATION = Type.getType(BulkInvocation.class);
 
-//	protected static final Signature TO_INTERCEPTOR_MATRIX =
+	//	protected static final Signature TO_INTERCEPTOR_MATRIX =
 //		new Signature("toInterceptorMatrix", TYPE_INTERCEPTOR_ARRAY_ARRAY, new Type[]{
 //			TYPE_MATCHED_INTERCEPTOR_ARRAY, TYPE_METHOD_ARRAY
 //		});
@@ -142,7 +152,7 @@ public class BulkEnhancer extends AbstractEnhancer {
 	}
 
 	@Override
-	protected void saveTargetMethods(Method[] targetMethods){
+	protected void saveTargetMethods(Method[] targetMethods) {
 		Interceptor[][] matrix = new Interceptor[targetMethods.length][];
 		for (int i = 0; i < targetMethods.length; i++) {
 			List<Interceptor> list = new ArrayList<>();

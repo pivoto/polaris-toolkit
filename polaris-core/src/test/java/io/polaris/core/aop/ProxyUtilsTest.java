@@ -6,8 +6,6 @@ import java.util.function.Supplier;
 
 import io.polaris.core.TestConsole;
 import io.polaris.core.asm.BaseAsmTest;
-import io.polaris.core.random.Randoms;
-import io.polaris.core.tuple.ValueRef;
 import org.junit.jupiter.api.Test;
 
 public class ProxyUtilsTest extends BaseAsmTest {
