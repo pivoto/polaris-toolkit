@@ -34,7 +34,7 @@ public class DefaultLoggerResolver implements ILogResolver {
 			} else {
 				return new Slf4jLogger(logger);
 			}
-		} catch (Throwable e) { // no dependency
+		} catch (Throwable ignored) { // no dependency
 		}
 		return null;
 	}

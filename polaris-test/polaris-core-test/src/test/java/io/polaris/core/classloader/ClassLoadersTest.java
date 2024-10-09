@@ -17,6 +17,7 @@ class ClassLoadersTest {
 	@BeforeAll
 	public static void beforeAll() {
 		System.setProperty(DynamicLoggerResolver.PREFER_DYNAMIC_SLF4J, "true");
+		ILoggers.setResolver(new DynamicLoggerResolver());
 	}
 
 	private static URLClassLoader newLog4jClassLoader() {
@@ -62,13 +63,7 @@ class ClassLoadersTest {
 
 	@Test
 	void test01() throws Exception {
-		ClassLoaders.INSTANCE.prependClassLoader(log4jClassLoader);
-//		ClassLoaders.INSTANCE.prependClassLoader(ClassLoaders.INSTANCE.newTargetSideClassLoader(log4jClassLoader));
-		{
-			Class<?> c = ClassLoaders.INSTANCE.loadClass("org/slf4j/LoggerFactory".replace("/", "."));
-			TestConsole.println(c, c.getClassLoader());
-		}
-
+//		ClassLoaders.INSTANCE.prependClassLoader(log4jClassLoader);
 		ILogger logger = ILoggers.of("root");
 		TestConsole.printx(logger);
 		logger.debug("xxxx");
@@ -77,11 +72,15 @@ class ClassLoadersTest {
 		logger.error("xxxx");
 
 
-//		ClassLoaders.INSTANCE.prependClassLoader(log4jClassLoader);
+		ClassLoaders.INSTANCE.prependClassLoader(log4jClassLoader);
 		ClassLoaders.INSTANCE.prependClassLoader(newLog4jClassLoader());
 		{
-			Class<?> c = ClassLoaders.INSTANCE.loadClass("org/slf4j/LoggerFactory".replace("/", "."));
-			TestConsole.println(c, c.getClassLoader());
+			try {
+				Class<?> c = ClassLoaders.INSTANCE.loadClass("org/slf4j/LoggerFactory".replace("/", "."));
+				TestConsole.println(c, c.getClassLoader());
+			} catch (ClassNotFoundException e) {
+				TestConsole.printStackTrace(e);
+			}
 		}
 
 		logger = ILoggers.of("root");

@@ -70,6 +70,7 @@ public class DynamicLoggerResolver implements ILogResolver {
 			} else {
 				return new DynamicSlf4jLogger(classLogger, logger);
 			}
+		} catch (ClassNotFoundException | NoClassDefFoundError ignored) {
 		} catch (Throwable e) {
 			// noinspection CallToPrintStackTrace
 			e.printStackTrace();
@@ -85,6 +86,7 @@ public class DynamicLoggerResolver implements ILogResolver {
 			} else {
 				return new Slf4jLogger(logger);
 			}
+		} catch (NoClassDefFoundError ignored) {
 		} catch (Throwable e) {
 			// noinspection CallToPrintStackTrace
 			e.printStackTrace();
