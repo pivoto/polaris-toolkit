@@ -1,4 +1,4 @@
-//package io.polaris.core.log;
+//package io.polaris.core.log.support;
 //
 ///**
 // * @author Qt
@@ -8,6 +8,6 @@
 //
 //
 //	public static void setLevel(String loggerName, Level level){
-//		org.apache.logging.log4j.core.config.Configurator.setLevel(loggerName,)
+//		org.apache.logging.log4j.core.config.Configurator.setLevel(loggerName,level)
 //	}
 //}

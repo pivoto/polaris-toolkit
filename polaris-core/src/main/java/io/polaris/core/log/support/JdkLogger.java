@@ -1,85 +1,77 @@
-package io.polaris.core.log;
+package io.polaris.core.log.support;
 
-import java.time.Instant;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 import io.polaris.core.collection.ObjectArrays;
-import io.polaris.core.consts.SystemKeys;
-import io.polaris.core.function.ConsumerWithArgs4;
+import io.polaris.core.log.ILogger;
 import io.polaris.core.string.Strings;
-import io.polaris.core.time.Dates;
 
 /**
  * @author Qt
- * @since Aug 04, 2023
  */
-public class StdoutLogger implements ILogger {
-	private final String name;
-	private final Level level;
-	private ConsumerWithArgs4<Level, String, Object[], Throwable> printer;
+public class JdkLogger implements ILogger {
+	static final String INNER_CALLER = JdkLogger.class.getName();
+	private final Logger logger;
 
-	public StdoutLogger(String name) {
-		this.name = name;
-		Level level;
-		try {
-			String levelStr = System.getProperty(SystemKeys.LOGGER_LEVEL + "." + name);
-			level = Level.valueOf(Strings.coalesce(levelStr, Level.DEBUG.name()).toLowerCase());
-		} catch (Throwable e) {
-			level = Level.DEBUG;
-		}
-		this.level = level;
+	public JdkLogger(String name) {
+		this.logger = Logger.getLogger(name);
 	}
 
-	public StdoutLogger(String name, Level level, ConsumerWithArgs4<Level, String, Object[], Throwable> printer) {
-		this.name = name;
-		this.level = level;
-		this.printer = printer;
+	public JdkLogger(Class clazz) {
+		this.logger = Logger.getLogger(clazz.getName());
 	}
 
-	private void print(Level level, String msg, Object[] arguments, Throwable t) {
-		if (this.level.ordinal() > level.ordinal()) {
-			return;
+	private void fillSource(LogRecord record) {
+		fillSource(record, null);
+	}
+
+	private void fillSource(LogRecord record, Throwable throwable) {
+		if (throwable != null) {
+			record.setThrown(throwable);
 		}
-		if (printer != null) {
-			printer.accept(level, msg, arguments, t);
-			return;
-		}
-		String delimiter = " ";
-		long tid = Thread.currentThread().getId();
-		if (arguments != null && arguments.length > 0) {
-			System.out.println(Dates.YYYY_MM_DD_HH_MM_SS_SSS.format(Instant.now()) + delimiter + level + delimiter
-				+ "[" + tid + "]" + delimiter + name + delimiter + Strings.format(msg, arguments));
-		} else {
-			System.out.println(Dates.YYYY_MM_DD_HH_MM_SS_SSS.format(Instant.now()) + delimiter + level + delimiter
-				+ "[" + tid + "]" + delimiter + name + delimiter + msg);
-		}
-		if (t != null) {
-			t.printStackTrace();
+		if (record.getSourceClassName() == null) {
+			if (throwable == null) {
+				throwable = new Throwable();
+			}
+			final StackTraceElement[] frames = throwable.getStackTrace();
+			for (int i = 0; i < frames.length; i++) {
+				StackTraceElement frame = frames[i];
+				String cname = frame.getClassName();
+				if (!cname.equals(INNER_CALLER)) {
+					record.setSourceClassName(cname);
+					record.setSourceMethodName(frame.getMethodName());
+					break;
+				}
+			}
 		}
 	}
+
 
 	@Override
 	public boolean isTraceEnabled() {
-		return level.ordinal() <= Level.TRACE.ordinal();
+		return logger.isLoggable(Level.ALL);
 	}
 
 	@Override
 	public boolean isDebugEnabled() {
-		return level.ordinal() <= Level.DEBUG.ordinal();
+		return logger.isLoggable(Level.FINE);
 	}
 
 	@Override
 	public boolean isInfoEnabled() {
-		return level.ordinal() <= Level.INFO.ordinal();
+		return logger.isLoggable(Level.INFO);
 	}
 
 	@Override
 	public boolean isWarnEnabled() {
-		return level.ordinal() <= Level.WARN.ordinal();
+		return logger.isLoggable(Level.WARNING);
 	}
 
 	@Override
 	public boolean isErrorEnabled() {
-		return level.ordinal() <= Level.ERROR.ordinal();
+		return logger.isLoggable(Level.SEVERE);
 	}
 
 	@Override
@@ -99,7 +91,11 @@ public class StdoutLogger implements ILogger {
 
 	@Override
 	public void trace(String msg, Object[] arguments, Throwable t) {
-		print(Level.TRACE, msg, arguments, t);
+		if (isTraceEnabled()) {
+			LogRecord lr = new LogRecord(Level.ALL, Strings.format(msg, arguments));
+			fillSource(lr, t);
+			logger.log(lr);
+		}
 	}
 
 	@Override
@@ -124,9 +120,12 @@ public class StdoutLogger implements ILogger {
 
 	@Override
 	public void debug(String msg, Object[] arguments, Throwable t) {
-		print(Level.DEBUG, msg, arguments, t);
+		if (isDebugEnabled()) {
+			LogRecord lr = new LogRecord(Level.FINE, Strings.format(msg, arguments));
+			fillSource(lr, t);
+			logger.log(lr);
+		}
 	}
-
 
 	@Override
 	public void debug(Throwable t, String msg, Object... arguments) {
@@ -150,7 +149,11 @@ public class StdoutLogger implements ILogger {
 
 	@Override
 	public void info(String msg, Object[] arguments, Throwable t) {
-		print(Level.INFO, msg, arguments, t);
+		if (isInfoEnabled()) {
+			LogRecord lr = new LogRecord(Level.INFO, Strings.format(msg, arguments));
+			fillSource(lr, t);
+			logger.log(lr);
+		}
 	}
 
 	@Override
@@ -175,7 +178,11 @@ public class StdoutLogger implements ILogger {
 
 	@Override
 	public void warn(String msg, Object[] arguments, Throwable t) {
-		print(Level.WARN, msg, arguments, t);
+		if (isWarnEnabled()) {
+			LogRecord lr = new LogRecord(Level.WARNING, Strings.format(msg, arguments));
+			fillSource(lr, t);
+			logger.log(lr);
+		}
 	}
 
 	@Override
@@ -201,7 +208,11 @@ public class StdoutLogger implements ILogger {
 
 	@Override
 	public void error(String msg, Object[] arguments, Throwable t) {
-		print(Level.ERROR, msg, arguments, t);
+		if (isErrorEnabled()) {
+			LogRecord lr = new LogRecord(Level.SEVERE, Strings.format(msg, arguments));
+			fillSource(lr, t);
+			logger.log(lr);
+		}
 	}
 
 	@Override

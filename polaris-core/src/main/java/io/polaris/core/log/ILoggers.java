@@ -1,23 +1,30 @@
 package io.polaris.core.log;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
+import io.polaris.core.log.support.DefaultLoggerResolver;
+import io.polaris.core.log.support.DynamicLoggerResolver;
+import io.polaris.core.log.support.StdoutLogger;
 import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since  Jan 10, 2024
+ * @since Jan 10, 2024
  */
 public class ILoggers {
-	private static final Map<String, ILogger> CACHE = new ConcurrentHashMap<>();
+	/** 日志对象构造工厂实现。在javaagent环境下需要尽早注入以适配应用自身的日志配置 */
+	private static ILogResolver RESOLVER = new DefaultLoggerResolver();
 
 	public static ILogger of(Class<?> c) {
-		return of(c.getName());
+		if (RESOLVER == null) {
+			return new StdoutLogger(c.getName());
+		}
+		return RESOLVER.getLogger(c);
 	}
 
 	public static ILogger of(String name) {
-		return CACHE.computeIfAbsent(name, k -> newLogger(name));
+		if (RESOLVER == null) {
+			return new StdoutLogger(name);
+		}
+		return RESOLVER.getLogger(name);
 	}
 
 	public static ILogger of() {
@@ -37,16 +44,8 @@ public class ILoggers {
 		return Strings.coalesce(name, "");
 	}
 
-	private static ILogger newLogger(String name) {
-		try {
-			org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(name);
-			if (logger instanceof org.slf4j.spi.LocationAwareLogger) {
-				return new Slf4jAwareLogger((org.slf4j.spi.LocationAwareLogger) logger);
-			} else {
-				return new Slf4jLogger(logger);
-			}
-		} catch (Throwable e) { // no dependency
-			return new StdoutLogger(name);
-		}
+	public static void setResolver(ILogResolver resolver) {
+		RESOLVER = resolver;
 	}
+
 }

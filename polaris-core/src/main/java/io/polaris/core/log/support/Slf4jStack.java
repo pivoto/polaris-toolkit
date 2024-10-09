@@ -1,4 +1,4 @@
-package io.polaris.core.log;
+package io.polaris.core.log.support;
 
 import org.slf4j.MDC;
 

@@ -1,44 +1,87 @@
-package io.polaris.core.log;
+package io.polaris.core.log.support;
+
+import java.time.Instant;
 
 import io.polaris.core.collection.ObjectArrays;
+import io.polaris.core.consts.SystemKeys;
+import io.polaris.core.function.ConsumerWithArgs4;
+import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Level;
 import io.polaris.core.string.Strings;
-import org.slf4j.Logger;
+import io.polaris.core.time.Dates;
 
 /**
  * @author Qt
- * @since  Aug 04, 2023
+ * @since Aug 04, 2023
  */
-public class Slf4jLogger implements ILogger {
+public class StdoutLogger implements ILogger {
+	private final String name;
+	private final Level level;
+	private ConsumerWithArgs4<Level, String, Object[], Throwable> printer;
 
-	private Logger log;
+	public StdoutLogger(String name) {
+		this.name = name;
+		Level level;
+		try {
+			String levelStr = System.getProperty(SystemKeys.LOGGER_LEVEL + "." + name);
+			level = Level.valueOf(Strings.coalesce(levelStr, Level.DEBUG.name()).toLowerCase());
+		} catch (Throwable e) {
+			level = Level.DEBUG;
+		}
+		this.level = level;
+	}
 
-	public Slf4jLogger(Logger log) {
-		this.log = log;
+	public StdoutLogger(String name, Level level, ConsumerWithArgs4<Level, String, Object[], Throwable> printer) {
+		this.name = name;
+		this.level = level;
+		this.printer = printer;
+	}
+
+	private void print(Level level, String msg, Object[] arguments, Throwable t) {
+		if (this.level.ordinal() > level.ordinal()) {
+			return;
+		}
+		if (printer != null) {
+			printer.accept(level, msg, arguments, t);
+			return;
+		}
+		String delimiter = " ";
+		long tid = Thread.currentThread().getId();
+		if (arguments != null && arguments.length > 0) {
+			System.out.println(Dates.YYYY_MM_DD_HH_MM_SS_SSS.format(Instant.now()) + delimiter + level + delimiter
+				+ "[" + tid + "]" + delimiter + name + delimiter + Strings.format(msg, arguments));
+		} else {
+			System.out.println(Dates.YYYY_MM_DD_HH_MM_SS_SSS.format(Instant.now()) + delimiter + level + delimiter
+				+ "[" + tid + "]" + delimiter + name + delimiter + msg);
+		}
+		if (t != null) {
+			t.printStackTrace();
+		}
 	}
 
 	@Override
 	public boolean isTraceEnabled() {
-		return log.isTraceEnabled();
+		return level.ordinal() <= Level.TRACE.ordinal();
 	}
 
 	@Override
 	public boolean isDebugEnabled() {
-		return log.isDebugEnabled();
+		return level.ordinal() <= Level.DEBUG.ordinal();
 	}
 
 	@Override
 	public boolean isInfoEnabled() {
-		return log.isInfoEnabled();
+		return level.ordinal() <= Level.INFO.ordinal();
 	}
 
 	@Override
 	public boolean isWarnEnabled() {
-		return log.isWarnEnabled();
+		return level.ordinal() <= Level.WARN.ordinal();
 	}
 
 	@Override
 	public boolean isErrorEnabled() {
-		return log.isErrorEnabled();
+		return level.ordinal() <= Level.ERROR.ordinal();
 	}
 
 	@Override
@@ -58,21 +101,7 @@ public class Slf4jLogger implements ILogger {
 
 	@Override
 	public void trace(String msg, Object[] arguments, Throwable t) {
-		if (log != null && log.isTraceEnabled()) {
-			if (t == null) {
-				if (arguments == null || arguments.length == 0) {
-					log.trace(msg);
-				} else {
-					log.trace(msg, arguments);
-				}
-			}else{
-				if (arguments == null || arguments.length == 0) {
-					log.trace(msg, t);
-				} else {
-					log.trace(Strings.format(msg, arguments), t);
-				}
-			}
-		}
+		print(Level.TRACE, msg, arguments, t);
 	}
 
 	@Override
@@ -97,22 +126,9 @@ public class Slf4jLogger implements ILogger {
 
 	@Override
 	public void debug(String msg, Object[] arguments, Throwable t) {
-		if (log != null && log.isDebugEnabled()) {
-			if (t == null) {
-				if (arguments == null || arguments.length == 0) {
-					log.debug(msg);
-				} else {
-					log.debug(msg, arguments);
-				}
-			}else{
-				if (arguments == null || arguments.length == 0) {
-					log.debug(msg, t);
-				} else {
-					log.debug(Strings.format(msg, arguments), t);
-				}
-			}
-		}
+		print(Level.DEBUG, msg, arguments, t);
 	}
+
 
 	@Override
 	public void debug(Throwable t, String msg, Object... arguments) {
@@ -136,21 +152,7 @@ public class Slf4jLogger implements ILogger {
 
 	@Override
 	public void info(String msg, Object[] arguments, Throwable t) {
-		if (log != null && log.isInfoEnabled()) {
-			if (t == null) {
-				if (arguments == null || arguments.length == 0) {
-					log.info(msg);
-				} else {
-					log.info(msg, arguments);
-				}
-			}else{
-				if (arguments == null || arguments.length == 0) {
-					log.info(msg, t);
-				} else {
-					log.info(Strings.format(msg, arguments), t);
-				}
-			}
-		}
+		print(Level.INFO, msg, arguments, t);
 	}
 
 	@Override
@@ -175,21 +177,7 @@ public class Slf4jLogger implements ILogger {
 
 	@Override
 	public void warn(String msg, Object[] arguments, Throwable t) {
-		if (log != null && log.isWarnEnabled()) {
-			if (t == null) {
-				if (arguments == null || arguments.length == 0) {
-					log.warn(msg);
-				} else {
-					log.warn(msg, arguments);
-				}
-			}else{
-				if (arguments == null || arguments.length == 0) {
-					log.warn(msg, t);
-				} else {
-					log.warn(Strings.format(msg, arguments), t);
-				}
-			}
-		}
+		print(Level.WARN, msg, arguments, t);
 	}
 
 	@Override
@@ -215,27 +203,12 @@ public class Slf4jLogger implements ILogger {
 
 	@Override
 	public void error(String msg, Object[] arguments, Throwable t) {
-		if (log != null && log.isErrorEnabled()) {
-			if (t == null) {
-				if (arguments == null || arguments.length == 0) {
-					log.error(msg);
-				} else {
-					log.error(msg, arguments);
-				}
-			}else{
-				if (arguments == null || arguments.length == 0) {
-					log.error(msg, t);
-				} else {
-					log.error(Strings.format(msg, arguments), t);
-				}
-			}
-		}
+		print(Level.ERROR, msg, arguments, t);
 	}
 
 	@Override
 	public void error(Throwable t, String msg, Object... arguments) {
 		error(msg, arguments, t);
 	}
-
 
 }

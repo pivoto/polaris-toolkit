@@ -1,20 +1,21 @@
-package io.polaris.core.log;
+package io.polaris.core.log.support;
 
-import org.slf4j.spi.LocationAwareLogger;
+import io.polaris.core.collection.ObjectArrays;
+import io.polaris.core.log.ILogger;
+import io.polaris.core.string.Strings;
+import org.slf4j.Logger;
 
 /**
  * @author Qt
  * @since  Aug 04, 2023
  */
-public class Slf4jAwareLogger implements ILogger {
-	private static final String FQCN = Slf4jAwareLogger.class.getName();
+public class Slf4jLogger implements ILogger {
 
-	private LocationAwareLogger log;
+	private Logger log;
 
-	public Slf4jAwareLogger(LocationAwareLogger log) {
+	public Slf4jLogger(Logger log) {
 		this.log = log;
 	}
-
 
 	@Override
 	public boolean isTraceEnabled() {
@@ -43,7 +44,7 @@ public class Slf4jAwareLogger implements ILogger {
 
 	@Override
 	public void trace(String msg) {
-		trace("{}", new Object[]{msg}, null);
+		trace(msg, ObjectArrays.EMPTY, null);
 	}
 
 	@Override
@@ -53,13 +54,25 @@ public class Slf4jAwareLogger implements ILogger {
 
 	@Override
 	public void trace(String msg, Throwable t) {
-		trace("{}", new Object[]{msg}, t);
+		trace(msg, ObjectArrays.EMPTY, t);
 	}
 
 	@Override
 	public void trace(String msg, Object[] arguments, Throwable t) {
 		if (log != null && log.isTraceEnabled()) {
-			log.log(null, FQCN, LocationAwareLogger.TRACE_INT, msg, arguments, t);
+			if (t == null) {
+				if (arguments == null || arguments.length == 0) {
+					log.trace(msg);
+				} else {
+					log.trace(msg, arguments);
+				}
+			}else{
+				if (arguments == null || arguments.length == 0) {
+					log.trace(msg, t);
+				} else {
+					log.trace(Strings.format(msg, arguments), t);
+				}
+			}
 		}
 	}
 
@@ -70,7 +83,7 @@ public class Slf4jAwareLogger implements ILogger {
 
 	@Override
 	public void debug(String msg) {
-		debug("{}", new Object[]{msg}, null);
+		debug(msg, ObjectArrays.EMPTY, null);
 	}
 
 	@Override
@@ -80,13 +93,25 @@ public class Slf4jAwareLogger implements ILogger {
 
 	@Override
 	public void debug(String msg, Throwable t) {
-		debug("{}", new Object[]{msg}, t);
+		debug(msg, ObjectArrays.EMPTY, t);
 	}
 
 	@Override
 	public void debug(String msg, Object[] arguments, Throwable t) {
 		if (log != null && log.isDebugEnabled()) {
-			log.log(null, FQCN, LocationAwareLogger.DEBUG_INT, msg, arguments, t);
+			if (t == null) {
+				if (arguments == null || arguments.length == 0) {
+					log.debug(msg);
+				} else {
+					log.debug(msg, arguments);
+				}
+			}else{
+				if (arguments == null || arguments.length == 0) {
+					log.debug(msg, t);
+				} else {
+					log.debug(Strings.format(msg, arguments), t);
+				}
+			}
 		}
 	}
 
@@ -97,7 +122,7 @@ public class Slf4jAwareLogger implements ILogger {
 
 	@Override
 	public void info(String msg) {
-		info("{}", new Object[]{msg}, null);
+		info(msg, ObjectArrays.EMPTY, null);
 	}
 
 	@Override
@@ -107,13 +132,25 @@ public class Slf4jAwareLogger implements ILogger {
 
 	@Override
 	public void info(String msg, Throwable t) {
-		info("{}", new Object[]{msg}, t);
+		info(msg, ObjectArrays.EMPTY, t);
 	}
 
 	@Override
 	public void info(String msg, Object[] arguments, Throwable t) {
 		if (log != null && log.isInfoEnabled()) {
-			log.log(null, FQCN, LocationAwareLogger.INFO_INT, msg, arguments, t);
+			if (t == null) {
+				if (arguments == null || arguments.length == 0) {
+					log.info(msg);
+				} else {
+					log.info(msg, arguments);
+				}
+			}else{
+				if (arguments == null || arguments.length == 0) {
+					log.info(msg, t);
+				} else {
+					log.info(Strings.format(msg, arguments), t);
+				}
+			}
 		}
 	}
 
@@ -124,7 +161,7 @@ public class Slf4jAwareLogger implements ILogger {
 
 	@Override
 	public void warn(String msg) {
-		warn("{}", new Object[]{msg}, null);
+		warn(msg, ObjectArrays.EMPTY, null);
 	}
 
 	@Override
@@ -134,13 +171,25 @@ public class Slf4jAwareLogger implements ILogger {
 
 	@Override
 	public void warn(String msg, Throwable t) {
-		warn("{}", new Object[]{msg}, t);
+		warn(msg, ObjectArrays.EMPTY, t);
 	}
 
 	@Override
 	public void warn(String msg, Object[] arguments, Throwable t) {
 		if (log != null && log.isWarnEnabled()) {
-			log.log(null, FQCN, LocationAwareLogger.WARN_INT, msg, arguments, t);
+			if (t == null) {
+				if (arguments == null || arguments.length == 0) {
+					log.warn(msg);
+				} else {
+					log.warn(msg, arguments);
+				}
+			}else{
+				if (arguments == null || arguments.length == 0) {
+					log.warn(msg, t);
+				} else {
+					log.warn(Strings.format(msg, arguments), t);
+				}
+			}
 		}
 	}
 
@@ -151,7 +200,7 @@ public class Slf4jAwareLogger implements ILogger {
 
 	@Override
 	public void error(String msg) {
-		error("{}", new Object[]{msg}, null);
+		error(msg, ObjectArrays.EMPTY, null);
 	}
 
 	@Override
@@ -161,14 +210,26 @@ public class Slf4jAwareLogger implements ILogger {
 
 	@Override
 	public void error(String msg, Throwable t) {
-		error("{}", new Object[]{msg}, t);
+		error(msg, ObjectArrays.EMPTY, t);
 	}
 
 
 	@Override
 	public void error(String msg, Object[] arguments, Throwable t) {
 		if (log != null && log.isErrorEnabled()) {
-			log.log(null, FQCN, LocationAwareLogger.ERROR_INT, msg, arguments, t);
+			if (t == null) {
+				if (arguments == null || arguments.length == 0) {
+					log.error(msg);
+				} else {
+					log.error(msg, arguments);
+				}
+			}else{
+				if (arguments == null || arguments.length == 0) {
+					log.error(msg, t);
+				} else {
+					log.error(Strings.format(msg, arguments), t);
+				}
+			}
 		}
 	}
 

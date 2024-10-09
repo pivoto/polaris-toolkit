@@ -1,12 +1,11 @@
 package io.polaris.crypto.asymmetric;
 
-import io.polaris.core.log.LogStack;
+import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
+
 import io.polaris.crypto.SmUtils;
 import org.bouncycastle.crypto.CryptoException;
 import org.junit.jupiter.api.Test;
-
-import java.nio.charset.StandardCharsets;
-import java.security.GeneralSecurityException;
 
 class SM2Test {
 

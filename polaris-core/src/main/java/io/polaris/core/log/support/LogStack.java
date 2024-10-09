@@ -1,9 +1,11 @@
-package io.polaris.core.log;
+package io.polaris.core.log.support;
 
 
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Objects;
+
+import lombok.val;
 
 /**
  * @author Qt
@@ -17,8 +19,18 @@ public class LogStack {
 		try {
 			org.apache.logging.log4j.ThreadContext.peek(); // 执行log4j2的方法, 确定可用
 			iStack = new Log4j2Stack();
-		} catch (Throwable e) {
-			iStack = new Slf4jStack();
+		} catch (Throwable ignored) {
+		}
+		if (iStack == null) {
+			try{
+				// noinspection ResultOfMethodCallIgnored
+				org.slf4j.MDC.getMDCAdapter(); // 执行slf4j的方法, 确定可用
+				iStack = new Slf4jStack();
+			}catch (Throwable ignored){
+			}
+		}
+		if (iStack == null) {
+			iStack = new NoopStack();
 		}
 	}
 

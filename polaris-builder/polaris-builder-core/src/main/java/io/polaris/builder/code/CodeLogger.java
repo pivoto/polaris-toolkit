@@ -2,7 +2,7 @@ package io.polaris.builder.code;
 
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
-import io.polaris.core.log.StdoutLogger;
+import io.polaris.core.log.support.StdoutLogger;
 
 /**
  * @author Qt
