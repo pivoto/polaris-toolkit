@@ -4,7 +4,7 @@ import java.util.Set;
 
 /**
  * @author Qt
- * @since  Apr 23, 2024
+ * @since Apr 23, 2024
  */
 class SystemEnvWrapper implements Env {
 
@@ -28,8 +28,12 @@ class SystemEnvWrapper implements Env {
 	public String get(String key) {
 		String val = System.getenv(key);
 		if (val == null) {
-			String envKey = key.replace(".", "_").toUpperCase();
+			String envKey = key.replace('.', '_').toUpperCase();
 			val = System.getenv(envKey);
+			if (val == null && envKey.indexOf('-') > -1) {
+				String envKey2 = envKey.replace('-', '_');
+				val = System.getenv(envKey2);
+			}
 		}
 		return val;
 	}
