@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>cn.fossc.polaris.toolkit</groupId>
 		<artifactId>polaris-toolkit</artifactId>
-		<version>3.2.24-SNAPSHOT</version>
+		<version>3.2.24</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>polaris-test</artifactId>
