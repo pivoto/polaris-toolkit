@@ -1953,15 +1953,6 @@
 		</profile>
 		<!-- endregion -->
 
-		<!-- region withDemo -->
-		<profile>
-			<id>withDemo</id>
-			<modules>
-				<module>polaris-boot</module>
-			</modules>
-		</profile>
-		<!-- endregion -->
-
 		<!-- region withIdea -->
 		<profile>
 			<id>withIdea</id>
@@ -1971,6 +1962,7 @@
 				</property>
 			</activation>
 			<modules>
+				<module>polaris-test</module>
 				<module>polaris-boot</module>
 			</modules>
 			<properties>
@@ -1978,6 +1970,16 @@
 				<maven.test.skip>false</maven.test.skip>
 				<skipTests>true</skipTests>
 			</properties>
+		</profile>
+		<!-- endregion -->
+
+		<!-- region withDemo -->
+		<profile>
+			<id>withDemo</id>
+			<modules>
+				<module>polaris-test</module>
+				<module>polaris-boot</module>
+			</modules>
 		</profile>
 		<!-- endregion -->
 

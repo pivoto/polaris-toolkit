@@ -47,18 +47,18 @@
 
 	<profiles>
 		<profile>
-			<id>withDemo</id>
-			<modules>
-				<module>polaris-boot-demo</module>
-			</modules>
-		</profile>
-		<profile>
 			<id>withIdea</id>
 			<activation>
 				<property>
 					<name>idea.version</name>
 				</property>
 			</activation>
+			<modules>
+				<module>polaris-boot-demo</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>withDemo</id>
 			<modules>
 				<module>polaris-boot-demo</module>
 			</modules>
