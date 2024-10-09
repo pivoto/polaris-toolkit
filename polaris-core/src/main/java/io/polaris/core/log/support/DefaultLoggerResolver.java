@@ -35,8 +35,6 @@ public class DefaultLoggerResolver implements ILogResolver {
 				return new Slf4jLogger(logger);
 			}
 		} catch (Throwable e) { // no dependency
-			// noinspection CallToPrintStackTrace
-			e.printStackTrace();
 		}
 		return null;
 	}

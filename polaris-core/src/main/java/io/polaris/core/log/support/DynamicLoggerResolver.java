@@ -70,7 +70,7 @@ public class DynamicLoggerResolver implements ILogResolver {
 			} else {
 				return new DynamicSlf4jLogger(classLogger, logger);
 			}
-		} catch (Throwable e) {// no dependency
+		} catch (Throwable e) {
 			// noinspection CallToPrintStackTrace
 			e.printStackTrace();
 		}
@@ -85,7 +85,7 @@ public class DynamicLoggerResolver implements ILogResolver {
 			} else {
 				return new Slf4jLogger(logger);
 			}
-		} catch (Throwable e) { // no dependency
+		} catch (Throwable e) {
 			// noinspection CallToPrintStackTrace
 			e.printStackTrace();
 		}
