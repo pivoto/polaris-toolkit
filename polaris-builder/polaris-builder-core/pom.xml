@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>cn.fossc.polaris.toolkit</groupId>
 		<artifactId>polaris-builder</artifactId>
-		<version>3.2.25-SNAPSHOT</version>
+		<version>3.2.25</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
@@ -212,33 +212,6 @@
 		<defaultGoal>install</defaultGoal>
 		<finalName>${project.artifactId}-${project.version}</finalName>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>3.1.1</version>
-				<configuration>
-					<finalName>${project.artifactId}</finalName>
-					<attach>false</attach>
-					<descriptors>
-						<descriptor>../polaris-builder-assembly/src/assembly/assembly.xml</descriptor>
-					</descriptors>
-					<archive>
-						<manifest>
-							<mainClass>${start-class}</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
-				<executions>
-					<execution>
-						<id>package</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
 		</plugins>
 	</build>
 </project>
