@@ -1,0 +1,31 @@
+# 计划
+
+- 通用对象操作
+  - [ ] Bean深度复制工具
+- 注解处理工具
+  - [x] 注解处理增强，支持元注解解析、合并
+- 字节码工具库
+  - [x] 通过生成字节码方式提供高性能Bean属性访问、复制等工具
+  - [ ] 优化ASM字节码操作工具，增加可读性可维护性
+- jdbc工具库
+  - [x] jdbc工具库开发，优化Jdbc执行类设计，增加SelectStatement对SQL查询的集合操作支持
+  - [x] SelectSegment 别名添加支统一前缀、后缀支持
+  - [x] SqlStatement orderBy 添加函数支持
+  - [x] 通用Sql注解构建工具类
+  - [ ] 添加SQL逻辑删除的支持(注解声明与主动编码)
+  - [ ] 添加SQL默认排序注解支持
+- 其他工具库
+  - [ ] 滑动窗口统计工具
+  - [ ] 集群模式工具（注册节点、健康检测、分布式锁、分布式事务）
+  - [ ] 许可证工具开发
+- 单元测试与基准测试
+  - [ ] 编写完善单元测试与基准测试案例
+- 代码生成器
+  - [x] 代码生成器工具库与模板
+  - [ ] 优化代码生成器设计，提供更通用的配置方法，提升性能
+- 框架集成方法
+  - [x] `ConfigurationPropertiesBindingPostProcessor`监测`@EnableConfigurationProperties`声明的配置组件
+  - [x] 通过mybatis插件实现动态修改MappedStatement中`useGeneratedKeys`等属性的能力
+  - [ ] 工具类扩展：spring-boot-starter
+- maven插件
+  - [ ] 构建插件开发
