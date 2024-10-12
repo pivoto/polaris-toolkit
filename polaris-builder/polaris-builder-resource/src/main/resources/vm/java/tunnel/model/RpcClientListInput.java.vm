@@ -1,0 +1,36 @@
+#parse("/vm/include.vm")
+package ${pkgPrefixTunnel}${env.modelPackage.replace('/','.')};
+
+import java.io.Serializable;
+import java.util.StringJoiner;
+#foreach($name in $table.columnJavaTypes)
+import $name;
+#end
+
+import javax.validation.Valid;
+import javax.validation.constraints.*;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import lombok.*;
+import lombok.experimental.Accessors;
+
+import io.polaris.framework.core.context.domain.ExchangeDto;
+import io.polaris.framework.core.data.domain.Page;
+import io.polaris.framework.core.data.consts.Dml;
+
+/**
+ * $!{table.name}
+ * $!{table.comment}
+ * @author $!{env.author}
+## * @since ${current.date}
+ */
+@Data
+public class ${table.javaClassName}${env.rpcClientListInputClassSuffix} extends ${table.javaClassName}${env.rpcClientGetInputClassSuffix}{
+	@Schema(description = "分页信息")
+	private Page page = new Page();
+	/** 查询SQL的ORDER BY子句内容(各排序字段) */
+	@Schema(hidden = true)
+	private String sqlOrderBy;
+
+}

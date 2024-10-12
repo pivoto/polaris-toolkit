@@ -1,0 +1,43 @@
+#parse("/vm/include.vm")
+package ${pkgPrefixTunnel}${env.rpcPackage.replace('/','.')};
+
+import java.util.*;
+
+import io.polaris.framework.core.consts.Bool;
+import io.polaris.framework.core.context.domain.ExchangeDto;
+import io.polaris.framework.core.data.consts.Dml;
+import io.polaris.framework.core.data.domain.Page;
+import io.polaris.framework.core.data.domain.QueryDto;
+import io.polaris.framework.core.fs.domain.FileDto;
+import io.polaris.framework.core.rpc.annotation.RpcClient;
+
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
+import ${pkgPrefix}${env.servicePackage.replace('/','.')}.${table.javaClassName}${env.serviceClassSuffix};
+import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassName}${env.rpcDmlInputClassSuffix};
+import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassName}${env.rpcGetInputClassSuffix};
+import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassName}${env.rpcListInputClassSuffix};
+import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassName}${env.rpcGetOutputClassSuffix};
+import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassName}${env.rpcListOutputClassSuffix};
+
+/**
+ * $!{table.name}
+ * $!{table.comment}
+ * @author $!{env.author}
+## * @since ${current.date}
+ */
+@RpcClient
+public interface ${table.javaClassName}${env.rpcInlineClientClassSuffix} {
+
+	@RpcClient(code = "$!{env.rpcCodePrefix}${table.javaClassName}Dml", name = "$!{table.label}数据操作")
+	ExchangeDto do$!{env.rpcCodePrefix}${table.javaClassName}Dml(${table.javaClassName}${env.rpcDmlInputClassSuffix} input);
+
+
+	@RpcClient(code = "$!{env.rpcCodePrefix}${table.javaClassName}Get", name = "$!{table.label}单行数据查询")
+	${table.javaClassName}${env.rpcGetOutputClassSuffix} do$!{env.rpcCodePrefix}${table.javaClassName}Get(${table.javaClassName}${env.rpcGetInputClassSuffix} input);
+
+
+	@RpcClient(code = "$!{env.rpcCodePrefix}${table.javaClassName}List", name = "$!{table.label}列表数据查询")
+	${table.javaClassName}${env.rpcListOutputClassSuffix} do$!{env.rpcCodePrefix}${table.javaClassName}List(${table.javaClassName}${env.rpcListInputClassSuffix} input);
+
+}
+

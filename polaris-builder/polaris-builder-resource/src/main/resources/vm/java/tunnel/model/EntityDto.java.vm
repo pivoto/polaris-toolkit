@@ -1,5 +1,5 @@
 #parse("/vm/include.vm")
-package ${pkgPrefix}${env.entityPackage.replace('/','.')};
+package ${pkgPrefixTunnel}${env.modelPackage.replace('/','.')};
 
 import java.io.Serializable;
 import java.util.List;
@@ -15,25 +15,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.polaris.validation.group.*;
 
 import lombok.*;
-import lombok.experimental.FieldNameConstants;
 
-import io.polaris.framework.infra.cache.BrmCaches;
 
 #foreach($name in $table.columnJavaTypes)
 import $name;
 #end
-#if(${env.entityExtInterface})
-	#set($env.entityExtInterfaceArr=${env.entityExtInterface.split(',')})
-	#foreach($name in ${env.entityExtInterfaceArr})
-import ${name.trim()};
-	#end
-#end
-#if(${env.entityExtSuperClass})
-	#set($env.entityExtSuperClassArr=${env.entityExtSuperClass.split(',')})
-	#foreach($name in ${env.entityExtSuperClassArr})
-import ${name.trim()};
-	#end
-#end
+
 /**
  * $!{table.name}
  * $!{table.comment}
@@ -47,24 +34,13 @@ import ${name.trim()};
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(value = "$!{table.name}")
-@FieldNameConstants
-@SuppressWarnings("PMD")
-public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSuperClass})
-	#set($env.entityExtSuperClassArr=${env.entityExtSuperClass.split(',')})
-	extends #foreach($name in ${env.entityExtSuperClassArr})${name.trim().substring(1 + ${name.trim().lastIndexOf(".")})}#if(${foreach.hasNext}), #end#end
-#end implements Serializable#if(${env.entityExtInterface})
-	#set($env.entityExtInterfaceArr=${env.entityExtInterface.split(',')})
-	#foreach($name in ${env.entityExtInterfaceArr}), ${name.trim().substring(1 + ${name.trim().lastIndexOf(".")})}#end
-#end {
+public class ${table.javaClassName}${env.entityDtoClassSuffix} implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 #foreach($col in $table.pkColumns)
 	/** 主键字段: #if(${col.comment})$!{col.name} $!{col.comment}#else$!{col.name}#end */
 	@Schema(description = "#if(${col.label})$!{col.label}#else$!{col.name}#end")
-	@Id#if(${col.autoincrement})(auto = true)#end
-	@Column(value = "$!{col.name}")
 	#if(${col.javaTypeSimpleName}=='String')
 	@NotEmpty(groups = {Create.class, Update.class, Delete.class, Retrieve.class, UpdateEntire.class}, message = "#if($col.label)$col.label#else$col.name#end[${col.javaVariableName}]不能为空")
 	#else
@@ -76,17 +52,6 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 #foreach($col in $table.normalColumns)
 	/** #if(${col.comment})$!{col.name} $!{col.comment}#else$!{col.name}#end */
 	@Schema(description = "#if(${col.label})$!{col.label}#else$!{col.name}#end")
-	#if(${col.javaVariableName}=='createDate' || ${col.javaVariableName}=='crtDt')
-	@Column(value = "$!{col.name}", updatable = false, createTime = true)
-	#elseif(${col.javaVariableName}=='createUser' || ${col.javaVariableName}=='createUserName' || ${col.javaVariableName}=='createUserRealName')
-	@Column(value = "$!{col.name}", updatable = false)
-	#elseif(${col.javaVariableName}=='crtUser' || ${col.javaVariableName}=='crtUserId' || ${col.javaVariableName}=='crtUserName' || ${col.javaVariableName}=='crtUserRealName')
-	@Column(value = "$!{col.name}", updatable = false)
-	#elseif(${col.javaVariableName}=='updateDate' || ${col.javaVariableName}=='uptDt')
-	@Column(value = "$!{col.name}", updateTime = true)
-	#else
-	@Column(value = "$!{col.name}")
-	#end
 	#if(!${col.nullable})
 		#if(${col.javaTypeSimpleName}=='String')
 	@NotEmpty(groups = {Create.class, UpdateEntire.class}, message = "#if($col.label)$col.label#else$col.name#end[${col.javaVariableName}]不能为空")
@@ -99,102 +64,74 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 
 #if(!$table.containsColumnVariableName('createUser'))
 	#if($table.containsColumnVariableName('createUserName') && $table.getColumnByVariableName('createUserName').javaTypeSimpleName == 'String')
-	@Column(ignored = true)
 	private Long createUser;
 	#end
 #end
 #if(!$table.containsColumnVariableName('createUserName'))
 	#if($table.containsColumnVariableName('createUser') && $table.getColumnByVariableName('createUser').javaTypeSimpleName == 'Long')
-	@Column(ignored = true)
 	private String createUserName;
 	#end
 #end
 #if(!$table.containsColumnVariableName('createUserRealName'))
 	#if($table.containsColumnVariableName('createUser') || $table.containsColumnVariableName('createUserName'))
-	@Column(ignored = true)
 	private String createUserRealName;
 	#end
 #end
 #if(!$table.containsColumnVariableName('updateUser'))
 	#if($table.containsColumnVariableName('updateUserName') && $table.getColumnByVariableName('updateUserName').javaTypeSimpleName == 'String')
-	@Column(ignored = true)
 	private Long updateUser;
 	#end
 #end
 #if(!$table.containsColumnVariableName('updateUserName'))
 	#if($table.containsColumnVariableName('updateUser') && $table.getColumnByVariableName('updateUser').javaTypeSimpleName == 'Long')
-	@Column(ignored = true)
 	private String updateUserName;
 	#end
 #end
 #if(!$table.containsColumnVariableName('updateUserRealName'))
 	#if($table.containsColumnVariableName('updateUser') || $table.containsColumnVariableName('updateUserName'))
-	@Column(ignored = true)
 	private String updateUserRealName;
 	#end
 #end
 #if(!$table.containsColumnVariableName('crtUserId'))
 	#if($table.containsColumnVariableName('crtUser') && $table.getColumnByVariableName('crtUser').javaTypeSimpleName == 'String')
-	@Column(ignored = true)
 	private Long crtUserId;
 	#elseif($table.containsColumnVariableName('crtUserName'))
-	@Column(ignored = true)
 	private Long crtUserId;
 	#end
 #end
 #if(!$table.containsColumnVariableName('crtUserName'))
 	#if($table.containsColumnVariableName('crtUser') && $table.getColumnByVariableName('crtUser').javaTypeSimpleName == 'Long')
-	@Column(ignored = true)
 	private String crtUserName;
 	#elseif($table.containsColumnVariableName('crtUserId'))
-	@Column(ignored = true)
 	private String crtUserName;
 	#end
 #end
 #if(!$table.containsColumnVariableName('crtUserRealName'))
 	#if($table.containsColumnVariableName('crtUser')
 		|| $table.containsColumnVariableName('crtUserId') || $table.containsColumnVariableName('crtUserName'))
-	@Column(ignored = true)
 	private String crtUserRealName;
 	#end
 #end
 #if(!$table.containsColumnVariableName('uptUserId'))
 	#if($table.containsColumnVariableName('uptUser') && $table.getColumnByVariableName('uptUser').javaTypeSimpleName == 'String')
-	@Column(ignored = true)
 	private Long uptUserId;
 	#elseif($table.containsColumnVariableName('uptUserName'))
-	@Column(ignored = true)
 	private Long uptUserId;
 	#end
 #end
 #if(!$table.containsColumnVariableName('uptUserName'))
 	#if($table.containsColumnVariableName('uptUser') && $table.getColumnByVariableName('uptUser').javaTypeSimpleName == 'Long')
-	@Column(ignored = true)
 	private String uptUserName;
 	#elseif($table.containsColumnVariableName('uptUserId'))
-	@Column(ignored = true)
 	private String uptUserName;
 	#end
 #end
 #if(!$table.containsColumnVariableName('uptUserRealName'))
 	#if($table.containsColumnVariableName('uptUser')
 		|| $table.containsColumnVariableName('uptUserId') || $table.containsColumnVariableName('uptUserName'))
-	@Column(ignored = true)
 	private String uptUserRealName;
 	#end
 #end
 
-	public static ${table.javaClassName}${env.entityClassSuffix} translate(${table.javaClassName}${env.entityClassSuffix} entity){
-		BrmCaches.transRecordable(entity);
-		return entity;
-	}
-
-	public static List<${table.javaClassName}${env.entityClassSuffix}> translate(List<${table.javaClassName}${env.entityClassSuffix}> list) {
-		// BrmCaches.transRecordable(list);
-		for (${table.javaClassName}${env.entityClassSuffix} e : list) {
-			${table.javaClassName}${env.entityClassSuffix}.translate(e);
-		}
-		return list;
-	}
 
 }

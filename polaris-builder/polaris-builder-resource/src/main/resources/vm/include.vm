@@ -39,6 +39,9 @@
 #if(not ${env.facadePackage})
 	#set($env.facadePackage="facade")
 #end
+#if(not ${env.tunnelPackage})
+	#set($env.tunnelPackage="tunnel")
+#end
 #if(not ${env.modelPackage})
 	#set($env.modelPackage="model")
 #end
@@ -90,6 +93,30 @@
 #if(not ${env.rpcListOutputClassSuffix})
 	#set($env.rpcListOutputClassSuffix="ListOutput")
 #end
+#if(not ${env.rpcInlineClientClassSuffix})
+	#set($env.rpcInlineClientClassSuffix="RpcInlineClient")
+#end
+#if(not ${env.rpcClientClassSuffix})
+	#set($env.rpcClientClassSuffix="RpcClient")
+#end
+#if(not ${env.entityDtoClassSuffix})
+	#set($env.entityDtoClassSuffix="Dto")
+#end
+#if(not ${env.rpcClientDmlInputClassSuffix})
+	#set($env.rpcClientDmlInputClassSuffix="DmlClientInput")
+#end
+#if(not ${env.rpcClientGetInputClassSuffix})
+	#set($env.rpcClientGetInputClassSuffix="GetClientInput")
+#end
+#if(not ${env.rpcClientGetOutputClassSuffix})
+	#set($env.rpcClientGetOutputClassSuffix="GetClientOutput")
+#end
+#if(not ${env.rpcClientListInputClassSuffix})
+	#set($env.rpcClientListInputClassSuffix="ListClientInput")
+#end
+#if(not ${env.rpcClientListOutputClassSuffix})
+	#set($env.rpcClientListOutputClassSuffix="ListClientOutput")
+#end
 ## base package
 #if(${table.javaPackageName})
 	#if(${env.basePackage})
@@ -102,6 +129,11 @@
 	#else
 		#set($pkgPrefixFacade="${table.javaPackageName}.")
 	#end
+	#if(${env.tunnelPackage})
+		#set($pkgPrefixTunnel="${table.javaPackageName}.${env.tunnelPackage.replace('/','.')}.")
+	#else
+		#set($pkgPrefixTunnel="${table.javaPackageName}.")
+	#end
 #else
 	#if(${env.basePackage})
 		#set($pkgPrefix="${env.basePackage.replace('/','.')}.")
@@ -112,6 +144,11 @@
 		#set($pkgPrefixFacade="${env.facadePackage.replace('/','.')}.")
 	#else
 		#set($pkgPrefixFacade='')
+	#end
+	#if(${env.tunnelPackage})
+		#set($pkgPrefixTunnel="${env.tunnelPackage.replace('/','.')}.")
+	#else
+		#set($pkgPrefixTunnel='')
 	#end
 #end
 ## author

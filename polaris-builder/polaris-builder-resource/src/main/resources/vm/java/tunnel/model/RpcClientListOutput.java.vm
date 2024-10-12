@@ -1,0 +1,32 @@
+#parse("/vm/include.vm")
+package ${pkgPrefixTunnel}${env.modelPackage.replace('/','.')};
+
+import java.io.Serializable;
+import java.util.List;
+#foreach($name in $table.columnJavaTypes)
+import $name;
+#end
+
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import lombok.*;
+import lombok.experimental.Accessors;
+
+import io.polaris.framework.core.context.domain.ExchangeDto;
+import io.polaris.framework.core.data.domain.Page;
+
+/**
+ * $!{table.name}
+ * $!{table.comment}
+ * @author $!{env.author}
+## * @since ${current.date}
+ */
+@Data
+public class ${table.javaClassName}${env.rpcClientListOutputClassSuffix} extends ExchangeDto {
+
+	@Schema(description = "分页信息")
+	protected Page page;
+	@Schema(description = "数据列表")
+	protected List<${table.javaClassName}${env.entityDtoClassSuffix}> list;
+
+}

@@ -45,7 +45,7 @@ import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassN
  */
 @Slf4j
 @RpcService
-public class ${table.javaClassName}${env.rpcClassSuffix}{
+public class ${table.javaClassName}${env.rpcClassSuffix} {
 
 	private final ${table.javaClassName}${env.serviceClassSuffix} ${table.javaVariableName}${env.serviceClassSuffix};
 

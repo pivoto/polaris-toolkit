@@ -22,7 +22,7 @@ import ${pkgPrefix}${env.servicePackage.replace('/','.')|"service"}.${table.java
 @Slf4j
 @RestController
 @RequestMapping(value = "$!{env.controllerPackage.concat("/")}${table.xmlName}")
-public class ${table.javaClassName}${env.controllerClassSuffix}{
+public class ${table.javaClassName}${env.controllerClassSuffix} {
 
 	private final ${table.javaClassName}${env.serviceClassSuffix} ${table.javaVariableName}${env.serviceClassSuffix};
 

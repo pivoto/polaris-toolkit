@@ -1,0 +1,45 @@
+#parse("/vm/include.vm")
+package ${pkgPrefixTunnel}${env.modelPackage.replace('/','.')};
+
+import java.io.Serializable;
+#foreach($name in $table.columnJavaTypes)
+import $name;
+#end
+
+import javax.validation.ConstraintValidatorContext;
+import javax.validation.Valid;
+import javax.validation.constraints.*;
+
+import io.polaris.validation.*;
+import io.polaris.validation.group.*;
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import lombok.*;
+import lombok.experimental.Accessors;
+import lombok.experimental.FieldNameConstants;
+
+import io.polaris.framework.core.context.domain.ExchangeDto;
+import io.polaris.framework.core.data.consts.Dml;
+import io.polaris.framework.core.fs.domain.FileDto;
+
+/**
+ * $!{table.name}
+ * $!{table.comment}
+ * @author $!{env.author}
+## * @since ${current.date}
+ */
+@Data
+public class ${table.javaClassName}${env.rpcClientDmlInputClassSuffix} extends ExchangeDto {
+
+	@Schema(description = "操作类型")
+	@NotNull(message = "操作类型[type]不能为空")
+	private Dml type;
+	@Valid
+	@Schema(description = "实体参数")
+	private ${table.javaClassName}${env.entityDtoClassSuffix} entity;
+	@Schema(description = "Csv数据文件")
+	private FileDto csvFile;
+	@Schema(description = "Excel数据文件")
+	private FileDto excelFile;
+
+}

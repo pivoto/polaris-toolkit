@@ -56,7 +56,7 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 #end implements Serializable#if(${env.entityExtInterface})
 	#set($env.entityExtInterfaceArr=${env.entityExtInterface.split(',')})
 	#foreach($name in ${env.entityExtInterfaceArr}), ${name.trim().substring(1 + ${name.trim().lastIndexOf(".")})}#end
-#end{
+#end {
 
 	private static final long serialVersionUID = 1L;
 

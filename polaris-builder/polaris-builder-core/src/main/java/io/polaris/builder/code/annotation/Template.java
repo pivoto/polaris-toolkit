@@ -31,6 +31,18 @@ public @interface Template {
 	String VM_PATH_RPC_GET_OUTPUT = "/vm/java/facade/model/RpcGetOutput.java.vm";
 	String VM_PATH_RPC_LIST_OUTPUT = "/vm/java/facade/model/RpcListOutput.java.vm";
 
+	String VM_PATH_RPC_CLIENT_INLINE = "/vm/java/tunnel/rpc/InlineRpcClient.java.vm";
+	String VM_PATH_RPC_CLIENT_EXPORTABLE_INLINE = "/vm/java/tunnel/rpc/InlineRpcClientExportable.java.vm";
+
+	String VM_PATH_RPC_CLIENT = "/vm/java/tunnel/rpc/RpcClient.java.vm";
+	String VM_PATH_RPC_CLIENT_EXPORTABLE = "/vm/java/tunnel/rpc/RpcClientExportable.java.vm";
+	String VM_PATH_RPC_CLIENT_DTO = "/vm/java/tunnel/model/EntityDto.java.vm";
+	String VM_PATH_RPC_CLIENT_DML_INPUT = "/vm/java/tunnel/model/RpcClientDmlInput.java.vm";
+	String VM_PATH_RPC_CLIENT_GET_INPUT = "/vm/java/tunnel/model/RpcClientGetInput.java.vm";
+	String VM_PATH_RPC_CLIENT_LIST_INPUT = "/vm/java/tunnel/model/RpcClientListInput.java.vm";
+	String VM_PATH_RPC_CLIENT_GET_OUTPUT = "/vm/java/tunnel/model/RpcClientGetOutput.java.vm";
+	String VM_PATH_RPC_CLIENT_LIST_OUTPUT = "/vm/java/tunnel/model/RpcClientListOutput.java.vm";
+
 	String VM_PATH_FRONTEND_ROUTES = "/vm/frontend/routes.ts.vm";
 	String VM_PATH_FRONTEND_LIST_PAGE = "/vm/frontend/ListPage.vue.vm";
 	String VM_PATH_FRONTEND_ADD_PAGE = "/vm/frontend/AddPage.vue.vm";
@@ -49,6 +61,15 @@ public @interface Template {
 	String FILENAME_RPC_GET_OUTPUT = "${table.javaClassName}${env.rpcGetOutputClassSuffix}.java";
 	String FILENAME_RPC_LIST_OUTPUT = "${table.javaClassName}${env.rpcListOutputClassSuffix}.java";
 
+	String FILENAME_RPC_CLIENT_INLINE = "${table.javaClassName}${env.rpcInlineClientClassSuffix}.java";
+	String FILENAME_RPC_CLIENT = "${table.javaClassName}${env.rpcClientClassSuffix}.java";
+	String FILENAME_RPC_CLIENT_DTO = "${table.javaClassName}${env.entityDtoClassSuffix}.java";
+	String FILENAME_RPC_CLIENT_DML_INPUT = "${table.javaClassName}${env.rpcClientDmlInputClassSuffix}.java";
+	String FILENAME_RPC_CLIENT_GET_INPUT = "${table.javaClassName}${env.rpcClientGetInputClassSuffix}.java";
+	String FILENAME_RPC_CLIENT_LIST_INPUT = "${table.javaClassName}${env.rpcClientListInputClassSuffix}.java";
+	String FILENAME_RPC_CLIENT_GET_OUTPUT = "${table.javaClassName}${env.rpcClientGetOutputClassSuffix}.java";
+	String FILENAME_RPC_CLIENT_LIST_OUTPUT = "${table.javaClassName}${env.rpcClientListOutputClassSuffix}.java";
+
 	String FILENAME_FRONTEND_ROUTES = "routes.ts";
 	String FILENAME_FRONTEND_LIST_PAGE = "List${table.javaClassName}.vue";
 	String FILENAME_FRONTEND_ADD_PAGE = "Add${table.javaClassName}.vue";
@@ -62,6 +83,9 @@ public @interface Template {
 	String DIRNAME_CONTROLLER = "${env.srcDir}/${table.javaPackageDir}/${env.facadePackage.replace('.','/')}/${env.controllerPackage.replace('.','/')}";
 	String DIRNAME_RPC = "${env.srcDir}/${table.javaPackageDir}/${env.facadePackage.replace('.','/')}//${env.rpcPackage.replace('.','/')}";
 	String DIRNAME_MODEL = "${env.srcDir}/${table.javaPackageDir}/${env.facadePackage.replace('.','/')}/${env.modelPackage.replace('.','/')}";
+
+	String DIRNAME_RPC_CLIENT = "${env.srcDir}/${table.javaPackageDir}/${env.tunnelPackage.replace('.','/')}//${env.rpcPackage.replace('.','/')}";
+	String DIRNAME_MODEL_CLIENT = "${env.srcDir}/${table.javaPackageDir}/${env.tunnelPackage.replace('.','/')}/${env.modelPackage.replace('.','/')}";
 
 	String DIRNAME_FRONTEND = "${env.frontendDir}/${table.xmlName}";
 	/**

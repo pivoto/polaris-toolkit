@@ -498,7 +498,7 @@ function onExportRecord(useCsv?: boolean){
 					downloadFile = output.download;
 				}else if(output.cmis_download && output.cmis_download.fileurl){
 					downloadFile = output.cmis_download;
-					}
+				}
 				if (downloadFile && downloadFile.fileurl){
 					if (downloadFile.filename){
 						msg.success('请下载导出结果文件：'+downloadFile.filename);
