@@ -8,6 +8,8 @@ import java.util.function.Function;
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 
+import io.polaris.core.guid.Guid;
+import io.polaris.core.guid.Guids;
 import io.polaris.core.jdbc.sql.query.OrderBy;
 import io.polaris.core.jdbc.sql.query.Queries;
 import io.polaris.core.jdbc.sql.query.Pageable;
@@ -32,12 +34,13 @@ import org.springframework.util.Assert;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.polaris.framework.core.context.AppCtx;
 import io.polaris.framework.core.context.bean.BeanRef;
 import io.polaris.framework.infra.session.AppSessions;
 import io.polaris.framework.infra.cache.BrmCaches;
 
 import ${pkgPrefix}${env.mapperPackage.replace('/','.')}.${table.javaClassName}${env.mapperClassSuffix};
-import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
+import ${pkgPrefix}${env.servicePackage.replace('/','.')}.${table.javaClassName}${env.serviceClassSuffix};
 
 /**
  * $!{table.name}
@@ -49,11 +52,15 @@ import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}$
 @Service
 public class ${table.javaClassName}${env.serviceClassSuffix} {
 	public static final BeanRef<${table.javaClassName}${env.serviceClassSuffix}> REF = BeanRef.of(${table.javaClassName}${env.serviceClassSuffix}.class);
-
+	private final Guid guid = Guids.getInstance(${table.javaClassName}${env.entityClassSuffix}.class, AppCtx.getPlatformProperties().getAppId());
 	private final ${table.javaClassName}${env.mapperClassSuffix} mapper;
 
 	public ${table.javaClassName}${env.serviceClassSuffix}(@Autowired ${table.javaClassName}${env.mapperClassSuffix} mapper) {
 		this.mapper = mapper;
+	}
+
+	public Guid getGuid() {
+		return this.guid;
 	}
 
 	@Transactional(rollbackFor = Exception.class)
@@ -277,7 +284,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Transactional(rollbackFor = Exception.class)
 	public int insertEntire(${table.javaClassName}${env.entityClassSuffix} entity) {
 		log.info("新增表[${table.name}]记录.entity={}", entity);
-		AppSessions.fillCreatable(entity);
+		fillCreatable(entity);
 		Validations.validate(entity, Create.class);
 		return mapper.insertEntity(entity, true);
 	}
@@ -291,9 +298,15 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Transactional(rollbackFor = Exception.class)
 	public int insertSelective(${table.javaClassName}${env.entityClassSuffix} entity) {
 		log.info("新增表[${table.name}]记录.entity={}", entity);
-		AppSessions.fillCreatable(entity);
+		fillCreatable(entity);
 		Validations.validate(entity, Create.class);
 		return mapper.insertEntity(entity);
+	}
+
+	private void fillCreatable(${table.javaClassName}${env.entityClassSuffix} entity){
+		// 新增操作前补充新增字段值信息：主键、创建时间、创建用户、更新时间、更新用户等
+		AppSessions.fillCreatable(entity);
+		// TODO 主键填充逻辑
 	}
 
 	/**
@@ -318,7 +331,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Transactional(rollbackFor = Exception.class)
 	public int updateEntire(${table.javaClassName}${env.entityClassSuffix} entity) {
 		log.info("根据主键更新表[${table.name}]记录.entity={}", entity);
-		AppSessions.fillUpdatable(entity);
+		fillUpdatable(entity);
 		Validations.validate(entity, UpdateEntire.class);
 		return mapper.updateEntityById(entity, true);
 	}
@@ -332,9 +345,14 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Transactional(rollbackFor = Exception.class)
 	public int updateSelective(${table.javaClassName}${env.entityClassSuffix} entity) {
 		log.info("根据主键更新表[${table.name}]记录.entity={}", entity);
-		AppSessions.fillUpdatable(entity);
+		fillUpdatable(entity);
 		Validations.validate(entity, Update.class);
 		return mapper.updateEntityById(entity);
+	}
+
+	private void fillUpdatable(${table.javaClassName}${env.entityClassSuffix} entity){
+		// 修改操作前补充字段值信息：更新时间、更新用户等
+		AppSessions.fillUpdatable(entity);
 	}
 
 	/**

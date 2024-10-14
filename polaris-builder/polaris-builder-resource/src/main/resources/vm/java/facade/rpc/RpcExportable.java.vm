@@ -31,6 +31,7 @@ import org.springframework.util.Assert;
 
 import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
 import ${pkgPrefix}${env.servicePackage.replace('/','.')}.${table.javaClassName}${env.serviceClassSuffix};
+import ${pkgPrefixDomain}${env.servicePackage.replace('/','.')}.${table.javaClassName}${env.domainClassSuffix}${env.serviceClassSuffix};
 import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassName}${env.rpcDmlInputClassSuffix};
 import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassName}${env.rpcGetInputClassSuffix};
 import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassName}${env.rpcListInputClassSuffix};
@@ -47,9 +48,14 @@ import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassN
 @RpcService
 public class ${table.javaClassName}${env.rpcClassSuffix} {
 
+	private final ${table.javaClassName}${env.domainClassSuffix}${env.serviceClassSuffix} ${table.javaVariableName}${env.domainClassSuffix}${env.serviceClassSuffix};
 	private final ${table.javaClassName}${env.serviceClassSuffix} ${table.javaVariableName}${env.serviceClassSuffix};
 
-	public ${table.javaClassName}${env.rpcClassSuffix}(${table.javaClassName}${env.serviceClassSuffix} ${table.javaVariableName}${env.serviceClassSuffix}) {
+	public ${table.javaClassName}${env.rpcClassSuffix}(
+		${table.javaClassName}${env.domainClassSuffix}${env.serviceClassSuffix} ${table.javaVariableName}${env.domainClassSuffix}${env.serviceClassSuffix},
+		${table.javaClassName}${env.serviceClassSuffix} ${table.javaVariableName}${env.serviceClassSuffix}
+	) {
+		this.${table.javaVariableName}${env.domainClassSuffix}${env.serviceClassSuffix} = ${table.javaVariableName}${env.domainClassSuffix}${env.serviceClassSuffix};
 		this.${table.javaVariableName}${env.serviceClassSuffix} = ${table.javaVariableName}${env.serviceClassSuffix};
 	}
 
@@ -60,33 +66,9 @@ public class ${table.javaClassName}${env.rpcClassSuffix} {
 		Arguments.notNull(input.getType(), "操作类型不能为空");
 		Dml type = input.getType();
 		${table.javaClassName}${env.entityClassSuffix} entity = input.getEntity();
-		switch (type) {
-			case INSERT: {
-				${table.javaVariableName}${env.serviceClassSuffix}.insertSelective(entity);
-				break;
-			}
-			case UPDATE: {
-				${table.javaVariableName}${env.serviceClassSuffix}.updateSelective(entity);
-				break;
-			}
-			case DELETE: {
-				${table.javaVariableName}${env.serviceClassSuffix}.delete(entity);
-				break;
-			}
-			case IMPORT: {
-				FileDto csvFile = input.getCsvFile();
-				FileDto excelFile = input.getExcelFile();
-				if (csvFile != null) {
-					${table.javaVariableName}${env.serviceClassSuffix}.importCsv(csvFile);
-				} else if (excelFile != null){
-					${table.javaVariableName}${env.serviceClassSuffix}.importExcel(excelFile);
-				} else {
-					throw new IllegalArgumentException("数据文件不能为空");
-				}
-				break;
-			}
-			default: // ignore
-		}
+		FileDto csvFile = input.getCsvFile();
+		FileDto excelFile = input.getExcelFile();
+		this.${table.javaVariableName}${env.domainClassSuffix}${env.serviceClassSuffix}.doPersist(type, entity, csvFile, excelFile);
 		return new ExchangeDto();
 	}
 

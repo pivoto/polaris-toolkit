@@ -26,12 +26,14 @@ import static io.polaris.builder.code.annotation.Template.*;
 	@Property(key = "modelPackage", value = "model"),
 	@Property(key = "mapperPackage", value = "mapper"),
 	@Property(key = "servicePackage", value = "service"),
+	@Property(key = "domainPackage", value = "domain"),
 	@Property(key = "implPackage", value = "impl"),
 	@Property(key = "rpcPackage", value = "rpc"),
 	@Property(key = "controllerPackage", value = "controller"),
 	@Property(key = "entityClassSuffix", value = "Entity"),
 	@Property(key = "mapperClassSuffix", value = "Mapper"),
 	@Property(key = "serviceClassSuffix", value = "Service"),
+	@Property(key = "domainClassSuffix", value = "Domain"),
 	@Property(key = "controllerClassSuffix", value = "Controller"),
 	@Property(key = "rpcClassSuffix", value = "Rpc"),
 	@Property(key = "rpcDmlInputClassSuffix", value = "DmlInput"),
@@ -55,11 +57,12 @@ import static io.polaris.builder.code.annotation.Template.*;
 	@Template(path = VM_PATH_ENTITY, filename = FILENAME_ENTITY, dirname = DIRNAME_ENTITY),
 
 	@Template(path = VM_PATH_MAPPER, filename = FILENAME_MAPPER, dirname = DIRNAME_MAPPER),
-	@Template(path = VM_PATH_MAPPER_XML, filename = FILENAME_MAPPER_XML, dirname = DIRNAME_MAPPER_XML),
+//	@Template(path = VM_PATH_MAPPER_XML, filename = FILENAME_MAPPER_XML, dirname = DIRNAME_MAPPER_XML),
 
 //	@Template(path = VM_PATH_SERVICE, filename = FILENAME_SERVICE, dirname = DIRNAME_SERVICE),
 	@Template(path = VM_PATH_SERVICE_EXPORTABLE, filename = FILENAME_SERVICE, dirname = DIRNAME_SERVICE),
 
+	@Template(path = VM_PATH_DOMAIN_SERVICE, filename = FILENAME_DOMAIN_SERVICE, dirname = DIRNAME_DOMAIN_SERVICE),
 //	@Template(path = VM_PATH_RPC, filename = FILENAME_RPC, dirname = DIRNAME_RPC),
 	@Template(path = VM_PATH_RPC_EXPORTABLE, filename = FILENAME_RPC, dirname = DIRNAME_RPC),
 	@Template(path = VM_PATH_RPC_DML_INPUT, filename = FILENAME_RPC_DML_INPUT, dirname = DIRNAME_MODEL),

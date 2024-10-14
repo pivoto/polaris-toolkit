@@ -5,22 +5,27 @@
 			<el-form ref="refForm" :model="vQueryForm.queryForm" :rules="vQueryForm.queryFormRules" label-width="100px" class="">
 				<v-row class="mb10">
 #foreach($col in $table.columns)
-	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
+	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP' || ${col.javaTypeSimpleName}=='Date' || ${col.javaTypeSimpleName}=='Timestamp')
 					<v-col-form-item type="datetimerange" label="${col.label}" prop="${col.javaVariableName}" v-model="vQueryForm.queryForm.${col.javaVariableName}"
 						clearable item-style="width: 200px;" :date-props="{rangeSeparator:'~',startPlaceholder:'起始时间',endPlaceholder:'截止时间'}" />
-	#elseif(${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT')
+##	#elseif(${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT')
+	#elseif(${col.javaTypeSimpleName}=='Integer' || ${col.javaTypeSimpleName}=='Short' || ${col.javaTypeSimpleName}=='Byte')
 					<v-col-form-item type="number" label="${col.label}" prop="${col.javaVariableName}" v-model="vQueryForm.queryForm.${col.javaVariableName}"
 						clearable item-style="width: 200px;" :number-props="{precision:0}" />
-	#elseif(${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
+##	#elseif(${col.jdbcType} == 'FLOAT' || ${col.jdbcType} == 'DOUBLE')
+	#elseif(${col.javaTypeSimpleName}=='Float' || ${col.javaTypeSimpleName}=='Double')
 					<v-col-form-item type="number" label="${col.label}" prop="${col.javaVariableName}" v-model="vQueryForm.queryForm.${col.javaVariableName}"
 						clearable item-style="width: 200px;" :number-props="{precision:${col.decimalDigits}}" />
-	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' )
+##	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL')
+	#elseif(${col.javaTypeSimpleName}=='BigDecimal')
 					<v-col-form-item type="input" label="${col.label}" prop="${col.javaVariableName}" v-model="vQueryForm.queryForm.${col.javaVariableName}"
 						clearable item-style="width: 200px;" />
-	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'BIGINT')
+##	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'BIGINT')
+	#elseif(${col.javaTypeSimpleName}=='Long')
 					<v-col-form-item type="input" label="${col.label}" prop="${col.javaVariableName}" v-model="vQueryForm.queryForm.${col.javaVariableName}"
 						clearable item-style="width: 200px;" />
-	#elseif(${col.jdbcType} == 'BIT' || ${col.jdbcType} == 'BOOLEAN')
+##	#elseif(${col.jdbcType} == 'BIT' || ${col.jdbcType} == 'BOOLEAN')
+	#elseif(${col.javaTypeSimpleName}=='Boolean')
 					<v-col-form-item type="select" label="${col.label}" prop="${col.javaVariableName}" v-model="vQueryForm.queryForm.${col.javaVariableName}"
 						clearable item-style="width: 200px;"
 						:data="[{value:true,label:'是',tag:{effect:'dark'}},{value:false,label:'否',tag:{effect:'dark',type:'danger'}}]" />
@@ -70,35 +75,39 @@
 			<template #default>
 				<v-table-col type="index" label="序号" width="50"/>
 #foreach($col in $table.columns)
-	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
+	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP' || ${col.javaTypeSimpleName}=='Date' || ${col.javaTypeSimpleName}=='Timestamp')
 				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center" format-time />
+##	#elseif(${col.jdbcType} == 'BIT' || ${col.jdbcType} == 'BOOLEAN')
+	#elseif(${col.javaTypeSimpleName}=='Boolean')
+				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center"
+					:dict="[{value:true,label:'是',tag:{effect:'dark'}},{value:false,label:'否',tag:{effect:'dark',type:'danger'}}]" />
 	#else
 		#if(${col.name.toLowerCase().endsWith('_sts')} || ${col.name.toLowerCase().endsWith('_status')})
 				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center"
 					:dict="[{value:'A',label:'生效',tag:{effect:'dark'}},{value:'I',label:'失效',tag:{effect:'dark',type:'danger'}}]" />
 		#elseif(${col.javaVariableName.equals('createUser')} )
 			#if(!$table.containsColumnVariableName('createUserName'))
-				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center" format-user="createUserName" />
+				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center" format-prop="createUserName" />
 			#end
 		#elseif(${col.javaVariableName.equals('crtUserId')} )
 			#if(!$table.containsColumnVariableName('crtUserName'))
-				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center" format-user="crtUserName" />
+				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center" format-prop="crtUserName" />
 			#end
 		#elseif(${col.javaVariableName.equals('crtUser')} && ${col.javaTypeSimpleName} == 'Long')
 			#if(!$table.containsColumnVariableName('crtUserName'))
-				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center" format-user="crtUserName" />
+				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center" format-prop="crtUserName" />
 			#end
 		#elseif(${col.javaVariableName.equals('updateUser')} )
 			#if(!$table.containsColumnVariableName('updateUserName'))
-				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center" format-user="updateUserName" />
+				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center" format-prop="updateUserName" />
 			#end
 		#elseif(${col.javaVariableName.equals('uptUserId')})
 			#if(!$table.containsColumnVariableName('uptUserName'))
-				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center" format-user="uptUserName" />
+				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center" format-prop="uptUserName" />
 			#end
 		#elseif(${col.javaVariableName.equals('uptUser')} && ${col.javaTypeSimpleName} == 'Long')
 			#if(!$table.containsColumnVariableName('uptUserName'))
-				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center" format-user="uptUserName" />
+				<v-table-col prop="${col.javaVariableName}" label="${col.label}" align="center" format-prop="uptUserName" />
 			#end
 		#else
 				<v-table-col prop="${col.javaVariableName}" label="${col.label}" />
@@ -123,7 +132,7 @@
 				<v-row :gutter="5">
 					<v-col>
 						<el-form-item label="文件上传" prop="fileList">
-							<el-upload ref="refImportUploader" style="width:300px;" name="dataFile" limit="1" accept=".csv,.xlsx" :auto-upload="false" show-file-list v-model:file-list="vImportForm.importForm.fileList">
+							<el-upload ref="refImportUploader" style="width:300px;" name="dataFile" :limit="1" accept=".csv,.xlsx" :auto-upload="false" show-file-list v-model:file-list="vImportForm.importForm.fileList">
 								<template #trigger>
 									<el-button type="primary" @click=""><el-icon><EleUploadFilled/></el-icon>选择</el-button>
 								</template>
@@ -144,11 +153,11 @@
 		</v-dialog>
 	</div>
 </template>
-<script lang="ts">
-export default {
-	name: "List${table.javaClassName}"
-}
-</script>
+##<script lang="ts">
+##export default {
+##	name: "List${table.javaClassName}"
+##}
+##</script>
 <script setup lang="ts">
 import {
 	computed, watch, provide, inject, nextTick,
@@ -186,15 +195,19 @@ import ApiOutput from "/@/common/api/ApiOutput";
 
 type EntityType = {
 #foreach($col in $table.pkColumns)
-#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
+#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP' || ${col.javaTypeSimpleName}=='Date' || ${col.javaTypeSimpleName}=='Timestamp')
 	${col.javaVariableName}#if(${col.nullable})?#end: number,
-#elseif(${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT')
+## #elseif(${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT')
+#elseif(${col.javaTypeSimpleName}=='Integer' || ${col.javaTypeSimpleName}=='Short' || ${col.javaTypeSimpleName}=='Byte')
 	${col.javaVariableName}#if(${col.nullable})?#end: number,
-#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'BIGINT')
+##	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'BIGINT')
+#elseif(${col.javaTypeSimpleName}=='Long')
 	${col.javaVariableName}#if(${col.nullable})?#end: string,
-#elseif(${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
+##	#elseif(${col.jdbcType} == 'FLOAT' || ${col.jdbcType} == 'DOUBLE')
+#elseif(${col.javaTypeSimpleName}=='Float' || ${col.javaTypeSimpleName}=='Double')
 	${col.javaVariableName}#if(${col.nullable})?#end: number,
-#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL')
+##	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL')
+#elseif(${col.javaTypeSimpleName}=='BigDecimal' )
 	${col.javaVariableName}#if(${col.nullable})?#end: string,
 #else
 	${col.javaVariableName}#if(${col.nullable})?#end: string,
@@ -207,6 +220,8 @@ interface FormType extends Partial<Omit<EntityType,'createDate'|'updateDate'|'cr
 interface ImportFormType {
 	fileList: UploadUserFile[],
 }
+
+defineOptions({ name: 'List${table.javaClassName}' });
 
 const Fields = {
 #foreach($col in $table.columns)
@@ -272,7 +287,7 @@ const vImportForm = ref<{
 
 // validators
 {
-	function buildNumberValidator():RuleItem{
+	const buildNumberValidator = function():RuleItem{
 		return {
 			validator: (rule, value, callback) => {
 				if (value != null && !/^\d*$/.test(value)) {
@@ -283,7 +298,10 @@ const vImportForm = ref<{
 		};
 	}
 #foreach($col in $table.columns)
-	#if(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT' || ${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
+##	#if(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT' || ${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
+	#if(${col.javaTypeSimpleName}=='Integer' || ${col.javaTypeSimpleName}=='Short' || ${col.javaTypeSimpleName}=='Byte'
+		|| ${col.javaTypeSimpleName}=='Long' || ${col.javaTypeSimpleName}=='BigDecimal'
+		|| ${col.javaTypeSimpleName}=='Float' || ${col.javaTypeSimpleName}=='Double')
 	vQueryForm.value.queryFormRules.${col.javaVariableName} = [buildNumberValidator()];
 	#end
 #end
@@ -491,7 +509,7 @@ function onExportRecord(useCsv?: boolean){
 					return;
 				}
 				let output = rs.output;
-				let downloadFile = null;//download
+				let downloadFile:any = null;//download
 				if(output.value && output.value.fileurl){
 					downloadFile = output.value;
 				}else if(output.download && output.download.fileurl){
@@ -543,9 +561,9 @@ function onImportRecord() {
 			let formData = new FormData();
 			formData.append('type', 'IMPORT');
 			if (file.name.endsWith('.csv')){
-				formData.append('csvFile', file.raw);
+				formData.append('csvFile', file.raw!);
 			}else if(file.name.endsWith('.xlsx')){
-				formData.append('excelFile', file.raw);
+				formData.append('excelFile', file.raw!);
 			}
 			// 调用接口上传
 			let rs = await apix({
@@ -571,7 +589,10 @@ function onImportRecord() {
 			}
 		}).finally(()=>{
 			// 删除上传组件中的文件
-			refImportUploader.value.handleRemove(file);
+			if(file && file.raw){
+				refImportUploader.value.handleRemove(file.raw);
+			}
+			//refImportUploader.value.handleRemove(file);
 			vShowImportDialog.value = false;
 		});
 }
@@ -604,7 +625,7 @@ function mockTableData(pageIdx: number, pageSize: number): Promise<PromiseResult
 		for (let i = 0; i < Math.min(size, pageSize); i++) {
 			data.list.push({
 #foreach($col in $table.columns)
-	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
+	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP' || ${col.javaTypeSimpleName}=='Date' || ${col.javaTypeSimpleName}=='Timestamp')
 				${col.javaVariableName}: new Date().getTime(),
 	#else
 		#if(${col.name.toLowerCase().endsWith('_sts')} || ${col.name.toLowerCase().endsWith('_status')})

@@ -15,22 +15,27 @@
 	|| ${col.javaVariableName.equals('crtUserRealName')} || ${col.javaVariableName.equals('uptUserRealName')}
 	)
 ## ignore
-#elseif(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
+#elseif(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP' || ${col.javaTypeSimpleName}=='Date' || ${col.javaTypeSimpleName}=='Timestamp')
 				<v-col-form-item type="datetime" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
 					clearable item-style="width: 200px;" />
-#elseif(${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT')
+##	#elseif(${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT')
+#elseif(${col.javaTypeSimpleName}=='Integer' || ${col.javaTypeSimpleName}=='Short' || ${col.javaTypeSimpleName}=='Byte')
 				<v-col-form-item type="number" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
 					clearable item-style="width: 200px;" :number-props="{precision:0}" />
-#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'BIGINT')
+##	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'BIGINT')
+#elseif(${col.javaTypeSimpleName}=='Long')
 				<v-col-form-item type="input" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
 					clearable item-style="width: 200px;" />
-#elseif(${col.jdbcType} == 'FLOAT' || ${col.jdbcType} == 'DOUBLE')
+##	#elseif(${col.jdbcType} == 'FLOAT' || ${col.jdbcType} == 'DOUBLE')
+#elseif(${col.javaTypeSimpleName}=='Float' || ${col.javaTypeSimpleName}=='Double')
 				<v-col-form-item type="number" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
 					clearable item-style="width: 200px;" :number-props="{precision:${col.decimalDigits}}" />
-#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL')
+##	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL')
+#elseif(${col.javaTypeSimpleName}=='BigDecimal')
 				<v-col-form-item type="input" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
 					clearable item-style="width: 200px;" />
-#elseif(${col.jdbcType} == 'BIT' || ${col.jdbcType} == 'BOOLEAN')
+##	#elseif(${col.jdbcType} == 'BIT' || ${col.jdbcType} == 'BOOLEAN')
+#elseif(${col.javaTypeSimpleName}=='Boolean')
 				<v-col-form-item type="switch" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
 					clearable :switch-props="{width:60,inlinePrompt:true,activeValue:true,inactiveValue:false,activeText:'是',inactiveText:'否'}" />
 #else
@@ -53,11 +58,11 @@
 		</template>
 	</v-dialog>
 </template>
-<script lang="ts">
-export default {
-	name: "Add${table.javaClassName}"
-}
-</script>
+##<script lang="ts">
+##export default {
+##	name: "Add${table.javaClassName}"
+##}
+##</script>
 <script setup lang="ts">
 import {
 	computed, watch, provide, inject, nextTick,
@@ -89,6 +94,33 @@ interface Props {
 	show: boolean,
 }
 
+type FormType = {
+#foreach($col in $table.columns)
+	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP' || ${col.javaTypeSimpleName}=='Date' || ${col.javaTypeSimpleName}=='Timestamp')
+	${col.javaVariableName}#if(${col.nullable})?#end: number,
+##	#elseif(${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT')
+	#elseif(${col.javaTypeSimpleName}=='Integer' || ${col.javaTypeSimpleName}=='Short' || ${col.javaTypeSimpleName}=='Byte')
+	${col.javaVariableName}#if(${col.nullable})?#end: number,
+## #elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'BIGINT')
+	#elseif(${col.javaTypeSimpleName}=='Long')
+	${col.javaVariableName}#if(${col.nullable})?#end: string,
+##	#elseif(${col.jdbcType} == 'FLOAT' || ${col.jdbcType} == 'DOUBLE')
+	#elseif(${col.javaTypeSimpleName}=='Float' || ${col.javaTypeSimpleName}=='Double')
+	${col.javaVariableName}#if(${col.nullable})?#end: number,
+##	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL')
+	#elseif(${col.javaTypeSimpleName}=='BigDecimal')
+	${col.javaVariableName}#if(${col.nullable})?#end: string,
+##	#elseif(${col.jdbcType} == 'BIT' || ${col.jdbcType} == 'BOOLEAN')
+	#elseif(${col.javaTypeSimpleName}=='Boolean')
+	${col.javaVariableName}#if(${col.nullable})?#end: boolean,
+	#else
+	${col.javaVariableName}#if(${col.nullable})?#end: string,
+	#end
+#end
+}
+
+defineOptions({ name: 'Add${table.javaClassName}' });
+
 const props = withDefaults(defineProps<Props>(), {
 	show: true,
 });
@@ -98,23 +130,6 @@ const emits = defineEmits<{
 	(e: 'afterSubmit'): void,
 }>();
 
-type FormType = {
-#foreach($col in $table.columns)
-	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
-	${col.javaVariableName}#if(${col.nullable})?#end: number,
-	#elseif(${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT')
-	${col.javaVariableName}#if(${col.nullable})?#end: number,
-	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'BIGINT')
-	${col.javaVariableName}#if(${col.nullable})?#end: string,
-	#elseif(${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
-	${col.javaVariableName}#if(${col.nullable})?#end: number,
-	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL')
-	${col.javaVariableName}#if(${col.nullable})?#end: string,
-	#else
-	${col.javaVariableName}#if(${col.nullable})?#end: string,
-	#end
-#end
-}
 const Fields = {
 #foreach($col in $table.columns)
 	${col.javaVariableName}: '${col.label}',
@@ -131,17 +146,22 @@ const vParamSync = ref(false);
 const vLoadingForm = ref(false);
 const vFormData = ref<FormType>({
 #foreach($col in $table.columns)
-#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
+#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP' || ${col.javaTypeSimpleName}=='Date' || ${col.javaTypeSimpleName}=='Timestamp')
 	${col.javaVariableName}: #if(${col.nullable}) undefined #else 0 #end,
-#elseif(${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT')
+##	#elseif(${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT')
+#elseif(${col.javaTypeSimpleName}=='Integer' || ${col.javaTypeSimpleName}=='Short' || ${col.javaTypeSimpleName}=='Byte')
 	${col.javaVariableName}: #if(${col.nullable}) undefined #else 0 #end,
-#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'BIGINT')
+## #elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'BIGINT')
+#elseif(${col.javaTypeSimpleName}=='Long')
+	${col.javaVariableName}: #if(${col.nullable}) undefined #else '0' #end,
+##	#elseif(${col.jdbcType} == 'FLOAT' || ${col.jdbcType} == 'DOUBLE')
+#elseif(${col.javaTypeSimpleName}=='Float' || ${col.javaTypeSimpleName}=='Double')
 	${col.javaVariableName}: #if(${col.nullable}) undefined #else 0 #end,
-#elseif(${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
-	${col.javaVariableName}: #if(${col.nullable}) undefined #else 0 #end,
-#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL')
-	${col.javaVariableName}: #if(${col.nullable}) undefined #else 0 #end,
-#elseif(${col.jdbcType} == 'BIT' || ${col.jdbcType} == 'BOOLEAN')
+##	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL')
+#elseif(${col.javaTypeSimpleName}=='BigDecimal')
+	${col.javaVariableName}: #if(${col.nullable}) undefined #else '0' #end,
+##	#elseif(${col.jdbcType} == 'BIT' || ${col.jdbcType} == 'BOOLEAN')
+#elseif(${col.javaTypeSimpleName}=='Boolean')
 	${col.javaVariableName}: #if(${col.nullable}) undefined #else false #end,
 #else
 	${col.javaVariableName}: #if(${col.nullable}) undefined #else '' #end,
@@ -197,15 +217,19 @@ const vFormRules = ref<FormRules<FormType>>({});
 	|| ${col.javaVariableName.equals('crtUserRealName')} || ${col.javaVariableName.equals('uptUserRealName')}
 	)
 ## ignore
-	#elseif(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP')
+	#elseif(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP' || ${col.javaTypeSimpleName}=='Date' || ${col.javaTypeSimpleName}=='Timestamp')
 		#if(!${col.nullable})
 	vFormRules.value.${col.javaVariableName} = [buildRequiredNumberValidator()];
 		#end
-	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT' || ${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
+##	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT' || ${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
+	#elseif(${col.javaTypeSimpleName}=='Integer' || ${col.javaTypeSimpleName}=='Short' || ${col.javaTypeSimpleName}=='Byte'
+	|| ${col.javaTypeSimpleName}=='Long' || ${col.javaTypeSimpleName}=='BigDecimal'
+	|| ${col.javaTypeSimpleName}=='Float' || ${col.javaTypeSimpleName}=='Double')
 		#if(!${col.nullable})
 	vFormRules.value.${col.javaVariableName} = [buildRequiredNumberValidator()];
 		#end
-	#elseif(${col.jdbcType} == 'BIT' || ${col.jdbcType} == 'BOOLEAN')
+##	#elseif(${col.jdbcType} == 'BIT' || ${col.jdbcType} == 'BOOLEAN')
+	#elseif(${col.javaTypeSimpleName}=='Boolean')
 		#if(!${col.nullable})
 	vFormRules.value.${col.javaVariableName} = [buildRequiredValidator()];
 		#end

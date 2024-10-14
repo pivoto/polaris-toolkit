@@ -194,7 +194,7 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 	private ${table.javaClassName}${env.entityClassSuffix} sqlUpdateValues;
 
 
-	public static ${table.javaClassName}${env.entityClassSuffix} translate(${table.javaClassName}${env.entityClassSuffix} entity){
+	public static ${table.javaClassName}${env.entityClassSuffix} translate(${table.javaClassName}${env.entityClassSuffix} entity) {
 		BrmCaches.transRecordable(entity);
 		return entity;
 	}

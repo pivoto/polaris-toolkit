@@ -1,0 +1,106 @@
+#parse("/vm/include.vm")
+package ${pkgPrefixDomain}${env.servicePackage.replace('/','.')};
+
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+
+import javax.validation.Valid;
+import javax.validation.constraints.*;
+
+import io.polaris.core.assertion.Arguments;
+import io.polaris.core.assertion.Assertions;
+import io.polaris.core.lang.bean.Beans;
+import io.polaris.core.lang.bean.IBeanMap;
+import io.polaris.core.time.Dates;
+import io.polaris.core.lang.bean.Beans;
+import io.polaris.core.string.Strings;
+import io.polaris.core.jdbc.sql.query.OrderBy;
+import io.polaris.core.jdbc.sql.query.Queries;
+import io.polaris.core.jdbc.sql.query.Pageable;
+import io.polaris.mybatis.util.MybatisToolkit;
+import io.polaris.validation.Validations;
+import io.polaris.validation.group.*;
+
+import lombok.*;
+import lombok.experimental.*;
+import lombok.extern.slf4j.*;
+
+import org.apache.ibatis.cursor.Cursor;
+import org.apache.ibatis.session.RowBounds;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+
+import io.polaris.framework.core.consts.Bool;
+import io.polaris.framework.core.context.annotation.DomainService;
+import io.polaris.framework.core.context.bean.BeanRef;
+import io.polaris.framework.core.data.consts.Dml;
+import io.polaris.framework.core.data.domain.Page;
+import io.polaris.framework.core.data.domain.QueryDto;
+import io.polaris.framework.core.fs.domain.FileDto;
+import io.polaris.framework.infra.cache.BrmCaches;
+import io.polaris.framework.infra.session.AppSessions;
+
+import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}${env.entityClassSuffix};
+import ${pkgPrefix}${env.mapperPackage.replace('/','.')}.${table.javaClassName}${env.mapperClassSuffix};
+import ${pkgPrefix}${env.servicePackage.replace('/','.')}.${table.javaClassName}${env.serviceClassSuffix};
+
+/**
+ * $!{table.name}
+ * $!{table.comment}
+ * @author $!{env.author}
+## * @since ${current.date}
+ */
+@Slf4j
+@DomainService
+public class ${table.javaClassName}${env.domainClassSuffix}${env.serviceClassSuffix} {
+	public static final BeanRef<${table.javaClassName}${env.domainClassSuffix}${env.serviceClassSuffix}> REF = BeanRef.of(${table.javaClassName}${env.domainClassSuffix}${env.serviceClassSuffix}.class);
+
+	private final ${table.javaClassName}${env.serviceClassSuffix} ${table.javaVariableName}${env.serviceClassSuffix};
+	private final ${table.javaClassName}${env.mapperClassSuffix} ${table.javaVariableName}${env.mapperClassSuffix};
+
+	public ${table.javaClassName}${env.domainClassSuffix}${env.serviceClassSuffix}(
+		${table.javaClassName}${env.serviceClassSuffix} ${table.javaVariableName}${env.serviceClassSuffix},
+		${table.javaClassName}${env.mapperClassSuffix} ${table.javaVariableName}${env.mapperClassSuffix}
+	) {
+		this.${table.javaVariableName}${env.serviceClassSuffix} = ${table.javaVariableName}${env.serviceClassSuffix};
+		this.${table.javaVariableName}${env.mapperClassSuffix} = ${table.javaVariableName}${env.mapperClassSuffix};
+	}
+
+	@Transactional
+	public void doPersist(Dml type, ${table.javaClassName}${env.entityClassSuffix} entity, FileDto csvFile, FileDto excelFile) {
+		switch (type) {
+			case INSERT: {
+				${table.javaVariableName}${env.serviceClassSuffix}.insertSelective(entity);
+				break;
+			}
+			case UPDATE: {
+				${table.javaVariableName}${env.serviceClassSuffix}.updateSelective(entity);
+				break;
+			}
+			case DELETE: {
+				${table.javaVariableName}${env.serviceClassSuffix}.delete(entity);
+				break;
+			}
+			case IMPORT: {
+				if (csvFile != null) {
+					${table.javaVariableName}${env.serviceClassSuffix}.importCsv(csvFile);
+				} else if (excelFile != null){
+					${table.javaVariableName}${env.serviceClassSuffix}.importExcel(excelFile);
+				} else {
+					throw new IllegalArgumentException("数据文件不能为空");
+				}
+				break;
+			}
+			default: // ignore
+		}
+	}
+
+}
+

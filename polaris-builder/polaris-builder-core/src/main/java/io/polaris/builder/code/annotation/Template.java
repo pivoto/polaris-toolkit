@@ -22,6 +22,7 @@ public @interface Template {
 	String VM_PATH_SERVICE_EXPORTABLE = "/vm/java/base/service/ServiceExportable.java.vm";
 	String VM_PATH_MAPPER_XML = "/vm/resources/Mapper.xml.vm";
 	String VM_PATH_MAPPER_COMPLEX_XML = "/vm/resources/MapperComplex.xml.vm";
+	String VM_PATH_DOMAIN_SERVICE = "/vm/java/domain/service/DomainService.java.vm";
 	String VM_PATH_CONTROLLER = "/vm/java/facade/controller/Controller.java.vm";
 	String VM_PATH_RPC = "/vm/java/facade/rpc/Rpc.java.vm";
 	String VM_PATH_RPC_EXPORTABLE = "/vm/java/facade/rpc/RpcExportable.java.vm";
@@ -53,6 +54,7 @@ public @interface Template {
 	String FILENAME_MAPPER = "${table.javaClassName}${env.mapperClassSuffix}.java";
 	String FILENAME_SERVICE = "${table.javaClassName}${env.serviceClassSuffix}.java";
 	String FILENAME_MAPPER_XML = "${table.javaClassName}${env.mapperClassSuffix}.xml";
+	String FILENAME_DOMAIN_SERVICE = "${table.javaClassName}${env.domainClassSuffix}${env.serviceClassSuffix}.java";
 	String FILENAME_CONTROLLER = "${table.javaClassName}${env.controllerClassSuffix}.java";
 	String FILENAME_RPC = "${table.javaClassName}${env.rpcClassSuffix}.java";
 	String FILENAME_RPC_DML_INPUT = "${table.javaClassName}${env.rpcDmlInputClassSuffix}.java";
@@ -80,6 +82,7 @@ public @interface Template {
 	String DIRNAME_MAPPER = "${env.srcDir}/${table.javaPackageDir}/${env.basePackage.replace('.','/')}/${env.mapperPackage.replace('.','/')}";
 	String DIRNAME_SERVICE = "${env.srcDir}/${table.javaPackageDir}/${env.basePackage.replace('.','/')}/${env.servicePackage.replace('.','/')}";
 	String DIRNAME_MAPPER_XML = "${env.resourceDir}/${env.mapperDir.replace('.','/')}";
+	String DIRNAME_DOMAIN_SERVICE = "${env.srcDir}/${table.javaPackageDir}/${env.domainPackage.replace('.','/')}/${env.servicePackage.replace('.','/')}";
 	String DIRNAME_CONTROLLER = "${env.srcDir}/${table.javaPackageDir}/${env.facadePackage.replace('.','/')}/${env.controllerPackage.replace('.','/')}";
 	String DIRNAME_RPC = "${env.srcDir}/${table.javaPackageDir}/${env.facadePackage.replace('.','/')}//${env.rpcPackage.replace('.','/')}";
 	String DIRNAME_MODEL = "${env.srcDir}/${table.javaPackageDir}/${env.facadePackage.replace('.','/')}/${env.modelPackage.replace('.','/')}";

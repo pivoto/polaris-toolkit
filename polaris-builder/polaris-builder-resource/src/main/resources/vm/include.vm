@@ -54,6 +54,9 @@
 #if(not ${env.servicePackage})
 	#set($env.servicePackage="service")
 #end
+#if(not ${env.domainPackage})
+	#set($env.domainPackage="domain")
+#end
 #if(not ${env.implPackage})
 	#set($env.implPackage="impl")
 #end
@@ -71,6 +74,9 @@
 #end
 #if(not ${env.serviceClassSuffix})
 	#set($env.serviceClassSuffix="Service")
+#end
+#if(not ${env.domainClassSuffix})
+	#set($env.domainClassSuffix="Domain")
 #end
 #if(not ${env.controllerClassSuffix})
 	#set($env.controllerClassSuffix="Controller")
@@ -124,6 +130,11 @@
 	#else
 		#set($pkgPrefix="${table.javaPackageName}.")
 	#end
+	#if(${env.domainPackage})
+		#set($pkgPrefixDomain="${table.javaPackageName}.${env.domainPackage.replace('/','.')}.")
+	#else
+		#set($pkgPrefixDomain="${table.javaPackageName}.")
+	#end
 	#if(${env.facadePackage})
 		#set($pkgPrefixFacade="${table.javaPackageName}.${env.facadePackage.replace('/','.')}.")
 	#else
@@ -139,6 +150,11 @@
 		#set($pkgPrefix="${env.basePackage.replace('/','.')}.")
 	#else
 		#set($pkgPrefix='')
+	#end
+	#if(${env.domainPackage})
+		#set($pkgPrefixDomain="${env.domainPackage.replace('/','.')}.")
+	#else
+		#set($pkgPrefixDomain='')
 	#end
 	#if(${env.facadePackage})
 		#set($pkgPrefixFacade="${env.facadePackage.replace('/','.')}.")
