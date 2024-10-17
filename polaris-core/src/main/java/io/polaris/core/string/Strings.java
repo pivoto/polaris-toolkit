@@ -939,24 +939,49 @@ public class Strings {
 		return args[args.length - 1];
 	}
 
+	public static <T extends Collection<E>, E> T splitToCollection(Supplier<T> supplier, Function<String, E> converter, String str, String delimiterRegex) {
+		return asCollection(supplier, converter, str.split(delimiterRegex));
+	}
+
 	public static <T extends Collection<String>> T splitToCollection(Supplier<T> supplier, String str, String delimiterRegex) {
 		return asCollection(supplier, str.split(delimiterRegex));
+	}
+
+	public static <E> Set<E> splitToSet(String str, Function<String, E> converter, String delimiterRegex) {
+		return asCollection(HashSet::new, converter, str.split(delimiterRegex));
 	}
 
 	public static Set<String> splitToSet(String str, String delimiterRegex) {
 		return asCollection(HashSet::new, str.split(delimiterRegex));
 	}
 
+	public static <E> List<E> splitToList(String str, Function<String, E> converter, String delimiterRegex) {
+		return asCollection(ArrayList::new, converter, str.split(delimiterRegex));
+	}
+
+
 	public static List<String> splitToList(String str, String delimiterRegex) {
 		return asCollection(ArrayList::new, str.split(delimiterRegex));
+	}
+
+	public static <T extends Collection<E>, E> T splitToCollection(Supplier<T> supplier, Function<String, E> converter, String str) {
+		return asCollection(supplier, converter, str.split(","));
 	}
 
 	public static <T extends Collection<String>> T splitToCollection(Supplier<T> supplier, String str) {
 		return asCollection(supplier, str.split(","));
 	}
 
+	public static <E> Set<E> splitToSet(String str, Function<String, E> converter) {
+		return asCollection(HashSet::new, converter, str.split(","));
+	}
+
 	public static Set<String> splitToSet(String str) {
 		return asCollection(HashSet::new, str.split(","));
+	}
+
+	public static <E> List<E> splitToList(String str, Function<String, E> converter) {
+		return asCollection(ArrayList::new, converter, str.split(","));
 	}
 
 	public static List<String> splitToList(String str) {
@@ -1043,11 +1068,17 @@ public class Strings {
 		return (iterator != null ? toArray(Iterables.asList(iterator)) : StdConsts.EMPTY_STRING_ARRAY);
 	}
 
-	public static <T extends Collection<String>> T asCollection(Supplier<T> supplier, String... args) {
+	public static <T extends Collection<E>, E> T asCollection(Supplier<T> supplier, Function<String, E> converter, String... args) {
 		T t = supplier.get();
 		for (String arg : args) {
-			t.add(arg);
+			t.add(converter.apply(arg));
 		}
+		return t;
+	}
+
+	public static <T extends Collection<String>> T asCollection(Supplier<T> supplier, String... args) {
+		T t = supplier.get();
+		t.addAll(Arrays.asList(args));
 		return t;
 	}
 
@@ -1055,8 +1086,12 @@ public class Strings {
 		return asCollection(HashSet::new, args);
 	}
 
-	public static List<String> asList(String... args) {
-		return asCollection(ArrayList::new, args);
+	public static <E> Set<E> asSet(Function<String, E> converter, String... args) {
+		return asCollection(HashSet::new, converter, args);
+	}
+
+	public static <E> List<E> asList(Function<String, E> converter, String... args) {
+		return asCollection(ArrayList::new, converter, args);
 	}
 
 	public static <T extends Map<String, String>> T asMap(Supplier<T> supplier, String... args) {

@@ -28,10 +28,26 @@ public class Iterables {
 	}
 
 
+	public static <C extends Collection<O>, E, O> C asCollection(Supplier<C> supplier, Function<E, O> converter, Enumeration<E> enumeration) {
+		C c = supplier.get();
+		while (enumeration.hasMoreElements()) {
+			c.add(converter.apply(enumeration.nextElement()));
+		}
+		return c;
+	}
+
 	public static <C extends Collection<E>, E> C asCollection(Supplier<C> supplier, Enumeration<E> enumeration) {
 		C c = supplier.get();
 		while (enumeration.hasMoreElements()) {
 			c.add(enumeration.nextElement());
+		}
+		return c;
+	}
+
+	public static <C extends Collection<O>, E, O> C asCollection(Supplier<C> supplier, Function<E, O> converter, E... iterable) {
+		C c = supplier.get();
+		for (E e : iterable) {
+			c.add(converter.apply(e));
 		}
 		return c;
 	}
@@ -42,10 +58,26 @@ public class Iterables {
 		return c;
 	}
 
+	public static <C extends Collection<O>, E, O> C asCollection(Supplier<C> supplier, Function<E, O> converter, Iterable<E> iterable) {
+		C c = supplier.get();
+		for (E e : iterable) {
+			c.add(converter.apply(e));
+		}
+		return c;
+	}
+
 	public static <C extends Collection<E>, E> C asCollection(Supplier<C> supplier, Iterable<E> iterable) {
 		C c = supplier.get();
 		for (E e : iterable) {
 			c.add(e);
+		}
+		return c;
+	}
+
+	public static <C extends Collection<O>, E, O> C asCollection(Supplier<C> supplier, Function<E, O> converter, Iterator<E> iterator) {
+		C c = supplier.get();
+		while (iterator.hasNext()) {
+			c.add(converter.apply(iterator.next()));
 		}
 		return c;
 	}
@@ -101,6 +133,7 @@ public class Iterables {
 		return Iterators.convert(iterator, converter);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <S, T> T[] convert(S[] array, T[] target, Function<S, T> converter) {
 		if (target.length < array.length) {
 			if (target.getClass() == Object[].class) {
@@ -113,10 +146,6 @@ public class Iterables {
 			target[i] = (T) converter.apply((S) array[i]);
 		}
 		return target;
-	}
-
-	public static <S, T> Set<T> convert(Set<S> set, Function<S, T> converter, Function<T, S> reconvert) {
-		return Sets.convert(set, converter, reconvert);
 	}
 
 

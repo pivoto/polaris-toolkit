@@ -33,8 +33,24 @@ public class Sets {
 	}
 
 
+	public static <E, O> Set<O> asSet(Function<E, O> converter, Collection<E> collection) {
+		Set<O> set = new HashSet<>(collection.size());
+		for (E e : collection) {
+			set.add(converter.apply(e));
+		}
+		return set;
+	}
+
 	public static <E> Set<E> asSet(Collection<E> collection) {
 		return new HashSet<>(collection);
+	}
+
+	public static <E, O> Set<O> asSet(Function<E, O> converter, Enumeration<E> enumeration) {
+		Set<O> c = new HashSet<>();
+		while (enumeration.hasMoreElements()) {
+			c.add(converter.apply(enumeration.nextElement()));
+		}
+		return c;
 	}
 
 	public static <E> Set<E> asSet(Enumeration<E> enumeration) {
@@ -46,9 +62,26 @@ public class Sets {
 	}
 
 	@SafeVarargs
+	public static <E, O> Set<O> asSet(Function<E, O> converter, E... iterable) {
+		Set<O> c = new HashSet<>();
+		for (E e : iterable) {
+			c.add(converter.apply(e));
+		}
+		return c;
+	}
+
+	@SafeVarargs
 	public static <E> Set<E> asSet(E... iterable) {
 		Set<E> c = new HashSet<>();
 		Collections.addAll(c, iterable);
+		return c;
+	}
+
+	public static <E, O> Set<O> asSet(Function<E, O> converter, Iterable<E> iterable) {
+		Set<O> c = new HashSet<>();
+		for (E e : iterable) {
+			c.add(converter.apply(e));
+		}
 		return c;
 	}
 
@@ -60,10 +93,26 @@ public class Sets {
 		return c;
 	}
 
+	public static <E, O> Set<O> asSet(Function<E, O> converter, Iterator<E> iterator) {
+		Set<O> c = new HashSet<>();
+		while (iterator.hasNext()) {
+			c.add(converter.apply(iterator.next()));
+		}
+		return c;
+	}
+
 	public static <E> Set<E> asSet(Iterator<E> iterator) {
 		Set<E> c = new HashSet<>();
 		while (iterator.hasNext()) {
 			c.add(iterator.next());
+		}
+		return c;
+	}
+
+	public static <E, O> Set<O> asSet(Supplier<Set<O>> supplier, Function<E, O> converter, Enumeration<E> enumeration) {
+		Set<O> c = supplier.get();
+		while (enumeration.hasMoreElements()) {
+			c.add(converter.apply(enumeration.nextElement()));
 		}
 		return c;
 	}
@@ -77,9 +126,27 @@ public class Sets {
 	}
 
 	@SafeVarargs
+	public static <E, O> Set<O> asSet(Supplier<Set<O>> supplier, Function<E, O> converter, E... iterable) {
+		Set<O> c = supplier.get();
+		for (E e : iterable) {
+			c.add(converter.apply(e));
+		}
+		return c;
+	}
+
+
+	@SafeVarargs
 	public static <E> Set<E> asSet(Supplier<Set<E>> supplier, E... iterable) {
 		Set<E> c = supplier.get();
 		Collections.addAll(c, iterable);
+		return c;
+	}
+
+	public static <E, O> Set<O> asSet(Supplier<Set<O>> supplier, Function<E, O> converter, Iterable<E> iterable) {
+		Set<O> c = supplier.get();
+		for (E e : iterable) {
+			c.add(converter.apply(e));
+		}
 		return c;
 	}
 
@@ -87,6 +154,14 @@ public class Sets {
 		Set<E> c = supplier.get();
 		for (E e : iterable) {
 			c.add(e);
+		}
+		return c;
+	}
+
+	public static <E, O> Set<O> asSet(Supplier<Set<O>> supplier, Function<E, O> converter, Iterator<E> iterator) {
+		Set<O> c = supplier.get();
+		while (iterator.hasNext()) {
+			c.add(converter.apply(iterator.next()));
 		}
 		return c;
 	}
@@ -99,7 +174,7 @@ public class Sets {
 		return c;
 	}
 
-	public static <S, T> Set<T> convert(Set<S> set, Function<S, T> converter, Function<T, S> reconvert) {
+	public static <S, T> Set<T> delegate(Set<S> set, Function<S, T> converter, Function<T, S> reconvert) {
 		return new Set<T>() {
 			@Override
 			public int size() {
@@ -312,9 +387,9 @@ public class Sets {
 		return Iterators.get(collection.iterator(), index);
 	}
 
-	public static <T> List<T> getAll(Set<T> collection, int... indexes) {
+	public static <T> Set<T> getAll(Set<T> collection, int... indexes) {
 		final int size = collection.size();
-		final List<T> result = new ArrayList<>();
+		final Set<T> result = new HashSet<>();
 		final Object[] array = collection.toArray();
 		for (int index : indexes) {
 			if (index < 0) {

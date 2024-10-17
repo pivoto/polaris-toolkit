@@ -2,6 +2,7 @@ package io.polaris.core.collection;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -22,14 +23,39 @@ public class Lists {
 		return new CopyOnWriteArrayList<>();
 	}
 
+	public static <E, O> List<O> asList(Function<E, O> converter, Collection<E> collection) {
+		List<O> list = new ArrayList<>(collection.size());
+		for (E e : collection) {
+			list.add(converter.apply(e));
+		}
+		return list;
+	}
+
 	public static <E> List<E> asList(Collection<E> collection) {
 		return new ArrayList<>(collection);
+	}
+
+	public static <E, O> List<O> asList(Function<E, O> converter, Enumeration<E> enumeration) {
+		List<O> c = new ArrayList<>();
+		while (enumeration.hasMoreElements()) {
+			c.add(converter.apply(enumeration.nextElement()));
+		}
+		return c;
 	}
 
 	public static <E> List<E> asList(Enumeration<E> enumeration) {
 		List<E> c = new ArrayList<>();
 		while (enumeration.hasMoreElements()) {
 			c.add(enumeration.nextElement());
+		}
+		return c;
+	}
+
+	@SafeVarargs
+	public static <E, O> List<O> asList(Function<E, O> converter, E... iterable) {
+		List<O> c = new ArrayList<>();
+		for (E e : iterable) {
+			c.add(converter.apply(e));
 		}
 		return c;
 	}
@@ -42,6 +68,14 @@ public class Lists {
 	}
 
 
+	public static <E, O> List<O> asList(Function<E, O> converter, Iterable<E> iterable) {
+		List<O> c = new ArrayList<>();
+		for (E e : iterable) {
+			c.add(converter.apply(e));
+		}
+		return c;
+	}
+
 	public static <E> List<E> asList(Iterable<E> iterable) {
 		List<E> c = new ArrayList<>();
 		for (E e : iterable) {
@@ -50,10 +84,27 @@ public class Lists {
 		return c;
 	}
 
+	public static <E, O> List<O> asList(Function<E, O> converter, Iterator<E> iterator) {
+		List<O> c = new ArrayList<>();
+		while (iterator.hasNext()) {
+			c.add(converter.apply(iterator.next()));
+		}
+		return c;
+	}
+
 	public static <E> List<E> asList(Iterator<E> iterator) {
 		List<E> c = new ArrayList<>();
 		while (iterator.hasNext()) {
 			c.add(iterator.next());
+		}
+		return c;
+	}
+
+
+	public static <E, O> List<O> asList(Supplier<List<O>> supplier, Function<E, O> converter, Enumeration<E> enumeration) {
+		List<O> c = supplier.get();
+		while (enumeration.hasMoreElements()) {
+			c.add(converter.apply(enumeration.nextElement()));
 		}
 		return c;
 	}
@@ -67,6 +118,15 @@ public class Lists {
 	}
 
 	@SafeVarargs
+	public static <E, O> List<O> asList(Supplier<List<O>> supplier, Function<E, O> converter, E... iterable) {
+		List<O> c = supplier.get();
+		for (E e : iterable) {
+			c.add(converter.apply(e));
+		}
+		return c;
+	}
+
+	@SafeVarargs
 	public static <E> List<E> asList(Supplier<List<E>> supplier, E... iterable) {
 		List<E> c = supplier.get();
 		Collections.addAll(c, iterable);
@@ -74,10 +134,26 @@ public class Lists {
 	}
 
 
+	public static <E, O> List<O> asList(Supplier<List<O>> supplier, Function<E, O> converter, Iterable<E> iterable) {
+		List<O> c = supplier.get();
+		for (E e : iterable) {
+			c.add(converter.apply(e));
+		}
+		return c;
+	}
+
 	public static <E> List<E> asList(Supplier<List<E>> supplier, Iterable<E> iterable) {
 		List<E> c = supplier.get();
 		for (E e : iterable) {
 			c.add(e);
+		}
+		return c;
+	}
+
+	public static <E, O> List<O> asList(Supplier<List<O>> supplier, Function<E, O> converter, Iterator<E> iterator) {
+		List<O> c = supplier.get();
+		while (iterator.hasNext()) {
+			c.add(converter.apply(iterator.next()));
 		}
 		return c;
 	}
