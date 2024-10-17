@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cn.fossc.polaris.toolkit</groupId>
 	<artifactId>polaris-toolkit</artifactId>
-	<version>3.2.26-SNAPSHOT</version>
+	<version>3.2.26</version>
 	<packaging>pom</packaging>
 
 	<name>polaris-toolkit</name>
@@ -26,7 +26,7 @@
 	</modules>
 
 	<properties>
-		<project.polaris-toolkit.revision>3.2.26-SNAPSHOT</project.polaris-toolkit.revision>
+		<project.polaris-toolkit.revision>3.2.26</project.polaris-toolkit.revision>
 		<deploymentName>cn.fossc.polaris.toolkit:polaris-toolkit:${project.version}</deploymentName>
 		<start-class></start-class>
 		<java.version>1.8</java.version>
