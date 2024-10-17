@@ -1,17 +1,10 @@
 package io.polaris.core.collection;
 
 import java.lang.reflect.Array;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -212,5 +205,135 @@ public class Sets {
 				throw new UnsupportedOperationException();
 			}
 		};
+	}
+
+	public static <T> Set<T> emptyIfNull(Set<T> set) {
+		return (null == set) ? Collections.emptySet() : set;
+	}
+
+	public static boolean contains(Set<?> collection, Object value) {
+		return collection != null && !collection.isEmpty() && collection.contains(value);
+	}
+
+	public static <T> boolean contains(Set<T> collection, Predicate<? super T> predicate) {
+		if (collection == null || collection.isEmpty()) {
+			return false;
+		}
+		for (T t : collection) {
+			if (predicate.test(t)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean containsAny(Set<?> coll1, Set<?> coll2) {
+		if (coll1 == null || coll1.isEmpty() || coll2 == null || coll2.isEmpty()) {
+			return false;
+		}
+		if (coll1.size() < coll2.size()) {
+			for (Object object : coll1) {
+				if (coll2.contains(object)) {
+					return true;
+				}
+			}
+		} else {
+			for (Object object : coll2) {
+				if (coll1.contains(object)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public static boolean containsAll(Set<?> coll1, Collection<?> coll2) {
+		if (coll1 == null || coll1.isEmpty()) {
+			return coll2 == null || coll2.isEmpty();
+		}
+
+		if (coll2 == null || coll2.isEmpty()) {
+			return true;
+		}
+
+		// noinspection SuspiciousMethodCalls
+		return coll1.containsAll(coll2);
+	}
+
+	public static <T> T firstNonNull(Set<T> collection) {
+		return firstMatch(collection, Objects::nonNull);
+	}
+
+	public static <T> T firstMatch(Set<T> collection, Predicate<T> matcher) {
+		if (collection == null || collection.isEmpty()) {
+			return null;
+		}
+		for (T next : collection) {
+			if (matcher.test(next)) {
+				return next;
+			}
+		}
+		return null;
+	}
+
+	public static <T> boolean anyMatch(Set<T> collection, Predicate<T> predicate) {
+		if (collection == null || collection.isEmpty()) {
+			return false;
+		}
+		return collection.stream().anyMatch(predicate);
+	}
+
+	public static <T> boolean allMatch(Set<T> collection, Predicate<T> predicate) {
+		if (collection == null || collection.isEmpty()) {
+			return false;
+		}
+		return collection.stream().allMatch(predicate);
+	}
+
+	public static <T> T get(Set<T> collection, int index) {
+		if (null == collection) {
+			return null;
+		}
+
+		final int size = collection.size();
+		if (0 == size) {
+			return null;
+		}
+
+		if (index < 0) {
+			index += size;
+		}
+
+		// 检查越界
+		if (index >= size || index < 0) {
+			return null;
+		}
+
+		return Iterators.get(collection.iterator(), index);
+	}
+
+	public static <T> List<T> getAll(Set<T> collection, int... indexes) {
+		final int size = collection.size();
+		final List<T> result = new ArrayList<>();
+		final Object[] array = collection.toArray();
+		for (int index : indexes) {
+			if (index < 0) {
+				index += size;
+			}
+			if (index >= size || index < 0) {
+				result.add(null);
+			} else {
+				// noinspection unchecked
+				result.add((T) array[index]);
+			}
+		}
+		return result;
+	}
+
+	public static <T> T getFirst(Set<T> set) {
+		if (set == null || set.isEmpty()) {
+			return null;
+		}
+		return Iterators.getNext(set.iterator());
 	}
 }
