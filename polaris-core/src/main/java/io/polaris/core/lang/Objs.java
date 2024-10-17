@@ -1,5 +1,19 @@
 package io.polaris.core.lang;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import javax.annotation.Nullable;
+
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.collection.ObjectArrays;
 import io.polaris.core.collection.comparator.Comparators;
@@ -7,17 +21,31 @@ import io.polaris.core.io.Serializations;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.string.Strings;
 
-import javax.annotation.Nullable;
-import java.lang.reflect.Array;
-import java.lang.reflect.Type;
-import java.util.*;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 /**
  * @author Qt
  */
 public class Objs {
+
+	public static boolean equalsAny(Object obj, Object... args) {
+		for (Object arg : args) {
+			if (equals(obj, arg)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static <T> T getIfEquals(T obj, T... args) {
+		for (int i = 0; i + 1 < args.length; i += 2) {
+			if (equals(args[i], obj)) {
+				return args[i + 1];
+			}
+		}
+		if ((args.length & 1) == 0) {
+			return null;
+		}
+		return args[args.length - 1];
+	}
 
 	/**
 	 * 比较两个对象是否相等。<br>
@@ -262,6 +290,31 @@ public class Objs {
 	public static boolean isNotEmpty(Object obj) {
 		return !isEmpty(obj);
 	}
+
+	@SafeVarargs
+	public static <T> T coalesce(T... args) {
+		T v = null;
+		for (T arg : args) {
+			v = arg;
+			if (v != null) {
+				break;
+			}
+		}
+		return v;
+	}
+
+	@SafeVarargs
+	public static <T> T coalesceEmpty(T... args) {
+		T v = null;
+		for (T arg : args) {
+			v = arg;
+			if (!isEmpty(v)) {
+				break;
+			}
+		}
+		return v;
+	}
+
 
 	/**
 	 * 如果给定对象为{@code null}返回默认值
