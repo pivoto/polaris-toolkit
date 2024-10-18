@@ -12,6 +12,7 @@ import javax.validation.constraints.*;
 
 import io.polaris.core.guid.Guid;
 import io.polaris.core.guid.Guids;
+import io.polaris.core.io.IO;
 import io.polaris.core.time.Dates;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.string.Strings;
@@ -71,11 +72,11 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		return this.guid;
 	}
 
-	public <R> R preferSqlStatement(Function<BpmProcDefInfoService, R> function) {
+	public <R> R preferSqlStatement(Function<${table.javaClassName}${env.serviceClassSuffix}, R> function) {
 		return preferSqlStatement(true, function);
 	}
 
-	public <R> R preferSqlStatement(boolean preferSqlStatement, Function<BpmProcDefInfoService, R> function) {
+	public <R> R preferSqlStatement(boolean preferSqlStatement, Function<${table.javaClassName}${env.serviceClassSuffix}, R> function) {
 		preferSqlStatementLocal.set(preferSqlStatement);
 		try {
 			return function.apply(this);
@@ -248,9 +249,9 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		log.info("查询表[${table.name}]结果集.param={},pageNum={},pageSize={}", param, pageNum, pageSize);
 		Page<${table.javaClassName}${env.entityClassSuffix}> page = PageHelper.startPage(pageNum, pageSize, false);
 		List<${table.javaClassName}${env.entityClassSuffix}> list = getListByAny(param, null,null);
-		if(list instanceof Page){
+		if (list instanceof Page) {
 			page = (Page<${table.javaClassName}${env.entityClassSuffix}>) list;
-		}else{
+		} else {
 			page.addAll(list);
 		}
 		${table.javaClassName}${env.entityClassSuffix}.translate(list);
@@ -375,7 +376,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		return mapper.insertEntity(entity);
 	}
 
-	private void fillCreatable(${table.javaClassName}${env.entityClassSuffix} entity){
+	private void fillCreatable(${table.javaClassName}${env.entityClassSuffix} entity) {
 		// 新增操作前补充新增字段值信息：主键、创建时间、创建用户、更新时间、更新用户等
 		AppSessions.fillCreatable(entity);
 		// TODO 主键填充逻辑
@@ -464,7 +465,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		return mapper.updateEntityById(entity);
 	}
 
-	private void fillUpdatable(${table.javaClassName}${env.entityClassSuffix} entity){
+	private void fillUpdatable(${table.javaClassName}${env.entityClassSuffix} entity) {
 		// 修改操作前补充字段值信息：更新时间、更新用户等
 		AppSessions.fillUpdatable(entity);
 	}
@@ -505,7 +506,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	 * @return 唯一结果对象
 	 */
 	@Transactional(rollbackFor = Exception.class)
-	public ${table.javaClassName}${env.entityClassSuffix} getUnique(${table.javaClassName}${env.entityClassSuffix} param) {
+	public ${table.javaClassName}${env.entityClassSuffix} getUnique(Object param) {
 		log.info("根据主键查询表[${table.name}]记录.param={}", param);
 		${table.javaClassName}${env.entityClassSuffix} entity =  getUniqueByAny(param, null);
 		${table.javaClassName}${env.entityClassSuffix}.translate(entity);
