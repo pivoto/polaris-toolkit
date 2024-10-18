@@ -66,9 +66,13 @@ public class ${table.javaClassName}${env.rpcClassSuffix} {
 		Arguments.notNull(input.getType(), "操作类型不能为空");
 		Dml type = input.getType();
 		${table.javaClassName}${env.entityClassSuffix} entity = input.getEntity();
+#if(${env.rpcImportable} == "true")
 		FileDto csvFile = input.getCsvFile();
 		FileDto excelFile = input.getExcelFile();
 		this.${table.javaVariableName}${env.domainClassSuffix}${env.serviceClassSuffix}.doPersist(type, entity, csvFile, excelFile);
+#else
+		this.${table.javaVariableName}${env.domainClassSuffix}${env.serviceClassSuffix}.doPersist(type, entity);
+#end
 		return new ExchangeDto();
 	}
 
@@ -100,6 +104,38 @@ public class ${table.javaClassName}${env.rpcClassSuffix} {
 		output.setList(list);
 		return output;
 	}
+
+#if(${env.rpcExportable} == "true")
+	@SessionRequired
+	@RpcService(active = Bool.FALSE, code = "$!{env.rpcCodePrefix}${table.javaClassName}ExportCsv", name = "$!{table.label}列表数据查询导出Csv")
+	@OpenApi(inputSchema = ${table.javaClassName}${env.rpcListInputClassSuffix}.class, outputSchema = FileExchangeDto.class)
+	public FileExchangeDto do$!{env.rpcCodePrefix}${table.javaClassName}ExportCsv(@Valid ${table.javaClassName}${env.rpcListInputClassSuffix} input) {
+		FileExchangeDto output = new FileExchangeDto();
+		Page page = input.getPage();
+		Map<String, Object> param = Beans.newBeanMap(input.getParam());
+		if (page.getOrderBy()==null) {
+			OrderBy orderBy = Queries.newOrderBy(input.getSqlOrderBy());
+			page.setOrderBy(orderBy);
+		}
+		output.setValue(${table.javaVariableName}${env.serviceClassSuffix}.exportCsv(param, page));
+		return output;
+	}
+
+	@SessionRequired
+	@RpcService(active = Bool.FALSE, code = "$!{env.rpcCodePrefix}${table.javaClassName}ExportExcel", name = "$!{table.label}列表数据查询导出Excel")
+	@OpenApi(inputSchema = ${table.javaClassName}${env.rpcListInputClassSuffix}.class, outputSchema = FileExchangeDto.class)
+	public FileExchangeDto do$!{env.rpcCodePrefix}${table.javaClassName}ExportExcel(@Valid ${table.javaClassName}${env.rpcListInputClassSuffix} input) {
+		FileExchangeDto output = new FileExchangeDto();
+		Page page = input.getPage();
+		Map<String, Object> param = Beans.newBeanMap(input.getParam());
+		if (page.getOrderBy()==null) {
+			OrderBy orderBy = Queries.newOrderBy(input.getSqlOrderBy());
+			page.setOrderBy(orderBy);
+		}
+		output.setValue(${table.javaVariableName}${env.serviceClassSuffix}.exportExcel(param, page));
+		return output;
+	}
+#end
 
 }
 

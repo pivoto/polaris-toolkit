@@ -123,6 +123,14 @@
 #if(not ${env.rpcClientListOutputClassSuffix})
 	#set($env.rpcClientListOutputClassSuffix="ListClientOutput")
 #end
+## exportable
+#if(not ${env.rpcExportable})
+	#set($env.rpcExportable="true")
+#end
+## importable
+#if(not ${env.rpcImportable})
+	#set($env.rpcImportable="true")
+#end
 ## base package
 #if(${table.javaPackageName})
 	#if(${env.basePackage})

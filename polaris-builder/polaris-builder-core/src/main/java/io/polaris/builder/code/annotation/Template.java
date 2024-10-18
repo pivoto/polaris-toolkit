@@ -19,13 +19,11 @@ public @interface Template {
 	String VM_PATH_MAPPER = "/vm/java/base/mapper/Mapper.java.vm";
 	String VM_PATH_MAPPER_COMPLEX = "/vm/java/base/mapper/MapperComplex.java.vm";
 	String VM_PATH_SERVICE = "/vm/java/base/service/Service.java.vm";
-	String VM_PATH_SERVICE_EXPORTABLE = "/vm/java/base/service/ServiceExportable.java.vm";
 	String VM_PATH_MAPPER_XML = "/vm/resources/Mapper.xml.vm";
 	String VM_PATH_MAPPER_COMPLEX_XML = "/vm/resources/MapperComplex.xml.vm";
 	String VM_PATH_DOMAIN_SERVICE = "/vm/java/domain/service/DomainService.java.vm";
 	String VM_PATH_CONTROLLER = "/vm/java/facade/controller/Controller.java.vm";
 	String VM_PATH_RPC = "/vm/java/facade/rpc/Rpc.java.vm";
-	String VM_PATH_RPC_EXPORTABLE = "/vm/java/facade/rpc/RpcExportable.java.vm";
 	String VM_PATH_RPC_DML_INPUT = "/vm/java/facade/model/RpcDmlInput.java.vm";
 	String VM_PATH_RPC_GET_INPUT = "/vm/java/facade/model/RpcGetInput.java.vm";
 	String VM_PATH_RPC_LIST_INPUT = "/vm/java/facade/model/RpcListInput.java.vm";
@@ -33,10 +31,8 @@ public @interface Template {
 	String VM_PATH_RPC_LIST_OUTPUT = "/vm/java/facade/model/RpcListOutput.java.vm";
 
 	String VM_PATH_RPC_CLIENT_INLINE = "/vm/java/tunnel/rpc/InlineRpcClient.java.vm";
-	String VM_PATH_RPC_CLIENT_EXPORTABLE_INLINE = "/vm/java/tunnel/rpc/InlineRpcClientExportable.java.vm";
 
 	String VM_PATH_RPC_CLIENT = "/vm/java/tunnel/rpc/RpcClient.java.vm";
-	String VM_PATH_RPC_CLIENT_EXPORTABLE = "/vm/java/tunnel/rpc/RpcClientExportable.java.vm";
 	String VM_PATH_RPC_CLIENT_DTO = "/vm/java/tunnel/model/EntityDto.java.vm";
 	String VM_PATH_RPC_CLIENT_DML_INPUT = "/vm/java/tunnel/model/RpcClientDmlInput.java.vm";
 	String VM_PATH_RPC_CLIENT_GET_INPUT = "/vm/java/tunnel/model/RpcClientGetInput.java.vm";

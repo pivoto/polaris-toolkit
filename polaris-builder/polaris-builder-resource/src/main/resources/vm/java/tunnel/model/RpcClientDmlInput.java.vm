@@ -37,9 +37,11 @@ public class ${table.javaClassName}${env.rpcClientDmlInputClassSuffix} extends E
 	@Valid
 	@Schema(description = "实体参数")
 	private ${table.javaClassName}${env.entityDtoClassSuffix} entity;
+#if(${env.rpcImportable} == "true")
 	@Schema(description = "Csv数据文件")
 	private FileDto csvFile;
 	@Schema(description = "Excel数据文件")
 	private FileDto excelFile;
+#end
 
 }

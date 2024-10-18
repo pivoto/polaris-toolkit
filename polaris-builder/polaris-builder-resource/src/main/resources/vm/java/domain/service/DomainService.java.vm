@@ -74,7 +74,11 @@ public class ${table.javaClassName}${env.domainClassSuffix}${env.serviceClassSuf
 	}
 
 	@Transactional
+#if(${env.rpcImportable} == "true")
 	public void doPersist(Dml type, ${table.javaClassName}${env.entityClassSuffix} entity, FileDto csvFile, FileDto excelFile) {
+#else
+	public void doPersist(Dml type, ${table.javaClassName}${env.entityClassSuffix} entity) {
+#end
 		switch (type) {
 			case INSERT: {
 				${table.javaVariableName}${env.serviceClassSuffix}.insertSelective(entity);
@@ -88,6 +92,7 @@ public class ${table.javaClassName}${env.domainClassSuffix}${env.serviceClassSuf
 				${table.javaVariableName}${env.serviceClassSuffix}.delete(entity);
 				break;
 			}
+#if(${env.rpcImportable} == "true")
 			case IMPORT: {
 				if (csvFile != null) {
 					${table.javaVariableName}${env.serviceClassSuffix}.importCsv(csvFile);
@@ -98,6 +103,7 @@ public class ${table.javaClassName}${env.domainClassSuffix}${env.serviceClassSuf
 				}
 				break;
 			}
+#end
 			default: // ignore
 		}
 	}

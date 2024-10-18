@@ -41,10 +41,12 @@ public class ${table.javaClassName}${env.rpcDmlInputClassSuffix} extends Exchang
 	@Valid
 	@Schema(description = "实体参数")
 	private ${table.javaClassName}${env.entityClassSuffix} entity;
+#if(${env.rpcImportable} == "true")
 	@Schema(description = "Csv数据文件")
 	private FileDto csvFile;
 	@Schema(description = "Excel数据文件")
 	private FileDto excelFile;
+#end
 
 	public static class Validator implements CustomValidation {
 		@Override
@@ -60,6 +62,7 @@ public class ${table.javaClassName}${env.rpcDmlInputClassSuffix} extends Exchang
 					return false;
 				}
 			} else if (Dml.IMPORT == o.getType()) {
+#if(${env.rpcImportable} == "true")
 				if (o.csvFile == null && o.excelFile == null) {
 					context.disableDefaultConstraintViolation();
 					context.buildConstraintViolationWithTemplate("数据文件参数[csvFile或excelFile]不能为空")
@@ -68,6 +71,14 @@ public class ${table.javaClassName}${env.rpcDmlInputClassSuffix} extends Exchang
 					;
 					return false;
 				}
+#else
+				context.disableDefaultConstraintViolation();
+				context.buildConstraintViolationWithTemplate("操作类型[type]不支持导入操作")
+					.addPropertyNode(Fields.type)
+					.addConstraintViolation()
+				;
+				return false;
+#end
 			}
 			return true;
 		}

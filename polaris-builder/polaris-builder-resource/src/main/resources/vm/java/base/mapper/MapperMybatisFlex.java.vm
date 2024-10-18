@@ -17,7 +17,7 @@ import ${pkgPrefix}${env.entityPackage.replace('/','.')}.${table.javaClassName}$
  * @since ${current.date}
  */
 @Mapper
-public interface ${table.javaClassName}${env.mapperClassSuffix} extends BaseMapper<${table.javaClassName}${env.entityClassSuffix}>{
+public interface ${table.javaClassName}${env.mapperClassSuffix} extends BaseMapper<${table.javaClassName}${env.entityClassSuffix}> {
 
 }
 

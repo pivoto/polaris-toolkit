@@ -136,7 +136,6 @@ public class JtcRmCode {
 		},
 		excludeTemplatePaths = {
 			VM_PATH_RPC,
-			VM_PATH_RPC_EXPORTABLE,
 			VM_PATH_RPC_DML_INPUT,
 			VM_PATH_RPC_GET_INPUT,
 			VM_PATH_RPC_LIST_INPUT,
