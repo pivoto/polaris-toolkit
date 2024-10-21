@@ -84,6 +84,8 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 	@Column(value = "$!{col.name}", updatable = false)
 	#elseif(${col.javaVariableName}=='updateDate' || ${col.javaVariableName}=='uptDt')
 	@Column(value = "$!{col.name}", updateTime = true)
+	#elseif(${col.generated})
+	@Column(value = "$!{col.name}", insertable = false, updatable = false)
 	#else
 	@Column(value = "$!{col.name}")
 	#end
