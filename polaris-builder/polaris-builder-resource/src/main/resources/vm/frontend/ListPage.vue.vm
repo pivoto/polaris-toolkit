@@ -409,9 +409,9 @@ function onOpenAddDialog() {
 	vShowAddDialog.value = true;
 }
 // 打开查看弹窗
-function onOpenViewDialog(row?: any){
+function onOpenViewDialog(row?: any) {
 	row = row || vTableRecords.value.currentRow
-	if (!row){
+	if (!row) {
 		msg.error('请选择数据行')
 		return;
 	}
@@ -422,9 +422,9 @@ function onOpenViewDialog(row?: any){
 	vShowEditDialog.value = true;
 }
 // 打开修改弹窗
-function onOpenEditDialog(row?: any){
+function onOpenEditDialog(row?: any) {
 	row = row || vTableRecords.value.currentRow
-	if (!row){
+	if (!row) {
 		msg.error('请选择数据行')
 		return;
 	}
@@ -439,9 +439,9 @@ function onOpenImportDialog() {
 	vShowImportDialog.value = true;
 }
 // 删除数据
-function onDeleteRecord(row?: any){
+function onDeleteRecord(row?: any) {
 	row = row || vTableRecords.value.currentRow
-	if (!row){
+	if (!row) {
 		msg.error('请选择数据行')
 		return;
 	}
@@ -466,17 +466,17 @@ function onDeleteRecord(row?: any){
 			msg.success('数据删除成功');
 			onTableRefresh();
 		}).catch((e)=>{
-			if (e == 'cancel' || e == 'close'){
+			if (e == 'cancel' || e == 'close') {
 				console.warn(e)
 				msg.warn('取消数据删除操作')
-			}else{
+			} else {
 				console.error(e)
 				msg.error('数据删除失败：'+e);
 			}
 		})
 }
 // 导出数据
-function onExportRecord(useCsv?: boolean){
+function onExportRecord(useCsv?: boolean) {
 	let queryFormCache = vQueryForm.value.queryFormCache;
 	if (!queryFormCache) {
 		msg.warn('缺少查询条件！请先做查询操作');
@@ -510,29 +510,29 @@ function onExportRecord(useCsv?: boolean){
 				}
 				let output = rs.output;
 				let downloadFile:any = null;//download
-				if(output.value && output.value.fileurl){
+				if (output.value && output.value.fileurl) {
 					downloadFile = output.value;
-				}else if(output.download && output.download.fileurl){
+				}else if (output.download && output.download.fileurl) {
 					downloadFile = output.download;
-				}else if(output.cmis_download && output.cmis_download.fileurl){
+				}else if (output.cmis_download && output.cmis_download.fileurl) {
 					downloadFile = output.cmis_download;
 				}
-				if (downloadFile && downloadFile.fileurl){
-					if (downloadFile.filename){
+				if (downloadFile && downloadFile.fileurl) {
+					if (downloadFile.filename) {
 						msg.success('请下载导出结果文件：'+downloadFile.filename);
 					}
 					window.open(downloadFile.fileurl)
-				}else{
+				} else {
 					msg.warn('无结果文件，请确认导出接口是否正确！')
 				}
 			} finally {
 				vLoadingTable.value = false;
 			}
 		}).catch((e)=>{
-			if (e == 'cancel' || e == 'close'){
+			if (e == 'cancel' || e == 'close') {
 				console.warn(e)
 				msg.warn('取消导出操作')
-			}else{
+			} else {
 				console.error(e)
 				msg.error('导出操作失败：'+e);
 			}
@@ -546,12 +546,12 @@ function onCancelImportRecord() {
 // 导入数据
 function onImportRecord() {
 	let fileList = vImportForm.value.importForm.fileList;
-	if (fileList?.length != 1){
+	if (fileList?.length != 1) {
 		msg.error('数据文件不存在，请选择上传指定格式的数据文件！');
 		return;
 	}
 	let file = fileList[0];
-	if (!file.name.endsWith('.csv') && !file.name.endsWith('.xlsx')){
+	if (!file.name.endsWith('.csv') && !file.name.endsWith('.xlsx')) {
 		msg.error('数据文件格式不正确，请选择上传指定格式的数据文件！');
 		return;
 	}
@@ -560,9 +560,9 @@ function onImportRecord() {
 			console.log(d)
 			let formData = new FormData();
 			formData.append('type', 'IMPORT');
-			if (file.name.endsWith('.csv')){
+			if (file.name.endsWith('.csv')) {
 				formData.append('csvFile', file.raw!);
-			}else if(file.name.endsWith('.xlsx')){
+			}else if (file.name.endsWith('.xlsx')) {
 				formData.append('excelFile', file.raw!);
 			}
 			// 调用接口上传
@@ -580,16 +580,16 @@ function onImportRecord() {
 			msg.success('数据导入成功');
 			onTableRefresh();
 		}).catch((e)=>{
-			if (e == 'cancel' || e == 'close'){
+			if (e == 'cancel' || e == 'close') {
 				console.warn(e)
 				msg.warn('取消导入操作')
-			}else{
+			} else {
 				console.error(e)
 				msg.error('导入操作失败：'+e);
 			}
 		}).finally(()=>{
 			// 删除上传组件中的文件
-			if(file && file.raw){
+			if (file && file.raw) {
 				refImportUploader.value.handleRemove(file.raw);
 			}
 			//refImportUploader.value.handleRemove(file);

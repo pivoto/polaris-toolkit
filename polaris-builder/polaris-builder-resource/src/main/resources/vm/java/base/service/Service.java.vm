@@ -551,7 +551,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	public Page<${table.javaClassName}${env.entityClassSuffix}> getPage(Object param, int pageNum, int pageSize) {
 		log.info("查询表[${table.name}]结果集.param={},pageNum={},pageSize={}", param, pageNum, pageSize);
 		Page<${table.javaClassName}${env.entityClassSuffix}> page = PageHelper.startPage(pageNum, pageSize, false);
-		List<${table.javaClassName}${env.entityClassSuffix}> list = getListByAny(param, null,null);
+		List<${table.javaClassName}${env.entityClassSuffix}> list = getListByAny(param, null, null);
 		if (list instanceof Page) {
 			page = (Page<${table.javaClassName}${env.entityClassSuffix}>) list;
 		} else {
@@ -575,11 +575,11 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		log.info("查询表[${table.name}]结果集.param={},page={}", param, page);
 		List<${table.javaClassName}${env.entityClassSuffix}> list = null;
 		if (page == null) {
-			list = getListByAny(param, null,null);
+			list = getListByAny(param, null, null);
 		} else {
 			// noinspection resource
 			Page<${table.javaClassName}${env.entityClassSuffix}> data = PageHelper.startPage(page.getPageNum(), page.getPageSize(), true)
-				.doSelectPage(() -> getListByAny(param, page.getOrderBy(),null));
+				.doSelectPage(() -> getListByAny(param, page.getOrderBy(), null));
 			page.setTotal((int) data.getTotal());
 			list = data;
 		}
@@ -646,8 +646,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Transactional(rollbackFor = Exception.class)
 	public int insertEntire(${table.javaClassName}${env.entityClassSuffix} entity) {
 		log.info("新增表[${table.name}]记录.entity={}", entity);
-		fillCreatable(entity);
-		Validations.validate(entity, Create.class);
+		doBeforeInsert(entity, Create.class);
 		return mapper.insertEntity(entity, true);
 	}
 
@@ -674,15 +673,17 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Transactional(rollbackFor = Exception.class)
 	public int insertSelective(${table.javaClassName}${env.entityClassSuffix} entity) {
 		log.info("新增表[${table.name}]记录.entity={}", entity);
-		fillCreatable(entity);
-		Validations.validate(entity, Create.class);
+		doBeforeInsert(entity, Create.class);
 		return mapper.insertEntity(entity);
 	}
 
-	private void fillCreatable(${table.javaClassName}${env.entityClassSuffix} entity) {
+	private void doBeforeInsert(${table.javaClassName}${env.entityClassSuffix} entity, Class<?> validateGroup) {
 		// 新增操作前补充新增字段值信息：主键、创建时间、创建用户、更新时间、更新用户等
 		AppSessions.fillCreatable(entity);
 		// TODO 主键填充逻辑
+		//long id = guid.next();
+		// 数据验证
+		Validations.validate(entity, validateGroup);
 	}
 
 	/**
@@ -708,8 +709,13 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Transactional(rollbackFor = Exception.class)
 	public int delete(${table.javaClassName}${env.entityClassSuffix} entity) {
 		log.info("根据主键删除表[${table.name}]记录.entity={}", entity);
-		Validations.validate(entity, Delete.class);
+		doBeforeDelete(entity, Delete.class);
 		return mapper.deleteEntityById(entity);
+	}
+
+	private void doBeforeDelete(${table.javaClassName}${env.entityClassSuffix} entity, Class<?> validateGroup) {
+		// 数据验证
+		Validations.validate(entity, validateGroup);
 	}
 
 	/**
@@ -735,8 +741,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Transactional(rollbackFor = Exception.class)
 	public int updateEntire(${table.javaClassName}${env.entityClassSuffix} entity) {
 		log.info("根据主键更新表[${table.name}]记录.entity={}", entity);
-		fillUpdatable(entity);
-		Validations.validate(entity, UpdateEntire.class);
+		doBeforeUpdate(entity, UpdateEntire.class);
 		return mapper.updateEntityById(entity, true);
 	}
 
@@ -763,14 +768,15 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Transactional(rollbackFor = Exception.class)
 	public int updateSelective(${table.javaClassName}${env.entityClassSuffix} entity) {
 		log.info("根据主键更新表[${table.name}]记录.entity={}", entity);
-		fillUpdatable(entity);
-		Validations.validate(entity, Update.class);
+		doBeforeUpdate(entity, Update.class);
 		return mapper.updateEntityById(entity);
 	}
 
-	private void fillUpdatable(${table.javaClassName}${env.entityClassSuffix} entity) {
+	private void doBeforeUpdate(${table.javaClassName}${env.entityClassSuffix} entity, Class<?> validateGroup) {
 		// 修改操作前补充字段值信息：更新时间、更新用户等
 		AppSessions.fillUpdatable(entity);
+		// 数据验证
+		Validations.validate(entity, validateGroup);
 	}
 
 	/**

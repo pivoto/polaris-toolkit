@@ -96,7 +96,7 @@ public class ${table.javaClassName}${env.domainClassSuffix}${env.serviceClassSuf
 			case IMPORT: {
 				if (csvFile != null) {
 					${table.javaVariableName}${env.serviceClassSuffix}.importCsv(csvFile);
-				} else if (excelFile != null){
+				} else if (excelFile != null) {
 					${table.javaVariableName}${env.serviceClassSuffix}.importExcel(excelFile);
 				} else {
 					throw new IllegalArgumentException("数据文件不能为空");

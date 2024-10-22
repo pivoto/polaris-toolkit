@@ -49,7 +49,7 @@ public interface ${table.javaClassName}${env.mapperClassSuffix} extends
 	 * @param param 查询条件对象
 	 * @return 总数
 	 */
-	int doCount(Map<String,Object> param);
+	int doCount(Map<String, Object> param);
 
 	/**
 	 * 查询所有数据,返回{@link List}对象列表
@@ -64,7 +64,7 @@ public interface ${table.javaClassName}${env.mapperClassSuffix} extends
 	 * @param param 查询条件对象
 	 * @return 结果对象列表
 	 */
-	List<${table.javaClassName}${env.entityClassSuffix}> doGetAll(Map<String,Object> param);
+	List<${table.javaClassName}${env.entityClassSuffix}> doGetAll(Map<String, Object> param);
 
 	/**
 	 * 分页查询所有数据,返回{@link List}对象列表
@@ -82,7 +82,7 @@ public interface ${table.javaClassName}${env.mapperClassSuffix} extends
 	 * @param rowBounds 分页条件
 	 * @return 结果对象列表
 	 */
-	List<${table.javaClassName}${env.entityClassSuffix}> doGetAll(Map<String,Object> param, RowBounds rowBounds);
+	List<${table.javaClassName}${env.entityClassSuffix}> doGetAll(Map<String, Object> param, RowBounds rowBounds);
 
 	/**
 	 * 根据条件查询唯一结果
@@ -97,7 +97,7 @@ public interface ${table.javaClassName}${env.mapperClassSuffix} extends
 	 * @param param 查询条件对象
 	 * @return 结果对象
 	 */
-	${table.javaClassName}${env.entityClassSuffix} doGetUnique(Map<String,Object> param);
+	${table.javaClassName}${env.entityClassSuffix} doGetUnique(Map<String, Object> param);
 
 	/**
 	 * 根据主键列查询对象
@@ -112,7 +112,7 @@ public interface ${table.javaClassName}${env.mapperClassSuffix} extends
 	 * @param param 查询条件对象
 	 * @return 结果对象
 	 */
-	${table.javaClassName}${env.entityClassSuffix} doGetById(Map<String,Object> param);
+	${table.javaClassName}${env.entityClassSuffix} doGetById(Map<String, Object> param);
 
 	/**
 	 * 新增记录
@@ -127,7 +127,7 @@ public interface ${table.javaClassName}${env.mapperClassSuffix} extends
 	 * @param entity 记录对象
 	 * @return 影响记录数
 	 */
-	int doInsert(Map<String,Object> entity);
+	int doInsert(Map<String, Object> entity);
 
 	/**
 	 * 新增记录,只处理入参的非空字段对应的列
@@ -142,7 +142,7 @@ public interface ${table.javaClassName}${env.mapperClassSuffix} extends
 	 * @param entity 记录对象
 	 * @return 影响记录数
 	 */
-	int doInsertSelective(Map<String,Object> entity);
+	int doInsertSelective(Map<String, Object> entity);
 
 	/**
 	 * 按主键条件修改记录,按入参修改所有列
@@ -157,7 +157,7 @@ public interface ${table.javaClassName}${env.mapperClassSuffix} extends
 	 * @param entity 记录对象
 	 * @return 影响记录数
 	 */
-	int doUpdate(Map<String,Object> entity);
+	int doUpdate(Map<String, Object> entity);
 
 	/**
 	 * 按主键条件修改记录,只修改入参的非空字段对应的列
@@ -173,7 +173,7 @@ public interface ${table.javaClassName}${env.mapperClassSuffix} extends
 	 * @param entity 记录对象
 	 * @return 影响记录数
 	 */
-	int doUpdateSelective(Map<String,Object> entity);
+	int doUpdateSelective(Map<String, Object> entity);
 
 	/**
 	 * 根据查询条件修改多行记录, 只修改值参数<code>${dollar}updateValues</code>中的非空字段对应的列
@@ -189,7 +189,7 @@ public interface ${table.javaClassName}${env.mapperClassSuffix} extends
 	 * @param entity 记录对象
 	 * @return 影响记录数
 	 */
-	int doUpdateMultiple(Map<String,Object> entity);
+	int doUpdateMultiple(Map<String, Object> entity);
 
 	/**
 	 * 删除记录

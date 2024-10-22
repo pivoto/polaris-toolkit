@@ -340,7 +340,7 @@ const vFormRules = ref<FormRules<FormType>>({});
 
 watch(() => props.show, (nv, ov) => {
 	vShow.value = nv;
-	if (props.show){
+	if (props.show) {
 		onFetchInitData(props.data)
 	}
 });
@@ -352,7 +352,7 @@ watch(() => vShow.value, (nv, ov) => {
 
 watch(() => props.data, (nv, ov) => {
 	vParamSync.value = false;
-	if (props.show){
+	if (props.show) {
 		onFetchInitData(props.data)
 	}
 })
@@ -378,11 +378,11 @@ function closeDialog() {
 
 async function onFetchInitData(param: ParamType) {
 	console.log('onFetchInitData', param)
-	if (vParamSync.value){
+	if (vParamSync.value) {
 		return;
 	}
 #foreach($col in $table.pkColumns)
-	if (!param.${col.javaVariableName}){
+	if (!param.${col.javaVariableName}) {
 		return;
 	}
 #end
