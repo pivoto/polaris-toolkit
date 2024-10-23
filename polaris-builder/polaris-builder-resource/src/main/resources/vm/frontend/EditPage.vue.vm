@@ -23,32 +23,32 @@
 #if(${env.entityExtInterface.contains('Creatable')} && ${col.javaVariableName.equals('crtUser')})
 	#if(!$table.containsColumnVariableName('crtUserName'))
 				<v-col-form-item type="input" label="${col.label}" prop="crtUserName" v-model="vFormData.crtUserName"
-					clearable ${env.editPageColReadonly} item-style="width: 200px;" />
+					clearable ${env.editPageColReadonly} item-style="min-width: 200px;" />
 	#end
 #elseif(${env.entityExtInterface.contains('Updatable')} && ${col.javaVariableName.equals('uptUser')})
 	#if(!$table.containsColumnVariableName('uptUserName'))
 				<v-col-form-item type="input" label="${col.label}" prop="uptUserName" v-model="vFormData.crtUserName"
-					clearable ${env.editPageColReadonly} item-style="width: 200px;" />
+					clearable ${env.editPageColReadonly} item-style="min-width: 200px;" />
 	#end
 #elseif(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP' || ${col.javaTypeSimpleName}=='Date' || ${col.javaTypeSimpleName}=='Timestamp')
 				<v-col-form-item type="datetime" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
-					clearable ${env.editPageColReadonly} item-style="width: 200px;" />
+					clearable ${env.editPageColReadonly} item-style="min-width: 200px;" />
 ##	#elseif(${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT')
 #elseif(${col.javaTypeSimpleName}=='Integer' || ${col.javaTypeSimpleName}=='Short' || ${col.javaTypeSimpleName}=='Byte')
 				<v-col-form-item type="number" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
-					clearable ${env.editPageColReadonly} item-style="width: 200px;" :number-props="{precision:0}"/>
+					clearable ${env.editPageColReadonly} item-style="min-width: 200px;" :number-props="{precision:0}"/>
 ##	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'BIGINT')
 #elseif(${col.javaTypeSimpleName}=='Long')
 				<v-col-form-item type="input" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
-					clearable ${env.editPageColReadonly} item-style="width: 200px;" />
+					clearable ${env.editPageColReadonly} item-style="min-width: 200px;" />
 ##	#elseif(${col.jdbcType} == 'FLOAT' || ${col.jdbcType} == 'DOUBLE')
 #elseif(${col.javaTypeSimpleName}=='Float' || ${col.javaTypeSimpleName}=='Double')
 				<v-col-form-item type="number" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
-					clearable ${env.editPageColReadonly} item-style="width: 200px;" :number-props="{precision:${col.decimalDigits}}"/>
+					clearable ${env.editPageColReadonly} item-style="min-width: 200px;" :number-props="{precision:${col.decimalDigits}}"/>
 ##	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL')
 #elseif(${col.javaTypeSimpleName}=='BigDecimal')
 				<v-col-form-item type="input" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
-					clearable ${env.editPageColReadonly} item-style="width: 200px;" />
+					clearable ${env.editPageColReadonly} item-style="min-width: 200px;" />
 ##	#elseif(${col.jdbcType} == 'BIT' || ${col.jdbcType} == 'BOOLEAN')
 #elseif(${col.javaTypeSimpleName}=='Boolean')
 				<v-col-form-item type="switch" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
@@ -61,7 +61,7 @@
 					:switch-props="{width:60,inlinePrompt:true,activeValue:'A',inactiveValue:'I',activeText:'生效',inactiveText:'失效'}" />
 	#else
 				<v-col-form-item type="input" label="${col.label}" prop="${col.javaVariableName}" v-model="vFormData.${col.javaVariableName}"
-					clearable ${env.editPageColReadonly} item-style="width: 200px;" />
+					clearable ${env.editPageColReadonly} item-style="min-width: 200px;" />
 	#end
 #end
 #end
