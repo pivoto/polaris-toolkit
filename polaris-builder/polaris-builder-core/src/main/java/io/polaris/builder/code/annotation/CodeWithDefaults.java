@@ -52,6 +52,8 @@ import static io.polaris.builder.code.annotation.Template.*;
 	@Property(key = "mapperDir", value = "mapper"),
 	@Property(key = "webDir", value = "src/main/resources/META-INF/resources"),
 	@Property(key = "frontendDir", value = "src/frontend"),
+	@Property(key = "rpcExportable", value = "true"),
+	@Property(key = "rpcImportable", value = "true"),
 })
 @DefaultTemplate({
 	@Template(path = VM_PATH_ENTITY, filename = FILENAME_ENTITY, dirname = DIRNAME_ENTITY),
@@ -62,6 +64,7 @@ import static io.polaris.builder.code.annotation.Template.*;
 	@Template(path = VM_PATH_SERVICE, filename = FILENAME_SERVICE, dirname = DIRNAME_SERVICE),
 
 	@Template(path = VM_PATH_DOMAIN_SERVICE, filename = FILENAME_DOMAIN_SERVICE, dirname = DIRNAME_DOMAIN_SERVICE),
+
 	@Template(path = VM_PATH_RPC, filename = FILENAME_RPC, dirname = DIRNAME_RPC),
 	@Template(path = VM_PATH_RPC_DML_INPUT, filename = FILENAME_RPC_DML_INPUT, dirname = DIRNAME_MODEL),
 	@Template(path = VM_PATH_RPC_GET_INPUT, filename = FILENAME_RPC_GET_INPUT, dirname = DIRNAME_MODEL),
@@ -78,6 +81,7 @@ import static io.polaris.builder.code.annotation.Template.*;
 	@Template(path = VM_PATH_RPC_CLIENT_GET_OUTPUT, filename = FILENAME_RPC_CLIENT_GET_OUTPUT, dirname = DIRNAME_MODEL_CLIENT),
 	@Template(path = VM_PATH_RPC_CLIENT_LIST_OUTPUT, filename = FILENAME_RPC_CLIENT_LIST_OUTPUT, dirname = DIRNAME_MODEL_CLIENT),
 
+	@Template(path = VM_PATH_FRONTEND_API, filename = FILENAME_FRONTEND_API, dirname = DIRNAME_FRONTEND),
 	@Template(path = VM_PATH_FRONTEND_ROUTES, filename = FILENAME_FRONTEND_ROUTES, dirname = DIRNAME_FRONTEND),
 	@Template(path = VM_PATH_FRONTEND_LIST_PAGE, filename = FILENAME_FRONTEND_LIST_PAGE, dirname = DIRNAME_FRONTEND),
 	@Template(path = VM_PATH_FRONTEND_ADD_PAGE, filename = FILENAME_FRONTEND_ADD_PAGE, dirname = DIRNAME_FRONTEND),
@@ -158,6 +162,7 @@ public @interface CodeWithDefaults {
 	 */
 	@AliasFor(annotation = DefaultTemplateExcludedPaths.class, value = "value")
 	String[] excludeTemplatePaths() default {
+		VM_PATH_FRONTEND_API,
 		VM_PATH_FRONTEND_ROUTES,
 		VM_PATH_FRONTEND_LIST_PAGE,
 		VM_PATH_FRONTEND_ADD_PAGE,

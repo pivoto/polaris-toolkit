@@ -108,9 +108,8 @@ import SvgIcon from "/@/components/icon/SvgIcon.vue";
 import msg, {error} from "/@/common/core/msg";
 import * as validation from "/@/common/core/validation";
 import {formatDate} from "/@/common/core/date";
-import {apix,post,postx} from "/@/common/api";
-import {PromiseResult} from "/@/common/core/utils";
-import ApiOutput from "/@/common/api/ApiOutput";
+import {apix} from "/@/common/api";
+import {do$!{env.rpcCodePrefix}${table.javaClassName}Dml, do$!{env.rpcCodePrefix}${table.javaClassName}Get}  from './Api${table.javaClassName}';
 
 interface Props {
 	show: boolean,
@@ -239,6 +238,12 @@ type FormType = {
 
 defineOptions({ name: 'Edit${table.javaClassName}' });
 
+const Fields = {
+#foreach($col in $table.columns)
+	${col.javaVariableName}: '${col.label}',
+#end
+};
+
 ##const props = defineProps({
 ##	show: {
 ##		type: Boolean,
@@ -259,17 +264,10 @@ const props = withDefaults(defineProps<Props>(), {
 	show: true,
 	readonly: true,
 });
-
 const emits = defineEmits<{
 	(e: 'update:show', show: boolean): void,
 	(e: 'afterSubmit'): void,
 }>();
-
-const Fields = {
-#foreach($col in $table.columns)
-	${col.javaVariableName}: '${col.label}',
-#end
-};
 const instance = getCurrentInstance();
 const proxy = instance?.proxy;
 const refDialog = ref() as Ref<InstanceType<typeof VDialog>>;
@@ -388,12 +386,7 @@ async function onFetchInitData(param: ParamType) {
 #end
 	vLoadingForm.value = true;
 	try {
-		//let rs = await mockInitData(param);
-		let rs = await apix({
-			method: 'post',
-			url: '/api/$!{env.rpcCodePrefix}${table.javaClassName}Get',
-			headers: {},
-			data: {
+		await do$!{env.rpcCodePrefix}${table.javaClassName}Get({
 				param: {
 #foreach($col in $table.pkColumns)
 	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP' || ${col.javaTypeSimpleName}=='Date' || ${col.javaTypeSimpleName}=='Timestamp')
@@ -403,14 +396,12 @@ async function onFetchInitData(param: ParamType) {
 	#end
 #end
 				}
+			},
+			output => {
+				vParamSync.value = true;
+				vFormData.value = {...output.entity || {}};
 			}
-		});
-		if (rs.hasError()) {
-			msg.error(rs.getErrMessage() || '查询失败！')
-			return;
-		}
-		vParamSync.value = true;
-		vFormData.value = {...rs.output.entity||{}};
+		);
 	} finally {
 		vLoadingForm.value = false;
 	}
@@ -418,22 +409,11 @@ async function onFetchInitData(param: ParamType) {
 
 function onSubmit() {
 	validation.validateForm(refForm.value as FormInstance, Fields, async ()=>{
-		//let rs = await mockSubmitData();
-		let rs = await apix({
-			method: 'post',
-			url: '/api/$!{env.rpcCodePrefix}${table.javaClassName}Dml',
-			headers: {},
-			data: {
+		await doJtcBpmProcDefInfoDml({
 				type: 'UPDATE',
 				entity: vFormData.value
 			}
-		});
-		console.log(rs.output, rs.error)
-		if (rs.hasError()) {
-			msg.error(rs.getErrMessage()  || '提交失败！')
-			return;
-		}
-		msg.success('提交成功！')
+		);
 		closeDialog()
 		emits('afterSubmit');
 	});
@@ -441,26 +421,6 @@ function onSubmit() {
 
 function onCancel() {
 	closeDialog()
-}
-
-function mockSubmitData(): Promise<PromiseResult<ApiOutput | null, any>> {
-	let data = {};
-	return new Promise<PromiseResult<ApiOutput | null, any>>((resolve, reject) => {
-		setTimeout(() => {
-			resolve(new PromiseResult(new ApiOutput(data), null))
-		}, Math.round(100 + Math.random() * 1000));
-	})
-}
-
-function mockInitData(param: ParamType): Promise<PromiseResult<ApiOutput | null, any>> {
-	let data = {
-		entity: {...param}
-	};
-	return new Promise<PromiseResult<ApiOutput | null, any>>((resolve, reject) => {
-		setTimeout(() => {
-			resolve(new PromiseResult(new ApiOutput(data), null))
-		}, Math.round(100 + Math.random() * 1000));
-	})
 }
 
 </script>

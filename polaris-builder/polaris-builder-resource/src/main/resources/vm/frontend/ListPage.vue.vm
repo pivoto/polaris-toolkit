@@ -55,7 +55,7 @@
 		<v-table-panel title="数据集" :loading="vLoadingTable"
 			:records="vTableRecords.rows" :total="vTableRecords.total"
 			:empty-text="vQueryForm.queryFormCache?'':'请输入条件并查询数据'"
-			v-model:page-num="vTablePage.pageIdx"
+			v-model:page-num="vTablePage.pageNum"
 			v-model:page-size="vTablePage.pageSize"
 			@refresh="onTableRefresh"
 			@update:current="onUpdateCurrentRow"
@@ -183,14 +183,12 @@ import VColFormItem from '/@/components/page/VColFormItem.vue';
 import VTableCol from '/@/components/page/VTableCol.vue';
 import SvgIcon from "/@/components/icon/SvgIcon.vue";
 
-import Add${table.javaClassName} from './Add${table.javaClassName}.vue';
-import Edit${table.javaClassName} from './Edit${table.javaClassName}.vue';
 import msg from "/@/common/core/msg";
 import * as validation from "/@/common/core/validation";
 import {formatDate} from "/@/common/core/date";
-import {apix,post,postx} from "/@/common/api";
-import {PromiseResult} from "/@/common/core/utils";
-import ApiOutput from "/@/common/api/ApiOutput";
+import Add${table.javaClassName} from './Add${table.javaClassName}.vue';
+import Edit${table.javaClassName} from './Edit${table.javaClassName}.vue';
+import {do$!{env.rpcCodePrefix}${table.javaClassName}List, do$!{env.rpcCodePrefix}${table.javaClassName}Dml, do$!{env.rpcCodePrefix}${table.javaClassName}Export}  from './Api${table.javaClassName}';
 
 
 type EntityType = {
@@ -246,11 +244,11 @@ const vShowImportDialog = ref(false);
 const vShowAddDialog = ref(false);
 const vShowEditDialog = ref(false);
 const vTablePage = ref<{
-		pageIdx: number,
+		pageNum: number,
 		pageSize: number,
 	}>({
 		pageSize: 20,
-		pageIdx: 1,
+		pageNum: 1,
 	});
 const vTableRecords = ref<{
 		total: number,
@@ -320,7 +318,7 @@ function doQuery() {
 	// 	return;
 	// }
 	validation.validateForm(refForm.value, Fields, async ()=>{
-		vTablePage.value.pageIdx = 1
+		vTablePage.value.pageNum = 1
 		vQueryForm.value.queryFormCache = {
 			...vQueryForm.value.queryForm
 		};
@@ -342,7 +340,8 @@ async function doFetchData() {
 				...vQueryForm.value.queryFormCache,
 			},
 			page: {
-				pageIdx: vTablePage.value.pageIdx,
+				pageIdx: vTablePage.value.pageNum,
+				pageNum: vTablePage.value.pageNum,
 				pageSize: vTablePage.value.pageSize,
 				orderBy: vQueryForm.value.queryOrderBy,
 			}
@@ -352,23 +351,14 @@ async function doFetchData() {
 				typeof input.param[key] === 'string' && (input.param[key] = input.param[key].replace(/^%*|%*$/g, '%'));
 			}
 		}
-		//let rs = await mockTableData(input.page.pageIdx, input.page.pageSize);
-		let rs = await apix({
-			method: 'post',
-			url: '/api/$!{env.rpcCodePrefix}${table.javaClassName}List',
-			headers: {},
-			data: input
-		});
-		console.log(rs.output, rs.error)
-		if (rs.hasError()) {
-			msg.error(rs.getErrMessage() || '查询失败！')
-			return;
-		}
-		let output = rs.output;
-		vTableRecords.value.rows = output.list;
-		vTableRecords.value.total = output.page.recordSize || output.list.length;
-		vTablePage.value.pageIdx = output.page?.pageNum || vTablePage.value.pageIdx
-		vTablePage.value.pageSize = output.page?.pageSize || vTablePage.value.pageSize
+		await do$!{env.rpcCodePrefix}${table.javaClassName}List(input,
+			output => {
+				vTableRecords.value.rows = output.list;
+				let page = output.page as any;
+				vTableRecords.value.total = page.total || page.recordSize || output.list.length;
+				vTablePage.value.pageNum = page?.pageNum ||  page?.pageIdx || vTablePage.value.pageNum
+				vTablePage.value.pageSize = page?.pageSize || vTablePage.value.pageSize
+			});
 	} finally {
 		vLoadingTable.value = false;
 	}
@@ -448,22 +438,10 @@ function onDeleteRecord(row?: any) {
 	msg.confirm(`确认删除所选记录，是否继续?`,'提示','warning')
 		.then(async (d)=>{
 			console.log(d)
-			//let rs = await mockSubmitData();
-			let rs = await apix({
-				method: 'post',
-				url: '/api/$!{env.rpcCodePrefix}${table.javaClassName}Dml',
-				headers: {},
-				data: {
-					type: 'DELETE',
-					entity: row
-				}
+			await do$!{env.rpcCodePrefix}${table.javaClassName}Dml({
+				type: 'DELETE',
+				entity: row
 			});
-			console.log(rs.output, rs.error)
-			if (rs.hasError()) {
-				msg.error(rs.getErrMessage() || '数据删除失败！')
-				return;
-			}
-			msg.success('数据删除成功');
 			onTableRefresh();
 		}).catch((e)=>{
 			if (e == 'cancel' || e == 'close') {
@@ -492,39 +470,13 @@ function onExportRecord(useCsv?: boolean) {
 						...vQueryForm.value.queryFormCache,
 					},
 					page: {
-						pageIdx: vTablePage.value.pageIdx,
+						pageNum: vTablePage.value.pageNum,
+						pageIdx: vTablePage.value.pageNum,
 						pageSize: vTablePage.value.pageSize,
 						orderBy: vQueryForm.value.queryOrderBy,
 					}
 				}
-				let rs = await apix({
-					method: 'post',
-					url: useCsv? '/api/$!{env.rpcCodePrefix}${table.javaClassName}ExportCsv':'/api/$!{env.rpcCodePrefix}${table.javaClassName}ExportExcel',
-					headers: {},
-					data: input
-				});
-				console.log(rs.output, rs.error)
-				if (rs.hasError()) {
-					msg.error(rs.getErrMessage() || '查询导出失败！')
-					return;
-				}
-				let output = rs.output;
-				let downloadFile:any = null;//download
-				if (output.value && output.value.fileurl) {
-					downloadFile = output.value;
-				}else if (output.download && output.download.fileurl) {
-					downloadFile = output.download;
-				}else if (output.cmis_download && output.cmis_download.fileurl) {
-					downloadFile = output.cmis_download;
-				}
-				if (downloadFile && downloadFile.fileurl) {
-					if (downloadFile.filename) {
-						msg.success('请下载导出结果文件：'+downloadFile.filename);
-					}
-					window.open(downloadFile.fileurl)
-				} else {
-					msg.warn('无结果文件，请确认导出接口是否正确！')
-				}
+				await do$!{env.rpcCodePrefix}${table.javaClassName}Export(input, useCsv);
 			} finally {
 				vLoadingTable.value = false;
 			}
@@ -566,18 +518,7 @@ function onImportRecord() {
 				formData.append('excelFile', file.raw!);
 			}
 			// 调用接口上传
-			let rs = await apix({
-				method: 'post',
-				url: '/api/$!{env.rpcCodePrefix}${table.javaClassName}Dml',
-				headers: {},
-				data: formData
-			});
-			console.log(rs.output, rs.error)
-			if (rs.hasError()) {
-				msg.error(rs.getErrMessage() || '数据导入失败！')
-				return;
-			}
-			msg.success('数据导入成功');
+			await doJtcBpmProcDefInfoDml(formData);
 			onTableRefresh();
 		}).catch((e)=>{
 			if (e == 'cancel' || e == 'close') {
@@ -601,49 +542,6 @@ onMounted(() => {
 	doFetchData();
 });
 
-// mock 数据
-function mockSubmitData(): Promise<PromiseResult<ApiOutput | null, any>> {
-	let data = {};
-	return new Promise<PromiseResult<ApiOutput | null, any>>((resolve, reject) => {
-		setTimeout(() => {
-			resolve(new PromiseResult(new ApiOutput(data), null))
-		}, Math.round(100 + Math.random() * 1000));
-	})
-}
-
-// mock 数据
-function mockTableData(pageIdx: number, pageSize: number): Promise<PromiseResult<ApiOutput | null, any>> {
-	let data = {
-		list: [] as any[],
-		page: {
-			recordSize: 0, pageIdx: pageIdx, pageSize: pageSize,
-		},
-	};
-	data.page.recordSize = pageSize + Math.round(Math.random() * 100);
-	let size = data.page.recordSize - (pageIdx - 1) * pageSize;
-	if (size > 0) {
-		for (let i = 0; i < Math.min(size, pageSize); i++) {
-			data.list.push({
-#foreach($col in $table.columns)
-	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP' || ${col.javaTypeSimpleName}=='Date' || ${col.javaTypeSimpleName}=='Timestamp')
-				${col.javaVariableName}: new Date().getTime(),
-	#else
-		#if(${col.name.toLowerCase().endsWith('_sts')} || ${col.name.toLowerCase().endsWith('_status')})
-				${col.javaVariableName}: ['A', 'I'][Math.floor(Math.random() * 2)],
-		#else
-				${col.javaVariableName}: 'Data' + (Math.round(Math.random() * 1000)),
-		#end
-	#end
-#end
-			})
-		}
-	}
-	return new Promise<PromiseResult<ApiOutput | null, any>>((resolve, reject) => {
-		setTimeout(() => {
-			resolve(new PromiseResult(new ApiOutput(data), null))
-		}, Math.round(100+Math.random()*1000));
-	})
-}
 </script>
 <style lang="scss">
 </style>

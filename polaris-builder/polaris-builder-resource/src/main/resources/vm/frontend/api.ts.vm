@@ -1,0 +1,262 @@
+#parse("/vm/include.vm")
+import msg from "/@/common/core/msg";
+import {apix} from "/@/common/api";
+import {ApiResult} from "/@/common/api";
+import ApiOutput from "/@/common/api/ApiOutput";
+
+interface PageType {
+	pageNum: number;
+	pageSize: number;
+	total?: number;
+	orderBy: any;
+}
+
+interface PageType2 {
+	pageIdx: number;
+	pageSize: number;
+	recordSize?: number;
+	orderBy: any;
+}
+
+type DmlType = 'INSERT' | 'DELETE' | 'UPDATE' | 'IMPORT';
+
+interface ExchangeDto {
+	head: any;
+}
+
+export interface $!{env.rpcCodePrefix}${table.javaClassName}GetInput {
+	param: any;
+}
+
+export interface $!{env.rpcCodePrefix}${table.javaClassName}GetOutput extends ExchangeDto {
+	entity: any;
+}
+
+export interface $!{env.rpcCodePrefix}${table.javaClassName}ListInput {
+	param: any;
+	page: PageType | PageType2;
+}
+
+export interface $!{env.rpcCodePrefix}${table.javaClassName}ListOutput extends ExchangeDto {
+	page: PageType | PageType2;
+	list: any[];
+}
+
+export type $!{env.rpcCodePrefix}${table.javaClassName}DmlInput = {
+	type: DmlType,
+	entity: any,
+}
+
+function getDmlSuccessMsg(type: DmlType | any) {
+	return {
+		IMPORT: '数据导入成功！',
+		DELETE: '数据删除成功！',
+		INSERT: '提交成功！',
+		UPDATE: '提交成功！',
+	}[type] || '操作成功！';
+}
+
+function getDmlErrorMsg(type: DmlType | any) {
+	return {
+		IMPORT: '数据导入失败！',
+		DELETE: '数据删除失败！',
+		INSERT: '提交成功！',
+		UPDATE: '提交成功！',
+	}[type] || '操作失败！';
+}
+
+const MOCK = false;
+
+export async function do$!{env.rpcCodePrefix}${table.javaClassName}Get(
+	input: $!{env.rpcCodePrefix}${table.javaClassName}GetInput,
+	success?: (data: $!{env.rpcCodePrefix}${table.javaClassName}GetOutput) => any,
+	error?: (rs: ApiResult) => any
+): Promise<$!{env.rpcCodePrefix}${table.javaClassName}GetOutput | undefined> {
+	let rs: ApiResult;
+	if (MOCK) {
+		rs = await mockGetData(input.param);
+	} else {
+		rs = await apix({
+			method: 'post',
+			url: '/api/$!{env.rpcCodePrefix}${table.javaClassName}Get',
+			headers: {},
+			data: input
+		});
+	}
+	console.log(rs.output, rs.error)
+	if (rs.hasError()) {
+		error && error(rs) || msg.error(rs.getErrMessage() || '查询失败！')
+		return;
+	}
+	let output = rs.output as $!{env.rpcCodePrefix}${table.javaClassName}GetOutput;
+	success && success(output);
+	return output;
+}
+
+export async function do$!{env.rpcCodePrefix}${table.javaClassName}List(
+	input: $!{env.rpcCodePrefix}${table.javaClassName}ListInput,
+	success?: (data: $!{env.rpcCodePrefix}${table.javaClassName}ListOutput) => any,
+	error?: (rs: ApiResult) => any
+): Promise<$!{env.rpcCodePrefix}${table.javaClassName}ListOutput | undefined> {
+	let rs: ApiResult;
+	if (MOCK) {
+		rs = await mockListData(input.page);
+	} else {
+		rs = await apix({
+			method: 'post',
+			url: '/api/$!{env.rpcCodePrefix}${table.javaClassName}List',
+			headers: {},
+			data: input
+		});
+	}
+	console.log(rs.output, rs.error)
+	if (rs.hasError()) {
+		error && error(rs) || msg.error(rs.getErrMessage() || '查询失败！')
+		return;
+	}
+	let output = rs.output as $!{env.rpcCodePrefix}${table.javaClassName}ListOutput;
+	success && success(output);
+	return output;
+}
+
+export async function do$!{env.rpcCodePrefix}${table.javaClassName}Export(input: $!{env.rpcCodePrefix}${table.javaClassName}ListInput, useCsv?: boolean): Promise<void> {
+	let rs: ApiResult;
+	if (MOCK) {
+		rs = await mockDmlData();
+	} else {
+		rs = await apix({
+			method: 'post',
+			url: useCsv ? '/api/$!{env.rpcCodePrefix}${table.javaClassName}ExportCsv' : '/api/$!{env.rpcCodePrefix}${table.javaClassName}ExportExcel',
+			headers: {},
+			data: input
+		});
+	}
+	console.log(rs.output, rs.error)
+	if (rs.hasError()) {
+		msg.error(rs.getErrMessage() || '查询导出失败！')
+		return;
+	}
+	let output = rs.output;
+	let downloadFile: any = null;//download
+	if (output.value && output.value.fileurl) {
+		downloadFile = output.value;
+	} else if (output.download && output.download.fileurl) {
+		downloadFile = output.download;
+	} else if (output.cmis_download && output.cmis_download.fileurl) {
+		downloadFile = output.cmis_download;
+	}
+	if (downloadFile && downloadFile.fileurl) {
+		if (downloadFile.filename) {
+			msg.success('请下载导出结果文件：' + downloadFile.filename);
+		}
+		window.open(downloadFile.fileurl)
+	} else {
+		msg.warn('无结果文件，请确认导出接口是否正确！')
+	}
+}
+
+
+export async function do$!{env.rpcCodePrefix}${table.javaClassName}Dml(
+	input: $!{env.rpcCodePrefix}${table.javaClassName}DmlInput | FormData,
+	success?: (data: ExchangeDto) => any,
+	error?: (rs: ApiResult) => any
+): Promise<any | undefined> {
+	let rs: ApiResult;
+	if (MOCK) {
+		rs = await mockDmlData();
+	} else {
+		rs = await apix({
+			method: 'post',
+			url: '/api/$!{env.rpcCodePrefix}${table.javaClassName}Dml',
+			headers: {},
+			data: input
+		});
+	}
+	console.log(rs.output, rs.error)
+	if (rs.hasError()) {
+		error && error(rs) || msg.error(rs.getErrMessage() || getDmlErrorMsg((input as $!{env.rpcCodePrefix}${table.javaClassName}DmlInput).type) || (input as FormData).get('type'))
+		return;
+	}
+	let output = rs.output as any;
+	success && success(output) || msg.success(getDmlSuccessMsg((input as $!{env.rpcCodePrefix}${table.javaClassName}DmlInput).type) || (input as FormData).get('type'));
+	return output;
+}
+
+
+function mockDmlData(): Promise<ApiResult> {
+	let data = {};
+	return new Promise<ApiResult>((resolve, reject) => {
+		setTimeout(() => {
+			resolve(new ApiResult(new ApiOutput(data), null))
+		}, Math.round(100 + Math.random() * 1000));
+	})
+}
+
+function mockGetData(param: any): Promise<ApiResult> {
+	let data = {
+		entity: {
+#foreach($col in $table.columns)
+	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP' || ${col.javaTypeSimpleName}=='Date' || ${col.javaTypeSimpleName}=='Timestamp')
+			${col.javaVariableName}: new Date().getTime(),
+	#elseif(${col.javaTypeSimpleName}=='Integer' || ${col.javaTypeSimpleName}=='Short' || ${col.javaTypeSimpleName}=='Byte')
+			${col.javaVariableName}: Math.round(Math.random() * 1000),
+	#elseif(${col.javaTypeSimpleName}=='Float' || ${col.javaTypeSimpleName}=='Double')
+			${col.javaVariableName}: Math.random(),
+	#else
+		#if(${col.name.toLowerCase().endsWith('_sts')} || ${col.name.toLowerCase().endsWith('_status')})
+			${col.javaVariableName}: ['A', 'I'][Math.floor(Math.random() * 2)],
+		#else
+			${col.javaVariableName}: 'Data' + (Math.round(Math.random() * 1000)),
+		#end
+	#end
+#end
+			...param
+		}
+	};
+	return new Promise<ApiResult>((resolve, reject) => {
+		setTimeout(() => {
+			resolve(new ApiResult(new ApiOutput(data), null))
+		}, Math.round(100 + Math.random() * 1000));
+	})
+}
+
+function mockListData(pageable: PageType | PageType2): Promise<ApiResult> {
+	let data = {
+		list: [] as any[],
+		page: {
+			...pageable,
+			total: 0,
+			recordSize: 0,
+		},
+	};
+	let pageSize = pageable.pageSize;
+	let pageNum = (pageable as PageType).pageNum || (pageable as PageType2).pageIdx;
+	data.page.total = data.page.recordSize = pageSize + Math.round(Math.random() * 100);
+	let size = data.page.total - (pageNum - 1) * pageSize;
+	if (size > 0) {
+		for (let i = 0; i < Math.min(size, pageSize); i++) {
+			data.list.push({
+#foreach($col in $table.columns)
+	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP' || ${col.javaTypeSimpleName}=='Date' || ${col.javaTypeSimpleName}=='Timestamp')
+				${col.javaVariableName}: new Date().getTime(),
+	#elseif(${col.javaTypeSimpleName}=='Integer' || ${col.javaTypeSimpleName}=='Short' || ${col.javaTypeSimpleName}=='Byte')
+				${col.javaVariableName}: Math.round(Math.random() * 1000),
+	#elseif(${col.javaTypeSimpleName}=='Float' || ${col.javaTypeSimpleName}=='Double')
+				${col.javaVariableName}: Math.random(),
+	#else
+		#if(${col.name.toLowerCase().endsWith('_sts')} || ${col.name.toLowerCase().endsWith('_status')})
+				${col.javaVariableName}: ['A', 'I'][Math.floor(Math.random() * 2)],
+		#else
+				${col.javaVariableName}: 'Data' + (Math.round(Math.random() * 1000)),
+		#end
+	#end
+#end
+			})
+		}
+	}
+	return new Promise<ApiResult>((resolve, reject) => {
+		setTimeout(() => {
+			resolve(new ApiResult(new ApiOutput(data), null))
+		}, Math.round(100 + Math.random() * 1000));
+	})
+}

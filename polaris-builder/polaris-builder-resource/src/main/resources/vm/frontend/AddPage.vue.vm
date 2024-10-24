@@ -86,9 +86,8 @@ import SvgIcon from "/@/components/icon/SvgIcon.vue";
 import msg, {error} from "/@/common/core/msg";
 import * as validation from "/@/common/core/validation";
 import {formatDate} from "/@/common/core/date";
-import {apix,post,postx} from "/@/common/api";
-import {PromiseResult} from "/@/common/core/utils";
-import ApiOutput from "/@/common/api/ApiOutput";
+import {apix} from "/@/common/api";
+import {do$!{env.rpcCodePrefix}${table.javaClassName}Dml}  from './Api${table.javaClassName}';
 
 interface Props {
 	show: boolean,
@@ -269,22 +268,10 @@ function closeDialog() {
 
 function onSubmit() {
 	validation.validateForm(refForm.value as FormInstance, Fields, async ()=>{
-		//let rs = await mockSubmitData();
-		let rs = await apix({
-			method: 'post',
-			url: '/api/$!{env.rpcCodePrefix}${table.javaClassName}Dml',
-			headers: {},
-			data: {
-				type: 'INSERT',
-				entity: vFormData.value
-			}
-		});
-		console.log(rs.output, rs.error)
-		if (rs.hasError()) {
-			msg.error(rs.getErrMessage() || '提交失败！')
-			return;
-		}
-		msg.success('提交成功！')
+		await do$!{env.rpcCodePrefix}${table.javaClassName}Dml({
+			type: 'INSERT',
+			entity: vFormData.value
+		})
 		closeDialog()
 		emits('afterSubmit');
 	});
@@ -292,15 +279,6 @@ function onSubmit() {
 
 function onCancel() {
 	closeDialog()
-}
-
-function mockSubmitData(): Promise<PromiseResult<ApiOutput | null, any>> {
-	let data = {};
-	return new Promise<PromiseResult<ApiOutput | null, any>>((resolve, reject) => {
-		setTimeout(() => {
-			resolve(new PromiseResult(new ApiOutput(data), null))
-		}, Math.round(100 + Math.random() * 1000));
-	})
 }
 
 </script>

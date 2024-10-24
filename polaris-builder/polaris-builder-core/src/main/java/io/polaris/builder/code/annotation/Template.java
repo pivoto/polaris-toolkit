@@ -40,6 +40,7 @@ public @interface Template {
 	String VM_PATH_RPC_CLIENT_GET_OUTPUT = "/vm/java/tunnel/model/RpcClientGetOutput.java.vm";
 	String VM_PATH_RPC_CLIENT_LIST_OUTPUT = "/vm/java/tunnel/model/RpcClientListOutput.java.vm";
 
+	String VM_PATH_FRONTEND_API = "/vm/frontend/api.ts.vm";
 	String VM_PATH_FRONTEND_ROUTES = "/vm/frontend/routes.ts.vm";
 	String VM_PATH_FRONTEND_LIST_PAGE = "/vm/frontend/ListPage.vue.vm";
 	String VM_PATH_FRONTEND_ADD_PAGE = "/vm/frontend/AddPage.vue.vm";
@@ -68,6 +69,7 @@ public @interface Template {
 	String FILENAME_RPC_CLIENT_GET_OUTPUT = "${table.javaClassName}${env.rpcClientGetOutputClassSuffix}.java";
 	String FILENAME_RPC_CLIENT_LIST_OUTPUT = "${table.javaClassName}${env.rpcClientListOutputClassSuffix}.java";
 
+	String FILENAME_FRONTEND_API = "Api${table.javaClassName}.ts";
 	String FILENAME_FRONTEND_ROUTES = "routes.ts";
 	String FILENAME_FRONTEND_LIST_PAGE = "List${table.javaClassName}.vue";
 	String FILENAME_FRONTEND_ADD_PAGE = "Add${table.javaClassName}.vue";
