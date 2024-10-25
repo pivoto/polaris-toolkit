@@ -48,6 +48,19 @@ import ${pkgPrefixFacade}${env.modelPackage.replace('/','.')}.${table.javaClassN
 @RpcService
 public class ${table.javaClassName}${env.rpcClassSuffix} {
 
+	/** "$!{table.label}数据操作" */
+	public static final String $!{env.rpcCodePrefix}${table.javaClassName}Get = "$!{env.rpcCodePrefix}${table.javaClassName}Get";
+	/** "$!{table.label}行数据查询" */
+	public static final String $!{env.rpcCodePrefix}${table.javaClassName}Dml = "$!{env.rpcCodePrefix}${table.javaClassName}Dml";
+	/** "$!{table.label}表数据查询" */
+	public static final String $!{env.rpcCodePrefix}${table.javaClassName}List = "$!{env.rpcCodePrefix}${table.javaClassName}List";
+#if(${env.rpcExportable} == "true")
+	/** "$!{table.label}列表数据查询导出Csv" */
+	public static final String $!{env.rpcCodePrefix}${table.javaClassName}ExportCsv = "$!{env.rpcCodePrefix}${table.javaClassName}ExportCsv";
+	/** "$!{table.label}列表数据查询导出Excel" */
+	public static final String $!{env.rpcCodePrefix}${table.javaClassName}ExportExcel = "$!{env.rpcCodePrefix}${table.javaClassName}ExportExcel";
+#end
+
 	private final ${table.javaClassName}${env.domainClassSuffix}${env.serviceClassSuffix} ${table.javaVariableName}${env.domainClassSuffix}${env.serviceClassSuffix};
 	private final ${table.javaClassName}${env.serviceClassSuffix} ${table.javaVariableName}${env.serviceClassSuffix};
 
@@ -60,7 +73,7 @@ public class ${table.javaClassName}${env.rpcClassSuffix} {
 	}
 
 	@SessionRequired
-	@RpcService(active = Bool.FALSE, code = "$!{env.rpcCodePrefix}${table.javaClassName}Dml", name = "$!{table.label}数据操作")
+	@RpcService(active = Bool.FALSE, code = $!{env.rpcCodePrefix}${table.javaClassName}Dml, name = "$!{table.label}数据操作")
 	@OpenApi(inputSchema = ${table.javaClassName}${env.rpcDmlInputClassSuffix}.class, outputSchema = ExchangeDto.class)
 	public ExchangeDto do$!{env.rpcCodePrefix}${table.javaClassName}Dml(@Valid ${table.javaClassName}${env.rpcDmlInputClassSuffix} input) {
 		Arguments.notNull(input.getType(), "操作类型不能为空");
@@ -77,7 +90,7 @@ public class ${table.javaClassName}${env.rpcClassSuffix} {
 	}
 
 	@SessionRequired
-	@RpcService(active = Bool.FALSE, code = "$!{env.rpcCodePrefix}${table.javaClassName}Get", name = "$!{table.label}单行数据查询")
+	@RpcService(active = Bool.FALSE, code = $!{env.rpcCodePrefix}${table.javaClassName}Get, name = "$!{table.label}单行数据查询")
 	@OpenApi(inputSchema = ${table.javaClassName}${env.rpcGetInputClassSuffix}.class, outputSchema = ${table.javaClassName}${env.rpcGetOutputClassSuffix}.class)
 	public ${table.javaClassName}${env.rpcGetOutputClassSuffix} do$!{env.rpcCodePrefix}${table.javaClassName}Get(@Valid ${table.javaClassName}${env.rpcGetInputClassSuffix} input) {
 		${table.javaClassName}${env.entityClassSuffix} entity = ${table.javaVariableName}${env.serviceClassSuffix}.getUnique(
@@ -89,7 +102,7 @@ public class ${table.javaClassName}${env.rpcClassSuffix} {
 	}
 
 	@SessionRequired
-	@RpcService(active = Bool.FALSE, code = "$!{env.rpcCodePrefix}${table.javaClassName}List", name = "$!{table.label}列表数据查询")
+	@RpcService(active = Bool.FALSE, code = $!{env.rpcCodePrefix}${table.javaClassName}List, name = "$!{table.label}列表数据查询")
 	@OpenApi(inputSchema = ${table.javaClassName}${env.rpcListInputClassSuffix}.class, outputSchema = ${table.javaClassName}${env.rpcListOutputClassSuffix}.class)
 	public ${table.javaClassName}${env.rpcListOutputClassSuffix} do$!{env.rpcCodePrefix}${table.javaClassName}List(@Valid ${table.javaClassName}${env.rpcListInputClassSuffix} input) {
 		${table.javaClassName}${env.rpcListOutputClassSuffix} output = new ${table.javaClassName}${env.rpcListOutputClassSuffix}();
@@ -107,7 +120,7 @@ public class ${table.javaClassName}${env.rpcClassSuffix} {
 
 #if(${env.rpcExportable} == "true")
 	@SessionRequired
-	@RpcService(active = Bool.FALSE, code = "$!{env.rpcCodePrefix}${table.javaClassName}ExportCsv", name = "$!{table.label}列表数据查询导出Csv")
+	@RpcService(active = Bool.FALSE, code = $!{env.rpcCodePrefix}${table.javaClassName}ExportCsv, name = "$!{table.label}列表数据查询导出Csv")
 	@OpenApi(inputSchema = ${table.javaClassName}${env.rpcListInputClassSuffix}.class, outputSchema = FileExchangeDto.class)
 	public FileExchangeDto do$!{env.rpcCodePrefix}${table.javaClassName}ExportCsv(@Valid ${table.javaClassName}${env.rpcListInputClassSuffix} input) {
 		FileExchangeDto output = new FileExchangeDto();
@@ -122,7 +135,7 @@ public class ${table.javaClassName}${env.rpcClassSuffix} {
 	}
 
 	@SessionRequired
-	@RpcService(active = Bool.FALSE, code = "$!{env.rpcCodePrefix}${table.javaClassName}ExportExcel", name = "$!{table.label}列表数据查询导出Excel")
+	@RpcService(active = Bool.FALSE, code = $!{env.rpcCodePrefix}${table.javaClassName}ExportExcel, name = "$!{table.label}列表数据查询导出Excel")
 	@OpenApi(inputSchema = ${table.javaClassName}${env.rpcListInputClassSuffix}.class, outputSchema = FileExchangeDto.class)
 	public FileExchangeDto do$!{env.rpcCodePrefix}${table.javaClassName}ExportExcel(@Valid ${table.javaClassName}${env.rpcListInputClassSuffix} input) {
 		FileExchangeDto output = new FileExchangeDto();
