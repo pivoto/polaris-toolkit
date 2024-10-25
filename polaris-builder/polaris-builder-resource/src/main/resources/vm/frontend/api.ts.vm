@@ -20,11 +20,10 @@ interface PageType2 {
 
 type DmlType = 'INSERT' | 'DELETE' | 'UPDATE' | 'IMPORT';
 
-interface ExchangeDto {
-	head: any;
+interface ExchangeDto extends Record<string, any> {
 }
 
-export interface $!{env.rpcCodePrefix}${table.javaClassName}GetInput {
+export interface $!{env.rpcCodePrefix}${table.javaClassName}GetInput extends ExchangeDto {
 	param: any;
 }
 
@@ -32,7 +31,7 @@ export interface $!{env.rpcCodePrefix}${table.javaClassName}GetOutput extends Ex
 	entity: any;
 }
 
-export interface $!{env.rpcCodePrefix}${table.javaClassName}ListInput {
+export interface $!{env.rpcCodePrefix}${table.javaClassName}ListInput extends ExchangeDto {
 	param: any;
 	page: PageType | PageType2;
 }
@@ -42,7 +41,7 @@ export interface $!{env.rpcCodePrefix}${table.javaClassName}ListOutput extends E
 	list: any[];
 }
 
-export type $!{env.rpcCodePrefix}${table.javaClassName}DmlInput = {
+export interface $!{env.rpcCodePrefix}${table.javaClassName}DmlInput extends ExchangeDto {
 	type: DmlType,
 	entity: any,
 }
