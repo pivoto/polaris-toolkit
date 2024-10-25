@@ -29,10 +29,10 @@ import ${pkgPrefixTunnel}${env.modelPackage.replace('/','.')}.${table.javaClassN
 public interface ${table.javaClassName}${env.rpcClientClassSuffix} {
 
 	/** "$!{table.label}数据操作" */
-	public static final String $!{env.rpcCodePrefix}${table.javaClassName}Get = "$!{env.rpcCodePrefix}${table.javaClassName}Get";
-	/** "$!{table.label}行数据查询" */
 	public static final String $!{env.rpcCodePrefix}${table.javaClassName}Dml = "$!{env.rpcCodePrefix}${table.javaClassName}Dml";
-	/** "$!{table.label}表数据查询" */
+	/** "$!{table.label}单行数据查询" */
+	public static final String $!{env.rpcCodePrefix}${table.javaClassName}Get = "$!{env.rpcCodePrefix}${table.javaClassName}Get";
+	/** "$!{table.label}列表数据查询" */
 	public static final String $!{env.rpcCodePrefix}${table.javaClassName}List = "$!{env.rpcCodePrefix}${table.javaClassName}List";
 #if(${env.rpcExportable} == "true")
 	/** "$!{table.label}列表数据查询导出Csv" */
