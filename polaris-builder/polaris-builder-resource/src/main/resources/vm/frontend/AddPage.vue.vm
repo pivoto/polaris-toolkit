@@ -118,6 +118,12 @@ type FormType = {
 #end
 }
 
+const Fields = {
+#foreach($col in $table.columns)
+	${col.javaVariableName}: '${col.label}',
+#end
+};
+
 defineOptions({ name: 'Add${table.javaClassName}' });
 
 const props = withDefaults(defineProps<Props>(), {
@@ -129,11 +135,6 @@ const emits = defineEmits<{
 	(e: 'afterSubmit'): void,
 }>();
 
-const Fields = {
-#foreach($col in $table.columns)
-	${col.javaVariableName}: '${col.label}',
-#end
-};
 const instance = getCurrentInstance();
 const proxy = instance?.proxy;
 const refDialog = ref() as Ref<InstanceType<typeof VDialog>>;

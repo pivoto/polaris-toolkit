@@ -236,13 +236,13 @@ type FormType = {
 #end
 }
 
-defineOptions({ name: 'Edit${table.javaClassName}' });
-
 const Fields = {
 #foreach($col in $table.columns)
 	${col.javaVariableName}: '${col.label}',
 #end
 };
+
+defineOptions({ name: 'Edit${table.javaClassName}' });
 
 ##const props = defineProps({
 ##	show: {
@@ -264,10 +264,12 @@ const props = withDefaults(defineProps<Props>(), {
 	show: true,
 	readonly: true,
 });
+
 const emits = defineEmits<{
 	(e: 'update:show', show: boolean): void,
 	(e: 'afterSubmit'): void,
 }>();
+
 const instance = getCurrentInstance();
 const proxy = instance?.proxy;
 const refDialog = ref() as Ref<InstanceType<typeof VDialog>>;

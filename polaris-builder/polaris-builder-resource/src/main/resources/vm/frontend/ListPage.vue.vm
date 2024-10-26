@@ -219,8 +219,6 @@ interface ImportFormType {
 	fileList: UploadUserFile[],
 }
 
-defineOptions({ name: 'List${table.javaClassName}' });
-
 const Fields = {
 #foreach($col in $table.columns)
 	${col.javaVariableName}: '${col.label}',
@@ -233,6 +231,9 @@ const FieldsLike = {
 	#end
 #end
 };
+
+defineOptions({ name: 'List${table.javaClassName}' });
+
 const refDiv = shallowRef<HTMLElement>();
 const refForm = ref<FormInstance>() as Ref<FormInstance>;
 const refImportForm = ref<FormInstance>() as Ref<FormInstance>;
