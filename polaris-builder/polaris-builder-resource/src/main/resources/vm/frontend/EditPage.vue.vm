@@ -96,7 +96,7 @@ import type {
 	PropType, ShallowRef, Ref, ComputedRef, ShallowReactive,
 	ComponentInternalInstance, ComponentPublicInstance
 } from 'vue';
-import type {FormInstance, FormRules} from 'element-plus'
+import type {FormInstance, FormRules, FormItemRule} from 'element-plus'
 import type {RuleItem, ValidateError, ValidateFieldsError} from 'async-validator';
 
 import VDialog from '/@/components/page/VDialog.vue';
