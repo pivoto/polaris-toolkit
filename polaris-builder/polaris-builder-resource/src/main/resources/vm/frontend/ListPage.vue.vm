@@ -442,8 +442,9 @@ function onDeleteRecord(row?: any) {
 			await do$!{env.rpcCodePrefix}${table.javaClassName}Dml({
 				type: 'DELETE',
 				entity: row
+			}, (data) => {
+				onTableRefresh();
 			});
-			onTableRefresh();
 		}).catch((e)=>{
 			if (e == 'cancel' || e == 'close') {
 				console.warn(e)

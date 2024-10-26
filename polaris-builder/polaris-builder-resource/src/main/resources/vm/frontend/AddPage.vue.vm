@@ -272,9 +272,10 @@ function onSubmit() {
 		await do$!{env.rpcCodePrefix}${table.javaClassName}Dml({
 			type: 'INSERT',
 			entity: vFormData.value
-		})
-		doCloseDialog()
-		emits('afterSubmit');
+		}, (data) => {
+			doCloseDialog()
+			emits('afterSubmit');
+		});
 	});
 }
 
