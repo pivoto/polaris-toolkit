@@ -361,17 +361,17 @@ function onResize(width: number, height: number, bodyHeight: number) {
 	vBodyHeight.value = bodyHeight;
 }
 
-function updateShow(show: boolean) {
+function doUpdateShow(show: boolean) {
 	vShow.value = show;
 	emits('update:show', show);
 }
 
-function openDialog() {
-	updateShow(true)
+function doOpenDialog() {
+	doUpdateShow(true)
 }
 
-function closeDialog() {
-	updateShow(false)
+function doCloseDialog() {
+	doUpdateShow(false)
 }
 
 async function onFetchInitData(param: ParamType) {
@@ -414,13 +414,13 @@ function onSubmit() {
 				entity: vFormData.value
 			}
 		);
-		closeDialog()
+		doCloseDialog()
 		emits('afterSubmit');
 	});
 }
 
 function onCancel() {
-	closeDialog()
+	doCloseDialog()
 }
 
 </script>
