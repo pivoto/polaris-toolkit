@@ -518,7 +518,7 @@ function onImportRecord() {
 				formData.append('excelFile', file.raw!);
 			}
 			// 调用接口上传
-			await doJtcBpmProcDefInfoDml(formData);
+			await do$!{env.rpcCodePrefix}${table.javaClassName}Dml(formData);
 			onTableRefresh();
 		}).catch((e)=>{
 			if (e == 'cancel' || e == 'close') {

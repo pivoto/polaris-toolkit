@@ -409,7 +409,7 @@ async function onFetchInitData(param: ParamType) {
 
 function onSubmit() {
 	validation.validateForm(refForm.value as FormInstance, Fields, async ()=>{
-		await doJtcBpmProcDefInfoDml({
+		await do$!{env.rpcCodePrefix}${table.javaClassName}Dml({
 				type: 'UPDATE',
 				entity: vFormData.value
 			}
