@@ -42,9 +42,9 @@ public class ${table.javaClassName}${env.entityDtoClassSuffix} implements Serial
 	/** 主键字段: #if(${col.comment})$!{col.name} $!{col.comment}#else$!{col.name}#end */
 	@Schema(description = "#if(${col.label})$!{col.label}#else$!{col.name}#end")
 	#if(${col.javaTypeSimpleName}=='String')
-	@NotEmpty(groups = {Create.class, Update.class, Delete.class, Retrieve.class, UpdateEntire.class}, message = "#if($col.label)$col.label#else$col.name#end[${col.javaVariableName}]不能为空")
+	@NotEmpty(groups = {Create.class, Update.class, Delete.class, Retrieve.class, UpdateEntire.class}, message = "#if($col.label)$col.label#else$col.name#end#**#不能为空")
 	#else
-	@NotNull(groups = {Create.class, Update.class, Delete.class, Retrieve.class, UpdateEntire.class}, message = "#if($col.label)$col.label#else$col.name#end[${col.javaVariableName}]不能为空")
+	@NotNull(groups = {Create.class, Update.class, Delete.class, Retrieve.class, UpdateEntire.class}, message = "#if($col.label)$col.label#else$col.name#end#**#不能为空")
 	#end
 	private ${col.javaTypeSimpleName} ${col.javaVariableName};
 #end
@@ -54,9 +54,9 @@ public class ${table.javaClassName}${env.entityDtoClassSuffix} implements Serial
 	@Schema(description = "#if(${col.label})$!{col.label}#else$!{col.name}#end")
 	#if(!${col.nullable})
 		#if(${col.javaTypeSimpleName}=='String')
-	@NotEmpty(groups = {Create.class, UpdateEntire.class}, message = "#if($col.label)$col.label#else$col.name#end[${col.javaVariableName}]不能为空")
+	@NotEmpty(groups = {Create.class, UpdateEntire.class}, message = "#if($col.label)$col.label#else$col.name#end#**#不能为空")
 		#else
-	@NotNull(groups = {Create.class, UpdateEntire.class}, message = "#if($col.label)$col.label#else$col.name#end[${col.javaVariableName}]不能为空")
+	@NotNull(groups = {Create.class, UpdateEntire.class}, message = "#if($col.label)$col.label#else$col.name#end#**#不能为空")
 		#end
 	#end
 	private ${col.javaTypeSimpleName} ${col.javaVariableName};

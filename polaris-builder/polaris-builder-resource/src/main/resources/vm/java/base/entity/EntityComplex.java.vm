@@ -66,9 +66,9 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 	@Id#if(${col.autoincrement})(auto = true)#end
 	@Column(value = "$!{col.name}")
 	#if(${col.javaTypeSimpleName}=='String')
-	@NotEmpty(groups = {Create.class, Update.class, Delete.class, Retrieve.class, UpdateEntire.class}, message = "#if($col.label)$col.label#else$col.name#end[${col.javaVariableName}]不能为空")
+	@NotEmpty(groups = {Create.class, Update.class, Delete.class, Retrieve.class, UpdateEntire.class}, message = "#if($col.label)$col.label#else$col.name#end#**#不能为空")
 	#else
-	@NotNull(groups = {Create.class, Update.class, Delete.class, Retrieve.class, UpdateEntire.class}, message = "#if($col.label)$col.label#else$col.name#end[${col.javaVariableName}]不能为空")
+	@NotNull(groups = {Create.class, Update.class, Delete.class, Retrieve.class, UpdateEntire.class}, message = "#if($col.label)$col.label#else$col.name#end#**#不能为空")
 	#end
 	private ${col.javaTypeSimpleName} ${col.javaVariableName};
 #end
@@ -91,9 +91,9 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 	#end
 	#if(!${col.nullable})
 		#if(${col.javaTypeSimpleName}=='String')
-	@NotEmpty(groups = {Create.class, UpdateEntire.class}, message = "#if($col.label)$col.label#else$col.name#end[${col.javaVariableName}]不能为空")
+	@NotEmpty(groups = {Create.class, UpdateEntire.class}, message = "#if($col.label)$col.label#else$col.name#end#**#不能为空")
 		#else
-	@NotNull(groups = {Create.class, UpdateEntire.class}, message = "#if($col.label)$col.label#else$col.name#end[${col.javaVariableName}]不能为空")
+	@NotNull(groups = {Create.class, UpdateEntire.class}, message = "#if($col.label)$col.label#else$col.name#end#**#不能为空")
 		#end
 	#end
 	private ${col.javaTypeSimpleName} ${col.javaVariableName};
