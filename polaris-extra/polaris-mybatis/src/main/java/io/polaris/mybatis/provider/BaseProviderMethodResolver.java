@@ -73,20 +73,44 @@ public abstract class BaseProviderMethodResolver implements ProviderMethodResolv
 
 	protected static Class<?> getEntityClass(ProviderContext context) {
 		Method mapperMethod = context.getMapperMethod();
+		// 从方法上获取
 		MapperEntity declared = mapperMethod.getAnnotation(MapperEntity.class);
-		if (declared != null) {
-			return declared.entity();
-		}
 		Class<?> entityClass = null;
+		if (declared != null) {
+			entityClass = declared.entity();
+			if (entityClass != null && entityClass != Object.class) {
+				return entityClass;
+			}
+		}
+		// 从Mapper接口类上获取
 		Class<?> mapperType = context.getMapperType();
+		declared = mapperType.getAnnotation(MapperEntity.class);
+		if (declared != null) {
+			entityClass = declared.entity();
+			if (entityClass != null && entityClass != Object.class) {
+				return entityClass;
+			}
+		}
+		// 从方法所在接口类上获取
+		Class<?> declaringClass = mapperMethod.getDeclaringClass();
+		if (declaringClass != mapperType) {
+			declared = declaringClass.getAnnotation(MapperEntity.class);
+			if (declared != null) {
+				entityClass = declared.entity();
+				if (entityClass != null && entityClass != Object.class) {
+					return entityClass;
+				}
+			}
+		}
+		// 从基类泛型中获取
 		if (EntityMapper.class.isAssignableFrom(mapperType)) {
 			Type actualType = JavaType.of(mapperType).getActualType(EntityMapper.class, 0);
 			entityClass = Types.getClass(actualType);
+			if (entityClass != null && entityClass != Object.class) {
+				return entityClass;
+			}
 		}
-		if (entityClass == null || entityClass == Object.class) {
-			throw new IllegalStateException("未知实体类型！");
-		}
-		return entityClass;
+		throw new IllegalStateException("未知实体类型！");
 	}
 
 
