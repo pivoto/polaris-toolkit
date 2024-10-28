@@ -483,6 +483,16 @@ public class EntityStatements {
 		// join
 		addJoinClause(cache, bindings, st, sqlSelect.join());
 
+		// 强制添加非逻辑删除条件
+		if (sqlSelect.withoutLogicDeleted()) {
+			st.getTable().getTableMeta().getColumns().values().stream()
+				.filter(c -> c.isLogicDeleted())
+				.forEach(meta -> {
+					Object val = Converters.convertQuietly(meta.getFieldType(), false);
+					st.where().column(meta.getFieldName()).eq(val);
+				});
+		}
+
 		// where
 		addWhereClause(cache, bindings, st.where(), sqlSelect.where(), sqlSelect.columnPredicate());
 		// group by
@@ -1990,18 +2000,12 @@ public class EntityStatements {
 			, Strings.trimToNull(entitySelect.alias())
 			, entitySelect.byId(), entitySelect.entityKey()
 			, entitySelect.whereKey(), entitySelect.orderByKey()
-			, entitySelect.columnPredicate());
+			, ConfigurableColumnPredicate.of(bindings, entitySelect.columnPredicate())
+			, entitySelect.withoutLogicDeleted());
 	}
 
-	public static SelectStatement<?> buildSelect(Map<String, Object> bindings, Class<?> entityClass, String tableAlias,
-		boolean byId, String entityKey, String whereKey, String orderByKey,
-		io.polaris.core.jdbc.annotation.segment.ColumnPredicate predicate
-	) {
-		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings, predicate);
-		return buildSelect(bindings, entityClass, tableAlias, byId, entityKey, whereKey, orderByKey, columnPredicate);
-	}
 
-	public static SelectStatement<?> buildSelect(Map<String, Object> bindings, Class<?> entityClass, String tableAlias, boolean byId, String entityKey, String whereKey, String orderByKey, ColumnPredicate columnPredicate) {
+	public static SelectStatement<?> buildSelect(Map<String, Object> bindings, Class<?> entityClass, String tableAlias, boolean byId, String entityKey, String whereKey, String orderByKey, ColumnPredicate columnPredicate, boolean withoutLogicDeleted) {
 		SelectStatement<?> st = new SelectStatement<>(entityClass, Strings.coalesce(tableAlias, DEFAULT_TABLE_ALIAS));
 		st.selectAll();
 
@@ -2030,6 +2034,16 @@ public class EntityStatements {
 					st.where().byEntity(entity, columnPredicate);
 				}
 			}
+		}
+
+		if (withoutLogicDeleted) {
+			// 强制添加非逻辑删除条件
+			st.getTable().getTableMeta().getColumns().values().stream()
+				.filter(c -> c.isLogicDeleted())
+				.forEach(meta -> {
+					Object val = Converters.convertQuietly(meta.getFieldType(), false);
+					st.where().column(meta.getFieldName()).eq(val);
+				});
 		}
 
 		// 排序字段

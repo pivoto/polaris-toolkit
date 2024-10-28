@@ -17,7 +17,7 @@ import io.polaris.core.jdbc.annotation.segment.Where;
 
 /**
  * @author Qt
- * @since  Jan 27, 2024
+ * @since Jan 27, 2024
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})
@@ -51,6 +51,11 @@ public @interface SqlSelect {
 	boolean quotaSelectAlias() default false;
 
 	/**
+	 * @return 标识是否排除逻辑删除状态的数据，即添加非逻辑删除`where`条件子句
+	 */
+	boolean withoutLogicDeleted() default false;
+
+	/**
 	 * @return 表连接配置
 	 */
 	Join[] join() default {};
@@ -75,6 +80,7 @@ public @interface SqlSelect {
 	 * @return 标识在参数容器中映射`order by`条件参数值的`key`，优先级高于{@link #orderBy()}
 	 */
 	String orderByKey() default "";
+
 	/**
 	 * @return 标识排序字段列表，默认无排序
 	 */
