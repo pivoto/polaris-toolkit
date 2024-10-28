@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 import javax.annotation.Nonnull;
@@ -100,24 +101,6 @@ public class SqlStatements {
 		return buildDeleteById(bindings, entityClass, entityKey, whereKey);
 	}
 
-	public static String buildDeleteByAny(Map<String, Object> bindings, Class<?> entityClass) {
-		String entityKey = BindingKeys.ENTITY;
-		String whereKey = BindingKeys.WHERE;
-		/* String includeColumnsKey = BindingKeys.INCLUDE_COLUMNS;
-		String excludeColumnsKey = BindingKeys.EXCLUDE_COLUMNS;
-		String includeEmptyColumnsKey = BindingKeys.INCLUDE_EMPTY_COLUMNS;
-		String includeAllEmptyKey = BindingKeys.INCLUDE_EMPTY; */
-		// 兼容 where keys
-		String[] includeColumnsKey = {BindingKeys.WHERE_INCLUDE_COLUMNS, BindingKeys.INCLUDE_COLUMNS};
-		String[] excludeColumnsKey = {BindingKeys.WHERE_EXCLUDE_COLUMNS, BindingKeys.EXCLUDE_COLUMNS};
-		String[] includeEmptyColumnsKey = {BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS, BindingKeys.INCLUDE_EMPTY_COLUMNS};
-		String[] includeAllEmptyKey = {BindingKeys.WHERE_INCLUDE_EMPTY, BindingKeys.INCLUDE_EMPTY};
-		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings,
-			null, includeColumnsKey, null, excludeColumnsKey,
-			null, includeEmptyColumnsKey, false, includeAllEmptyKey);
-		return buildDeleteByAny(bindings, entityClass, entityKey, whereKey, columnPredicate);
-	}
-
 	public static String buildDeleteById(Map<String, Object> bindings, Class<?> entityClass,
 		String entityKey, String whereKey) {
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
@@ -156,6 +139,24 @@ public class SqlStatements {
 			throw new IllegalArgumentException("缺少条件子句");
 		}
 		return sql.toSqlString();
+	}
+
+	public static String buildDeleteByAny(Map<String, Object> bindings, Class<?> entityClass) {
+		String entityKey = BindingKeys.ENTITY;
+		String whereKey = BindingKeys.WHERE;
+		/* String includeColumnsKey = BindingKeys.INCLUDE_COLUMNS;
+		String excludeColumnsKey = BindingKeys.EXCLUDE_COLUMNS;
+		String includeEmptyColumnsKey = BindingKeys.INCLUDE_EMPTY_COLUMNS;
+		String includeAllEmptyKey = BindingKeys.INCLUDE_EMPTY; */
+		// 兼容 where keys
+		String[] includeColumnsKey = {BindingKeys.WHERE_INCLUDE_COLUMNS, BindingKeys.INCLUDE_COLUMNS};
+		String[] excludeColumnsKey = {BindingKeys.WHERE_EXCLUDE_COLUMNS, BindingKeys.EXCLUDE_COLUMNS};
+		String[] includeEmptyColumnsKey = {BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS, BindingKeys.INCLUDE_EMPTY_COLUMNS};
+		String[] includeAllEmptyKey = {BindingKeys.WHERE_INCLUDE_EMPTY, BindingKeys.INCLUDE_EMPTY};
+		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings,
+			null, includeColumnsKey, null, excludeColumnsKey,
+			null, includeEmptyColumnsKey, false, includeAllEmptyKey);
+		return buildDeleteByAny(bindings, entityClass, entityKey, whereKey, columnPredicate);
 	}
 
 	public static String buildDeleteByAny(Map<String, Object> bindings, Class<?> entityClass,
@@ -278,6 +279,75 @@ public class SqlStatements {
 		return sql.toSqlString();
 	}
 
+	public static String buildLogicDeleteById(Map<String, Object> bindings, Class<?> entityClass) {
+		String entityKey = BindingKeys.ENTITY;
+		String whereKey = BindingKeys.WHERE;
+		return buildLogicDeleteById(bindings, entityClass, entityKey, whereKey);
+	}
+
+	public static String buildLogicDeleteById(Map<String, Object> bindings, Class<?> entityClass,
+		String entityKey, String whereKey) {
+
+		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
+		Optional<ColumnMeta> logicDeletedColumn = tableMeta.getColumns().values().stream().filter(c -> c.isLogicDeleted()).findFirst();
+		if (!logicDeletedColumn.isPresent()) {
+			throw new IllegalArgumentException("逻辑删除字段不存在");
+		}
+
+		SqlStatement sql = SqlStatement.of();
+		sql.update(tableMeta.getTable());
+
+		Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, null);
+		if (entity == null) {
+			entity = BindingValues.getBindingValueOrDefault(bindings, whereKey, Collections.emptyMap());
+		}
+		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
+			(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
+				? Beans.newBeanMap(entity, tableMeta.getEntityClass())
+				: Beans.newBeanMap(entity));
+
+		for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
+			String name = entry.getKey();
+			ColumnMeta meta = entry.getValue();
+			String columnName = meta.getColumnName();
+			boolean primaryKey = meta.isPrimaryKey();
+			boolean version = meta.isVersion();
+			boolean logicDeleted = meta.isLogicDeleted();
+			if (primaryKey || version) {
+				Object val = entityMap.get(name);
+				if (Objs.isEmpty(val)) {
+					sql.where(columnName + " IS NULL");
+				} else {
+					sql.where(columnName + " = #{" + KEY_WHERE_PREFIX + name + "}");
+					bindings.put(KEY_WHERE_PREFIX + name, val);
+				}
+			}
+			Object val = null;
+			// 只更新逻辑删除、更新时间、版本等字段
+			if (logicDeleted) {
+				val = Converters.convertQuietly(meta.getFieldType(), true);
+			} else if (meta.isUpdateTime()) {
+				val = entityMap.get(name);
+				if (Objs.isEmpty(val)) {
+					Object value = new Date();
+					val = Converters.convertQuietly(meta.getFieldType(), value);
+				}
+			} else if (version) {
+				val = entityMap.get(name);
+				val = Objs.isEmpty(val) ? 1L : ((Number) val).longValue() + 1;
+			}
+			if (Objs.isNotEmpty(val)) {
+				sql.set(columnName + " = #{" + KEY_VALUE_PREFIX + name + "}");
+				bindings.put(KEY_VALUE_PREFIX + name, val);
+			}
+		}
+
+		if (!sql.where().hasConditions()) {
+			throw new IllegalArgumentException("缺少条件子句");
+		}
+		return sql.toSqlString();
+	}
+
 	public static String buildUpdateByAny(Map<String, Object> bindings, Class<?> entityClass) {
 		String entityKey = BindingKeys.ENTITY;
 		String whereKey = BindingKeys.WHERE;
@@ -347,6 +417,79 @@ public class SqlStatements {
 				if (include) {
 					sql.set(columnName + " = NULL");
 				}
+			}
+		}
+		// where 条件
+		if (where instanceof Criteria) {
+			appendSqlWhereWithCriteria(bindings, tableMeta, sql, whereKeyGen, where);
+		} else if (where != null) {
+			appendSqlWhereWithEntity(bindings, entityClass, tableMeta, sql, whereKeyGen, where, whereColumnPredicate);
+		}
+
+		if (!sql.where().hasConditions()) {
+			throw new IllegalArgumentException("缺少条件子句");
+		}
+		return sql.toSqlString();
+	}
+
+	public static String buildLogicDeleteByAny(Map<String, Object> bindings, Class<?> entityClass) {
+		String entityKey = BindingKeys.ENTITY;
+		String whereKey = BindingKeys.WHERE;
+		String whereIncludeColumnsKey = BindingKeys.WHERE_INCLUDE_COLUMNS;
+		String whereExcludeColumnsKey = BindingKeys.WHERE_EXCLUDE_COLUMNS;
+		String whereIncludeEmptyColumnsKey = BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS;
+		String whereIncludeAllEmptyKey = BindingKeys.WHERE_INCLUDE_EMPTY;
+		ColumnPredicate whereColumnPredicate = ConfigurableColumnPredicate.of(bindings,
+			null, whereIncludeColumnsKey, null, whereExcludeColumnsKey,
+			null, whereIncludeEmptyColumnsKey, false, whereIncludeAllEmptyKey);
+
+		return buildLogicDeleteByAny(bindings, entityClass, entityKey, whereKey, whereColumnPredicate);
+	}
+
+	public static String buildLogicDeleteByAny(Map<String, Object> bindings, Class<?> entityClass,
+		String entityKey, String whereKey, ColumnPredicate whereColumnPredicate) {
+
+		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
+		Optional<ColumnMeta> logicDeletedColumn = tableMeta.getColumns().values().stream().filter(c -> c.isLogicDeleted()).findFirst();
+		if (!logicDeletedColumn.isPresent()) {
+			throw new IllegalArgumentException("逻辑删除字段不存在");
+		}
+
+		SqlStatement sql = SqlStatement.of();
+		sql.update(tableMeta.getTable());
+
+		VarNameGenerator whereKeyGen = VarNameGenerator.newInstance(KEY_WHERE_PREFIX);
+		Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, Collections.emptyMap());
+		Object where = BindingValues.getBindingValueOrDefault(bindings, whereKey, Collections.emptyMap());
+		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
+			(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
+				? Beans.newBeanMap(entity, tableMeta.getEntityClass())
+				: Beans.newBeanMap(entity));
+		for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
+			String name = entry.getKey();
+			ColumnMeta meta = entry.getValue();
+			String columnName = meta.getColumnName();
+			boolean primaryKey = meta.isPrimaryKey();
+			boolean version = meta.isVersion();
+			boolean logicDeleted = meta.isLogicDeleted();
+
+			Object val = null;
+			// 只更新逻辑删除、更新时间、版本等字段
+			if (logicDeleted) {
+				val = Converters.convertQuietly(meta.getFieldType(), true);
+			} else if (meta.isUpdateTime()) {
+				val = entityMap.get(name);
+				if (Objs.isEmpty(val)) {
+					Object value = new Date();
+					val = Converters.convertQuietly(meta.getFieldType(), value);
+				}
+			} else if (version) {
+				val = entityMap.get(name);
+				val = Objs.isEmpty(val) ? 1L : ((Number) val).longValue() + 1;
+			}
+			if (Objs.isNotEmpty(val)) {
+				sql.set(columnName + " = #{" + KEY_VALUE_PREFIX + name + "}");
+				bindings.put(KEY_VALUE_PREFIX + name, val);
 			}
 		}
 		// where 条件
