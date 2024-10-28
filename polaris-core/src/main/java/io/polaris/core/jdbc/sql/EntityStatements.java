@@ -357,11 +357,27 @@ public class EntityStatements {
 		return st;
 	}
 
-	public static DeleteStatement<?> buildDelete(Map<String, Object> bindings, SqlDelete sqlDelete) {
+	public static SqlNodeBuilder buildDelete(Map<String, Object> bindings, SqlDelete sqlDelete) {
 		Class<?> entityClass = sqlDelete.table();
 		if (entityClass == null || entityClass == void.class) {
 			throw new IllegalArgumentException("实体类型不能为空");
 		}
+		boolean logicDeleted = sqlDelete.logicDeleted();
+		if (logicDeleted) {
+			TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
+			logicDeleted = tableMeta.getColumns().values().stream().anyMatch(c -> c.isLogicDeleted());
+		}
+		if (logicDeleted) {
+			UpdateStatement<?> st = new UpdateStatement<>(entityClass, Strings.coalesce(sqlDelete.alias(), DEFAULT_TABLE_ALIAS));
+			st.updateLogicDeleted();
+			// binding-cache
+			Map<String, ValueRef<Object>> cache = new HashMap<>();
+			// where
+			addWhereClause(cache, bindings, st.where(), sqlDelete.where(), sqlDelete.columnPredicate());
+			return st;
+		}
+
+		// 非逻辑删除的正常delete操作
 		DeleteStatement<?> st = new DeleteStatement<>(entityClass,
 			Strings.coalesce(sqlDelete.alias(), DEFAULT_TABLE_ALIAS));
 		// binding-cache
@@ -1906,22 +1922,63 @@ public class EntityStatements {
 		return st;
 	}
 
-	public static DeleteStatement<?> buildDelete(Map<String, Object> bindings, EntityDelete entityDelete) {
+	public static SqlNodeBuilder buildDelete(Map<String, Object> bindings, EntityDelete entityDelete) {
 		return buildDelete(bindings, entityDelete.table()
 			, Strings.trimToNull(entityDelete.alias())
 			, entityDelete.byId(), entityDelete.entityKey(), entityDelete.whereKey()
-			, entityDelete.columnPredicate());
+			, ConfigurableColumnPredicate.of(bindings, entityDelete.columnPredicate())
+			, entityDelete.logicDeleted());
 	}
 
-	public static DeleteStatement<?> buildDelete(Map<String, Object> bindings, Class<?> entityClass, String tableAlias,
-		boolean byId, String entityKey, String whereKey,
-		io.polaris.core.jdbc.annotation.segment.ColumnPredicate predicate
-	) {
-		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings, predicate);
-		return buildDelete(bindings, entityClass, tableAlias, byId, entityKey, whereKey, columnPredicate);
-	}
-
-	public static DeleteStatement<?> buildDelete(Map<String, Object> bindings, Class<?> entityClass, String tableAlias, boolean byId, String entityKey, String whereKey, ColumnPredicate columnPredicate) {
+	public static SqlNodeBuilder buildDelete(Map<String, Object> bindings, Class<?> entityClass, String tableAlias, boolean byId, String entityKey, String whereKey, ColumnPredicate columnPredicate, boolean logicDeleted) {
+		if (logicDeleted) {
+			TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
+			logicDeleted = tableMeta.getColumns().values().stream().anyMatch(c -> c.isLogicDeleted());
+		}
+		// 存在逻辑删除字段则使用逻辑删除语句
+		if (logicDeleted) {
+			UpdateStatement<?> st = new UpdateStatement<>(entityClass, Strings.coalesce(tableAlias, DEFAULT_TABLE_ALIAS));
+			if (byId) {
+				Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, null);
+				if (entity == null) {
+					entity = BindingValues.getBindingValueOrDefault(bindings, whereKey, Collections.emptyMap());
+				}
+				st.updateLogicDeletedWithEntity(entity);
+				st.where().byEntityIdAndVersion(entity);
+				return st;
+			} else {
+				boolean setLogicDeleted = false;
+				Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, null);
+				if (entity != null) {
+					if (entity instanceof Criteria) {
+						st.where((Criteria) entity);
+					} else {
+						st.updateLogicDeletedWithEntity(entity);
+						setLogicDeleted = true;
+						st.where().byEntity(entity, columnPredicate);
+					}
+				}
+				entity = BindingValues.getBindingValueOrDefault(bindings, whereKey, null);
+				if (entity != null) {
+					if (entity instanceof Criteria) {
+						st.where((Criteria) entity);
+					} else {
+						if (!setLogicDeleted) {
+							st.updateLogicDeletedWithEntity(entity);
+							setLogicDeleted = true;
+						}
+						st.where().byEntity(entity, columnPredicate);
+					}
+				}
+				// 无实体对象参数值时，更新默认字段值
+				if (!setLogicDeleted) {
+					st.updateLogicDeleted();
+					setLogicDeleted = true;
+				}
+			}
+			return st;
+		}
+		// 非逻辑删除的正常delete操作
 		DeleteStatement<?> st = new DeleteStatement<>(entityClass, Strings.coalesce(tableAlias, DEFAULT_TABLE_ALIAS));
 		if (byId) {
 			Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, null);

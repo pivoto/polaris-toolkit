@@ -31,6 +31,11 @@ public @interface EntityDelete {
 	String alias() default "";
 
 	/**
+	 * @return 是否优先使用逻辑删除
+	 */
+	boolean logicDeleted() default false;
+
+	/**
 	 * @return 标识是否只使用主键作为`where`条件
 	 */
 	boolean byId() default true;
@@ -44,7 +49,6 @@ public @interface EntityDelete {
 	 * @return 标识在参数容器中映射`where`条件参数值的`key`
 	 */
 	String whereKey() default BindingKeys.WHERE;
-
 
 	ColumnPredicate columnPredicate() default @ColumnPredicate(
 		includeColumnsKey = BindingKeys.INCLUDE_COLUMNS,

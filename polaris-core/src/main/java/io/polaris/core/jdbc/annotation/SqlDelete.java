@@ -13,7 +13,7 @@ import io.polaris.core.jdbc.sql.consts.BindingKeys;
 
 /**
  * @author Qt
- * @since  Jan 27, 2024
+ * @since Jan 27, 2024
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})
@@ -30,6 +30,11 @@ public @interface SqlDelete {
 	 * @return 表别名
 	 */
 	String alias() default "";
+
+	/**
+	 * @return 是否优先使用逻辑删除
+	 */
+	boolean logicDeleted() default false;
 
 	/**
 	 * @return Where条件，默认使用实体ID

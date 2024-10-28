@@ -9,6 +9,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import io.polaris.core.annotation.AnnotationProcessing;
+import io.polaris.core.converter.Converters;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.sql.BindingValues;
@@ -27,7 +28,7 @@ import io.polaris.core.lang.bean.Beans;
 
 /**
  * @author Qt
- * @since  Aug 20, 2023
+ * @since Aug 20, 2023
  */
 @SuppressWarnings("unused")
 @AnnotationProcessing
@@ -196,8 +197,7 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 				if (!columnPredicate.isIncludedColumn(name)) {
 					continue;
 				}
-				Object val1 = entityMap.get(meta.getFieldName());
-				Object val = BindingValues.getValueForUpdate(meta, val1);
+				Object val = BindingValues.getValueForUpdate(meta, entityMap.get(meta.getFieldName()));
 				if (meta.isVersion()) {
 					val = Objs.isEmpty(val) ? 1L : ((Number) val).longValue() + 1;
 				}
@@ -205,6 +205,57 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 				// 需要包含空值字段或非空值
 				boolean include = columnPredicate.isIncludedEmptyColumn(name) || Objs.isNotEmpty(val);
 				if (include) {
+					this.column(name, val);
+				}
+			}
+		}
+		return getThis();
+	}
+
+	public S updateLogicDeletedWithEntity(Object entity) {
+		TableMeta tableMeta = this.table.getTableMeta();
+		if (tableMeta != null) {
+			@SuppressWarnings("unchecked")
+			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
+				(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
+					? Beans.newBeanMap(entity, tableMeta.getEntityClass())
+					: Beans.newBeanMap(entity));
+
+			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
+				String name = entry.getKey();
+				ColumnMeta meta = entry.getValue();
+				Object val = null;
+				if (meta.isLogicDeleted()) {
+					val = Converters.convertQuietly(meta.getFieldType(), true);
+				} else if (meta.isUpdateTime() || meta.isVersion()) {
+					val = BindingValues.getValueForUpdate(meta, entityMap.get(meta.getFieldName()));
+					if (meta.isVersion()) {
+						val = Objs.isEmpty(val) ? 1L : ((Number) val).longValue() + 1;
+					}
+				}
+				if (val != null) {
+					this.column(name, val);
+				}
+			}
+		}
+		return getThis();
+	}
+
+	public S updateLogicDeleted() {
+		TableMeta tableMeta = this.table.getTableMeta();
+		if (tableMeta != null) {
+			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
+				String name = entry.getKey();
+				ColumnMeta meta = entry.getValue();
+				Object val = null;
+				if (meta.isLogicDeleted()) {
+					val = Converters.convertQuietly(meta.getFieldType(), true);
+				} else if (meta.isVersion()) {
+					val = Converters.convertQuietly(meta.getFieldType(), 1L);
+				} else if (meta.isUpdateTime()) {
+					val = BindingValues.getValueForUpdate(meta, null);
+				}
+				if (val != null) {
 					this.column(name, val);
 				}
 			}
