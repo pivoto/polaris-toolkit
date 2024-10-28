@@ -153,13 +153,13 @@ const vFormData = ref<FormType>({
 	${col.javaVariableName}: #if(${col.nullable}) undefined #else 0 #end,
 ## #elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'BIGINT')
 #elseif(${col.javaTypeSimpleName}=='Long')
-	${col.javaVariableName}: #if(${col.nullable}) undefined #else '0' #end,
+	${col.javaVariableName}: #if(${col.nullable}) undefined #else '' #end,
 ##	#elseif(${col.jdbcType} == 'FLOAT' || ${col.jdbcType} == 'DOUBLE')
 #elseif(${col.javaTypeSimpleName}=='Float' || ${col.javaTypeSimpleName}=='Double')
 	${col.javaVariableName}: #if(${col.nullable}) undefined #else 0 #end,
 ##	#elseif(${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL')
 #elseif(${col.javaTypeSimpleName}=='BigDecimal')
-	${col.javaVariableName}: #if(${col.nullable}) undefined #else '0' #end,
+	${col.javaVariableName}: #if(${col.nullable}) undefined #else '' #end,
 ##	#elseif(${col.jdbcType} == 'BIT' || ${col.jdbcType} == 'BOOLEAN')
 #elseif(${col.javaTypeSimpleName}=='Boolean')
 	${col.javaVariableName}: #if(${col.nullable}) undefined #else false #end,
