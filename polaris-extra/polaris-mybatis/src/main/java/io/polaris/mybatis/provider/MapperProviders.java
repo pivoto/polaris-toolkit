@@ -11,7 +11,7 @@ import org.apache.ibatis.builder.annotation.ProviderContext;
 
 /**
  * @author Qt
- * @since  Aug 24, 2023
+ * @since Aug 24, 2023
  */
 @Published
 public class MapperProviders {
@@ -34,17 +34,24 @@ public class MapperProviders {
 
 		map.put(MapperProviderKeys.deleteEntityById, MapperProviders::deleteEntityById);
 		map.put(MapperProviderKeys.deleteEntityByAny, MapperProviders::deleteEntityByAny);
+		map.put(MapperProviderKeys.logicDeleteEntityById, MapperProviders::logicDeleteEntityById);
+		map.put(MapperProviderKeys.logicDeleteEntityByAny, MapperProviders::logicDeleteEntityByAny);
 
 		map.put(MapperProviderKeys.updateEntityById, MapperProviders::updateEntityById);
 		map.put(MapperProviderKeys.updateEntityByAny, MapperProviders::updateEntityByAny);
 
 		map.put(MapperProviderKeys.existsEntity, MapperProviders::existsEntity);
+		map.put(MapperProviderKeys.existsEntityExceptLogicDeleted, MapperProviders::existsEntityExceptLogicDeleted);
 		map.put(MapperProviderKeys.existsEntityById, MapperProviders::existsEntityById);
+		map.put(MapperProviderKeys.existsEntityByIdExceptLogicDeleted, MapperProviders::existsEntityByIdExceptLogicDeleted);
 
 		map.put(MapperProviderKeys.selectEntity, MapperProviders::selectEntity);
+		map.put(MapperProviderKeys.selectEntityExceptLogicDeleted, MapperProviders::selectEntityExceptLogicDeleted);
 		map.put(MapperProviderKeys.selectEntityById, MapperProviders::selectEntityById);
+		map.put(MapperProviderKeys.selectEntityByIdExceptLogicDeleted, MapperProviders::selectEntityByIdExceptLogicDeleted);
 
 		map.put(MapperProviderKeys.countEntity, MapperProviders::countEntity);
+		map.put(MapperProviderKeys.countEntityExceptLogicDeleted, MapperProviders::countEntityExceptLogicDeleted);
 
 
 		methods = Collections.unmodifiableMap(map);
@@ -80,10 +87,19 @@ public class MapperProviders {
 		return EntityDeleteByIdProvider.provideSql(parameterObject, context);
 	}
 
-
 	@Published
 	public static String deleteEntityByAny(Object parameterObject, ProviderContext context) {
 		return EntityDeleteByAnyProvider.provideSql(parameterObject, context);
+	}
+
+	@Published
+	public static String logicDeleteEntityById(Object parameterObject, ProviderContext context) {
+		return EntityLogicDeleteByIdProvider.provideSql(parameterObject, context);
+	}
+
+	@Published
+	public static String logicDeleteEntityByAny(Object parameterObject, ProviderContext context) {
+		return EntityLogicDeleteByAnyProvider.provideSql(parameterObject, context);
 	}
 
 
@@ -105,13 +121,28 @@ public class MapperProviders {
 	}
 
 	@Published
+	public static String countEntityExceptLogicDeleted(Object parameterObject, ProviderContext context) {
+		return EntityCountExceptLogicDeletedProvider.provideSql(parameterObject, context);
+	}
+
+	@Published
 	public static String existsEntityById(Object parameterObject, ProviderContext context) {
 		return EntityExistsByIdProvider.provideSql(parameterObject, context);
 	}
 
 	@Published
+	public static String existsEntityByIdExceptLogicDeleted(Object parameterObject, ProviderContext context) {
+		return EntityExistsByIdExceptLogicDeletedProvider.provideSql(parameterObject, context);
+	}
+
+	@Published
 	public static String existsEntity(Object parameterObject, ProviderContext context) {
 		return EntityExistsByAnyProvider.provideSql(parameterObject, context);
+	}
+
+	@Published
+	public static String existsEntityExceptLogicDeleted(Object parameterObject, ProviderContext context) {
+		return EntityExistsByAnyExceptLogicDeletedProvider.provideSql(parameterObject, context);
 	}
 
 
@@ -120,10 +151,20 @@ public class MapperProviders {
 		return EntitySelectByIdProvider.provideSql(parameterObject, context);
 	}
 
+	@Published
+	public static String selectEntityByIdExceptLogicDeleted(Object parameterObject, ProviderContext context) {
+		return EntitySelectByIdExceptLogicDeletedProvider.provideSql(parameterObject, context);
+	}
+
 
 	@Published
 	public static String selectEntity(Object parameterObject, ProviderContext context) {
 		return EntitySelectByAnyProvider.provideSql(parameterObject, context);
+	}
+
+	@Published
+	public static String selectEntityExceptLogicDeleted(Object parameterObject, ProviderContext context) {
+		return EntitySelectByAnyExceptLogicDeletedProvider.provideSql(parameterObject, context);
 	}
 
 
