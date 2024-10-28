@@ -43,7 +43,7 @@ public @interface EntitySelect {
 	/**
 	 * @return 标识是否排除逻辑删除状态的数据，即添加非逻辑删除`where`条件子句
 	 */
-	boolean withoutLogicDeleted() default false;
+	boolean exceptLogicDeleted() default false;
 
 	/**
 	 * @return 标识在参数容器中映射实体参数值的`key`

@@ -689,11 +689,11 @@ public class SqlStatements {
 		return buildSelectById(bindings, entityClass, false);
 	}
 
-	public static String buildSelectById(Map<String, Object> bindings, Class<?> entityClass, boolean withoutLogicDeleted) {
+	public static String buildSelectById(Map<String, Object> bindings, Class<?> entityClass, boolean exceptLogicDeleted) {
 		String entityKey = BindingKeys.ENTITY;
 		String whereKey = BindingKeys.WHERE;
 		String orderByKey = BindingKeys.ORDER_BY;
-		return buildSelectById(bindings, entityClass, entityKey, whereKey, orderByKey, withoutLogicDeleted);
+		return buildSelectById(bindings, entityClass, entityKey, whereKey, orderByKey, exceptLogicDeleted);
 	}
 
 	public static String buildSelectById(Map<String, Object> bindings, Class<?> entityClass,
@@ -702,7 +702,7 @@ public class SqlStatements {
 	}
 
 	public static String buildSelectById(Map<String, Object> bindings, Class<?> entityClass,
-		String entityKey, String whereKey, String orderByKey, boolean withoutLogicDeleted) {
+		String entityKey, String whereKey, String orderByKey, boolean exceptLogicDeleted) {
 
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
 		SqlStatement sql = SqlStatement.of();
@@ -736,7 +736,7 @@ public class SqlStatements {
 					sql.where(columnName + " = #{" + keyName + "}");
 					bindings.put(keyName, val);
 				}
-			} else if (withoutLogicDeleted && meta.isLogicDeleted()) {
+			} else if (exceptLogicDeleted && meta.isLogicDeleted()) {
 				// 强制添加非逻辑删除条件
 				String keyName = whereKeyGen.generate();
 				val = Converters.convertQuietly(meta.getFieldType(), false);
@@ -754,7 +754,7 @@ public class SqlStatements {
 		return buildSelectByAny(bindings, entityClass, false);
 	}
 
-	public static String buildSelectByAny(Map<String, Object> bindings, Class<?> entityClass, boolean withoutLogicDeleted) {
+	public static String buildSelectByAny(Map<String, Object> bindings, Class<?> entityClass, boolean exceptLogicDeleted) {
 		String entityKey = BindingKeys.ENTITY;
 		String whereKey = BindingKeys.WHERE;
 		String orderByKey = BindingKeys.ORDER_BY;
@@ -779,7 +779,7 @@ public class SqlStatements {
 
 	public static String buildSelectByAny(Map<String, Object> bindings, Class<?> entityClass,
 		String entityKey, String whereKey, String orderByKey, ColumnPredicate columnPredicate,
-		boolean withoutLogicDeleted) {
+		boolean exceptLogicDeleted) {
 
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
 		SqlStatement sql = SqlStatement.of();
@@ -803,7 +803,7 @@ public class SqlStatements {
 			}
 		}
 
-		if (withoutLogicDeleted) {
+		if (exceptLogicDeleted) {
 			// 强制添加非逻辑删除条件
 			tableMeta.getColumns().values().stream()
 				.filter(c -> c.isLogicDeleted())

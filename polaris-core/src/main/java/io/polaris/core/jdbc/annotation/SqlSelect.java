@@ -53,7 +53,7 @@ public @interface SqlSelect {
 	/**
 	 * @return 标识是否排除逻辑删除状态的数据，即添加非逻辑删除`where`条件子句
 	 */
-	boolean withoutLogicDeleted() default false;
+	boolean exceptLogicDeleted() default false;
 
 	/**
 	 * @return 表连接配置

@@ -500,7 +500,7 @@ public class EntityStatements {
 		addJoinClause(cache, bindings, st, sqlSelect.join());
 
 		// 强制添加非逻辑删除条件
-		if (sqlSelect.withoutLogicDeleted()) {
+		if (sqlSelect.exceptLogicDeleted()) {
 			st.getTable().getTableMeta().getColumns().values().stream()
 				.filter(c -> c.isLogicDeleted())
 				.forEach(meta -> {
@@ -2058,11 +2058,11 @@ public class EntityStatements {
 			, entitySelect.byId(), entitySelect.entityKey()
 			, entitySelect.whereKey(), entitySelect.orderByKey()
 			, ConfigurableColumnPredicate.of(bindings, entitySelect.columnPredicate())
-			, entitySelect.withoutLogicDeleted());
+			, entitySelect.exceptLogicDeleted());
 	}
 
 
-	public static SelectStatement<?> buildSelect(Map<String, Object> bindings, Class<?> entityClass, String tableAlias, boolean byId, String entityKey, String whereKey, String orderByKey, ColumnPredicate columnPredicate, boolean withoutLogicDeleted) {
+	public static SelectStatement<?> buildSelect(Map<String, Object> bindings, Class<?> entityClass, String tableAlias, boolean byId, String entityKey, String whereKey, String orderByKey, ColumnPredicate columnPredicate, boolean exceptLogicDeleted) {
 		SelectStatement<?> st = new SelectStatement<>(entityClass, Strings.coalesce(tableAlias, DEFAULT_TABLE_ALIAS));
 		st.selectAll();
 
@@ -2093,7 +2093,7 @@ public class EntityStatements {
 			}
 		}
 
-		if (withoutLogicDeleted) {
+		if (exceptLogicDeleted) {
 			// 强制添加非逻辑删除条件
 			st.getTable().getTableMeta().getColumns().values().stream()
 				.filter(c -> c.isLogicDeleted())
