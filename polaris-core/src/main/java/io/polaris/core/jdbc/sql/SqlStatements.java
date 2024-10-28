@@ -25,6 +25,8 @@ import io.polaris.core.jdbc.sql.statement.ColumnPredicate;
 import io.polaris.core.jdbc.sql.statement.ConfigurableColumnPredicate;
 import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.bean.Beans;
+import io.polaris.core.log.ILogger;
+import io.polaris.core.log.ILoggers;
 import io.polaris.core.string.Strings;
 
 /**
@@ -35,6 +37,7 @@ import io.polaris.core.string.Strings;
  */
 @SuppressWarnings("ALL")
 public class SqlStatements {
+	private static ILogger log = ILoggers.of(SqlStatements.class);
 
 	private static final String KEY_WHERE_PREFIX = "_w";
 	private static final String KEY_VALUE_PREFIX = "_v";
@@ -302,9 +305,9 @@ public class SqlStatements {
 		String entityKey, String whereKey) {
 
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
-		Optional<ColumnMeta> logicDeletedColumn = tableMeta.getColumns().values().stream().filter(c -> c.isLogicDeleted()).findFirst();
-		if (!logicDeletedColumn.isPresent()) {
-			throw new IllegalArgumentException("逻辑删除字段不存在");
+		if (!tableMeta.getColumns().values().stream().anyMatch(c -> c.isLogicDeleted())) {
+			log.warn("实体{}不存在逻辑删除字段！", entityClass);
+			return buildDeleteById(bindings, entityClass, entityKey, whereKey);
 		}
 
 		SqlStatement sql = SqlStatement.of();
@@ -469,9 +472,9 @@ public class SqlStatements {
 		String entityKey, String whereKey, ColumnPredicate whereColumnPredicate) {
 
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
-		Optional<ColumnMeta> logicDeletedColumn = tableMeta.getColumns().values().stream().filter(c -> c.isLogicDeleted()).findFirst();
-		if (!logicDeletedColumn.isPresent()) {
-			throw new IllegalArgumentException("逻辑删除字段不存在");
+		if (!tableMeta.getColumns().values().stream().anyMatch(c -> c.isLogicDeleted())) {
+			log.warn("实体{}不存在逻辑删除字段！", entityClass);
+			return buildDeleteByAny(bindings, entityClass, entityKey, whereKey,whereColumnPredicate);
 		}
 
 		SqlStatement sql = SqlStatement.of();
