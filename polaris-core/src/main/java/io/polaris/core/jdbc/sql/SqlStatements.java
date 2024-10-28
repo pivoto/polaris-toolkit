@@ -720,7 +720,6 @@ public class SqlStatements {
 			ColumnMeta meta = entry.getValue();
 			String columnName = meta.getColumnName();
 			boolean primaryKey = meta.isPrimaryKey();
-			boolean logicDeleted = meta.isLogicDeleted();
 			//boolean version = meta.isVersion();
 			Object val = entityMap.get(name);
 
@@ -734,7 +733,8 @@ public class SqlStatements {
 					sql.where(columnName + " = #{" + keyName + "}");
 					bindings.put(keyName, val);
 				}
-			} else if (logicDeleted) {
+			} else if (withoutLogicDeleted && meta.isLogicDeleted()) {
+				// 强制添加非逻辑删除条件
 				String keyName = whereKeyGen.generate();
 				val = Converters.convertQuietly(meta.getFieldType(), false);
 				sql.where(columnName + " = #{" + keyName + "}");
@@ -748,13 +748,13 @@ public class SqlStatements {
 	}
 
 	public static String buildSelectByAny(Map<String, Object> bindings, Class<?> entityClass) {
+		return buildSelectByAny(bindings, entityClass, false);
+	}
+
+	public static String buildSelectByAny(Map<String, Object> bindings, Class<?> entityClass, boolean withoutLogicDeleted) {
 		String entityKey = BindingKeys.ENTITY;
 		String whereKey = BindingKeys.WHERE;
 		String orderByKey = BindingKeys.ORDER_BY;
-		/* String includeColumnsKey = BindingKeys.INCLUDE_COLUMNS;
-		String excludeColumnsKey = BindingKeys.EXCLUDE_COLUMNS;
-		String includeEmptyColumnsKey = BindingKeys.INCLUDE_EMPTY_COLUMNS;
-		String includeAllEmptyKey = BindingKeys.INCLUDE_EMPTY; */
 		// 兼容 where keys
 		String[] includeColumnsKey = {BindingKeys.WHERE_INCLUDE_COLUMNS, BindingKeys.INCLUDE_COLUMNS};
 		String[] excludeColumnsKey = {BindingKeys.WHERE_EXCLUDE_COLUMNS, BindingKeys.EXCLUDE_COLUMNS};
@@ -770,6 +770,13 @@ public class SqlStatements {
 
 	public static String buildSelectByAny(Map<String, Object> bindings, Class<?> entityClass,
 		String entityKey, String whereKey, String orderByKey, ColumnPredicate columnPredicate) {
+		return buildSelectByAny(bindings, entityClass, entityKey, whereKey, orderByKey, columnPredicate, false);
+	}
+
+
+	public static String buildSelectByAny(Map<String, Object> bindings, Class<?> entityClass,
+		String entityKey, String whereKey, String orderByKey, ColumnPredicate columnPredicate,
+		boolean withoutLogicDeleted) {
 
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
 		SqlStatement sql = SqlStatement.of();
@@ -791,6 +798,19 @@ public class SqlStatements {
 				String columnName = meta.getExpressionWithoutTableAlias();
 				sql.select(columnName + " " + name);
 			}
+		}
+
+		if (withoutLogicDeleted) {
+			// 强制添加非逻辑删除条件
+			tableMeta.getColumns().values().stream()
+				.filter(c -> c.isLogicDeleted())
+				.forEach(meta -> {
+					String columnName = meta.getColumnName();
+					Object val = Converters.convertQuietly(meta.getFieldType(), false);
+					String keyName = whereKeyGen.generate();
+					sql.where(columnName + " = #{" + keyName + "}");
+					bindings.put(keyName, val);
+				});
 		}
 
 		Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, null);
