@@ -36,8 +36,16 @@ import io.polaris.core.string.Strings;
 @SuppressWarnings("ALL")
 public class SqlStatements {
 
-	static final String KEY_WHERE_PREFIX = "w_";
-	static final String KEY_VALUE_PREFIX = "v_";
+	private static final String KEY_WHERE_PREFIX = "_w";
+	private static final String KEY_VALUE_PREFIX = "_v";
+
+	private static VarNameGenerator newWhereVarNameGenerator() {
+		return VarNameGenerator.newInstance(KEY_WHERE_PREFIX);
+	}
+
+	private static VarNameGenerator newValueVarNameGenerator() {
+		return VarNameGenerator.newInstance(KEY_VALUE_PREFIX);
+	}
 
 	public static String buildInsert(Map<String, Object> bindings, Class<?> entityClass) {
 		String entityKey = BindingKeys.ENTITY;
@@ -60,6 +68,7 @@ public class SqlStatements {
 		SqlStatement sql = SqlStatement.of();
 		sql.insert(tableMeta.getTable());
 
+		VarNameGenerator valueKeyGen = newValueVarNameGenerator();
 		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
 			(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
 				? Beans.newBeanMap(entity, tableMeta.getEntityClass())
@@ -82,8 +91,9 @@ public class SqlStatements {
 				val = val == null ? 1L : ((Number) val).longValue();
 			}
 			if (Objs.isNotEmpty(val)) {
-				sql.columnAndValue(columnName, "#{" + KEY_VALUE_PREFIX + name + "}");
-				bindings.put(KEY_VALUE_PREFIX + name, val);
+				String keyName = valueKeyGen.generate();
+				sql.columnAndValue(columnName, "#{" + keyName + "}");
+				bindings.put(keyName, val);
 			} else {
 				// 需要包含空值字段
 				if (columnPredicate.isIncludedEmptyColumn(name)) {
@@ -107,7 +117,7 @@ public class SqlStatements {
 		SqlStatement sql = SqlStatement.of();
 		sql.delete(tableMeta.getTable());
 
-		VarNameGenerator whereKeyGen = VarNameGenerator.newInstance(KEY_WHERE_PREFIX);
+		VarNameGenerator whereKeyGen = newWhereVarNameGenerator();
 		Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, null);
 		if (entity == null) {
 			entity = BindingValues.getBindingValueOrDefault(bindings, whereKey, Collections.emptyMap());
@@ -165,7 +175,7 @@ public class SqlStatements {
 		SqlStatement sql = SqlStatement.of();
 		sql.delete(tableMeta.getTable());
 
-		VarNameGenerator whereKeyGen = VarNameGenerator.newInstance(KEY_WHERE_PREFIX);
+		VarNameGenerator whereKeyGen = newWhereVarNameGenerator();
 		Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, null);
 		if (entity != null) {
 			if (entity instanceof Criteria) {
@@ -214,11 +224,12 @@ public class SqlStatements {
 		if (entity == null) {
 			entity = BindingValues.getBindingValueOrDefault(bindings, whereKey, Collections.emptyMap());
 		}
+		VarNameGenerator whereKeyGen = newWhereVarNameGenerator();
+		VarNameGenerator valueKeyGen = newValueVarNameGenerator();
 		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
 			(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
 				? Beans.newBeanMap(entity, tableMeta.getEntityClass())
 				: Beans.newBeanMap(entity));
-
 		for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
 			String name = entry.getKey();
 			ColumnMeta meta = entry.getValue();
@@ -231,8 +242,9 @@ public class SqlStatements {
 				if (Objs.isEmpty(val)) {
 					sql.where(columnName + " IS NULL");
 				} else {
-					sql.where(columnName + " = #{" + KEY_WHERE_PREFIX + name + "}");
-					bindings.put(KEY_WHERE_PREFIX + name, val);
+					String keyName = whereKeyGen.generate();
+					sql.where(columnName + " = #{" + keyName + "}");
+					bindings.put(keyName, val);
 				}
 			}
 			if (!updatable) {
@@ -262,8 +274,9 @@ public class SqlStatements {
 				continue;
 			}
 			if (Objs.isNotEmpty(val)) {
-				sql.set(columnName + " = #{" + KEY_VALUE_PREFIX + name + "}");
-				bindings.put(KEY_VALUE_PREFIX + name, val);
+				String keyName = valueKeyGen.generate();
+				sql.set(columnName + " = #{" + keyName + "}");
+				bindings.put(keyName, val);
 			} else {
 				// 需要包含空值字段
 				boolean include = columnPredicate.isIncludedEmptyColumn(name);
@@ -301,6 +314,8 @@ public class SqlStatements {
 		if (entity == null) {
 			entity = BindingValues.getBindingValueOrDefault(bindings, whereKey, Collections.emptyMap());
 		}
+		VarNameGenerator whereKeyGen = newWhereVarNameGenerator();
+		VarNameGenerator valueKeyGen = newValueVarNameGenerator();
 		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
 			(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
 				? Beans.newBeanMap(entity, tableMeta.getEntityClass())
@@ -318,8 +333,9 @@ public class SqlStatements {
 				if (Objs.isEmpty(val)) {
 					sql.where(columnName + " IS NULL");
 				} else {
-					sql.where(columnName + " = #{" + KEY_WHERE_PREFIX + name + "}");
-					bindings.put(KEY_WHERE_PREFIX + name, val);
+					String keyName = whereKeyGen.generate();
+					sql.where(columnName + " = #{" + keyName + "}");
+					bindings.put(keyName, val);
 				}
 			}
 			Object val = null;
@@ -337,8 +353,9 @@ public class SqlStatements {
 				val = Objs.isEmpty(val) ? 1L : ((Number) val).longValue() + 1;
 			}
 			if (Objs.isNotEmpty(val)) {
-				sql.set(columnName + " = #{" + KEY_VALUE_PREFIX + name + "}");
-				bindings.put(KEY_VALUE_PREFIX + name, val);
+				String keyName = valueKeyGen.generate();
+				sql.set(columnName + " = #{" + keyName + "}");
+				bindings.put(keyName, val);
 			}
 		}
 
@@ -377,7 +394,8 @@ public class SqlStatements {
 		SqlStatement sql = SqlStatement.of();
 		sql.update(tableMeta.getTable());
 
-		VarNameGenerator whereKeyGen = VarNameGenerator.newInstance(KEY_WHERE_PREFIX);
+		VarNameGenerator whereKeyGen = newWhereVarNameGenerator();
+		VarNameGenerator valueKeyGen = newValueVarNameGenerator();
 		Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, Collections.emptyMap());
 		Object where = BindingValues.getBindingValueOrDefault(bindings, whereKey, Collections.emptyMap());
 		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
@@ -409,8 +427,9 @@ public class SqlStatements {
 				entityVal = Objs.isEmpty(entityVal) ? 1L : ((Number) entityVal).longValue() + 1;
 			}
 			if (Objs.isNotEmpty(entityVal)) {
-				sql.set(columnName + " = #{" + KEY_VALUE_PREFIX + name + "}");
-				bindings.put(KEY_VALUE_PREFIX + name, entityVal);
+				String keyName = valueKeyGen.generate();
+				sql.set(columnName + " = #{" + keyName + "}");
+				bindings.put(keyName, entityVal);
 			} else {
 				// 需要包含空值字段
 				boolean include = columnPredicate.isIncludedEmptyColumn(name);
@@ -458,7 +477,8 @@ public class SqlStatements {
 		SqlStatement sql = SqlStatement.of();
 		sql.update(tableMeta.getTable());
 
-		VarNameGenerator whereKeyGen = VarNameGenerator.newInstance(KEY_WHERE_PREFIX);
+		VarNameGenerator whereKeyGen = newWhereVarNameGenerator();
+		VarNameGenerator valueKeyGen = newValueVarNameGenerator();
 		Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, Collections.emptyMap());
 		Object where = BindingValues.getBindingValueOrDefault(bindings, whereKey, Collections.emptyMap());
 		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
@@ -488,8 +508,9 @@ public class SqlStatements {
 				val = Objs.isEmpty(val) ? 1L : ((Number) val).longValue() + 1;
 			}
 			if (Objs.isNotEmpty(val)) {
-				sql.set(columnName + " = #{" + KEY_VALUE_PREFIX + name + "}");
-				bindings.put(KEY_VALUE_PREFIX + name, val);
+				String keyName = valueKeyGen.generate();
+				sql.set(columnName + " = #{" + keyName + "}");
+				bindings.put(keyName, val);
 			}
 		}
 		// where 条件
@@ -528,7 +549,7 @@ public class SqlStatements {
 
 	public static String buildCount(Map<String, Object> bindings, Class<?> entityClass,
 		String entityKey, String whereKey, ColumnPredicate columnPredicate) {
-		VarNameGenerator whereKeyGen = VarNameGenerator.newInstance(KEY_WHERE_PREFIX);
+		VarNameGenerator whereKeyGen = newWhereVarNameGenerator();
 
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
 		SqlStatement sql = SqlStatement.of();
@@ -573,6 +594,7 @@ public class SqlStatements {
 		if (entity == null) {
 			entity = BindingValues.getBindingValueOrDefault(bindings, whereKey, Collections.emptyMap());
 		}
+		VarNameGenerator whereKeyGen = newWhereVarNameGenerator();
 		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
 			(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
 				? Beans.newBeanMap(entity, tableMeta.getEntityClass())
@@ -589,8 +611,9 @@ public class SqlStatements {
 				if (val == null) {
 					sql.where(columnName + " IS NULL");
 				} else {
-					sql.where(columnName + " = #{" + KEY_WHERE_PREFIX + name + "}");
-					bindings.put(KEY_WHERE_PREFIX + name, val);
+					String keyName = whereKeyGen.generate();
+					sql.where(columnName + " = #{" + keyName + "}");
+					bindings.put(keyName, val);
 				}
 			}
 		}
@@ -638,7 +661,7 @@ public class SqlStatements {
 			sql.select("1 EXISTED");
 		}
 
-		VarNameGenerator whereKeyGen = VarNameGenerator.newInstance(KEY_WHERE_PREFIX);
+		VarNameGenerator whereKeyGen = newWhereVarNameGenerator();
 
 		Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, null);
 		if (entity != null) {
@@ -660,14 +683,23 @@ public class SqlStatements {
 	}
 
 	public static String buildSelectById(Map<String, Object> bindings, Class<?> entityClass) {
+		return buildSelectById(bindings, entityClass, false);
+	}
+
+	public static String buildSelectById(Map<String, Object> bindings, Class<?> entityClass, boolean withoutLogicDeleted) {
 		String entityKey = BindingKeys.ENTITY;
 		String whereKey = BindingKeys.WHERE;
 		String orderByKey = BindingKeys.ORDER_BY;
-		return buildSelectById(bindings, entityClass, entityKey, whereKey, orderByKey);
+		return buildSelectById(bindings, entityClass, entityKey, whereKey, orderByKey, withoutLogicDeleted);
 	}
 
 	public static String buildSelectById(Map<String, Object> bindings, Class<?> entityClass,
 		String entityKey, String whereKey, String orderByKey) {
+		return buildSelectById(bindings, entityClass, entityKey, whereKey, orderByKey, false);
+	}
+
+	public static String buildSelectById(Map<String, Object> bindings, Class<?> entityClass,
+		String entityKey, String whereKey, String orderByKey, boolean withoutLogicDeleted) {
 
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
 		SqlStatement sql = SqlStatement.of();
@@ -677,6 +709,7 @@ public class SqlStatements {
 		if (entity == null) {
 			entity = BindingValues.getBindingValueOrDefault(bindings, whereKey, Collections.emptyMap());
 		}
+		VarNameGenerator whereKeyGen = newWhereVarNameGenerator();
 		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
 			(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
 				? Beans.newBeanMap(entity, tableMeta.getEntityClass())
@@ -687,6 +720,7 @@ public class SqlStatements {
 			ColumnMeta meta = entry.getValue();
 			String columnName = meta.getColumnName();
 			boolean primaryKey = meta.isPrimaryKey();
+			boolean logicDeleted = meta.isLogicDeleted();
 			//boolean version = meta.isVersion();
 			Object val = entityMap.get(name);
 
@@ -696,9 +730,15 @@ public class SqlStatements {
 				if (val == null) {
 					sql.where(columnName + " IS NULL");
 				} else {
-					sql.where(columnName + " = #{" + KEY_WHERE_PREFIX + name + "}");
-					bindings.put(KEY_WHERE_PREFIX + name, val);
+					String keyName = whereKeyGen.generate();
+					sql.where(columnName + " = #{" + keyName + "}");
+					bindings.put(keyName, val);
 				}
+			} else if (logicDeleted) {
+				String keyName = whereKeyGen.generate();
+				val = Converters.convertQuietly(meta.getFieldType(), false);
+				sql.where(columnName + " = #{" + keyName + "}");
+				bindings.put(keyName, val);
 			}
 		}
 		if (!sql.where().hasConditions()) {
@@ -736,7 +776,7 @@ public class SqlStatements {
 		sql.from(tableMeta.getTable());
 
 
-		VarNameGenerator whereKeyGen = VarNameGenerator.newInstance(KEY_WHERE_PREFIX);
+		VarNameGenerator whereKeyGen = newWhereVarNameGenerator();
 
 		for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
 			String name = entry.getKey();
