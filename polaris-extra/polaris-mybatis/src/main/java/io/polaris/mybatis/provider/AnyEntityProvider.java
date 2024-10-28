@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import io.polaris.core.annotation.Published;
+import io.polaris.core.jdbc.sql.BindingValues;
 import io.polaris.core.jdbc.sql.EntityStatements;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +40,7 @@ public class AnyEntityProvider extends BaseProviderMethodResolver {
 			function = EntityStatements.buildSqlUpdateFunction(method);
 		}
 		SqlNode sqlNode = function.apply(bindings);
-		return EntityStatements.asSqlWithBindings(bindings, sqlNode);
+		return BindingValues.asSqlWithBindings(bindings, sqlNode);
 	}
 
 }

@@ -1,7 +1,7 @@
 package io.polaris.mybatis.provider;
 
 import io.polaris.core.annotation.Published;
-import io.polaris.core.jdbc.sql.EntityStatements;
+import io.polaris.core.jdbc.sql.BindingValues;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.statement.SelectStatement;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ public class SqlCountProvider extends BaseProviderMethodResolver {
 			if (st == null) {
 				st = (SelectStatement<?>) map.get(BindingKeys.SQL);
 			}
-			String sql = EntityStatements.asSqlWithBindings(map, st::toCountSqlNode);
+			String sql = BindingValues.asSqlWithBindings(map, st::toCountSqlNode);
 			if (log.isDebugEnabled()) {
 				log.debug("<sql>\n{}\n<bindings>\n{}", sql, map);
 			}

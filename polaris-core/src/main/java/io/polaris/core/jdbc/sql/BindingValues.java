@@ -18,6 +18,8 @@ import javax.annotation.Nullable;
 import io.polaris.core.consts.StdConsts;
 import io.polaris.core.converter.Converters;
 import io.polaris.core.jdbc.ColumnMeta;
+import io.polaris.core.jdbc.sql.node.SqlNode;
+import io.polaris.core.jdbc.sql.statement.SqlNodeBuilder;
 import io.polaris.core.lang.bean.BeanMap;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.string.StringCases;
@@ -274,4 +276,21 @@ public class BindingValues {
 		}
 		return params;
 	}
+
+
+	public static String asSqlWithBindings(Map<String, Object> map, SqlNodeBuilder sqlNodeBuilder) {
+		SqlNode sqlNode = sqlNodeBuilder.toSqlNode();
+		return asSqlWithBindings(map, sqlNode);
+	}
+
+
+	public static String asSqlWithBindings(Map<String, Object> map, SqlNode sqlNode) {
+		BoundSql boundSql = sqlNode.asBoundSql();
+		Map<String, Object> bindings = boundSql.getBindings();
+		if (bindings != null && !bindings.isEmpty()) {
+			map.putAll(bindings);
+		}
+		return boundSql.getText();
+	}
+
 }

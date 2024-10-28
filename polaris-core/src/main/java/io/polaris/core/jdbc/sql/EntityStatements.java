@@ -16,48 +16,8 @@ import io.polaris.core.converter.Converters;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.TableMetaKit;
-import io.polaris.core.jdbc.annotation.EntityDelete;
-import io.polaris.core.jdbc.annotation.EntityInsert;
-import io.polaris.core.jdbc.annotation.EntityMerge;
-import io.polaris.core.jdbc.annotation.EntitySelect;
-import io.polaris.core.jdbc.annotation.EntityUpdate;
-import io.polaris.core.jdbc.annotation.SqlDelete;
-import io.polaris.core.jdbc.annotation.SqlEntity;
-import io.polaris.core.jdbc.annotation.SqlInsert;
-import io.polaris.core.jdbc.annotation.SqlRaw;
-import io.polaris.core.jdbc.annotation.SqlRawSimple;
-import io.polaris.core.jdbc.annotation.SqlSelect;
-import io.polaris.core.jdbc.annotation.SqlSelectSet;
-import io.polaris.core.jdbc.annotation.SqlUpdate;
-import io.polaris.core.jdbc.annotation.segment.BindingKey;
-import io.polaris.core.jdbc.annotation.segment.Condition;
-import io.polaris.core.jdbc.annotation.segment.Criteria1;
-import io.polaris.core.jdbc.annotation.segment.Criteria2;
-import io.polaris.core.jdbc.annotation.segment.Criteria3;
-import io.polaris.core.jdbc.annotation.segment.Criteria4;
-import io.polaris.core.jdbc.annotation.segment.Criteria5;
-import io.polaris.core.jdbc.annotation.segment.Criterion;
-import io.polaris.core.jdbc.annotation.segment.Function;
-import io.polaris.core.jdbc.annotation.segment.GroupBy;
-import io.polaris.core.jdbc.annotation.segment.Having;
-import io.polaris.core.jdbc.annotation.segment.InsertColumn;
-import io.polaris.core.jdbc.annotation.segment.Join;
-import io.polaris.core.jdbc.annotation.segment.JoinColumn;
-import io.polaris.core.jdbc.annotation.segment.JoinCriterion;
-import io.polaris.core.jdbc.annotation.segment.SelectColumn;
-import io.polaris.core.jdbc.annotation.segment.SqlRawItem;
-import io.polaris.core.jdbc.annotation.segment.SubCriteria;
-import io.polaris.core.jdbc.annotation.segment.SubCriteria1;
-import io.polaris.core.jdbc.annotation.segment.SubCriteria2;
-import io.polaris.core.jdbc.annotation.segment.SubCriteria3;
-import io.polaris.core.jdbc.annotation.segment.SubCriteria4;
-import io.polaris.core.jdbc.annotation.segment.SubCriteria5;
-import io.polaris.core.jdbc.annotation.segment.SubCriterion;
-import io.polaris.core.jdbc.annotation.segment.SubHaving;
-import io.polaris.core.jdbc.annotation.segment.SubSelect;
-import io.polaris.core.jdbc.annotation.segment.SubWhere;
-import io.polaris.core.jdbc.annotation.segment.UpdateColumn;
-import io.polaris.core.jdbc.annotation.segment.Where;
+import io.polaris.core.jdbc.annotation.*;
+import io.polaris.core.jdbc.annotation.segment.*;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.consts.JoinType;
 import io.polaris.core.jdbc.sql.consts.Relation;
@@ -98,7 +58,7 @@ import io.polaris.core.tuple.ValueRef;
 
 /**
  * @author Qt
- * @since  Jan 27, 2024
+ * @since Jan 27, 2024
  */
 @SuppressWarnings({"all"})
 public class EntityStatements {
@@ -125,6 +85,7 @@ public class EntityStatements {
 		}
 		return tableAccessible;
 	}
+
 	public static java.util.function.Function<Map<String, Object>, SqlNode> buildSqlUpdateFunction(Method method) {
 		{
 			EntityInsert entityInsert = method.getAnnotation(EntityInsert.class);
@@ -2106,20 +2067,6 @@ public class EntityStatements {
 		Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, Collections.emptyMap());
 		st.withEntity(entity, updateWhenMatched, insertWhenNotMatched, columnPredicate);
 		return st;
-	}
-
-	public static String asSqlWithBindings(Map<String, Object> map, SqlNodeBuilder sqlNodeBuilder) {
-		SqlNode sqlNode = sqlNodeBuilder.toSqlNode();
-		return asSqlWithBindings(map, sqlNode);
-	}
-
-	public static String asSqlWithBindings(Map<String, Object> map, SqlNode sqlNode) {
-		BoundSql boundSql = sqlNode.asBoundSql();
-		Map<String, Object> bindings = boundSql.getBindings();
-		if (bindings != null && !bindings.isEmpty()) {
-			map.putAll(bindings);
-		}
-		return boundSql.getText();
 	}
 
 

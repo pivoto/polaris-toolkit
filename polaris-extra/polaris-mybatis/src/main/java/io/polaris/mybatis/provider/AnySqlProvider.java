@@ -1,7 +1,7 @@
 package io.polaris.mybatis.provider;
 
 import io.polaris.core.annotation.Published;
-import io.polaris.core.jdbc.sql.EntityStatements;
+import io.polaris.core.jdbc.sql.BindingValues;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.statement.SqlNodeBuilder;
@@ -21,9 +21,9 @@ public class AnySqlProvider extends BaseProviderMethodResolver {
 			Object obj = map.get(BindingKeys.SQL);
 			String sql = null;
 			if (obj instanceof SqlNode) {
-				sql = EntityStatements.asSqlWithBindings(map, (SqlNode) obj);
+				sql = BindingValues.asSqlWithBindings(map, (SqlNode) obj);
 			} else if (obj instanceof SqlNodeBuilder) {
-				sql = EntityStatements.asSqlWithBindings(map, (SqlNodeBuilder) obj);
+				sql = BindingValues.asSqlWithBindings(map, (SqlNodeBuilder) obj);
 			} else if (obj instanceof String) {
 				sql = (String) obj;
 			} else {
