@@ -49,11 +49,7 @@ public class Queries {
 					}
 					ExpressionMeta expressionMeta = tableMeta.getExpressions().get(field);
 					if (expressionMeta != null) {
-						if (Strings.isNotBlank(expressionMeta.getTableAliasPlaceholder())) {
-							return expressionMeta.getExpression().replace(expressionMeta.getTableAliasPlaceholder(), alias + SymbolConsts.DOT);
-						} else {
-							return expressionMeta.getExpression();
-						}
+						return expressionMeta.getExpressionWithTableAlias(alias);
 					}
 				}
 			} else {
@@ -63,11 +59,8 @@ public class Queries {
 				}
 				ExpressionMeta expressionMeta = tableMeta.getExpressions().get(field);
 				if (expressionMeta != null) {
-					if (Strings.isNotBlank(expressionMeta.getTableAliasPlaceholder())) {
-						return expressionMeta.getExpression().replace(expressionMeta.getTableAliasPlaceholder(), "");
-					} else {
-						return expressionMeta.getExpression();
-					}
+					// 无别名时，使用表名，防止子查询中字段来源不明确
+					return expressionMeta.getExpressionWithTableName();
 				}
 			}
 			return null;

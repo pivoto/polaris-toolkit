@@ -106,12 +106,11 @@ public class TableEntitySegment<S extends TableEntitySegment<S>> extends TableSe
 			if (sb.length() > 0) {
 				sb.append(", ");
 			}
-			if (Strings.isBlank(expressionMeta.getTableAliasPlaceholder())) {
-				sb.append(expressionMeta.getExpression());
-			} else if (Strings.isNotBlank(alias) && withTableAlias) {
-				sb.append(expressionMeta.getExpression().replace(expressionMeta.getTableAliasPlaceholder(), alias + "."));
+			if (Strings.isNotBlank(alias) && withTableAlias) {
+				sb.append(expressionMeta.getExpressionWithTableAlias(alias));
 			} else {
-				sb.append(expressionMeta.getExpression().replace(expressionMeta.getTableAliasPlaceholder(), ""));
+				// 无别名时，使用表名，防止子查询中字段来源不明确
+				sb.append(expressionMeta.getExpressionWithTableName());
 			}
 			if (aliasWithField) {
 				String fieldAlias = SelectSegment.toAlias(field, aliasPrefix, aliasSuffix);
@@ -146,12 +145,11 @@ public class TableEntitySegment<S extends TableEntitySegment<S>> extends TableSe
 				return columnMeta.getColumnName();
 			}
 		} else {
-			if (Strings.isBlank(expressionMeta.getTableAliasPlaceholder())) {
-				return expressionMeta.getExpression();
-			} else if (Strings.isNotBlank(alias) && withTableAlias) {
-				return expressionMeta.getExpression().replace(expressionMeta.getTableAliasPlaceholder(), alias + ".");
+			if (Strings.isNotBlank(alias) && withTableAlias) {
+				return expressionMeta.getExpressionWithTableAlias(alias);
 			} else {
-				return expressionMeta.getExpression().replace(expressionMeta.getTableAliasPlaceholder(), "");
+				// 无别名时，使用表名，防止子查询中字段来源不明确
+				return expressionMeta.getExpressionWithTableName();
 			}
 		}
 	}

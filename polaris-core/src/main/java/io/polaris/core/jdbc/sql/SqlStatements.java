@@ -840,7 +840,8 @@ public class SqlStatements {
 			String name = entry.getKey();
 			ExpressionMeta meta = entry.getValue();
 			if (meta.isSelectable()) {
-				String columnName = meta.getExpressionWithoutTableAlias();
+				// 无别名时，使用表名，防止子查询中字段来源不明确
+				String columnName = meta.getExpressionWithTableName();
 				sql.select(columnName + " " + name);
 			}
 		}
@@ -892,7 +893,7 @@ public class SqlStatements {
 
 				ExpressionMeta expressionMeta = tableMeta.getExpressions().get(item.getField());
 				if (expressionMeta != null) {
-					sql.orderBy(expressionMeta.getExpressionWithoutTableAlias() + " " + item.getDirection().getSqlText());
+					sql.orderBy(expressionMeta.getExpressionWithTableName() + " " + item.getDirection().getSqlText());
 					continue;
 				}
 			}
@@ -940,8 +941,8 @@ public class SqlStatements {
 			}
 
 			ExpressionMeta meta = entry.getValue();
-			String columnName = Strings.isNotBlank(meta.getTableAliasPlaceholder()) ?
-				meta.getExpression().replace(meta.getTableAliasPlaceholder(), "") : meta.getExpression();
+			// 无别名时，使用表名，防止子查询中字段来源不明确
+			String columnName = meta.getExpressionWithTableName();
 			Object val = entityMap.get(name);
 
 			if (Objs.isNotEmpty(val)) {
@@ -975,7 +976,7 @@ public class SqlStatements {
 	 */
 	private static void appendSqlWhereWithVal(@Nonnull Map<String, Object> bindings
 		, @Nonnull SqlStatement sql, @Nonnull ExpressionMeta meta, @Nonnull Object val, String key) {
-		String columnName = Strings.isNotBlank(meta.getTableAliasPlaceholder()) ? meta.getExpression().replace(meta.getTableAliasPlaceholder(), "") : meta.getExpression();
+		String columnName = meta.getExpressionWithTableName();
 		Class<?> fieldType = meta.getFieldType();
 		appendSqlWhereWithVal(bindings, sql, columnName, fieldType, val, key);
 	}

@@ -59,4 +59,21 @@ public final class ExpressionMeta implements Cloneable {
 		return expression.replace(tableAliasPlaceholder, "");
 	}
 
+	public String getExpressionWithTableAlias(String alias) {
+		if (tableAliasPlaceholder == null || tableAliasPlaceholder.isEmpty()) {
+			return expression;
+		}
+		if (alias == null || alias.isEmpty()) {
+			alias = tableName;
+		}
+		return expression.replace(tableAliasPlaceholder, alias + ".");
+	}
+
+	public String getExpressionWithTableName() {
+		if (tableAliasPlaceholder == null || tableAliasPlaceholder.isEmpty()) {
+			return expression;
+		}
+		return expression.replace(tableAliasPlaceholder, tableName + ".");
+	}
+
 }
