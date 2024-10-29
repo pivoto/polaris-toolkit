@@ -387,13 +387,6 @@ function onUpdateCurrentRow(currentRow: any, oldCurrentRow: any) {
 function tableColumnFormatTime(row: any, column: TableColumnCtx<any>, cellValue: any, index: any) {
 	return cellValue && formatDate(new Date(cellValue), 'yyyy-MM-dd HH:mm:ss.SSS')
 }
-function tableColumnFormatCrtUser(row: any, column: TableColumnCtx<any>, cellValue: any, index: any) {
-	return row.crtUserName || cellValue && (cellValue=='0'?'(SYS)':'('+cellValue+')');
-}
-function tableColumnFormatUptUser(row: any, column: TableColumnCtx<any>, cellValue: any, index: any) {
-	return row.uptUserName || cellValue && (cellValue=='0'?'(SYS)':'('+cellValue+')');
-}
-
 
 // 打开新增弹窗
 function onOpenAddDialog() {
