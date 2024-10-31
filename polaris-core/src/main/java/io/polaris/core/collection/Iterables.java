@@ -28,6 +28,42 @@ public class Iterables {
 	}
 
 
+	public static <E, K> Map<K, E> asMap(Iterable<E> iterable, Function<E, K> keyConverter) {
+		return asMap(iterable, HashMap::new, keyConverter, Function.identity(), false);
+	}
+
+	public static <E, K> Map<K, E> asMap(Iterable<E> iterable, Supplier<Map<K, E>> supplier, Function<E, K> keyConverter) {
+		return asMap(iterable, supplier, keyConverter, Function.identity(), false);
+	}
+
+	public static <E, K, V> Map<K, V> asMap(Iterable<E> iterable, Supplier<Map<K, V>> supplier, Function<E, K> keyConverter, Function<E, V> valueConverter) {
+		return asMap(iterable, supplier, keyConverter, valueConverter, false);
+	}
+
+	public static <E, K, V> Map<K, V> asMap(Iterable<E> iterable, Function<E, K> keyConverter, Function<E, V> valueConverter) {
+		return asMap(iterable, HashMap::new, keyConverter, valueConverter, false);
+	}
+
+
+	public static <E, K, V> Map<K, V> asMap(Iterable<E> iterable, Function<E, K> keyConverter, Function<E, V> valueConverter, boolean replaceIfPresent) {
+		return asMap(iterable, HashMap::new, keyConverter, valueConverter, replaceIfPresent);
+	}
+
+
+	public static <E, K, V> Map<K, V> asMap(Iterable<E> iterable, Supplier<Map<K, V>> supplier, Function<E, K> keyConverter, Function<E, V> valueConverter, boolean replaceIfPresent) {
+		Map<K, V> map = supplier.get();
+		if (replaceIfPresent) {
+			for (E e : iterable) {
+				map.put(keyConverter.apply(e), valueConverter.apply(e));
+			}
+		} else {
+			for (E e : iterable) {
+				map.putIfAbsent(keyConverter.apply(e), valueConverter.apply(e));
+			}
+		}
+		return map;
+	}
+
 	public static <C extends Collection<O>, E, O> C asCollection(Supplier<C> supplier, Function<E, O> converter, Enumeration<E> enumeration) {
 		C c = supplier.get();
 		while (enumeration.hasMoreElements()) {
