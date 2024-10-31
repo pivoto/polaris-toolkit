@@ -29,9 +29,9 @@ import java.util.regex.Pattern;
  * @author Qt
  * @since 1.8
  */
-public class Validations {
+public class Validations implements io.polaris.core.assertion.Validations {
 
-	private static Pattern patternPlaceholder = Pattern.compile("\\{([^}]+)\\}");
+	private static final Pattern patternPlaceholder = Pattern.compile("\\{([^}]+)\\}");
 	private static ResourceBundleLocator defaultResourceBundleLocator;
 	private static ValidatorFactory defaultFactory;
 	private static Validator defaultValidator;
