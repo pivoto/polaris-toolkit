@@ -406,18 +406,26 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		excelFile.readData(consumer);
 	}
 
-
-	private int getCountBySql(Object param, Function<${table.javaClassName}${env.entityClassSuffix}Sql.Select, SelectStatement<?>> sqlBuilder) {
-		${table.javaClassName}${env.entityClassSuffix}Sql.Select sql = ${table.javaClassName}${env.entityClassSuffix}Sql.select().selectAll();
-		if (param != null) {
-			sql.where().byEntity(param);
-		}
+	private SelectStatement<?> buildSelect(Object param, Function<${table.javaClassName}${env.entityClassSuffix}Sql.Select, SelectStatement<?>> sqlBuilder) {
+		SelectStatement<?> sql = null;
 		if (sqlBuilder != null) {
-			SelectStatement<?> newSql = sqlBuilder.apply(sql);
-			if (newSql != null) {
-				return mapper.countBySql(newSql);
+			sql = sqlBuilder.apply(${table.javaClassName}${env.entityClassSuffix}Sql.select().selectAll());
+		}
+		if (sql == null) {
+			if (param instanceof SelectStatement) {
+				sql = (SelectStatement<?>) param;
+			} else {
+				sql = ${table.javaClassName}${env.entityClassSuffix}Sql.select().selectAll();
 			}
 		}
+		if (param != null && !(param instanceof SelectStatement)) {
+			sql.where().byEntity(param);
+		}
+		return sql;
+	}
+
+	private int getCountBySql(Object param, Function<${table.javaClassName}${env.entityClassSuffix}Sql.Select, SelectStatement<?>> sqlBuilder) {
+		SelectStatement<?> sql = buildSelect(param, sqlBuilder);
 		return mapper.countBySql(sql);
 	}
 
@@ -430,7 +438,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	@Transactional(rollbackFor = Exception.class)
 	public int getCount(Object param, Function<${table.javaClassName}${env.entityClassSuffix}Sql.Select, SelectStatement<?>> sqlBuilder) {
 		log.info("查询表[BPM_PROC_DEF_INFO]记录数.param={}", param);
-		if (sqlBuilder != null) {
+		if (sqlBuilder != null || param instanceof SelectStatement) {
 			return getCountBySql(param, sqlBuilder);
 		}
 		if (preferSqlStatement()) {
@@ -510,7 +518,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	}
 
 	private List<${table.javaClassName}${env.entityClassSuffix}> getListByAny(Object param, OrderBy orderBy, Function<${table.javaClassName}${env.entityClassSuffix}Sql.Select, SelectStatement<?>> sqlBuilder) {
-		if (sqlBuilder != null) {
+		if (sqlBuilder != null || param instanceof SelectStatement) {
 			return getListBySql(param, orderBy, sqlBuilder);
 		}
 		if (preferSqlStatement()) {
@@ -527,18 +535,9 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	}
 
 	private List<${table.javaClassName}${env.entityClassSuffix}> getListBySql(Object param, OrderBy orderBy, Function<${table.javaClassName}${env.entityClassSuffix}Sql.Select, SelectStatement<?>> sqlBuilder) {
-		${table.javaClassName}${env.entityClassSuffix}Sql.Select sql = ${table.javaClassName}${env.entityClassSuffix}Sql.select().selectAll();
-		if (param != null) {
-			sql.where().byEntity(param);
-		}
+		SelectStatement<?> sql = buildSelect(param, sqlBuilder);
 		if (orderBy != null) {
 			sql.orderBy(orderBy);
-		}
-		if (sqlBuilder != null) {
-			SelectStatement<?> newSql = sqlBuilder.apply(sql);
-			if (newSql != null) {
-				return mapper.selectEntityListBySql(newSql);
-			}
 		}
 		return mapper.selectEntityListBySql(sql);
 	}
@@ -554,17 +553,58 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	 */
 	@Transactional(rollbackFor = Exception.class)
 	public Page<${table.javaClassName}${env.entityClassSuffix}> getPage(Object param, int pageNum, int pageSize) {
+		return getPage(param, pageNum, pageSize, null, null);
+	}
+
+	/**
+	 * 分页查询所有数据,返回当前页{@link Page}对象
+	 *
+	 * @param param 查询条件对象
+	 * @param pageNum 页码
+	 * @param pageSize 每页记录数
+	 * @param sqlBuilder 查询SQL扩展方法
+	 * @return 当前页对象
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public Page<${table.javaClassName}${env.entityClassSuffix}> getPage(Object param, int pageNum, int pageSize, Function<${table.javaClassName}${env.entityClassSuffix}Sql.Select, SelectStatement<?>> sqlBuilder) {
+		return getPage(param, pageNum, pageSize, null, sqlBuilder);
+	}
+
+	/**
+	 * 分页查询所有数据,返回当前页{@link Page}对象
+	 *
+	 * @param param 查询条件对象
+	 * @param pageNum 页码
+	 * @param pageSize 每页记录数
+	 * @param orderBy 排序对象
+	 * @return 当前页对象
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public Page<${table.javaClassName}${env.entityClassSuffix}> getPage(Object param, int pageNum, int pageSize, OrderBy orderBy) {
+		return getPage(param, pageNum, pageSize, orderBy, null);
+	}
+
+	/**
+	 * 分页查询所有数据,返回当前页{@link Page}对象
+	 *
+	 * @param param 查询条件对象
+	 * @param pageNum 页码
+	 * @param pageSize 每页记录数
+	 * @param orderBy 排序对象
+	 * @param sqlBuilder 查询SQL扩展方法
+	 * @return 当前页对象
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public Page<${table.javaClassName}${env.entityClassSuffix}> getPage(Object param, int pageNum, int pageSize, OrderBy orderBy, Function<${table.javaClassName}${env.entityClassSuffix}Sql.Select, SelectStatement<?>> sqlBuilder) {
 		log.info("查询表[${table.name}]结果集.param={},pageNum={},pageSize={}", param, pageNum, pageSize);
-		Page<${table.javaClassName}${env.entityClassSuffix}> page = PageHelper.startPage(pageNum, pageSize, false);
-		List<${table.javaClassName}${env.entityClassSuffix}> list = getListByAny(param, null, null);
+		Page<${table.javaClassName}${env.entityClassSuffix}> page = PageHelper.startPage(pageNum, pageSize, true);
+		List<${table.javaClassName}${env.entityClassSuffix}> list = getListByAny(param, orderBy, sqlBuilder);
 		if (list instanceof Page) {
 			page = (Page<${table.javaClassName}${env.entityClassSuffix}>) list;
 		} else {
 			page.addAll(list);
 		}
 		${table.javaClassName}${env.entityClassSuffix}.translate(list);
-		int total = getCount(param);
-		page.setTotal(total);
 		return page;
 	}
 
@@ -577,6 +617,19 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	 */
 	@Transactional(rollbackFor = Exception.class)
 	public List<${table.javaClassName}${env.entityClassSuffix}> getPage(Object param, Pageable page) {
+		return getPage(param, page, null);
+	}
+
+	/**
+	 * 分页查询所有数据, 无分页参数时返回所有数据
+	 *
+	 * @param param 查询条件对象
+	 * @param page 分布参数
+	 * @param sqlBuilder 查询SQL扩展方法
+	 * @return 当前页对象
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public List<${table.javaClassName}${env.entityClassSuffix}> getPage(Object param, Pageable page, Function<${table.javaClassName}${env.entityClassSuffix}Sql.Select, SelectStatement<?>> sqlBuilder) {
 		log.info("查询表[${table.name}]结果集.param={},page={}", param, page);
 		List<${table.javaClassName}${env.entityClassSuffix}> list = null;
 		if (page == null) {
@@ -584,7 +637,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 		} else {
 			// noinspection resource
 			Page<${table.javaClassName}${env.entityClassSuffix}> data = PageHelper.startPage(page.getPageNum(), page.getPageSize(), true)
-				.doSelectPage(() -> getListByAny(param, page.getOrderBy(), null));
+				.doSelectPage(() -> getListByAny(param, page.getOrderBy(), sqlBuilder));
 			page.setTotal((int) data.getTotal());
 			list = data;
 		}
@@ -601,10 +654,45 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	 */
 	@Transactional(rollbackFor = Exception.class)
 	public List<${table.javaClassName}${env.entityClassSuffix}> getLimitedList(Object param, int maxCount) {
+		return getLimitedList(param, maxCount, null, null);
+	}
+
+	/**
+	 * 查询满足条件的不超过数据量上限的所有数据,返回{@link List}对象列表
+	 *
+	 * @param param 查询条件对象
+	 * @return 结果对象列表
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public List<${table.javaClassName}${env.entityClassSuffix}> getLimitedList(Object param, int maxCount, OrderBy orderBy) {
+		return getLimitedList(param, maxCount, orderBy, null);
+	}
+
+	/**
+	 * 查询满足条件的不超过数据量上限的所有数据,返回{@link List}对象列表
+	 *
+	 * @param param 查询条件对象
+	 * @return 结果对象列表
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public List<${table.javaClassName}${env.entityClassSuffix}> getLimitedList(Object param, int maxCount, Function<${table.javaClassName}${env.entityClassSuffix}Sql.Select, SelectStatement<?>> sqlBuilder) {
+		return getLimitedList(param, maxCount, null, sqlBuilder);
+	}
+
+	/**
+	 * 查询满足条件的不超过数据量上限的所有数据,返回{@link List}对象列表
+	 *
+	 * @param param 查询条件对象
+	 * @param orderBy 排序对象
+	 * @param sqlBuilder 查询SQL扩展方法
+	 * @return 结果对象列表
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public List<${table.javaClassName}${env.entityClassSuffix}> getLimitedList(Object param, int maxCount, OrderBy orderBy, Function<${table.javaClassName}${env.entityClassSuffix}Sql.Select, SelectStatement<?>> sqlBuilder) {
 		log.info("查询表[${table.name}]结果集.param={},maxCount={}", param, maxCount);
 		// noinspection resource
 		List<${table.javaClassName}${env.entityClassSuffix}> list = PageHelper.startPage(1, maxCount, false)
-			.doSelectPage(() -> getListByAny(param, null, null));
+			.doSelectPage(() -> getListByAny(param, orderBy, sqlBuilder));
 		${table.javaClassName}${env.entityClassSuffix}.translate(list);
 		return list;
 	}
@@ -620,10 +708,53 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	 */
 	@Transactional(rollbackFor = Exception.class)
 	public List<${table.javaClassName}${env.entityClassSuffix}> getList(Object param, int pageIndex, int pageSize) {
+		return getList(param, pageIndex, pageSize, null, null);
+	}
+
+	/**
+	 * 分页查询所有数据,返回{@link List}对象列表
+	 *
+	 * @param param 查询条件对象
+	 * @param pageIndex 页码
+	 * @param pageSize 每页记录数
+	 * @param orderBy 排序对象
+	 * @return 结果对象列表
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public List<${table.javaClassName}${env.entityClassSuffix}> getList(Object param, int pageIndex, int pageSize, OrderBy orderBy) {
+		return getList(param, pageIndex, pageSize, orderBy, null);
+	}
+
+	/**
+	 * 分页查询所有数据,返回{@link List}对象列表
+	 *
+	 * @param param 查询条件对象
+	 * @param pageIndex 页码
+	 * @param pageSize 每页记录数
+	 * @param sqlBuilder 查询SQL扩展方法
+	 * @return 结果对象列表
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public List<${table.javaClassName}${env.entityClassSuffix}> getList(Object param, int pageIndex, int pageSize, Function<${table.javaClassName}${env.entityClassSuffix}Sql.Select, SelectStatement<?>> sqlBuilder) {
+		return getList(param, pageIndex, pageSize, null, sqlBuilder);
+	}
+
+	/**
+	 * 分页查询所有数据,返回{@link List}对象列表
+	 *
+	 * @param param 查询条件对象
+	 * @param pageIndex 页码
+	 * @param pageSize 每页记录数
+	 * @param orderBy 排序对象
+	 * @param sqlBuilder 查询SQL扩展方法
+	 * @return 结果对象列表
+	 */
+	@Transactional(rollbackFor = Exception.class)
+	public List<${table.javaClassName}${env.entityClassSuffix}> getList(Object param, int pageIndex, int pageSize, OrderBy orderBy, Function<${table.javaClassName}${env.entityClassSuffix}Sql.Select, SelectStatement<?>> sqlBuilder) {
 		log.info("查询表[${table.name}]结果集.param={},pageIndex={},pageSize={}", param, pageIndex, pageSize);
 		// noinspection resource
 		List<${table.javaClassName}${env.entityClassSuffix}> list = PageHelper.startPage(pageIndex, pageSize, false)
-			.doSelectPage(() -> getListByAny(param, null, null));
+			.doSelectPage(() -> getListByAny(param, orderBy, sqlBuilder));
 		${table.javaClassName}${env.entityClassSuffix}.translate(list);
 		return list;
 	}
