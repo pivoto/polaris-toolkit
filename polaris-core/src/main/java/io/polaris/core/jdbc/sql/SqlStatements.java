@@ -20,6 +20,7 @@ import io.polaris.core.jdbc.sql.node.VarNameGenerator;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.OrderBy;
 import io.polaris.core.jdbc.sql.query.Queries;
+import io.polaris.core.jdbc.sql.query.ValueRange;
 import io.polaris.core.jdbc.sql.statement.ColumnPredicate;
 import io.polaris.core.jdbc.sql.statement.ConfigurableColumnPredicate;
 import io.polaris.core.lang.Objs;
@@ -38,8 +39,8 @@ import io.polaris.core.string.Strings;
 public class SqlStatements {
 	private static ILogger log = ILoggers.of(SqlStatements.class);
 
-	private static final String KEY_WHERE_PREFIX = "_w";
-	private static final String KEY_VALUE_PREFIX = "_v";
+	private static final String KEY_WHERE_PREFIX = "_w" ;
+	private static final String KEY_VALUE_PREFIX = "_v" ;
 
 	private static VarNameGenerator newWhereVarNameGenerator() {
 		return VarNameGenerator.newInstance(KEY_WHERE_PREFIX);
@@ -1017,11 +1018,24 @@ public class SqlStatements {
 			if (val instanceof String && (((String) val).startsWith("%") || ((String) val).endsWith("%"))) {
 				bindings.put(key, val);
 				sql.where(columnName + " like #{" + key + "} ");
+				// 完成条件绑定
 				return;
 			}
 		}
 
-		if (val instanceof Iterable) {
+		if (val instanceof ValueRange) {
+			ValueRange<?> range = (ValueRange<?>) val;
+			Object start = range.getStart();
+			Object end = range.getEnd();
+			if (Objs.isNotEmpty(start)) {
+				sql.where(columnName + " >= #{" + key + "0} ");
+				bindings.put(key + "0", start);
+			}
+			if (Objs.isNotEmpty(end)) {
+				sql.where(columnName + " <= #{" + key + "1} ");
+				bindings.put(key + "1", end);
+			}
+		} else if (val instanceof Iterable) {
 			StringBuilder where = new StringBuilder();
 			where.append(columnName).append(" IN ( ");
 			int i = 0;

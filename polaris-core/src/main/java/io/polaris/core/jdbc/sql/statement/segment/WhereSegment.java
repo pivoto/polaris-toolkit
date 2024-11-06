@@ -24,21 +24,21 @@ import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
 import io.polaris.core.jdbc.sql.node.TextNode;
+import io.polaris.core.jdbc.sql.query.ValueRange;
 import io.polaris.core.jdbc.sql.statement.BaseSegment;
 import io.polaris.core.jdbc.sql.statement.ColumnPredicate;
 import io.polaris.core.jdbc.sql.statement.ConfigurableColumnPredicate;
 import io.polaris.core.jdbc.sql.statement.Segment;
 import io.polaris.core.jdbc.sql.statement.SelectStatement;
 import io.polaris.core.jdbc.sql.statement.SqlNodeBuilder;
+import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.reflect.GetterFunction;
 import io.polaris.core.reflect.Reflects;
 
-import static io.polaris.core.lang.Objs.isNotEmpty;
-
 /**
  * @author Qt
- * @since  Aug 22, 2023
+ * @since Aug 22, 2023
  */
 @SuppressWarnings({"UnusedReturnValue", "unused"})
 @AnnotationProcessing
@@ -173,51 +173,65 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 	}
 
 	private void addWhereSqlByColumnValue(String fieldName, Class<?> fieldType, Object val, ColumnPredicate columnPredicate) {
-		if (isNotEmpty(val)) {
-			// 日期字段
-			if (Date.class.isAssignableFrom(fieldType)) {
-				Date[] range = BindingValues.getDateRangeOrNull(val);
-				if (range != null) {
-					if (range[0] != null) {
-						this.column(fieldName).ge(range[0]);
-					}
-					if (range[1] != null) {
-						this.column(fieldName).le(range[1]);
-					}
-					// 完成条件绑定
-					return;
-				}
-			}
-			// 文本字段
-			else if (String.class.isAssignableFrom(fieldType)) {
-				if (val instanceof String && (((String) val).startsWith("%") || ((String) val).endsWith("%"))) {
-					this.column(fieldName).like((String) val);
-					// 完成条件绑定
-					return;
-				}
-			}
-			if (val instanceof Collection) {
-				List<Object> list = new ArrayList<>((Collection<?>) val);
-				this.column(fieldName).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
-			} else if (val instanceof Iterable) {
-				@SuppressWarnings("unchecked")
-				List<Object> list = Iterables.asCollection(ArrayList::new, (Iterable<Object>) val);
-				this.column(fieldName).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
-			} else if (val instanceof Iterator) {
-				@SuppressWarnings("unchecked")
-				List<Object> list = Iterables.asCollection(ArrayList::new, (Iterator<Object>) val);
-				this.column(fieldName).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
-			} else if (val.getClass().isArray()) {
-				List<Object> list = ObjectArrays.toList(val);
-				this.column(fieldName).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
-			} else {
-				this.column(fieldName).eq((Object) Converters.convertQuietly(fieldType, val));
-			}
-		} else {
+		if (Objs.isEmpty(val)) {
 			// 需要包含空值字段
 			if (columnPredicate.isIncludedEmptyColumn(fieldName)) {
 				this.column(fieldName).isNull();
 			}
+			// 完成条件绑定
+			return;
+		}
+
+		// 日期字段
+		if (Date.class.isAssignableFrom(fieldType)) {
+			Date[] range = BindingValues.getDateRangeOrNull(val);
+			if (range != null) {
+				if (range[0] != null) {
+					this.column(fieldName).ge(range[0]);
+				}
+				if (range[1] != null) {
+					this.column(fieldName).le(range[1]);
+				}
+				// 完成条件绑定
+				return;
+			}
+		}
+		// 文本字段
+		else if (String.class.isAssignableFrom(fieldType)) {
+			if (val instanceof String && (((String) val).startsWith("%") || ((String) val).endsWith("%"))) {
+				this.column(fieldName).like((String) val);
+				// 完成条件绑定
+				return;
+			}
+		}
+
+		// 尚未绑定条件，考虑其他一般他情况
+		if (val instanceof ValueRange) {
+			ValueRange<?> range = (ValueRange<?>) val;
+			Object start = range.getStart();
+			Object end = range.getEnd();
+			if (Objs.isNotEmpty(start)) {
+				this.column(fieldName).ge(start);
+			}
+			if (Objs.isNotEmpty(end)) {
+				this.column(fieldName).le(end);
+			}
+		} else if (val instanceof Collection) {
+			List<Object> list = new ArrayList<>((Collection<?>) val);
+			this.column(fieldName).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
+		} else if (val instanceof Iterable) {
+			@SuppressWarnings("unchecked")
+			List<Object> list = Iterables.asCollection(ArrayList::new, (Iterable<Object>) val);
+			this.column(fieldName).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
+		} else if (val instanceof Iterator) {
+			@SuppressWarnings("unchecked")
+			List<Object> list = Iterables.asCollection(ArrayList::new, (Iterator<Object>) val);
+			this.column(fieldName).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
+		} else if (val.getClass().isArray()) {
+			List<Object> list = ObjectArrays.toList(val);
+			this.column(fieldName).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
+		} else {
+			this.column(fieldName).eq((Object) Converters.convertQuietly(fieldType, val));
 		}
 	}
 
