@@ -204,16 +204,30 @@ public class Iterables {
 		return true;
 	}
 
-	public static <E> boolean isEmpty(Collection<E> array) {
-		return array == null || array.isEmpty();
+	public static <E> boolean isEmpty(Iterable<E> iterable) {
+		if (iterable == null) {
+			return true;
+		}
+		if (iterable instanceof Collection) {
+			return ((Collection<E>) iterable).isEmpty();
+		}
+		return iterable.iterator().hasNext();
+	}
+
+	public static <E> boolean isEmpty(Collection<E> collection) {
+		return collection == null || collection.isEmpty();
 	}
 
 	public static <E> boolean isEmpty(E[] array) {
 		return array == null || array.length == 0;
 	}
 
-	public static <E> boolean isNotEmpty(Collection<E> array) {
-		return array != null && !array.isEmpty();
+	public static <E> boolean isNotEmpty(Iterable<E> iterable) {
+		return !isEmpty(iterable);
+	}
+
+	public static <E> boolean isNotEmpty(Collection<E> collection) {
+		return collection != null && !collection.isEmpty();
 	}
 
 	public static <E> boolean isNotEmpty(E[] array) {
@@ -510,7 +524,7 @@ public class Iterables {
 			final List<T> list = (List<T>) iterable;
 			return list.isEmpty() ? null : list.get(0);
 		}
-
 		return Iterators.getNext(iterable.iterator());
 	}
+
 }

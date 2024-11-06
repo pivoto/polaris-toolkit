@@ -316,4 +316,57 @@ public class Lists {
 		return list.get(0);
 	}
 
+	public static <T> List<T> sub(List<T> list, int start, int end) {
+		return sub(Lists::newArrayList, list, start, end, 1);
+	}
+
+	public static <T> List<T> sub(List<T> list, int start, int end, int step) {
+		return sub(Lists::newArrayList, list, start, end, step);
+	}
+
+	public static <T> List<T> sub(Supplier<List<T>> supplier, List<T> list, int start, int end) {
+		return sub(Lists::newArrayList, list, start, end, 1);
+	}
+
+	public static <T> List<T> sub(Supplier<List<T>> supplier, List<T> list, int start, int end, int step) {
+		if (list == null) {
+			return null;
+		}
+
+		List<T> rs = supplier.get();
+		if (list.isEmpty()) {
+			return rs;
+		}
+
+		final int size = list.size();
+		if (start < 0) {
+			start += size;
+		}
+		if (end < 0) {
+			end += size;
+		}
+		if (start == size) {
+			return rs;
+		}
+		if (start > end) {
+			int tmp = start;
+			start = end;
+			end = tmp;
+		}
+		if (end > size) {
+			if (start >= size) {
+				return rs;
+			}
+			end = size;
+		}
+
+		if (step < 1) {
+			step = 1;
+		}
+
+		for (int i = start; i < end; i += step) {
+			rs.add(list.get(i));
+		}
+		return rs;
+	}
 }

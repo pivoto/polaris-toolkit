@@ -183,4 +183,14 @@ public class Maps {
 	public static <K, V> Map<K, V> newWeakValueMap(Map<K, ValueReference<K, V>> raw) {
 		return new ValueReferenceMap<>(raw, ReferenceType.WEAK);
 	}
+
+
+	public static <K, V> boolean isEmpty(Map<K, V> map) {
+		return map == null || map.isEmpty();
+	}
+
+	public static <K, V> boolean isNotEmpty(Map<K, V> map) {
+		return map != null && !map.isEmpty();
+	}
+
 }
