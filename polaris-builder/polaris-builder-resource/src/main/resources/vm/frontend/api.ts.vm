@@ -173,11 +173,11 @@ export async function do$!{env.rpcCodePrefix}${table.javaClassName}Dml(
 	}
 	console.log(rs.output, rs.error)
 	if (rs.hasError()) {
-		error && error(rs) || msg.error(rs.getErrMessage() || getDmlErrorMsg((input as $!{env.rpcCodePrefix}${table.javaClassName}DmlInput).type) || (input as FormData).get('type'))
+		error ? error(rs) : msg.error(rs.getErrMessage() || getDmlErrorMsg((input as $!{env.rpcCodePrefix}${table.javaClassName}DmlInput).type) || (input as FormData).get('type'))
 		return;
 	}
 	let output = rs.output as any;
-	success && success(output) || msg.success(getDmlSuccessMsg((input as $!{env.rpcCodePrefix}${table.javaClassName}DmlInput).type) || (input as FormData).get('type'));
+	success ? success(output) : msg.success(getDmlSuccessMsg((input as $!{env.rpcCodePrefix}${table.javaClassName}DmlInput).type) || (input as FormData).get('type'));
 	return output;
 }
 
