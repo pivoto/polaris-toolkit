@@ -6,6 +6,13 @@ import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.*;
 
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+import static java.lang.annotation.ElementType.CONSTRUCTOR;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 /**
  * 校验字符串长度的在最小值限制内
  *
@@ -13,7 +20,7 @@ import java.lang.annotation.*;
  * @since 1.8
  */
 @Documented
-@Target({ElementType.FIELD, ElementType.PARAMETER})
+@Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = LengthMinValidator.class)
 public @interface LengthMin {

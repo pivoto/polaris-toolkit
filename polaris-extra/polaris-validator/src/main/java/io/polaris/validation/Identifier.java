@@ -1,10 +1,19 @@
+/*
+ * Copyright (c) 2016-9-7 alex
+ */
+
 package io.polaris.validation;
 
-import io.polaris.validation.validator.NotNoneValidator;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
-import java.lang.annotation.*;
+
+import io.polaris.validation.validator.IdentifierValidator;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
@@ -14,7 +23,7 @@ import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 /**
- * 校验字符串不能为空
+ * 校验字符串必须满足常规标识符书写格式
  *
  * @author Qt
  * @since 1.8
@@ -22,12 +31,19 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 @Documented
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = NotNoneValidator.class)
-public @interface NotNone {
+@Constraint(validatedBy = IdentifierValidator.class)
+public @interface Identifier {
 
-	String message() default "{io.polaris.validation.NotNone.message}";
+	String message() default "{io.polaris.validation.Identifier.message}" ;
 
 	Class<?>[] groups() default {};
 
 	Class<? extends Payload>[] payload() default {};
+
+	/**
+	 * 正则表达式,默认支持 \w . $ + -
+	 */
+	String regexp() default "^[\\w.$+-]*$" ;
+
+	int flags() default 0;
 }

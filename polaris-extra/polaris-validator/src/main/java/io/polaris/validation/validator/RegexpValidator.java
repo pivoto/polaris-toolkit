@@ -1,10 +1,12 @@
 package io.polaris.validation.validator;
 
-import io.polaris.validation.Regexp;
+import java.util.regex.Pattern;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.regex.Pattern;
+
+import io.polaris.core.regex.Patterns;
+import io.polaris.validation.Regexp;
 
 
 /**
@@ -21,7 +23,8 @@ public class RegexpValidator implements ConstraintValidator<Regexp, String> {
 	public void initialize(Regexp constraintAnnotation) {
 		value = constraintAnnotation.value();
 		flags = constraintAnnotation.flags();
-		pattern = Pattern.compile(this.value, flags);
+		// pattern = Pattern.compile(this.value, flags);
+		pattern = Patterns.getPattern(this.value, flags);
 	}
 
 	@Override

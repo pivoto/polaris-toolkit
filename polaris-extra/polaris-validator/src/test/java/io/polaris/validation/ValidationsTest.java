@@ -1,13 +1,15 @@
 package io.polaris.validation;
 
-import lombok.Data;
-import org.junit.jupiter.api.Test;
-
-import javax.validation.ConstraintValidator;
-import javax.validation.constraints.Max;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.constraints.Max;
+
+import io.polaris.core.string.Strings;
+import lombok.Data;
+import org.junit.jupiter.api.Test;
 
 class ValidationsTest {
 
@@ -24,6 +26,9 @@ class ValidationsTest {
 		B b = new B();
 		b.setBigDecimal(new BigDecimal("3.14"));
 		b.setDoubleVal(123d);
+		b.setId(Strings.uuid());
+		b.setId2("a/b/c/");
+
 		ValidationResult validationResult = Validations.validateQuietly(b
 			, violationSet -> violationSet.stream().collect(
 				StringBuilder::new, (s, v) -> s.append(v.getMessage()).append("！"), (s0, s1) -> s0.append(s1)).toString()
@@ -40,6 +45,22 @@ class ValidationsTest {
 
 		@Max(100)
 		private Double doubleVal;
+
+		@Identifier
+		private String id;
+		@Identifier
+		private String id2;
+
+
+		@Identifier
+		public String a() { // 不支持非property
+			return "1/2" ;
+		}
+
+		@Identifier
+		public String getAbc() { // 支持property
+			return "1/2" ;
+		}
 	}
 }
 
