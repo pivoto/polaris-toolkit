@@ -12,6 +12,7 @@ import io.polaris.core.jdbc.annotation.Table;
 import io.polaris.core.jdbc.annotation.Column;
 import io.polaris.core.jdbc.annotation.Id;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.polaris.validation.*;
 import io.polaris.validation.group.*;
 
 import lombok.*;
@@ -67,6 +68,7 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 	@Column(value = "$!{col.name}")
 	#if(${col.javaTypeSimpleName}=='String')
 	@NotEmpty(groups = {Create.class, Update.class, Delete.class, Retrieve.class, UpdateEntire.class}, message = "#if($col.label)$col.label#else$col.name#end#**#不能为空")
+	@Identifier(groups = {Create.class, Update.class, Delete.class, Retrieve.class, UpdateEntire.class}, message = "#if($col.label)$col.label#else$col.name#end#**#不是标识符书写格式")
 	#else
 	@NotNull(groups = {Create.class, Update.class, Delete.class, Retrieve.class, UpdateEntire.class}, message = "#if($col.label)$col.label#else$col.name#end#**#不能为空")
 	#end
