@@ -284,29 +284,6 @@ const vFormRules = ref<FormRules<FormType>>({});
 
 // validators
 {
-	const buildRequiredNumberValidator:()=>RuleItem = ()=>{
-		return {
-			validator: (rule, value, callback) => {
-					if (value == null || /^\s*$/.test(value)) {
-						return new Error('不能为空');
-					}
-				callback();
-			}
-		};
-	}
-	const buildRequiredStringValidator:()=>RuleItem = ()=>{
-		return {
-			validator: (rule, value, callback) => {
-				if (value == null || /^\s*$/.test(value)) {
-					return new Error('不能为空');
-				}
-				if (/\s+/.test(value)) {
-					return new Error('不能有空格')
-				}
-				callback();
-			}
-		};
-	}
 #foreach($col in $table.columns)
 	#if( ${col.javaVariableName.equals('createUser')} || ${col.javaVariableName.equals('updateUser')}
 		|| ${col.javaVariableName.equals('createDate')} || ${col.javaVariableName.equals('updateDate')}
@@ -321,18 +298,18 @@ const vFormRules = ref<FormRules<FormType>>({});
 ## ignore
 	#elseif(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP' || ${col.javaTypeSimpleName}=='Date' || ${col.javaTypeSimpleName}=='Timestamp')
 		#if(!${col.nullable})
-	vFormRules.value.${col.javaVariableName} = [buildRequiredNumberValidator()];
+	vFormRules.value.${col.javaVariableName} = [validation.buildRequiredNumberRule('${col.label}')];
 		#end
 ##	#elseif(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT' || ${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
 	#elseif(${col.javaTypeSimpleName}=='Integer' || ${col.javaTypeSimpleName}=='Short' || ${col.javaTypeSimpleName}=='Byte'
 		|| ${col.javaTypeSimpleName}=='Long' || ${col.javaTypeSimpleName}=='BigDecimal'
 		|| ${col.javaTypeSimpleName}=='Float' || ${col.javaTypeSimpleName}=='Double')
 		#if(!${col.nullable})
-	vFormRules.value.${col.javaVariableName} = [buildRequiredNumberValidator()];
+	vFormRules.value.${col.javaVariableName} = [validation.buildRequiredNumberRule('${col.label}')];
 		#end
 	#else
 		#if(!${col.nullable})
-	vFormRules.value.${col.javaVariableName} = [buildRequiredStringValidator()];
+	vFormRules.value.${col.javaVariableName} = [validation.buildRequiredStringRule('${col.label}')];
 		#end
 	#end
 #end

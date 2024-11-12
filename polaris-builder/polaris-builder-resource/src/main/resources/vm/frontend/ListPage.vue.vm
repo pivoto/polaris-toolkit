@@ -286,22 +286,12 @@ const vImportForm = ref<{
 
 // validators
 {
-	const buildNumberValidator = function():RuleItem{
-		return {
-			validator: (rule, value, callback) => {
-				if (value != null && !/^\d*$/.test(value)) {
-					return new Error('必须是数值格式');
-				}
-				callback();
-			}
-		};
-	}
 #foreach($col in $table.columns)
 ##	#if(${col.jdbcType} == 'INTEGER' || ${col.jdbcType} == 'TINYINT' || ${col.jdbcType} == 'SMALLINT' || ${col.jdbcType} == 'BIGINT' || ${col.jdbcType} == 'NUMERIC' || ${col.jdbcType} == 'DECIMAL' || ${col.jdbcType} == 'FLOAT'|| ${col.jdbcType} == 'DOUBLE')
 	#if(${col.javaTypeSimpleName}=='Integer' || ${col.javaTypeSimpleName}=='Short' || ${col.javaTypeSimpleName}=='Byte'
 		|| ${col.javaTypeSimpleName}=='Long' || ${col.javaTypeSimpleName}=='BigDecimal'
 		|| ${col.javaTypeSimpleName}=='Float' || ${col.javaTypeSimpleName}=='Double')
-	vQueryForm.value.queryFormRules.${col.javaVariableName} = [buildNumberValidator()];
+	vQueryForm.value.queryFormRules.${col.javaVariableName} = [validation.buildNumberRule('${col.label}')];
 	#end
 #end
 }
