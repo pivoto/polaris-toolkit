@@ -132,7 +132,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emits = defineEmits<{
 	(e: 'update:show', show: boolean): void,
-	(e: 'afterSubmit'): void,
+	(e: 'success'): void,
 }>();
 
 const instance = getCurrentInstance();
@@ -241,7 +241,7 @@ function onSubmit() {
 			entity: vFormData.value
 		}, (data) => {
 			doCloseDialog()
-			emits('afterSubmit');
+			emits('success');
 		});
 	});
 }

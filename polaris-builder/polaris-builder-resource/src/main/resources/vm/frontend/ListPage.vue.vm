@@ -124,9 +124,9 @@
 			</template>
 		</v-table-panel>
 
-		<Add${table.javaClassName} ref="vRefAddDialog" v-model:show="vShowAddDialog" @after-submit="onTableRefresh"/>
+		<Add${table.javaClassName} ref="vRefAddDialog" v-model:show="vShowAddDialog" @success="onTableRefresh"/>
 		<Edit${table.javaClassName} ref="vRefEditDialog" :readonly="vTableRecords.editReadonly"
-			:param="vTableRecords.editParam" v-model:show="vShowEditDialog" @after-submit="onTableRefresh"/>
+			:param="vTableRecords.editParam" v-model:show="vShowEditDialog" @success="onTableRefresh"/>
 		<v-dialog width="500px" ref="refImportDialog" v-model="vShowImportDialog" :title="'数据导入'">
 			<el-form ref="vRefImportForm" :rules="vImportForm.importFormRules" :model="vImportForm.importForm" label-width="90px">
 				<v-row :gutter="5">
