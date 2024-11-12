@@ -1,7 +1,7 @@
 #parse("/vm/include.vm")
 <template>
-	<v-dialog width="75%" ref="refDialog" v-model="vShow" :title="props.readonly?'数据查看':'数据修改'" @resize="onResize">
-		<el-form ref="refForm" v-loading="vLoadingForm" :rules="vFormRules" :model="vFormData" label-width="90px">
+	<v-dialog width="75%" ref="vRefDialog" v-model="vShow" :title="props.readonly?'数据查看':'数据修改'" @resize="onResize">
+		<el-form ref="vRefForm" v-loading="vLoadingForm" :rules="vFormRules" :model="vFormData" label-width="90px">
 			<v-row :gutter="5">
 #foreach($col in $table.columns)
 #if(
@@ -114,7 +114,7 @@ import {do$!{env.rpcCodePrefix}${table.javaClassName}Dml, do$!{env.rpcCodePrefix
 interface Props {
 	show: boolean,
 	readonly?: boolean,
-	data: ParamType,
+	param: ParamType,
 }
 
 type ParamType = {
@@ -255,7 +255,7 @@ defineOptions({ name: 'Edit${table.javaClassName}' });
 ##		required: false,
 ##		default: true
 ##	},
-##	data: {
+##	param: {
 ##		type: Object as PropType<ParamType>,
 ##		required: true,
 ##	}
@@ -272,8 +272,8 @@ const emits = defineEmits<{
 
 const instance = getCurrentInstance();
 const proxy = instance?.proxy;
-const refDialog = ref() as Ref<InstanceType<typeof VDialog>>;
-const refForm = ref<FormInstance>() as Ref<FormInstance>;
+const vRefDialog = ref() as Ref<InstanceType<typeof VDialog>>;
+const vRefForm = ref<FormInstance>() as Ref<FormInstance>;
 const vWinWidth = ref(document.documentElement.clientWidth * 0.75);
 const vBodyHeight = ref(document.documentElement.clientHeight * 0.75);
 const vShow = ref(props.show);
@@ -341,7 +341,7 @@ const vFormRules = ref<FormRules<FormType>>({});
 watch(() => props.show, (nv, ov) => {
 	vShow.value = nv;
 	if (props.show) {
-		onFetchInitData(props.data)
+		onFetchInitData(props.param)
 	}
 });
 watch(() => vShow.value, (nv, ov) => {
@@ -350,10 +350,10 @@ watch(() => vShow.value, (nv, ov) => {
 	}
 })
 
-watch(() => props.data, (nv, ov) => {
+watch(() => props.param, (nv, ov) => {
 	vParamSync.value = false;
 	if (props.show) {
-		onFetchInitData(props.data)
+		onFetchInitData(props.param)
 	}
 })
 
@@ -410,7 +410,7 @@ async function onFetchInitData(param: ParamType) {
 }
 
 function onSubmit() {
-	validation.validateForm(refForm.value as FormInstance, Fields, async ()=>{
+	validation.validateForm(vRefForm.value as FormInstance, Fields, async ()=>{
 		await do$!{env.rpcCodePrefix}${table.javaClassName}Dml({
 			type: 'UPDATE',
 			entity: vFormData.value

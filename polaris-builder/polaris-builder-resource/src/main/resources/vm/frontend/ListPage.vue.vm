@@ -1,8 +1,8 @@
 #parse("/vm/include.vm")
 <template>
-	<div ref="refDiv">
+	<div ref="vRefDiv">
 		<v-query-panel title="查询区">
-			<el-form ref="refForm" :model="vQueryForm.queryForm" :rules="vQueryForm.queryFormRules" label-width="100px" class="">
+			<el-form ref="vRefForm" :model="vQueryForm.queryForm" :rules="vQueryForm.queryFormRules" label-width="100px" class="">
 				<v-row class="mb10">
 #foreach($col in $table.columns)
 	#if(${col.jdbcType} == 'DATE' || ${col.jdbcType} == 'TIMESTAMP' || ${col.javaTypeSimpleName}=='Date' || ${col.javaTypeSimpleName}=='Timestamp')
@@ -124,15 +124,15 @@
 			</template>
 		</v-table-panel>
 
-		<Add${table.javaClassName} ref="refAddDialog" v-model:show="vShowAddDialog" @after-submit="onTableRefresh"/>
-		<Edit${table.javaClassName} ref="refEditDialog" :readonly="vTableRecords.editReadonly"
-			:data="vTableRecords.editParam" v-model:show="vShowEditDialog" @after-submit="onTableRefresh"/>
+		<Add${table.javaClassName} ref="vRefAddDialog" v-model:show="vShowAddDialog" @after-submit="onTableRefresh"/>
+		<Edit${table.javaClassName} ref="vRefEditDialog" :readonly="vTableRecords.editReadonly"
+			:param="vTableRecords.editParam" v-model:show="vShowEditDialog" @after-submit="onTableRefresh"/>
 		<v-dialog width="500px" ref="refImportDialog" v-model="vShowImportDialog" :title="'数据导入'">
-			<el-form ref="refImportForm" :rules="vImportForm.importFormRules" :model="vImportForm.importForm" label-width="90px">
+			<el-form ref="vRefImportForm" :rules="vImportForm.importFormRules" :model="vImportForm.importForm" label-width="90px">
 				<v-row :gutter="5">
 					<v-col>
 						<el-form-item label="文件上传" prop="fileList">
-							<el-upload ref="refImportUploader" style="width:300px;" name="dataFile" :limit="1" accept=".csv,.xlsx" :auto-upload="false" show-file-list v-model:file-list="vImportForm.importForm.fileList">
+							<el-upload ref="vRefImportUploader" style="width:300px;" name="dataFile" :limit="1" accept=".csv,.xlsx" :auto-upload="false" show-file-list v-model:file-list="vImportForm.importForm.fileList">
 								<template #trigger>
 									<el-button type="primary" @click=""><el-icon><EleUploadFilled/></el-icon>选择</el-button>
 								</template>
@@ -234,12 +234,12 @@ const FieldsLike = {
 
 defineOptions({ name: 'List${table.javaClassName}' });
 
-const refDiv = shallowRef<HTMLElement>();
-const refForm = ref<FormInstance>() as Ref<FormInstance>;
-const refImportForm = ref<FormInstance>() as Ref<FormInstance>;
-const refImportUploader = ref<UploadInstance>() as Ref<UploadInstance>;
-const refAddDialog = ref() as Ref<InstanceType<typeof Add${table.javaClassName}>>;
-const refEditDialog = ref() as Ref<InstanceType<typeof Edit${table.javaClassName}>>;
+const vRefDiv = shallowRef<HTMLElement>();
+const vRefForm = ref<FormInstance>() as Ref<FormInstance>;
+const vRefImportForm = ref<FormInstance>() as Ref<FormInstance>;
+const vRefImportUploader = ref<UploadInstance>() as Ref<UploadInstance>;
+const vRefAddDialog = ref() as Ref<InstanceType<typeof Add${table.javaClassName}>>;
+const vRefEditDialog = ref() as Ref<InstanceType<typeof Edit${table.javaClassName}>>;
 const vLoadingTable = ref(false);
 const vShowImportDialog = ref(false);
 const vShowAddDialog = ref(false);
@@ -318,7 +318,7 @@ function doQuery() {
 	// 	msg.message('请选择租户', 'error')
 	// 	return;
 	// }
-	validation.validateForm(refForm.value, Fields, async ()=>{
+	validation.validateForm(vRefForm.value, Fields, async ()=>{
 		vTablePage.value.pageNum = 1
 		vQueryForm.value.queryFormCache = {
 			...vQueryForm.value.queryForm
@@ -488,7 +488,7 @@ function onExportRecord(useCsv?: boolean) {
 // 取消导入数据
 function onCancelImportRecord() {
 	vShowImportDialog.value = false;
-	refImportUploader.value.clearFiles();
+	vRefImportUploader.value.clearFiles();
 }
 // 导入数据
 function onImportRecord() {
@@ -526,9 +526,9 @@ function onImportRecord() {
 		}).finally(()=>{
 			// 删除上传组件中的文件
 			if (file && file.raw) {
-				refImportUploader.value.handleRemove(file.raw);
+				vRefImportUploader.value.handleRemove(file.raw);
 			}
-			//refImportUploader.value.handleRemove(file);
+			//vRefImportUploader.value.handleRemove(file);
 			vShowImportDialog.value = false;
 		});
 }

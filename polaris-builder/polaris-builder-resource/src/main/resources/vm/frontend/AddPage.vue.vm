@@ -1,7 +1,7 @@
 #parse("/vm/include.vm")
 <template>
-	<v-dialog width="75%" ref="refDialog" v-model="vShow" :title="'数据新增'" @resize="onResize">
-		<el-form ref="refForm" :rules="vFormRules" :model="vFormData" label-width="90px">
+	<v-dialog width="75%" ref="vRefDialog" v-model="vShow" :title="'数据新增'" @resize="onResize">
+		<el-form ref="vRefForm" :rules="vFormRules" :model="vFormData" label-width="90px">
 			<v-row :gutter="5">
 #foreach($col in $table.columns)
 #if( ${col.javaVariableName.equals('createUser')} || ${col.javaVariableName.equals('updateUser')}
@@ -137,8 +137,8 @@ const emits = defineEmits<{
 
 const instance = getCurrentInstance();
 const proxy = instance?.proxy;
-const refDialog = ref() as Ref<InstanceType<typeof VDialog>>;
-const refForm = ref<FormInstance>() as Ref<FormInstance>;
+const vRefDialog = ref() as Ref<InstanceType<typeof VDialog>>;
+const vRefForm = ref<FormInstance>() as Ref<FormInstance>;
 const vWinWidth = ref(document.documentElement.clientWidth * 0.75);
 const vBodyHeight = ref(document.documentElement.clientHeight * 0.75);
 const vShow = ref(props.show);
@@ -268,7 +268,7 @@ function doCloseDialog() {
 }
 
 function onSubmit() {
-	validation.validateForm(refForm.value as FormInstance, Fields, async ()=>{
+	validation.validateForm(vRefForm.value as FormInstance, Fields, async ()=>{
 		await do$!{env.rpcCodePrefix}${table.javaClassName}Dml({
 			type: 'INSERT',
 			entity: vFormData.value
