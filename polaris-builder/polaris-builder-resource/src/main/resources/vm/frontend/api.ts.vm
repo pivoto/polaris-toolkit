@@ -4,7 +4,7 @@ import {apix} from "/@/common/api";
 import {ApiResult} from "/@/common/api";
 import ApiOutput from "/@/common/api/ApiOutput";
 
-interface PageType {
+interface PageType1 {
 	pageNum: number;
 	pageSize: number;
 	total?: number;
@@ -17,6 +17,8 @@ interface PageType2 {
 	recordSize?: number;
 	orderBy: any;
 }
+
+type PageType = PageType | PageType2;
 
 type DmlType = 'INSERT' | 'DELETE' | 'UPDATE' | 'IMPORT';
 
@@ -33,11 +35,11 @@ export interface $!{env.rpcCodePrefix}${table.javaClassName}GetOutput extends Ex
 
 export interface $!{env.rpcCodePrefix}${table.javaClassName}ListInput extends ExchangeDto {
 	param: any;
-	page: PageType | PageType2;
+	page: PageType;
 }
 
 export interface $!{env.rpcCodePrefix}${table.javaClassName}ListOutput extends ExchangeDto {
-	page: PageType | PageType2;
+	page: PageType;
 	list: any[];
 }
 
@@ -219,7 +221,7 @@ function mockGetData(param: any): Promise<ApiResult> {
 	})
 }
 
-function mockListData(pageable: PageType | PageType2): Promise<ApiResult> {
+function mockListData(pageable: PageType): Promise<ApiResult> {
 	let data = {
 		list: [] as any[],
 		page: {
@@ -229,7 +231,7 @@ function mockListData(pageable: PageType | PageType2): Promise<ApiResult> {
 		},
 	};
 	let pageSize = pageable.pageSize;
-	let pageNum = (pageable as PageType).pageNum || (pageable as PageType2).pageIdx;
+	let pageNum = (pageable as PageType1).pageNum || (pageable as PageType2).pageIdx;
 	data.page.total = data.page.recordSize = pageSize + Math.round(Math.random() * 100);
 	let size = data.page.total - (pageNum - 1) * pageSize;
 	if (size > 0) {
