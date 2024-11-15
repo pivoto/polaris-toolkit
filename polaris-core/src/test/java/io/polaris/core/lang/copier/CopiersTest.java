@@ -19,7 +19,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @TestClassOrder(ClassOrderer.ClassName.class)
-class CopierTest {
+class CopiersTest {
 
 	@Test
 	void test01_MapToMap() {

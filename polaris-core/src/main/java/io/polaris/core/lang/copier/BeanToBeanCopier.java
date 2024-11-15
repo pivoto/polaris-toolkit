@@ -38,11 +38,20 @@ public class BeanToBeanCopier<S, T> implements Copier<T> {
 		this.target = target;
 		this.sourceType = sourceType != null ? sourceType : source.getClass();
 		this.targetType = targetType != null ? targetType : target.getClass();
-		this.options = options != null ? options : CopyOptions.create();
+		this.options = options != null ? options : CopyOptions.DEFAULT;
 	}
 
 	@Override
 	public T copy() {
+		return copy(false);
+	}
+
+	@Override
+	public T deepCopy() {
+		return copy(true);
+	}
+
+	public T copy(boolean deep) {
 		try {
 			final Map<String, PropertyAccessor> accessors = Beans.getIndexedFieldAndPropertyAccessors(JavaType.of(targetType).getRawClass());
 			final Map<String, PropertyAccessor> sourceAccessors = Beans.getIndexedFieldAndPropertyAccessors(JavaType.of(sourceType).getRawClass());
@@ -61,7 +70,7 @@ public class BeanToBeanCopier<S, T> implements Copier<T> {
 				if (mapping == null) {
 					mapping = Function.identity();
 				}
-				copyProperties(sourceAccessors, mapping, targetAccessors);
+				copyProperties(sourceAccessors, mapping, targetAccessors, deep);
 				if (targetAccessors.isEmpty()) {
 					break action;
 				}
@@ -79,7 +88,7 @@ public class BeanToBeanCopier<S, T> implements Copier<T> {
 						}
 						return null;
 					};
-					copyProperties(sourceAccessors, mapping, targetAccessors);
+					copyProperties(sourceAccessors, mapping, targetAccessors, deep);
 					if (targetAccessors.isEmpty()) {
 						break action;
 					}
@@ -93,7 +102,7 @@ public class BeanToBeanCopier<S, T> implements Copier<T> {
 						}
 						return null;
 					};
-					copyProperties(sourceAccessors, mapping, targetAccessors);
+					copyProperties(sourceAccessors, mapping, targetAccessors, deep);
 					if (targetAccessors.isEmpty()) {
 						break action;
 					}
@@ -107,7 +116,7 @@ public class BeanToBeanCopier<S, T> implements Copier<T> {
 						}
 						return null;
 					};
-					copyProperties(sourceAccessors, mapping, targetAccessors);
+					copyProperties(sourceAccessors, mapping, targetAccessors, deep);
 					if (targetAccessors.isEmpty()) {
 						break action;
 					}
@@ -116,7 +125,7 @@ public class BeanToBeanCopier<S, T> implements Copier<T> {
 				if (options.ignoreCase()) {
 					Map<String, PropertyAccessor> upperTargetAccessors = new CaseInsensitiveMap<>(HashMap::new, targetAccessors);
 					mapping = key -> options.editKey(key).toUpperCase();
-					copyProperties(sourceAccessors, mapping, upperTargetAccessors);
+					copyProperties(sourceAccessors, mapping, upperTargetAccessors, deep);
 					if (upperTargetAccessors.isEmpty()) {
 						break action;
 					}
@@ -129,7 +138,7 @@ public class BeanToBeanCopier<S, T> implements Copier<T> {
 							}
 							return null;
 						};
-						copyProperties(sourceAccessors, mapping, upperTargetAccessors);
+						copyProperties(sourceAccessors, mapping, upperTargetAccessors, deep);
 						if (upperTargetAccessors.isEmpty()) {
 							break action;
 						}
@@ -143,7 +152,7 @@ public class BeanToBeanCopier<S, T> implements Copier<T> {
 							}
 							return null;
 						};
-						copyProperties(sourceAccessors, mapping, upperTargetAccessors);
+						copyProperties(sourceAccessors, mapping, upperTargetAccessors, deep);
 					}
 				}
 			}
@@ -161,7 +170,7 @@ public class BeanToBeanCopier<S, T> implements Copier<T> {
 		return this.target;
 	}
 
-	void copyProperties(Map<String, PropertyAccessor> sourceAccessors, Function<String, String> mapping, Map<String, PropertyAccessor> targetAccessors) {
+	void copyProperties(Map<String, PropertyAccessor> sourceAccessors, Function<String, String> mapping, Map<String, PropertyAccessor> targetAccessors, boolean deep) {
 		for (Map.Entry<String, PropertyAccessor> entry : sourceAccessors.entrySet()) {
 			if (targetAccessors.isEmpty()) {
 				return;
@@ -191,6 +200,17 @@ public class BeanToBeanCopier<S, T> implements Copier<T> {
 				if (value == null && options.ignoreNull()) {
 					continue;
 				}
+
+				Object old = null;
+				if ((deep || !options.override())) {
+					// 只在深度复制或判断覆盖时才获取原值
+					if (accessor.hasGetter()) {
+						old = accessor.get(target);
+						if (old != null && !options.override()) {
+							continue;
+						}
+					}
+				}
 				Type type = accessor.type();
 				value = options.editValue(sourceKey, value);
 				value = options.convert(type, value);
@@ -199,6 +219,23 @@ public class BeanToBeanCopier<S, T> implements Copier<T> {
 						continue;
 					}
 					if (Types.isPrimitive(JavaType.of(type).getRawClass())) {
+						continue;
+					}
+				}
+				if (deep && value != null) {
+					if (old == null) {
+						value = Copiers.deepClone(value, type, options);
+						if (value == null) {
+							if (options.ignoreNull()) {
+								continue;
+							}
+							if (Types.isPrimitive(JavaType.of(type).getRawClass())) {
+								continue;
+							}
+						}
+					} else {
+						// 复制子属性对象并完成本次循环
+						Copiers.deepCopy(value.getClass(), value, type, old, options);
 						continue;
 					}
 				}

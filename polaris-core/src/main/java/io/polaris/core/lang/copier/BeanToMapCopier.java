@@ -34,12 +34,21 @@ public class BeanToMapCopier<T> implements Copier<Map> {
 		this.target = target;
 		this.sourceType = sourceType != null ? sourceType : source.getClass();
 		this.targetType = targetType != null ? targetType : target.getClass();
-		this.options = options != null ? options : CopyOptions.create();
+		this.options = options != null ? options : CopyOptions.DEFAULT;
+	}
+
+	@Override
+	public Map copy() {
+		return copy(false);
+	}
+
+	@Override
+	public Map deepCopy() {
+		return copy(true);
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override
-	public Map copy() {
+	public Map copy(boolean deep) {
 		try {
 			final Map<String, PropertyAccessor> sourceAccessors = Beans.getIndexedFieldAndPropertyAccessors(JavaType.of(sourceType).getRawClass());
 
@@ -66,9 +75,11 @@ public class BeanToMapCopier<T> implements Copier<Map> {
 						continue;
 					}
 					Object targetKey = options.convert(keyType, key);
-					if (!options.override()) {
-						Object orig = target.get(key);
-						if (orig != null) {
+					Object old = null;
+					if ((deep || !options.override())) {
+						// 只在深度复制或判断覆盖时才获取原值
+						old = target.get(key);
+						if (!options.override() && old != null) {
 							continue;
 						}
 					}
@@ -77,7 +88,18 @@ public class BeanToMapCopier<T> implements Copier<Map> {
 					if (value == null && options.ignoreNull()) {
 						continue;
 					}
-
+					if (deep && value != null) {
+						if (old == null) {
+							value = Copiers.deepClone(value, valueType, options);
+							if (value == null && options.ignoreNull()) {
+								continue;
+							}
+						} else {
+							// 复制子属性对象并完成本次循环
+							Copiers.deepCopy(value.getClass(), value, valueType, old, options);
+							continue;
+						}
+					}
 					target.put(targetKey, value);
 				} catch (Exception e) {
 					if (!options.ignoreError()) {

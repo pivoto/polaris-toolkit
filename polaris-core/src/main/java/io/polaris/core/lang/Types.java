@@ -1,9 +1,23 @@
 package io.polaris.core.lang;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.lang.reflect.*;
-import java.util.*;
 
 /**
  * @author Qt
@@ -61,6 +75,14 @@ public class Types {
 			return type;
 		}
 		return primitiveWrapperTypes.getOrDefault(type, type);
+	}
+
+	public Type getArrayComponentType(Type type) {
+		if (type instanceof GenericArrayType) {
+			return ((GenericArrayType) type).getGenericComponentType();
+		} else {
+			return Types.getClass(type).getComponentType();
+		}
 	}
 
 	@Nullable

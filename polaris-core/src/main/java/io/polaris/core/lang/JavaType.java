@@ -1,12 +1,14 @@
 package io.polaris.core.lang;
 
-import javax.annotation.Nonnull;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.WeakHashMap;
+
+import javax.annotation.Nonnull;
 
 /**
  * @author Qt
@@ -114,6 +116,13 @@ public class JavaType<T> implements Type {
 		return getActualType(variable);
 	}
 
+	public Type getArrayComponentType() {
+		if (type instanceof GenericArrayType) {
+			return ((GenericArrayType) type).getGenericComponentType();
+		} else {
+			return getRawClass().getComponentType();
+		}
+	}
 
 	@Override
 	public String getTypeName() {

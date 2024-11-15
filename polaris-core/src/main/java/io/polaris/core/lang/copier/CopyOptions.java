@@ -12,6 +12,8 @@ import io.polaris.core.asm.reflect.BeanCopier;
 import io.polaris.core.converter.Converters;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.Types;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * 默认规则（与{@linkplain BeanCopier}默认规则尽量保持一致）：
@@ -25,11 +27,13 @@ import io.polaris.core.lang.Types;
  * <li>enableCamelToUnderlineCase: false</li>
  * <li>enableConverter: true</li>
  * </ul>
+ *
  * @author Qt
  * @since 1.8
  */
-public class CopyOptions {
-
+@ToString
+@EqualsAndHashCode
+public class CopyOptions implements Cloneable {
 	public static final BiFunction<Type, Object, Object> DEFAULT_CONVERTER = Converters::convertQuietly;
 	public static final BiFunction<Type, Object, Object> PROPERTY_EDITOR_CONVERTER = (type, value) -> {
 		if (value == null) {
@@ -51,6 +55,8 @@ public class CopyOptions {
 		}
 		return value;
 	};
+
+	public static final CopyOptions DEFAULT = create().immutable();
 	/** 是否忽略属性注入错误 */
 	private boolean ignoreError = true;
 	/** 需要忽略的源属性名 */
@@ -76,9 +82,40 @@ public class CopyOptions {
 	/** 自定义类型转换器 */
 	private BiFunction<Type, Object, Object> converter = DEFAULT_CONVERTER;
 
+	private boolean mutable = true;
+
 
 	public static CopyOptions create() {
 		return new CopyOptions();
+	}
+
+	public static CopyOptions clone(CopyOptions options) {
+		return create()
+			.ignoreError(options.ignoreError)
+			.ignoreKeys(options.ignoreKeys)
+			.ignoreCase(options.ignoreCase)
+			.ignoreCapitalize(options.ignoreCapitalize)
+			.enableUnderlineToCamelCase(options.enableUnderlineToCamelCase)
+			.enableCamelToUnderlineCase(options.enableCamelToUnderlineCase)
+			.ignoreNull(options.ignoreNull)
+			.override(options.override)
+			.keyMapping(options.keyMapping)
+			.valueMapping(options.valueMapping)
+			.enableConverter(options.enableConverter)
+			.converter(options.converter)
+			;
+	}
+
+	@Override
+	protected Object clone() {
+		try {
+			CopyOptions clone = (CopyOptions) super.clone();
+			// 新复制品设为可变
+			clone.mutable = true;
+			return clone;
+		} catch (Exception ignored) {
+			return CopyOptions.clone(this);
+		}
 	}
 
 	public boolean hasKeyMapping() {
@@ -122,92 +159,128 @@ public class CopyOptions {
 
 	// region setters
 
+	public CopyOptions immutable() {
+		this.mutable = false;
+		return this;
+	}
+
 	/** 是否忽略空值，当源对象的值为null时，true: 忽略而不注入此值，false: 注入null */
 	public CopyOptions ignoreNull(boolean ignoreNullValue) {
-		this.ignoreNull = ignoreNullValue;
+		if (mutable) {
+			this.ignoreNull = ignoreNullValue;
+		}
 		return this;
 	}
 
 
 	/** 需要忽略的源属性名 */
 	public CopyOptions ignoreKeys(Set<String> keys) {
-		this.ignoreKeys = keys;
+		if (mutable) {
+			this.ignoreKeys = keys;
+		}
 		return this;
 	}
 
 	/** 是否忽略属性注入错误 */
 	public CopyOptions ignoreError(boolean ignoreError) {
-		this.ignoreError = ignoreError;
+		if (mutable) {
+			this.ignoreError = ignoreError;
+		}
 		return this;
 	}
 
 	/** 是否忽略属性大小写 */
 	public CopyOptions ignoreCase(boolean ignoreCase) {
-		this.ignoreCase = ignoreCase;
+		if (mutable) {
+			this.ignoreCase = ignoreCase;
+		}
 		return this;
 	}
 
 	/** 是否忽略JavaBean属性的首字母大小写处理模式，可应对lombok对双大写字母前缀字段的错误处理 */
 	public CopyOptions ignoreCapitalize(boolean ignoreCapitalize) {
-		this.ignoreCapitalize = ignoreCapitalize;
+		if (mutable) {
+			this.ignoreCapitalize = ignoreCapitalize;
+		}
 		return this;
 	}
 
 	/** 是否支持属性下划线转驼峰 */
 	public CopyOptions enableUnderlineToCamelCase(boolean underlineToCamelCase) {
-		this.enableUnderlineToCamelCase = underlineToCamelCase;
+		if (mutable) {
+			this.enableUnderlineToCamelCase = underlineToCamelCase;
+		}
 		return this;
 	}
 
 	/** 是否支持属性驼峰转下划线 */
 	public CopyOptions enableCamelToUnderlineCase(boolean camelToUnderlineCase) {
-		this.enableCamelToUnderlineCase = camelToUnderlineCase;
+		if (mutable) {
+			this.enableCamelToUnderlineCase = camelToUnderlineCase;
+		}
 		return this;
 	}
 
 	/** 属性名映射 */
 	public CopyOptions keyMapping(Map<String, String> keyMapping) {
-		return keyMapping((key -> keyMapping.getOrDefault(key, key)));
+		if (mutable) {
+			return keyMapping((key -> keyMapping.getOrDefault(key, key)));
+		}
+		return this;
 	}
 
 	/** 属性名映射 */
 	public CopyOptions keyMapping(Function<String, String> keyMapping) {
-		this.keyMapping = keyMapping;
+		if (mutable) {
+			this.keyMapping = keyMapping;
+		}
 		return this;
 	}
 
 	/** 属性值编辑器 */
 	public CopyOptions valueMapping(BiFunction<String, Object, Object> valueMapping) {
-		this.valueMapping = valueMapping;
+		if (mutable) {
+			this.valueMapping = valueMapping;
+		}
 		return this;
 	}
 
 	/** 是否覆盖目标值，如果不覆盖，会先读取目标对象的值，非null则写，否则忽略。如果覆盖，则不判断直接写 */
 	public CopyOptions override(boolean override) {
-		this.override = override;
+		if (mutable) {
+			this.override = override;
+		}
 		return this;
 	}
 
 
 	/** 是否启用类型转换器 */
 	public CopyOptions enableConverter(boolean enableConverter) {
-		this.enableConverter = enableConverter;
+		if (mutable) {
+			this.enableConverter = enableConverter;
+		}
 		return this;
 	}
 
 	/** 自定义类型转换器 */
 	public CopyOptions converter(BiFunction<Type, Object, Object> converter) {
-		this.converter = converter;
+		if (mutable) {
+			this.converter = converter;
+		}
 		return this;
 	}
 
 	public CopyOptions useDefaultConverter() {
-		this.converter = DEFAULT_CONVERTER;
+		if (mutable) {
+			this.converter = DEFAULT_CONVERTER;
+		}
 		return this;
 	}
 
 	public CopyOptions usePropertyEditorConverter() {
-		this.converter = PROPERTY_EDITOR_CONVERTER;
+		if (mutable) {
+			this.converter = PROPERTY_EDITOR_CONVERTER;
+		}
 		return this;
 	}
 

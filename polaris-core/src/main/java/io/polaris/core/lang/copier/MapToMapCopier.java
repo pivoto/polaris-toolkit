@@ -30,12 +30,21 @@ public class MapToMapCopier implements Copier<Map> {
 		this.source = source;
 		this.target = target;
 		this.targetType = targetType != null ? targetType : target.getClass();
-		this.options = options != null ? options : CopyOptions.create();
+		this.options = options != null ? options : CopyOptions.DEFAULT;
+	}
+
+	@Override
+	public Map copy() {
+		return copy(false);
+	}
+
+	@Override
+	public Map deepCopy() {
+		return copy(true);
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override
-	public Map copy() {
+	public Map copy(boolean deep) {
 		try {
 			JavaType<Object> javaType = JavaType.of(this.targetType);
 			Type valueType = javaType.getActualType(Map.class, 1);
@@ -68,8 +77,25 @@ public class MapToMapCopier implements Copier<Map> {
 					if (value == null && options.ignoreNull()) {
 						continue;
 					}
-					if (!options.override() && null != target.get(key)) {
-						continue;
+					Object old = null;
+					if ((deep || !options.override())) {
+						// 只在深度复制或判断覆盖时才获取原值
+						old = target.get(key);
+						if (!options.override() && old != null) {
+							continue;
+						}
+					}
+					if (deep && value != null) {
+						if (old == null) {
+							value = Copiers.deepClone(value, valueType, options);
+							if (value == null && options.ignoreNull()) {
+								continue;
+							}
+						} else {
+							// 复制子属性对象并完成本次循环
+							Copiers.deepCopy(value.getClass(), value, valueType, old, options);
+							continue;
+						}
 					}
 					// 目标赋值
 					target.put(key, value);
