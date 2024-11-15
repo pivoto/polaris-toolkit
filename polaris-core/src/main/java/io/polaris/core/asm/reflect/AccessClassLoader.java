@@ -17,7 +17,7 @@ import io.polaris.core.string.Strings;
 /**
  * @author Qt
  * @see <a href="https://github.com/EsotericSoftware/reflectasm">https://github.com/EsotericSoftware/reflectasm</a>
- * @since  Aug 04, 2023
+ * @since Aug 04, 2023
  */
 @SuppressWarnings("all")
 public class AccessClassLoader extends ClassLoader {
@@ -47,7 +47,7 @@ public class AccessClassLoader extends ClassLoader {
 		String tmpdir = System.getProperty(SystemKeys.JAVA_CLASS_BYTES_TMPDIR);
 		if (Strings.isNotBlank(tmpdir)) {
 			File dir = new File(tmpdir.trim());
-			if (!dir.exists()){
+			if (!dir.exists()) {
 				dir.mkdirs();
 			}
 			classBytesCacheDir = dir.getAbsolutePath();
@@ -145,6 +145,9 @@ public class AccessClassLoader extends ClassLoader {
 	}
 
 	public static String buildAccessClassName(Class<?> type, Class<?> baseAccessClass) {
+		if (type.isArray()) {
+			throw new IllegalArgumentException("不支持数组类型：" + type.getCanonicalName());
+		}
 		String className = type.getName();
 		String accessClassName = className + "$$" + baseAccessClass.getSimpleName() + "$";
 		if (accessClassName.startsWith("java.")) {
