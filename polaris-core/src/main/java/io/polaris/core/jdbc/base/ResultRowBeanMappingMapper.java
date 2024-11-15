@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.polaris.core.lang.bean.CaseModeOption;
+
 /**
  * @author Qt
  * @since  Feb 06, 2024
@@ -32,7 +34,7 @@ public class ResultRowBeanMappingMapper<T> extends BaseResultRowMapper<T> {
 			unmappedCols = Collections.unmodifiableMap(cols);
 			colsLast = columns;
 		}
-		int caseModel = mapping.getCaseModel();
+		CaseModeOption caseModel = mapping.getCaseMode();
 		T bean = mapping.getMetaObject().newInstance();
 		for (Map.Entry<String, Integer> entry : unmappedCols.entrySet()) {
 			String key = entry.getKey();

@@ -4,9 +4,11 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
+import io.polaris.core.lang.bean.CaseModeOption;
+
 /**
  * @author Qt
- * @since  Feb 06, 2024
+ * @since Feb 06, 2024
  */
 public class ResultExtractors {
 
@@ -37,12 +39,12 @@ public class ResultExtractors {
 		return new ResultBeanExtractor<>(type);
 	}
 
-	public static <T> ResultExtractor<T> ofBean(Class<T> type, boolean caseInsensitive, boolean caseCamel) {
-		return new ResultBeanExtractor<>(type, caseInsensitive, caseCamel);
+	public static <T> ResultExtractor<T> ofBean(Class<T> type, CaseModeOption caseMode) {
+		return new ResultBeanExtractor<>(type, caseMode);
 	}
 
-	public static <T> ResultExtractor<T> ofBean(Type type, boolean caseInsensitive, boolean caseCamel) {
-		return new ResultBeanExtractor<>(type, caseInsensitive, caseCamel);
+	public static <T> ResultExtractor<T> ofBean(Type type, CaseModeOption caseMode) {
+		return new ResultBeanExtractor<>(type, caseMode);
 	}
 
 	public static <T> ResultExtractor<List<T>> ofBeanList(Class<T> type) {
@@ -53,12 +55,12 @@ public class ResultExtractors {
 		return new ResultBeanListExtractor<>(type);
 	}
 
-	public static <T> ResultExtractor<List<T>> ofBeanList(Class<T> type, boolean caseInsensitive, boolean caseCamel) {
-		return new ResultBeanListExtractor<>(type, caseInsensitive, caseCamel);
+	public static <T> ResultExtractor<List<T>> ofBeanList(Class<T> type, CaseModeOption caseMode) {
+		return new ResultBeanListExtractor<>(type, caseMode);
 	}
 
-	public static <T> ResultExtractor<List<T>> ofBeanList(Type type, boolean caseInsensitive, boolean caseCamel) {
-		return new ResultBeanListExtractor<>(type, caseInsensitive, caseCamel);
+	public static <T> ResultExtractor<List<T>> ofBeanList(Type type, CaseModeOption caseMode) {
+		return new ResultBeanListExtractor<>(type, caseMode);
 	}
 
 	public static <T> ResultExtractor<T> ofMapping(BeanMapping<T> mapping) {

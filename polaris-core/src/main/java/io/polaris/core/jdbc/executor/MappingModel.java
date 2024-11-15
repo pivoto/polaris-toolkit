@@ -2,18 +2,19 @@ package io.polaris.core.jdbc.executor;
 
 import javax.annotation.Nullable;
 
+import io.polaris.core.jdbc.annotation.Mapping;
 import io.polaris.core.jdbc.base.BeanCompositeMapping;
 import io.polaris.core.jdbc.base.BeanMapping;
 import io.polaris.core.jdbc.base.BeanPropertyMapping;
-import io.polaris.core.jdbc.annotation.Mapping;
 import io.polaris.core.lang.annotation.AnnotationAttributes;
+import io.polaris.core.lang.bean.CaseModeOption;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.string.Strings;
 import lombok.Getter;
 
 /**
  * @author Qt
- * @since  Feb 08, 2024
+ * @since Feb 08, 2024
  */
 public class MappingModel {
 	private static final String PROPERTY = Reflects.getPropertyName(Mapping.Composite::property);
@@ -21,9 +22,7 @@ public class MappingModel {
 	private static final String COLUMNS = Reflects.getPropertyName(Mapping.Composite::columns);
 	private static final String COMPOSITES = Reflects.getPropertyName(Mapping.Composite::composites);
 	@Getter
-	private boolean caseInsensitive = true;
-	@Getter
-	private boolean caseCamel = true;
+	private CaseModeOption caseMode = CaseModeOption.all();
 	@Getter
 	private BeanMapping<?> beanMapping;
 
@@ -43,8 +42,7 @@ public class MappingModel {
 					fillComposite(beanMapping, attributes);
 				}
 			}
-			model.caseCamel = mapping.caseCamel();
-			model.caseInsensitive = mapping.caseInsensitive();
+			model.caseMode = CaseModeOption.of(mapping.caseModes());
 		}
 		return model;
 	}

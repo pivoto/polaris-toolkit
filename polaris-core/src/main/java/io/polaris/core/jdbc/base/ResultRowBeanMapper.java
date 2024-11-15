@@ -4,40 +4,41 @@ import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import io.polaris.core.lang.bean.CaseModeOption;
 import io.polaris.core.lang.bean.MetaObject;
 
 /**
  * @author Qt
- * @since  Feb 06, 2024
+ * @since Feb 06, 2024
  */
 public class ResultRowBeanMapper<T> extends BaseResultRowMapper<T> {
 	private final MetaObject<T> metaObject;
-	private final int caseModel;
+	private final CaseModeOption caseMode;
 
 	public ResultRowBeanMapper(Class<T> beanType) {
-		this(beanType, true, true);
+		this(beanType, CaseModeOption.all());
 	}
 
-	public ResultRowBeanMapper(Class<T> beanType, boolean caseInsensitive, boolean caseCamel) {
+	public ResultRowBeanMapper(Class<T> beanType, CaseModeOption caseMode) {
 		this.metaObject = MetaObject.of(beanType);
-		this.caseModel = MetaObject.buildCaseModel(caseInsensitive, caseCamel);
+		this.caseMode = caseMode;
 	}
+
 	public ResultRowBeanMapper(Type beanType) {
-		this(beanType, true, true);
+		this(beanType, CaseModeOption.all());
 	}
 
-	public ResultRowBeanMapper(Type beanType, boolean caseInsensitive, boolean caseCamel) {
+	public ResultRowBeanMapper(Type beanType, CaseModeOption caseMode) {
 		this.metaObject = MetaObject.of(beanType);
-		this.caseModel = MetaObject.buildCaseModel(caseInsensitive, caseCamel);
+		this.caseMode = caseMode;
 	}
-
 
 	@Override
 	protected T doMap(ResultSet rs, String[] columns) throws SQLException {
 		T bean = metaObject.newInstance();
 		for (int i = 1; i <= columns.length; i++) {
 			String key = columns[i - 1];
-			metaObject.setPathProperty(bean, caseModel, key, rs.getObject(i));
+			metaObject.setPathProperty(bean, caseMode, key, rs.getObject(i));
 		}
 		return bean;
 	}

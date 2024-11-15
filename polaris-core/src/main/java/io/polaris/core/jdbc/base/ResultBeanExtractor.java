@@ -2,8 +2,9 @@ package io.polaris.core.jdbc.base;
 
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+
+import io.polaris.core.lang.bean.CaseModeOption;
 
 /**
  * @author Qt
@@ -13,31 +14,26 @@ public class ResultBeanExtractor<T> implements ResultExtractor<T> {
 	private final ResultRowMapper<T> mapper;
 
 	public ResultBeanExtractor(Class<T> beanType) {
-		this(beanType, true, true);
+		this(beanType, CaseModeOption.all());
 	}
 
 	public ResultBeanExtractor(Type beanType) {
-		this(beanType, true, true);
+		this(beanType, CaseModeOption.all());
 	}
 
-	public ResultBeanExtractor(Class<T> beanType, boolean caseInsensitive, boolean caseCamel) {
-		this.mapper = ResultRowMappers.ofBean(beanType, caseInsensitive, caseCamel);
+	public ResultBeanExtractor(Class<T> beanType, CaseModeOption caseMode) {
+		this.mapper = ResultRowMappers.ofBean(beanType, caseMode);
 	}
 
-	public ResultBeanExtractor(Type beanType, boolean caseInsensitive, boolean caseCamel) {
-		this.mapper = ResultRowMappers.ofBean(beanType, caseInsensitive, caseCamel);
+	public ResultBeanExtractor(Type beanType, CaseModeOption caseMode) {
+		this.mapper = ResultRowMappers.ofBean(beanType, caseMode);
 	}
 
 
 	@Override
 	public T extract(ResultSet rs) throws SQLException {
 		if (rs.next()) {
-			ResultSetMetaData meta = rs.getMetaData();
-			int cnt = meta.getColumnCount();
-			String[] keys = new String[cnt];
-			for (int i = 1; i <= cnt; i++) {
-				keys[i - 1] = meta.getColumnLabel(i);
-			}
+			String[] keys = ResultRowMappers.getColumns(rs);
 			return this.mapper.map(rs, keys);
 		}
 		return null;

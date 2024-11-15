@@ -6,9 +6,11 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Map;
 
+import io.polaris.core.lang.bean.CaseModeOption;
+
 /**
  * @author Qt
- * @since  Feb 06, 2024
+ * @since Feb 06, 2024
  */
 public class ResultRowMappers {
 	public static final ResultRowMapMapper<Map<String, Object>> MAP_MAPPER = new ResultRowMapMapper<>();
@@ -22,12 +24,12 @@ public class ResultRowMappers {
 		return new ResultRowBeanMapper<>(type);
 	}
 
-	public static <T> ResultRowMapper<T> ofBean(Class<T> type, boolean caseInsensitive, boolean caseCamel) {
-		return new ResultRowBeanMapper<>(type, caseInsensitive, caseCamel);
+	public static <T> ResultRowMapper<T> ofBean(Class<T> type, CaseModeOption caseMode) {
+		return new ResultRowBeanMapper<>(type, caseMode);
 	}
 
-	public static <T> ResultRowMapper<T> ofBean(Type type, boolean caseInsensitive, boolean caseCamel) {
-		return new ResultRowBeanMapper<>(type, caseInsensitive, caseCamel);
+	public static <T> ResultRowMapper<T> ofBean(Type type, CaseModeOption caseMode) {
+		return new ResultRowBeanMapper<>(type, caseMode);
 	}
 
 	public static <T> ResultRowMapper<T> ofSingle(Class<T> type) {

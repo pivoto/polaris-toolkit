@@ -4,6 +4,8 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.polaris.core.lang.bean.CaseModeOption;
+
 /**
  * @author Qt
  * @since 1.8
@@ -11,17 +13,19 @@ import java.util.List;
 public class ResultBeanListExtractor<T> extends ResultBeanCollectionExtractor<List<T>, T> {
 
 	public ResultBeanListExtractor(Class<T> beanType) {
-		this(beanType, true, true);
+		this(beanType, CaseModeOption.all());
 	}
 
-	public ResultBeanListExtractor(Class<T> beanType, boolean caseInsensitive, boolean caseCamel) {
-		super(ArrayList::new, beanType, caseInsensitive, caseCamel);
+	public ResultBeanListExtractor(Class<T> beanType, CaseModeOption caseMode) {
+		super(ArrayList::new, beanType, caseMode);
 	}
+
 	public ResultBeanListExtractor(Type beanType) {
-		this(beanType, true, true);
+		this(beanType, CaseModeOption.all());
 	}
 
-	public ResultBeanListExtractor(Type beanType, boolean caseInsensitive, boolean caseCamel) {
-		super(ArrayList::new, beanType, caseInsensitive, caseCamel);
+	public ResultBeanListExtractor(Type beanType, CaseModeOption caseMode) {
+		super(ArrayList::new, beanType, caseMode);
 	}
+
 }

@@ -27,15 +27,13 @@ import lombok.Setter;
 
 /**
  * @author Qt
- * @since  Dec 28, 2023
+ * @since Dec 28, 2023
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class MetaObject<T> {
 	public static final int INIT = 0;
 	public static final int PARSING = 1;
 	public static final int READY = 2;
-	public static final int CASE_INSENSITIVE = 1;
-	public static final int CASE_CAMEL = 2;
 	private static final ILogger log = ILoggers.of(MetaObject.class);
 	private static final Set<Class> basicTypes;
 	private final JavaType<T> beanType;
@@ -54,8 +52,8 @@ public abstract class MetaObject<T> {
 	private MetaObject<?> keyType;
 	private MetaObject<?> elementType;
 
-	static{
-		Set<Class> set =  new HashSet<>();
+	static {
+		Set<Class> set = new HashSet<>();
 		set.add(Class.class);
 		set.add(String.class);
 		set.add(CharSequence.class);
@@ -149,15 +147,15 @@ public abstract class MetaObject<T> {
 
 	protected abstract <E> MetaObject<E> createMetaObject(JavaType<E> rawClass);
 
-	protected abstract Object getBeanPropertyOrSetDefault(@Nonnull T o, int caseModel, @Nonnull String property);
+	protected abstract Object getBeanPropertyOrSetDefault(@Nonnull T o, CaseModeOption caseMode, @Nonnull String property);
 
-	protected abstract Object setBeanProperty(@Nonnull T o, int caseModel, @Nonnull String property, Object val);
+	protected abstract Object setBeanProperty(@Nonnull T o, CaseModeOption caseMode, @Nonnull String property, Object val);
 
-	protected abstract MetaObject<?> getBeanProperty(int caseModel, @Nonnull String property);
+	protected abstract MetaObject<?> getBeanProperty(CaseModeOption caseMode, @Nonnull String property);
 
-	protected abstract Object getBeanProperty(@Nonnull T o, int caseModel, @Nonnull String property);
+	protected abstract Object getBeanProperty(@Nonnull T o, CaseModeOption caseMode, @Nonnull String property);
 
-	protected abstract boolean hasBeanProperty(@Nonnull T o, int caseModel, @Nonnull String property);
+	protected abstract boolean hasBeanProperty(@Nonnull T o, CaseModeOption caseMode, @Nonnull String property);
 
 	// endregion
 
@@ -169,7 +167,7 @@ public abstract class MetaObject<T> {
 		if (mode == null) {
 			mode = BeanAccessMode.INDEXED;
 		}
-		switch(mode){
+		switch (mode) {
 			case LAMBDA:
 				return LambdaMetaObject.of(beanType);
 			case INDEXED:
@@ -195,17 +193,6 @@ public abstract class MetaObject<T> {
 	}
 
 	// endregion
-	public static int buildCaseModel(boolean caseInsensitive, boolean caseCamel) {
-		return (caseInsensitive ? CASE_INSENSITIVE : 0) | (caseCamel ? CASE_CAMEL : 0);
-	}
-
-	public static boolean isCaseInsensitive(int caseModel) {
-		return (CASE_INSENSITIVE & caseModel) != 0;
-	}
-
-	public static boolean isCaseCamel(int caseModel) {
-		return (CASE_CAMEL & caseModel) != 0;
-	}
 
 	@Nullable
 	public T newInstance() {
@@ -213,17 +200,17 @@ public abstract class MetaObject<T> {
 	}
 
 	public Object getPropertyOrSetDefault(@Nonnull T o, @Nonnull String property) {
-		return getPropertyOrSetDefault(o, 0, property);
+		return getPropertyOrSetDefault(o, CaseModeOption.empty(), property);
 	}
 
-	public Object getPropertyOrSetDefault(@Nonnull T o, int caseModel, @Nonnull String property) {
+	public Object getPropertyOrSetDefault(@Nonnull T o, CaseModeOption caseMode, @Nonnull String property) {
 		if (isObject || isBasic || isEnum) {
 			MetaObject runtimeMeta = createMetaObject(JavaType.of(o.getClass()));
 			if (this.equals(runtimeMeta) || runtimeMeta.isObject || runtimeMeta.isBasic || runtimeMeta.isEnum) {
 				log.debug("Unsupported property：{}:{}", beanType.getTypeName(), property);
 				return null;
 			} else {
-				return runtimeMeta.getPropertyOrSetDefault(o, caseModel, property);
+				return runtimeMeta.getPropertyOrSetDefault(o, caseMode, property);
 			}
 		}
 		if (isArray) {
@@ -294,21 +281,21 @@ public abstract class MetaObject<T> {
 			return val;
 		}
 
-		return getBeanPropertyOrSetDefault(o, caseModel, property);
+		return getBeanPropertyOrSetDefault(o, caseMode, property);
 	}
 
 	public Object setProperty(@Nonnull T o, @Nonnull String property, Object val) {
-		return setProperty(o, 0, property, val);
+		return setProperty(o, CaseModeOption.empty(), property, val);
 	}
 
-	public Object setProperty(@Nonnull T o, int caseModel, @Nonnull String property, Object val) {
+	public Object setProperty(@Nonnull T o, CaseModeOption caseMode, @Nonnull String property, Object val) {
 		if (isObject || isBasic || isEnum) {
 			MetaObject runtimeMeta = createMetaObject(JavaType.of(o.getClass()));
 			if (this.equals(runtimeMeta) || runtimeMeta.isObject || runtimeMeta.isBasic || runtimeMeta.isEnum) {
 				log.debug("Unsupported property：{}:{}", beanType.getTypeName(), property);
 				return null;
 			} else {
-				return runtimeMeta.setProperty(o, caseModel, property, val);
+				return runtimeMeta.setProperty(o, caseMode, property, val);
 			}
 		}
 		if (isArray) {
@@ -361,14 +348,14 @@ public abstract class MetaObject<T> {
 			return val;
 		}
 
-		return setBeanProperty(o, caseModel, property, val);
+		return setBeanProperty(o, caseMode, property, val);
 	}
 
 	public MetaObject<?> getProperty(@Nonnull String property) {
-		return getProperty(0, property);
+		return getProperty(CaseModeOption.empty(), property);
 	}
 
-	public MetaObject<?> getProperty(int caseModel, @Nonnull String property) {
+	public MetaObject<?> getProperty(CaseModeOption caseMode, @Nonnull String property) {
 		if (isObject || isBasic || isEnum) {
 			log.debug("Unsupported property：{}:{}", beanType.getTypeName(), property);
 			return null;
@@ -376,14 +363,14 @@ public abstract class MetaObject<T> {
 		if (isArray || isCollection || isMap) {
 			return this.elementType;
 		}
-		return getBeanProperty(caseModel, property);
+		return getBeanProperty(caseMode, property);
 	}
 
-	public MetaObject<?> getPathProperty(int caseModel, @Nonnull String property) {
+	public MetaObject<?> getPathProperty(CaseModeOption caseMode, @Nonnull String property) {
 		Deque<String> properties = Beans.parseProperty(property);
 		MetaObject meta = this;
 		for (String key : properties) {
-			meta = meta.getProperty(caseModel, key);
+			meta = meta.getProperty(caseMode, key);
 			if (meta == null) {
 				break;
 			}
@@ -392,17 +379,17 @@ public abstract class MetaObject<T> {
 	}
 
 	public Object getProperty(@Nonnull T o, @Nonnull String property) {
-		return getProperty(o, 0, property);
+		return getProperty(o, CaseModeOption.empty(), property);
 	}
 
-	public Object getProperty(@Nonnull T o, int caseModel, @Nonnull String property) {
+	public Object getProperty(@Nonnull T o, CaseModeOption caseMode, @Nonnull String property) {
 		if (isObject || isBasic || isEnum) {
 			MetaObject runtimeMeta = createMetaObject(JavaType.of(o.getClass()));
 			if (this.equals(runtimeMeta) || runtimeMeta.isObject || runtimeMeta.isBasic || runtimeMeta.isEnum) {
 				log.debug("Unsupported property：{}:{}", beanType.getTypeName(), property);
 				return null;
 			} else {
-				return runtimeMeta.getProperty(o, caseModel, property);
+				return runtimeMeta.getProperty(o, caseMode, property);
 			}
 		}
 		if (isArray) {
@@ -446,20 +433,20 @@ public abstract class MetaObject<T> {
 			}
 			return iter.next();
 		}
-		return getBeanProperty(o, caseModel, property);
+		return getBeanProperty(o, caseMode, property);
 	}
 
 	public boolean hasProperty(@Nonnull T o, @Nonnull String property) {
-		return hasProperty(o, 0, property);
+		return hasProperty(o, CaseModeOption.empty(), property);
 	}
 
-	public boolean hasProperty(@Nonnull T o, int caseModel, @Nonnull String property) {
+	public boolean hasProperty(@Nonnull T o, CaseModeOption caseMode, @Nonnull String property) {
 		if (isObject || isBasic || isEnum) {
 			MetaObject runtimeMeta = createMetaObject(JavaType.of(o.getClass()));
 			if (this.equals(runtimeMeta) || runtimeMeta.isObject || runtimeMeta.isBasic || runtimeMeta.isEnum) {
 				return false;
 			} else {
-				return runtimeMeta.hasProperty(o, caseModel, property);
+				return runtimeMeta.hasProperty(o, caseMode, property);
 			}
 		}
 		if (isArray) {
@@ -502,63 +489,63 @@ public abstract class MetaObject<T> {
 			return iter.next() != null;
 		}
 
-		return hasBeanProperty(o, caseModel, property);
+		return hasBeanProperty(o, caseMode, property);
 	}
 
 
 	public Object getPathProperty(@Nonnull T o, @Nonnull String property) {
-		return getPathProperty(o, 0, Beans.parseProperty(property));
+		return getPathProperty(o, CaseModeOption.empty(), Beans.parseProperty(property));
 	}
 
-	public Object getPathProperty(@Nonnull T o, int caseModel, @Nonnull String property) {
-		return getPathProperty(o, caseModel, Beans.parseProperty(property));
+	public Object getPathProperty(@Nonnull T o, CaseModeOption caseMode, @Nonnull String property) {
+		return getPathProperty(o, caseMode, Beans.parseProperty(property));
 	}
 
 	public Object setPathProperty(@Nonnull T o, @Nonnull String property, Object val) {
-		return setPathProperty(o, 0, Beans.parseProperty(property), val);
+		return setPathProperty(o, CaseModeOption.empty(), Beans.parseProperty(property), val);
 	}
 
-	public Object setPathProperty(@Nonnull T o, int caseModel, @Nonnull String property, Object val) {
-		return setPathProperty(o, caseModel, Beans.parseProperty(property), val);
+	public Object setPathProperty(@Nonnull T o, CaseModeOption caseMode, @Nonnull String property, Object val) {
+		return setPathProperty(o, caseMode, Beans.parseProperty(property), val);
 	}
 
-	private Object setPathProperty(@Nonnull T o, int caseModel, Deque<String> properties, Object val) {
+	private Object setPathProperty(@Nonnull T o, CaseModeOption caseMode, Deque<String> properties, Object val) {
 		if (val == null) {
 			return null;
 		}
 		String property = properties.pollLast();
 		if (properties.isEmpty()) {
-			return setProperty(o, caseModel, property, val);
+			return setProperty(o, caseMode, property, val);
 		}
-		PropertyInfo info = getRequiredPathProperty(o, caseModel, properties);
+		PropertyInfo info = getRequiredPathProperty(o, caseMode, properties);
 		if (info == null) {
 			return null;
 		}
 		if (info.propertyMeta.isArray) {
 			return setArrayElement(info, property, info.propertyMeta.elementType, val);
 		} else {
-			return info.propertyMeta.setProperty(info.propertyObj, caseModel, property, val);
+			return info.propertyMeta.setProperty(info.propertyObj, caseMode, property, val);
 		}
 	}
 
-	private Object getPathProperty(T obj, int caseModel, Deque<String> properties) {
+	private Object getPathProperty(T obj, CaseModeOption caseMode, Deque<String> properties) {
 		Object target = obj;
 		MetaObject meta = this;
 		for (String property : properties) {
-			target = meta.getProperty(target, caseModel, property);
+			target = meta.getProperty(target, caseMode, property);
 			if (target == null) {
 				break;
 			}
-			meta = meta.getProperty(caseModel, property);
+			meta = meta.getProperty(caseMode, property);
 		}
 		return target;
 	}
 
-	private PropertyInfo getRequiredPathProperty(T obj, int caseModel, Deque<String> properties) {
+	private PropertyInfo getRequiredPathProperty(T obj, CaseModeOption caseMode, Deque<String> properties) {
 		PropertyInfo info = new PropertyInfo("", obj, this, null, null);
 		for (String property : properties) {
-			Object propVal = info.propertyMeta.getPropertyOrSetDefault(info.propertyObj, caseModel, property);
-			MetaObject propMeta = info.propertyMeta.getProperty(caseModel, property);
+			Object propVal = info.propertyMeta.getPropertyOrSetDefault(info.propertyObj, caseMode, property);
+			MetaObject propMeta = info.propertyMeta.getProperty(caseMode, property);
 			if (propVal == null) {
 				if (propMeta != null) {
 					// 尝试设置数组元素

@@ -5,12 +5,14 @@ import java.util.Iterator;
 import java.util.List;
 
 import io.polaris.core.lang.JavaType;
+import io.polaris.core.lang.bean.CaseMode;
+import io.polaris.core.lang.bean.CaseModeOption;
 import io.polaris.core.lang.bean.MetaObject;
 import lombok.Getter;
 
 /**
  * @author Qt
- * @since  Dec 28, 2023
+ * @since Dec 28, 2023
  */
 @Getter
 public class BeanMapping<T> {
@@ -18,9 +20,7 @@ public class BeanMapping<T> {
 	private MetaObject<T> metaObject;
 	private List<BeanPropertyMapping> columns;
 	private List<BeanCompositeMapping<?>> composites;
-	private boolean caseInsensitive = true;
-	private boolean caseCamel = true;
-	private int caseModel;
+	private CaseModeOption caseMode = CaseModeOption.all();
 
 	public BeanMapping() {
 	}
@@ -39,7 +39,6 @@ public class BeanMapping<T> {
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	public void prepare() {
-		caseModel = MetaObject.buildCaseModel(caseInsensitive, caseCamel);
 		if (columns != null) {
 			for (Iterator<BeanPropertyMapping> it = columns.iterator(); it.hasNext(); ) {
 				BeanPropertyMapping col = it.next();
@@ -54,13 +53,13 @@ public class BeanMapping<T> {
 				if (!composite.isValid()) {
 					it.remove();
 				} else {
-					MetaObject compositeMetaObject = metaObject.getProperty(caseModel, composite.getProperty());
+					MetaObject compositeMetaObject = metaObject.getProperty(caseMode, composite.getProperty());
 					if (compositeMetaObject == null) {
 						it.remove();
 					} else {
 						BeanMapping compositeMapping = composite.getMapping();
 						compositeMapping.metaObject(compositeMetaObject)
-							.caseInsensitive(caseInsensitive).caseCamel(caseCamel)
+							.caseMode(caseMode)
 							.prepare();
 					}
 				}
@@ -68,13 +67,26 @@ public class BeanMapping<T> {
 		}
 	}
 
+	public BeanMapping<T> caseMode(CaseModeOption caseMode) {
+		this.caseMode = caseMode;
+		return this;
+	}
+
 	public BeanMapping<T> caseInsensitive(boolean caseInsensitive) {
-		this.caseInsensitive = caseInsensitive;
+		if (caseInsensitive) {
+			this.caseMode = this.caseMode.plus(CaseMode.INSENSITIVE);
+		} else {
+			this.caseMode = this.caseMode.minus(CaseMode.INSENSITIVE);
+		}
 		return this;
 	}
 
 	public BeanMapping<T> caseCamel(boolean caseCamel) {
-		this.caseCamel = caseCamel;
+		if (caseCamel) {
+			this.caseMode = this.caseMode.plus(CaseMode.CAMEL);
+		} else {
+			this.caseMode = this.caseMode.minus(CaseMode.CAMEL);
+		}
 		return this;
 	}
 

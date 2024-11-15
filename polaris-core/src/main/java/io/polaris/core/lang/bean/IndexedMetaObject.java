@@ -102,18 +102,18 @@ public class IndexedMetaObject<T> extends MetaObject<T> {
 	}
 
 	@Override
-	protected Object getBeanPropertyOrSetDefault(@Nonnull T o, int caseModel, @Nonnull String name) {
+	protected Object getBeanPropertyOrSetDefault(@Nonnull T o, CaseModeOption caseMode, @Nonnull String name) {
 		IndexedProperty property = properties.get(name);
 		if (property == null || !property.accessor.hasGetter() || !property.accessor.hasSetter()) {
-			if (isCaseInsensitive(caseModel)) {
+			if (CaseMode.INSENSITIVE.is(caseMode)) {
 				property = propertiesCaseInsensitive.get(name);
 			}
 			if (property == null || !property.accessor.hasGetter() || !property.accessor.hasSetter()) {
-				if (isCaseCamel(caseModel)) {
+				if (CaseMode.CAMEL.is(caseMode)) {
 					String propertyCamelCase = StringCases.underlineToCamelCase(name);
 					property = properties.get(propertyCamelCase);
 					if (property == null || !property.accessor.hasGetter() || !property.accessor.hasSetter()) {
-						if (isCaseInsensitive(caseModel)) {
+						if (CaseMode.INSENSITIVE.is(caseMode)) {
 							property = propertiesCaseInsensitive.get(propertyCamelCase);
 						}
 					}
@@ -126,7 +126,7 @@ public class IndexedMetaObject<T> extends MetaObject<T> {
 					log.debug("Unsupported property：{}:{}", getBeanType().getTypeName(), name);
 					return null;
 				} else {
-					return rtMeta.getPropertyOrSetDefault(o, caseModel, name);
+					return rtMeta.getPropertyOrSetDefault(o, caseMode, name);
 				}
 			}
 		}
@@ -139,18 +139,18 @@ public class IndexedMetaObject<T> extends MetaObject<T> {
 	}
 
 	@Override
-	protected Object setBeanProperty(@Nonnull T o, int caseModel, @Nonnull String name, Object val) {
+	protected Object setBeanProperty(@Nonnull T o, CaseModeOption caseMode, @Nonnull String name, Object val) {
 		IndexedProperty property = properties.get(name);
 		if (property == null || !property.accessor.hasSetter()) {
-			if (isCaseInsensitive(caseModel)) {
+			if (CaseMode.INSENSITIVE.is(caseMode)) {
 				property = propertiesCaseInsensitive.get(name);
 			}
 			if (property == null || !property.accessor.hasSetter()) {
-				if (isCaseCamel(caseModel)) {
+				if (CaseMode.CAMEL.is(caseMode)) {
 					String propertyCamelCase = StringCases.underlineToCamelCase(name);
 					property = properties.get(propertyCamelCase);
 					if (property == null || !property.accessor.hasSetter()) {
-						if (isCaseInsensitive(caseModel)) {
+						if (CaseMode.INSENSITIVE.is(caseMode)) {
 							property = propertiesCaseInsensitive.get(propertyCamelCase);
 						}
 					}
@@ -163,7 +163,7 @@ public class IndexedMetaObject<T> extends MetaObject<T> {
 					log.debug("Unsupported property：{}:{}", getBeanType().getTypeName(), name);
 					return null;
 				} else {
-					return rtMeta.setProperty(o, caseModel, name, val);
+					return rtMeta.setProperty(o, caseMode, name, val);
 				}
 			}
 		}
@@ -174,18 +174,18 @@ public class IndexedMetaObject<T> extends MetaObject<T> {
 
 	@Override
 	@SuppressWarnings("all")
-	protected MetaObject<?> getBeanProperty(int caseModel, @Nonnull String name) {
+	protected MetaObject<?> getBeanProperty(CaseModeOption caseMode, @Nonnull String name) {
 		IndexedProperty property = properties.get(name);
 		if (property == null) {
-			if (isCaseInsensitive(caseModel)) {
+			if (CaseMode.INSENSITIVE.is(caseMode)) {
 				property = propertiesCaseInsensitive.get(name);
 			}
 			if (property == null) {
-				if (isCaseCamel(caseModel)) {
+				if (CaseMode.CAMEL.is(caseMode)) {
 					String propertyCamelCase = StringCases.underlineToCamelCase(name);
 					property = properties.get(propertyCamelCase);
 					if (property == null) {
-						if (isCaseInsensitive(caseModel)) {
+						if (CaseMode.INSENSITIVE.is(caseMode)) {
 							property = propertiesCaseInsensitive.get(propertyCamelCase);
 						}
 					}
@@ -200,18 +200,18 @@ public class IndexedMetaObject<T> extends MetaObject<T> {
 	}
 
 	@Override
-	protected Object getBeanProperty(@Nonnull T o, int caseModel, @Nonnull String name) {
+	protected Object getBeanProperty(@Nonnull T o, CaseModeOption caseMode, @Nonnull String name) {
 		IndexedProperty property = properties.get(name);
 		if (property == null || !property.accessor.hasGetter()) {
-			if (isCaseInsensitive(caseModel)) {
+			if (CaseMode.INSENSITIVE.is(caseMode)) {
 				property = propertiesCaseInsensitive.get(name);
 			}
 			if (property == null || !property.accessor.hasGetter()) {
-				if (isCaseCamel(caseModel)) {
+				if (CaseMode.CAMEL.is(caseMode)) {
 					String propertyCamelCase = StringCases.underlineToCamelCase(name);
 					property = properties.get(propertyCamelCase);
 					if (property == null || !property.accessor.hasGetter()) {
-						if (isCaseInsensitive(caseModel)) {
+						if (CaseMode.INSENSITIVE.is(caseMode)) {
 							property = propertiesCaseInsensitive.get(propertyCamelCase);
 						}
 					}
@@ -224,7 +224,7 @@ public class IndexedMetaObject<T> extends MetaObject<T> {
 					log.debug("Unsupported property：{}:{}", getBeanType().getTypeName(), name);
 					return null;
 				} else {
-					return rtMeta.getProperty(o, caseModel, name);
+					return rtMeta.getProperty(o, caseMode, name);
 				}
 			}
 		}
@@ -232,18 +232,18 @@ public class IndexedMetaObject<T> extends MetaObject<T> {
 	}
 
 	@Override
-	protected boolean hasBeanProperty(@Nonnull T o, int caseModel, @Nonnull String name) {
+	protected boolean hasBeanProperty(@Nonnull T o, CaseModeOption caseMode, @Nonnull String name) {
 		IndexedProperty property = properties.get(name);
 		if (property == null || !property.accessor.hasGetter()) {
-			if (isCaseInsensitive(caseModel)) {
+			if (CaseMode.INSENSITIVE.is(caseMode)) {
 				property = propertiesCaseInsensitive.get(name);
 			}
 			if (property == null || !property.accessor.hasGetter()) {
-				if (isCaseCamel(caseModel)) {
+				if (CaseMode.CAMEL.is(caseMode)) {
 					String propertyCamelCase = StringCases.underlineToCamelCase(name);
 					property = properties.get(propertyCamelCase);
 					if (property == null || !property.accessor.hasGetter()) {
-						if (isCaseInsensitive(caseModel)) {
+						if (CaseMode.INSENSITIVE.is(caseMode)) {
 							property = propertiesCaseInsensitive.get(propertyCamelCase);
 						}
 					}
@@ -255,7 +255,7 @@ public class IndexedMetaObject<T> extends MetaObject<T> {
 				if (this.equals(rtMeta) || rtMeta.isObject() || rtMeta.isBasic() || rtMeta.isEnum()) {
 					return false;
 				} else {
-					return rtMeta.hasProperty(o, caseModel, name);
+					return rtMeta.hasProperty(o, caseMode, name);
 				}
 			}
 		}

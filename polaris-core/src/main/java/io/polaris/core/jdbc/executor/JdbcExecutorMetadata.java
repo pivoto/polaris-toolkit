@@ -41,6 +41,7 @@ import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.annotation.AnnotationAttributes;
 import io.polaris.core.lang.bean.Beans;
+import io.polaris.core.lang.bean.CaseModeOption;
 import io.polaris.core.map.Maps;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.string.Strings;
@@ -97,8 +98,7 @@ public class JdbcExecutorMetadata<T> {
 		}
 
 		final ResultExtractor<?> extractor;
-		boolean caseInsensitive = mappingModel.isCaseInsensitive();
-		boolean caseCamel = mappingModel.isCaseCamel();
+		CaseModeOption caseMode = mappingModel.getCaseMode();
 		if (void.class.equals(returnType.getRawClass())) {
 			extractor = null;
 		} else if (Collection.class.isAssignableFrom(returnType.getRawClass())) {
@@ -113,7 +113,7 @@ public class JdbcExecutorMetadata<T> {
 			// bean
 			else if (Beans.isBeanClass(elementType)) {
 				extractor = new ResultBeanCollectionExtractor<>(
-					collBuilder, elementType, caseInsensitive, caseCamel);
+					collBuilder, elementType, mappingModel.getCaseMode());
 			}
 			// map
 			else if (Map.class.isAssignableFrom(elementType)) {

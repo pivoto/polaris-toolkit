@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
+import io.polaris.core.lang.bean.CaseModeOption;
 import io.polaris.core.lang.bean.MetaObject;
 
 /**
@@ -13,7 +14,7 @@ import io.polaris.core.lang.bean.MetaObject;
 class BeanMappingKit {
 
 	@SuppressWarnings("rawtypes")
-	public static <T> void setProperty(ResultSet rs, BeanMapping<T> mapping, int caseModel, T bean) throws SQLException {
+	public static <T> void setProperty(ResultSet rs, BeanMapping<T> mapping, CaseModeOption caseModel, T bean) throws SQLException {
 		MetaObject<T> metaObject = mapping.getMetaObject();
 
 		if (mapping.getColumns() != null) {

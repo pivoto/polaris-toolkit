@@ -7,11 +7,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import lombok.Getter;
+import io.polaris.core.lang.bean.CaseMode;
 
 /**
  * @author Qt
- * @since  Feb 05, 2024
+ * @since Feb 05, 2024
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})
@@ -19,9 +19,7 @@ import lombok.Getter;
 @Inherited
 public @interface Mapping {
 
-	boolean caseInsensitive() default true;
-
-	boolean caseCamel() default true;
+	CaseMode[] caseModes() default {CaseMode.INSENSITIVE, CaseMode.CAMEL};
 
 	Class<?> entityType() default void.class;
 
