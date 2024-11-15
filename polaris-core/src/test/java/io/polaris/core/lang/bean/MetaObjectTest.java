@@ -1,6 +1,7 @@
 package io.polaris.core.lang.bean;
 
 import io.polaris.core.io.Consoles;
+import io.polaris.core.json.Jsons;
 import io.polaris.core.random.Randoms;
 import lombok.Data;
 import org.junit.jupiter.api.Test;
@@ -46,22 +47,31 @@ public class MetaObjectTest {
 
 
 		Consoles.println();
-		Consoles.println(Beans.newBeanMap(new Object()).keySet());
-		Consoles.println(Beans.newBeanMap(new Object[1]).keySet());
-		Consoles.println(Beans.newBeanMap(new ArrayList()).keySet());
+		Consoles.println(()->Beans.newBeanMap(new Object()).keySet());
+		Consoles.println(()->Beans.newBeanMap(new Object[1]).keySet());
+		Consoles.println(()->Beans.newBeanMap(new ArrayList()).keySet());
 	}
 
 	@Test
 	void test02() {
 		Map<String,Object> bindings = new HashMap<>();
-		bindings.put("a", new HashMap<>());
 
-		MetaObject<Map> meta = (MetaObject<Map>) MetaObject.of(bindings.getClass());
-		meta.setPathProperty(bindings,"a.a","1");
-		Consoles.println();
+		MetaObject<Map<String,Object>> meta = (MetaObject<Map<String,Object>>) MetaObject.of(bindings.getClass());
+		meta.setPathProperty(bindings,"a",new Map[1]);
+		meta.setPathProperty(bindings,"a.0.x","1");
+		meta.setPathProperty(bindings,"a.1",new HashMap<>());
+		Consoles.println(bindings);
+		Consoles.println(Jsons.serialize(bindings));
+		meta.setPathProperty(bindings,"a.1.b","1");
+		meta.setPathProperty(bindings,"a.1.c.d","1");
+		meta.setPathProperty(bindings,"a.1.c",new HashMap<>());
+		meta.setPathProperty(bindings,"a.1.c.d","1");
+
 		Object[] args = new Object[]{meta.getPathProperty(bindings,"a.a")};
 		Consoles.println(args);
 		Consoles.println(bindings);
+		Consoles.println(Jsons.serialize(bindings));
+
 	}
 
 	@Data

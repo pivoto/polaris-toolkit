@@ -560,7 +560,10 @@ public abstract class MetaObject<T> {
 			Object propVal = info.propertyMeta.getPropertyOrSetDefault(info.propertyObj, caseModel, property);
 			MetaObject propMeta = info.propertyMeta.getProperty(caseModel, property);
 			if (propVal == null) {
-				propVal = setArrayElement(info, property, propMeta, null);
+				if (propMeta != null) {
+					// 尝试设置数组元素
+					propVal = setArrayElement(info, property, propMeta, null);
+				}
 				if (propVal == null) {
 					return null;
 				}
@@ -569,7 +572,9 @@ public abstract class MetaObject<T> {
 			info.parentObj = info.propertyObj;
 			info.parentMeta = info.propertyMeta;
 			info.propertyObj = propVal;
-			info.propertyMeta = propMeta;
+			// 使用运行期属性类型，因为数组、集合、泛型类等可能在运行时类型不一致
+			info.propertyMeta = createMetaObject(JavaType.of(propVal.getClass()));
+			//info.propertyMeta = propMeta;
 		}
 		return info;
 	}
