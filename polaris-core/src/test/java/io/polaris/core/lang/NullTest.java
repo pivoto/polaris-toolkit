@@ -7,7 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Base64;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -22,8 +22,9 @@ class NullTest {
 		oos.flush();
 
 		byte[] bytes = bos.toByteArray();
-		TestConsole.println(new String(bytes));
-		TestConsole.println(Base64.getEncoder().encodeToString(bytes));
+		Consoles.println(new String(bytes));
+		String msg = Base64.getEncoder().encodeToString(bytes);
+		Consoles.println(msg);
 
 		ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
 		ObjectInputStream ois = new ObjectInputStream(bis);

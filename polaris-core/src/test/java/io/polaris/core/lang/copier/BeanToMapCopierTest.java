@@ -3,7 +3,7 @@ package io.polaris.core.lang.copier;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.lang.TypeRef;
 import lombok.Data;
 import lombok.ToString;
@@ -24,8 +24,8 @@ class BeanToMapCopierTest {
 			}.getType(), m,
 			copyOptions1.ignoreCase(true)
 		).copy();
-		TestConsole.println(b);
-		TestConsole.println(m);
+		Consoles.println(b);
+		Consoles.println(m);
 	}
 
 	@Test
@@ -42,8 +42,8 @@ class BeanToMapCopierTest {
 		Copiers.create(a, B.class, b,
 			copyOptions1.ignoreCase(true)
 		).copy();
-		TestConsole.println(a);
-		TestConsole.println(b);
+		Consoles.println(a);
+		Consoles.println(b);
 	}
 
 	@ToString

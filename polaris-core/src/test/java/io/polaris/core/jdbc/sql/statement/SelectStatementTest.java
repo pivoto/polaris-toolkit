@@ -1,6 +1,6 @@
 package io.polaris.core.jdbc.sql.statement;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.jdbc.entity.Demo2Entity;
 import io.polaris.core.jdbc.entity.Demo2EntitySql;
 import io.polaris.core.jdbc.entity.DemoEntity;
@@ -34,7 +34,8 @@ public class SelectStatementTest {
 			sql.selectAll();
 			sql.where().column(DemoEntity.Fields.name).eq(123);
 			sql.orderBy().column(DemoEntity.Fields.score).desc();
-			TestConsole.println(sql.toSqlNode().asBoundSql());
+			Object[] args = new Object[]{sql.toSqlNode().asBoundSql()};
+			Consoles.println(args);
 		}
 
 		@Test
@@ -47,7 +48,8 @@ public class SelectStatementTest {
 			sql.groupBy().column(DemoEntity.Fields.name).end();
 			sql.having().column(DemoEntity.Fields.score).max().gt(60);
 			sql.orderBy().rawColumn("m").desc();
-			TestConsole.println(sql.toSqlNode().asBoundSql());
+			Object[] args = new Object[]{sql.toSqlNode().asBoundSql()};
+			Consoles.println(args);
 		}
 
 	}
@@ -100,11 +102,14 @@ public class SelectStatementTest {
 					)
 			);
 
-			TestConsole.println("查询：");
-			TestConsole.println(statement.toSqlNode().asBoundSql());
-			TestConsole.println("查总数：");
-			TestConsole.println(statement.toCountSqlNode().asBoundSql());
-			TestConsole.println(AnySelectStatement.of(statement,"x").select().column("*").count().end().toSqlNode().asBoundSql());
+			Consoles.println("查询：");
+			Object[] args2 = new Object[]{statement.toSqlNode().asBoundSql()};
+			Consoles.println(args2);
+			Consoles.println("查总数：");
+			Object[] args1 = new Object[]{statement.toCountSqlNode().asBoundSql()};
+			Consoles.println(args1);
+			Object[] args = new Object[]{AnySelectStatement.of(statement,"x").select().column("*").count().end().toSqlNode().asBoundSql()};
+			Consoles.println(args);
 		}
 	}
 
@@ -138,7 +143,8 @@ public class SelectStatementTest {
 
 			sql.where().column(Demo2Entity.Fields.name).in(Demo2EntitySql.select("t4").name().where().col1().notNull().end());
 
-			TestConsole.println(sql.toSqlNode().asBoundSql());
+			Object[] args = new Object[]{sql.toSqlNode().asBoundSql()};
+			Consoles.println(args);
 		}
 	}
 }

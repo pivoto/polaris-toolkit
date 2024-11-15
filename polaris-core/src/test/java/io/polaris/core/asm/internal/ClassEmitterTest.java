@@ -6,9 +6,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
-import io.polaris.core.TestConsole;
 import io.polaris.core.asm.BaseAsmTest;
 import io.polaris.core.asm.generator.DebuggingClassWriter;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.random.Randoms;
 import io.polaris.core.reflect.Reflects;
 import org.junit.jupiter.api.Test;
@@ -41,7 +41,7 @@ class ClassEmitterTest extends BaseAsmTest {
 
 		byte[] bytes = cw.toByteArray();
 		Class clazz = AsmReflects.defineClass(ClassNameReader.getClassName(new ClassReader(bytes)), bytes, classLoader);
-		TestConsole.printx("class: {}", clazz);
+		Consoles.log("class: {}", clazz);
 		Object o = clazz.newInstance();
 		return o;
 	}
@@ -57,7 +57,7 @@ class ClassEmitterTest extends BaseAsmTest {
 			Field[] fields = Reflects.getFields(o.getClass());
 			for (Field field : fields) {
 				field.setAccessible(true);
-				TestConsole.printx("field: {}, value: {}", field, field.get(o));
+				Consoles.log("field: {}, value: {}", field, field.get(o));
 			}
 		}
 	}
@@ -94,7 +94,7 @@ class ClassEmitterTest extends BaseAsmTest {
 		});
 
 		Method m = Reflects.getMethodByName(o.getClass(), "test");
-		TestConsole.printx("method: {}", m);
+		Consoles.log("method: {}", m);
 		Reflects.invoke(o, m, new Object[]{new String[]{"a", "b", "c"}});
 	}
 }

@@ -1,6 +1,6 @@
 package io.polaris.core.env;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 
 /**
  * @author Qt
@@ -9,7 +9,7 @@ import io.polaris.core.TestConsole;
 public class StdEnvCustomizer02 implements StdEnvCustomizer {
 	@Override
 	public void customize(StdEnv stdEnv) {
-		TestConsole.println("StdEnvCustomizer02.customize");
+		Consoles.println("StdEnvCustomizer02.customize");
 
 	}
 }

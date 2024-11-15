@@ -1,22 +1,25 @@
 package io.polaris.core.net;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Test;
 
 class NetsTest {
 
 	@Test
 	void test01() {
-		TestConsole.println(Nets.getRandomLocalPort());
+		Object[] args = new Object[]{Nets.getRandomLocalPort()};
+		Consoles.println(args);
 	}
 
 	@Test
 	void test02() {
-		TestConsole.println(Nets.getRandomLocalPort(1024, 2048));
+		Object[] args = new Object[]{Nets.getRandomLocalPort(1024, 2048)};
+		Consoles.println(args);
 	}
 
 	@Test
 	void test03() {
-		TestConsole.println(Nets.getUsableLocalPort(1024, 2048));
+		Object[] args = new Object[]{Nets.getUsableLocalPort(1024, 2048)};
+		Consoles.println(args);
 	}
 }

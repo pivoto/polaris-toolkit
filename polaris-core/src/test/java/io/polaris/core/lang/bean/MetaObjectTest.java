@@ -1,6 +1,6 @@
 package io.polaris.core.lang.bean;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.random.Randoms;
 import lombok.Data;
 import org.junit.jupiter.api.Test;
@@ -32,20 +32,23 @@ public class MetaObjectTest {
 			meta.setPathProperty(target, "map.3.date", val);
 		}
 		BeanMap<MetaT> beanMap = Beans.newBeanMap(target);
-		TestConsole.println();
+		Consoles.println();
 		beanMap.forEach((k, v) -> {
-			TestConsole.println(k + " -> " + v);
+			Consoles.println(k + " -> " + v);
 		});
-		TestConsole.println();
-		TestConsole.println("array.1 -> {}",meta.getPathProperty(target, "array.1"));
-		TestConsole.println("array.4 -> {}",meta.getPathProperty(target, "array.4"));
-		TestConsole.println("array.x -> {}",meta.getPathProperty(target, "array.x"));
+		Consoles.println();
+		Object[] args2 = new Object[]{meta.getPathProperty(target, "array.1")};
+		Consoles.println("array.1 -> {}", args2);
+		Object[] args1 = new Object[]{meta.getPathProperty(target, "array.4")};
+		Consoles.println("array.4 -> {}", args1);
+		Object[] args = new Object[]{meta.getPathProperty(target, "array.x")};
+		Consoles.println("array.x -> {}", args);
 
 
-		TestConsole.println();
-		TestConsole.println(Beans.newBeanMap(new Object()).keySet());
-		TestConsole.println(Beans.newBeanMap(new Object[1]).keySet());
-		TestConsole.println(Beans.newBeanMap(new ArrayList()).keySet());
+		Consoles.println();
+		Consoles.println(Beans.newBeanMap(new Object()).keySet());
+		Consoles.println(Beans.newBeanMap(new Object[1]).keySet());
+		Consoles.println(Beans.newBeanMap(new ArrayList()).keySet());
 	}
 
 	@Test
@@ -55,9 +58,10 @@ public class MetaObjectTest {
 
 		MetaObject<Map> meta = (MetaObject<Map>) MetaObject.of(bindings.getClass());
 		meta.setPathProperty(bindings,"a.a","1");
-		TestConsole.println();
-		TestConsole.println(meta.getPathProperty(bindings,"a.a"));
-		TestConsole.println(bindings);
+		Consoles.println();
+		Object[] args = new Object[]{meta.getPathProperty(bindings,"a.a")};
+		Consoles.println(args);
+		Consoles.println(bindings);
 	}
 
 	@Data

@@ -8,7 +8,7 @@ import java.util.SplittableRandom;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.time.Times;
 import org.junit.jupiter.api.Test;
 
@@ -20,21 +20,21 @@ class UlidTest {
 	void test_UlidCreator_getUlid() {
 		UlidCreator.getUlid();
 		long time = Times.millsTime(MAX, UlidCreator::getUlid);
-		TestConsole.println("Time: " + time + "ms");
+		Consoles.println("Time: " + time + "ms");
 	}
 
 	@Test
 	void test_UlidCreator_getMonotonicUlid() {
 		UlidCreator.getMonotonicUlid();
 		long time = Times.millsTime(MAX, UlidCreator::getMonotonicUlid);
-		TestConsole.println("Time: " + time + "ms");
+		Consoles.println("Time: " + time + "ms");
 	}
 
 	@Test
 	void test_Ulid_fast() {
 		Ulid.fast();
 		long time = Times.millsTime(MAX, Ulid::fast);
-		TestConsole.println("Time: " + time + "ms");
+		Consoles.println("Time: " + time + "ms");
 	}
 
 
@@ -42,39 +42,43 @@ class UlidTest {
 	void test02() {
 		Ulid ulid = null;
 		// Create a quick ULID:
-		TestConsole.println(ulid = Ulid.fast());
+		Object[] args2 = new Object[]{ulid = Ulid.fast()};
+		Consoles.println(args2);
 		// Create a ULID from a canonical string (26 chars):
-		TestConsole.println(ulid = Ulid.from("0123456789ABCDEFGHJKMNPQRS"));
+		Object[] args1 = new Object[]{ulid = Ulid.from("0123456789ABCDEFGHJKMNPQRS")};
+		Consoles.println(args1);
 
 		// Convert a ULID into a canonical string in lower case:
-		TestConsole.println(ulid.toLowerCase());
+		Consoles.println(ulid.toLowerCase());
 		// Convert a ULID into a UUID:
-		TestConsole.println(ulid.toUuid());
+		Consoles.println(ulid.toUuid());
 		// Convert a ULID into a RFC-4122 UUID v4:
-		TestConsole.println(ulid.toRfc4122().toUuid());
+		Consoles.println(ulid.toRfc4122().toUuid());
 
 		// Get the creation instant of a ULID:
 		{
 			Instant instant = ulid.getInstant();
-			TestConsole.println(instant);
+			Consoles.println(instant);
 		}
 		{
 			Instant instant = Ulid.getInstant("0123456789ABCDEFGHJKMNPQRS");
-			TestConsole.println(instant);
+			Consoles.println(instant);
 		}
 
 		// A UlidFactory with java.util.Random:
 		{
 			// use a `java.util.Random` instance for fast generation
 			UlidFactory factory = UlidFactory.newInstance(new Random());
-			TestConsole.println(factory.create());
+			Object[] args = new Object[]{factory.create()};
+			Consoles.println(args);
 		}
 		// A UlidFactory with SplittableRandom:
 		{
 			// use a random function that returns a long value
 			SplittableRandom random = new SplittableRandom();
 			UlidFactory factory = UlidFactory.newInstance(() -> random.nextLong());
-			TestConsole.println(factory.create());
+			Object[] args = new Object[]{factory.create()};
+			Consoles.println(args);
 		}
 		// A UlidFactory with ThreadLocalRandom:
 		{
@@ -84,7 +88,8 @@ class UlidTest {
 				ThreadLocalRandom.current().nextBytes(bytes);
 				return bytes;
 			});
-			TestConsole.println(factory.create());
+			Object[] args = new Object[]{factory.create()};
+			Consoles.println(args);
 		}
 	}
 
@@ -92,27 +97,30 @@ class UlidTest {
 	void test03() {
 		int max = 100;
 
-		TestConsole.println(HORIZONTAL_LINE);
-		TestConsole.println("### ULID");
-		TestConsole.println(HORIZONTAL_LINE);
+		Consoles.println(HORIZONTAL_LINE);
+		Consoles.println("### ULID");
+		Consoles.println(HORIZONTAL_LINE);
 
 		for (int i = 0; i < max; i++) {
-			TestConsole.println(UlidCreator.getUlid());
+			Object[] args = new Object[]{UlidCreator.getUlid()};
+			Consoles.println(args);
 		}
 
-		TestConsole.println(HORIZONTAL_LINE);
-		TestConsole.println("### Monotonic ULID");
-		TestConsole.println(HORIZONTAL_LINE);
+		Consoles.println(HORIZONTAL_LINE);
+		Consoles.println("### Monotonic ULID");
+		Consoles.println(HORIZONTAL_LINE);
 
 		for (int i = 0; i < max; i++) {
-			TestConsole.println(UlidCreator.getMonotonicUlid());
+			Object[] args = new Object[]{UlidCreator.getMonotonicUlid()};
+			Consoles.println(args);
 		}
-		TestConsole.println(HORIZONTAL_LINE);
-		TestConsole.println("### Fast ULID");
-		TestConsole.println(HORIZONTAL_LINE);
+		Consoles.println(HORIZONTAL_LINE);
+		Consoles.println("### Fast ULID");
+		Consoles.println(HORIZONTAL_LINE);
 
 		for (int i = 0; i < max; i++) {
-			TestConsole.println(Ulid.fast());
+			Object[] args = new Object[]{Ulid.fast()};
+			Consoles.println(args);
 		}
 	}
 
@@ -130,7 +138,7 @@ class UlidTest {
 		}
 
 		Thread.sleep(5000L);
-		TestConsole.println("size: " + set.size());
+		Consoles.println("size: " + set.size());
 	}
 
 	@Test
@@ -147,7 +155,7 @@ class UlidTest {
 		}
 
 		Thread.sleep(5000L);
-		TestConsole.println("size: " + set.size());
+		Consoles.println("size: " + set.size());
 	}
 
 	@Test
@@ -164,6 +172,6 @@ class UlidTest {
 		}
 
 		Thread.sleep(5000L);
-		TestConsole.println("size: " + set.size());
+		Consoles.println("size: " + set.size());
 	}
 }

@@ -2,7 +2,7 @@ package io.polaris.core.lang;
 
 import com.squareup.javapoet.TypeName;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Test;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
@@ -49,7 +49,7 @@ public class TypeRefsTest {
 			TypeName typeName = TypeRefs.parse(name);
 			TypeRef<?> ref = TypeRefs.createTypeRefByAsm(typeName, TypeRef.class.getPackage().getName(), TypeRef.class.getSimpleName() + "$$" + i);
 			Type type = ref.getType();
-			TestConsole.println(type);
+			Consoles.println(type);
 		}
 	}
 
@@ -60,7 +60,7 @@ public class TypeRefsTest {
 			TypeName typeName = TypeRefs.parse(name);
 			TypeRef<?> ref = TypeRefs.createTypeRefByJdk(typeName, TypeRef.class.getPackage().getName(), TypeRef.class.getSimpleName() + "$$" + i);
 			Type type = ref.getType();
-			TestConsole.println(type);
+			Consoles.println(type);
 		}
 	}
 

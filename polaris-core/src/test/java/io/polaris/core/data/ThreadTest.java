@@ -2,7 +2,7 @@ package io.polaris.core.data;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -19,13 +19,13 @@ public class ThreadTest {
 		AtomicBoolean running = new AtomicBoolean(true);
 		Thread t = new Thread(() -> {
 			while (running.get()) {
-				TestConsole.printx("run...");
+				Consoles.log("run...");
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
 				}
 			}
-			TestConsole.printx("end.");
+			Consoles.log("end.");
 		});
 
 		Executable executable = () -> {

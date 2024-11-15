@@ -8,8 +8,8 @@ import java.security.Signature;
 import java.util.Arrays;
 import java.util.Base64;
 
-import io.polaris.core.TestConsole;
 import io.polaris.core.crypto.CryptoKeys;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.string.Strings;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -55,25 +55,27 @@ class SignaturesTest {
 	}
 
 	private void signAndVerify(SignAlgorithm signAlgorithm) throws GeneralSecurityException {
-		TestConsole.println(Strings.repeat('-', 80));
-		TestConsole.println("signAlgorithm: " + signAlgorithm);
+		String msg1 = Strings.repeat('-', 80);
+		Consoles.println(msg1);
+		Consoles.println("signAlgorithm: " + signAlgorithm);
 		byte[] data = "一段测试文字".getBytes(StandardCharsets.UTF_8);
 		if (SignAlgorithm.NONEwithDSA == signAlgorithm) {
 			// 有长度限制：20
 			data = Arrays.copyOfRange(Arrays.copyOf(data, 20), 0, 20);
 		}
 
-		TestConsole.println("data: " + data.length + " : " + new String(data, StandardCharsets.UTF_8));
+		Consoles.println("data: " + data.length + " : " + new String(data, StandardCharsets.UTF_8));
 
 		KeyPair keyPair = CryptoKeys.generateKeyPair(signAlgorithm.code(), 2048);
 		Signature signature = Signatures.getInitializedSignature(signAlgorithm.code(), keyPair.getPrivate());
 		byte[] signed = Signatures.doSign(signature, data);
-		TestConsole.println("signed: " + Base64.getEncoder().encodeToString(signed));
+		String msg = "signed: " + Base64.getEncoder().encodeToString(signed);
+		Consoles.println(msg);
 
 		signature = Signatures.getInitializedSignature(signAlgorithm.code(), keyPair.getPublic());
 		boolean verify = Signatures.doVerify(signature, data, signed);
-		TestConsole.println("verify: " + verify);
-		TestConsole.println();
+		Consoles.println("verify: " + verify);
+		Consoles.println();
 		Assertions.assertTrue(verify);
 	}
 }

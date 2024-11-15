@@ -4,7 +4,7 @@ import java.security.MessageDigest;
 import java.security.Security;
 import java.util.Base64;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,8 @@ class DigestsTest {
 	void test01() throws Exception {
 		MessageDigest digest = Digests.getDigest(DigestAlgorithm.SM3.code());
 		byte[] rs = Digests.digest(digest, "测试".getBytes());
-		TestConsole.println("digest: {}", Base64.getEncoder().encodeToString(rs));
+		Object[] args = new Object[]{Base64.getEncoder().encodeToString(rs)};
+		Consoles.println("digest: {}", args);
 		Assertions.assertEquals("b8+IajEV6zsY0tuhtEE/7VBnwVTgMCdtinjKp3O0Tqs=", Base64.getEncoder().encodeToString(rs));
 	}
 }

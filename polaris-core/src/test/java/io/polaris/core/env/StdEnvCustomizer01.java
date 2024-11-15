@@ -1,7 +1,6 @@
 package io.polaris.core.env;
 
-import io.polaris.core.TestConsole;
-import lombok.extern.slf4j.Slf4j;
+import io.polaris.core.io.Consoles;
 
 /**
  * @author Qt
@@ -10,6 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 public class StdEnvCustomizer01 implements StdEnvCustomizer {
 	@Override
 	public void customize(StdEnv stdEnv) {
-		TestConsole.println("StdEnvCustomizer01.customize");
+		Consoles.println("StdEnvCustomizer01.customize");
 	}
 }

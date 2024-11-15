@@ -1,6 +1,6 @@
 package io.polaris.core.reflect;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -13,19 +13,24 @@ public class ReflectsTest2 {
 
 	@Test
 	void test01() {
-		TestConsole.println(Arrays.toString(
+		String msg = Arrays.toString(
 			Reflects.getFields(C.class, c -> c.getType().isPrimitive())
-		));
+		);
+		Consoles.println(msg);
 	}
 
 	@Test
 	void test02() {
-		TestConsole.println(Reflects.findParameterizedTypes(I.class, C.class));
-		TestConsole.println(Reflects.findActualTypeArgument(I.class, C.class, 0));
-		TestConsole.println(Reflects.findAllParameterizedTypes(C.class));
-		TestConsole.println(Arrays.toString(Reflects.findActualTypeArguments(C.class)));
+		Object[] args2 = new Object[]{Reflects.findParameterizedTypes(I.class, C.class)};
+		Consoles.println(args2);
+		Object[] args1 = new Object[]{Reflects.findActualTypeArgument(I.class, C.class, 0)};
+		Consoles.println(args1);
+		Object[] args = new Object[]{Reflects.findAllParameterizedTypes(C.class)};
+		Consoles.println(args);
+		String msg = Arrays.toString(Reflects.findActualTypeArguments(C.class));
+		Consoles.println(msg);
 
-		TestConsole.println(Arrays.toString(C.class.getTypeParameters()));
+		Consoles.println(Arrays.toString(C.class.getTypeParameters()));
 	}
 
 	static interface I<A> {

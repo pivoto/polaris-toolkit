@@ -1,6 +1,6 @@
 package io.polaris.core.lang.bean;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.time.Times;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -19,18 +19,22 @@ public class BeansTest {
 		Assertions.assertEquals(map.toString(), o.toString());
 
 		map.forEach((k, v) -> {
-			TestConsole.println("{} -> {}", k, v);
+			Consoles.println("{} -> {}", k, v);
 		});
-		TestConsole.println(map.get("nickName"));
+		Object[] args = new Object[]{map.get("nickName")};
+		Consoles.println(args);
 	}
 
 	@Test
 	void testBeanMetadatasV1() throws Exception {
 		Class<BeanMetadataV1> metadataClass = BeanMetadatasV1.getMetadataClass(Bean01.class);
 		BeanMetadataV1 iMetadata = metadataClass.newInstance();
-		TestConsole.println(iMetadata.types());
-		TestConsole.println(iMetadata.getters());
-		TestConsole.println(iMetadata.setters());
+		Object[] args2 = new Object[]{iMetadata.types()};
+		Consoles.println(args2);
+		Object[] args1 = new Object[]{iMetadata.getters()};
+		Consoles.println(args1);
+		Object[] args = new Object[]{iMetadata.setters()};
+		Consoles.println(args);
 	}
 
 	@Test
@@ -40,6 +44,6 @@ public class BeansTest {
 		long time = Times.millsTime(1000, () -> {
 			BeanMap beanMap = Beans.newBeanMap(o);
 		});
-		TestConsole.println("time: " + time);
+		Consoles.println("time: " + time);
 	}
 }

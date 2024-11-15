@@ -1,6 +1,6 @@
 package io.polaris.core.log;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.log.support.DynamicLoggerResolver;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,7 @@ public class LogTest {
 	@Test
 	void test01() {
 		ILogger log = ILoggers.of(getClass());
-		TestConsole.printx(log);
+		Consoles.log("", log);
 		log.trace("test....");
 		log.trace("test....{}", "arg1");
 		log.trace(new Throwable(), "test....{}", "arg1");

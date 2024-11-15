@@ -1,6 +1,6 @@
 package io.polaris.core.xml;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.junit.jupiter.api.Assertions;
@@ -20,9 +20,10 @@ public class JaxbTest {
 		roomVo.setRoomNo("101");
 		schoolVo.setRoom(roomVo);
 
-		TestConsole.println(Jaxb.toXml(schoolVo));
+		String msg = Jaxb.toXml(schoolVo);
+		Consoles.println(msg);
 		SchoolVo bean = Jaxb.toBean(Jaxb.toXml(schoolVo), SchoolVo.class);
-		TestConsole.println(bean);
+		Consoles.println(bean);
 		Assertions.assertEquals(bean.getSchoolName(), schoolVo.getSchoolName());
 		Assertions.assertEquals(bean.getRoom().getRoomName(), schoolVo.getRoom().getRoomName());
 	}

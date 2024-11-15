@@ -3,13 +3,12 @@ package io.polaris.core.asm.reflect;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.polaris.core.TestConsole;
 import io.polaris.core.asm.BaseAsmTest;
 import io.polaris.core.asm.reflect.copy.CopyBean00;
 import io.polaris.core.asm.reflect.copy.sub.SubCopyBean00;
 import io.polaris.core.collection.Iterables;
-import io.polaris.core.consts.SystemKeys;
 import io.polaris.core.converter.Converters;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.lang.copier.CopyOptions;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -49,11 +48,11 @@ public class BeanCopierTest extends BaseAsmTest {
 	@Test
 	void test_copyBeanToMap() {
 		BeanCopier<CopyBean00> copier = BeanCopier.get(CopyBean00.class);
-		TestConsole.printx(copier);
-		TestConsole.printx("source: {}", source);
+		Consoles.log("", copier);
+		Consoles.log("source: {}", source);
 		Map<String, Object> target = new HashMap<>();
 		copier.copyBeanToMap(source, target);
-		TestConsole.printx("target: {}", target);
+		Consoles.log("target: {}", target);
 		Assertions.assertEquals(source.getIntVal0(), target.get("intVal0"));
 		Assertions.assertEquals(source.getStrVal0(), target.get("strVal0"));
 		Assertions.assertEquals(source.publicStrVal0, target.get("publicStrVal0"));
@@ -66,8 +65,8 @@ public class BeanCopierTest extends BaseAsmTest {
 	@Test
 	void test_copyBeanToMapByOptions() {
 		BeanCopier<CopyBean00> copier = BeanCopier.get(CopyBean00.class);
-		TestConsole.printx(copier);
-		TestConsole.printx("source: {}", source);
+		Consoles.log("", copier);
+		Consoles.log("source: {}", source);
 		Map<String, Object> target = new HashMap<>();
 		copier.copyBeanToMap(source, target,
 			CopyOptions.create().ignoreCase(true)
@@ -84,7 +83,7 @@ public class BeanCopierTest extends BaseAsmTest {
 					}
 					return key;
 				}));
-		TestConsole.printx("target: {}", target);
+		Consoles.log("target: {}", target);
 		Assertions.assertNotEquals(source.getIntVal0(), target.get("intVal0"));
 		Assertions.assertNotEquals(source.getStrVal0(), target.get("strVal0"));
 		Assertions.assertEquals(source.publicStrVal0, target.get("publicStrVal0"));
@@ -98,17 +97,17 @@ public class BeanCopierTest extends BaseAsmTest {
 	@Test
 	void test_copyMapToBean() {
 		BeanCopier<SubCopyBean00> copier = BeanCopier.get(SubCopyBean00.class);
-		TestConsole.printx(copier);
+		Consoles.log("", copier);
 		Map<String, Object> source = new HashMap<>();
 		source.put("intVal0",111);
 		source.put("strVal0","strVal0");
 		source.put("publicIntVal0",222);
 		source.put("methodToFieldInt0",333);
 		source.put("fieldToMethodIntVal0",444);
-		TestConsole.printx("source: {}", source);
+		Consoles.log("source: {}", source);
 		SubCopyBean00 target = new SubCopyBean00();
 		copier.copyMapToBean(source, target, Converters::convertQuietly);
-		TestConsole.printx("target: {}", target);
+		Consoles.log("target: {}", target);
 		Assertions.assertEquals( source.get("intVal0"),target.getIntVal0());
 		Assertions.assertEquals( source.get("strVal0"),target.getStrVal0());
 		Assertions.assertEquals( source.get("publicStrVal0"),target.publicStrVal0);
@@ -121,7 +120,7 @@ public class BeanCopierTest extends BaseAsmTest {
 	@Test
 	void test_copyMapToBeanByOptions() {
 		BeanCopier<SubCopyBean00> copier = BeanCopier.get(SubCopyBean00.class);
-		TestConsole.printx(copier);
+		Consoles.log("", copier);
 		Map<String, Object> source = new HashMap<>();
 		source.put("intVal0",111);
 		source.put("strVal0","strVal0");
@@ -134,7 +133,7 @@ public class BeanCopierTest extends BaseAsmTest {
 		source.put("fieldIgnoreCaseVal0","fieldIgnoreCaseVal0");
 		source.put("field_IGNORE_CASE_underline_to_camel_val0","field_IGNORE_CASE_underline_to_camel_val0");
 		source.put("fieldIgnoreCaseCamelToUnderlineVal0","fieldIgnoreCaseCamelToUnderlineVal0");
-		TestConsole.printx("source: {}", source);
+		Consoles.log("source: {}", source);
 		SubCopyBean00 target = new SubCopyBean00();
 		copier.copyMapToBean(source, target,
 			CopyOptions.create().ignoreCase(true)
@@ -151,7 +150,7 @@ public class BeanCopierTest extends BaseAsmTest {
 					}
 					return key;
 				}));
-		TestConsole.printx("target: {}", target);
+		Consoles.log("target: {}", target);
 		Assertions.assertEquals( source.get("strVal0"),target.getFieldToMethodStrVal0());
 		Assertions.assertEquals( source.get("intVal0"),target.getFieldToMethodIntVal0());
 		Assertions.assertNotEquals( source.get("strVal0"),target.getIntVal0());
@@ -167,11 +166,11 @@ public class BeanCopierTest extends BaseAsmTest {
 	@Test
 	void test_copyBeanToBean() {
 		BeanCopier<CopyBean00> copier = BeanCopier.get(CopyBean00.class);
-		TestConsole.printx(copier);
-		TestConsole.printx("source: {}", source);
+		Consoles.log("", copier);
+		Consoles.log("source: {}", source);
 		SubCopyBean00 target = new SubCopyBean00();
 		copier.copyBeanToBean(source, target);
-		TestConsole.printx("target: {}", target);
+		Consoles.log("target: {}", target);
 		Assertions.assertEquals(source.getIntVal0(), target.getIntVal0());
 		Assertions.assertEquals(source.getStrVal0(), target.getStrVal0());
 		Assertions.assertEquals(source.publicStrVal0, target.publicStrVal0);
@@ -185,8 +184,8 @@ public class BeanCopierTest extends BaseAsmTest {
 	@Test
 	void test_copyBeanToBeanByOptions() {
 		BeanCopier<CopyBean00> copier = BeanCopier.get(CopyBean00.class);
-		TestConsole.printx(copier);
-		TestConsole.printx("source: {}", source);
+		Consoles.log("", copier);
+		Consoles.log("source: {}", source);
 		SubCopyBean00 target = new SubCopyBean00();
 		copier.copyBeanToBean(source, SubCopyBean00.class, target,
 			CopyOptions.create().ignoreCase(true)
@@ -194,7 +193,7 @@ public class BeanCopierTest extends BaseAsmTest {
 				.enableCamelToUnderlineCase(true)
 				.enableUnderlineToCamelCase(true)
 		);
-		TestConsole.printx("target: {}", target);
+		Consoles.log("target: {}", target);
 		Assertions.assertEquals(source.fieldCapitalizeVal0, target.FieldCapitalizeVal0);
 		Assertions.assertEquals(source.field_underline_to_camel_val0, target.fieldUnderlineToCamelVal0);
 		Assertions.assertEquals(source.fieldCamelToUnderlineVal0, target.field_camel_to_underline_val0);
@@ -206,8 +205,8 @@ public class BeanCopierTest extends BaseAsmTest {
 	@Test
 	void test_copyBeanToBeanByOptions_ignoreKeys() {
 		BeanCopier<CopyBean00> copier = BeanCopier.get(CopyBean00.class);
-		TestConsole.printx(copier);
-		TestConsole.printx("source: {}", source);
+		Consoles.log("", copier);
+		Consoles.log("source: {}", source);
 		SubCopyBean00 target = new SubCopyBean00();
 		copier.copyBeanToBean(source, SubCopyBean00.class, target,
 			CopyOptions.create().ignoreCase(true)
@@ -216,7 +215,7 @@ public class BeanCopierTest extends BaseAsmTest {
 				.enableUnderlineToCamelCase(true)
 				.ignoreKeys(Iterables.asSet("strVal0", "intVal0"))
 		);
-		TestConsole.printx("target: {}", target);
+		Consoles.log("target: {}", target);
 		Assertions.assertNotEquals(source.getIntVal0(), target.getIntVal0());
 		Assertions.assertNotEquals(source.getStrVal0(), target.getStrVal0());
 	}
@@ -224,8 +223,8 @@ public class BeanCopierTest extends BaseAsmTest {
 	@Test
 	void test_copyBeanToBeanByOptions_keyMapping() {
 		BeanCopier<CopyBean00> copier = BeanCopier.get(CopyBean00.class);
-		TestConsole.printx(copier);
-		TestConsole.printx("source: {}", source);
+		Consoles.log("", copier);
+		Consoles.log("source: {}", source);
 		SubCopyBean00 target = new SubCopyBean00();
 		copier.copyBeanToBean(source, SubCopyBean00.class, target,
 			CopyOptions.create().ignoreCase(true)
@@ -243,7 +242,7 @@ public class BeanCopierTest extends BaseAsmTest {
 					return key;
 				})
 		);
-		TestConsole.printx("target: {}", target);
+		Consoles.log("target: {}", target);
 		Assertions.assertEquals(source.getIntVal0(), target.getFieldToMethodIntVal0());
 		Assertions.assertEquals(source.getStrVal0(), target.getFieldToMethodStrVal0());
 		Assertions.assertNotEquals(source.getIntVal0(), target.getIntVal0());
@@ -253,7 +252,7 @@ public class BeanCopierTest extends BaseAsmTest {
 	@Test
 	void test_AccessBean00_copyBeanToBean() {
 		BeanCopier<AccessBean00> copier = BeanCopier.get(AccessBean00.class);
-		TestConsole.printx(copier);
+		Consoles.log("", copier);
 		{
 			AccessBean00 source = new AccessBean00();
 			AccessBean00 target = new AccessBean00();
@@ -265,10 +264,10 @@ public class BeanCopierTest extends BaseAsmTest {
 
 			copier.copyBeanToBean(source, target);
 
-			TestConsole.printx("target.getIntVal0: {}", target.getIntVal0());
-			TestConsole.printx("target.publicLongVal0: {}", target.publicLongVal0);
-			TestConsole.printx("target.publicStrVal0: {}", target.publicStrVal0);
-			TestConsole.printx("target.publicStaticStrVal0: {}", target.publicStaticStrVal0);
+			Consoles.log("target.getIntVal0: {}", target.getIntVal0());
+			Consoles.log("target.publicLongVal0: {}", target.publicLongVal0);
+			Consoles.log("target.publicStrVal0: {}", target.publicStrVal0);
+			Consoles.log("target.publicStaticStrVal0: {}", target.publicStaticStrVal0);
 
 			Assertions.assertEquals(source.publicLongVal0, target.publicLongVal0);
 			Assertions.assertEquals(source.getIntVal0(), target.getIntVal0());

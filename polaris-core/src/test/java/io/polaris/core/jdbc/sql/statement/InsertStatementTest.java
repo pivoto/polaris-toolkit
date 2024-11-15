@@ -1,6 +1,6 @@
 package io.polaris.core.jdbc.sql.statement;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.jdbc.entity.DemoEntity;
 import io.polaris.core.jdbc.entity.DemoEntityMeta;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,8 @@ public class InsertStatementTest {
 		s.column(DemoEntityMeta.FieldName.name, "test");
 		s.column(DemoEntityMeta.FieldName.score, "null");
 		s.column(DemoEntityMeta.FieldName.fieldStr1, "...");
-		TestConsole.println( s.toSqlNode().asBoundSql());
+		Object[] args = new Object[]{s.toSqlNode().asBoundSql()};
+		Consoles.println(args);
 	}
 
 }

@@ -1,6 +1,6 @@
 package io.polaris.core.jdbc.sql.node;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Test;
 
 class ContainerNodeTest {
@@ -25,7 +25,9 @@ class ContainerNodeTest {
 			node1.addNode(new TextNode(" a = 3"));
 			container.addNodes(node1);
 		}
-		TestConsole.println(container.asPreparedSql());
-		TestConsole.println(container.asBoundSql());
+		Object[] args1 = new Object[]{container.asPreparedSql()};
+		Consoles.println(args1);
+		Object[] args = new Object[]{container.asBoundSql()};
+		Consoles.println(args);
 	}
 }

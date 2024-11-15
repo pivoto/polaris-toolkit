@@ -2,8 +2,8 @@ package io.polaris.core.jdbc.sql.query;
 
 import java.util.function.Function;
 
-import io.polaris.core.TestConsole;
 import io.polaris.core.collection.Iterables;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.jdbc.entity.Demo1Entity;
 import io.polaris.core.jdbc.entity.Demo2Entity;
 import io.polaris.core.jdbc.sql.PreparedSql;
@@ -38,11 +38,12 @@ class QueriesTest {
 						.value(new String[]{"1", "2", "3"})
 				));
 
-		TestConsole.println(JSON.toJSONString(condition, JSONWriter.Feature.PrettyFormat));
+		String msg = JSON.toJSONString(condition, JSONWriter.Feature.PrettyFormat);
+		Consoles.println(msg);
 		SqlNode sqlNode = Queries.parse(condition, true, Function.identity());
 		PreparedSql sql = sqlNode.asPreparedSql();
-		TestConsole.println(sql.getText());
-		TestConsole.println(sql.getBindings());
+		Consoles.println(sql.getText());
+		Consoles.println(sql.getBindings());
 	}
 
 	@Test
@@ -84,11 +85,12 @@ class QueriesTest {
 				)
 			));
 
-		TestConsole.println(JSON.toJSONString(condition, JSONWriter.Feature.PrettyFormat));
+		String msg = JSON.toJSONString(condition, JSONWriter.Feature.PrettyFormat);
+		Consoles.println(msg);
 		SqlNode sqlNode = Queries.parse(condition, true, Function.identity());
 		PreparedSql sql = sqlNode.asPreparedSql();
-		TestConsole.println(sql.getText());
-		TestConsole.println(sql.getBindings());
+		Consoles.println(sql.getText());
+		Consoles.println(sql.getBindings());
 
 	}
 
@@ -103,14 +105,16 @@ class QueriesTest {
 				.by(Direction.DESC, Demo1Entity.Fields.id2)
 				;
 			SqlNode sql = Queries.parse(orderBy, Queries.newColumnDiscovery(Demo1Entity.class));
-			TestConsole.println(sql.toString());
+			String msg = sql.toString();
+			Consoles.println(msg);
 		}
 		{
 			OrderBy orderBy = OrderBy.newOrderBy()
 				.by(Direction.ASC, "t1." + Demo1Entity.Fields.fieldStr1)
 				.by(Direction.DESC, "t2." + Demo2Entity.Fields.fieldStr2);
 			SqlNode sql = Queries.parse(orderBy, Queries.newColumnDiscovery(Demo1Entity.class, "t1"));
-			TestConsole.println(sql.toString());
+			String msg = sql.toString();
+			Consoles.println(msg);
 		}
 		{
 			OrderBy orderBy = OrderBy.newOrderBy()
@@ -120,7 +124,8 @@ class QueriesTest {
 				TableSegment.fromEntity(Demo1Entity.class, "t1"),
 				TableSegment.fromEntity(Demo2Entity.class, "t2")
 			));
-			TestConsole.println(sql.toString());
+			String msg = sql.toString();
+			Consoles.println(msg);
 		}
 	}
 

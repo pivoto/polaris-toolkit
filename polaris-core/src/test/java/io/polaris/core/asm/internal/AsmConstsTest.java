@@ -1,6 +1,6 @@
 package io.polaris.core.asm.internal;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Test;
 
 class AsmConstsTest {
@@ -9,20 +9,20 @@ class AsmConstsTest {
 	@Test
 	void test01() {
 
-		TestConsole.printx(AsmConsts.SIG_STATIC);
-		TestConsole.printx(AsmConsts.TYPE_OBJECT_ARRAY);
-		TestConsole.printx(AsmConsts.TYPE_CLASS_ARRAY);
-		TestConsole.printx(AsmConsts.TYPE_STRING_ARRAY);
-		TestConsole.printx(AsmConsts.TYPE_OBJECT);
-		TestConsole.printx(AsmConsts.TYPE_CLASS);
-		TestConsole.printx(AsmConsts.TYPE_CLASS_LOADER);
-		TestConsole.printx(AsmConsts.TYPE_CHARACTER);
-		TestConsole.printx(AsmConsts.TYPE_BOOLEAN);
-		TestConsole.printx(AsmConsts.TYPE_STRING_BUILDER);
-		TestConsole.printx(AsmConsts.TYPE_STRING_BUFFER);
-		TestConsole.printx(AsmConsts.TYPE_RUNTIME_EXCEPTION);
-		TestConsole.printx(AsmConsts.TYPE_ILLEGAL_ARGUMENT_EXCEPTION);
-		TestConsole.printx(AsmConsts.TYPE_SIGNATURE);
+		Consoles.log("", AsmConsts.SIG_STATIC);
+		Consoles.log("", AsmConsts.TYPE_OBJECT_ARRAY);
+		Consoles.log("", AsmConsts.TYPE_CLASS_ARRAY);
+		Consoles.log("", AsmConsts.TYPE_STRING_ARRAY);
+		Consoles.log("", AsmConsts.TYPE_OBJECT);
+		Consoles.log("", AsmConsts.TYPE_CLASS);
+		Consoles.log("", AsmConsts.TYPE_CLASS_LOADER);
+		Consoles.log("", AsmConsts.TYPE_CHARACTER);
+		Consoles.log("", AsmConsts.TYPE_BOOLEAN);
+		Consoles.log("", AsmConsts.TYPE_STRING_BUILDER);
+		Consoles.log("", AsmConsts.TYPE_STRING_BUFFER);
+		Consoles.log("", AsmConsts.TYPE_RUNTIME_EXCEPTION);
+		Consoles.log("", AsmConsts.TYPE_ILLEGAL_ARGUMENT_EXCEPTION);
+		Consoles.log("", AsmConsts.TYPE_SIGNATURE);
 
 
 	}

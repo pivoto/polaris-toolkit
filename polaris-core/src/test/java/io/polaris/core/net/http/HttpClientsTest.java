@@ -3,7 +3,7 @@ package io.polaris.core.net.http;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONWriter;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -16,6 +16,7 @@ class HttpClientsTest {
 		Response response = HttpClients.doRequest(new RequestSettings()
 			.withUrl("https://www.baidu.com/s?wd=test")
 		);
-		TestConsole.println(JSON.toJSONString(response, JSONWriter.Feature.PrettyFormat));
+		String msg = JSON.toJSONString(response, JSONWriter.Feature.PrettyFormat);
+		Consoles.println(msg);
 	}
 }

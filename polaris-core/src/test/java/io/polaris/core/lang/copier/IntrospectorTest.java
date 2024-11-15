@@ -7,7 +7,7 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.lang.Types;
 import io.polaris.core.reflect.Reflects;
 import lombok.Data;
@@ -21,23 +21,33 @@ public class IntrospectorTest {
 
 	@Test
 	void test01() throws IntrospectionException {
-		TestConsole.println(Arrays.toString(Introspector.getBeanInfoSearchPath()));
+		String msg = Arrays.toString(Introspector.getBeanInfoSearchPath());
+		Consoles.println(msg);
 
 		BeanInfo beanInfo = Introspector.getBeanInfo(C3.class);
 		for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
-			TestConsole.println("C3: {}", pd);
+			Consoles.println("C3: {}", pd);
 		}
 
-		TestConsole.println("toParameterizedType: {}", Types.toParameterizedType(C3.class));
-		TestConsole.println("toParameterizedType: {}", Types.toParameterizedType(C2.class));
-		TestConsole.println("toParameterizedType: {}", Types.toParameterizedType(C1.class));
-		TestConsole.println("toParameterizedType: {}", Types.toParameterizedType(I3.class));
-		TestConsole.println("toParameterizedType: {}", Types.toParameterizedType(I2.class));
-		TestConsole.println("toParameterizedType: {}", Types.toParameterizedType(I1.class));
+		Object[] args8 = new Object[]{Types.toParameterizedType(C3.class)};
+		Consoles.println("toParameterizedType: {}", args8);
+		Object[] args7 = new Object[]{Types.toParameterizedType(C2.class)};
+		Consoles.println("toParameterizedType: {}", args7);
+		Object[] args6 = new Object[]{Types.toParameterizedType(C1.class)};
+		Consoles.println("toParameterizedType: {}", args6);
+		Object[] args5 = new Object[]{Types.toParameterizedType(I3.class)};
+		Consoles.println("toParameterizedType: {}", args5);
+		Object[] args4 = new Object[]{Types.toParameterizedType(I2.class)};
+		Consoles.println("toParameterizedType: {}", args4);
+		Object[] args3 = new Object[]{Types.toParameterizedType(I1.class)};
+		Consoles.println("toParameterizedType: {}", args3);
 
-		TestConsole.println("getTypeVariableMap: {}", Types.getTypeVariableMap(C3.class));
-		TestConsole.println("getTypeVariableMap: {}", Types.getTypeVariableMap(C2.class));
-		TestConsole.println("getActualType: {}", Types.getActualType(C1.class, (TypeVariable<?>) Reflects.getMethodByName(C1.class, "getA").getGenericReturnType()));
+		Object[] args2 = new Object[]{Types.getTypeVariableMap(C3.class)};
+		Consoles.println("getTypeVariableMap: {}", args2);
+		Object[] args1 = new Object[]{Types.getTypeVariableMap(C2.class)};
+		Consoles.println("getTypeVariableMap: {}", args1);
+		Object[] args = new Object[]{Types.getActualType(C1.class, (TypeVariable<?>) Reflects.getMethodByName(C1.class, "getA").getGenericReturnType())};
+		Consoles.println("getActualType: {}", args);
 	}
 
 	interface I<A, B, C> {

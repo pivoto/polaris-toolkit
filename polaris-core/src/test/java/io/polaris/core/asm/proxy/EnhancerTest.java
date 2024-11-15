@@ -2,15 +2,13 @@ package io.polaris.core.asm.proxy;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import io.polaris.core.TestConsole;
-import io.polaris.core.aop.AfterAdvice;
 import io.polaris.core.asm.BaseAsmTest;
 import io.polaris.core.collection.ObjectArrays;
+import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Test;
 
 class EnhancerTest extends BaseAsmTest {
@@ -35,24 +33,33 @@ class EnhancerTest extends BaseAsmTest {
 			Field f = c.getDeclaredField("GENERATED$TARGET_METHODS");
 			f.setAccessible(true);
 			Method[] m = (Method[]) f.get(null);
-			TestConsole.printx(ObjectArrays.toString(f.get(null)));
+			String msg = ObjectArrays.toString(f.get(null));
+			Consoles.log(msg);
 		}
 		{
 			Field f = c.getDeclaredField("GENERATED$STATIC_INTERCEPTOR");
 			f.setAccessible(true);
-			TestConsole.printx(ObjectArrays.toString(f.get(null)));
+			String msg = ObjectArrays.toString(f.get(null));
+			Consoles.log(msg);
 		}
 		Source01 o = (Source01) enhancer.create();
-		TestConsole.printx(o.hashCode());
-		TestConsole.printx(o.toString());
-		TestConsole.printx(o.testVArgs(1, 2, 3, 4));
-		TestConsole.printx(o.andThen(x -> 123));
-		TestConsole.printx(o.apply(null));
-		TestConsole.printx(((Function) o).apply(null));
-		TestConsole.printx(o.intVal(123));
+		Object[] args5 = new Object[]{o.hashCode()};
+		Consoles.log("", args5);
+		String msg = o.toString();
+		Consoles.log(msg);
+		Object[] args4 = o.testVArgs(1, 2, 3, 4);
+		Consoles.log("", args4);
+		Consoles.log("", o.andThen(x -> 123));
+		Object[] args3 = new Object[]{o.apply(null)};
+		Consoles.log("", args3);
+		Object[] args2 = new Object[]{((Function) o).apply(null)};
+		Consoles.log("", args2);
+		Object[] args1 = new Object[]{o.intVal(123)};
+		Consoles.log("", args1);
 
 		((Consumer)o).accept(123);
-		TestConsole.printx(((Supplier)o).get());
+		Object[] args = new Object[]{((Supplier)o).get()};
+		Consoles.log("", args);
 
 	}
 
@@ -76,23 +83,32 @@ class EnhancerTest extends BaseAsmTest {
 		{
 			Field f = c.getDeclaredField("GENERATED$TARGET_METHODS");
 			f.setAccessible(true);
-			TestConsole.printx(ObjectArrays.toString(f.get(null)));
+			String msg = ObjectArrays.toString(f.get(null));
+			Consoles.log(msg);
 		}
 		{
 			Field f = c.getDeclaredField("GENERATED$STATIC_INTERCEPTOR");
 			f.setAccessible(true);
-			TestConsole.printx(ObjectArrays.toString(f.get(null)));
+			String msg = ObjectArrays.toString(f.get(null));
+			Consoles.log(msg);
 		}
 		Source01 o = (Source01) enhancer.create();
-		TestConsole.printx(o.hashCode());
-		TestConsole.printx(o.toString());
-		TestConsole.printx(o.testVArgs(1, 2, 3, 4));
-		TestConsole.printx(o.andThen(x -> 123));
-		TestConsole.printx(o.apply(null));
-		TestConsole.printx(((Function) o).apply(null));
-		TestConsole.printx(o.intVal(123));
+		Object[] args5 = new Object[]{o.hashCode()};
+		Consoles.log("", args5);
+		String msg = o.toString();
+		Consoles.log(msg);
+		Object[] args4 = o.testVArgs(1, 2, 3, 4);
+		Consoles.log("", args4);
+		Consoles.log("", o.andThen(x -> 123));
+		Object[] args3 = new Object[]{o.apply(null)};
+		Consoles.log("", args3);
+		Object[] args2 = new Object[]{((Function) o).apply(null)};
+		Consoles.log("", args2);
+		Object[] args1 = new Object[]{o.intVal(123)};
+		Consoles.log("", args1);
 
 		((Consumer)o).accept(123);
-		TestConsole.printx(((Supplier)o).get());
+		Object[] args = new Object[]{((Supplier)o).get()};
+		Consoles.log("", args);
 	}
 }

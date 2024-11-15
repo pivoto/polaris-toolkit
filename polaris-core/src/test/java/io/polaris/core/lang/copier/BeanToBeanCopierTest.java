@@ -1,6 +1,6 @@
 package io.polaris.core.lang.copier;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import lombok.Data;
 import lombok.ToString;
 import org.junit.jupiter.api.Assertions;
@@ -23,9 +23,9 @@ class BeanToBeanCopierTest {
 		B t = Copiers.create(a, B.class, b,
 			copyOptions1.ignoreCase(true)
 		).copy();
-		TestConsole.println(a);
-		TestConsole.println(b);
-		TestConsole.println(t);
+		Consoles.println(a);
+		Consoles.println(b);
+		Consoles.println(t);
 
 		Assertions.assertEquals(a.id, b.id);
 		Assertions.assertNotEquals(a.name, b.name);

@@ -2,7 +2,7 @@ package io.polaris.core.env;
 
 import java.util.Properties;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
@@ -11,14 +11,15 @@ class StdEnvTest {
 	@Test
 	@Order(1)
 	void test01() {
-		TestConsole.println(GlobalStdEnv.class);
+		Consoles.println(GlobalStdEnv.class);
 	}
 
 	@Test
 	@Order(2)
 	void test02() {
-		TestConsole.println(GlobalStdEnv.asMap());
-		TestConsole.println(Version.current());
+		Object[] args = new Object[]{GlobalStdEnv.asMap()};
+		Consoles.println(args);
+		Consoles.println(Version.current());
 	}
 
 	@Test
@@ -35,42 +36,55 @@ class StdEnvTest {
 		StdEnv props = StdEnv.newInstance();
 		props.setDefaults("key", "1");
 		props.setDefaults("keyBlank", "");
-		TestConsole.println("[{}]", props.get("key"));
-		TestConsole.println("[{}]", props.get("keyBlank"));
-		TestConsole.println("[{}]", props.get("keyNull"));
+		Object[] args2 = new Object[]{props.get("key")};
+		Consoles.println("[{}]", args2);
+		Object[] args1 = new Object[]{props.get("keyBlank")};
+		Consoles.println("[{}]", args1);
+		Object[] args = new Object[]{props.get("keyNull")};
+		Consoles.println("[{}]", args);
 	}
 
 	@Test
 	@Order(5)
 	void test05() {
-		TestConsole.println(GlobalStdEnv.get("java.home"));
-		TestConsole.println(GlobalStdEnv.get("java.io.tmpdir"));
-		TestConsole.println(GlobalStdEnv.get("kkk", "default"));
+		String msg7 = GlobalStdEnv.get("java.home");
+		Consoles.println(msg7);
+		String msg6 = GlobalStdEnv.get("java.io.tmpdir");
+		Consoles.println(msg6);
+		String msg5 = GlobalStdEnv.get("kkk", "default");
+		Consoles.println(msg5);
 
 		Env follower = Env.wrap(new Properties());
 		follower.set("kkk", "follower");
 		GlobalStdEnv.addEnvLast(follower);
-		TestConsole.println(GlobalStdEnv.get("kkk"));
+		String msg4 = GlobalStdEnv.get("kkk");
+		Consoles.println(msg4);
 
 		Env leader = Env.wrap(new Properties());
 		leader.set("kkk", "leader");
 		GlobalStdEnv.addEnvFirst(leader);
-		TestConsole.println(GlobalStdEnv.get("kkk"));
+		String msg3 = GlobalStdEnv.get("kkk");
+		Consoles.println(msg3);
 
 		GlobalStdEnv.set("kkk", "${user.home} | ${java.home} | ${test.home:-${test.home2:-/a/b/c}}");
-		TestConsole.println(GlobalStdEnv.get("kkk"));
+		String msg2 = GlobalStdEnv.get("kkk");
+		Consoles.println(msg2);
 		GlobalStdEnv.set("test.home2", "/test/home2");
-		TestConsole.println(GlobalStdEnv.get("kkk"));
+		String msg1 = GlobalStdEnv.get("kkk");
+		Consoles.println(msg1);
 		GlobalStdEnv.set("test.home", "/test/home");
-		TestConsole.println(GlobalStdEnv.get("kkk"));
+		String msg = GlobalStdEnv.get("kkk");
+		Consoles.println(msg);
 	}
 
 
 	@Test
 	void test06() {
 		GlobalStdEnv.addEnvFirst(Env.delegate(GlobalStdEnv.env()));
-		TestConsole.println("key: {}", GlobalStdEnv.get("kkk"));
-		TestConsole.println("keys: {}", GlobalStdEnv.keys());
+		Object[] args1 = new Object[]{GlobalStdEnv.get("kkk")};
+		Consoles.println("key: {}", args1);
+		Object[] args = new Object[]{GlobalStdEnv.keys()};
+		Consoles.println("keys: {}", args);
 	}
 
 	@Test
@@ -79,9 +93,13 @@ class StdEnvTest {
 		GlobalStdEnv.set("aaa","${bbb}");
 		GlobalStdEnv.set("bbb","${ccc}");
 		GlobalStdEnv.set("ccc","${aaa}");
-		TestConsole.println(GlobalStdEnv.resolveRef("${sys['test']}"));
-		TestConsole.println(GlobalStdEnv.resolveRef("test:  ${java.home} | ${test.home:-${test.home2:-/a/b/c}}"));
-		TestConsole.println(GlobalStdEnv.resolveRef("test: ${unknown.key} ${aaa} ${user.home} | ${java.home} | ${test.home:-${test.home2:-/a/b/c}}"));
-		TestConsole.println(GlobalStdEnv.resolveRef("test: ${unknown.key} ${aaa} ${user.home} | ${java.home} | ${test.home:${test.home2:/a/b/c}}"));
+		String msg3 = GlobalStdEnv.resolveRef("${sys['test']}");
+		Consoles.println(msg3);
+		String msg2 = GlobalStdEnv.resolveRef("test:  ${java.home} | ${test.home:-${test.home2:-/a/b/c}}");
+		Consoles.println(msg2);
+		String msg1 = GlobalStdEnv.resolveRef("test: ${unknown.key} ${aaa} ${user.home} | ${java.home} | ${test.home:-${test.home2:-/a/b/c}}");
+		Consoles.println(msg1);
+		String msg = GlobalStdEnv.resolveRef("test: ${unknown.key} ${aaa} ${user.home} | ${java.home} | ${test.home:${test.home2:/a/b/c}}");
+		Consoles.println(msg);
 	}
 }

@@ -3,7 +3,7 @@ package io.polaris.core.time;
 import java.time.*;
 import java.time.temporal.TemporalAccessor;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Test;
 
 class DatesTest {
@@ -11,56 +11,94 @@ class DatesTest {
 
 	@Test
 	void test_formatDefault() {
-		TestConsole.printx(Dates.nowStr());
-		TestConsole.printx(Dates.formatDefault(Instant.now()));
-		TestConsole.printx(Dates.formatDefault(LocalDateTime.now()));
-		TestConsole.printx(Dates.formatDefault(LocalDate.now()));
-		TestConsole.printx(Dates.formatDefault(LocalTime.now()));
+		String msg4 = Dates.nowStr();
+		Consoles.log(msg4);
+		String msg3 = Dates.formatDefault(Instant.now());
+		Consoles.log(msg3);
+		String msg2 = Dates.formatDefault(LocalDateTime.now());
+		Consoles.log(msg2);
+		String msg1 = Dates.formatDefault(LocalDate.now());
+		Consoles.log(msg1);
+		String msg = Dates.formatDefault(LocalTime.now());
+		Consoles.log(msg);
 	}
 
 	@Test
 	void test_toLocalDateTime() {
-		TestConsole.printx(Dates.toLocalDateTime(Instant.now()));
-		TestConsole.printx(Dates.toLocalDateTime(ZonedDateTime.now()));
-		TestConsole.printx(Dates.toLocalDateTime(OffsetDateTime.now()));
-		TestConsole.printx(Dates.toLocalDateTime(LocalDateTime.now()));
-		TestConsole.printx(Dates.toLocalDateTime(LocalDate.now()));
-		TestConsole.printx(Dates.toLocalDateTime(LocalTime.now()));
-		TestConsole.printx(Dates.toLocalDateTime(YearMonth.now()));
-		TestConsole.printx(Dates.toLocalDateTime(Year.now()));
-		TestConsole.printx(Dates.toLocalDateTime(MonthDay.now()));
-		TestConsole.printx(Dates.toLocalDateTime(Month.from(LocalDate.now())));
-		TestConsole.printx(Dates.toLocalDateTime(DayOfWeek.from(LocalDate.now())));
+		Object[] args10 = new Object[]{Dates.toLocalDateTime(Instant.now())};
+		Consoles.log("", args10);
+		Object[] args9 = new Object[]{Dates.toLocalDateTime(ZonedDateTime.now())};
+		Consoles.log("", args9);
+		Object[] args8 = new Object[]{Dates.toLocalDateTime(OffsetDateTime.now())};
+		Consoles.log("", args8);
+		Object[] args7 = new Object[]{Dates.toLocalDateTime(LocalDateTime.now())};
+		Consoles.log("", args7);
+		Object[] args6 = new Object[]{Dates.toLocalDateTime(LocalDate.now())};
+		Consoles.log("", args6);
+		Object[] args5 = new Object[]{Dates.toLocalDateTime(LocalTime.now())};
+		Consoles.log("", args5);
+		Object[] args4 = new Object[]{Dates.toLocalDateTime(YearMonth.now())};
+		Consoles.log("", args4);
+		Object[] args3 = new Object[]{Dates.toLocalDateTime(Year.now())};
+		Consoles.log("", args3);
+		Object[] args2 = new Object[]{Dates.toLocalDateTime(MonthDay.now())};
+		Consoles.log("", args2);
+		Object[] args1 = new Object[]{Dates.toLocalDateTime(Month.from(LocalDate.now()))};
+		Consoles.log("", args1);
+		Object[] args = new Object[]{Dates.toLocalDateTime(DayOfWeek.from(LocalDate.now()))};
+		Consoles.log("", args);
 	}
 
 	@Test
 	void test_toLocalTime() {
-		TestConsole.printx(Dates.toLocalTime(Instant.now()));
-		TestConsole.printx(Dates.toLocalTime(ZonedDateTime.now()));
-		TestConsole.printx(Dates.toLocalTime(OffsetDateTime.now()));
-		TestConsole.printx(Dates.toLocalTime(LocalDateTime.now()));
-		TestConsole.printx(Dates.toLocalTime(LocalDate.now()));
-		TestConsole.printx(Dates.toLocalTime(LocalTime.now()));
-		TestConsole.printx(Dates.toLocalTime(YearMonth.now()));
-		TestConsole.printx(Dates.toLocalTime(Year.now()));
-		TestConsole.printx(Dates.toLocalTime(MonthDay.now()));
-		TestConsole.printx(Dates.toLocalTime(Month.from(LocalDate.now())));
-		TestConsole.printx(Dates.toLocalTime(DayOfWeek.from(LocalDate.now())));
+		Object[] args10 = new Object[]{Dates.toLocalTime(Instant.now())};
+		Consoles.log("", args10);
+		Object[] args9 = new Object[]{Dates.toLocalTime(ZonedDateTime.now())};
+		Consoles.log("", args9);
+		Object[] args8 = new Object[]{Dates.toLocalTime(OffsetDateTime.now())};
+		Consoles.log("", args8);
+		Object[] args7 = new Object[]{Dates.toLocalTime(LocalDateTime.now())};
+		Consoles.log("", args7);
+		Object[] args6 = new Object[]{Dates.toLocalTime(LocalDate.now())};
+		Consoles.log("", args6);
+		Object[] args5 = new Object[]{Dates.toLocalTime(LocalTime.now())};
+		Consoles.log("", args5);
+		Object[] args4 = new Object[]{Dates.toLocalTime(YearMonth.now())};
+		Consoles.log("", args4);
+		Object[] args3 = new Object[]{Dates.toLocalTime(Year.now())};
+		Consoles.log("", args3);
+		Object[] args2 = new Object[]{Dates.toLocalTime(MonthDay.now())};
+		Consoles.log("", args2);
+		Object[] args1 = new Object[]{Dates.toLocalTime(Month.from(LocalDate.now()))};
+		Consoles.log("", args1);
+		Object[] args = new Object[]{Dates.toLocalTime(DayOfWeek.from(LocalDate.now()))};
+		Consoles.log("", args);
 	}
 
 	@Test
 	void test_toLocalDate() {
-		TestConsole.printx(Dates.toLocalDate(Instant.now()));
-		TestConsole.printx(Dates.toLocalDate(ZonedDateTime.now()));
-		TestConsole.printx(Dates.toLocalDate(OffsetDateTime.now()));
-		TestConsole.printx(Dates.toLocalDate(LocalDateTime.now()));
-		TestConsole.printx(Dates.toLocalDate(LocalDate.now()));
-		TestConsole.printx(Dates.toLocalDate(LocalTime.now()));
-		TestConsole.printx(Dates.toLocalDate(YearMonth.now()));
-		TestConsole.printx(Dates.toLocalDate(Year.now()));
-		TestConsole.printx(Dates.toLocalDate(MonthDay.now()));
-		TestConsole.printx(Dates.toLocalDate(Month.from(LocalDate.now())));
-		TestConsole.printx(Dates.toLocalDate(DayOfWeek.from(LocalDate.now())));
+		Object[] args10 = new Object[]{Dates.toLocalDate(Instant.now())};
+		Consoles.log("", args10);
+		Object[] args9 = new Object[]{Dates.toLocalDate(ZonedDateTime.now())};
+		Consoles.log("", args9);
+		Object[] args8 = new Object[]{Dates.toLocalDate(OffsetDateTime.now())};
+		Consoles.log("", args8);
+		Object[] args7 = new Object[]{Dates.toLocalDate(LocalDateTime.now())};
+		Consoles.log("", args7);
+		Object[] args6 = new Object[]{Dates.toLocalDate(LocalDate.now())};
+		Consoles.log("", args6);
+		Object[] args5 = new Object[]{Dates.toLocalDate(LocalTime.now())};
+		Consoles.log("", args5);
+		Object[] args4 = new Object[]{Dates.toLocalDate(YearMonth.now())};
+		Consoles.log("", args4);
+		Object[] args3 = new Object[]{Dates.toLocalDate(Year.now())};
+		Consoles.log("", args3);
+		Object[] args2 = new Object[]{Dates.toLocalDate(MonthDay.now())};
+		Consoles.log("", args2);
+		Object[] args1 = new Object[]{Dates.toLocalDate(Month.from(LocalDate.now()))};
+		Consoles.log("", args1);
+		Object[] args = new Object[]{Dates.toLocalDate(DayOfWeek.from(LocalDate.now()))};
+		Consoles.log("", args);
 	}
 
 
@@ -69,14 +107,22 @@ class DatesTest {
 		{
 			TemporalAccessor t1 = Dates.parse("2020-03-15 11:30:00.000");
 			TemporalAccessor t2 = Dates.parse("2022-03-16 12:30:00.000");
-			TestConsole.printx("diffYears: {}", Dates.diffYears(t1, t2));
-			TestConsole.printx("diffMonths: {}", Dates.diffMonths(t1, t2));
-			TestConsole.printx("diffDays: {}", Dates.diffDays(t1, t2));
-			TestConsole.printx("diffHours: {}", Dates.diffHours(t1, t2));
-			TestConsole.printx("diffMinutes: {}", Dates.diffMinutes(t1, t2));
-			TestConsole.printx("diffSeconds: {}", Dates.diffSeconds(t1, t2));
-			TestConsole.printx("diffMillis: {}", Dates.diffMillis(t1, t2));
-			TestConsole.printx("diffNanos: {}", Dates.diffNanos(t1, t2));
+			Object[] args7 = new Object[]{Dates.diffYears(t1, t2)};
+			Consoles.log("diffYears: {}", args7);
+			Object[] args6 = new Object[]{Dates.diffMonths(t1, t2)};
+			Consoles.log("diffMonths: {}", args6);
+			Object[] args5 = new Object[]{Dates.diffDays(t1, t2)};
+			Consoles.log("diffDays: {}", args5);
+			Object[] args4 = new Object[]{Dates.diffHours(t1, t2)};
+			Consoles.log("diffHours: {}", args4);
+			Object[] args3 = new Object[]{Dates.diffMinutes(t1, t2)};
+			Consoles.log("diffMinutes: {}", args3);
+			Object[] args2 = new Object[]{Dates.diffSeconds(t1, t2)};
+			Consoles.log("diffSeconds: {}", args2);
+			Object[] args1 = new Object[]{Dates.diffMillis(t1, t2)};
+			Consoles.log("diffMillis: {}", args1);
+			Object[] args = new Object[]{Dates.diffNanos(t1, t2)};
+			Consoles.log("diffNanos: {}", args);
 		}
 	}
 }

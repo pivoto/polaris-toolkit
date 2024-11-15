@@ -1,6 +1,6 @@
 package io.polaris.core.jdbc.sql.statement;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.jdbc.entity.Demo2EntitySql;
 import io.polaris.core.jdbc.entity.Demo3EntitySql;
 import io.polaris.core.jdbc.entity.DemoEntitySql;
@@ -29,8 +29,10 @@ public class SetOpsStatementTest {
 		setOpsStatement.minus(
 			Demo3EntitySql.select().selectAll().where().raw("1=1").end());
 
-		TestConsole.println(setOpsStatement.toSqlNode());
-		TestConsole.println();
-		TestConsole.println(setOpsStatement.toCountSqlNode());
+		Object[] args1 = new Object[]{setOpsStatement.toSqlNode()};
+		Consoles.println(args1);
+		Consoles.println();
+		Object[] args = new Object[]{setOpsStatement.toCountSqlNode()};
+		Consoles.println(args);
 	}
 }

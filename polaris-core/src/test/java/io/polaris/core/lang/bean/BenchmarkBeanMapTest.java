@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.time.Dates;
 import io.polaris.core.json.Jsons;
 import io.polaris.core.reflect.Reflects;
@@ -111,20 +111,24 @@ public class BenchmarkBeanMapTest {
 
 		beanMap.put("privateStringVal", "test");
 		Assertions.assertEquals("test", beanMap.get("privateStringVal"));
-		TestConsole.printx("$.privateStringVal: {}", beanMap.get("privateStringVal"));
+		Object[] args2 = new Object[]{beanMap.get("privateStringVal")};
+		Consoles.log("$.privateStringVal: {}", args2);
 
 		Assertions.assertThrows(Exception.class, () -> {
 			beanMap.put("publicStringVal", "test");
 			Assertions.assertEquals("test", beanMap.get("publicStringVal"));
-			TestConsole.printx("$.publicStringVal: {}", beanMap.get("publicStringVal"));
+			Object[] args = new Object[]{beanMap.get("publicStringVal")};
+			Consoles.log("$.publicStringVal: {}", args);
 		});
 
 		beanMap.put("privateIntVal", "123");
 		Assertions.assertEquals(123, beanMap.get("privateIntVal"));
-		TestConsole.printx("$.privateIntVal: {}", beanMap.get("privateIntVal"));
+		Object[] args1 = new Object[]{beanMap.get("privateIntVal")};
+		Consoles.log("$.privateIntVal: {}", args1);
 
 
-		TestConsole.printx("bean: {}", Jsons.serialize(bean));
+		Object[] args = new Object[]{Jsons.serialize(bean)};
+		Consoles.log("bean: {}", args);
 	}
 
 	@Test
@@ -135,17 +139,21 @@ public class BenchmarkBeanMapTest {
 
 		beanMap.put("privateStringVal", "test");
 		Assertions.assertEquals("test", beanMap.get("privateStringVal"));
-		TestConsole.printx("$.privateStringVal: {}", beanMap.get("privateStringVal"));
+		Object[] args3 = new Object[]{beanMap.get("privateStringVal")};
+		Consoles.log("$.privateStringVal: {}", args3);
 
 		beanMap.put("publicStringVal", "test");
 		Assertions.assertEquals("test", beanMap.get("publicStringVal"));
-		TestConsole.printx("$.publicStringVal: {}", beanMap.get("publicStringVal"));
+		Object[] args2 = new Object[]{beanMap.get("publicStringVal")};
+		Consoles.log("$.publicStringVal: {}", args2);
 
 		beanMap.put("privateIntVal", "123");
 		Assertions.assertEquals(123, beanMap.get("privateIntVal"));
-		TestConsole.printx("$.privateIntVal: {}", beanMap.get("privateIntVal"));
+		Object[] args1 = new Object[]{beanMap.get("privateIntVal")};
+		Consoles.log("$.privateIntVal: {}", args1);
 
-		TestConsole.printx("bean: {}", Jsons.serialize(bean));
+		Object[] args = new Object[]{Jsons.serialize(bean)};
+		Consoles.log("bean: {}", args);
 	}
 
 

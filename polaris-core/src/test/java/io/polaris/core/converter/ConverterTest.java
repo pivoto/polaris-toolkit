@@ -1,7 +1,7 @@
 package io.polaris.core.converter;
 
-import io.polaris.core.TestConsole;
 import io.polaris.core.collection.Iterables;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.json.TestJsonSerializer;
 import io.polaris.core.lang.TypeRef;
 import io.polaris.core.lang.TypeRefs;
@@ -19,7 +19,7 @@ class ConverterTest {
 		String json = "[1,2,3]";
 		List<String> obj = new TestJsonSerializer().deserialize(json, new TypeRef<List<String>>() {
 		});
-		TestConsole.println("obj: {}", obj);
+		Consoles.println("obj: {}", obj);
 		Assertions.assertNotNull(obj);
 		Assertions.assertEquals(3, obj.size());
 	}
@@ -34,7 +34,8 @@ class ConverterTest {
 		Assertions.assertInstanceOf(Map.class, o);
 		Assertions.assertInstanceOf(List.class, ((Map)o).get("k1"));
 		Assertions.assertInstanceOf(List.class, ((Map)o).get("k2"));
-		TestConsole.println("convert: {}", Iterables.toArrayString(o));
+		Object[] args = new Object[]{Iterables.toArrayString(o)};
+		Consoles.println("convert: {}", args);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -43,7 +44,8 @@ class ConverterTest {
 		{
 			String o = Converters.convertQuietly(String.class, null);
 			Assertions.assertNull(o);
-			TestConsole.println("convert: {}", Iterables.toArrayString(o));
+			Object[] args = new Object[]{Iterables.toArrayString(o)};
+			Consoles.println("convert: {}", args);
 		}
 		{
 			Object value = Strings.asMap("k1", "v1", "k2", "v2");
@@ -51,7 +53,8 @@ class ConverterTest {
 			Assertions.assertNotNull(o);
 			Assertions.assertTrue(o.startsWith("{"));
 			Assertions.assertTrue(o.endsWith("}"));
-			TestConsole.println("convert: {}", Iterables.toArrayString(o));
+			Object[] args = new Object[]{Iterables.toArrayString(o)};
+			Consoles.println("convert: {}", args);
 		}
 		{
 			Type type = new TypeRef<Map<String, List<String>>>() {
@@ -62,7 +65,8 @@ class ConverterTest {
 			Assertions.assertInstanceOf(Map.class, o);
 			Assertions.assertInstanceOf(List.class, ((Map)o).get("k1"));
 			Assertions.assertInstanceOf(List.class, ((Map)o).get("k2"));
-			TestConsole.println("convert: {}", Iterables.toArrayString(o));
+			Object[] args = new Object[]{Iterables.toArrayString(o)};
+			Consoles.println("convert: {}", args);
 		}
 
 		{
@@ -72,7 +76,8 @@ class ConverterTest {
 			Assertions.assertNotNull(o);
 			Assertions.assertInstanceOf(Map.class, o);
 			Assertions.assertEquals(value, o);
-			TestConsole.println("convert: {}", Iterables.toArrayString(o));
+			Object[] args = new Object[]{Iterables.toArrayString(o)};
+			Consoles.println("convert: {}", args);
 		}
 
 		{
@@ -81,7 +86,8 @@ class ConverterTest {
 			Assertions.assertNotNull(o);
 			Assertions.assertInstanceOf(List.class, o);
 			Assertions.assertEquals(4, ((List)o).size());
-			TestConsole.println("convert: {}", Iterables.toArrayString(o));
+			Object[] args = new Object[]{Iterables.toArrayString(o)};
+			Consoles.println("convert: {}", args);
 		}
 
 		{
@@ -90,7 +96,8 @@ class ConverterTest {
 			Assertions.assertNotNull(o);
 			Assertions.assertInstanceOf(String[].class, o);
 			Assertions.assertEquals(4, ((String[])o).length);
-			TestConsole.println("convert: {}", Iterables.toArrayString(o));
+			Object[] args = new Object[]{Iterables.toArrayString(o)};
+			Consoles.println("convert: {}", args);
 		}
 
 	}

@@ -1,15 +1,14 @@
 package io.polaris.core.guid;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class GuidsTest {
 
 	@Test
 	void detectStackTraceClassName() {
-		TestConsole.printx(Guids.detectStackTraceClassName());
+		String msg = Guids.detectStackTraceClassName();
+		Consoles.log(msg);
 
 	}
 

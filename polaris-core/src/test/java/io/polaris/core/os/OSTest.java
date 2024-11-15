@@ -1,6 +1,6 @@
 package io.polaris.core.os;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Test;
 
 class OSTest {
@@ -11,7 +11,9 @@ class OSTest {
 
 	@Test
 	void test1() {
-		TestConsole.printx(OS.getAllIps());
-		TestConsole.printx(OS.getIp());
+		Object[] args = new Object[]{OS.getAllIps()};
+		Consoles.log("", args);
+		String msg = OS.getIp();
+		Consoles.log(msg);
 	}
 }

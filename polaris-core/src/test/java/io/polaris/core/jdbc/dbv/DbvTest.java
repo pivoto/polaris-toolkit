@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.jdbc.Jdbcs;
 import io.polaris.core.jdbc.dbv.model.Catalog;
 import io.polaris.core.jdbc.dbv.model.Column;
@@ -38,7 +38,8 @@ class DbvTest {
 
 	protected void show(Collection<?> collection) {
 		for (Object o : collection) {
-			TestConsole.println(JSON.toJSONString(o));
+			String msg = JSON.toJSONString(o);
+			Consoles.println(msg);
 		}
 	}
 

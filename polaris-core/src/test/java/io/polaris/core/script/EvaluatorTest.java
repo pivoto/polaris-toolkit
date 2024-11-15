@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.json.DefaultJsonSerializer;
 import io.polaris.core.json.TestJsonSerializer;
 import io.polaris.core.time.Times;
@@ -49,7 +49,7 @@ public class EvaluatorTest {
 	void test01() {
 //		Global global = new Global(new Context(new Options(""), new ErrorManager(), Thread.currentThread().getContextClassLoader()));
 //		Context.setGlobal(global);
-//		TestConsole.println(NativeJSON.stringify(global,map,null," "));
+//		Consoles.println(NativeJSON.stringify(global,map,null," "));
 
 		// language=javascript
 		String content = "function asJson(input) {\n" +
@@ -112,7 +112,7 @@ public class EvaluatorTest {
 		map.put("d", new ArrayList<>(Arrays.asList("a", "b", "c")));
 		map.put("e", new String[]{"a", "b", "c"});
 		Object rs = engine.eval(content, map);
-		TestConsole.println("rs: {}", rs);
+		Consoles.println("rs: {}", rs);
 		Assertions.assertInstanceOf(ScriptObjectMirror.class, rs);
 		Assertions.assertInstanceOf(Map.class, rs);
 	}
@@ -129,14 +129,17 @@ public class EvaluatorTest {
 		Assertions.assertInstanceOf(JSObject.class, rs);
 		{
 			((Map<?, ?>) rs).forEach((k, v) -> {
-				TestConsole.println("map> key:{}, val:{}", k, v);
+				Consoles.println("map> key:{}, val:{}", k, v);
 			});
 			Object d = ((Map<?, ?>) rs).get("d");
-			TestConsole.println(d == null ? null : d.getClass());
+			Object[] args = new Object[]{d == null ? null : d.getClass()};
+			Consoles.println(args);
 		}
 		{
-			TestConsole.println("array: " + ((JSObject) rs).isArray());
-			TestConsole.println("array[0]: " + ((JSObject) rs).getSlot(0));
+			String msg1 = "array: " + ((JSObject) rs).isArray();
+			Consoles.println(msg1);
+			String msg = "array[0]: " + ((JSObject) rs).getSlot(0);
+			Consoles.println(msg);
 		}
 	}
 
@@ -144,7 +147,7 @@ public class EvaluatorTest {
 	void test03() {
 		String json = "{\"a\":1,\"b\":2,\"c\":{\"c1\":3,\"c2\":4},\"d\":[1,2,3,4]}";
 		Map map = new DefaultJsonSerializer().deserialize(json, Map.class);
-		TestConsole.println(map);
+		Consoles.println(map);
 	}
 
 	@Test
@@ -161,12 +164,18 @@ public class EvaluatorTest {
 
 		DefaultJsonSerializer defaultJsonSerializer = new DefaultJsonSerializer();
 		TestJsonSerializer testJsonSerializer = new TestJsonSerializer();
-		TestConsole.println(defaultJsonSerializer.serialize(o));
-		TestConsole.println(testJsonSerializer.serialize(o));
-		TestConsole.println(JSON.toJSONString(o));
+		String msg2 = defaultJsonSerializer.serialize(o);
+		Consoles.println(msg2);
+		String msg1 = testJsonSerializer.serialize(o);
+		Consoles.println(msg1);
+		String msg = JSON.toJSONString(o);
+		Consoles.println(msg);
 
-		TestConsole.println("elapse: {}ms",Times.millsTime(10000, () -> JSON.toJSONString(o)));
-		TestConsole.println("elapse: {}ms",Times.millsTime(10000, () -> defaultJsonSerializer.serialize(o)));
-		TestConsole.println("elapse: {}ms",Times.millsTime(10000, () -> testJsonSerializer.serialize(o)));
+		Object[] args2 = new Object[]{Times.millsTime(10000, () -> JSON.toJSONString(o))};
+		Consoles.println("elapse: {}ms", args2);
+		Object[] args1 = new Object[]{Times.millsTime(10000, () -> defaultJsonSerializer.serialize(o))};
+		Consoles.println("elapse: {}ms", args1);
+		Object[] args = new Object[]{Times.millsTime(10000, () -> testJsonSerializer.serialize(o))};
+		Consoles.println("elapse: {}ms", args);
 	}
 }

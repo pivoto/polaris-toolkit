@@ -1,6 +1,6 @@
 package io.polaris.core.cache;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -25,12 +25,14 @@ class ICacheManagerFactoryTest {
 		}
 
 		for (int i = 0; i < 10; i++) {
-			TestConsole.printx("{} -> {}", "key-" + i, cache.get("key-" + i));
+			Object[] args = new Object[]{"key-" + i, cache.get("key-" + i)};
+			Consoles.log("{} -> {}", args);
 			Assertions.assertNull(cache.get("key-" + i));
 		}
 
 		for (int i = 10; i < 20; i++) {
-			TestConsole.printx("{} -> {}", "key-" + i, cache.get("key-" + i));
+			Object[] args = new Object[]{"key-" + i, cache.get("key-" + i)};
+			Consoles.log("{} -> {}", args);
 			Assertions.assertEquals("val-" + i, cache.getIfPresent("key-" + i));
 		}
 

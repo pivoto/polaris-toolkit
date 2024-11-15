@@ -1,9 +1,9 @@
 package io.polaris.core.lang.bean;
 
-import io.polaris.core.TestConsole;
 import io.polaris.core.asm.reflect.MethodAccess;
 import io.polaris.core.asm.reflect.ClassAccess;
 import io.polaris.core.function.Executable;
+import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Test;
 import org.openjdk.jmh.annotations.*;
 
@@ -29,18 +29,25 @@ public class BenchmarkReflectiveAccessBean01Test {
 		try {
 			r.execute();
 		} catch (Throwable e) {
-			TestConsole.println(e.getClass().getName() + ": " + e.getMessage());
+			String msg = e.getClass().getName() + ": " + e.getMessage();
+			Consoles.println(msg);
 		}
 	};
 
 	@Test
 	void MethodAccess() throws IOException {
 		MethodAccess methodAccess = MethodAccess.get(Bean01.class);
-		executable.accept(() -> TestConsole.println(methodAccess.getClass()));
-		executable.accept(() -> TestConsole.println(methodAccess.getClass().getClassLoader()));
+		executable.accept(() -> Consoles.println(methodAccess.getClass()));
+		executable.accept(() -> {
+			Object[] args = new Object[]{methodAccess.getClass().getClassLoader()};
+			Consoles.println(args);
+		});
 		Class<BeanMetadataV1> metadataClass = BeanMetadatasV1.getMetadataClass(Bean01.class);
-		executable.accept(() -> TestConsole.println(metadataClass));
-		executable.accept(() -> TestConsole.println(metadataClass.getClassLoader()));
+		executable.accept(() -> Consoles.println(metadataClass));
+		executable.accept(() -> {
+			Object[] args = new Object[]{metadataClass.getClassLoader()};
+			Consoles.println(args);
+		});
 	}
 
 	@Test
@@ -59,7 +66,7 @@ public class BenchmarkReflectiveAccessBean01Test {
 		executable.accept(() -> map.put("booleanVal", 1));
 		executable.accept(() -> map.put("booleanValProtected", 1));
 		executable.accept(() -> map.put("booleanValPrivate", 1));
-		executable.accept(() -> TestConsole.println(map));
+		executable.accept(() -> Consoles.println(map));
 	}
 
 	@Test
@@ -88,18 +95,39 @@ public class BenchmarkReflectiveAccessBean01Test {
 		executable.accept(() -> access.invokeMethod(bean01, "testDefaultReturnObjectWithArgs", "123", 123));
 		executable.accept(() -> access.invokeMethod(bean01, "testDefaultReturnPrimitiveWithArgs", "123", 123));
 
-		executable.accept(() -> TestConsole.println("clone: " + access.invokeMethod(bean01, "clone")));
-		executable.accept(() -> TestConsole.println("clone: " + bean01.clone()));
+		executable.accept(() -> {
+			String msg = "clone: " + access.invokeMethod(bean01, "clone");
+			Consoles.println(msg);
+		});
+		executable.accept(() -> {
+			String msg = "clone: " + bean01.clone();
+			Consoles.println(msg);
+		});
 
 		executable.accept(() -> access.invokeMethod(bean01, "setId", "123"));
 		executable.accept(() -> access.invokeMethod(bean01, "setIdParent", "123"));
 		executable.accept(() -> access.invokeMethod(bean01, "setNameParent", "123"));
 		executable.accept(() -> access.invokeMethod(bean01, "setNamePrivateParent", "123"));
 		executable.accept(() -> access.invokeMethod(bean01, "setNameProtectedParent", "123"));
-		executable.accept(() -> TestConsole.println("staticIdParent: " + access.getField(bean01, "staticIdParent")));
-		executable.accept(() -> TestConsole.println("staticId: " + access.getField(bean01, "staticId")));
-		executable.accept(() -> TestConsole.println("idParent: " + access.getField(bean01, "idParent")));
-		executable.accept(() -> TestConsole.println("id: " + access.getField(bean01, "id")));
-		executable.accept(() -> TestConsole.println("toString: " + access.invokeMethod(bean01, "toString")));
+		executable.accept(() -> {
+			String msg = "staticIdParent: " + access.getField(bean01, "staticIdParent");
+			Consoles.println(msg);
+		});
+		executable.accept(() -> {
+			String msg = "staticId: " + access.getField(bean01, "staticId");
+			Consoles.println(msg);
+		});
+		executable.accept(() -> {
+			String msg = "idParent: " + access.getField(bean01, "idParent");
+			Consoles.println(msg);
+		});
+		executable.accept(() -> {
+			String msg = "id: " + access.getField(bean01, "id");
+			Consoles.println(msg);
+		});
+		executable.accept(() -> {
+			String msg = "toString: " + access.invokeMethod(bean01, "toString");
+			Consoles.println(msg);
+		});
 	}
 }

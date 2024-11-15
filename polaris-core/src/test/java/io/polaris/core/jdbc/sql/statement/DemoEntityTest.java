@@ -1,6 +1,6 @@
 package io.polaris.core.jdbc.sql.statement;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.jdbc.entity.DemoEntity;
 import io.polaris.core.jdbc.entity.DemoEntityMeta;
 import io.polaris.core.jdbc.entity.DemoEntitySql;
@@ -47,8 +47,10 @@ public class DemoEntityTest {
 //			.column("a").eq(1)
 //			.end();
 
-		TestConsole.println(select.toSqlNode().asBoundSql());
-		TestConsole.println(select.toSqlNode().asPreparedSql());
+		Object[] args1 = new Object[]{select.toSqlNode().asBoundSql()};
+		Consoles.println(args1);
+		Object[] args = new Object[]{select.toSqlNode().asPreparedSql()};
+		Consoles.println(args);
 	}
 
 	@Test
@@ -60,9 +62,12 @@ public class DemoEntityTest {
 			.col6(6)
 			.build();
 
-		TestConsole.println();
-		TestConsole.println("select>");
-		TestConsole.println(DemoEntitySql.select()
+		Consoles.println();
+		Consoles.println("select>");
+		//			.column(DemoEntityMeta.FieldName.col6).notNull()
+		//			.groupBy().col6()
+		//			.end()
+		Object[] args10 = new Object[]{DemoEntitySql.select()
 			.quotaSelectAlias(true)
 			.select().value(1, "a")
 			.select().all().end()
@@ -74,78 +79,89 @@ public class DemoEntityTest {
 			.col6().desc()
 //			.groupBy().col6()
 //			.end()
-			.toSqlNode().asBoundSql());
+			.toSqlNode().asBoundSql()};
+		Consoles.println(args10);
 
-		TestConsole.println();
-		TestConsole.println("merge>");
-		TestConsole.println(new MergeStatement<>(DemoEntity.class, "T").withEntity(entity)
-			.toSqlNode().asBoundSql());
+		Consoles.println();
+		Consoles.println("merge>");
+		Object[] args9 = new Object[]{new MergeStatement<>(DemoEntity.class, "T").withEntity(entity)
+			.toSqlNode().asBoundSql()};
+		Consoles.println(args9);
 
 
-		TestConsole.println();
-		TestConsole.println("insert>");
-		TestConsole.println(DemoEntitySql.insert()
+		Consoles.println();
+		Consoles.println("insert>");
+		Object[] args8 = new Object[]{DemoEntitySql.insert()
 			.withEntity(entity)
-			.toSqlNode().asBoundSql());
+			.toSqlNode().asBoundSql()};
+		Consoles.println(args8);
 
-		TestConsole.println();
-		TestConsole.println("insert-onDuplicateKeyUpdate>");
-		TestConsole.println(DemoEntitySql.insert()
+		Consoles.println();
+		Consoles.println("insert-onDuplicateKeyUpdate>");
+		Object[] args7 = new Object[]{DemoEntitySql.insert()
 			.withEntity(entity)
 			.enableUpdateByDuplicateKey(true)
-			.toSqlNode().asBoundSql());
+			.toSqlNode().asBoundSql()};
+		Consoles.println(args7);
 
-		TestConsole.println();
-		TestConsole.println("insert-replace>");
-		TestConsole.println(DemoEntitySql.insert()
+		Consoles.println();
+		Consoles.println("insert-replace>");
+		Object[] args6 = new Object[]{DemoEntitySql.insert()
 			.withEntity(entity)
 			.enableReplace(true)
-			.toSqlNode().asBoundSql());
+			.toSqlNode().asBoundSql()};
+		Consoles.println(args6);
 
-		TestConsole.println();
-		TestConsole.println("update-byId>");
-		TestConsole.println(DemoEntitySql.update()
+		Consoles.println();
+		Consoles.println("update-byId>");
+		Object[] args5 = new Object[]{DemoEntitySql.update()
 			.withEntity(entity)
 			.where().byEntityId(entity)
 			.end()
-			.toSqlNode().asBoundSql());
+			.toSqlNode().asBoundSql()};
+		Consoles.println(args5);
 
-		TestConsole.println();
-		TestConsole.println("update-byIdAndVersion>");
-		TestConsole.println(DemoEntitySql.update()
+		Consoles.println();
+		Consoles.println("update-byIdAndVersion>");
+		Object[] args4 = new Object[]{DemoEntitySql.update()
 			.withEntity(entity)
 			.where().byEntityIdAndVersion(entity)
 			.end()
-			.toSqlNode().asBoundSql());
+			.toSqlNode().asBoundSql()};
+		Consoles.println(args4);
 
-		TestConsole.println();
-		TestConsole.println("update-byAny>");
-		TestConsole.println(DemoEntitySql.update()
+		Consoles.println();
+		Consoles.println("update-byAny>");
+		Object[] args3 = new Object[]{DemoEntitySql.update()
 			.withEntity(entity)
 			.where().byEntity(entity)
 			.end()
-			.toSqlNode().asBoundSql());
+			.toSqlNode().asBoundSql()};
+		Consoles.println(args3);
 
-		TestConsole.println();
-		TestConsole.println("delete-byId>");
-		TestConsole.println(DemoEntitySql.delete()
+		Consoles.println();
+		Consoles.println("delete-byId>");
+		Object[] args2 = new Object[]{DemoEntitySql.delete()
 			.where().byEntityId(entity)
 			.end()
-			.toSqlNode().asBoundSql());
+			.toSqlNode().asBoundSql()};
+		Consoles.println(args2);
 
-		TestConsole.println();
-		TestConsole.println("delete-byIdAndVersion>");
-		TestConsole.println(DemoEntitySql.delete()
+		Consoles.println();
+		Consoles.println("delete-byIdAndVersion>");
+		Object[] args1 = new Object[]{DemoEntitySql.delete()
 			.where().byEntityIdAndVersion(entity)
 			.end()
-			.toSqlNode().asBoundSql());
+			.toSqlNode().asBoundSql()};
+		Consoles.println(args1);
 
-		TestConsole.println();
-		TestConsole.println("delete-byAny>");
-		TestConsole.println(DemoEntitySql.delete()
+		Consoles.println();
+		Consoles.println("delete-byAny>");
+		Object[] args = new Object[]{DemoEntitySql.delete()
 			.where().byEntity(entity)
 			.end()
-			.toSqlNode().asBoundSql());
+			.toSqlNode().asBoundSql()};
+		Consoles.println(args);
 	}
 
 }

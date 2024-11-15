@@ -1,7 +1,7 @@
 package io.polaris.core.crypto;
 
-import io.polaris.core.TestConsole;
 import io.polaris.core.crypto.symmetric.SymmetricAlgorithm;
+import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -17,17 +17,19 @@ class CiphersTest {
 		byte[] data = "123456".getBytes();
 		byte[] encrypted, decrypted;
 		SecretKey key = CryptoKeys.generateKey(SymmetricAlgorithm.AES.code(), 128);
-		TestConsole.println("key: " + Base64.getEncoder().encodeToString(key.getEncoded()));
+		String msg1 = "key: " + Base64.getEncoder().encodeToString(key.getEncoded());
+		Consoles.println(msg1);
 
 		encrypted = Ciphers.encrypt(SymmetricAlgorithm.AES.code(), key, data);
-		TestConsole.println("encrypted: " + Base64.getEncoder().encodeToString(encrypted));
+		String msg = "encrypted: " + Base64.getEncoder().encodeToString(encrypted);
+		Consoles.println(msg);
 		decrypted = Ciphers.decrypt(SymmetricAlgorithm.AES.code(), key, encrypted);
-		TestConsole.println("decrypted: " + new String(decrypted));
+		Consoles.println("decrypted: " + new String(decrypted));
 		Assertions.assertArrayEquals(data, decrypted);
 
 		key = CryptoKeys.generateKey(SymmetricAlgorithm.AES.code(), key.getEncoded());
 		decrypted = Ciphers.decrypt(SymmetricAlgorithm.AES.code(), key, encrypted);
-		TestConsole.println("decrypted: " + new String(decrypted));
+		Consoles.println("decrypted: " + new String(decrypted));
 		Assertions.assertArrayEquals(data, decrypted);
 
 

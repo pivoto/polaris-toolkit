@@ -2,7 +2,7 @@ package io.polaris.core.aop;
 
 import java.util.function.Supplier;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.random.Randoms;
 
 /**
@@ -12,7 +12,7 @@ import io.polaris.core.random.Randoms;
 public class ProxyTarget01 implements Supplier {
 
 	public void test(int a, int b) {
-		TestConsole.printx("args: a={},b={}", a, b);
+		Consoles.log("args: a={},b={}", a, b);
 	}
 
 	@Override

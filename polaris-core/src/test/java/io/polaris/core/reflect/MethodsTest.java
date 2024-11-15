@@ -1,6 +1,6 @@
 package io.polaris.core.reflect;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.string.Strings;
 import org.junit.jupiter.api.Test;
 
@@ -16,41 +16,43 @@ public class MethodsTest {
 //			new Target(),
 			Methods.newInstance(Target.class),
 		};
-		TestConsole.println(Strings.repeat('=', 80));
+		String msg1 = Strings.repeat('=', 80);
+		Consoles.println(msg1);
 		for (Object obj : objects) {
 			Methods.setPrivateStaticField(obj.getClass(), "privateStaticField", int.class, 2);
-			TestConsole.printx("{}.privateStaticField:int => {}", obj.getClass().getSimpleName(),
-				Methods.getPrivateStaticField(obj.getClass(), "privateStaticField", int.class));
+			Object[] args11 = new Object[]{obj.getClass().getSimpleName(), Methods.getPrivateStaticField(obj.getClass(), "privateStaticField", int.class)};
+			Consoles.log("{}.privateStaticField:int => {}", args11);
 			Methods.setPrivateField(obj, "privateField", int.class, 2);
-			TestConsole.printx("{}.privateField:int => {}", obj.getClass().getSimpleName(),
-				Methods.getPrivateField(obj, "privateField", int.class));
+			Object[] args10 = new Object[]{obj.getClass().getSimpleName(), Methods.getPrivateField(obj, "privateField", int.class)};
+			Consoles.log("{}.privateField:int => {}", args10);
 
 			Methods.setStaticField(obj.getClass(), "publicStaticField", int.class, 2);
-			TestConsole.printx("{}.publicStaticField:int => {}", obj.getClass().getSimpleName(),
-				Methods.getStaticField(obj.getClass(), "publicStaticField", int.class));
+			Object[] args9 = new Object[]{obj.getClass().getSimpleName(), Methods.getStaticField(obj.getClass(), "publicStaticField", int.class)};
+			Consoles.log("{}.publicStaticField:int => {}", args9);
 			Methods.setField(obj, "publicField", int.class, 2);
-			TestConsole.printx("{}.publicField:int => {}", obj.getClass().getSimpleName(),
-				Methods.getField(obj, "publicField", int.class));
+			Object[] args8 = new Object[]{obj.getClass().getSimpleName(), Methods.getField(obj, "publicField", int.class)};
+			Consoles.log("{}.publicField:int => {}", args8);
 
-			TestConsole.printx("{}.publicStaticMethod()int => {}", obj.getClass().getSimpleName(),
-				Methods.invokeStatic(obj.getClass(), "publicStaticMethod", int.class));
-			TestConsole.printx("{}.publicStaticMethod(int)int => {}", obj.getClass().getSimpleName(),
-				Methods.invokeStatic(obj.getClass(), "publicStaticMethod", int.class, new Class[]{int.class}, new Object[]{2}));
-			TestConsole.printx("{}.privateStaticMethod()int => {}", obj.getClass().getSimpleName(),
-				Methods.invokePrivateStatic(obj.getClass(), "privateStaticMethod", int.class));
-			TestConsole.printx("{}.privateStaticMethod(int)int => {}", obj.getClass().getSimpleName(),
-				Methods.invokePrivateStatic(obj.getClass(), "privateStaticMethod", int.class, new Class[]{int.class}, new Object[]{2}));
+			Object[] args7 = new Object[]{obj.getClass().getSimpleName(), Methods.invokeStatic(obj.getClass(), "publicStaticMethod", int.class)};
+			Consoles.log("{}.publicStaticMethod()int => {}", args7);
+			Object[] args6 = new Object[]{obj.getClass().getSimpleName(), Methods.invokeStatic(obj.getClass(), "publicStaticMethod", int.class, new Class[]{int.class}, new Object[]{2})};
+			Consoles.log("{}.publicStaticMethod(int)int => {}", args6);
+			Object[] args5 = new Object[]{obj.getClass().getSimpleName(), Methods.invokePrivateStatic(obj.getClass(), "privateStaticMethod", int.class)};
+			Consoles.log("{}.privateStaticMethod()int => {}", args5);
+			Object[] args4 = new Object[]{obj.getClass().getSimpleName(), Methods.invokePrivateStatic(obj.getClass(), "privateStaticMethod", int.class, new Class[]{int.class}, new Object[]{2})};
+			Consoles.log("{}.privateStaticMethod(int)int => {}", args4);
 
-			TestConsole.printx("{}.publicMethod()int => {}", obj.getClass().getSimpleName(),
-				Methods.invoke(obj, "publicMethod", int.class));
-			TestConsole.printx("{}.publicMethod(int)int => {}", obj.getClass().getSimpleName(),
-				Methods.invoke(obj, "publicMethod", int.class, new Class[]{int.class}, new Object[]{2}));
-			TestConsole.printx("{}.privateMethod()int => {}", obj.getClass().getSimpleName(),
-				Methods.invokePrivate(obj, "privateMethod", int.class));
-			TestConsole.printx("{}.privateMethod(int)int => {}", obj.getClass().getSimpleName(),
-				Methods.invokePrivate(obj, "privateMethod", int.class, new Class[]{int.class}, new Object[]{2}));
+			Object[] args3 = new Object[]{obj.getClass().getSimpleName(), Methods.invoke(obj, "publicMethod", int.class)};
+			Consoles.log("{}.publicMethod()int => {}", args3);
+			Object[] args2 = new Object[]{obj.getClass().getSimpleName(), Methods.invoke(obj, "publicMethod", int.class, new Class[]{int.class}, new Object[]{2})};
+			Consoles.log("{}.publicMethod(int)int => {}", args2);
+			Object[] args1 = new Object[]{obj.getClass().getSimpleName(), Methods.invokePrivate(obj, "privateMethod", int.class)};
+			Consoles.log("{}.privateMethod()int => {}", args1);
+			Object[] args = new Object[]{obj.getClass().getSimpleName(), Methods.invokePrivate(obj, "privateMethod", int.class, new Class[]{int.class}, new Object[]{2})};
+			Consoles.log("{}.privateMethod(int)int => {}", args);
 
-			TestConsole.println(Strings.repeat('=', 80));
+			String msg = Strings.repeat('=', 80);
+			Consoles.println(msg);
 		}
 
 	}

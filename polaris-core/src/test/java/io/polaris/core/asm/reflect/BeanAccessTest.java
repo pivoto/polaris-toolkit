@@ -2,8 +2,8 @@ package io.polaris.core.asm.reflect;
 
 import java.io.IOException;
 
-import io.polaris.core.TestConsole;
 import io.polaris.core.asm.BaseAsmTest;
+import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -25,18 +25,22 @@ public class BeanAccessTest extends BaseAsmTest {
 	void testBeanAccess() throws IOException {
 		BeanAccess<AccessBean01> access = BeanAccess.get(AccessBean01.class);
 		AccessBean01 o = new AccessBean01();
-		TestConsole.printx("bean: {}", o);
+		Consoles.log("bean: {}", o);
 
-		TestConsole.printx(access.allPropertyNames());
-		TestConsole.printx(access.getterPropertyNames());
+		Object[] args1 = new Object[]{access.allPropertyNames()};
+		Consoles.log("", args1);
+		Object[] args = new Object[]{access.getterPropertyNames()};
+		Consoles.log("", args);
 
 		access.setProperty(o, "publicStrVal0", "newStrVal");
 		Assertions.assertEquals("newStrVal", access.getProperty(o, "publicStrVal0"));
-		TestConsole.printx("get: {}", access.getProperty(o, "publicStrVal0"));
+		Object[] args3 = new Object[]{access.getProperty(o, "publicStrVal0")};
+		Consoles.log("get: {}", args3);
 
 		access.setField(o, "publicStrVal1", "newStrVal");
 		Assertions.assertEquals("newStrVal", access.getField(o, "publicStrVal1"));
-		TestConsole.printx("get: {}", access.getField(o, "publicStrVal1"));
+		Object[] args2 = new Object[]{access.getField(o, "publicStrVal1")};
+		Consoles.log("get: {}", args2);
 
 	}
 
@@ -44,18 +48,22 @@ public class BeanAccessTest extends BaseAsmTest {
 	void testBeanLambdaAccess() throws IOException {
 		BeanLambdaAccess<AccessBean01> access = BeanLambdaAccess.get(AccessBean01.class);
 		AccessBean01 o = new AccessBean01();
-		TestConsole.printx("bean: {}", o);
+		Consoles.log("bean: {}", o);
 
-		TestConsole.printx(access.allPropertyNames());
-		TestConsole.printx(access.getterPropertyNames());
+		Object[] args1 = new Object[]{access.allPropertyNames()};
+		Consoles.log("", args1);
+		Object[] args = new Object[]{access.getterPropertyNames()};
+		Consoles.log("", args);
 
 		access.setProperty(o, "publicStrVal0", "newStrVal");
 		Assertions.assertEquals("newStrVal", access.getProperty(o, "publicStrVal0"));
-		TestConsole.printx("get: {}", access.getProperty(o, "publicStrVal0"));
+		Object[] args3 = new Object[]{access.getProperty(o, "publicStrVal0")};
+		Consoles.log("get: {}", args3);
 
 		access.setField(o, "publicStrVal1", "newStrVal");
 		Assertions.assertEquals("newStrVal", access.getField(o, "publicStrVal1"));
-		TestConsole.printx("get: {}", access.getField(o, "publicStrVal1"));
+		Object[] args2 = new Object[]{access.getField(o, "publicStrVal1")};
+		Consoles.log("get: {}", args2);
 
 	}
 }

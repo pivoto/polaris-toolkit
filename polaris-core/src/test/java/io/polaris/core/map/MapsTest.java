@@ -1,6 +1,6 @@
 package io.polaris.core.map;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -13,7 +13,7 @@ class MapsTest {
 		for (int i = 0; i < 10; i++) {
 			map.put("key" + i, "val" + i);
 		}
-		TestConsole.println(map);
+		Consoles.println(map);
 	}
 
 }

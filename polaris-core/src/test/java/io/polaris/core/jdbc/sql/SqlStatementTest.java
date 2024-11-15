@@ -1,13 +1,13 @@
 package io.polaris.core.jdbc.sql;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Test;
 
 class SqlStatementTest {
 
 	@Test
 	void test01() {
-		TestConsole.println(SqlStatement.of()
+		String msg = SqlStatement.of()
 			.select("a,b,c,d,e")
 			.from("tab t")
 			.join("table2 t2")
@@ -22,33 +22,37 @@ class SqlStatementTest {
 			.having()
 			.add("count(*)>1")
 			.end()
-			.toSqlString());
+			.toSqlString();
+		Consoles.println(msg);
 	}
 
 	@Test
 	void test02() {
-		TestConsole.println(SqlStatement.of()
+		String msg = SqlStatement.of()
 			.insert("table1")
 			.columns("a", "b", "c")
 			.values("1", "2", "3")
-			.toSqlString());
+			.toSqlString();
+		Consoles.println(msg);
 	}
 
 	@Test
 	void test03() {
-		TestConsole.println(SqlStatement.of()
+		String msg = SqlStatement.of()
 			.delete("table1")
 			.where("a=1", "b=2", "c=3")
 			.values("1", "2", "3")
-			.toSqlString());
+			.toSqlString();
+		Consoles.println(msg);
 	}
 	@Test
 	void test04() {
-		TestConsole.println(SqlStatement.of()
+		String msg = SqlStatement.of()
 			.update("table1")
 			.set("a=#{a}", "b=#{b}", "c=#{c}")
 			.where("a = 1")
 			.where("b = 2")
-			.toSqlString());
+			.toSqlString();
+		Consoles.println(msg);
 	}
 }

@@ -3,7 +3,7 @@ package io.polaris.core.script;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +16,7 @@ class JavaEvaluatorTest {
 			Object rs = ScriptEvaluators.getEvaluator("java")
 				.eval("output.put(\"rs\",input<5); return input<5;"
 					, i, output, null);
-			TestConsole.println(output);
+			Consoles.println(output);
 			Assertions.assertEquals(i < 5, output.get("rs"));
 			Assertions.assertEquals(i < 5, output.get(Evaluator.RESULT));
 			Assertions.assertEquals(i < 5, rs);
@@ -30,7 +30,7 @@ class JavaEvaluatorTest {
 			Object rs = ScriptEvaluators.getEvaluator("groovy")
 				.eval("output.put(\"rs\",input<5); return input<5;"
 					, i, output, null);
-			TestConsole.println(output);
+			Consoles.println(output);
 			Assertions.assertEquals(i < 5, output.get("rs"));
 			Assertions.assertEquals(i < 5, output.get(Evaluator.RESULT));
 			Assertions.assertEquals(i < 5, rs);
@@ -44,7 +44,7 @@ class JavaEvaluatorTest {
 			Object rs = ScriptEvaluators.getEvaluator("javascript")
 				.eval("output.put(\"rs\",input<5);  /*return */input<5;"
 					, i, output, null);
-			TestConsole.println(output);
+			Consoles.println(output);
 			Assertions.assertEquals(i < 5, output.get("rs"));
 			Assertions.assertEquals(i < 5, output.get(Evaluator.RESULT));
 			Assertions.assertEquals(i < 5, rs);

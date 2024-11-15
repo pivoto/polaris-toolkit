@@ -1,6 +1,6 @@
 package io.polaris.core.lang.annotation;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Test;
 
 import java.io.PrintWriter;
@@ -22,16 +22,21 @@ public class AnnotationsTest01 {
 		map.put("name", "test...");
 		Anno1 anno1 = Annotations.newInstance(Anno1.class, map);
 		Anno1 anno2 = Annotations.newInstance(Anno1.class, map);
-		TestConsole.println(anno1.annotationType());
-		TestConsole.println(anno1);
-		TestConsole.println(anno2);
-		TestConsole.println(anno1.equals(anno2));
-		TestConsole.println(anno1.hashCode());
-		TestConsole.println(anno2.hashCode());
-		TestConsole.println(anno1.annotationType());
-		TestConsole.println(anno2.annotationType());
-		TestConsole.println(anno1.value());
-		TestConsole.println(anno2.value());
+		Object[] args4 = new Object[]{anno1.annotationType()};
+		Consoles.println(args4);
+		Consoles.println(anno1);
+		Consoles.println(anno2);
+		Consoles.println(anno1.equals(anno2));
+		Object[] args3 = new Object[]{anno1.hashCode()};
+		Consoles.println(args3);
+		Object[] args2 = new Object[]{anno2.hashCode()};
+		Consoles.println(args2);
+		Object[] args1 = new Object[]{anno1.annotationType()};
+		Consoles.println(args1);
+		Object[] args = new Object[]{anno2.annotationType()};
+		Consoles.println(args);
+		Consoles.println(anno1.value());
+		Consoles.println(anno2.value());
 	}
 
 	@Test
@@ -54,14 +59,15 @@ public class AnnotationsTest01 {
 		}
 
 		MergedAnnotations mergedAnnotations = new MergedAnnotations(B.class);
-		TestConsole.println(mergedAnnotations);
+		Consoles.println(mergedAnnotations);
 		mergedAnnotations.getSortedAnnotations().forEach((k, v) -> {
-			TestConsole.println(">>" + k + ">>");
+			Consoles.println(">>" + k + ">>");
 			for (MergedAnnotation mergedAnnotation : v) {
-				TestConsole.println(mergedAnnotation);
+				Consoles.println(mergedAnnotation);
 			}
 		});
-		TestConsole.println(mergedAnnotations.getMergedAnnotation(RepeatableAnno1.class));
+		Object[] args = new Object[]{mergedAnnotations.getMergedAnnotation(RepeatableAnno1.class)};
+		Consoles.println(args);
 	}
 
 	@Anno1x1("I")

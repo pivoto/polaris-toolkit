@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.jdbc.annotation.Column;
 import io.polaris.core.jdbc.annotation.Id;
 import io.polaris.core.jdbc.annotation.Table;
@@ -43,20 +43,26 @@ public class JdbcExecutorsTest {
 
 			JobEnv entity = JobEnv.builder().id(sys).profile("test").sysId(sys).build();
 
-			TestConsole.println("insert: {}", testInterface.insert(conn, entity));
+			Object[] args5 = new Object[]{testInterface.insert(conn, entity)};
+			Consoles.println("insert: {}", args5);
 			conn.commit();
 
-			TestConsole.println("select: {}",testInterface.get(conn,
-				JobEnv.builder().id(sys).deleted(false).build()));
-			TestConsole.println("select: {}",testInterface.getList(conn, JobEnv.builder().build()));
-			TestConsole.println("select: {}",testInterface.getList(conn,
-				JobEnv.builder().profile("test").deleted(false).build()));
-			TestConsole.println("select: {}",testInterface.getList(conn,
+			Object[] args4 = new Object[]{testInterface.get(conn,
+				JobEnv.builder().id(sys).deleted(false).build())};
+			Consoles.println("select: {}", args4);
+			Object[] args3 = new Object[]{testInterface.getList(conn, JobEnv.builder().build())};
+			Consoles.println("select: {}", args3);
+			Object[] args2 = new Object[]{testInterface.getList(conn,
+				JobEnv.builder().profile("test").deleted(false).build())};
+			Consoles.println("select: {}", args2);
+			Object[] args1 = new Object[]{testInterface.getList(conn,
 				JdbcExecutorsTest$JobEnvSql.select()
 					.selectAll().where().deleted().isFalse().end()
-			));
+			)};
+			Consoles.println("select: {}", args1);
 
-			TestConsole.println("delete: {}", testInterface.delete(conn, entity));
+			Object[] args = new Object[]{testInterface.delete(conn, entity)};
+			Consoles.println("delete: {}", args);
 			conn.commit();
 		} finally {
 			JdbcExecutors.clearCurrentConnection();

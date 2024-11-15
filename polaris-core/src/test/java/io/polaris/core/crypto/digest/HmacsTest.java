@@ -6,7 +6,7 @@ import java.util.Base64;
 
 import javax.crypto.Mac;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -22,10 +22,11 @@ class HmacsTest {
 		// SM4CMAC 长度限制 128 bit
 		byte[] key = new byte[16];
 		Arrays.fill(key, (byte) 88);
-		TestConsole.println("key-length: {}", key.length);
+		Consoles.println("key-length: {}", key.length);
 		Mac mac = Hmacs.getInitializedMac(HmacAlgorithm.SM4CMAC.code(), key);
 		byte[] hmac = Hmacs.hmac(mac, "测试".getBytes());
-		TestConsole.println("hmac: {}", Base64.getEncoder().encodeToString(hmac));
+		Object[] args = new Object[]{Base64.getEncoder().encodeToString(hmac)};
+		Consoles.println("hmac: {}", args);
 		Assertions.assertEquals("gmDtOkITAVDgrnG4hjK2Jg==", Base64.getEncoder().encodeToString(hmac));
 	}
 

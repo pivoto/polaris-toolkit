@@ -4,7 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
 import io.polaris.core.log.support.DynamicLoggerResolver;
@@ -38,16 +38,20 @@ class ClassLoadersTest {
 
 	@Test
 	void test03() {
-		TestConsole.print(String.format("origin: %s %n", Thread.currentThread().getContextClassLoader()));
+		String msg3 = String.format("origin: %s %n", Thread.currentThread().getContextClassLoader());
+		Consoles.print(msg3);
 		Thread.currentThread().setContextClassLoader(log4jClassLoader);
-		TestConsole.print(String.format("loader: %s %n", Thread.currentThread().getContextClassLoader()));
+		String msg2 = String.format("loader: %s %n", Thread.currentThread().getContextClassLoader());
+		Consoles.print(msg2);
 
 		for (int i = 0; i < 2; i++) {
 			new Thread(() -> {
-				TestConsole.print(String.format("%s loader: %s %n", Thread.currentThread().getName(), Thread.currentThread().getContextClassLoader()));
+				String msg1 = String.format("%s loader: %s %n", Thread.currentThread().getName(), Thread.currentThread().getContextClassLoader());
+				Consoles.print(msg1);
 
 				new Thread(() -> {
-					TestConsole.print(String.format("%s loader: %s %n", Thread.currentThread().getName(), Thread.currentThread().getContextClassLoader()));
+					String msg = String.format("%s loader: %s %n", Thread.currentThread().getName(), Thread.currentThread().getContextClassLoader());
+					Consoles.print(msg);
 				}).start();
 
 			}).start();
@@ -58,14 +62,15 @@ class ClassLoadersTest {
 	void test02() throws ClassNotFoundException {
 		ClassLoader classLoader = ClassLoaders.INSTANCE.newTargetSideClassLoader(log4jClassLoader);
 		Class<?> c = classLoader.loadClass("org/slf4j/LoggerFactory".replace("/", "."));
-		TestConsole.println(c, c.getClassLoader());
+		Object[] args = new Object[]{c, c.getClassLoader()};
+		Consoles.println(args);
 	}
 
 	@Test
 	void test01() throws Exception {
 //		ClassLoaders.INSTANCE.prependClassLoader(log4jClassLoader);
 		ILogger logger = ILoggers.of("root");
-		TestConsole.printx(logger);
+		Consoles.log("", logger);
 		logger.debug("xxxx");
 		logger.info("xxxx");
 		logger.warn("xxxx");
@@ -77,14 +82,15 @@ class ClassLoadersTest {
 		{
 			try {
 				Class<?> c = ClassLoaders.INSTANCE.loadClass("org/slf4j/LoggerFactory".replace("/", "."));
-				TestConsole.println(c, c.getClassLoader());
+				Object[] args = new Object[]{c, c.getClassLoader()};
+				Consoles.println(args);
 			} catch (ClassNotFoundException e) {
-				TestConsole.printStackTrace(e);
+				Consoles.printStackTrace(e);
 			}
 		}
 
 		logger = ILoggers.of("root");
-		TestConsole.printx(logger);
+		Consoles.log("", logger);
 		logger.debug("xxxx");
 		logger.info("xxxx");
 		logger.warn("xxxx");

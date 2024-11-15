@@ -1,12 +1,11 @@
 package io.polaris.core.jdbc;
 
-import io.polaris.core.TestConsole;
-import io.polaris.core.jdbc.entity.DemoEntity;
 import io.polaris.core.jdbc.entity.DemoTest01Entity;
 import io.polaris.core.jdbc.entity.DemoTest02Entity;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class TableMetaTest {
 

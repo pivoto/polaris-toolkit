@@ -1,6 +1,6 @@
 package io.polaris.core.lang.annotation;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.reflect.Reflects;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,24 +19,36 @@ public class AnnotationsTest02 {
 	@Test
 	@DisplayName("类注解测试")
 	void testClassAlias01() {
-		TestConsole.println(MergedAnnotations.of(C1.class).getMergedAnnotation(A1.class));
-		TestConsole.println(MergedAnnotations.of(C1_1.class).getMergedAnnotation(A1.class));
-		TestConsole.println(MergedAnnotations.of(C1_1x.class).getMergedAnnotation(A1.class));
-		TestConsole.println(MergedAnnotations.of(C1_2.class).getMergedAnnotation(A1.class));
-		TestConsole.println(MergedAnnotations.of(C1_2x.class).getMergedAnnotation(A1.class));
-		TestConsole.println(MergedAnnotations.of(C1_2_1.class).getMergedAnnotation(A1.class));
-//		TestConsole.println(MergedAnnotations.of(C1_2_1.class).getMergedRepeatableAnnotation(A1.class));
+		Object[] args5 = new Object[]{MergedAnnotations.of(C1.class).getMergedAnnotation(A1.class)};
+		Consoles.println(args5);
+		Object[] args4 = new Object[]{MergedAnnotations.of(C1_1.class).getMergedAnnotation(A1.class)};
+		Consoles.println(args4);
+		Object[] args3 = new Object[]{MergedAnnotations.of(C1_1x.class).getMergedAnnotation(A1.class)};
+		Consoles.println(args3);
+		Object[] args2 = new Object[]{MergedAnnotations.of(C1_2.class).getMergedAnnotation(A1.class)};
+		Consoles.println(args2);
+		Object[] args1 = new Object[]{MergedAnnotations.of(C1_2x.class).getMergedAnnotation(A1.class)};
+		Consoles.println(args1);
+		Object[] args = new Object[]{MergedAnnotations.of(C1_2_1.class).getMergedAnnotation(A1.class)};
+		Consoles.println(args);
+		//		Consoles.println(MergedAnnotations.of(C1_2_1.class).getMergedRepeatableAnnotation(A1.class));
 	}
 	@Test
 	@DisplayName("方法注解测试")
 	void testClassAlias02() {
 
-		TestConsole.println(MergedAnnotations.of(Reflects.getMethod(C1.class,"m1")).getMergedAnnotation(A1.class));
-		TestConsole.println(MergedAnnotations.of(Reflects.getMethod(C1_1.class,"m1")).getMergedAnnotation(A1.class));
-		TestConsole.println(MergedAnnotations.of(Reflects.getMethod(C1_1x.class,"m1")).getMergedAnnotation(A1.class));
-		TestConsole.println(MergedAnnotations.of(Reflects.getMethod(C1_2.class,"m1")).getMergedAnnotation(A1.class));
-		TestConsole.println(MergedAnnotations.of(Reflects.getMethod(C1_2x.class,"m1")).getMergedAnnotation(A1.class));
-		TestConsole.println(MergedAnnotations.of(Reflects.getMethod(C1_2_1.class,"m1")).getMergedAnnotation(A1.class));
+		Object[] args5 = new Object[]{MergedAnnotations.of(Reflects.getMethod(C1.class,"m1")).getMergedAnnotation(A1.class)};
+		Consoles.println(args5);
+		Object[] args4 = new Object[]{MergedAnnotations.of(Reflects.getMethod(C1_1.class,"m1")).getMergedAnnotation(A1.class)};
+		Consoles.println(args4);
+		Object[] args3 = new Object[]{MergedAnnotations.of(Reflects.getMethod(C1_1x.class,"m1")).getMergedAnnotation(A1.class)};
+		Consoles.println(args3);
+		Object[] args2 = new Object[]{MergedAnnotations.of(Reflects.getMethod(C1_2.class,"m1")).getMergedAnnotation(A1.class)};
+		Consoles.println(args2);
+		Object[] args1 = new Object[]{MergedAnnotations.of(Reflects.getMethod(C1_2x.class,"m1")).getMergedAnnotation(A1.class)};
+		Consoles.println(args1);
+		Object[] args = new Object[]{MergedAnnotations.of(Reflects.getMethod(C1_2_1.class,"m1")).getMergedAnnotation(A1.class)};
+		Consoles.println(args);
 	}
 
 	@A1(name = "C1")

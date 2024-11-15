@@ -1,6 +1,6 @@
 package io.polaris.core.lang.bean.sub;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.lang.bean.IndexedMetaObject;
 import io.polaris.core.lang.bean.LambdaMetaObject;
 import io.polaris.core.lang.bean.MetaObjectTestBean;
@@ -21,19 +21,23 @@ public class MetaObjectTest {
 
 		meta.setProperty(bean, "privateStringVal", "test");
 		Assertions.assertEquals("test", meta.getProperty(bean, "privateStringVal"));
-		TestConsole.printx("$.privateStringVal: {}", meta.getProperty(bean, "privateStringVal"));
+		Object[] args3 = new Object[]{meta.getProperty(bean, "privateStringVal")};
+		Consoles.log("$.privateStringVal: {}", args3);
 
 		meta.setProperty(bean, "publicStringVal", "test");
 		Assertions.assertEquals("test", meta.getProperty(bean, "publicStringVal"));
-		TestConsole.printx("$.publicStringVal: {}", meta.getProperty(bean, "publicStringVal"));
+		Object[] args2 = new Object[]{meta.getProperty(bean, "publicStringVal")};
+		Consoles.log("$.publicStringVal: {}", args2);
 
 		meta.setProperty(bean, "protectedStringVal", "test");
 		Assertions.assertNotEquals("test", meta.getProperty(bean, "protectedStringVal"));
-		TestConsole.printx("$.protectedStringVal: {}", meta.getProperty(bean, "protectedStringVal"));
+		Object[] args1 = new Object[]{meta.getProperty(bean, "protectedStringVal")};
+		Consoles.log("$.protectedStringVal: {}", args1);
 
 		meta.setProperty(bean, "defaultStringVal", "test");
 		Assertions.assertNotEquals("test", meta.getProperty(bean, "defaultStringVal"));
-		TestConsole.printx("$.defaultStringVal: {}", meta.getProperty(bean, "defaultStringVal"));
+		Object[] args = new Object[]{meta.getProperty(bean, "defaultStringVal")};
+		Consoles.log("$.defaultStringVal: {}", args);
 
 	}
 
@@ -45,19 +49,23 @@ public class MetaObjectTest {
 
 		meta.setProperty(bean, "privateStringVal", "test");
 		Assertions.assertEquals("test", meta.getProperty(bean, "privateStringVal"));
-		TestConsole.printx("$.privateStringVal: {}", meta.getProperty(bean, "privateStringVal"));
+		Object[] args3 = new Object[]{meta.getProperty(bean, "privateStringVal")};
+		Consoles.log("$.privateStringVal: {}", args3);
 
 		meta.setProperty(bean, "publicStringVal", "test");
 		Assertions.assertEquals("test", meta.getProperty(bean, "publicStringVal"));
-		TestConsole.printx("$.publicStringVal: {}", meta.getProperty(bean, "publicStringVal"));
+		Object[] args2 = new Object[]{meta.getProperty(bean, "publicStringVal")};
+		Consoles.log("$.publicStringVal: {}", args2);
 
 		meta.setProperty(bean, "protectedStringVal", "test");
 		Assertions.assertNotEquals("test", meta.getProperty(bean, "protectedStringVal"));
-		TestConsole.printx("$.protectedStringVal: {}", meta.getProperty(bean, "protectedStringVal"));
+		Object[] args1 = new Object[]{meta.getProperty(bean, "protectedStringVal")};
+		Consoles.log("$.protectedStringVal: {}", args1);
 
 		meta.setProperty(bean, "defaultStringVal", "test");
 		Assertions.assertNotEquals("test", meta.getProperty(bean, "defaultStringVal"));
-		TestConsole.printx("$.defaultStringVal: {}", meta.getProperty(bean, "defaultStringVal"));
+		Object[] args = new Object[]{meta.getProperty(bean, "defaultStringVal")};
+		Consoles.log("$.defaultStringVal: {}", args);
 
 	}
 }

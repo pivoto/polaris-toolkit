@@ -3,7 +3,7 @@ package io.polaris.core.time;
 import java.util.Calendar;
 import java.util.function.Function;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +16,7 @@ public class CalendarsTest {
 				Calendars.parse(Dates.PATTERN_YYYY_MM_DD_HH_MM_SS_SSS
 					, "2021-02-01 12:34:56.789")
 				, Calendar.MONTH));
-		TestConsole.printx(result);
+		Consoles.log(result);
 		Assertions.assertEquals("2022-01-01 00:00:00.000", result);
 	}
 
@@ -27,7 +27,7 @@ public class CalendarsTest {
 				Calendars.parse(Dates.PATTERN_YYYY_MM_DD_HH_MM_SS_SSS
 					, "2021-02-01 12:34:56.789")
 				, Calendar.MONTH));
-		TestConsole.printx(result);
+		Consoles.log(result);
 		Assertions.assertEquals("2021-01-01 00:00:00.000", result);
 	}
 
@@ -38,7 +38,7 @@ public class CalendarsTest {
 				Calendars.parse(Dates.PATTERN_YYYY_MM_DD_HH_MM_SS_SSS
 					, "2021-07-01 12:34:56.789")
 				, Calendar.MONTH));
-		TestConsole.printx(result);
+		Consoles.log(result);
 		Assertions.assertEquals("2022-01-01 00:00:00.000", result);
 	}
 
@@ -49,7 +49,7 @@ public class CalendarsTest {
 				Calendars.parse(Dates.PATTERN_YYYY_MM_DD_HH_MM_SS_SSS
 					, "2021-06-01 12:34:56.789")
 				, Calendar.MONTH));
-		TestConsole.printx(result);
+		Consoles.log(result);
 		Assertions.assertEquals("2021-01-01 00:00:00.000", result);
 	}
 
@@ -61,7 +61,7 @@ public class CalendarsTest {
 				Calendars.parse(Dates.PATTERN_YYYY_MM_DD_HH_MM_SS_SSS
 					, "2021-02-15 12:34:56.789")
 				, Calendar.DAY_OF_MONTH));
-		TestConsole.printx(result);
+		Consoles.log(result);
 		Assertions.assertEquals("2021-03-01 00:00:00.000", result);
 	}
 
@@ -73,7 +73,7 @@ public class CalendarsTest {
 				Calendars.parse(Dates.PATTERN_YYYY_MM_DD_HH_MM_SS_SSS
 					, "2021-02-15 12:34:56.789")
 				, Calendar.DAY_OF_MONTH));
-		TestConsole.printx(result);
+		Consoles.log(result);
 		Assertions.assertEquals("2021-02-01 00:00:00.000", result);
 	}
 
@@ -84,7 +84,7 @@ public class CalendarsTest {
 				Calendars.parse(Dates.PATTERN_YYYY_MM_DD_HH_MM_SS_SSS
 					, "2021-02-13 12:34:56.789")
 				, Calendar.DAY_OF_MONTH));
-		TestConsole.printx(result);
+		Consoles.log(result);
 		Assertions.assertEquals("2021-02-01 00:00:00.000", result);
 	}
 
@@ -95,7 +95,7 @@ public class CalendarsTest {
 				Calendars.parse(Dates.PATTERN_YYYY_MM_DD_HH_MM_SS_SSS
 					, "2021-02-14 12:34:56.789")
 				, Calendar.DAY_OF_MONTH));
-		TestConsole.printx(result);
+		Consoles.log(result);
 		Assertions.assertEquals("2021-02-01 00:00:00.000", result);
 	}
 
@@ -106,7 +106,7 @@ public class CalendarsTest {
 				Calendars.parse(Dates.PATTERN_YYYY_MM_DD_HH_MM_SS_SSS
 					, "2021-01-15 12:34:56.789")
 				, Calendar.DAY_OF_MONTH));
-		TestConsole.printx(result);
+		Consoles.log(result);
 		Assertions.assertEquals("2021-01-01 00:00:00.000", result);
 	}
 
@@ -117,7 +117,7 @@ public class CalendarsTest {
 				Calendars.parse(Dates.PATTERN_YYYY_MM_DD_HH_MM_SS_SSS
 					, "2021-01-16 12:34:56.789")
 				, Calendar.DAY_OF_MONTH));
-		TestConsole.printx(result);
+		Consoles.log(result);
 		Assertions.assertEquals("2021-02-01 00:00:00.000", result);
 	}
 
@@ -128,7 +128,7 @@ public class CalendarsTest {
 				Calendars.parse(Dates.PATTERN_YYYY_MM_DD_HH_MM_SS_SSS
 					, "2021-04-15 12:34:56.789")
 				, Calendar.DAY_OF_MONTH));
-		TestConsole.printx(result);
+		Consoles.log(result);
 		Assertions.assertEquals("2021-04-01 00:00:00.000", result);
 	}
 
@@ -139,7 +139,7 @@ public class CalendarsTest {
 				Calendars.parse(Dates.PATTERN_YYYY_MM_DD_HH_MM_SS_SSS
 					, "2021-04-16 12:34:56.789")
 				, Calendar.DAY_OF_MONTH));
-		TestConsole.printx(result);
+		Consoles.log(result);
 		Assertions.assertEquals("2021-05-01 00:00:00.000", result);
 	}
 
@@ -154,20 +154,26 @@ public class CalendarsTest {
 
 		{
 			String o = "2021-02-15 11:34:56.789";
-			TestConsole.printx("origin: {} | ceil:  {}", o, format.apply(ceil.apply(o)));
+			Object[] args2 = new Object[]{o, format.apply(ceil.apply(o))};
+			Consoles.log("origin: {} | ceil:  {}", args2);
 			Assertions.assertEquals("2021-02-16 00:00:00.000", format.apply(ceil.apply(o)));
-			TestConsole.printx("origin: {} | floor: {}", o, format.apply(floor.apply(o)));
+			Object[] args1 = new Object[]{o, format.apply(floor.apply(o))};
+			Consoles.log("origin: {} | floor: {}", args1);
 			Assertions.assertEquals("2021-02-15 00:00:00.000", format.apply(floor.apply(o)));
-			TestConsole.printx("origin: {} | round: {}", o, format.apply(round.apply(o)));
+			Object[] args = new Object[]{o, format.apply(round.apply(o))};
+			Consoles.log("origin: {} | round: {}", args);
 			Assertions.assertEquals("2021-02-15 00:00:00.000", format.apply(round.apply(o)));
 		}
 		{
 			String o = "2021-02-15 12:34:56.789";
-			TestConsole.printx("origin: {} | ceil:  {}", o, format.apply(ceil.apply(o)));
+			Object[] args2 = new Object[]{o, format.apply(ceil.apply(o))};
+			Consoles.log("origin: {} | ceil:  {}", args2);
 			Assertions.assertEquals("2021-02-16 00:00:00.000", format.apply(ceil.apply(o)));
-			TestConsole.printx("origin: {} | floor: {}", o, format.apply(floor.apply(o)));
+			Object[] args1 = new Object[]{o, format.apply(floor.apply(o))};
+			Consoles.log("origin: {} | floor: {}", args1);
 			Assertions.assertEquals("2021-02-15 00:00:00.000", format.apply(floor.apply(o)));
-			TestConsole.printx("origin: {} | round: {}", o, format.apply(round.apply(o)));
+			Object[] args = new Object[]{o, format.apply(round.apply(o))};
+			Consoles.log("origin: {} | round: {}", args);
 			Assertions.assertEquals("2021-02-16 00:00:00.000", format.apply(round.apply(o)));
 		}
 
@@ -183,49 +189,64 @@ public class CalendarsTest {
 
 		{
 			String o = "2021-02-15 05:34:56.789";
-			TestConsole.printx("origin: {} | ceil:  {}", o, format.apply(ceil.apply(o)));
+			Object[] args2 = new Object[]{o, format.apply(ceil.apply(o))};
+			Consoles.log("origin: {} | ceil:  {}", args2);
 			Assertions.assertEquals("2021-02-15 12:00:00.000", format.apply(ceil.apply(o)));
-			TestConsole.printx("origin: {} | floor: {}", o, format.apply(floor.apply(o)));
+			Object[] args1 = new Object[]{o, format.apply(floor.apply(o))};
+			Consoles.log("origin: {} | floor: {}", args1);
 			Assertions.assertEquals("2021-02-15 00:00:00.000", format.apply(floor.apply(o)));
-			TestConsole.printx("origin: {} | round: {}", o, format.apply(round.apply(o)));
+			Object[] args = new Object[]{o, format.apply(round.apply(o))};
+			Consoles.log("origin: {} | round: {}", args);
 			Assertions.assertEquals("2021-02-15 00:00:00.000", format.apply(round.apply(o)));
 		}
 		{
 			String o = "2021-02-15 06:34:56.789";
-			TestConsole.printx("origin: {} | ceil:  {}", o, format.apply(ceil.apply(o)));
+			Object[] args2 = new Object[]{o, format.apply(ceil.apply(o))};
+			Consoles.log("origin: {} | ceil:  {}", args2);
 			Assertions.assertEquals("2021-02-15 12:00:00.000", format.apply(ceil.apply(o)));
-			TestConsole.printx("origin: {} | floor: {}", o, format.apply(floor.apply(o)));
+			Object[] args1 = new Object[]{o, format.apply(floor.apply(o))};
+			Consoles.log("origin: {} | floor: {}", args1);
 			Assertions.assertEquals("2021-02-15 00:00:00.000", format.apply(floor.apply(o)));
-			TestConsole.printx("origin: {} | round: {}", o, format.apply(round.apply(o)));
+			Object[] args = new Object[]{o, format.apply(round.apply(o))};
+			Consoles.log("origin: {} | round: {}", args);
 			Assertions.assertEquals("2021-02-15 12:00:00.000", format.apply(round.apply(o)));
 		}
 
 		{
 			String o = "2021-02-15 12:34:56.789";
-			TestConsole.printx("origin: {} | ceil:  {}", o, format.apply(ceil.apply(o)));
+			Object[] args2 = new Object[]{o, format.apply(ceil.apply(o))};
+			Consoles.log("origin: {} | ceil:  {}", args2);
 			Assertions.assertEquals("2021-02-16 00:00:00.000", format.apply(ceil.apply(o)));
-			TestConsole.printx("origin: {} | floor: {}", o, format.apply(floor.apply(o)));
+			Object[] args1 = new Object[]{o, format.apply(floor.apply(o))};
+			Consoles.log("origin: {} | floor: {}", args1);
 			Assertions.assertEquals("2021-02-15 12:00:00.000", format.apply(floor.apply(o)));
-			TestConsole.printx("origin: {} | round: {}", o, format.apply(round.apply(o)));
+			Object[] args = new Object[]{o, format.apply(round.apply(o))};
+			Consoles.log("origin: {} | round: {}", args);
 			Assertions.assertEquals("2021-02-15 12:00:00.000", format.apply(round.apply(o)));
 		}
 
 		{
 			String o = "2021-02-15 17:34:56.789";
-			TestConsole.printx("origin: {} | ceil:  {}", o, format.apply(ceil.apply(o)));
+			Object[] args2 = new Object[]{o, format.apply(ceil.apply(o))};
+			Consoles.log("origin: {} | ceil:  {}", args2);
 			Assertions.assertEquals("2021-02-16 00:00:00.000", format.apply(ceil.apply(o)));
-			TestConsole.printx("origin: {} | floor: {}", o, format.apply(floor.apply(o)));
+			Object[] args1 = new Object[]{o, format.apply(floor.apply(o))};
+			Consoles.log("origin: {} | floor: {}", args1);
 			Assertions.assertEquals("2021-02-15 12:00:00.000", format.apply(floor.apply(o)));
-			TestConsole.printx("origin: {} | round: {}", o, format.apply(round.apply(o)));
+			Object[] args = new Object[]{o, format.apply(round.apply(o))};
+			Consoles.log("origin: {} | round: {}", args);
 			Assertions.assertEquals("2021-02-15 12:00:00.000", format.apply(round.apply(o)));
 		}
 		{
 			String o = "2021-02-15 18:34:56.789";
-			TestConsole.printx("origin: {} | ceil:  {}", o, format.apply(ceil.apply(o)));
+			Object[] args2 = new Object[]{o, format.apply(ceil.apply(o))};
+			Consoles.log("origin: {} | ceil:  {}", args2);
 			Assertions.assertEquals("2021-02-16 00:00:00.000", format.apply(ceil.apply(o)));
-			TestConsole.printx("origin: {} | floor: {}", o, format.apply(floor.apply(o)));
+			Object[] args1 = new Object[]{o, format.apply(floor.apply(o))};
+			Consoles.log("origin: {} | floor: {}", args1);
 			Assertions.assertEquals("2021-02-15 12:00:00.000", format.apply(floor.apply(o)));
-			TestConsole.printx("origin: {} | round: {}", o, format.apply(round.apply(o)));
+			Object[] args = new Object[]{o, format.apply(round.apply(o))};
+			Consoles.log("origin: {} | round: {}", args);
 			Assertions.assertEquals("2021-02-16 00:00:00.000", format.apply(round.apply(o)));
 		}
 
@@ -242,20 +263,26 @@ public class CalendarsTest {
 
 		{
 			String o = "2021-02-15 11:29:56.789";
-			TestConsole.printx("origin: {} | ceil:  {}", o, format.apply(ceil.apply(o)));
+			Object[] args2 = new Object[]{o, format.apply(ceil.apply(o))};
+			Consoles.log("origin: {} | ceil:  {}", args2);
 			Assertions.assertEquals("2021-02-15 12:00:00.000", format.apply(ceil.apply(o)));
-			TestConsole.printx("origin: {} | floor: {}", o, format.apply(floor.apply(o)));
+			Object[] args1 = new Object[]{o, format.apply(floor.apply(o))};
+			Consoles.log("origin: {} | floor: {}", args1);
 			Assertions.assertEquals("2021-02-15 11:00:00.000", format.apply(floor.apply(o)));
-			TestConsole.printx("origin: {} | round: {}", o, format.apply(round.apply(o)));
+			Object[] args = new Object[]{o, format.apply(round.apply(o))};
+			Consoles.log("origin: {} | round: {}", args);
 			Assertions.assertEquals("2021-02-15 11:00:00.000", format.apply(round.apply(o)));
 		}
 		{
 			String o = "2021-02-15 11:30:56.789";
-			TestConsole.printx("origin: {} | ceil:  {}", o, format.apply(ceil.apply(o)));
+			Object[] args2 = new Object[]{o, format.apply(ceil.apply(o))};
+			Consoles.log("origin: {} | ceil:  {}", args2);
 			Assertions.assertEquals("2021-02-15 12:00:00.000", format.apply(ceil.apply(o)));
-			TestConsole.printx("origin: {} | floor: {}", o, format.apply(floor.apply(o)));
+			Object[] args1 = new Object[]{o, format.apply(floor.apply(o))};
+			Consoles.log("origin: {} | floor: {}", args1);
 			Assertions.assertEquals("2021-02-15 11:00:00.000", format.apply(floor.apply(o)));
-			TestConsole.printx("origin: {} | round: {}", o, format.apply(round.apply(o)));
+			Object[] args = new Object[]{o, format.apply(round.apply(o))};
+			Consoles.log("origin: {} | round: {}", args);
 			Assertions.assertEquals("2021-02-15 12:00:00.000", format.apply(round.apply(o)));
 		}
 	}
@@ -270,29 +297,38 @@ public class CalendarsTest {
 
 		{
 			String o = "2021-02-15 11:29:29.789";
-			TestConsole.printx("origin: {} | ceil:  {}", o, format.apply(ceil.apply(o)));
+			Object[] args2 = new Object[]{o, format.apply(ceil.apply(o))};
+			Consoles.log("origin: {} | ceil:  {}", args2);
 			Assertions.assertEquals("2021-02-15 11:30:00.000", format.apply(ceil.apply(o)));
-			TestConsole.printx("origin: {} | floor: {}", o, format.apply(floor.apply(o)));
+			Object[] args1 = new Object[]{o, format.apply(floor.apply(o))};
+			Consoles.log("origin: {} | floor: {}", args1);
 			Assertions.assertEquals("2021-02-15 11:29:00.000", format.apply(floor.apply(o)));
-			TestConsole.printx("origin: {} | round: {}", o, format.apply(round.apply(o)));
+			Object[] args = new Object[]{o, format.apply(round.apply(o))};
+			Consoles.log("origin: {} | round: {}", args);
 			Assertions.assertEquals("2021-02-15 11:29:00.000", format.apply(round.apply(o)));
 		}
 		{
 			String o = "2021-02-15 11:29:30.789";
-			TestConsole.printx("origin: {} | ceil:  {}", o, format.apply(ceil.apply(o)));
+			Object[] args2 = new Object[]{o, format.apply(ceil.apply(o))};
+			Consoles.log("origin: {} | ceil:  {}", args2);
 			Assertions.assertEquals("2021-02-15 11:30:00.000", format.apply(ceil.apply(o)));
-			TestConsole.printx("origin: {} | floor: {}", o, format.apply(floor.apply(o)));
+			Object[] args1 = new Object[]{o, format.apply(floor.apply(o))};
+			Consoles.log("origin: {} | floor: {}", args1);
 			Assertions.assertEquals("2021-02-15 11:29:00.000", format.apply(floor.apply(o)));
-			TestConsole.printx("origin: {} | round: {}", o, format.apply(round.apply(o)));
+			Object[] args = new Object[]{o, format.apply(round.apply(o))};
+			Consoles.log("origin: {} | round: {}", args);
 			Assertions.assertEquals("2021-02-15 11:30:00.000", format.apply(round.apply(o)));
 		}
 		{
 			String o = "2021-02-15 11:59:30.789";
-			TestConsole.printx("origin: {} | ceil:  {}", o, format.apply(ceil.apply(o)));
+			Object[] args2 = new Object[]{o, format.apply(ceil.apply(o))};
+			Consoles.log("origin: {} | ceil:  {}", args2);
 			Assertions.assertEquals("2021-02-15 12:00:00.000", format.apply(ceil.apply(o)));
-			TestConsole.printx("origin: {} | floor: {}", o, format.apply(floor.apply(o)));
+			Object[] args1 = new Object[]{o, format.apply(floor.apply(o))};
+			Consoles.log("origin: {} | floor: {}", args1);
 			Assertions.assertEquals("2021-02-15 11:59:00.000", format.apply(floor.apply(o)));
-			TestConsole.printx("origin: {} | round: {}", o, format.apply(round.apply(o)));
+			Object[] args = new Object[]{o, format.apply(round.apply(o))};
+			Consoles.log("origin: {} | round: {}", args);
 			Assertions.assertEquals("2021-02-15 12:00:00.000", format.apply(round.apply(o)));
 		}
 	}

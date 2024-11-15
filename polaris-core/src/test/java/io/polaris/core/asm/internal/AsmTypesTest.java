@@ -2,40 +2,41 @@ package io.polaris.core.asm.internal;
 
 import java.util.Map;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.lang.JavaType;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.objectweb.asm.Type;
-
-import static org.mockito.Mockito.*;
 
 class AsmTypesTest {
 
 
 	@Test
 	void test_toTypeSignature() throws ClassNotFoundException {
-		TestConsole.printx(AsmTypes.toTypeSignature(Map.class));
-		TestConsole.printx(AsmTypes.toTypeSignature(JavaType.of("java.util.Map<String,String>")));
+		String msg1 = AsmTypes.toTypeSignature(Map.class);
+		Consoles.log(msg1);
+		String msg = AsmTypes.toTypeSignature(JavaType.of("java.util.Map<String,String>"));
+		Consoles.log(msg);
 	}
 
 	@Test
 	void test_getType() {
-		TestConsole.printx(Type.getType(Object[][].class));
-		TestConsole.printx(Type.getType(String[][].class));
+		Object[] args1 = new Object[]{Type.getType(Object[][].class)};
+		Consoles.log("", args1);
+		Object[] args = new Object[]{Type.getType(String[][].class)};
+		Consoles.log("", args);
 		Type result = AsmTypes.getType(String.class.getName());
-		TestConsole.printx(result);
+		Consoles.log("", result);
 		Assertions.assertEquals(Type.getType(String.class), result);
 	}
 	@Test
 	void test_getClassName() throws ClassNotFoundException {
-		TestConsole.printx(AsmTypes.getClassName(Type.getType(String.class)));
-		TestConsole.printx(AsmTypes.getClassName(Type.getType(String[].class)));
-		TestConsole.printx(AsmTypes.getClassName(Type.getType(String[][].class)));
+		String msg2 = AsmTypes.getClassName(Type.getType(String.class));
+		Consoles.log(msg2);
+		String msg1 = AsmTypes.getClassName(Type.getType(String[].class));
+		Consoles.log(msg1);
+		String msg = AsmTypes.getClassName(Type.getType(String[][].class));
+		Consoles.log(msg);
 	}
 
 }

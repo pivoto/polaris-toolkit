@@ -4,9 +4,8 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.junit.Fast;
 import io.polaris.core.lang.annotation.Annotations;
 import io.polaris.core.reflect.Reflects;
@@ -24,18 +23,23 @@ class StringsTest {
 		Assertions.assertEquals(Strings.trim("    abc   "), "abc");
 
 		String methodName = Reflects.getPropertyName(StringsTest::test01);
-		TestConsole.println("methodName: {}", methodName);
+		Consoles.println("methodName: {}", methodName);
 		Method method = Reflects.getMethodByName(getClass(), methodName);
-		TestConsole.println(Arrays.toString(method.getAnnotationsByType(Tag.class)));
-		TestConsole.println(Arrays.toString(Annotations.getRepeatableAnnotation(method, Tag.class)));
-		TestConsole.println(Annotations.getMergedRepeatableAnnotation(method, Tag.class));
+		String msg1 = Arrays.toString(method.getAnnotationsByType(Tag.class));
+		Consoles.println(msg1);
+		String msg = Arrays.toString(Annotations.getRepeatableAnnotation(method, Tag.class));
+		Consoles.println(msg);
+		Object[] args = new Object[]{Annotations.getMergedRepeatableAnnotation(method, Tag.class)};
+		Consoles.println(args);
 		;
 	}
 
 	@Test
 	void test02() {
-		TestConsole.println(Strings.trimStart("xxxabcxxx", 'x'));
-		TestConsole.println(Strings.trimEnd("xxxabcxxx", 'x'));
+		String msg1 = Strings.trimStart("xxxabcxxx", 'x');
+		Consoles.println(msg1);
+		String msg = Strings.trimEnd("xxxabcxxx", 'x');
+		Consoles.println(msg);
 		Assertions.assertEquals(Strings.trimStart("xxxabcxxx", 'x'), "abcxxx");
 		Assertions.assertEquals(Strings.trimEnd("xxxabcxxx", 'x'), "xxxabc");
 		Assertions.assertEquals(Strings.trim("xxxabcxxx", 'x'), "abc");
@@ -47,9 +51,12 @@ class StringsTest {
 		Map<String, String> map = new HashMap<>();
 		map.put("ctx.aaa", "aaa123");
 		map.put("ctx.bbb", "bbb123");
-		TestConsole.println(Strings.resolvePlaceholders("aaa ${ctx.aaa:/}", map::get));
-		TestConsole.println(Strings.resolvePlaceholders("aaa ${ctx.ccc:${ctx.bbb:/}}", map::get));
-		TestConsole.println(Strings.resolvePlaceholders("aaa ${ctx.ccc:${ctx.ddd:/}}", map::get));
+		String msg2 = Strings.resolvePlaceholders("aaa ${ctx.aaa:/}", map::get);
+		Consoles.println(msg2);
+		String msg1 = Strings.resolvePlaceholders("aaa ${ctx.ccc:${ctx.bbb:/}}", map::get);
+		Consoles.println(msg1);
+		String msg = Strings.resolvePlaceholders("aaa ${ctx.ccc:${ctx.ddd:/}}", map::get);
+		Consoles.println(msg);
 		Assertions.assertEquals("aaa aaa123", Strings.resolvePlaceholders("aaa ${ctx.aaa:/}", map::get));
 		Assertions.assertEquals("aaa bbb123", Strings.resolvePlaceholders("aaa ${ctx.ccc:${ctx.bbb:/}}", map::get));
 		Assertions.assertEquals("aaa /", Strings.resolvePlaceholders("aaa ${ctx.ccc:${ctx.ddd:/}}", map::get));
@@ -57,9 +64,12 @@ class StringsTest {
 
 	@Test
 	void test04() {
-		TestConsole.println(Arrays.toString(Strings.tokenizeToArray("aaa,bbb,ccc", ",")));
-		TestConsole.println(Arrays.toString(Strings.tokenizeToArray("aaa,;bbb,ccc", ",;")));
-		TestConsole.println(Arrays.toString(Strings.delimitedToArray("aaa,;bbb,ccc", ",;")));
+		String msg2 = Arrays.toString(Strings.tokenizeToArray("aaa,bbb,ccc", ","));
+		Consoles.println(msg2);
+		String msg1 = Arrays.toString(Strings.tokenizeToArray("aaa,;bbb,ccc", ",;"));
+		Consoles.println(msg1);
+		String msg = Arrays.toString(Strings.delimitedToArray("aaa,;bbb,ccc", ",;"));
+		Consoles.println(msg);
 		Assertions.assertEquals(3, Strings.tokenizeToArray("aaa,bbb,ccc", ",").length);
 		Assertions.assertEquals(3, Strings.tokenizeToArray("aaa,;bbb,ccc", ",;").length);
 		Assertions.assertEquals(2, Strings.delimitedToArray("aaa,;bbb,ccc", ",;").length);
@@ -67,9 +77,12 @@ class StringsTest {
 
 	@Test
 	void test05() {
-		TestConsole.println(Arrays.toString(Strings.tokenizeToArray("aaa|bbb||ccc", "|")));
-		TestConsole.println(Arrays.toString(Strings.tokenizeToArray("aaa,|bbb||ccc", ",|")));
-		TestConsole.println(Arrays.toString(Strings.delimitedToArray("aaa,|bbb||ccc", ",|")));
+		String msg2 = Arrays.toString(Strings.tokenizeToArray("aaa|bbb||ccc", "|"));
+		Consoles.println(msg2);
+		String msg1 = Arrays.toString(Strings.tokenizeToArray("aaa,|bbb||ccc", ",|"));
+		Consoles.println(msg1);
+		String msg = Arrays.toString(Strings.delimitedToArray("aaa,|bbb||ccc", ",|"));
+		Consoles.println(msg);
 		Assertions.assertEquals(3, Strings.tokenizeToArray("aaa|bbb||ccc", "|").length);
 		Assertions.assertEquals(3, Strings.tokenizeToArray("aaa,|bbb||ccc", ",|").length);
 		Assertions.assertEquals(2, Strings.delimitedToArray("aaa,|bbb||ccc", ",|").length);
@@ -80,12 +93,17 @@ class StringsTest {
 		Map<String, String> map = new HashMap<>();
 		map.put("ctx.aaa", "aaa123");
 		map.put("ctx.bbb", "bbb123");
-		TestConsole.println(Strings.resolvePlaceholders("aaa ${ctx.ccc:${ctx.ddd:${eee}}}", map::get));
-		TestConsole.println(Strings.resolvePlaceholders("aaa ${ctx.ccc:${ctx.ddd:${eee:-xx}}}", map::get));
-		TestConsole.println(Strings.resolvePlaceholders("aaa ${ctx.ccc:${ctx.ddd:${eee:xx}}}", map::get));
+		String msg4 = Strings.resolvePlaceholders("aaa ${ctx.ccc:${ctx.ddd:${eee}}}", map::get);
+		Consoles.println(msg4);
+		String msg3 = Strings.resolvePlaceholders("aaa ${ctx.ccc:${ctx.ddd:${eee:-xx}}}", map::get);
+		Consoles.println(msg3);
+		String msg2 = Strings.resolvePlaceholders("aaa ${ctx.ccc:${ctx.ddd:${eee:xx}}}", map::get);
+		Consoles.println(msg2);
 		map.put("eee", "");
-		TestConsole.println(Strings.resolvePlaceholders("aaa ${ctx.ccc:${ctx.ddd:${eee:-xx}}}", map::get));
-		TestConsole.println(Strings.resolvePlaceholders("aaa ${ctx.ccc:${ctx.ddd:${eee:xx}}}", map::get));
+		String msg1 = Strings.resolvePlaceholders("aaa ${ctx.ccc:${ctx.ddd:${eee:-xx}}}", map::get);
+		Consoles.println(msg1);
+		String msg = Strings.resolvePlaceholders("aaa ${ctx.ccc:${ctx.ddd:${eee:xx}}}", map::get);
+		Consoles.println(msg);
 	}
 
 }

@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.time.Dates;
 import io.polaris.core.json.Jsons;
 import io.polaris.core.reflect.Reflects;
@@ -125,28 +125,33 @@ public class BenchmarkMetaObjectTest {
 
 		meta.setProperty(bean, "privateStringVal", "test");
 		Assertions.assertEquals("test", meta.getProperty(bean, "privateStringVal"));
-		TestConsole.printx("$.privateStringVal: {}", meta.getProperty(bean, "privateStringVal"));
+		Object[] args7 = new Object[]{meta.getProperty(bean, "privateStringVal")};
+		Consoles.log("$.privateStringVal: {}", args7);
 
 		meta.setProperty(bean, "publicStringVal", "test");
 		Assertions.assertEquals("test", meta.getProperty(bean, "publicStringVal"));
-		TestConsole.printx("$.publicStringVal: {}", meta.getProperty(bean, "publicStringVal"));
+		Object[] args6 = new Object[]{meta.getProperty(bean, "publicStringVal")};
+		Consoles.log("$.publicStringVal: {}", args6);
 
 //		meta.setProperty(bean, "privateIntVal", "test"); //error
 //		Assertions.assertEquals(0, meta.getProperty(bean, "privateIntVal"));
 		meta.setProperty(bean, "privateIntVal", "123");
 		Assertions.assertEquals(123, meta.getProperty(bean, "privateIntVal"));
-		TestConsole.printx("$.privateIntVal: {}", meta.getProperty(bean, "privateIntVal"));
+		Object[] args5 = new Object[]{meta.getProperty(bean, "privateIntVal")};
+		Consoles.log("$.privateIntVal: {}", args5);
 
 
 		meta.setPathProperty(bean, "privateMetaObjectTestBeanVal", new MetaObjectTestBean());
 		meta.setPathProperty(bean, "privateMetaObjectTestBeanVal.publicStringVal", "test");
 		Assertions.assertEquals("test", meta.getPathProperty(bean, "privateMetaObjectTestBeanVal.publicStringVal"));
-		TestConsole.printx("$.privateMetaObjectTestBeanVal.publicStringVal: {}", meta.getPathProperty(bean, "privateMetaObjectTestBeanVal.publicStringVal"));
+		Object[] args4 = new Object[]{meta.getPathProperty(bean, "privateMetaObjectTestBeanVal.publicStringVal")};
+		Consoles.log("$.privateMetaObjectTestBeanVal.publicStringVal: {}", args4);
 
 		meta.setPathProperty(bean, "publicMetaObjectTestBeanVal", new MetaObjectTestBean());
 		meta.setPathProperty(bean, "publicMetaObjectTestBeanVal.publicStringVal", "test");
 		Assertions.assertEquals("test", meta.getPathProperty(bean, "publicMetaObjectTestBeanVal.publicStringVal"));
-		TestConsole.printx("$.publicMetaObjectTestBeanVal.publicStringVal: {}", meta.getPathProperty(bean, "publicMetaObjectTestBeanVal.publicStringVal"));
+		Object[] args3 = new Object[]{meta.getPathProperty(bean, "publicMetaObjectTestBeanVal.publicStringVal")};
+		Consoles.log("$.publicMetaObjectTestBeanVal.publicStringVal: {}", args3);
 
 
 		meta.setPathProperty(bean, "privateList.1", new MetaObjectTestBean());
@@ -154,7 +159,8 @@ public class BenchmarkMetaObjectTest {
 		Assertions.assertNull(meta.getPathProperty(bean, "privateList.1.publicStringVal"));
 		meta.setPathProperty(bean, "privateList.1.publicStringVal", "test");
 		Assertions.assertEquals("test", meta.getPathProperty(bean, "privateList.1.publicStringVal"));
-		TestConsole.printx("$.privateList.1.publicStringVal: {}", meta.getPathProperty(bean, "privateList.1.publicStringVal"));
+		Object[] args2 = new Object[]{meta.getPathProperty(bean, "privateList.1.publicStringVal")};
+		Consoles.log("$.privateList.1.publicStringVal: {}", args2);
 
 
 		meta.setPathProperty(bean, "privateMap.1", new MetaObjectTestBean());
@@ -162,9 +168,11 @@ public class BenchmarkMetaObjectTest {
 		Assertions.assertNull(meta.getPathProperty(bean, "privateMap.1.publicStringVal"));
 		meta.setPathProperty(bean, "privateMap.1.publicStringVal", "test");
 		Assertions.assertEquals("test", meta.getPathProperty(bean, "privateMap.1.publicStringVal"));
-		TestConsole.printx("$.privateMap.1.publicStringVal: {}", meta.getPathProperty(bean, "privateMap.1.publicStringVal"));
+		Object[] args1 = new Object[]{meta.getPathProperty(bean, "privateMap.1.publicStringVal")};
+		Consoles.log("$.privateMap.1.publicStringVal: {}", args1);
 
-		TestConsole.printx("bean: {}", Jsons.serialize(bean));
+		Object[] args = new Object[]{Jsons.serialize(bean)};
+		Consoles.log("bean: {}", args);
 	}
 
 	@Test
@@ -174,28 +182,33 @@ public class BenchmarkMetaObjectTest {
 
 		meta.setProperty(bean, "privateStringVal", "test");
 		Assertions.assertEquals("test", meta.getProperty(bean, "privateStringVal"));
-		TestConsole.printx("$.privateStringVal: {}", meta.getProperty(bean, "privateStringVal"));
+		Object[] args7 = new Object[]{meta.getProperty(bean, "privateStringVal")};
+		Consoles.log("$.privateStringVal: {}", args7);
 
 		meta.setProperty(bean, "publicStringVal", "test");
 		Assertions.assertEquals("test", meta.getProperty(bean, "publicStringVal"));
-		TestConsole.printx("$.publicStringVal: {}", meta.getProperty(bean, "publicStringVal"));
+		Object[] args6 = new Object[]{meta.getProperty(bean, "publicStringVal")};
+		Consoles.log("$.publicStringVal: {}", args6);
 
 //		meta.setProperty(bean, "privateIntVal", "test"); //error
 //		Assertions.assertEquals(0, meta.getProperty(bean, "privateIntVal"));
 		meta.setProperty(bean, "privateIntVal", "123");
 		Assertions.assertEquals(123, meta.getProperty(bean, "privateIntVal"));
-		TestConsole.printx("$.privateIntVal: {}", meta.getProperty(bean, "privateIntVal"));
+		Object[] args5 = new Object[]{meta.getProperty(bean, "privateIntVal")};
+		Consoles.log("$.privateIntVal: {}", args5);
 
 
 		meta.setPathProperty(bean, "privateMetaObjectTestBeanVal", new MetaObjectTestBean());
 		meta.setPathProperty(bean, "privateMetaObjectTestBeanVal.publicStringVal", "test");
 		Assertions.assertEquals("test", meta.getPathProperty(bean, "privateMetaObjectTestBeanVal.publicStringVal"));
-		TestConsole.printx("$.privateMetaObjectTestBeanVal.publicStringVal: {}", meta.getPathProperty(bean, "privateMetaObjectTestBeanVal.publicStringVal"));
+		Object[] args4 = new Object[]{meta.getPathProperty(bean, "privateMetaObjectTestBeanVal.publicStringVal")};
+		Consoles.log("$.privateMetaObjectTestBeanVal.publicStringVal: {}", args4);
 
 		meta.setPathProperty(bean, "publicMetaObjectTestBeanVal", new MetaObjectTestBean());
 		meta.setPathProperty(bean, "publicMetaObjectTestBeanVal.publicStringVal", "test");
 		Assertions.assertEquals("test", meta.getPathProperty(bean, "publicMetaObjectTestBeanVal.publicStringVal"));
-		TestConsole.printx("$.publicMetaObjectTestBeanVal.publicStringVal: {}", meta.getPathProperty(bean, "publicMetaObjectTestBeanVal.publicStringVal"));
+		Object[] args3 = new Object[]{meta.getPathProperty(bean, "publicMetaObjectTestBeanVal.publicStringVal")};
+		Consoles.log("$.publicMetaObjectTestBeanVal.publicStringVal: {}", args3);
 
 
 		meta.setPathProperty(bean, "privateList.1", new MetaObjectTestBean());
@@ -203,7 +216,8 @@ public class BenchmarkMetaObjectTest {
 		Assertions.assertNull(meta.getPathProperty(bean, "privateList.1.publicStringVal"));
 		meta.setPathProperty(bean, "privateList.1.publicStringVal", "test");
 		Assertions.assertEquals("test", meta.getPathProperty(bean, "privateList.1.publicStringVal"));
-		TestConsole.printx("$.privateList.1.publicStringVal: {}", meta.getPathProperty(bean, "privateList.1.publicStringVal"));
+		Object[] args2 = new Object[]{meta.getPathProperty(bean, "privateList.1.publicStringVal")};
+		Consoles.log("$.privateList.1.publicStringVal: {}", args2);
 
 
 		meta.setPathProperty(bean, "privateMap.1", new MetaObjectTestBean());
@@ -211,9 +225,11 @@ public class BenchmarkMetaObjectTest {
 		Assertions.assertNull(meta.getPathProperty(bean, "privateMap.1.publicStringVal"));
 		meta.setPathProperty(bean, "privateMap.1.publicStringVal", "test");
 		Assertions.assertEquals("test", meta.getPathProperty(bean, "privateMap.1.publicStringVal"));
-		TestConsole.printx("$.privateMap.1.publicStringVal: {}", meta.getPathProperty(bean, "privateMap.1.publicStringVal"));
+		Object[] args1 = new Object[]{meta.getPathProperty(bean, "privateMap.1.publicStringVal")};
+		Consoles.log("$.privateMap.1.publicStringVal: {}", args1);
 
-		TestConsole.printx("bean: {}", Jsons.serialize(bean));
+		Object[] args = new Object[]{Jsons.serialize(bean)};
+		Consoles.log("bean: {}", args);
 	}
 
 

@@ -6,8 +6,8 @@ import java.util.Map;
 
 import javax.xml.xpath.XPathConstants;
 
-import io.polaris.core.TestConsole;
 import io.polaris.core.collection.Iterables;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.map.FluentMap;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -43,7 +43,8 @@ class XmlTest {
 			+ "<successCounts>1</successCounts>"//
 			+ "</returnsms>";
 		Document docResult = Xml.parseXml(result);
-		TestConsole.println(Xml.toStr(docResult));
+		String msg = Xml.toStr(docResult);
+		Consoles.println(msg);
 	}
 
 	@Test
@@ -64,7 +65,8 @@ class XmlTest {
 		Document docResult = Xml.parseXml(result);
 		Object value = Xml.getByXPath("//returnsms/message", docResult, XPathConstants.STRING);
 		assertEquals("ok", value);
-		TestConsole.println(Xml.getByXPath("//returnsms/list/task[@id='test1']", docResult, XPathConstants.STRING));
+		Object[] args = new Object[]{Xml.getByXPath("//returnsms/list/task[@id='test1']", docResult, XPathConstants.STRING)};
+		Consoles.println(args);
 		Assertions.assertEquals("1", Xml.getByXPath("//returnsms/list/task[@id='test1']", docResult, XPathConstants.STRING));
 	}
 
@@ -80,7 +82,7 @@ class XmlTest {
 			+ "<newNode><sub>subText</sub></newNode>"//
 			+ "</returnsms>";
 		Map<String, Object> map = Xml.xmlToMap(xml);
-		TestConsole.println(map);
+		Consoles.println(map);
 		Assertions.assertEquals("ok", map.get("message"));
 		Assertions.assertEquals("1", map.get("successCounts"));
 		Assertions.assertInstanceOf(Map.class, map.get("newNode"));
@@ -95,7 +97,8 @@ class XmlTest {
 			.put("Town", Iterables.asList("town1", "town2"))
 			.get();
 		Document doc = Xml.mapToXml(map, "user");
-		TestConsole.println(Xml.toStr(doc, true));
+		String msg = Xml.toStr(doc, true);
+		Consoles.println(msg);
 	}
 
 

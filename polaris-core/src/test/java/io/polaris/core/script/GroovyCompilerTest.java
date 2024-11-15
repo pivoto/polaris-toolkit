@@ -1,6 +1,6 @@
 package io.polaris.core.script;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Test;
 
 import java.util.Random;
@@ -12,7 +12,8 @@ class GroovyCompilerTest {
 		Script s = GroovyCompiler.getInstance().compileScript(null,
 			"def a = new " + Random.class.getName() + "().nextInt(); \n" +
 				"return a;");
-		TestConsole.println(s.run(null));
+		Object[] args = new Object[]{s.run(null)};
+		Consoles.println(args);
 
 	}
 }

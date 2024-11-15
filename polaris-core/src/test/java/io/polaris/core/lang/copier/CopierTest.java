@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
@@ -37,8 +37,8 @@ class CopierTest {
 		Map<Object, Object> target = new HashMap<>();
 		Copiers.copy(source, target, CopyOptions.create());
 
-		TestConsole.println("source:" + source);
-		TestConsole.println("target:" + target);
+		Consoles.println("source:" + source);
+		Consoles.println("target:" + target);
 		Assertions.assertEquals(source, target);
 	}
 	@Test
@@ -57,8 +57,8 @@ class CopierTest {
 		Map<Object, Object> target = new HashMap<>();
 		Copiers.fastCopy(source, target, CopyOptions.create());
 
-		TestConsole.println("source:" + source);
-		TestConsole.println("target:" + target);
+		Consoles.println("source:" + source);
+		Consoles.println("target:" + target);
 		Assertions.assertEquals(source, target);
 	}
 
@@ -81,8 +81,8 @@ class CopierTest {
 		CopyOptions copyOptions2 = copyOptions1.enableUnderlineToCamelCase(true);
 		Copiers.copy(source, target, copyOptions2.enableCamelToUnderlineCase(true));
 
-		TestConsole.println("source:" + source);
-		TestConsole.println("target:" + target);
+		Consoles.println("source:" + source);
+		Consoles.println("target:" + target);
 
 		Assertions.assertEquals("val1", target.getKey1());
 		Assertions.assertEquals("val2", target.getKey2());
@@ -113,8 +113,8 @@ class CopierTest {
 		CopyOptions copyOptions2 = copyOptions1.enableUnderlineToCamelCase(true);
 		Copiers.fastCopy(source, target, copyOptions2.enableCamelToUnderlineCase(true));
 
-		TestConsole.println("source:" + source);
-		TestConsole.println("target:" + target);
+		Consoles.println("source:" + source);
+		Consoles.println("target:" + target);
 
 		Assertions.assertEquals("val1", target.getKey1());
 		Assertions.assertEquals("val2", target.getKey2());
@@ -146,8 +146,8 @@ class CopierTest {
 		CopyOptions copyOptions2 = copyOptions1.enableUnderlineToCamelCase(true);
 		Copiers.copy(source, target, copyOptions2.enableCamelToUnderlineCase(true));
 
-		TestConsole.println("source:" + source);
-		TestConsole.println("target:" + target);
+		Consoles.println("source:" + source);
+		Consoles.println("target:" + target);
 		Assertions.assertEquals("val1", target.get("key1"));
 		Assertions.assertEquals("val2", target.get("key2"));
 		Assertions.assertEquals(123L, target.get("key3"));
@@ -176,8 +176,8 @@ class CopierTest {
 		CopyOptions copyOptions2 = copyOptions1.enableUnderlineToCamelCase(true);
 		Copiers.fastCopy(source, target, copyOptions2.enableCamelToUnderlineCase(true));
 
-		TestConsole.println("source:" + source);
-		TestConsole.println("target:" + target);
+		Consoles.println("source:" + source);
+		Consoles.println("target:" + target);
 		Assertions.assertEquals("val1", target.get("key1"));
 		Assertions.assertEquals("val2", target.get("key2"));
 		Assertions.assertEquals(123L, target.get("key3"));
@@ -207,8 +207,8 @@ class CopierTest {
 		CopyOptions copyOptions2 = copyOptions1.enableUnderlineToCamelCase(true);
 		Copiers.copy(source, target, copyOptions2.enableCamelToUnderlineCase(true));
 
-		TestConsole.println("source:" + source);
-		TestConsole.println("target:" + target);
+		Consoles.println("source:" + source);
+		Consoles.println("target:" + target);
 		Assertions.assertEquals(source, target);
 	}
 
@@ -231,8 +231,8 @@ class CopierTest {
 		CopyOptions copyOptions2 = copyOptions1.enableUnderlineToCamelCase(true);
 		Copiers.fastCopy(source, target, copyOptions2.enableCamelToUnderlineCase(true));
 
-		TestConsole.println("source:" + source);
-		TestConsole.println("target:" + target);
+		Consoles.println("source:" + source);
+		Consoles.println("target:" + target);
 		Assertions.assertEquals(source, target);
 	}
 

@@ -1,6 +1,6 @@
 package io.polaris.core.jdbc.sql.statement;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.jdbc.entity.DemoEntity;
 import io.polaris.core.jdbc.entity.DemoEntityMeta;
 import io.polaris.core.jdbc.sql.query.Queries;
@@ -28,8 +28,9 @@ public class UpdateStatementTest {
 			.name("%123%")
 			.build()));
 
-		//TestConsole.println(s.toSqlNode().asPreparedSql());
-		TestConsole.println(s.toSqlNode().asBoundSql());
+		//Consoles.println(s.toSqlNode().asPreparedSql());
+		Object[] args = new Object[]{s.toSqlNode().asBoundSql()};
+		Consoles.println(args);
 	}
 
 }

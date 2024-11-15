@@ -5,11 +5,11 @@ import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.Security;
 
-import io.polaris.core.TestConsole;
 import io.polaris.core.crypto.Ciphers;
 import io.polaris.core.crypto.CryptoKeys;
 import io.polaris.core.crypto.IDecryptor;
 import io.polaris.core.crypto.IEncryptor;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.string.Strings;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -33,17 +33,18 @@ class AsymmetricTest {
 
 	private void testAsymmetric(AsymmetricAlgorithm algorithm) {
 		String data = "测试一下";
-		TestConsole.println(Strings.repeat('-', 80));
-		TestConsole.println("algorithm: {}", algorithm);
-		TestConsole.println("data: {}", data);
+		String msg = Strings.repeat('-', 80);
+		Consoles.println(msg);
+		Consoles.println("algorithm: {}", algorithm);
+		Consoles.println("data: {}", data);
 		KeyPair pair = CryptoKeys.generateKeyPair(algorithm.code());
 		IEncryptor encryptor = Ciphers.getEncryptor(algorithm.code(), pair.getPublic());
 		byte[] encrypted = encryptor.encrypt(data.getBytes(StandardCharsets.UTF_8));
-		TestConsole.println("encrypted: {}", new String(encrypted, StandardCharsets.UTF_8));
+		Consoles.println("encrypted: {}", new String(encrypted, StandardCharsets.UTF_8));
 
 		IDecryptor decryptor = Ciphers.getDecryptor(algorithm.code(), pair.getPrivate());
 		byte[] decrypted = decryptor.decrypt(encrypted);
-		TestConsole.println("decrypted: {}", new String(decrypted, StandardCharsets.UTF_8));
+		Consoles.println("decrypted: {}", new String(decrypted, StandardCharsets.UTF_8));
 
 		Assertions.assertEquals(data, new String(decrypted, StandardCharsets.UTF_8));
 		Assertions.assertArrayEquals(data.getBytes(StandardCharsets.UTF_8), decrypted);

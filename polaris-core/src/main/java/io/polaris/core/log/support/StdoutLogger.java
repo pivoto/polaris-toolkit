@@ -55,7 +55,7 @@ public class StdoutLogger implements ILogger {
 				+ "[" + tid + "]" + delimiter + name + delimiter + msg);
 		}
 		if (t != null) {
-			t.printStackTrace();
+			t.printStackTrace(System.out);
 		}
 	}
 

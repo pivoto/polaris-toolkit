@@ -1,6 +1,6 @@
 package io.polaris.core.map;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.map.reference.ReferenceType;
 import lombok.Data;
 import org.junit.jupiter.api.Test;
@@ -21,10 +21,10 @@ class SoftHashMapTest {
 		for (int i = 0; i < 100000; i++) {
 			map.put("key-" + i, new ValueObj(""+i));
 		}
-		TestConsole.println(map.size());
+		Consoles.println(map.size());
 		System.gc();
 		Thread.sleep(100);
-		TestConsole.println(map.size());
+		Consoles.println(map.size());
 
 	}
 	@Test
@@ -34,10 +34,10 @@ class SoftHashMapTest {
 		for (int i = 0; i < 100000; i++) {
 			map.put("key-" + i, new ValueObj(""+i));
 		}
-		TestConsole.println(map.size());
+		Consoles.println(map.size());
 		System.gc();
 		Thread.sleep(100);
-		TestConsole.println(map.size());
+		Consoles.println(map.size());
 
 	}
 
@@ -47,9 +47,9 @@ class SoftHashMapTest {
 		for (int i = 0; i < 100000; i++) {
 			map.put("key-" + i, new ValueObj(""+i));
 		}
-		TestConsole.println(map.size());
+		Consoles.println(map.size());
 		System.gc();
 		Thread.sleep(100);
-		TestConsole.println(map.size());
+		Consoles.println(map.size());
 	}
 }

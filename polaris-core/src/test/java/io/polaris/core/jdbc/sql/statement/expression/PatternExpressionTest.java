@@ -1,13 +1,11 @@
 package io.polaris.core.jdbc.sql.statement.expression;
 
-import io.polaris.core.TestConsole;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.regex.Patterns;
 import org.junit.jupiter.api.Test;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class PatternExpressionTest {
 
@@ -18,7 +16,7 @@ class PatternExpressionTest {
 		for (String s : args) {
 			Matcher m = pattern.matcher(s);
 			if (m.matches()) {
-				TestConsole.println("{}: {}, {} \n", s,m.group(), m.group(1));
+				Consoles.println("{}: {}, {} \n", s, m.group(), m.group(1));
 			}
 		}
 	}

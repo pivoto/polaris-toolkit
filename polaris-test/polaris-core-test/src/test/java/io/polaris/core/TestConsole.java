@@ -3,6 +3,7 @@ package io.polaris.core;
 import java.time.Instant;
 
 import io.polaris.core.converter.Converters;
+import io.polaris.core.io.Consoles;
 import io.polaris.core.string.Strings;
 import io.polaris.core.time.Dates;
 
@@ -38,15 +39,15 @@ public class TestConsole {
 	}
 
 	public static void print(Object... args) {
-		print("", args);
+		Consoles.print("", args);
 	}
 
 	public static void println(Object... args) {
-		println("", args);
+		Consoles.println("", args);
 	}
 
 	public static void printx(Object... args) {
-		printx("", args);
+		Consoles.log("", args);
 	}
 
 	@SuppressWarnings("all")
