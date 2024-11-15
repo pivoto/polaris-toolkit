@@ -645,28 +645,29 @@ public class Reflects {
 		if (type.isPrimitive()) {
 			return (T) Types.getDefaultValue(type);
 		}
-		// 某些特殊接口的实例化按照默认实现进行
-		if (type.isAssignableFrom(AbstractMap.class)) {
-			type = (Class<T>) HashMap.class;
-		} else if (type.isAssignableFrom(ConcurrentNavigableMap.class)) {
-			type = (Class<T>) ConcurrentSkipListMap.class;
-		} else if (type.isAssignableFrom(ConcurrentMap.class)) {
-			type = (Class<T>) ConcurrentHashMap.class;
-		} else if (type.isAssignableFrom(NavigableMap.class)) {
-			type = (Class<T>) TreeMap.class;
-		} else if (type.isAssignableFrom(List.class)) {
-			type = (Class<T>) ArrayList.class;
-		} else if (type.isAssignableFrom(Set.class)) {
-			type = (Class<T>) HashSet.class;
-		} else if (type.isAssignableFrom(BlockingDeque.class)) {
-			type = (Class<T>) LinkedBlockingDeque.class;
-		} else if (type.isAssignableFrom(Deque.class)) {
-			type = (Class<T>) ArrayDeque.class;
-		}
 
-		try {
-			return newInstance(type);
-		} catch (Exception ignore) {
+		if (Modifier.isAbstract(type.getModifiers())) {
+			// 某些特殊接口的实例化按照默认实现进行
+			if (type.isAssignableFrom(AbstractMap.class)) {
+				type = (Class<T>) HashMap.class;
+			} else if (type.isAssignableFrom(ConcurrentNavigableMap.class)) {
+				type = (Class<T>) ConcurrentSkipListMap.class;
+			} else if (type.isAssignableFrom(ConcurrentMap.class)) {
+				type = (Class<T>) ConcurrentHashMap.class;
+			} else if (type.isAssignableFrom(NavigableMap.class)) {
+				type = (Class<T>) TreeMap.class;
+			} else if (type.isAssignableFrom(List.class)) {
+				type = (Class<T>) ArrayList.class;
+			} else if (type.isAssignableFrom(Set.class)) {
+				type = (Class<T>) HashSet.class;
+			} else if (type.isAssignableFrom(BlockingDeque.class)) {
+				type = (Class<T>) LinkedBlockingDeque.class;
+			} else if (type.isAssignableFrom(Deque.class)) {
+				type = (Class<T>) ArrayDeque.class;
+			} else {
+				// 不可实例化
+				return null;
+			}
 		}
 
 		// 枚举
@@ -678,6 +679,12 @@ public class Reflects {
 		if (type.isArray()) {
 			return (T) Array.newInstance(type.getComponentType(), 0);
 		}
+
+		try {
+			return newInstance(type);
+		} catch (Exception ignore) {
+		}
+
 		final Constructor<T>[] constructors = getConstructors(type);
 		Class<?>[] parameterTypes;
 		for (Constructor<T> constructor : constructors) {
