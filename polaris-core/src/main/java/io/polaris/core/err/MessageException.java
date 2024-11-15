@@ -25,28 +25,40 @@ public class MessageException extends UncheckedException implements IErrorCode {
 		withCode(code, message);
 	}
 
+	public MessageException(IErrorCode errorCode) {
+		this(errorCode.getCode(), errorCode.getMessage());
+	}
+
 	public MessageException(Throwable cause) {
 		super(cause);
-		fetchCode(null, cause, null);
+		fetchCode(cause, null, null);
 	}
 
 	public MessageException(Throwable cause, String message) {
 		super(message, cause);
-		fetchCode(null, cause, message);
+		fetchCode(cause, null, message);
 	}
 
 	public MessageException(Throwable cause, String code, String message) {
 		super(message, cause);
-		fetchCode(code, cause, message);
+		fetchCode(cause, code, message);
+	}
+
+	public MessageException(Throwable cause, IErrorCode errorCode) {
+		this(cause, errorCode.getCode(), errorCode.getMessage());
 	}
 
 	public MessageException(Throwable cause, boolean enableSuppression, boolean writableStackTrace, String code, String message) {
 		super(message, cause, enableSuppression, writableStackTrace);
-		fetchCode(code, cause, message);
+		fetchCode(cause, code, message);
+	}
+
+	public MessageException(Throwable cause, boolean enableSuppression, boolean writableStackTrace, IErrorCode errorCode) {
+		this(cause, enableSuppression, writableStackTrace, errorCode.getCode(), errorCode.getMessage());
 	}
 
 
-	private void fetchCode(String code, Throwable cause, String message) {
+	private void fetchCode(Throwable cause, String code, String message) {
 		if (code == null || code.trim().length() == 0) {
 			if (cause instanceof IErrorCode) {
 				withCode(((IErrorCode) cause).getCode(), Strings.coalesce(message, cause.getMessage(), code));
