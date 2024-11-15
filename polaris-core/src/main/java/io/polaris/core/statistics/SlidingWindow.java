@@ -13,6 +13,8 @@ import java.util.function.Supplier;
 import io.polaris.core.concurrent.PooledThreadFactory;
 
 /**
+ * 滑动窗口统计工具
+ *
  * @author Qt
  * @since Aug 01, 2024
  */
