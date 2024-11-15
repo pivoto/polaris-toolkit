@@ -5,12 +5,36 @@ import java.util.Optional;
 import java.util.Random;
 
 import io.polaris.core.random.Randoms;
+import io.polaris.core.string.Hex;
 
 /**
  * @author Qt
  * @since Sep 28, 2024
  */
 public class Longs {
+	public static String toBinString(long num) {
+		return Hex.formatBin(num);
+	}
+
+	public static String toOctString(long num) {
+		return Hex.formatOct(num);
+	}
+
+	public static String toHexString(long num) {
+		return Hex.formatHex(num);
+	}
+
+	public static long parseBin(String text) {
+		return Hex.parseBin(text);
+	}
+
+	public static long parseOct(String text) {
+		return Hex.parseOct(text);
+	}
+
+	public static long parseHex(String text) {
+		return Hex.parseHex(text);
+	}
 
 	/**
 	 * 数组是否为空

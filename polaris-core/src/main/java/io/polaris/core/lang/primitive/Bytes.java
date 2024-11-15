@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -14,9 +15,11 @@ import java.util.concurrent.atomic.LongAdder;
 
 import javax.annotation.Nonnull;
 
+import io.polaris.core.codec.Base32;
 import io.polaris.core.consts.SystemKeys;
 import io.polaris.core.lang.Numbers;
 import io.polaris.core.random.Randoms;
+import io.polaris.core.string.Hex;
 
 /**
  * 字节操作工具类
@@ -49,6 +52,55 @@ public class Bytes {
 			byteOrder = "little".equals(System.getProperty(SystemKeys.SUN_CPU_ENDIAN)) ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
 		}
 		CPU_ENDIAN = byteOrder;
+	}
+
+	public static String toHexString(byte[] bytes) {
+		return Hex.formatBytes(bytes);
+	}
+
+	public static byte[] parseHexBytes(String text) {
+		return Hex.parseBytes(text);
+	}
+
+	public static String toBase32String(byte[] bytes) {
+		return Base32.encodeToString(bytes);
+	}
+
+	public static byte[] parseBase32Bytes(String text) {
+		return Base32.decode(text);
+	}
+
+	public static String toBase64String(byte[] bytes) {
+		return Base64.getEncoder().encodeToString(bytes);
+	}
+
+	public static byte[] parseBase64Bytes(String text) {
+		return Base64.getDecoder().decode(text);
+	}
+
+
+	public static String toBinString(byte num) {
+		return Hex.formatBin(num);
+	}
+
+	public static String toOctString(byte num) {
+		return Hex.formatOct(num);
+	}
+
+	public static String toHexString(byte num) {
+		return Hex.formatHex(num);
+	}
+
+	public static byte parseBin(String text) {
+		return Hex.parseBinAsByte(text);
+	}
+
+	public static byte parseOct(String text) {
+		return Hex.parseOctAsByte(text);
+	}
+
+	public static byte parseHex(String text) {
+		return Hex.parseHexAsByte(text);
 	}
 
 

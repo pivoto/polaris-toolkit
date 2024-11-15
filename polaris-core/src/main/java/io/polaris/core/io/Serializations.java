@@ -1,11 +1,12 @@
 package io.polaris.core.io;
 
-import io.polaris.core.collection.Iterables;
-
-import javax.annotation.Nullable;
 import java.io.*;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.annotation.Nullable;
+
+import io.polaris.core.collection.Iterables;
 
 /**
  * @author Qt
@@ -13,19 +14,35 @@ import java.util.Set;
  */
 public class Serializations {
 
+	public static void serialize(@Nullable Object object, OutputStream out) throws IOException {
+		if (object == null) {
+			return;
+		}
+		try (ObjectOutputStream oos = new ObjectOutputStream(out);) {
+			oos.writeObject(object);
+			oos.flush();
+		}
+	}
+
+	public static Object deserialize(InputStream in) throws IOException, ClassNotFoundException {
+		try (ObjectInputStream ois = new ObjectInputStream(in)) {
+			return ois.readObject();
+		}
+	}
+
 	@Nullable
 	public static byte[] serialize(@Nullable Object object) {
 		if (object == null) {
 			return null;
 		}
-		ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-		try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+		ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
+		try (ObjectOutputStream oos = new ObjectOutputStream(bos)) {
 			oos.writeObject(object);
 			oos.flush();
 		} catch (IOException e) {
 			throw new IllegalArgumentException(e);
 		}
-		return baos.toByteArray();
+		return bos.toByteArray();
 	}
 
 	@Nullable
@@ -48,7 +65,28 @@ public class Serializations {
 			return null;
 		}
 		try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes));
-			 ValidateObjectInputStream vis = new ValidateObjectInputStream(ois, acceptClasses);) {
+				 ValidateObjectInputStream vis = new ValidateObjectInputStream(ois, acceptClasses);) {
+			return vis.readObject();
+		} catch (IOException e) {
+			throw new IllegalArgumentException(e);
+		} catch (ClassNotFoundException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+
+	@Nullable
+	public static Object deserializeWithBlacklist(@Nullable byte[] bytes, Class<?>... refuseClasses) {
+		return deserialize(bytes, new Class[0], refuseClasses);
+	}
+
+	@Nullable
+	public static Object deserialize(@Nullable byte[] bytes, Class<?>[] acceptClasses, Class<?>[] refuseClasses) {
+		if (bytes == null) {
+			return null;
+		}
+		try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes));
+				 ValidateObjectInputStream vis = new ValidateObjectInputStream(ois, acceptClasses);) {
+			vis.refuse(refuseClasses);
 			return vis.readObject();
 		} catch (IOException e) {
 			throw new IllegalArgumentException(e);
@@ -75,6 +113,9 @@ public class Serializations {
 		}
 
 		public void refuse(Class<?>... refuseClasses) {
+			if (refuseClasses == null) {
+				return;
+			}
 			if (null == this.blackClassSet) {
 				this.blackClassSet = new HashSet<>();
 			}
@@ -84,6 +125,9 @@ public class Serializations {
 		}
 
 		public void accept(Class<?>... acceptClasses) {
+			if (acceptClasses == null) {
+				return;
+			}
 			if (null == this.whiteClassSet) {
 				this.whiteClassSet = new HashSet<>();
 			}

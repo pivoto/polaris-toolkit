@@ -582,6 +582,7 @@ public class Objs {
 	 * @param acceptClasses 白名单的类
 	 * @return 反序列化后的对象
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T> T deserialize(byte[] bytes, Class<?>... acceptClasses) {
 		return (T) Serializations.deserialize(bytes, acceptClasses);
 	}

@@ -5,12 +5,37 @@ import java.util.Optional;
 import java.util.Random;
 
 import io.polaris.core.random.Randoms;
+import io.polaris.core.string.Hex;
 
 /**
  * @author Qt
  * @since Sep 28, 2024
  */
 public class Shorts {
+	public static String toBinString(short num) {
+		return Hex.formatBin(num);
+	}
+
+	public static String toOctString(short num) {
+		return Hex.formatOct(num);
+	}
+
+	public static String toHexString(short num) {
+		return Hex.formatHex(num);
+	}
+
+	public static short parseBin(String text) {
+		return Hex.parseBinAsShort(text);
+	}
+
+	public static short parseOct(String text) {
+		return Hex.parseOctAsShort(text);
+	}
+
+	public static short parseHex(String text) {
+		return Hex.parseHexAsShort(text);
+	}
+
 	/**
 	 * 数组是否为空
 	 *

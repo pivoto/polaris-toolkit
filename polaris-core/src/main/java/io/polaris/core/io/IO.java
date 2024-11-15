@@ -1,15 +1,16 @@
 package io.polaris.core.io;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.security.CodeSource;
 import java.util.Objects;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 /**
  * @author Qt
@@ -153,6 +154,10 @@ public class IO {
 		return (writer instanceof BufferedWriter) ? (BufferedWriter) writer : new BufferedWriter(writer, bufferSize);
 	}
 
+
+	public static byte[] toBytes(File file) throws IOException {
+		return toBytes(toStream(file));
+	}
 
 	public static byte[] toBytes(InputStream input) throws IOException {
 		try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
