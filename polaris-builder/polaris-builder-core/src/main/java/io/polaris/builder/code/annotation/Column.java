@@ -16,6 +16,9 @@ public @interface Column {
 	/** 列名称 */
 	String name();
 
+	/** 忽略此列的处理 */
+	boolean ignored() default false;
+
 	/** 自定义的Java映射类型，覆盖默认配置 */
 	String javaType();
 

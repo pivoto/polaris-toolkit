@@ -7,6 +7,7 @@ import com.thoughtworks.xstream.annotations.XStreamConverter;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -60,4 +61,7 @@ public class CodeTable {
 	@XStreamAlias("column-suffix")
 	@XStreamAsAttribute
 	private String columnSuffix;
+	/** 需忽略的列名，支持正则表达式 */
+	@XStreamAlias("ignored-columns")
+	private Set<String> ignoredColumns = new LinkedHashSet<>();
 }

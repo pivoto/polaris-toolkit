@@ -2,11 +2,15 @@ package io.polaris.builder.code.config;
 
 import java.util.Map;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
-
-import lombok.*;
 
 /**
  * @author Qt
@@ -29,4 +33,8 @@ public class ConfigColumn {
 	@XStreamAlias("property")
 	@XStreamConverter(ConfigParser.PropertyConverter.class)
 	private Map<String, String> property;
+	/** 忽略此列的处理 */
+	@XStreamAsAttribute
+	@XStreamAlias("ignored")
+	private boolean ignored = false;
 }

@@ -1,5 +1,19 @@
 package io.polaris.builder.code;
 
+import java.io.IOException;
+import java.lang.reflect.AnnotatedElement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.function.Function;
+
 import io.polaris.builder.code.annotation.*;
 import io.polaris.builder.code.config.CodeEnvBuilder;
 import io.polaris.builder.code.config.CodeGroupBuilder;
@@ -8,16 +22,10 @@ import io.polaris.builder.code.config.TypeMapping;
 import io.polaris.builder.code.reader.impl.JdbcTablesReader;
 import io.polaris.builder.dbv.cfg.DatabaseCfg;
 import io.polaris.core.collection.Iterables;
+import io.polaris.core.collection.Sets;
 import io.polaris.core.concurrent.Executors;
 import io.polaris.core.env.GlobalStdEnv;
 import org.springframework.core.annotation.AnnotatedElementUtils;
-
-import java.io.IOException;
-import java.lang.reflect.AnnotatedElement;
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.function.Function;
 
 /**
  * @author Qt
@@ -163,7 +171,10 @@ public class Codes {
 			.tablePrefix(GlobalStdEnv.resolveRef(code.tablePrefix()))
 			.tableSuffix(GlobalStdEnv.resolveRef(code.tableSuffix()))
 			.columnPrefix(GlobalStdEnv.resolveRef(code.columnPrefix()))
-			.columnSuffix(GlobalStdEnv.resolveRef(code.columnSuffix()));
+			.columnSuffix(GlobalStdEnv.resolveRef(code.columnSuffix()))
+			.ignoredColumns(Sets.asSet(code.ignoredColumns()))
+		;
+
 
 		CodeGroupBuilder codeGroupBuilder = codeEnvBuilder.group()
 			.property(property)
@@ -171,12 +182,13 @@ public class Codes {
 			.tablePrefix(GlobalStdEnv.resolveRef(code.tablePrefix()))
 			.tableSuffix(GlobalStdEnv.resolveRef(code.tableSuffix()))
 			.columnPrefix(GlobalStdEnv.resolveRef(code.columnPrefix()))
-			.columnSuffix(GlobalStdEnv.resolveRef(code.columnSuffix()));
+			.columnSuffix(GlobalStdEnv.resolveRef(code.columnSuffix()))
+			.ignoredColumns(Sets.asSet(code.ignoredColumns()));
 
 		for (Template template : templates) {
 			Map<String, String> templateProperty = new LinkedHashMap<>(property);
 			for (Property p : template.property()) {
-				templateProperty.put(GlobalStdEnv.resolveRef(p.key()),GlobalStdEnv.resolveRef (p.value()));
+				templateProperty.put(GlobalStdEnv.resolveRef(p.key()), GlobalStdEnv.resolveRef(p.value()));
 			}
 			codeGroupBuilder.addTemplate()
 				.path(GlobalStdEnv.resolveRef(template.path()))
@@ -211,6 +223,7 @@ public class Codes {
 				configColumn.setJavaType(GlobalStdEnv.resolveRef(column.javaType()));
 				configColumn.setName(GlobalStdEnv.resolveRef(column.name()));
 				configColumn.setProperty(columnProperty);
+				configColumn.setIgnored(column.ignored());
 				columns.add(configColumn);
 			}
 			codeGroupBuilder.addTable()
@@ -221,10 +234,12 @@ public class Codes {
 				.property(tableProperty)
 				.columns(columns)
 				.mappings(mappings)
+				.ignoredColumns(Sets.asSet(table.ignoredColumns()))
 				.tablePrefix(GlobalStdEnv.resolveRef(code.tablePrefix()))
 				.tableSuffix(GlobalStdEnv.resolveRef(code.tableSuffix()))
 				.columnPrefix(GlobalStdEnv.resolveRef(code.columnPrefix()))
-				.columnSuffix(GlobalStdEnv.resolveRef(code.columnSuffix()));
+				.columnSuffix(GlobalStdEnv.resolveRef(code.columnSuffix()))
+			;
 		}
 
 		DatabaseCfg cfg = new DatabaseCfg();

@@ -1,6 +1,11 @@
 package io.polaris.builder.code.config;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -115,6 +120,11 @@ public class CodeGroupBuilder {
 			addTemplate(new CodeTemplate());
 		}
 		return new CodeTemplateBuilder(this, target.getTemplates().get(i));
+	}
+
+	public CodeGroupBuilder ignoredColumns(Set<String> ignoredColumns) {
+		target.setIgnoredColumns(ignoredColumns);
+		return this;
 	}
 
 	public CodeGroupBuilder addTable(CodeTable table) {

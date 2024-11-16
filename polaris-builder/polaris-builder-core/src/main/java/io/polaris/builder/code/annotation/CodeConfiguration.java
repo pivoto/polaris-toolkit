@@ -83,4 +83,7 @@ public @interface CodeConfiguration {
 	 * 需要生成代码的表名及其配置
 	 */
 	Table[] tables() default {};
+
+	/** 需忽略的列名，支持正则表达式 */
+	String[] ignoredColumns() default {};
 }

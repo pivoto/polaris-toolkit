@@ -39,4 +39,8 @@ public @interface Table {
 	Column[] columns() default {};
 
 	Property[] property() default {};
+
+	/** 需忽略的列名，支持正则表达式 */
+	String[] ignoredColumns() default {};
+
 }

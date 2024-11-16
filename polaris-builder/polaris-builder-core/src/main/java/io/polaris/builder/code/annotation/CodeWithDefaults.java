@@ -199,4 +199,8 @@ public @interface CodeWithDefaults {
 	 */
 	@AliasFor(annotation = CodeConfiguration.class, value = "tables")
 	Table[] tables() default {};
+
+	/** 需忽略的列名，支持正则表达式 */
+	@AliasFor(annotation = CodeConfiguration.class, value = "ignoredColumns")
+	String[] ignoredColumns() default {};
 }

@@ -43,4 +43,7 @@ public class CodeGroup {
 	/** 待生成代码的表 */
 	@XStreamAlias("tables")
 	private List<CodeTable> tables = new ArrayList<>();
+	/** 需忽略的列名，支持正则表达式 */
+	@XStreamAlias("ignored-columns")
+	private Set<String> ignoredColumns = new LinkedHashSet<>();
 }

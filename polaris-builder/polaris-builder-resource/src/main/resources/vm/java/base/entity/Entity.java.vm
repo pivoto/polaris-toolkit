@@ -78,7 +78,9 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 #foreach($col in $table.normalColumns)
 	/** #if(${col.comment})$!{col.name} $!{col.comment}#else$!{col.name}#end */
 	@Schema(description = "#if(${col.label})$!{col.label}#else$!{col.name}#end")
-	#if(${col.javaVariableName}=='createDate' || ${col.javaVariableName}=='crtDt')
+	#if(${col.generated})
+	@Column(value = "$!{col.name}", insertable = false, updatable = false)
+	#elseif(${col.javaVariableName}=='createDate' || ${col.javaVariableName}=='crtDt')
 	@Column(value = "$!{col.name}", updatable = false, createTime = true)
 	#elseif(${col.javaVariableName}=='createUser' || ${col.javaVariableName}=='createUserName' || ${col.javaVariableName}=='createUserRealName')
 	@Column(value = "$!{col.name}", updatable = false)
@@ -86,8 +88,6 @@ public class ${table.javaClassName}${env.entityClassSuffix}#if(${env.entityExtSu
 	@Column(value = "$!{col.name}", updatable = false)
 	#elseif(${col.javaVariableName}=='updateDate' || ${col.javaVariableName}=='uptDt')
 	@Column(value = "$!{col.name}", updateTime = true)
-	#elseif(${col.generated})
-	@Column(value = "$!{col.name}", insertable = false, updatable = false)
 	#else
 	@Column(value = "$!{col.name}")
 	#end

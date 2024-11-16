@@ -1,9 +1,14 @@
 package io.polaris.builder.code.config;
 
-import io.polaris.builder.code.CodeGenerator;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
+
+import io.polaris.builder.code.CodeGenerator;
 
 /**
  * @author Qt
@@ -85,6 +90,11 @@ public class CodeEnvBuilder {
 			target.setMappings(new LinkedHashSet<>());
 		}
 		target.getMappings().add(new TypeMapping(jdbcType, javaType));
+		return this;
+	}
+
+	public CodeEnvBuilder ignoredColumns(Set<String> ignoredColumns) {
+		target.setIgnoredColumns(ignoredColumns);
 		return this;
 	}
 

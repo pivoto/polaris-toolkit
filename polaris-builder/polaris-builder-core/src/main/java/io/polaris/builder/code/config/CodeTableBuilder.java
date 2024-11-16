@@ -124,4 +124,9 @@ public class CodeTableBuilder {
 		return this;
 	}
 
+	public CodeTableBuilder ignoredColumns(Set<String> ignoredColumns) {
+		target.setIgnoredColumns(ignoredColumns);
+		return this;
+	}
+
 }

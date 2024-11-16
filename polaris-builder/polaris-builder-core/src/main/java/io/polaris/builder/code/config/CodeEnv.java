@@ -40,4 +40,7 @@ public class CodeEnv {
 	/** 分组 */
 	@XStreamAlias("groups")
 	private List<CodeGroup> groups = new ArrayList<>();
+	/** 需忽略的列名，支持正则表达式 */
+	@XStreamAlias("ignored-columns")
+	private Set<String> ignoredColumns = new LinkedHashSet<>();
 }

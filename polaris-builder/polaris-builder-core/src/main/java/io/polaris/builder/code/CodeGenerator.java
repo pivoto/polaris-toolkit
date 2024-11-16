@@ -1,18 +1,37 @@
 package io.polaris.builder.code;
 
-import io.polaris.builder.code.config.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.regex.Pattern;
+
+import io.polaris.builder.code.config.CodeEnv;
+import io.polaris.builder.code.config.CodeEnvBuilder;
+import io.polaris.builder.code.config.CodeGroup;
+import io.polaris.builder.code.config.CodeTable;
+import io.polaris.builder.code.config.ConfigColumn;
+import io.polaris.builder.code.config.ConfigParser;
+import io.polaris.builder.code.config.TypeMapping;
 import io.polaris.builder.code.dto.TableDto;
 import io.polaris.builder.code.reader.TablesReader;
 import io.polaris.builder.code.reader.TablesReaders;
 import io.polaris.core.io.IO;
+import io.polaris.core.regex.Patterns;
 import io.polaris.core.string.Strings;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.StringUtils;
-
-import java.io.*;
-import java.util.*;
-import java.util.function.Function;
 
 /**
  * @author Qt
@@ -148,6 +167,31 @@ public class CodeGenerator {
 					if (Strings.isNotBlank(c.getName())) {
 						columnMap.put(c.getName(), c);
 					}
+				});
+			}
+			// 移除忽略的列
+			{
+				LinkedHashSet<String> ignoredColumns = new LinkedHashSet<>();
+				if (codeEnv.getIgnoredColumns() != null) {
+					ignoredColumns.addAll(codeEnv.getIgnoredColumns());
+				}
+				if (group.getIgnoredColumns() != null) {
+					ignoredColumns.addAll(group.getIgnoredColumns());
+				}
+				if (tableConfig.getIgnoredColumns() != null) {
+					ignoredColumns.addAll(tableConfig.getIgnoredColumns());
+				}
+				table.getColumns().removeIf(c -> {
+					// 匹配忽略列
+					if (columnSet != null && columnSet.stream().anyMatch(o -> o.isIgnored() && c.getName().equals(o.getName()))) {
+						return true;
+					}
+					// 匹配正则则忽略列
+					if (ignoredColumns.stream().anyMatch(regex ->
+						Patterns.getPattern(regex, Pattern.CASE_INSENSITIVE).matcher(c.getName()).matches())) {
+						return true;
+					}
+					return false;
 				});
 			}
 
