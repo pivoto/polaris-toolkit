@@ -46,12 +46,12 @@ public class Pages {
 		return com.github.pagehelper.PageHelper.startPage(pageable.getPageNum(), pageable.getPageSize(), false).doSelectPage(select::get);
 	}
 
-	public static long doPageCount(Pageable papageable, com.github.pagehelper.ISelect select) {
+	public static long doPageCount(Pageable pageable, com.github.pagehelper.ISelect select) {
 		if (!hasPageHelper) {
 			return -1;
 		}
 		// noinspection resource
-		return com.github.pagehelper.PageHelper.startPage(papageable.getPageNum(), papageable.getPageSize(), false)
+		return com.github.pagehelper.PageHelper.startPage(pageable.getPageNum(), pageable.getPageSize(), false)
 			.doCount(select);
 	}
 }

@@ -1,5 +1,12 @@
 package io.polaris.core.jdbc.sql.statement.expression;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import io.polaris.core.function.FunctionWithArgs3;
 import io.polaris.core.jdbc.sql.BindingValues;
 import io.polaris.core.jdbc.sql.SqlTextParsers;
@@ -9,19 +16,14 @@ import io.polaris.core.jdbc.sql.node.SqlNodes;
 import io.polaris.core.regex.Patterns;
 import io.polaris.core.string.Strings;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * @author Qt
- * @since  Aug 22, 2023
+ * @since Aug 22, 2023
  */
 public class PatternExpression extends BaseExpression {
 	public static final String REF_PREFIX = "ref";
 	public static final Pattern REF_PATTERN = Patterns.getPattern("^ref(\\d*)$");
+	private static final Map<String, PatternExpression> cache = new ConcurrentHashMap<>();
 
 	/** 模板 */
 	private final ContainerNode templateSqlNode;
@@ -50,8 +52,11 @@ public class PatternExpression extends BaseExpression {
 						hasRef0[0] = true;
 					}
 				} else {
-					argSize[0]++;
-					argsIndices.put(n.getVarName(), argSize[0] - 1);
+					// 存在同名变量时复用其位置
+					if (!argsIndices.containsKey(varName)) {
+						argSize[0]++;
+						argsIndices.put(varName, argSize[0] - 1);
+					}
 				}
 			}
 		});
@@ -63,7 +68,7 @@ public class PatternExpression extends BaseExpression {
 
 
 	public static PatternExpression of(String pattern) {
-		return new PatternExpression(pattern);
+		return cache.computeIfAbsent(pattern, k -> new PatternExpression(pattern));
 	}
 
 
@@ -126,7 +131,7 @@ public class PatternExpression extends BaseExpression {
 
 	@Override
 	protected FunctionWithArgs3<SqlNode, SqlNode[], Map<String, Object>, ContainerNode> buildMapFunction() {
-		return (baseSource, extSources, bindings) -> bind(baseSource, extSources, varName -> bindings == null ? null : BindingValues.getBindingValueOrDefault(bindings,varName,null));
+		return (baseSource, extSources, bindings) -> bind(baseSource, extSources, varName -> bindings == null ? null : BindingValues.getBindingValueOrDefault(bindings, varName, null));
 	}
 
 	protected ContainerNode createPatternSqlNode() {
@@ -137,5 +142,8 @@ public class PatternExpression extends BaseExpression {
 		return v;
 	}
 
-
+	@Override
+	public String toString() {
+		return templateSqlNode.toString();
+	}
 }

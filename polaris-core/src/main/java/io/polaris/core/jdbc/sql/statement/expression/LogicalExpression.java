@@ -50,7 +50,7 @@ public enum LogicalExpression implements Expression {
 
 	;
 
-	private Expression expression;
+	private final Expression expression;
 
 	LogicalExpression(Expression expression) {
 		this.expression = expression;

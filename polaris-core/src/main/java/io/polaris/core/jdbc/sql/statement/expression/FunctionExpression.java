@@ -1,27 +1,22 @@
 package io.polaris.core.jdbc.sql.statement.expression;
 
-import io.polaris.core.jdbc.sql.node.SqlNode;
-
 import java.util.Map;
+
+import io.polaris.core.jdbc.sql.node.SqlNode;
 
 /**
  * @author Qt
  * @since  Aug 23, 2023
  */
-public enum AggregateFunction implements Expression {
+public enum FunctionExpression implements Expression {
 
-	COUNT(Expressions.pattern("COUNT(${ref})")),
-	SUM(Expressions.pattern("SUM(${ref})")),
-	MAX(Expressions.pattern("MAX(${ref})")),
-	MIN(Expressions.pattern("MIN(${ref})")),
-	AVG(Expressions.pattern("AVG(${ref})")),
-
+	COALESCE(Expressions.pattern("COALESCE(${ref1},${ref})")),
 	;
 
 
 	private final Expression expression;
 
-	AggregateFunction(Expression expression) {
+	FunctionExpression(Expression expression) {
 		this.expression = expression;
 	}
 
