@@ -12,11 +12,13 @@ import io.polaris.core.string.Hex;
  * @since Sep 28, 2024
  */
 public class Longs {
-	public static String toBinString(long num) {
+
+	// region 字符串转换
+	public static String toBinStr(long num) {
 		return Hex.formatBin(num);
 	}
 
-	public static String toOctString(long num) {
+	public static String toOctStr(long num) {
 		return Hex.formatOct(num);
 	}
 
@@ -36,25 +38,13 @@ public class Longs {
 		return Hex.parseHex(text);
 	}
 
-	/**
-	 * 数组是否为空
-	 *
-	 * @param array 数组
-	 * @return 是否为空
-	 */
-	public static boolean isEmpty(long[] array) {
-		return array == null || array.length == 0;
+	public static long parse(String text, int radix) {
+		return Long.parseLong(text, radix);
 	}
 
-	/**
-	 * 数组是否为非空
-	 *
-	 * @param array 数组
-	 * @return 是否为非空
-	 */
-	public static boolean isNotEmpty(long[] array) {
-		return !isEmpty(array);
-	}
+	// endregion
+
+	// region 数组操作
 
 
 	/**
@@ -86,53 +76,6 @@ public class Longs {
 			}
 		}
 		return result;
-	}
-
-	/**
-	 * 返回数组中指定元素所在位置，未找到返回 -1
-	 *
-	 * @param array 数组
-	 * @param value 被检查的元素
-	 * @return 数组中指定元素所在位置，未找到返回 -1
-	 */
-	public static int indexOf(long[] array, long value) {
-		if (isNotEmpty(array)) {
-			for (int i = 0; i < array.length; i++) {
-				if (value == array[i]) {
-					return i;
-				}
-			}
-		}
-		return -1;
-	}
-
-	/**
-	 * 返回数组中指定元素所在最后的位置，未找到返回 -1
-	 *
-	 * @param array 数组
-	 * @param value 被检查的元素
-	 * @return 数组中指定元素所在位置，未找到返回 -1
-	 */
-	public static int lastIndexOf(long[] array, long value) {
-		if (isNotEmpty(array)) {
-			for (int i = array.length - 1; i >= 0; i--) {
-				if (value == array[i]) {
-					return i;
-				}
-			}
-		}
-		return -1;
-	}
-
-	/**
-	 * 数组中是否包含元素
-	 *
-	 * @param array 数组
-	 * @param value 被检查的元素
-	 * @return 是否包含
-	 */
-	public static boolean contains(long[] array, long value) {
-		return indexOf(array, value) > -1;
 	}
 
 	/**
@@ -371,6 +314,57 @@ public class Longs {
 		return array;
 	}
 
+	// endregion
+
+	// region 检查判断
+
+	/**
+	 * 返回数组中指定元素所在位置，未找到返回 -1
+	 *
+	 * @param array 数组
+	 * @param value 被检查的元素
+	 * @return 数组中指定元素所在位置，未找到返回 -1
+	 */
+	public static int indexOf(long[] array, long value) {
+		if (isNotEmpty(array)) {
+			for (int i = 0; i < array.length; i++) {
+				if (value == array[i]) {
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * 返回数组中指定元素所在最后的位置，未找到返回 -1
+	 *
+	 * @param array 数组
+	 * @param value 被检查的元素
+	 * @return 数组中指定元素所在位置，未找到返回 -1
+	 */
+	public static int lastIndexOf(long[] array, long value) {
+		if (isNotEmpty(array)) {
+			for (int i = array.length - 1; i >= 0; i--) {
+				if (value == array[i]) {
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * 数组中是否包含元素
+	 *
+	 * @param array 数组
+	 * @param value 被检查的元素
+	 * @return 是否包含
+	 */
+	public static boolean contains(long[] array, long value) {
+		return indexOf(array, value) > -1;
+	}
+
 	/**
 	 * 检查数组是否升序，即array[i] &lt;= array[i+1]，若传入空数组，则返回false
 	 *
@@ -420,4 +414,47 @@ public class Longs {
 
 		return true;
 	}
+
+	/**
+	 * 数组是否为空
+	 *
+	 * @param array 数组
+	 * @return 是否为空
+	 */
+	public static boolean isEmpty(long[] array) {
+		return array == null || array.length == 0;
+	}
+
+	/**
+	 * 数组是否为非空
+	 *
+	 * @param array 数组
+	 * @return 是否为非空
+	 */
+	public static boolean isNotEmpty(long[] array) {
+		return !isEmpty(array);
+	}
+
+	// endregion
+
+
+
+	// region 默认值
+
+	public static long defaultIfZero(long value, long defaultValue) {
+		return 0 == value ? defaultValue : value;
+	}
+
+	/**
+	 * 如果给定值为0，返回1，否则返回原值
+	 *
+	 * @param value 值
+	 * @return 1或非0值
+	 */
+	public static long defaultIfZero(long value) {
+		return 0 == value ? 1 : value;
+	}
+
+	// endregion
+
 }

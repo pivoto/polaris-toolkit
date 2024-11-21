@@ -1,13 +1,5 @@
 package io.polaris.core.lang;
 
-import io.polaris.core.annotation.Experimental;
-import io.polaris.core.assertion.Assertions;
-import io.polaris.core.collection.Iterables;
-import io.polaris.core.collection.ObjectArrays;
-import io.polaris.core.lang.primitive.Chars;
-import io.polaris.core.random.Randoms;
-import io.polaris.core.string.Strings;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -18,6 +10,17 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+
+import io.polaris.core.annotation.Experimental;
+import io.polaris.core.assertion.Assertions;
+import io.polaris.core.collection.Iterables;
+import io.polaris.core.collection.ObjectArrays;
+import io.polaris.core.collection.PrimitiveArrays;
+import io.polaris.core.lang.primitive.Chars;
+import io.polaris.core.lang.primitive.Doubles;
+import io.polaris.core.lang.primitive.Ints;
+import io.polaris.core.random.Randoms;
+import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
@@ -36,6 +39,87 @@ public class Numbers {
 		1L, 1L, 2L, 6L, 24L, 120L, 720L, 5040L, 40320L, 362880L, 3628800L, 39916800L, 479001600L, 6227020800L,
 		87178291200L, 1307674368000L, 20922789888000L, 355687428096000L, 6402373705728000L, 121645100408832000L,
 		2432902008176640000L};
+
+
+	// region calc
+
+	/**
+	 * 计算数学表达式的值，只支持加减乘除和取余<br>
+	 * 如：
+	 * <pre class="code">
+	 *   calculate("(0*1--3)-5/-4-(3*(-2.13))") -》 10.64
+	 * </pre>
+	 *
+	 * @param expression 数学表达式
+	 * @return 结果
+	 */
+	@Experimental
+	public static double calculate(String expression) {
+		return Calculator.conversion(expression);
+	}
+
+	/**
+	 * @see Math#floorDiv(long, long)
+	 */
+	public static long floorDiv(long x, long y) {
+		return Math.floorDiv(x, y);
+	}
+
+	/**
+	 * @see Math#floorDiv(int, int)
+	 */
+	public static int floorDiv(int x, int y) {
+		return Math.floorDiv(x, y);
+	}
+
+	public static long ceilDiv(long x, long y) {
+		long r = x / y;
+		if ((x ^ y) > 0 && (r * y != x)) {
+			r++;
+		}
+		return r;
+	}
+
+
+	/**
+	 * 补充Math.ceilDiv() JDK8中添加了和Math.floorDiv()但却没有ceilDiv()
+	 *
+	 * @param x 被除数
+	 * @param y 除数
+	 * @return 两个参数的商
+	 * @see Math#floorDiv(int, int)
+	 */
+	public static int ceilDiv(int x, int y) {
+		int r = x / y;
+		if ((x ^ y) > 0 && (r * y != x)) {
+			r++;
+		}
+		return r;
+//		return (int) Math.ceil((double) x / t);
+	}
+
+	/**
+	 * 提供精确的幂运算
+	 *
+	 * @param number 底数
+	 * @param n      指数
+	 * @return 幂的积
+	 */
+	public static BigDecimal pow(Number number, int n) {
+		return pow(toBigDecimal(number), n);
+	}
+
+	/**
+	 * 提供精确的幂运算
+	 *
+	 * @param number 底数
+	 * @param n      指数
+	 * @return 幂的积
+	 */
+	public static BigDecimal pow(BigDecimal number, int n) {
+		return number.pow(n);
+	}
+
 
 	/**
 	 * 提供精确的加法运算
@@ -739,18 +823,9 @@ public class Numbers {
 		return v1.divide(v2, scale, roundingMode);
 	}
 
-	/**
-	 * 补充Math.ceilDiv() JDK8中添加了和Math.floorDiv()但却没有ceilDiv()
-	 *
-	 * @param v1 被除数
-	 * @param v2 除数
-	 * @return 两个参数的商
-	 */
-	public static int ceilDiv(int v1, int v2) {
-		return (int) Math.ceil((double) v1 / v2);
-	}
+	// endregion
 
-	// ------------------------------------------------------------------------------------------- round
+	// region round
 
 	/**
 	 * 保留固定位数小数<br>
@@ -779,43 +854,19 @@ public class Numbers {
 	}
 
 	/**
-	 * 保留固定位数小数<br>
-	 * 采用四舍五入策略 {@link RoundingMode#HALF_UP}<br>
-	 * 例如保留2位小数：123.456789 =》 123.46
-	 *
-	 * @param numberStr 数字值的字符串表现形式
-	 * @param scale     保留小数位数
-	 * @return 新值
+	 * @see BigDecimals#round(String, int)
 	 */
 	public static BigDecimal round(String numberStr, int scale) {
-		return round(numberStr, scale, RoundingMode.HALF_UP);
+		return BigDecimals.round(numberStr, scale);
 	}
 
 	/**
-	 * 保留固定位数小数<br>
-	 * 采用四舍五入策略 {@link RoundingMode#HALF_UP}<br>
-	 * 例如保留2位小数：123.456789 =》 123.46
-	 *
-	 * @param number 数字值
-	 * @param scale  保留小数位数
-	 * @return 新值
+	 * @see BigDecimals#round(BigDecimal, int)
 	 */
 	public static BigDecimal round(BigDecimal number, int scale) {
-		return round(number, scale, RoundingMode.HALF_UP);
+		return BigDecimals.round(number, scale);
 	}
 
-	/**
-	 * 保留固定位数小数<br>
-	 * 采用四舍五入策略 {@link RoundingMode#HALF_UP}<br>
-	 * 例如保留2位小数：123.456789 =》 123.46
-	 *
-	 * @param numberStr 数字值的字符串表现形式
-	 * @param scale     保留小数位数
-	 * @return 新值
-	 */
-	public static String roundStr(String numberStr, int scale) {
-		return round(numberStr, scale).toPlainString();
-	}
 
 	/**
 	 * 保留固定位数小数<br>
@@ -844,127 +895,50 @@ public class Numbers {
 	}
 
 	/**
-	 * 保留固定位数小数<br>
-	 * 例如保留四位小数：123.456789 =》 123.4567
-	 *
-	 * @param numberStr    数字值的字符串表现形式
-	 * @param scale        保留小数位数，如果传入小于0，则默认0
-	 * @param roundingMode 保留小数的模式 {@link RoundingMode}，如果传入null则默认四舍五入
-	 * @return 新值
+	 * @see BigDecimals#round(String, int, RoundingMode)
 	 */
 	public static BigDecimal round(String numberStr, int scale, RoundingMode roundingMode) {
-		Assertions.assertTrue(Strings.isNotBlank(numberStr), "字符串不能为空白");
-		if (scale < 0) {
-			scale = 0;
-		}
-		return round(toBigDecimal(numberStr), scale, roundingMode);
+		return BigDecimals.round(numberStr, scale, roundingMode);
 	}
 
 	/**
-	 * 保留固定位数小数<br>
-	 * 例如保留四位小数：123.456789 =》 123.4567
-	 *
-	 * @param number       数字值
-	 * @param scale        保留小数位数，如果传入小于0，则默认0
-	 * @param roundingMode 保留小数的模式 {@link RoundingMode}，如果传入null则默认四舍五入
-	 * @return 新值
+	 * @see BigDecimals#round(BigDecimal, int, RoundingMode)
 	 */
 	public static BigDecimal round(BigDecimal number, int scale, RoundingMode roundingMode) {
-		if (null == number) {
-			number = BigDecimal.ZERO;
-		}
-		if (scale < 0) {
-			scale = 0;
-		}
-		if (null == roundingMode) {
-			roundingMode = RoundingMode.HALF_UP;
-		}
-
-		return number.setScale(scale, roundingMode);
+		return BigDecimals.round(number, scale, roundingMode);
 	}
 
 	/**
-	 * 保留固定位数小数<br>
-	 * 例如保留四位小数：123.456789 =》 123.4567
-	 *
-	 * @param numberStr    数字值的字符串表现形式
-	 * @param scale        保留小数位数
-	 * @param roundingMode 保留小数的模式 {@link RoundingMode}
-	 * @return 新值
-	 */
-	public static String roundStr(String numberStr, int scale, RoundingMode roundingMode) {
-		return round(numberStr, scale, roundingMode).toPlainString();
-	}
-
-	/**
-	 * 四舍六入五成双计算法
-	 * <p>
-	 * 四舍六入五成双是一种比较精确比较科学的计数保留法，是一种数字修约规则。
-	 * </p>
-	 *
-	 * <pre>
-	 * 算法规则:
-	 * 四舍六入五考虑，
-	 * 五后非零就进一，
-	 * 五后皆零看奇偶，
-	 * 五前为偶应舍去，
-	 * 五前为奇要进一。
-	 * </pre>
-	 *
-	 * @param number 需要科学计算的数据
-	 * @param scale  保留的小数位
-	 * @return 结果
+	 * @see BigDecimals#roundHalfEven(Number, int)
 	 */
 	public static BigDecimal roundHalfEven(Number number, int scale) {
-		return roundHalfEven(toBigDecimal(number), scale);
+		return BigDecimals.roundHalfEven(number, scale);
 	}
 
 	/**
-	 * 四舍六入五成双计算法
-	 * <p>
-	 * 四舍六入五成双是一种比较精确比较科学的计数保留法，是一种数字修约规则。
-	 * </p>
-	 *
-	 * <pre>
-	 * 算法规则:
-	 * 四舍六入五考虑，
-	 * 五后非零就进一，
-	 * 五后皆零看奇偶，
-	 * 五前为偶应舍去，
-	 * 五前为奇要进一。
-	 * </pre>
-	 *
-	 * @param value 需要科学计算的数据
-	 * @param scale 保留的小数位
-	 * @return 结果
+	 * @see BigDecimals#roundHalfEven(BigDecimal, int)
 	 */
 	public static BigDecimal roundHalfEven(BigDecimal value, int scale) {
-		return round(value, scale, RoundingMode.HALF_EVEN);
+		return BigDecimals.roundHalfEven(value, scale);
 	}
 
 	/**
-	 * 保留固定小数位数，舍去多余位数
-	 *
-	 * @param number 需要科学计算的数据
-	 * @param scale  保留的小数位
-	 * @return 结果
+	 * @see BigDecimals#roundDown(Number, int)
 	 */
 	public static BigDecimal roundDown(Number number, int scale) {
-		return roundDown(toBigDecimal(number), scale);
+		return BigDecimals.roundDown(number, scale);
 	}
 
 	/**
-	 * 保留固定小数位数，舍去多余位数
-	 *
-	 * @param value 需要科学计算的数据
-	 * @param scale 保留的小数位
-	 * @return 结果
+	 * @see BigDecimals#roundDown(BigDecimal, int)
 	 */
 	public static BigDecimal roundDown(BigDecimal value, int scale) {
-		return round(value, scale, RoundingMode.DOWN);
+		return BigDecimals.roundDown(value, scale);
 	}
 
-	// ------------------------------------------------------------------------------------------- decimalFormat
+	// endregion
+
+	// region decimalFormat
 
 	/**
 	 * 格式化double<br>
@@ -1086,7 +1060,9 @@ public class Numbers {
 		return format.format(number);
 	}
 
-	// ------------------------------------------------------------------------------------------- isXXX
+	// endregion
+
+	// region isXXX
 
 	/**
 	 * 是否为数字，支持包括：
@@ -1262,7 +1238,7 @@ public class Numbers {
 	 * @param n 数字
 	 * @return 是否是质数
 	 */
-	public static boolean isPrimes(int n) {
+	public static boolean isPrime(int n) {
 		Assertions.assertTrue(n > 1, "The number must be > 1");
 		for (int i = 2; i <= Math.sqrt(n); i++) {
 			if (n % i == 0) {
@@ -1272,7 +1248,9 @@ public class Numbers {
 		return true;
 	}
 
-	// ------------------------------------------------------------------------------------------- generateXXX
+	// endregion
+
+	// region generate
 
 	/**
 	 * 生成不重复随机数 根据给定的最小数字和最大数字，以及随机数的个数，产生指定的不重复的数组
@@ -1347,7 +1325,9 @@ public class Numbers {
 		return set.toArray(new Integer[0]);
 	}
 
-	// ------------------------------------------------------------------------------------------- range
+	// endregion
+
+	// region range
 
 	/**
 	 * 从0开始给定范围内的整数列表，步进为1
@@ -1434,7 +1414,9 @@ public class Numbers {
 		return values;
 	}
 
-	// ------------------------------------------------------------------------------------------- others
+	// endregion range
+
+	// region calc
 
 	/**
 	 * 计算阶乘
@@ -1577,6 +1559,22 @@ public class Numbers {
 		return result;
 	}
 
+	private static int mathSubNode(int selectNum, int minNum) {
+		if (selectNum == minNum) {
+			return 1;
+		} else {
+			return selectNum * mathSubNode(selectNum - 1, minNum);
+		}
+	}
+
+	private static int mathNode(int selectNum) {
+		if (selectNum == 0) {
+			return 1;
+		} else {
+			return selectNum * mathNode(selectNum - 1);
+		}
+	}
+
 	/**
 	 * 最大公约数
 	 *
@@ -1604,43 +1602,10 @@ public class Numbers {
 		return m * n / divisor(m, n);
 	}
 
-	/**
-	 * 获得数字对应的二进制字符串
-	 *
-	 * @param number 数字
-	 * @return 二进制字符串
-	 */
-	public static String getBinaryStr(Number number) {
-		if (number instanceof Long) {
-			return Long.toBinaryString((Long) number);
-		} else if (number instanceof Integer) {
-			return Integer.toBinaryString((Integer) number);
-		} else {
-			return Long.toBinaryString(number.longValue());
-		}
-	}
+	// endregion
 
-	/**
-	 * 二进制转int
-	 *
-	 * @param binaryStr 二进制字符串
-	 * @return int
-	 */
-	public static int binaryToInt(String binaryStr) {
-		return Integer.parseInt(binaryStr, 2);
-	}
 
-	/**
-	 * 二进制转long
-	 *
-	 * @param binaryStr 二进制字符串
-	 * @return long
-	 */
-	public static long binaryToLong(String binaryStr) {
-		return Long.parseLong(binaryStr, 2);
-	}
-
-	// ------------------------------------------------------------------------------------------- compare
+	// region compare
 
 	/**
 	 * 比较两个值的大小
@@ -1971,10 +1936,10 @@ public class Numbers {
 	 *
 	 * @param numberArray 数字数组
 	 * @return 最大值
-	 * @see ObjectArrays#max(long...)
+	 * @see PrimitiveArrays#max(long...)
 	 */
 	public static long max(long... numberArray) {
-		return ObjectArrays.max(numberArray);
+		return PrimitiveArrays.max(numberArray);
 	}
 
 	/**
@@ -1982,10 +1947,10 @@ public class Numbers {
 	 *
 	 * @param numberArray 数字数组
 	 * @return 最大值
-	 * @see ObjectArrays#max(int...)
+	 * @see PrimitiveArrays#max(int...)
 	 */
 	public static int max(int... numberArray) {
-		return ObjectArrays.max(numberArray);
+		return PrimitiveArrays.max(numberArray);
 	}
 
 	/**
@@ -1993,10 +1958,10 @@ public class Numbers {
 	 *
 	 * @param numberArray 数字数组
 	 * @return 最大值
-	 * @see ObjectArrays#max(short...)
+	 * @see PrimitiveArrays#max(short...)
 	 */
 	public static short max(short... numberArray) {
-		return ObjectArrays.max(numberArray);
+		return PrimitiveArrays.max(numberArray);
 	}
 
 	/**
@@ -2004,10 +1969,10 @@ public class Numbers {
 	 *
 	 * @param numberArray 数字数组
 	 * @return 最大值
-	 * @see ObjectArrays#max(double...)
+	 * @see PrimitiveArrays#max(double...)
 	 */
 	public static double max(double... numberArray) {
-		return ObjectArrays.max(numberArray);
+		return PrimitiveArrays.max(numberArray);
 	}
 
 	/**
@@ -2015,10 +1980,10 @@ public class Numbers {
 	 *
 	 * @param numberArray 数字数组
 	 * @return 最大值
-	 * @see ObjectArrays#max(float...)
+	 * @see PrimitiveArrays#max(float...)
 	 */
 	public static float max(float... numberArray) {
-		return ObjectArrays.max(numberArray);
+		return PrimitiveArrays.max(numberArray);
 	}
 
 	/**
@@ -2032,6 +1997,26 @@ public class Numbers {
 		return ObjectArrays.max(numberArray);
 	}
 
+	// endregion
+
+	// region convert
+
+	/**
+	 * 获得数字对应的二进制字符串
+	 *
+	 * @param number 数字
+	 * @return 二进制字符串
+	 */
+	public static String toBinaryString(Number number) {
+		if (number instanceof Long) {
+			return Long.toBinaryString((Long) number);
+		} else if (number instanceof Integer) {
+			return Integer.toBinaryString((Integer) number);
+		} else {
+			return Long.toBinaryString(number.longValue());
+		}
+	}
+
 	/**
 	 * 数字转字符串<br>
 	 * 调用{@link Number#toString()}，并去除尾小数点儿后多余的0
@@ -2040,8 +2025,8 @@ public class Numbers {
 	 * @param defaultValue 如果number参数为{@code null}，返回此默认值
 	 * @return A String.
 	 */
-	public static String toStr(Number number, String defaultValue) {
-		return (null == number) ? defaultValue : toStr(number);
+	public static String toString(Number number, String defaultValue) {
+		return (null == number) ? defaultValue : toString(number);
 	}
 
 	/**
@@ -2051,8 +2036,8 @@ public class Numbers {
 	 * @param number A Number
 	 * @return A String.
 	 */
-	public static String toStr(Number number) {
-		return toStr(number, true);
+	public static String toString(Number number) {
+		return toString(number, true);
 	}
 
 	/**
@@ -2063,12 +2048,12 @@ public class Numbers {
 	 * @param isStripTrailingZeros 是否去除末尾多余0，例如5.0返回5
 	 * @return A String.
 	 */
-	public static String toStr(Number number, boolean isStripTrailingZeros) {
+	public static String toString(Number number, boolean isStripTrailingZeros) {
 		Assertions.assertNotNull(number, "Number is null !");
 
 		// BigDecimal单独处理，使用非科学计数法
 		if (number instanceof BigDecimal) {
-			return toStr((BigDecimal) number, isStripTrailingZeros);
+			return toString((BigDecimal) number, isStripTrailingZeros);
 		}
 
 		Assertions.assertTrue(isValidNumber(number), "Number is non-finite!");
@@ -2087,276 +2072,32 @@ public class Numbers {
 		return string;
 	}
 
-	/**
-	 * {@link BigDecimal}数字转字符串<br>
-	 * 调用{@link BigDecimal#toPlainString()}，并去除尾小数点儿后多余的0
-	 *
-	 * @param bigDecimal A {@link BigDecimal}
-	 * @return A String.
-	 */
-	public static String toStr(BigDecimal bigDecimal) {
-		return toStr(bigDecimal, true);
+	public static String toString(BigDecimal bigDecimal) {
+		return BigDecimals.toString(bigDecimal);
 	}
 
-	/**
-	 * {@link BigDecimal}数字转字符串<br>
-	 * 调用{@link BigDecimal#toPlainString()}，可选去除尾小数点儿后多余的0
-	 *
-	 * @param bigDecimal           A {@link BigDecimal}
-	 * @param isStripTrailingZeros 是否去除末尾多余0，例如5.0返回5
-	 * @return A String.
-	 */
-	public static String toStr(BigDecimal bigDecimal, boolean isStripTrailingZeros) {
-		Assertions.assertNotNull(bigDecimal, "BigDecimal is null !");
-		if (isStripTrailingZeros) {
-			bigDecimal = bigDecimal.stripTrailingZeros();
-		}
-		return bigDecimal.toPlainString();
+	public static String toString(BigDecimal bigDecimal, boolean isStripTrailingZeros) {
+		return BigDecimals.toString(bigDecimal, isStripTrailingZeros);
 	}
 
-	/**
-	 * 数字转{@link BigDecimal}<br>
-	 * Float、Double等有精度问题，转换为字符串后再转换<br>
-	 * null转换为0
-	 *
-	 * @param number 数字
-	 * @return {@link BigDecimal}
-	 */
 	public static BigDecimal toBigDecimal(Number number) {
-		if (null == number) {
-			return BigDecimal.ZERO;
-		}
-
-		if (number instanceof BigDecimal) {
-			return (BigDecimal) number;
-		} else if (number instanceof Long) {
-			return new BigDecimal((Long) number);
-		} else if (number instanceof Integer) {
-			return new BigDecimal((Integer) number);
-		} else if (number instanceof BigInteger) {
-			return new BigDecimal((BigInteger) number);
-		}
-
-		// Float、Double等有精度问题，转换为字符串后再转换
-		return toBigDecimal(number.toString());
+		return BigDecimals.toBigDecimal(number);
 	}
 
-	/**
-	 * 数字转{@link BigDecimal}<br>
-	 * null或""或空白符转换为0
-	 *
-	 * @param numberStr 数字字符串
-	 * @return {@link BigDecimal}
-	 */
 	public static BigDecimal toBigDecimal(String numberStr) {
-		if (Strings.isBlank(numberStr)) {
-			return BigDecimal.ZERO;
-		}
-
-		try {
-			// 支持类似于 1,234.55 格式的数字
-			final Number number = parseNumber(numberStr);
-			if (number instanceof BigDecimal) {
-				return (BigDecimal) number;
-			} else {
-				return new BigDecimal(number.toString());
-			}
-		} catch (Exception ignore) {
-			// 忽略解析错误
-		}
-
-		return new BigDecimal(numberStr);
+		return BigDecimals.toBigDecimal(numberStr);
 	}
 
-	/**
-	 * 数字转{@link BigInteger}<br>
-	 * null转换为0
-	 *
-	 * @param number 数字
-	 * @return {@link BigInteger}
-	 */
 	public static BigInteger toBigInteger(Number number) {
-		if (null == number) {
-			return BigInteger.ZERO;
-		}
-
-		if (number instanceof BigInteger) {
-			return (BigInteger) number;
-		} else if (number instanceof Long) {
-			return BigInteger.valueOf((Long) number);
-		}
-
-		return toBigInteger(number.longValue());
+		return BigIntegers.toBigInteger(number);
 	}
 
-	/**
-	 * 数字转{@link BigInteger}<br>
-	 * null或""或空白符转换为0
-	 *
-	 * @param number 数字字符串
-	 * @return {@link BigInteger}
-	 */
 	public static BigInteger toBigInteger(String number) {
-		return Strings.isBlank(number) ? BigInteger.ZERO : new BigInteger(number);
+		return BigIntegers.toBigInteger(number);
 	}
 
-	/**
-	 * 计算等份个数
-	 *
-	 * @param total 总数
-	 * @param part  每份的个数
-	 * @return 分成了几份
-	 */
-	public static int count(int total, int part) {
-		return (total % part == 0) ? (total / part) : (total / part + 1);
-	}
-
-	/**
-	 * 空转0
-	 *
-	 * @param decimal {@link BigDecimal}，可以为{@code null}
-	 * @return {@link BigDecimal}参数为空时返回0的值
-	 */
-	public static BigDecimal null2Zero(BigDecimal decimal) {
-
-		return decimal == null ? BigDecimal.ZERO : decimal;
-	}
-
-	/**
-	 * 如果给定值为0，返回1，否则返回原值
-	 *
-	 * @param value 值
-	 * @return 1或非0值
-	 */
-	public static int zero2One(int value) {
-		return 0 == value ? 1 : value;
-	}
-
-	/**
-	 * 创建{@link BigInteger}，支持16进制、10进制和8进制，如果传入空白串返回null<br>
-	 * from Apache Common Lang
-	 *
-	 * @param str 数字字符串
-	 * @return {@link BigInteger}
-	 */
 	public static BigInteger newBigInteger(String str) {
-		str = Strings.trimToNull(str);
-		if (null == str) {
-			return null;
-		}
-
-		int pos = 0; // 数字字符串位置
-		int radix = 10;
-		boolean negate = false; // 负数与否
-		if (str.startsWith("-")) {
-			negate = true;
-			pos = 1;
-		}
-		if (str.startsWith("0x", pos) || str.startsWith("0X", pos)) {
-			// hex
-			radix = 16;
-			pos += 2;
-		} else if (str.startsWith("#", pos)) {
-			// alternative hex (allowed by Long/Integer)
-			radix = 16;
-			pos++;
-		} else if (str.startsWith("0", pos) && str.length() > pos + 1) {
-			// octal; so long as there are additional digits
-			radix = 8;
-			pos++;
-		} // default is to treat as decimal
-
-		if (pos > 0) {
-			str = str.substring(pos);
-		}
-		final BigInteger value = new BigInteger(str, radix);
-		return negate ? value.negate() : value;
-	}
-
-	/**
-	 * 判断两个数字是否相邻，例如1和2相邻，1和3不相邻<br>
-	 * 判断方法为做差取绝对值判断是否为1
-	 *
-	 * @param number1 数字1
-	 * @param number2 数字2
-	 * @return 是否相邻
-	 */
-	public static boolean isBeside(long number1, long number2) {
-		return Math.abs(number1 - number2) == 1;
-	}
-
-	/**
-	 * 判断两个数字是否相邻，例如1和2相邻，1和3不相邻<br>
-	 * 判断方法为做差取绝对值判断是否为1
-	 *
-	 * @param number1 数字1
-	 * @param number2 数字2
-	 * @return 是否相邻
-	 */
-	public static boolean isBeside(int number1, int number2) {
-		return Math.abs(number1 - number2) == 1;
-	}
-
-	/**
-	 * 把给定的总数平均分成N份，返回每份的个数<br>
-	 * 当除以分数有余数时每份+1
-	 *
-	 * @param total     总数
-	 * @param partCount 份数
-	 * @return 每份的个数
-	 */
-	public static int partValue(int total, int partCount) {
-		return partValue(total, partCount, true);
-	}
-
-	/**
-	 * 把给定的总数平均分成N份，返回每份的个数<br>
-	 * 如果isPlusOneWhenHasRem为true，则当除以分数有余数时每份+1，否则丢弃余数部分
-	 *
-	 * @param total               总数
-	 * @param partCount           份数
-	 * @param isPlusOneWhenHasRem 在有余数时是否每份+1
-	 * @return 每份的个数
-	 */
-	public static int partValue(int total, int partCount, boolean isPlusOneWhenHasRem) {
-		int partValue = total / partCount;
-		if (isPlusOneWhenHasRem && total % partCount > 0) {
-			partValue++;
-		}
-		return partValue;
-	}
-
-	/**
-	 * 提供精确的幂运算
-	 *
-	 * @param number 底数
-	 * @param n      指数
-	 * @return 幂的积
-	 */
-	public static BigDecimal pow(Number number, int n) {
-		return pow(toBigDecimal(number), n);
-	}
-
-	/**
-	 * 提供精确的幂运算
-	 *
-	 * @param number 底数
-	 * @param n      指数
-	 * @return 幂的积
-	 */
-	public static BigDecimal pow(BigDecimal number, int n) {
-		return number.pow(n);
-	}
-
-
-	/**
-	 * 判断一个整数是否是2的幂
-	 *
-	 * @param n 待验证的整数
-	 * @return 如果n是2的幂返回true, 反之返回false
-	 */
-	public static boolean isPowerOfTwo(long n) {
-		return (n > 0) && ((n & (n - 1)) == 0);
+		return BigIntegers.newBigInteger(str);
 	}
 
 	/**
@@ -2655,107 +2396,109 @@ public class Numbers {
 		return defaultValue;
 	}
 
-	/**
-	 * int值转byte数组，使用大端字节序（高位字节在前，低位字节在后）<br>
-	 * 见：<a href="http://www.ruanyifeng.com/blog/2016/11/byte-order.html">http://www.ruanyifeng.com/blog/2016/11/byte-order.html</a>
-	 *
-	 * @param value 值
-	 * @return byte数组
-	 */
 	public static byte[] toBytes(int value) {
-		final byte[] result = new byte[4];
-
-		result[0] = (byte) (value >> 24);
-		result[1] = (byte) (value >> 16);
-		result[2] = (byte) (value >> 8);
-		result[3] = (byte) (value /* >> 0 */);
-
-		return result;
+		return Ints.toBytes(value);
 	}
 
-	/**
-	 * byte数组转int，使用大端字节序（高位字节在前，低位字节在后）<br>
-	 * 见：<a href="http://www.ruanyifeng.com/blog/2016/11/byte-order.html">http://www.ruanyifeng.com/blog/2016/11/byte-order.html</a>
-	 *
-	 * @param bytes byte数组
-	 * @return int
-	 */
 	public static int toInt(byte[] bytes) {
-		return (bytes[0] & 0xff) << 24//
-			| (bytes[1] & 0xff) << 16//
-			| (bytes[2] & 0xff) << 8//
-			| (bytes[3] & 0xff);
+		return Ints.toInt(bytes);
 	}
 
-	/**
-	 * 以无符号字节数组的形式返回传入值。
-	 *
-	 * @param value 需要转换的值
-	 * @return 无符号bytes
-	 */
 	public static byte[] toUnsignedByteArray(BigInteger value) {
-		byte[] bytes = value.toByteArray();
-
-		if (bytes[0] == 0) {
-			byte[] tmp = new byte[bytes.length - 1];
-			System.arraycopy(bytes, 1, tmp, 0, tmp.length);
-
-			return tmp;
-		}
-
-		return bytes;
+		return BigIntegers.toUnsignedByteArray(value);
 	}
 
-	/**
-	 * 以无符号字节数组的形式返回传入值。
-	 *
-	 * @param length bytes长度
-	 * @param value  需要转换的值
-	 * @return 无符号bytes
-	 */
 	public static byte[] toUnsignedByteArray(int length, BigInteger value) {
-		byte[] bytes = value.toByteArray();
-		if (bytes.length == length) {
-			return bytes;
-		}
-
-		int start = bytes[0] == 0 ? 1 : 0;
-		int count = bytes.length - start;
-
-		if (count > length) {
-			throw new IllegalArgumentException("standard length exceeded for value");
-		}
-
-		byte[] tmp = new byte[length];
-		System.arraycopy(bytes, start, tmp, tmp.length - count, count);
-		return tmp;
+		return BigIntegers.toUnsignedByteArray(length, value);
 	}
 
-	/**
-	 * 无符号bytes转{@link BigInteger}
-	 *
-	 * @param buf buf 无符号bytes
-	 * @return {@link BigInteger}
-	 */
 	public static BigInteger fromUnsignedByteArray(byte[] buf) {
-		return new BigInteger(1, buf);
+		return BigIntegers.fromUnsignedByteArray(buf);
+	}
+
+	public static BigInteger fromUnsignedByteArray(byte[] buf, int off, int length) {
+		return BigIntegers.fromUnsignedByteArray(buf, off, length);
 	}
 
 	/**
-	 * 无符号bytes转{@link BigInteger}
+	 * Number值转换为double<br>
+	 * float强制转换存在精度问题，此方法避免精度丢失
 	 *
-	 * @param buf    无符号bytes
-	 * @param off    起始位置
-	 * @param length 长度
-	 * @return {@link BigInteger}
+	 * @param value 被转换的float值
+	 * @return double值
 	 */
-	public static BigInteger fromUnsignedByteArray(byte[] buf, int off, int length) {
-		byte[] mag = buf;
-		if (off != 0 || length != buf.length) {
-			mag = new byte[length];
-			System.arraycopy(buf, off, mag, 0, length);
+	public static double toDouble(Number value) {
+		return Doubles.toDouble(value);
+	}
+
+	// endregion
+
+
+
+
+	// region check
+
+	/**
+	 * 判断两个数字是否相邻，例如1和2相邻，1和3不相邻<br>
+	 * 判断方法为做差取绝对值判断是否为1
+	 *
+	 * @param number1 数字1
+	 * @param number2 数字2
+	 * @return 是否相邻
+	 */
+	public static boolean isBeside(long number1, long number2) {
+		return Math.abs(number1 - number2) == 1;
+	}
+
+	/**
+	 * 判断两个数字是否相邻，例如1和2相邻，1和3不相邻<br>
+	 * 判断方法为做差取绝对值判断是否为1
+	 *
+	 * @param number1 数字1
+	 * @param number2 数字2
+	 * @return 是否相邻
+	 */
+	public static boolean isBeside(int number1, int number2) {
+		return Math.abs(number1 - number2) == 1;
+	}
+
+	/**
+	 * 把给定的总数平均分成N份，返回每份的个数<br>
+	 * 当除以分数有余数时每份+1
+	 *
+	 * @param total     总数
+	 * @param partCount 份数
+	 * @return 每份的个数
+	 */
+	public static int partValue(int total, int partCount) {
+		return partValue(total, partCount, true);
+	}
+
+	/**
+	 * 把给定的总数平均分成N份，返回每份的个数<br>
+	 * 如果isPlusOneWhenHasRem为true，则当除以分数有余数时每份+1，否则丢弃余数部分
+	 *
+	 * @param total               总数
+	 * @param partCount           份数
+	 * @param isPlusOneWhenHasRem 在有余数时是否每份+1
+	 * @return 每份的个数
+	 */
+	public static int partValue(int total, int partCount, boolean isPlusOneWhenHasRem) {
+		int partValue = total / partCount;
+		if (isPlusOneWhenHasRem && total % partCount > 0) {
+			partValue++;
 		}
-		return new BigInteger(1, mag);
+		return partValue;
+	}
+
+	/**
+	 * 判断一个整数是否是2的幂
+	 *
+	 * @param n 待验证的整数
+	 * @return 如果n是2的幂返回true, 反之返回false
+	 */
+	public static boolean isPowerOfTwo(long n) {
+		return (n > 0) && ((n & (n - 1)) == 0);
 	}
 
 	/**
@@ -2771,9 +2514,9 @@ public class Numbers {
 			return false;
 		}
 		if (number instanceof Double) {
-			return (false == ((Double) number).isInfinite()) && (false == ((Double) number).isNaN());
+			return (!((Double) number).isInfinite()) && (!((Double) number).isNaN());
 		} else if (number instanceof Float) {
-			return (false == ((Float) number).isInfinite()) && (false == ((Float) number).isNaN());
+			return (!((Float) number).isInfinite()) && (!((Float) number).isNaN());
 		}
 		return true;
 	}
@@ -2786,7 +2529,7 @@ public class Numbers {
 	 * @return 检查结果
 	 */
 	public static boolean isValid(double number) {
-		return false == (Double.isNaN(number) || Double.isInfinite(number));
+		return !(Double.isNaN(number) || Double.isInfinite(number));
 	}
 
 	/**
@@ -2797,37 +2540,7 @@ public class Numbers {
 	 * @return 检查结果
 	 */
 	public static boolean isValid(float number) {
-		return false == (Float.isNaN(number) || Float.isInfinite(number));
-	}
-
-	/**
-	 * 计算数学表达式的值，只支持加减乘除和取余<br>
-	 * 如：
-	 * <pre class="code">
-	 *   calculate("(0*1--3)-5/-4-(3*(-2.13))") -》 10.64
-	 * </pre>
-	 *
-	 * @param expression 数学表达式
-	 * @return 结果
-	 */
-	@Experimental
-	public static double calculate(String expression) {
-		return Calculator.conversion(expression);
-	}
-
-	/**
-	 * Number值转换为double<br>
-	 * float强制转换存在精度问题，此方法避免精度丢失
-	 *
-	 * @param value 被转换的float值
-	 * @return double值
-	 */
-	public static double toDouble(Number value) {
-		if (value instanceof Float) {
-			return Double.parseDouble(value.toString());
-		} else {
-			return value.doubleValue();
-		}
+		return !(Float.isNaN(number) || Float.isInfinite(number));
 	}
 
 	/**
@@ -2847,24 +2560,10 @@ public class Numbers {
 	 * @return 是否是偶数
 	 */
 	public static boolean isEven(int num) {
-		return false == isOdd(num);
+		return !isOdd(num);
 	}
 
-	// ------------------------------------------------------------------------------------------- Private method start
-	private static int mathSubNode(int selectNum, int minNum) {
-		if (selectNum == minNum) {
-			return 1;
-		} else {
-			return selectNum * mathSubNode(selectNum - 1, minNum);
-		}
-	}
+	// endregion
 
-	private static int mathNode(int selectNum) {
-		if (selectNum == 0) {
-			return 1;
-		} else {
-			return selectNum * mathNode(selectNum - 1);
-		}
-	}
-	// ------------------------------------------------------------------------------------------- Private method end
+
 }

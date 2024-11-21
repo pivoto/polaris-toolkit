@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.Random;
 
+import io.polaris.core.lang.Objs;
 import io.polaris.core.random.Randoms;
 
 /**
@@ -11,6 +12,8 @@ import io.polaris.core.random.Randoms;
  * @since Sep 28, 2024
  */
 public class Booleans {
+
+	// region 检查判断
 
 	/**
 	 * 检查 {@code Boolean} 值是否为 {@code true}
@@ -63,6 +66,34 @@ public class Booleans {
 	public static boolean isNotEmpty(boolean[] array) {
 		return !isEmpty(array);
 	}
+
+	// endregion 检查判断
+
+	// region 转换
+
+	public static Boolean toBoolean(Object value) {
+		if (value == null) {
+			return false;
+		}
+		if (value instanceof Boolean) {
+			return (Boolean) value;
+		}
+		if (value instanceof Number) {
+			// 0为false，其它数字为true
+			return 0 != ((Number) value).intValue();
+		}
+		if (value instanceof Character) {
+			return ((int) ((Character) value).charValue()) != 0;
+		}
+		if (value instanceof CharSequence) {
+			return Boolean.parseBoolean(value.toString());
+		}
+		return Boolean.parseBoolean(Objs.toString(value));
+	}
+
+	// endregion 转换
+
+	// region 数组操作
 
 	/**
 	 * 将多个数组合并在一起<br>
@@ -339,4 +370,7 @@ public class Booleans {
 		array[index2] = tmp;
 		return array;
 	}
+
+	// endregion 数组操作
+
 }

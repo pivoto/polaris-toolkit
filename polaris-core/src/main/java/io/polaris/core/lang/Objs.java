@@ -24,7 +24,21 @@ import io.polaris.core.string.Strings;
 /**
  * @author Qt
  */
+@SuppressWarnings("unused")
 public class Objs {
+
+	// region equals/hash/toString
+
+	/**
+	 * 比较两个对象是否不相等。<br>
+	 *
+	 * @param obj1 对象1
+	 * @param obj2 对象2
+	 * @return 是否不等
+	 */
+	public static boolean notEqual(Object obj1, Object obj2) {
+		return !equals(obj1, obj2);
+	}
 
 	public static boolean equalsAny(Object obj, Object... args) {
 		for (Object arg : args) {
@@ -35,6 +49,7 @@ public class Objs {
 		return false;
 	}
 
+	@SafeVarargs
 	public static <T> T getIfEquals(T obj, T... args) {
 		for (int i = 0; i + 1 < args.length; i += 2) {
 			if (equals(args[i], obj)) {
@@ -73,6 +88,7 @@ public class Objs {
 		return java.util.Objects.deepEquals(a, b);
 	}
 
+
 	/** @see Objects#hashCode(Object) */
 	public static int hashCode(Object o) {
 		return java.util.Objects.hashCode(o);
@@ -94,202 +110,11 @@ public class Objs {
 		return (o != null) ? Iterables.toArrayString(o) : nullDefault;
 	}
 
-	/** @see Objects#compare(Object, Object, Comparator) */
-	public static <T> int compare(T a, T b, Comparator<? super T> c) {
-		return (a == b) ? 0 : c.compare(a, b);
-	}
 
-	/**
-	 * 比较两个对象是否不相等。<br>
-	 *
-	 * @param obj1 对象1
-	 * @param obj2 对象2
-	 * @return 是否不等
-	 */
-	public static boolean notEqual(Object obj1, Object obj2) {
-		return false == equals(obj1, obj2);
-	}
+	// endregion
 
 
-	/**
-	 * 计算对象长度，如果是字符串调用其length函数，集合类调用其size函数，数组调用其length属性，其他可遍历对象遍历计算长度<br>
-	 * 支持的类型包括：
-	 * <ul>
-	 * <li>CharSequence</li>
-	 * <li>Map</li>
-	 * <li>Iterator</li>
-	 * <li>Enumeration</li>
-	 * <li>Array</li>
-	 * </ul>
-	 *
-	 * @param obj 被计算长度的对象
-	 * @return 长度
-	 */
-	public static int length(Object obj) {
-		if (obj == null) {
-			return 0;
-		}
-		if (obj instanceof CharSequence) {
-			return ((CharSequence) obj).length();
-		}
-		if (obj instanceof Collection) {
-			return ((Collection<?>) obj).size();
-		}
-		if (obj instanceof Map) {
-			return ((Map<?, ?>) obj).size();
-		}
-
-		int count;
-		if (obj instanceof Iterator) {
-			final Iterator<?> iter = (Iterator<?>) obj;
-			count = 0;
-			while (iter.hasNext()) {
-				count++;
-				iter.next();
-			}
-			return count;
-		}
-		if (obj instanceof Enumeration) {
-			final Enumeration<?> enumeration = (Enumeration<?>) obj;
-			count = 0;
-			while (enumeration.hasMoreElements()) {
-				count++;
-				enumeration.nextElement();
-			}
-			return count;
-		}
-		if (obj.getClass().isArray() == true) {
-			return Array.getLength(obj);
-		}
-		return -1;
-	}
-
-	/**
-	 * 对象中是否包含元素<br>
-	 * 支持的对象类型包括：
-	 * <ul>
-	 * <li>String</li>
-	 * <li>Collection</li>
-	 * <li>Map</li>
-	 * <li>Iterator</li>
-	 * <li>Enumeration</li>
-	 * <li>Array</li>
-	 * </ul>
-	 *
-	 * @param obj     对象
-	 * @param element 元素
-	 * @return 是否包含
-	 */
-	public static boolean contains(Object obj, Object element) {
-		if (obj == null) {
-			return false;
-		}
-		if (obj instanceof String) {
-			if (element == null) {
-				return false;
-			}
-			return ((String) obj).contains(element.toString());
-		}
-		if (obj instanceof Collection) {
-			return ((Collection<?>) obj).contains(element);
-		}
-		if (obj instanceof Map) {
-			return ((Map<?, ?>) obj).containsValue(element);
-		}
-
-		if (obj instanceof Iterator) {
-			final Iterator<?> iter = (Iterator<?>) obj;
-			while (iter.hasNext()) {
-				final Object o = iter.next();
-				if (equals(o, element)) {
-					return true;
-				}
-			}
-			return false;
-		}
-		if (obj instanceof Enumeration) {
-			final Enumeration<?> enumeration = (Enumeration<?>) obj;
-			while (enumeration.hasMoreElements()) {
-				final Object o = enumeration.nextElement();
-				if (equals(o, element)) {
-					return true;
-				}
-			}
-			return false;
-		}
-		if (obj.getClass().isArray()) {
-			final int len = Array.getLength(obj);
-			for (int i = 0; i < len; i++) {
-				final Object o = Array.get(obj, i);
-				if (equals(o, element)) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * @see Objects#isNull(Object)
-	 */
-	public static boolean isNull(Object obj) {
-		return obj == null;
-	}
-
-	/** @see Objects#nonNull(Object) */
-	public static boolean isNotNull(Object obj) {
-		return obj != null;
-	}
-
-	/**
-	 * 判断指定对象是否为空，支持：
-	 *
-	 * <pre>
-	 * 1. CharSequence
-	 * 2. Map
-	 * 3. Iterable
-	 * 4. Iterator
-	 * 5. Array
-	 * </pre>
-	 *
-	 * @param obj 被判断的对象
-	 * @return 是否为空，如果类型不支持，返回false
-	 */
-	public static boolean isEmpty(Object obj) {
-		if (null == obj) {
-			return true;
-		}
-		if (obj instanceof CharSequence) {
-			return Strings.isEmpty((CharSequence) obj);
-		} else if (obj instanceof Map) {
-			return ((Map<?, ?>) obj).isEmpty();
-		} else if (obj instanceof Iterable) {
-			return !((Iterable<?>) obj).iterator().hasNext();
-		} else if (obj instanceof Iterator) {
-			return !((Iterator<?>) obj).hasNext();
-		} else if (ObjectArrays.isArray(obj)) {
-			return ObjectArrays.isEmpty(obj);
-		}
-		return false;
-	}
-
-	/**
-	 * 判断指定对象是否为非空，支持：
-	 *
-	 * <pre>
-	 * 1. CharSequence
-	 * 2. Map
-	 * 3. Iterable
-	 * 4. Iterator
-	 * 5. Array
-	 * </pre>
-	 *
-	 * @param obj 被判断的对象
-	 * @return 是否为空，如果类型不支持，返回true
-	 */
-	public static boolean isNotEmpty(Object obj) {
-		return !isEmpty(obj);
-	}
+	// region 默认值
 
 	@SafeVarargs
 	public static <T> T coalesce(T... args) {
@@ -506,6 +331,41 @@ public class Objs {
 		return str;
 	}
 
+	// endregion
+
+
+	// region 序列化与克隆
+
+	/**
+	 * 序列化<br>
+	 * 对象必须实现Serializable接口
+	 *
+	 * @param <T> 对象类型
+	 * @param obj 要被序列化的对象
+	 * @return 序列化后的字节码
+	 */
+	public static <T> byte[] serialize(T obj) {
+		return Serializations.serialize(obj);
+	}
+
+	/**
+	 * 反序列化<br>
+	 * 对象必须实现Serializable接口
+	 *
+	 * <p>
+	 * 注意！！！ 此方法不会检查反序列化安全，可能存在反序列化漏洞风险！！！
+	 * </p>
+	 *
+	 * @param <T>           对象类型
+	 * @param bytes         反序列化的字节码
+	 * @param acceptClasses 白名单的类
+	 * @return 反序列化后的对象
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T deserialize(byte[] bytes, Class<?>... acceptClasses) {
+		return (T) Serializations.deserialize(bytes, acceptClasses);
+	}
+
 	/**
 	 * 克隆对象<br>
 	 * 如果对象实现Cloneable接口，调用其clone方法<br>
@@ -557,35 +417,197 @@ public class Objs {
 		return Serializations.clone(obj);
 	}
 
+	// endregion
+
+
+	// region 检查判断
+
+	/** @see Objects#compare(Object, Object, Comparator) */
+	public static <T> int compare(T a, T b, Comparator<? super T> c) {
+		return (a == b) ? 0 : c.compare(a, b);
+	}
+
+
 	/**
-	 * 序列化<br>
-	 * 对象必须实现Serializable接口
+	 * 计算对象长度，如果是字符串调用其length函数，集合类调用其size函数，数组调用其length属性，其他可遍历对象遍历计算长度<br>
+	 * 支持的类型包括：
+	 * <ul>
+	 * <li>CharSequence</li>
+	 * <li>Map</li>
+	 * <li>Iterator</li>
+	 * <li>Enumeration</li>
+	 * <li>Array</li>
+	 * </ul>
 	 *
-	 * @param <T> 对象类型
-	 * @param obj 要被序列化的对象
-	 * @return 序列化后的字节码
+	 * @param obj 被计算长度的对象
+	 * @return 长度
 	 */
-	public static <T> byte[] serialize(T obj) {
-		return Serializations.serialize(obj);
+	public static int length(Object obj) {
+		if (obj == null) {
+			return 0;
+		}
+		if (obj instanceof CharSequence) {
+			return ((CharSequence) obj).length();
+		}
+		if (obj instanceof Collection) {
+			return ((Collection<?>) obj).size();
+		}
+		if (obj instanceof Map) {
+			return ((Map<?, ?>) obj).size();
+		}
+
+		int count;
+		if (obj instanceof Iterator) {
+			final Iterator<?> iter = (Iterator<?>) obj;
+			count = 0;
+			while (iter.hasNext()) {
+				count++;
+				iter.next();
+			}
+			return count;
+		}
+		if (obj instanceof Enumeration) {
+			final Enumeration<?> enumeration = (Enumeration<?>) obj;
+			count = 0;
+			while (enumeration.hasMoreElements()) {
+				count++;
+				enumeration.nextElement();
+			}
+			return count;
+		}
+		if (obj.getClass().isArray()) {
+			return Array.getLength(obj);
+		}
+		return -1;
 	}
 
 	/**
-	 * 反序列化<br>
-	 * 对象必须实现Serializable接口
+	 * 对象中是否包含元素<br>
+	 * 支持的对象类型包括：
+	 * <ul>
+	 * <li>String</li>
+	 * <li>Collection</li>
+	 * <li>Map</li>
+	 * <li>Iterator</li>
+	 * <li>Enumeration</li>
+	 * <li>Array</li>
+	 * </ul>
 	 *
-	 * <p>
-	 * 注意！！！ 此方法不会检查反序列化安全，可能存在反序列化漏洞风险！！！
-	 * </p>
-	 *
-	 * @param <T>           对象类型
-	 * @param bytes         反序列化的字节码
-	 * @param acceptClasses 白名单的类
-	 * @return 反序列化后的对象
+	 * @param obj     对象
+	 * @param element 元素
+	 * @return 是否包含
 	 */
-	@SuppressWarnings("unchecked")
-	public static <T> T deserialize(byte[] bytes, Class<?>... acceptClasses) {
-		return (T) Serializations.deserialize(bytes, acceptClasses);
+	public static boolean contains(Object obj, Object element) {
+		if (obj == null) {
+			return false;
+		}
+		if (obj instanceof String) {
+			if (element == null) {
+				return false;
+			}
+			return ((String) obj).contains(element.toString());
+		}
+		if (obj instanceof Collection) {
+			return ((Collection<?>) obj).contains(element);
+		}
+		if (obj instanceof Map) {
+			return ((Map<?, ?>) obj).containsValue(element);
+		}
+
+		if (obj instanceof Iterator) {
+			final Iterator<?> iter = (Iterator<?>) obj;
+			while (iter.hasNext()) {
+				final Object o = iter.next();
+				if (equals(o, element)) {
+					return true;
+				}
+			}
+			return false;
+		}
+		if (obj instanceof Enumeration) {
+			final Enumeration<?> enumeration = (Enumeration<?>) obj;
+			while (enumeration.hasMoreElements()) {
+				final Object o = enumeration.nextElement();
+				if (equals(o, element)) {
+					return true;
+				}
+			}
+			return false;
+		}
+		if (obj.getClass().isArray()) {
+			final int len = Array.getLength(obj);
+			for (int i = 0; i < len; i++) {
+				final Object o = Array.get(obj, i);
+				if (equals(o, element)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
+
+	/**
+	 * @see Objects#isNull(Object)
+	 */
+	public static boolean isNull(Object obj) {
+		return obj == null;
+	}
+
+	/** @see Objects#nonNull(Object) */
+	public static boolean isNotNull(Object obj) {
+		return obj != null;
+	}
+
+	/**
+	 * 判断指定对象是否为空，支持：
+	 *
+	 * <pre>
+	 * 1. CharSequence
+	 * 2. Map
+	 * 3. Iterable
+	 * 4. Iterator
+	 * 5. Array
+	 * </pre>
+	 *
+	 * @param obj 被判断的对象
+	 * @return 是否为空，如果类型不支持，返回false
+	 */
+	public static boolean isEmpty(Object obj) {
+		if (null == obj) {
+			return true;
+		}
+		if (obj instanceof CharSequence) {
+			return Strings.isEmpty((CharSequence) obj);
+		} else if (obj instanceof Map) {
+			return ((Map<?, ?>) obj).isEmpty();
+		} else if (obj instanceof Iterable) {
+			return !((Iterable<?>) obj).iterator().hasNext();
+		} else if (obj instanceof Iterator) {
+			return !((Iterator<?>) obj).hasNext();
+		} else if (ObjectArrays.isArray(obj)) {
+			return ObjectArrays.isEmpty(obj);
+		}
+		return false;
+	}
+
+	/**
+	 * 判断指定对象是否为非空，支持：
+	 *
+	 * <pre>
+	 * 1. CharSequence
+	 * 2. Map
+	 * 3. Iterable
+	 * 4. Iterator
+	 * 5. Array
+	 * </pre>
+	 *
+	 * @param obj 被判断的对象
+	 * @return 是否为空，如果类型不支持，返回true
+	 */
+	public static boolean isNotEmpty(Object obj) {
+		return !isEmpty(obj);
+	}
+
 
 	/**
 	 * 是否为基本类型，包括包装类型和非包装类型
@@ -717,4 +739,7 @@ public class Objs {
 	public static boolean isAllNotEmpty(Object... objs) {
 		return ObjectArrays.isAllNotEmpty(objs);
 	}
+
+	// endregion
+
 }

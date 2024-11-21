@@ -54,6 +54,8 @@ public class Bytes {
 		CPU_ENDIAN = byteOrder;
 	}
 
+	// region 字符串转换
+
 	public static String toHexString(byte[] bytes) {
 		return Hex.formatBytes(bytes);
 	}
@@ -103,26 +105,14 @@ public class Bytes {
 		return Hex.parseHexAsByte(text);
 	}
 
-
-	/**
-	 * 数组是否为空
-	 *
-	 * @param array 数组
-	 * @return 是否为空
-	 */
-	public static boolean isEmpty(byte[] array) {
-		return array == null || array.length == 0;
+	public static byte parse(String text, int radix) {
+		return Byte.parseByte(text, radix);
 	}
 
-	/**
-	 * 数组是否为非空
-	 *
-	 * @param array 数组
-	 * @return 是否为非空
-	 */
-	public static boolean isNotEmpty(byte[] array) {
-		return !isEmpty(array);
-	}
+	// endregion
+
+
+	// region 数组操作
 
 	/**
 	 * 生成一个新的重新设置大小的数组<br>
@@ -210,45 +200,6 @@ public class Bytes {
 	 * @param value 被检查的元素
 	 * @return 数组中指定元素所在位置，未找到返回 -1
 	 */
-	public static int indexOf(byte[] array, byte value) {
-		if (isNotEmpty(array)) {
-			for (int i = 0; i < array.length; i++) {
-				if (value == array[i]) {
-					return i;
-				}
-			}
-		}
-		return -1;
-	}
-
-	/**
-	 * 返回数组中指定元素所在最后的位置，未找到返回 -1
-	 *
-	 * @param array 数组
-	 * @param value 被检查的元素
-	 * @return 数组中指定元素所在位置，未找到返回 -1
-	 */
-	public static int lastIndexOf(byte[] array, byte value) {
-		if (isNotEmpty(array)) {
-			for (int i = array.length - 1; i >= 0; i--) {
-				if (value == array[i]) {
-					return i;
-				}
-			}
-		}
-		return -1;
-	}
-
-	/**
-	 * 数组中是否包含元素
-	 *
-	 * @param array 数组
-	 * @param value 被检查的元素
-	 * @return 是否包含
-	 */
-	public static boolean contains(byte[] array, byte value) {
-		return indexOf(array, value) > -1;
-	}
 
 	/**
 	 * 将原始类型数组包装为包装类型
@@ -536,21 +487,6 @@ public class Bytes {
 	}
 
 
-	public static byte[] utf8Bytes(CharSequence str) {
-		return str.toString().getBytes(StandardCharsets.UTF_8);
-	}
-
-	public static byte[] utf8Bytes(String str) {
-		return str.getBytes(StandardCharsets.UTF_8);
-	}
-
-	public static byte[] bytes(CharSequence str) {
-		return str.toString().getBytes();
-	}
-
-	public static byte[] bytes(String str) {
-		return str.getBytes();
-	}
 
 	public static byte[] copy(byte[] array, int length) {
 		return Arrays.copyOf(array, length);
@@ -577,23 +513,10 @@ public class Bytes {
 		return result;
 	}
 
-//	public static boolean contains(byte[] array, byte target) {
-//		for (byte value : array) {
-//			if (value == target) {
-//				return true;
-//			}
-//		}
-//		return false;
-//	}
-//
-//	public static int indexOf(byte[] array, byte target) {
-//		for (int i = 0; i < array.length; i++) {
-//			if (array[i] == target) {
-//				return i;
-//			}
-//		}
-//		return -1;
-//	}
+	// endregion
+
+
+	// region 检查判断
 
 	public static int indexOf(byte[] array, byte[] target) {
 		if (target.length == 0) {
@@ -612,14 +535,87 @@ public class Bytes {
 		return -1;
 	}
 
-//	public static int lastIndexOf(byte[] array, byte target) {
-//		for (int i = array.length - 1; i >= 0; i--) {
-//			if (array[i] == target) {
-//				return i;
-//			}
-//		}
-//		return -1;
-//	}
+	public static int indexOf(byte[] array, byte value) {
+		if (isNotEmpty(array)) {
+			for (int i = 0; i < array.length; i++) {
+				if (value == array[i]) {
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * 返回数组中指定元素所在最后的位置，未找到返回 -1
+	 *
+	 * @param array 数组
+	 * @param value 被检查的元素
+	 * @return 数组中指定元素所在位置，未找到返回 -1
+	 */
+	public static int lastIndexOf(byte[] array, byte value) {
+		if (isNotEmpty(array)) {
+			for (int i = array.length - 1; i >= 0; i--) {
+				if (value == array[i]) {
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * 数组中是否包含元素
+	 *
+	 * @param array 数组
+	 * @param value 被检查的元素
+	 * @return 是否包含
+	 */
+	public static boolean contains(byte[] array, byte value) {
+		return indexOf(array, value) > -1;
+	}
+
+	/**
+	 * 数组是否为空
+	 *
+	 * @param array 数组
+	 * @return 是否为空
+	 */
+	public static boolean isEmpty(byte[] array) {
+		return array == null || array.length == 0;
+	}
+
+	/**
+	 * 数组是否为非空
+	 *
+	 * @param array 数组
+	 * @return 是否为非空
+	 */
+	public static boolean isNotEmpty(byte[] array) {
+		return !isEmpty(array);
+	}
+
+	// endregion
+
+
+	// region 类型转换
+
+
+	public static byte[] utf8Bytes(CharSequence str) {
+		return str.toString().getBytes(StandardCharsets.UTF_8);
+	}
+
+	public static byte[] utf8Bytes(String str) {
+		return str.getBytes(StandardCharsets.UTF_8);
+	}
+
+	public static byte[] bytes(CharSequence str) {
+		return str.toString().getBytes();
+	}
+
+	public static byte[] bytes(String str) {
+		return str.getBytes();
+	}
 
 	/**
 	 * int转byte
@@ -1066,6 +1062,8 @@ public class Bytes {
 
 		return (T) number;
 	}
+
+	// endregion
 
 
 }

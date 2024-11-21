@@ -12,6 +12,9 @@ import io.polaris.core.string.Hex;
  * @since Sep 28, 2024
  */
 public class Ints {
+
+	// region 字符串转换
+
 	public static String toBinString(int num) {
 		return Hex.formatBin(num);
 	}
@@ -36,25 +39,14 @@ public class Ints {
 		return Hex.parseHexAsInt(text);
 	}
 
-	/**
-	 * 数组是否为空
-	 *
-	 * @param array 数组
-	 * @return 是否为空
-	 */
-	public static boolean isEmpty(int[] array) {
-		return array == null || array.length == 0;
+	public static int parse(String text, int radix) {
+		return Integer.parseInt(text, radix);
 	}
 
-	/**
-	 * 数组是否为非空
-	 *
-	 * @param array 数组
-	 * @return 是否为非空
-	 */
-	public static boolean isNotEmpty(int[] array) {
-		return !isEmpty(array);
-	}
+	// endregion
+
+
+	// region 数组操作
 
 	/**
 	 * 将多个数组合并在一起<br>
@@ -140,53 +132,6 @@ public class Ints {
 			includedStart += step;
 		}
 		return range;
-	}
-
-	/**
-	 * 返回数组中指定元素所在位置，未找到返回 -1
-	 *
-	 * @param array 数组
-	 * @param value 被检查的元素
-	 * @return 数组中指定元素所在位置，未找到返回 -1
-	 */
-	public static int indexOf(int[] array, int value) {
-		if (isNotEmpty(array)) {
-			for (int i = 0; i < array.length; i++) {
-				if (value == array[i]) {
-					return i;
-				}
-			}
-		}
-		return -1;
-	}
-
-	/**
-	 * 返回数组中指定元素所在最后的位置，未找到返回 -1
-	 *
-	 * @param array 数组
-	 * @param value 被检查的元素
-	 * @return 数组中指定元素所在位置，未找到返回 -1
-	 */
-	public static int lastIndexOf(int[] array, int value) {
-		if (isNotEmpty(array)) {
-			for (int i = array.length - 1; i >= 0; i--) {
-				if (value == array[i]) {
-					return i;
-				}
-			}
-		}
-		return -1;
-	}
-
-	/**
-	 * 数组中是否包含元素
-	 *
-	 * @param array 数组
-	 * @param value 被检查的元素
-	 * @return 是否包含
-	 */
-	public static boolean contains(int[] array, int value) {
-		return indexOf(array, value) > -1;
 	}
 
 	/**
@@ -425,6 +370,57 @@ public class Ints {
 		return array;
 	}
 
+	// endregion
+
+	// region 检查判断
+
+	/**
+	 * 返回数组中指定元素所在位置，未找到返回 -1
+	 *
+	 * @param array 数组
+	 * @param value 被检查的元素
+	 * @return 数组中指定元素所在位置，未找到返回 -1
+	 */
+	public static int indexOf(int[] array, int value) {
+		if (isNotEmpty(array)) {
+			for (int i = 0; i < array.length; i++) {
+				if (value == array[i]) {
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * 返回数组中指定元素所在最后的位置，未找到返回 -1
+	 *
+	 * @param array 数组
+	 * @param value 被检查的元素
+	 * @return 数组中指定元素所在位置，未找到返回 -1
+	 */
+	public static int lastIndexOf(int[] array, int value) {
+		if (isNotEmpty(array)) {
+			for (int i = array.length - 1; i >= 0; i--) {
+				if (value == array[i]) {
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * 数组中是否包含元素
+	 *
+	 * @param array 数组
+	 * @param value 被检查的元素
+	 * @return 是否包含
+	 */
+	public static boolean contains(int[] array, int value) {
+		return indexOf(array, value) > -1;
+	}
+
 	/**
 	 * 检查数组是否升序，即array[i] &lt;= array[i+1]，若传入空数组，则返回false
 	 *
@@ -474,4 +470,84 @@ public class Ints {
 
 		return true;
 	}
+
+	/**
+	 * 数组是否为空
+	 *
+	 * @param array 数组
+	 * @return 是否为空
+	 */
+	public static boolean isEmpty(int[] array) {
+		return array == null || array.length == 0;
+	}
+
+	/**
+	 * 数组是否为非空
+	 *
+	 * @param array 数组
+	 * @return 是否为非空
+	 */
+	public static boolean isNotEmpty(int[] array) {
+		return !isEmpty(array);
+	}
+
+	// endregion
+
+
+	// region 类型转换
+
+	/**
+	 * int值转byte数组，使用大端字节序（高位字节在前，低位字节在后）<br>
+	 * 见：<a href="http://www.ruanyifeng.com/blog/2016/11/byte-order.html">http://www.ruanyifeng.com/blog/2016/11/byte-order.html</a>
+	 *
+	 * @param value 值
+	 * @return byte数组
+	 */
+	public static byte[] toBytes(int value) {
+		final byte[] result = new byte[4];
+
+		result[0] = (byte) (value >> 24);
+		result[1] = (byte) (value >> 16);
+		result[2] = (byte) (value >> 8);
+		result[3] = (byte) (value /* >> 0 */);
+
+		return result;
+	}
+
+	/**
+	 * byte数组转int，使用大端字节序（高位字节在前，低位字节在后）<br>
+	 * 见：<a href="http://www.ruanyifeng.com/blog/2016/11/byte-order.html">http://www.ruanyifeng.com/blog/2016/11/byte-order.html</a>
+	 *
+	 * @param bytes byte数组
+	 * @return int
+	 */
+	public static int toInt(byte[] bytes) {
+		return (bytes[0] & 0xff) << 24//
+			| (bytes[1] & 0xff) << 16//
+			| (bytes[2] & 0xff) << 8//
+			| (bytes[3] & 0xff);
+	}
+
+	// endregion
+
+
+	// region 默认值
+
+	public static int defaultIfZero(int value, int defaultValue) {
+		return 0 == value ? defaultValue : value;
+	}
+
+	/**
+	 * 如果给定值为0，返回1，否则返回原值
+	 *
+	 * @param value 值
+	 * @return 1或非0值
+	 */
+	public static int defaultIfZero(int value) {
+		return 0 == value ? 1 : value;
+	}
+
+	// endregion
+
+
 }

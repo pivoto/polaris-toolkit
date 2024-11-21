@@ -12,6 +12,9 @@ import io.polaris.core.string.Hex;
  * @since Sep 28, 2024
  */
 public class Shorts {
+
+	// region 字符串转换
+
 	public static String toBinString(short num) {
 		return Hex.formatBin(num);
 	}
@@ -36,25 +39,14 @@ public class Shorts {
 		return Hex.parseHexAsShort(text);
 	}
 
-	/**
-	 * 数组是否为空
-	 *
-	 * @param array 数组
-	 * @return 是否为空
-	 */
-	public static boolean isEmpty(short[] array) {
-		return array == null || array.length == 0;
+	public static short parse(String text, int radix) {
+		return Short.parseShort(text, radix);
 	}
 
-	/**
-	 * 数组是否为非空
-	 *
-	 * @param array 数组
-	 * @return 是否为非空
-	 */
-	public static boolean isNotEmpty(short[] array) {
-		return !isEmpty(array);
-	}
+	// endregion
+
+
+	// region 数组操作
 
 	/**
 	 * 将多个数组合并在一起<br>
@@ -85,54 +77,6 @@ public class Shorts {
 			}
 		}
 		return result;
-	}
-
-
-	/**
-	 * 返回数组中指定元素所在位置，未找到返回 -1
-	 *
-	 * @param array 数组
-	 * @param value 被检查的元素
-	 * @return 数组中指定元素所在位置，未找到返回 -1
-	 */
-	public static int indexOf(short[] array, short value) {
-		if (isNotEmpty(array)) {
-			for (int i = 0; i < array.length; i++) {
-				if (value == array[i]) {
-					return i;
-				}
-			}
-		}
-		return -1;
-	}
-
-	/**
-	 * 返回数组中指定元素所在最后的位置，未找到返回 -1
-	 *
-	 * @param array 数组
-	 * @param value 被检查的元素
-	 * @return 数组中指定元素所在位置，未找到返回 -1
-	 */
-	public static int lastIndexOf(short[] array, short value) {
-		if (isNotEmpty(array)) {
-			for (int i = array.length - 1; i >= 0; i--) {
-				if (value == array[i]) {
-					return i;
-				}
-			}
-		}
-		return -1;
-	}
-
-	/**
-	 * 数组中是否包含元素
-	 *
-	 * @param array 数组
-	 * @param value 被检查的元素
-	 * @return 是否包含
-	 */
-	public static boolean contains(short[] array, short value) {
-		return indexOf(array, value) > -1;
 	}
 
 	/**
@@ -370,6 +314,58 @@ public class Shorts {
 		return array;
 	}
 
+	// endregion
+
+	// region 检查判断
+
+
+	/**
+	 * 返回数组中指定元素所在位置，未找到返回 -1
+	 *
+	 * @param array 数组
+	 * @param value 被检查的元素
+	 * @return 数组中指定元素所在位置，未找到返回 -1
+	 */
+	public static int indexOf(short[] array, short value) {
+		if (isNotEmpty(array)) {
+			for (int i = 0; i < array.length; i++) {
+				if (value == array[i]) {
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * 返回数组中指定元素所在最后的位置，未找到返回 -1
+	 *
+	 * @param array 数组
+	 * @param value 被检查的元素
+	 * @return 数组中指定元素所在位置，未找到返回 -1
+	 */
+	public static int lastIndexOf(short[] array, short value) {
+		if (isNotEmpty(array)) {
+			for (int i = array.length - 1; i >= 0; i--) {
+				if (value == array[i]) {
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * 数组中是否包含元素
+	 *
+	 * @param array 数组
+	 * @param value 被检查的元素
+	 * @return 是否包含
+	 */
+	public static boolean contains(short[] array, short value) {
+		return indexOf(array, value) > -1;
+	}
+
 	/**
 	 * 检查数组是否升序，即array[i] &lt;= array[i+1]，若传入空数组，则返回false
 	 *
@@ -396,7 +392,6 @@ public class Shorts {
 				return false;
 			}
 		}
-
 		return true;
 	}
 
@@ -416,7 +411,29 @@ public class Shorts {
 				return false;
 			}
 		}
-
 		return true;
 	}
+
+	/**
+	 * 数组是否为空
+	 *
+	 * @param array 数组
+	 * @return 是否为空
+	 */
+	public static boolean isEmpty(short[] array) {
+		return array == null || array.length == 0;
+	}
+
+	/**
+	 * 数组是否为非空
+	 *
+	 * @param array 数组
+	 * @return 是否为非空
+	 */
+	public static boolean isNotEmpty(short[] array) {
+		return !isEmpty(array);
+	}
+
+	// endregion
+
 }

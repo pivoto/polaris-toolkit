@@ -13,26 +13,8 @@ import io.polaris.core.random.Randoms;
  */
 public class Doubles {
 
-	/**
-	 * 数组是否为空
-	 *
-	 * @param array 数组
-	 * @return 是否为空
-	 */
-	public static boolean isEmpty(double[] array) {
-		return array == null || array.length == 0;
-	}
 
-	/**
-	 * 数组是否为非空
-	 *
-	 * @param array 数组
-	 * @return 是否为非空
-	 */
-	public static boolean isNotEmpty(double[] array) {
-		return !isEmpty(array);
-	}
-
+	// region 数组操作
 	/**
 	 * 将多个数组合并在一起<br>
 	 * 忽略null的数组
@@ -62,53 +44,6 @@ public class Doubles {
 			}
 		}
 		return result;
-	}
-
-	/**
-	 * 返回数组中指定元素所在位置，未找到返回 -1
-	 *
-	 * @param array 数组
-	 * @param value 被检查的元素
-	 * @return 数组中指定元素所在位置，未找到返回 -1
-	 */
-	public static int indexOf(double[] array, double value) {
-		if (isNotEmpty(array)) {
-			for (int i = 0; i < array.length; i++) {
-				if (Numbers.equals(value, array[i])) {
-					return i;
-				}
-			}
-		}
-		return -1;
-	}
-
-	/**
-	 * 返回数组中指定元素所在最后的位置，未找到返回 -1
-	 *
-	 * @param array 数组
-	 * @param value 被检查的元素
-	 * @return 数组中指定元素所在位置，未找到返回 -1
-	 */
-	public static int lastIndexOf(double[] array, double value) {
-		if (isNotEmpty(array)) {
-			for (int i = array.length - 1; i >= 0; i--) {
-				if (Numbers.equals(value, array[i])) {
-					return i;
-				}
-			}
-		}
-		return -1;
-	}
-
-	/**
-	 * 数组中是否包含元素
-	 *
-	 * @param array 数组
-	 * @param value 被检查的元素
-	 * @return 是否包含
-	 */
-	public static boolean contains(double[] array, double value) {
-		return indexOf(array, value) > -1;
 	}
 
 	/**
@@ -346,6 +281,57 @@ public class Doubles {
 		return array;
 	}
 
+	// endregion
+
+	// region 检查判断
+
+	/**
+	 * 返回数组中指定元素所在位置，未找到返回 -1
+	 *
+	 * @param array 数组
+	 * @param value 被检查的元素
+	 * @return 数组中指定元素所在位置，未找到返回 -1
+	 */
+	public static int indexOf(double[] array, double value) {
+		if (isNotEmpty(array)) {
+			for (int i = 0; i < array.length; i++) {
+				if (Numbers.equals(value, array[i])) {
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * 返回数组中指定元素所在最后的位置，未找到返回 -1
+	 *
+	 * @param array 数组
+	 * @param value 被检查的元素
+	 * @return 数组中指定元素所在位置，未找到返回 -1
+	 */
+	public static int lastIndexOf(double[] array, double value) {
+		if (isNotEmpty(array)) {
+			for (int i = array.length - 1; i >= 0; i--) {
+				if (Numbers.equals(value, array[i])) {
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * 数组中是否包含元素
+	 *
+	 * @param array 数组
+	 * @param value 被检查的元素
+	 * @return 是否包含
+	 */
+	public static boolean contains(double[] array, double value) {
+		return indexOf(array, value) > -1;
+	}
+
 	/**
 	 * 检查数组是否升序，即array[i] &lt;= array[i+1]，若传入空数组，则返回false
 	 *
@@ -395,4 +381,47 @@ public class Doubles {
 
 		return true;
 	}
+
+	/**
+	 * 数组是否为空
+	 *
+	 * @param array 数组
+	 * @return 是否为空
+	 */
+	public static boolean isEmpty(double[] array) {
+		return array == null || array.length == 0;
+	}
+
+	/**
+	 * 数组是否为非空
+	 *
+	 * @param array 数组
+	 * @return 是否为非空
+	 */
+	public static boolean isNotEmpty(double[] array) {
+		return !isEmpty(array);
+	}
+
+	// endregion
+
+
+	// region 类型转换
+
+	/**
+	 * Number值转换为double<br>
+	 * float强制转换存在精度问题，此方法避免精度丢失
+	 *
+	 * @param value 被转换的float值
+	 * @return double值
+	 */
+	public static double toDouble(Number value) {
+		if (value instanceof Float) {
+			return Double.parseDouble(value.toString());
+		} else {
+			return value.doubleValue();
+		}
+	}
+
+	// endregion
+
 }
