@@ -1,27 +1,22 @@
 package io.polaris.json;
 
-import java.io.IOException;
 import java.util.function.Supplier;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 
 /**
  * @author Qt
  * @since Feb 04, 2024
  */
-public abstract class BaseJacksonDeserializer<T> extends JsonDeserializer<T> {
+public abstract class BaseJacksonSerializer<T> extends JsonSerializer<T> {
 
 	protected final JavaType javaType;
-	protected final Class<?> rawClass;
+	protected final Class<T> rawClass;
 
-	public BaseJacksonDeserializer(Annotated annotated) {
+	public BaseJacksonSerializer(Annotated annotated) {
 		if (annotated == null) {
 			this.javaType = null;
 			this.rawClass = null;
@@ -38,12 +33,12 @@ public abstract class BaseJacksonDeserializer<T> extends JsonDeserializer<T> {
 				}
 			}
 			this.javaType = javaType;
-			this.rawClass = rawClass;
+			this.rawClass = (Class<T>) rawClass;
 		}
 	}
 
 	@Override
-	public Class<?> handledType() {
+	public Class<T> handledType() {
 		return rawClass;
 	}
 
@@ -69,34 +64,6 @@ public abstract class BaseJacksonDeserializer<T> extends JsonDeserializer<T> {
 		} catch (ReflectiveOperationException e) {
 			throw new RuntimeException(e.getMessage(), e);
 		}
-	}
-
-	protected TreeNode readFirstOfArray(JsonParser p) throws IOException {
-		TreeNode tree = p.getCodec().readTree(p);
-		while (tree != null && tree.isArray()) {
-			ArrayNode arr = (ArrayNode) tree;
-			if (!arr.isEmpty()) {
-				tree = arr.get(0);
-			} else {
-				tree = null;
-			}
-		}
-		return tree;
-	}
-
-	protected ArrayNode readAsArray(JsonParser p) throws IOException {
-		TreeNode tree = p.getCodec().readTree(p);
-		if (tree == null) {
-			return null;
-		}
-		if (tree.isArray()) {
-			return (ArrayNode) tree;
-		}
-		ArrayNode arrayNode = (ArrayNode) p.getCodec().createArrayNode();
-		if (tree instanceof JsonNode) {
-			arrayNode.add((JsonNode) tree);
-		}
-		return arrayNode;
 	}
 
 }
