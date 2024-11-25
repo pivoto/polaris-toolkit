@@ -139,7 +139,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	}
 
 	private Cursor<${table.javaClassName}${env.entityClassSuffix}> getCursor(Object param, OrderBy orderBy, Function<${table.javaClassName}${env.entityClassSuffix}Sql.Select, SelectStatement<?>> sqlBuilder) {
-		if (sqlBuilder != null) {
+		if (sqlBuilder != null || param instanceof SelectStatement) {
 			return getCursorBySql(param, orderBy, sqlBuilder);
 		}
 		if (preferSqlStatement()) {
@@ -156,18 +156,9 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	}
 
 	private Cursor<${table.javaClassName}${env.entityClassSuffix}> getCursorBySql(Object param, OrderBy orderBy, Function<${table.javaClassName}${env.entityClassSuffix}Sql.Select, SelectStatement<?>> sqlBuilder) {
-		${table.javaClassName}${env.entityClassSuffix}Sql.Select sql = ${table.javaClassName}${env.entityClassSuffix}Sql.select().selectAll();
-		if (param != null) {
-			sql.where().byEntity(param);
-		}
+		SelectStatement<?> sql = buildSelect(param, sqlBuilder);
 		if (orderBy != null) {
 			sql.orderBy(orderBy);
-		}
-		if (sqlBuilder != null) {
-			SelectStatement<?> newSql = sqlBuilder.apply(sql);
-			if (newSql != null) {
-				return mapper.selectEntityCursorBySql(newSql);
-			}
 		}
 		return mapper.selectEntityCursorBySql(sql);
 	}
@@ -991,16 +982,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 	}
 
 	private ${table.javaClassName}${env.entityClassSuffix} getUniqueBySql(Object param, Function<${table.javaClassName}${env.entityClassSuffix}Sql.Select, SelectStatement<?>> sqlBuilder) {
-		${table.javaClassName}${env.entityClassSuffix}Sql.Select sql = ${table.javaClassName}${env.entityClassSuffix}Sql.select().selectAll();
-		if (param != null) {
-			sql.where().byEntity(param);
-		}
-		if (sqlBuilder != null) {
-			SelectStatement<?> newSql = sqlBuilder.apply(sql);
-			if (newSql != null) {
-				return mapper.selectEntityBySql(newSql);
-			}
-		}
+		SelectStatement<?> sql = buildSelect(param, sqlBuilder);
 		return mapper.selectEntityBySql(sql);
 	}
 
