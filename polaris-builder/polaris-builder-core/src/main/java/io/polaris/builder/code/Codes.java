@@ -25,6 +25,7 @@ import io.polaris.core.collection.Iterables;
 import io.polaris.core.collection.Sets;
 import io.polaris.core.concurrent.Executors;
 import io.polaris.core.env.GlobalStdEnv;
+import io.polaris.core.regex.Patterns;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 
 /**
@@ -201,7 +202,12 @@ public class Codes {
 		Function<String, Boolean> includeTable;
 		if (targets != null && targets.length > 0) {
 			Set<String> set = Iterables.asSet(targets);
-			includeTable = name -> set.contains(name);
+			includeTable = name -> {
+				if (set.isEmpty() || set.contains(name)) {
+					return true;
+				}
+				return set.stream().anyMatch((regex) -> Patterns.matches(regex, name));
+			};
 		} else {
 			includeTable = (name) -> true;
 		}
