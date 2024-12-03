@@ -9,7 +9,7 @@ import io.polaris.validation.LessThan;
  * @author Qt
  * @since 1.8
  */
-public class LessThanValidator implements ConstraintValidator<LessThan, Number> {
+public class LessThanArrayValidator implements ConstraintValidator<LessThan, Number[]> {
 
 	private long value;
 
@@ -19,7 +19,16 @@ public class LessThanValidator implements ConstraintValidator<LessThan, Number> 
 	}
 
 	@Override
-	public boolean isValid(Number value, ConstraintValidatorContext context) {
-		return value == null || value.longValue() < this.value;
+	public boolean isValid(Number[] value, ConstraintValidatorContext context) {
+		if (value == null || value.length == 0) {
+			return true;
+		}
+
+		for (Number i : value) {
+			if (i != null && i.longValue() >= this.value) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

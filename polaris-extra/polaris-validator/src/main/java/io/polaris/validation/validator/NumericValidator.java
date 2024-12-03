@@ -1,9 +1,9 @@
 package io.polaris.validation.validator;
 
-import io.polaris.validation.Numeric;
-
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+
+import io.polaris.validation.Numeric;
 
 /**
  * @author Qt
@@ -17,12 +17,12 @@ public class NumericValidator implements ConstraintValidator<Numeric, String> {
 
 	@Override
 	public boolean isValid(String value, ConstraintValidatorContext context) {
-		if (value == null || value.length() == 0) {
+		if (value == null) {
 			return true;
 		}
 		final int sz = value.length();
 		for (int i = 0; i < sz; i++) {
-			if (Character.isDigit(value.charAt(i)) == false) {
+			if (!Character.isDigit(value.charAt(i))) {
 				return false;
 			}
 		}

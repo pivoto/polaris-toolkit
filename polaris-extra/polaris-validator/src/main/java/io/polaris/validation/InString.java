@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2016-9-7 alex
- */
-
 package io.polaris.validation;
 
 import java.lang.annotation.Documented;
@@ -12,9 +8,9 @@ import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
 
-import io.polaris.validation.validator.RegexpArrayValidator;
-import io.polaris.validation.validator.RegexpCollectionValidator;
-import io.polaris.validation.validator.RegexpValidator;
+import io.polaris.validation.validator.InStringArrayValidator;
+import io.polaris.validation.validator.InStringCollectionValidator;
+import io.polaris.validation.validator.InStringValidator;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
@@ -24,7 +20,7 @@ import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 /**
- * 校验字符串必须满足正则范式
+ * 枚举名称校验
  *
  * @author Qt
  * @since 1.8
@@ -32,16 +28,14 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 @Documented
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = {RegexpValidator.class, RegexpArrayValidator.class, RegexpCollectionValidator.class})
-public @interface Regexp {
+@Constraint(validatedBy = {InStringValidator.class, InStringCollectionValidator.class, InStringArrayValidator.class})
+public @interface InString {
 
-	String message() default "{io.polaris.validation.Regexp.message}";
+	String message() default "{io.polaris.validation.InString.message}";
 
 	Class<?>[] groups() default {};
 
 	Class<? extends Payload>[] payload() default {};
 
-	String value();
-
-	int flags() default 0;
+	String[] value();
 }

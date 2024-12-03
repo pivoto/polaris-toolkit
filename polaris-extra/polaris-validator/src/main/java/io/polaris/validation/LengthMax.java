@@ -1,10 +1,16 @@
 package io.polaris.validation;
 
-import io.polaris.validation.validator.LengthMaxValidator;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
-import java.lang.annotation.*;
+
+import io.polaris.validation.validator.LengthMaxArrayValidator;
+import io.polaris.validation.validator.LengthMaxCollectionValidator;
+import io.polaris.validation.validator.LengthMaxValidator;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
@@ -22,7 +28,7 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 @Documented
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = LengthMaxValidator.class)
+@Constraint(validatedBy = {LengthMaxValidator.class, LengthMaxArrayValidator.class, LengthMaxCollectionValidator.class})
 public @interface LengthMax {
 
 	String message() default "{io.polaris.validation.LengthMax.message}";

@@ -10,9 +10,9 @@ import javax.validation.ConstraintValidatorContext;
  * @author Qt
  * @since 1.8
  */
-public class GreaterThanValidator implements ConstraintValidator<GreaterThan, Integer> {
+public class GreaterThanValidator implements ConstraintValidator<GreaterThan, Number> {
 
-	private Integer value;
+	private Long value;
 
 	@Override
 	public void initialize(GreaterThan constraintAnnotation) {
@@ -20,7 +20,7 @@ public class GreaterThanValidator implements ConstraintValidator<GreaterThan, In
 	}
 
 	@Override
-	public boolean isValid(Integer value, ConstraintValidatorContext context) {
-		return value == null || value > this.value;
+	public boolean isValid(Number value, ConstraintValidatorContext context) {
+		return value == null || value.longValue() > this.value;
 	}
 }
