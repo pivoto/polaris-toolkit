@@ -1,13 +1,15 @@
 package io.polaris.core.err;
 
-import javax.annotation.Nonnull;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+
+import javax.annotation.Nonnull;
 
 /**
  * @author Qt
@@ -69,6 +71,35 @@ public class Exceptions {
 		Set<Throwable> set = new HashSet<>();
 		while (t.getCause() != null && !set.contains(t)) {
 			set.add(t);
+			t = t.getCause();
+		}
+		return t;
+	}
+
+	public static Set<Throwable> getCausePath(@Nonnull Throwable t) {
+		Set<Throwable> set = new LinkedHashSet<>();
+		while (t != null && !set.contains(t)) {
+			set.add(t);
+			t = t.getCause();
+		}
+		return set;
+	}
+
+	public static Throwable hasCause(@Nonnull Throwable t, Predicate<Throwable> predicate) {
+		while (t != null) {
+			if (predicate.test(t)) {
+				return t;
+			}
+			t = t.getCause();
+		}
+		return t;
+	}
+
+	public static Throwable hasCause(@Nonnull Throwable t, Class<? extends Throwable> type) {
+		while (t != null) {
+			if (type.isAssignableFrom(t.getClass())) {
+				return t;
+			}
 			t = t.getCause();
 		}
 		return t;
