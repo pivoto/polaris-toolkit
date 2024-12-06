@@ -821,9 +821,15 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
-					<version>3.2.0</version>
+					<version>3.4.2</version>
 					<configuration>
 						<skipIfEmpty>false</skipIfEmpty>
+						<archive>
+							<manifest>
+								<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+								<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+							</manifest>
+						</archive>
 						<excludes>
 							<exclude>rebel.xml</exclude>
 							<exclude>.gitkeep*</exclude>
