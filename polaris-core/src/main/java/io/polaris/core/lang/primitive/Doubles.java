@@ -272,9 +272,6 @@ public class Doubles {
 	 * @return 交换后的数组，与传入数组为同一对象
 	 */
 	public static double[] swap(double[] array, int index1, int index2) {
-		if (isEmpty(array)) {
-			throw new IllegalArgumentException("Number array must not empty !");
-		}
 		double tmp = array[index1];
 		array[index1] = array[index2];
 		array[index2] = tmp;

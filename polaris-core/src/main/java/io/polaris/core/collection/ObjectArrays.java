@@ -1496,9 +1496,6 @@ public class ObjectArrays extends PrimitiveArrays {
 	 * @return 交换后的数组，与传入数组为同一对象
 	 */
 	public static <T> T[] swap(T[] array, int index1, int index2) {
-		if (isEmpty(array)) {
-			throw new IllegalArgumentException("Array must not empty !");
-		}
 		T tmp = array[index1];
 		array[index1] = array[index2];
 		array[index2] = tmp;
@@ -1514,9 +1511,6 @@ public class ObjectArrays extends PrimitiveArrays {
 	 * @return 交换后的数组，与传入数组为同一对象
 	 */
 	public static Object swap(Object array, int index1, int index2) {
-		if (isEmpty(array)) {
-			throw new IllegalArgumentException("Array must not empty !");
-		}
 		Object tmp = get(array, index1);
 		Array.set(array, index1, Array.get(array, index2));
 		Array.set(array, index2, tmp);

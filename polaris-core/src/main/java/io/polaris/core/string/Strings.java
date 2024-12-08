@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.polaris.core.collection.Iterables;
@@ -26,7 +27,7 @@ public class Strings {
 
 	private static final ThreadLocal<Map<String, Ref<String>>> resolvedKeysLocal = new ThreadLocal<>();
 	private static final Pattern patternPlaceholder = Pattern.compile("\\$\\{([\\w\\.\\-]+)(?:(:-?)([^${}]*))?\\}");
-	////private static final String patternPlaceholderSeparator = "\\Q:\\E";
+	/// /private static final String patternPlaceholderSeparator = "\\Q:\\E";
 	private static final Pattern patternDigits = Pattern.compile("(?<!\\\\)\\{(\\d+)\\}");
 	private static final Pattern patternEmpty = Pattern.compile("(?<!\\\\)\\{\\}");
 
@@ -37,7 +38,7 @@ public class Strings {
 		long b = byteSize % 1024;
 		long k = byteSize / 1024;
 		if (k == 0) {
-			return b + "B";
+			return b + "B" ;
 		}
 		long m = k / 1024;
 		k = k % 1024;
@@ -91,6 +92,10 @@ public class Strings {
 		return sb.toString();
 	}
 
+	public static String reverse(String str) {
+		return new String(Chars.reverse(str.toCharArray()));
+	}
+
 	public static String repeat(char ch, int count) {
 		char[] chars = new char[count];
 		Arrays.fill(chars, ch);
@@ -102,7 +107,7 @@ public class Strings {
 			return null;
 		}
 		if (count <= 0) {
-			return "";
+			return "" ;
 		}
 		if (count == 1) {
 			return str;
@@ -125,6 +130,7 @@ public class Strings {
 		return new String(array);
 	}
 
+	@Deprecated
 	public static <T> T nvl(T o, T reo) {
 		if (isEmpty(o)) {
 			return reo;
@@ -269,7 +275,7 @@ public class Strings {
 				}
 				String k = matcher.group(1);
 				int groupCount = matcher.groupCount();
-				String separator = groupCount >= 3 ? matcher.group(2) : ":";
+				String separator = groupCount >= 3 ? matcher.group(2) : ":" ;
 				String defVal = groupCount >= 3 ? matcher.group(3) : groupCount == 2 ? matcher.group(2) : null;
 				String v = null;
 				if (resovedKeys.containsKey(k)) {
@@ -365,7 +371,7 @@ public class Strings {
 
 	public static String trimToEmpty(String str) {
 		if (str == null) {
-			return "";
+			return "" ;
 		}
 		return trim(str);
 	}
@@ -706,26 +712,29 @@ public class Strings {
 		return str.toString().regionMatches(true, str.length() - suffix.length(), suffix.toString(), 0, suffix.length());
 	}
 
-	public static int indexOf(CharSequence source, CharSequence target) {
-		if (source == null || target == null) {
-			return -1;
-		}
+	public static int indexOf(@Nonnull CharSequence source,@Nonnull CharSequence target) {
 		return source.toString().indexOf(target.toString());
 	}
 
-	public static int indexOfIgnoreCase(CharSequence source, CharSequence target) {
+	public static int indexOf(@Nonnull CharSequence source,@Nonnull CharSequence target, int fromIndex) {
+		return source.toString().indexOf(target.toString(), fromIndex);
+	}
+
+	public static int indexOfIgnoreCase(@Nonnull CharSequence source, @Nonnull CharSequence target) {
 		return indexOfIgnoreCase(source.toString().toCharArray(), 0, source.length(),
 			target.toString().toCharArray(), 0, target.length(), 0);
 	}
 
-	public static int indexOfIgnoreCase(CharSequence source, CharSequence target, int fromIndex) {
+	public static int indexOfIgnoreCase(@Nonnull CharSequence source, @Nonnull CharSequence target, int fromIndex) {
 		return indexOfIgnoreCase(source.toString().toCharArray(), 0, source.length(),
 			target.toString().toCharArray(), 0, target.length(), fromIndex);
 	}
 
 
-	@SuppressWarnings({"StatementWithEmptyBody", "AliControlFlowStatementWithoutBraces"})
-	public static int indexOfIgnoreCase(char[] source, int sourceOffset, int sourceCount
+	/**
+	 * Case insensitive version of {@link String#indexOf(String, int)}.
+	 */
+	static int indexOfIgnoreCase(char[] source, int sourceOffset, int sourceCount
 		, char[] target, int targetOffset, int targetCount, int fromIndex) {
 		if (fromIndex >= sourceCount) {
 			return (targetCount == 0 ? sourceCount : -1);
@@ -763,18 +772,28 @@ public class Strings {
 		return -1;
 	}
 
+	public static int lastIndexOf(@Nonnull CharSequence source, @Nonnull CharSequence target) {
+		return source.toString().lastIndexOf(target.toString());
+	}
 
-	public static int lastIndexOfIgnoreCase(CharSequence source, CharSequence target) {
+	public static int lastIndexOf(@Nonnull CharSequence source, @Nonnull CharSequence target, int fromIndex) {
+		return source.toString().lastIndexOf(target.toString(), fromIndex);
+	}
+
+	public static int lastIndexOfIgnoreCase(@Nonnull CharSequence source, @Nonnull CharSequence target) {
 		return lastIndexOfIgnoreCase(source.toString().toCharArray(), 0, source.length(),
 			target.toString().toCharArray(), 0, target.length(), source.length());
 	}
 
-	public static int lastIndexOfIgnoreCase(CharSequence source, CharSequence target, int fromIndex) {
+	public static int lastIndexOfIgnoreCase(@Nonnull CharSequence source, @Nonnull CharSequence target, int fromIndex) {
 		return lastIndexOfIgnoreCase(source.toString().toCharArray(), 0, source.length(),
 			target.toString().toCharArray(), 0, target.length(), fromIndex);
 	}
 
-	public static int lastIndexOfIgnoreCase(char[] source, int sourceOffset, int sourceCount
+	/**
+	 * Case insensitive version of {@link String#lastIndexOf(String, int)}.
+	 */
+	static int lastIndexOfIgnoreCase(char[] source, int sourceOffset, int sourceCount
 		, char[] target, int targetOffset, int targetCount, int fromIndex) {
 		int rightIndex = sourceCount - targetCount;
 		if (fromIndex < 0) {
@@ -814,6 +833,40 @@ public class Strings {
 			return start - sourceOffset + 1;
 		}
 	}
+
+
+	public static int kmpIndexOf(@Nonnull CharSequence source, @Nonnull CharSequence target) {
+		return KmpMatchers.indexOf(source, target);
+	}
+
+	public static int kmpIndexOf(@Nonnull CharSequence source, @Nonnull CharSequence target, int fromIndex) {
+		return KmpMatchers.indexOf(source, target, fromIndex);
+	}
+
+	public static int kmpIndexOfIgnoreCase(@Nonnull CharSequence source, @Nonnull CharSequence target) {
+		return KmpMatchers.indexOfIgnoreCase(source, target);
+	}
+
+	public static int kmpIndexOfIgnoreCase(@Nonnull CharSequence source, @Nonnull CharSequence target, int fromIndex) {
+		return KmpMatchers.indexOfIgnoreCase(source, target, fromIndex);
+	}
+
+	public static int kmpLastIndexOf(@Nonnull CharSequence source, @Nonnull CharSequence target) {
+		return KmpMatchers.lastIndexOf(source, target);
+	}
+
+	public static int kmpLastIndexOf(@Nonnull CharSequence source, @Nonnull CharSequence target, int fromIndex) {
+		return KmpMatchers.lastIndexOf(source, target, fromIndex);
+	}
+
+	public static int kmpLastIndexOfIgnoreCase(@Nonnull CharSequence source, @Nonnull CharSequence target) {
+		return KmpMatchers.lastIndexOfIgnoreCase(source, target);
+	}
+
+	public static int kmpLastIndexOfIgnoreCase(@Nonnull CharSequence source, @Nonnull CharSequence target, int fromIndex) {
+		return KmpMatchers.lastIndexOfIgnoreCase(source, target, fromIndex);
+	}
+
 
 	public static boolean equalsAny(CharSequence str1, CharSequence... strs) {
 		for (CharSequence str : strs) {
@@ -1156,7 +1209,7 @@ public class Strings {
 	public static String format(String msg, Object... args) {
 		if (msg == null || msg.isEmpty()) {
 			if (args.length == 0) {
-				return "";
+				return "" ;
 			}
 			StringBuilder sb = new StringBuilder();
 			sb.append(args[0]);

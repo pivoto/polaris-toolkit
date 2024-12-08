@@ -361,9 +361,6 @@ public class Ints {
 	 * @return 交换后的数组，与传入数组为同一对象
 	 */
 	public static int[] swap(int[] array, int index1, int index2) {
-		if (isEmpty(array)) {
-			throw new IllegalArgumentException("Number array must not empty !");
-		}
 		int tmp = array[index1];
 		array[index1] = array[index2];
 		array[index2] = tmp;

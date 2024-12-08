@@ -272,9 +272,6 @@ public class Chars {
 	 * @return 交换后的数组，与传入数组为同一对象
 	 */
 	public static char[] swap(char[] array, int index1, int index2) {
-		if (isEmpty(array)) {
-			throw new IllegalArgumentException("Number array must not empty !");
-		}
 		char tmp = array[index1];
 		array[index1] = array[index2];
 		array[index2] = tmp;

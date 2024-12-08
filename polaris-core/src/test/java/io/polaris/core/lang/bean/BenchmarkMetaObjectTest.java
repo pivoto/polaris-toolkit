@@ -49,7 +49,6 @@ public class BenchmarkMetaObjectTest {
 				.forks(1)
 				.threads(8 * i)
 				.resultFormat(ResultFormatType.CSV)
-				.result(fileName + ".csv")
 				.output(fileName + ".log")
 				.build();
 			new Runner(options).run();
