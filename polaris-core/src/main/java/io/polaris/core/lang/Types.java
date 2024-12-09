@@ -251,24 +251,32 @@ public class Types {
 	 */
 	@Nonnull
 	public static Class<?> getClass(@Nonnull Type type) {
+		// 直接从 JavaType 获取
+		if (type instanceof JavaType) {
+			return ((JavaType<?>) type).getRawClass();
+		}
 		if (type instanceof Class) {
 			return (Class<?>) type;
-		} else if (type instanceof ParameterizedType) {
+		}
+		if (type instanceof ParameterizedType) {
 			Type rawType = ((ParameterizedType) type).getRawType();
 			if (rawType instanceof Class) {
 				return (Class) rawType;
 			} else {
 				return Object.class;
 			}
-		} else if (type instanceof TypeVariable) {
+		}
+		if (type instanceof TypeVariable) {
 			return getClass(((TypeVariable<?>) type).getBounds()[0]);
-		} else if (type instanceof WildcardType) {
+		}
+		if (type instanceof WildcardType) {
 			final Type[] upperBounds = ((WildcardType) type).getUpperBounds();
 			if (upperBounds.length == 1) {
 				return getClass(upperBounds[0]);
 			}
 			return Object.class;
-		} else if (type instanceof GenericArrayType) {
+		}
+		if (type instanceof GenericArrayType) {
 			GenericArrayType genericArrayType = (GenericArrayType) type;
 			Type componentType = genericArrayType.getGenericComponentType();
 			Class<?> componentClass = getClass(componentType);
