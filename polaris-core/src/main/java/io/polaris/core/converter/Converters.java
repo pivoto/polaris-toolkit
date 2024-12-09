@@ -69,12 +69,13 @@ public class Converters {
 		return getDefaultRegistry().convertQuietly(type, value);
 	}
 
-	public static <T> T convertByPropertyEditor(Class type, Object value, T defaultValue) {
+	public static <T> T convertByPropertyEditor(Class<?> type, Object value, T defaultValue) {
 		PropertyEditor sourceEditor = PropertyEditorManager.findEditor(value.getClass());
 		PropertyEditor targetEditor = PropertyEditorManager.findEditor(type);
 		if (sourceEditor != null && targetEditor != null) {
 			sourceEditor.setValue(value);
 			targetEditor.setAsText(sourceEditor.getAsText());
+			// noinspection unchecked
 			return (T) targetEditor.getValue();
 		}
 		return defaultValue;
