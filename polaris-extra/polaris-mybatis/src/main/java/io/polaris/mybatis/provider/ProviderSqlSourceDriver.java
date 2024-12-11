@@ -32,22 +32,7 @@ public class ProviderSqlSourceDriver extends XMLLanguageDriver {
 
 		@Override
 		public BoundSql getBoundSql(Object parameterObject) {
-			try {
-				BoundSql boundSql = sqlSource.getBoundSql(parameterObject);
-				Tuple2<Object, Map<String, Object>> tuple = BaseProviderMethodResolver.ADDITIONAL_PARAMETERS.get();
-				// 存在扩展参数则创建一个扩展的SqlSource以动态追加
-				if (tuple != null && tuple.getFirst() == parameterObject) {
-					Map<String, Object> params = tuple.getSecond();
-					if (params != null && !params.isEmpty()) {
-						// 追加额外参数
-						tuple.getSecond().forEach(boundSql::setAdditionalParameter);
-					}
-				}
-				return boundSql;
-			} finally {
-				// 用完即清理
-				BaseProviderMethodResolver.ADDITIONAL_PARAMETERS.remove();
-			}
+			return BaseProviderMethodResolver.getBoundSql(sqlSource,parameterObject);
 		}
 	}
 

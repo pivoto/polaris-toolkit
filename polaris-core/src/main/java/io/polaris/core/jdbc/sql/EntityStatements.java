@@ -198,7 +198,7 @@ public class EntityStatements {
 		}
 		// 找不到实体Sql注解，从入参获取直接SQL
 		return (bindings) -> {
-			Object sql = bindings.get(BindingKeys.SQL);
+			Object sql = BindingValues.getBindingValueOrDefault(bindings, BindingKeys.SQL, null);
 			if (sql instanceof SqlNode) {
 				return (SqlNode) sql;
 			}

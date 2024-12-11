@@ -2,6 +2,7 @@ package io.polaris.mybatis.provider;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -16,6 +17,8 @@ import io.polaris.mybatis.mapper.EntityMapper;
 import org.apache.ibatis.annotations.Lang;
 import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.apache.ibatis.builder.annotation.ProviderMethodResolver;
+import org.apache.ibatis.mapping.BoundSql;
+import org.apache.ibatis.mapping.SqlSource;
 
 /**
  * @author Qt
@@ -46,6 +49,25 @@ public abstract class BaseProviderMethodResolver implements ProviderMethodResolv
 
 	static void clearAdditionalParameters() {
 		ADDITIONAL_PARAMETERS.remove();
+	}
+
+	static BoundSql getBoundSql(SqlSource sqlSource, Object parameterObject) {
+		try {
+			BoundSql boundSql = sqlSource.getBoundSql(parameterObject);
+			Tuple2<Object, Map<String, Object>> tuple = ADDITIONAL_PARAMETERS.get();
+			// 存在扩展参数则创建一个扩展的SqlSource以动态追加
+			if (tuple != null && tuple.getFirst() == parameterObject) {
+				Map<String, Object> params = tuple.getSecond();
+				if (params != null && !params.isEmpty()) {
+					// 追加额外参数
+					tuple.getSecond().forEach(boundSql::setAdditionalParameter);
+				}
+			}
+			return boundSql;
+		} finally {
+			// 用完即清理
+			ADDITIONAL_PARAMETERS.remove();
+		}
 	}
 
 	@Override
@@ -131,6 +153,10 @@ public abstract class BaseProviderMethodResolver implements ProviderMethodResolv
 			return (Map<String, Object>) parameterObject;
 		} else {
 			if (!hasProviderSqlSourceDriver(mapperMethod)) {
+				if (parameterObject == null) {
+					// 参数为空时，使用空MAP，不接收任何绑定
+					return Collections.emptyMap();
+				}
 				throw new IllegalArgumentException("请使用Map类型参数或明确声明参数键名");
 			}
 			return toParameterBindings(parameterObject);
