@@ -130,8 +130,8 @@ public interface DemoMapper {
 	@SelectProvider(AnyEntityProvider.class)
 	@SqlEntity(table = {DemoOrgEntity.class}, alias = {"x"})
 	@SqlRaw({
-		@SqlRawItem("select &{x.*} from &{x} where 1=1"),
-		@SqlRawItem(forEachKey = "ids", itemKey = "id", separator = ",", open = " and &{x.id} in (", close = ") ",
+		@SqlRawItem("select %{x.*} from %{x} where 1=1"),
+		@SqlRawItem(forEachKey = "ids", itemKey = "id", separator = ",", open = " and %{x.id} in (", close = ") ",
 			value = "#{id}"
 		),
 		@SqlRawItem(""),

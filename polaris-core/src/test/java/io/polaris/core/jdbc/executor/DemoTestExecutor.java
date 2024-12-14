@@ -48,7 +48,7 @@ public interface DemoTestExecutor {
 	@SqlRaw({
 		@SqlRawItem(
 			forEachKey = "ids", itemKey = "id", separator = " union all "
-			, value = "select &{x.*} from &{x} where &{x.id} = #{id}"
+			, value = "select %{x.*} from %{x} where %{x.id} = #{id}"
 		)
 	})
 	List<DemoTest01Entity> getDemoTest01ListByIds1(@Key("ids") Long[] ids);
@@ -56,8 +56,8 @@ public interface DemoTestExecutor {
 	@SqlQuery
 	@SqlEntity(table = {DemoTest01Entity.class}, alias = {"x"})
 	@SqlRaw({
-		@SqlRawItem("select &{x.*} from &{x} where 1=1"),
-		@SqlRawItem(forEachKey = "ids", itemKey = "id", separator = ",", open = " and &{x.id} in (", close = ") ",
+		@SqlRawItem("select %{x.*} from %{x} where 1=1"),
+		@SqlRawItem(forEachKey = "ids", itemKey = "id", separator = ",", open = " and %{x.id} in (", close = ") ",
 			value = "#{id}"
 		),
 		@SqlRawItem(""),
@@ -67,10 +67,10 @@ public interface DemoTestExecutor {
 	@SqlQuery
 	@SqlEntity(table = {DemoTest01Entity.class}, alias = {"x"})
 	@SqlRaw({
-		@SqlRawItem("select &{x.*} from &{x} where 1=1"),
+		@SqlRawItem("select %{x.*} from %{x} where 1=1"),
 		@SqlRawItem(forEachKey = "ids", itemKey = "id", separator = " or ", open = " and ( ", close = " ) ",
 			subset = {
-				@SqlRawItem1("&{x.id}"),
+				@SqlRawItem1("%{x.id}"),
 				@SqlRawItem1("="),
 				@SqlRawItem1("#{id}"),
 			}
@@ -81,7 +81,7 @@ public interface DemoTestExecutor {
 
 	@SqlQuery
 	@SqlEntity(table = {DemoTest01Entity.class}, alias = {"x"})
-	@SqlRawSimple("select &{x.*} from &{x} where &{x.id} = #{id}")
+	@SqlRawSimple("select %{x.*} from %{x} where %{x.id} = #{id}")
 //		@EntitySelect(table = DemoTest01Entity.class, byId = true)
 	DemoTest01Entity getDemoTest01ById(@Key(DemoTest01Entity.Fields.id) Long id);
 

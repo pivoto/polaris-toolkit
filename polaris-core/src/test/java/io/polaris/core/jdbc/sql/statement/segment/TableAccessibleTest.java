@@ -18,54 +18,54 @@ class TableAccessibleTest {
 			new TableEntitySegment<>(Demo3Entity.class, "t3")
 		);
 
-		String msg10 = SqlTextParsers.resolveTableRef("&{t1}", tableAccessible);
+		String msg10 = SqlTextParsers.resolveTableRef("%{t1}", tableAccessible);
 		Consoles.println(msg10);
-		String msg9 = SqlTextParsers.resolveTableRef("&{t2}", tableAccessible);
+		String msg9 = SqlTextParsers.resolveTableRef("%{t2}", tableAccessible);
 		Consoles.println(msg9);
-		String msg8 = SqlTextParsers.resolveTableRef("&{t3}", tableAccessible);
+		String msg8 = SqlTextParsers.resolveTableRef("%{t3}", tableAccessible);
 		Consoles.println(msg8);
-		String msg7 = SqlTextParsers.resolveTableRef("&{t1.*}", tableAccessible);
+		String msg7 = SqlTextParsers.resolveTableRef("%{t1.*}", tableAccessible);
 		Consoles.println(msg7);
-		String msg6 = SqlTextParsers.resolveTableRef("&{t2.*}", tableAccessible);
+		String msg6 = SqlTextParsers.resolveTableRef("%{t2.*}", tableAccessible);
 		Consoles.println(msg6);
-		String msg5 = SqlTextParsers.resolveTableRef("&{t3.*}", tableAccessible);
+		String msg5 = SqlTextParsers.resolveTableRef("%{t3.*}", tableAccessible);
 		Consoles.println(msg5);
-		String msg4 = SqlTextParsers.resolveTableRef("select &{t1.*} from &{t1} where &{t1.fieldStr1} like '%xx%'", tableAccessible);
+		String msg4 = SqlTextParsers.resolveTableRef("select %{t1.*} from %{t1} where %{t1.fieldStr1} like '%xx%'", tableAccessible);
 		Consoles.println(msg4);
-		String msg3 = SqlTextParsers.resolveTableRef("&{t1?.*}", tableAccessible);
+		String msg3 = SqlTextParsers.resolveTableRef("%{t1?.*}", tableAccessible);
 		Consoles.println(msg3);
-		String msg2 = SqlTextParsers.resolveTableRef("&{t2?.*}", tableAccessible);
+		String msg2 = SqlTextParsers.resolveTableRef("%{t2?.*}", tableAccessible);
 		Consoles.println(msg2);
-		String msg1 = SqlTextParsers.resolveTableRef("&{t3?.*}", tableAccessible);
+		String msg1 = SqlTextParsers.resolveTableRef("%{t3?.*}", tableAccessible);
 		Consoles.println(msg1);
-		String msg = SqlTextParsers.resolveTableRef("select &{t1?.*} from &{t1} where &{t1?.fieldStr1} like '%xx%'", tableAccessible);
+		String msg = SqlTextParsers.resolveTableRef("select %{t1?.*} from %{t1} where %{t1?.fieldStr1} like '%xx%'", tableAccessible);
 		Consoles.println(msg);
 	}
 
 	@Test
 	void test02() {
 		TableAccessible tableAccessible = null;
-		String msg10 = SqlTextParsers.resolveTableRef("&{t1(io.polaris.core.jdbc.entity.DemoEntity)}", tableAccessible);
+		String msg10 = SqlTextParsers.resolveTableRef("%{t1(io.polaris.core.jdbc.entity.DemoEntity)}", tableAccessible);
 		Consoles.println(msg10);
-		String msg9 = SqlTextParsers.resolveTableRef("&{t2(io.polaris.core.jdbc.entity.Demo2Entity)}", tableAccessible);
+		String msg9 = SqlTextParsers.resolveTableRef("%{t2(io.polaris.core.jdbc.entity.Demo2Entity)}", tableAccessible);
 		Consoles.println(msg9);
-		String msg8 = SqlTextParsers.resolveTableRef("&{t3(io.polaris.core.jdbc.entity.Demo3Entity)}", tableAccessible);
+		String msg8 = SqlTextParsers.resolveTableRef("%{t3(io.polaris.core.jdbc.entity.Demo3Entity)}", tableAccessible);
 		Consoles.println(msg8);
-		String msg7 = SqlTextParsers.resolveTableRef("&{t1(io.polaris.core.jdbc.entity.DemoEntity).*}", tableAccessible);
+		String msg7 = SqlTextParsers.resolveTableRef("%{t1(io.polaris.core.jdbc.entity.DemoEntity).*}", tableAccessible);
 		Consoles.println(msg7);
-		String msg6 = SqlTextParsers.resolveTableRef("&{t2(io.polaris.core.jdbc.entity.Demo2Entity).*}", tableAccessible);
+		String msg6 = SqlTextParsers.resolveTableRef("%{t2(io.polaris.core.jdbc.entity.Demo2Entity).*}", tableAccessible);
 		Consoles.println(msg6);
-		String msg5 = SqlTextParsers.resolveTableRef("&{t3(io.polaris.core.jdbc.entity.Demo3Entity).*}", tableAccessible);
+		String msg5 = SqlTextParsers.resolveTableRef("%{t3(io.polaris.core.jdbc.entity.Demo3Entity).*}", tableAccessible);
 		Consoles.println(msg5);
-		String msg4 = SqlTextParsers.resolveTableRef("select &{t1(io.polaris.core.jdbc.entity.DemoEntity).*} from &{t1(io.polaris.core.jdbc.entity.DemoEntity)} where &{t1(io.polaris.core.jdbc.entity.DemoEntity).fieldStr1} like '%xx%'", tableAccessible);
+		String msg4 = SqlTextParsers.resolveTableRef("select %{t1(io.polaris.core.jdbc.entity.DemoEntity).*} from %{t1(io.polaris.core.jdbc.entity.DemoEntity)} where %{t1(io.polaris.core.jdbc.entity.DemoEntity).fieldStr1} like '%xx%'", tableAccessible);
 		Consoles.println(msg4);
-		String msg3 = SqlTextParsers.resolveTableRef("&{t1(io.polaris.core.jdbc.entity.DemoEntity)?.*}", tableAccessible);
+		String msg3 = SqlTextParsers.resolveTableRef("%{t1(io.polaris.core.jdbc.entity.DemoEntity)?.*}", tableAccessible);
 		Consoles.println(msg3);
-		String msg2 = SqlTextParsers.resolveTableRef("&{t2(io.polaris.core.jdbc.entity.Demo2Entity)?.*}", tableAccessible);
+		String msg2 = SqlTextParsers.resolveTableRef("%{t2(io.polaris.core.jdbc.entity.Demo2Entity)?.*}", tableAccessible);
 		Consoles.println(msg2);
-		String msg1 = SqlTextParsers.resolveTableRef("&{t3(io.polaris.core.jdbc.entity.Demo3Entity)?.*}", tableAccessible);
+		String msg1 = SqlTextParsers.resolveTableRef("%{t3(io.polaris.core.jdbc.entity.Demo3Entity)?.*}", tableAccessible);
 		Consoles.println(msg1);
-		String msg = SqlTextParsers.resolveTableRef("select &{t1(io.polaris.core.jdbc.entity.DemoEntity)?.*} from &{t1(io.polaris.core.jdbc.entity.DemoEntity)?} where &{t1(io.polaris.core.jdbc.entity.DemoEntity)?.fieldStr1} like '%xx%'", tableAccessible);
+		String msg = SqlTextParsers.resolveTableRef("select %{t1(io.polaris.core.jdbc.entity.DemoEntity)?.*} from %{t1(io.polaris.core.jdbc.entity.DemoEntity)?} where %{t1(io.polaris.core.jdbc.entity.DemoEntity)?.fieldStr1} like '%xx%'", tableAccessible);
 		Consoles.println(msg);
 
 

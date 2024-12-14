@@ -293,7 +293,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 	}
 
 	/**
-	 * @param raw 原生SQL条件，支持表达式`&{tableAlias.tableField}`解析
+	 * @param raw 原生SQL条件，支持表达式`%{tableAlias.tableField}`解析
 	 * @return 当前条件对象
 	 */
 	public S raw(String raw) {
@@ -330,7 +330,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 	}
 
 	/**
-	 * @param rawColumn 原生SQL字段名，支持表达式`&{tableAlias.tableField}`解析
+	 * @param rawColumn 原生SQL字段名，支持表达式`%{tableAlias.tableField}`解析
 	 * @return 字段条件对象
 	 */
 	public CriterionSegment<S, ?> rawColumn(String rawColumn) {

@@ -12,100 +12,28 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since  Aug 11, 2023
+ * @since Aug 11, 2023
  */
 public class SqlTextParsers {
 
-	public static ContainerNode parse(String sql) {
-		return parse(sql, '$', '#', '{', '}');
-	}
 
-	public static ContainerNode parse(String sql, char directSymbol, char preparedSymbol
-		, char openSymbol, char closeSymbol) {
-		ContainerNode root = new ContainerNode();
-
-		char[] src = sql.toCharArray();
-		int len = sql.length();
-
-		StringBuilder text = new StringBuilder(len);
-		boolean inQuotes = false;
-		for (int i = 0; i < len; i++) {
-			char c = src[i];
-			if (c == '\'') {
-				if (inQuotes) {
-					text.append(c);
-					if (i + 1 < len && src[i + 1] == '\'') {
-						// 引号转义
-						text.append('\'');
-						i++;
-					} else {
-						inQuotes = false;
-					}
-				} else {
-					inQuotes = true;
-					text.append(c);
-				}
-			} else if (c == directSymbol) {
-				if (i + 1 < len && src[i + 1] == openSymbol) {
-					int idx = sql.indexOf(closeSymbol, i + 2);
-					if (idx == -1) {
-						text.append(c);
-					} else {
-						if (text.length() > 0) {
-							root.addNode(new TextNode(text.toString()));
-							text.setLength(0);
-						}
-						text.append(src, i, idx - i + 1);
-						root.addNode(new MixedNode(text.substring(2, text.length() - 1).trim()));
-						text.setLength(0);
-						i = idx;
-					}
-				} else {
-					text.append(c);
-				}
-			} else if (c == preparedSymbol) {
-				if (i + 1 < len && src[i + 1] == openSymbol) {
-					int idx = sql.indexOf(closeSymbol, i + 2);
-					if (idx == -1) {
-						text.append(c);
-					} else {
-						if (text.length() > 0) {
-							root.addNode(new TextNode(text.toString()));
-							text.setLength(0);
-						}
-						text.append(src, i, idx - i + 1);
-						root.addNode(new DynamicNode(text.substring(2, text.length() - 1).trim()));
-						text.setLength(0);
-						i = idx;
-					}
-				} else {
-					text.append(c);
-				}
-			} else {
-				text.append(c);
-			}
-		}
-		if (text.length() > 0) {
-			root.addNode(new TextNode(text.toString()));
-			text.setLength(0);
-		}
-		return root;
-	}
+	private static final char[] TABLE_REF_DIRECT_SYMBOLS = new char[]{'%', '&'};
+	private static final char[] TABLE_REF_MIXED_SYMBOLS = new char[0];
 
 	/**
-	 * 解析实体表与字段的引用表达式，支持格式：
+	 * 解析实体表与字段的引用表达式，支持格式（以下`%`或替换为`&`）：
 	 * <ul>
-	 *   <li>`&{tableAlias}`
+	 *   <li>`%{tableAlias}`
 	 *   </li>
-	 *   <li>`&{tableAlias.tableField}`
+	 *   <li>`%{tableAlias.tableField}`
 	 *   </li>
-	 *   <li>`&{tableAlias?.tableField}`
+	 *   <li>`%{tableAlias?.tableField}`
 	 *   </li>
-	 *   <li>`&{#tableIndex}`
+	 *   <li>`%{#tableIndex}`
 	 *   </li>
-	 *   <li>`&{#tableIndex.tableField}`
+	 *   <li>`%{#tableIndex.tableField}`
 	 *   </li>
-	 *   <li>`&{#tableIndex?.tableField}`
+	 *   <li>`%{#tableIndex?.tableField}`
 	 *   </li>
 	 * </ul>
 	 */
@@ -116,7 +44,7 @@ public class SqlTextParsers {
 		if (tableAccessible == null) {
 			return sql;
 		}
-		ContainerNode containerNode = SqlTextParsers.parse(sql, '&', (char) -1, '{', '}');
+		ContainerNode containerNode = SqlTextParsers.parse(sql, TABLE_REF_DIRECT_SYMBOLS, TABLE_REF_MIXED_SYMBOLS);
 		containerNode.visitSubset(node -> {
 			if (node.isVarNode()) {
 				String varName = node.getVarName();
@@ -169,13 +97,13 @@ public class SqlTextParsers {
 
 
 	/**
-	 * 解析实体表与字段的引用表达式，支持格式：
+	 * 解析实体表与字段的引用表达式，支持格式（以下`%`或替换为`&`）：
 	 * <ul>
-	 *   <li>`&{tableAlias(entityClassName)}`
+	 *   <li>`%{tableAlias(entityClassName)}`
 	 *   </li>
-	 *   <li>`&{tableAlias(entityClassName).tableField}`
+	 *   <li>`%{tableAlias(entityClassName).tableField}`
 	 *   </li>
-	 *   <li>`&{tableAlias(entityClassName)?.tableField}`
+	 *   <li>`%{tableAlias(entityClassName)?.tableField}`
 	 *   </li>
 	 * </ul>
 	 */
@@ -183,7 +111,7 @@ public class SqlTextParsers {
 		if (Strings.isBlank(sql)) {
 			return sql;
 		}
-		ContainerNode containerNode = SqlTextParsers.parse(sql, '&', (char) -1, '{', '}');
+		ContainerNode containerNode = SqlTextParsers.parse(sql, TABLE_REF_DIRECT_SYMBOLS, TABLE_REF_MIXED_SYMBOLS);
 		containerNode.visitSubset(node -> {
 			if (node.isVarNode()) {
 				String varName = node.getVarName();
@@ -253,11 +181,122 @@ public class SqlTextParsers {
 						node.bindVarValue(table.getAllColumnExpression(false));
 					}
 				} else {
-					node.bindVarValue(table.getColumnExpression(tableField,!excludeAlias));
+					node.bindVarValue(table.getColumnExpression(tableField, !excludeAlias));
 				}
 			}
 		});
 		return containerNode.toString();
 	}
 
+	public static ContainerNode parse(String sql) {
+		return parse(sql, '$', '#', '{', '}');
+	}
+
+	public static ContainerNode parse(String sql, char directSymbol, char preparedSymbol) {
+		return parse(sql, directSymbol, preparedSymbol, '{', '}');
+	}
+
+	public static ContainerNode parse(String sql, char directSymbol, char preparedSymbol
+		, char openSymbol, char closeSymbol) {
+		return parse(sql, c -> c == directSymbol, c -> c == preparedSymbol, openSymbol, closeSymbol);
+	}
+
+	static ContainerNode parse(String sql, char[] directSymbol, char[] preparedSymbol) {
+		return parse(sql, directSymbol, preparedSymbol, '{', '}');
+	}
+
+	static ContainerNode parse(String sql, char[] directSymbol, char[] preparedSymbol
+		, char openSymbol, char closeSymbol) {
+		return parse(sql, c -> {
+			for (char s : directSymbol) {
+				if (c == s) {
+					return true;
+				}
+			}
+			return false;
+		}, c -> {
+			for (char s : preparedSymbol) {
+				if (c == s) {
+					return true;
+				}
+			}
+			return false;
+		}, openSymbol, closeSymbol);
+	}
+
+	static ContainerNode parse(String sql, SymbolPredicate directSymbol, SymbolPredicate preparedSymbol
+		, char openSymbol, char closeSymbol) {
+		ContainerNode root = new ContainerNode();
+
+		char[] src = sql.toCharArray();
+		int len = sql.length();
+
+		StringBuilder text = new StringBuilder(len);
+		boolean inQuotes = false;
+		for (int i = 0; i < len; i++) {
+			char c = src[i];
+			if (c == '\'') {
+				if (inQuotes) {
+					text.append(c);
+					if (i + 1 < len && src[i + 1] == '\'') {
+						// 引号转义
+						text.append('\'');
+						i++;
+					} else {
+						inQuotes = false;
+					}
+				} else {
+					inQuotes = true;
+					text.append(c);
+				}
+			} else if (directSymbol.test(c)) {
+				if (i + 1 < len && src[i + 1] == openSymbol) {
+					int idx = sql.indexOf(closeSymbol, i + 2);
+					if (idx == -1) {
+						text.append(c);
+					} else {
+						if (text.length() > 0) {
+							root.addNode(new TextNode(text.toString()));
+							text.setLength(0);
+						}
+						text.append(src, i, idx - i + 1);
+						root.addNode(new MixedNode(text.substring(2, text.length() - 1).trim()));
+						text.setLength(0);
+						i = idx;
+					}
+				} else {
+					text.append(c);
+				}
+			} else if (preparedSymbol.test(c)) {
+				if (i + 1 < len && src[i + 1] == openSymbol) {
+					int idx = sql.indexOf(closeSymbol, i + 2);
+					if (idx == -1) {
+						text.append(c);
+					} else {
+						if (text.length() > 0) {
+							root.addNode(new TextNode(text.toString()));
+							text.setLength(0);
+						}
+						text.append(src, i, idx - i + 1);
+						root.addNode(new DynamicNode(text.substring(2, text.length() - 1).trim()));
+						text.setLength(0);
+						i = idx;
+					}
+				} else {
+					text.append(c);
+				}
+			} else {
+				text.append(c);
+			}
+		}
+		if (text.length() > 0) {
+			root.addNode(new TextNode(text.toString()));
+			text.setLength(0);
+		}
+		return root;
+	}
+
+	interface SymbolPredicate {
+		boolean test(char c);
+	}
 }
