@@ -18,7 +18,7 @@ interface PageType2 {
 	orderBy: any;
 }
 
-type PageType = PageType | PageType2;
+type PageType = PageType1 | PageType2;
 
 type DmlType = 'INSERT' | 'DELETE' | 'UPDATE' | 'IMPORT';
 
