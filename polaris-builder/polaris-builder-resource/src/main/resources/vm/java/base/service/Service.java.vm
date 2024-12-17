@@ -364,7 +364,7 @@ public class ${table.javaClassName}${env.serviceClassSuffix} {
 			${table.javaClassName}${env.entityClassSuffix} entity = Beans.copyBean(record, new ${table.javaClassName}${env.entityClassSuffix}());
 			insertSelective(entity);
 		};
-		importExcel(fileDto, this.defaultExcelConfig, consumer);
+		importExcel(fileDto, excelConfig, consumer);
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
