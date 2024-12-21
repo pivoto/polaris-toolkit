@@ -113,6 +113,8 @@ public class ObjectArrays extends PrimitiveArrays {
 
 	/**
 	 * 是否包含{@code null}元素
+	 * <p>
+	 * 数组为空时返回true
 	 *
 	 * @param <T>   数组元素类型
 	 * @param array 被检查的数组
@@ -120,7 +122,7 @@ public class ObjectArrays extends PrimitiveArrays {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> boolean hasNull(T... array) {
-		if (isNotEmpty(array)) {
+		if (array != null) {
 			for (T element : array) {
 				if (Objs.isNull(element)) {
 					return true;
@@ -204,7 +206,7 @@ public class ObjectArrays extends PrimitiveArrays {
 			}
 		}
 
-		return  -1;
+		return -1;
 	}
 
 	/**
@@ -276,7 +278,7 @@ public class ObjectArrays extends PrimitiveArrays {
 		if (null == arrayObj) {
 			throw new NullPointerException("Argument [arrayObj] is null !");
 		}
-		if (false == arrayObj.getClass().isArray()) {
+		if (!arrayObj.getClass().isArray()) {
 			throw new IllegalArgumentException("Argument [arrayObj] is not array !");
 		}
 		if (null == type) {
@@ -817,7 +819,7 @@ public class ObjectArrays extends PrimitiveArrays {
 				}
 			}
 		}
-		return  -1;
+		return -1;
 	}
 
 	/**
@@ -830,7 +832,7 @@ public class ObjectArrays extends PrimitiveArrays {
 	 */
 	public static <T> int lastIndexOf(T[] array, Object value) {
 		if (isEmpty(array)) {
-			return  -1;
+			return -1;
 		}
 		return lastIndexOf(array, value, array.length - 1);
 	}
@@ -852,7 +854,7 @@ public class ObjectArrays extends PrimitiveArrays {
 				}
 			}
 		}
-		return  -1;
+		return -1;
 	}
 
 	/**
@@ -864,7 +866,7 @@ public class ObjectArrays extends PrimitiveArrays {
 	 * @return 是否包含
 	 */
 	public static <T> boolean contains(T[] array, T value) {
-		return indexOf(array, value) >  -1;
+		return indexOf(array, value) > -1;
 	}
 
 	/**
@@ -911,7 +913,7 @@ public class ObjectArrays extends PrimitiveArrays {
 	 * @return 是否包含
 	 */
 	public static boolean containsIgnoreCase(CharSequence[] array, CharSequence value) {
-		return indexOfIgnoreCase(array, value) >  -1;
+		return indexOfIgnoreCase(array, value) > -1;
 	}
 
 
@@ -1537,12 +1539,14 @@ public class ObjectArrays extends PrimitiveArrays {
 
 	/**
 	 * 是否存在{@code null}或空对象，通过{@link Objs#isEmpty(Object)} 判断元素
+	 * <p>
+	 * 数组为空时返回false
 	 *
 	 * @param args 被检查对象
 	 * @return 是否存在
 	 */
 	public static boolean hasEmpty(Object... args) {
-		if (isNotEmpty(args)) {
+		if (args != null) {
 			for (Object element : args) {
 				if (Objs.isEmpty(element)) {
 					return true;
@@ -1554,14 +1558,18 @@ public class ObjectArrays extends PrimitiveArrays {
 
 	/**
 	 * 是否存都为{@code null}或空对象，通过{@link Objs#isEmpty(Object)} 判断元素
+	 * <p>
+	 * 数组为空时返回true
 	 *
 	 * @param args 被检查的对象,一个或者多个
 	 * @return 是否都为空
 	 */
 	public static boolean isAllEmpty(Object... args) {
-		for (Object obj : args) {
-			if (false == Objs.isEmpty(obj)) {
-				return false;
+		if (args != null) {
+			for (Object obj : args) {
+				if (Objs.isEmpty(obj)) {
+					return false;
+				}
 			}
 		}
 		return true;
@@ -1569,12 +1577,14 @@ public class ObjectArrays extends PrimitiveArrays {
 
 	/**
 	 * 是否存都不为{@code null}或空对象，通过{@link Objs#isEmpty(Object)} 判断元素
+	 * <p>
+	 * 数组为空时返回true
 	 *
 	 * @param args 被检查的对象,一个或者多个
 	 * @return 是否都不为空
 	 */
 	public static boolean isAllNotEmpty(Object... args) {
-		return false == hasEmpty(args);
+		return !hasEmpty(args);
 	}
 
 	/**
@@ -1586,7 +1596,7 @@ public class ObjectArrays extends PrimitiveArrays {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> boolean isAllNotNull(T... array) {
-		return false == hasNull(array);
+		return !hasNull(array);
 	}
 
 	/**
@@ -1750,7 +1760,7 @@ public class ObjectArrays extends PrimitiveArrays {
 	 * @return 子数组的开始位置，即子数字第一个元素在数组中的位置
 	 */
 	public static <T> boolean isSub(T[] array, T[] subArray) {
-		return indexOfSub(array, subArray) >  -1;
+		return indexOfSub(array, subArray) > -1;
 	}
 
 	/**
@@ -1776,11 +1786,11 @@ public class ObjectArrays extends PrimitiveArrays {
 	 */
 	public static <T> int indexOfSub(T[] array, int beginInclude, T[] subArray) {
 		if (isEmpty(array) || isEmpty(subArray) || subArray.length > array.length) {
-			return  -1;
+			return -1;
 		}
 		int firstIndex = indexOf(array, subArray[0], beginInclude);
 		if (firstIndex < 0 || firstIndex + subArray.length > array.length) {
-			return  -1;
+			return -1;
 		}
 
 		for (int i = 0; i < subArray.length; i++) {
@@ -1802,7 +1812,7 @@ public class ObjectArrays extends PrimitiveArrays {
 	 */
 	public static <T> int lastIndexOfSub(T[] array, T[] subArray) {
 		if (isEmpty(array) || isEmpty(subArray)) {
-			return  -1;
+			return -1;
 		}
 		return lastIndexOfSub(array, array.length - 1, subArray);
 	}
@@ -1818,12 +1828,12 @@ public class ObjectArrays extends PrimitiveArrays {
 	 */
 	public static <T> int lastIndexOfSub(T[] array, int endInclude, T[] subArray) {
 		if (isEmpty(array) || isEmpty(subArray) || subArray.length > array.length || endInclude < 0) {
-			return  -1;
+			return -1;
 		}
 
 		int firstIndex = lastIndexOf(array, subArray[0]);
 		if (firstIndex < 0 || firstIndex + subArray.length > array.length) {
-			return  -1;
+			return -1;
 		}
 
 		for (int i = 0; i < subArray.length; i++) {
