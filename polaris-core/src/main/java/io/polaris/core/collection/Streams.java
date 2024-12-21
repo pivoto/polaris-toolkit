@@ -1,14 +1,6 @@
 package io.polaris.core.collection;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -230,31 +222,31 @@ public class Streams {
 
 	public static <T, U> Set<U> convertSet(Stream<T> from, Function<T, U> func) {
 		if (from == null) {
-			return new HashSet<>();
+			return new LinkedHashSet<>();
 		}
 		return from
 			.map(func)
 			.filter(Objects::nonNull)
-			.collect(Collectors.toSet());
+			.collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 
 	public static <T, U> Set<U> convertSet(Iterable<T> from, Function<T, U> func) {
 		if (Iterables.isEmpty(from)) {
-			return new HashSet<>();
+			return new LinkedHashSet<>();
 		}
 		return convertSet(stream(from), func);
 	}
 
 	public static <T, U> Set<U> convertSet(T[] from, Function<T, U> func) {
 		if (Iterables.isEmpty(from)) {
-			return new HashSet<>();
+			return new LinkedHashSet<>();
 		}
 		return convertSet(stream(from), func);
 	}
 
 	public static <T, U> Set<U> convertSet(Collection<T> from, Function<T, U> func) {
 		if (Iterables.isEmpty(from)) {
-			return new HashSet<>();
+			return new LinkedHashSet<>();
 		}
 		return convertSet(stream(from), func);
 	}
@@ -278,32 +270,32 @@ public class Streams {
 
 	public static <T, U> Set<U> convertSet(Stream<T> from, Function<T, U> func, Predicate<T> filter) {
 		if (from == null) {
-			return new HashSet<>();
+			return new LinkedHashSet<>();
 		}
 		return from
 			.filter(filter)
 			.map(func)
 			.filter(Objects::nonNull)
-			.collect(Collectors.toSet());
+			.collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 
 	public static <T, U> Set<U> convertSet(Iterable<T> from, Function<T, U> func, Predicate<T> filter) {
 		if (Iterables.isEmpty(from)) {
-			return new HashSet<>();
+			return new LinkedHashSet<>();
 		}
 		return convertSet(stream(from), func, filter);
 	}
 
 	public static <T, U> Set<U> convertSet(T[] from, Function<T, U> func, Predicate<T> filter) {
 		if (Iterables.isEmpty(from)) {
-			return new HashSet<>();
+			return new LinkedHashSet<>();
 		}
 		return convertSet(stream(from), func, filter);
 	}
 
 	public static <T, U> Set<U> convertSet(Collection<T> from, Function<T, U> func, Predicate<T> filter) {
 		if (Iterables.isEmpty(from)) {
-			return new HashSet<>();
+			return new LinkedHashSet<>();
 		}
 		return convertSet(stream(from), func, filter);
 	}
@@ -311,30 +303,30 @@ public class Streams {
 
 	public static <T, K> Map<K, T> convertMapByFilter(Stream<T> from, Predicate<T> filter, Function<T, K> keyFunc) {
 		if (from == null) {
-			return new HashMap<>();
+			return new LinkedHashMap<>();
 		}
 		return from
 			.filter(filter)
-			.collect(Collectors.toMap(keyFunc, v -> v));
+			.collect(Collectors.toMap(keyFunc, v -> v,(t1, t2) -> t1, LinkedHashMap::new));
 	}
 
 	public static <T, K> Map<K, T> convertMapByFilter(Iterable<T> from, Predicate<T> filter, Function<T, K> keyFunc) {
 		if (Iterables.isEmpty(from)) {
-			return new HashMap<>();
+			return new LinkedHashMap<>();
 		}
 		return convertMapByFilter(stream(from), filter, keyFunc);
 	}
 
 	public static <T, K> Map<K, T> convertMapByFilter(T[] from, Predicate<T> filter, Function<T, K> keyFunc) {
 		if (Iterables.isEmpty(from)) {
-			return new HashMap<>();
+			return new LinkedHashMap<>();
 		}
 		return convertMapByFilter(stream(from), filter, keyFunc);
 	}
 
 	public static <T, K> Map<K, T> convertMapByFilter(Collection<T> from, Predicate<T> filter, Function<T, K> keyFunc) {
 		if (Iterables.isEmpty(from)) {
-			return new HashMap<>();
+			return new LinkedHashMap<>();
 		}
 		return convertMapByFilter(stream(from), filter, keyFunc);
 	}
@@ -343,19 +335,19 @@ public class Streams {
 	public static <T, U> Set<U> convertSetByFlatMap(Stream<T> from,
 		Function<T, ? extends Stream<? extends U>> func) {
 		if (from == null) {
-			return new HashSet<>();
+			return new LinkedHashSet<>();
 		}
 		return from
 			.filter(Objects::nonNull)
 			.flatMap(func)
 			.filter(Objects::nonNull)
-			.collect(Collectors.toSet());
+			.collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 
 	public static <T, U> Set<U> convertSetByFlatMap(Iterable<T> from,
 		Function<T, ? extends Stream<? extends U>> func) {
 		if (Iterables.isEmpty(from)) {
-			return new HashSet<>();
+			return new LinkedHashSet<>();
 		}
 		return convertSetByFlatMap(stream(from), func);
 	}
@@ -363,7 +355,7 @@ public class Streams {
 	public static <T, U> Set<U> convertSetByFlatMap(T[] from,
 		Function<T, ? extends Stream<? extends U>> func) {
 		if (Iterables.isEmpty(from)) {
-			return new HashSet<>();
+			return new LinkedHashSet<>();
 		}
 		return convertSetByFlatMap(stream(from), func);
 	}
@@ -371,7 +363,7 @@ public class Streams {
 	public static <T, U> Set<U> convertSetByFlatMap(Collection<T> from,
 		Function<T, ? extends Stream<? extends U>> func) {
 		if (Iterables.isEmpty(from)) {
-			return new HashSet<>();
+			return new LinkedHashSet<>();
 		}
 		return convertSetByFlatMap(stream(from), func);
 	}
@@ -381,21 +373,21 @@ public class Streams {
 		Function<? super T, ? extends U> mapper,
 		Function<U, ? extends Stream<? extends R>> func) {
 		if (from == null) {
-			return new HashSet<>();
+			return new LinkedHashSet<>();
 		}
 		return from
 			.map(mapper)
 			.filter(Objects::nonNull)
 			.flatMap(func)
 			.filter(Objects::nonNull)
-			.collect(Collectors.toSet());
+			.collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 
 	public static <T, U, R> Set<R> convertSetByFlatMap(Iterable<T> from,
 		Function<? super T, ? extends U> mapper,
 		Function<U, ? extends Stream<? extends R>> func) {
 		if (Iterables.isEmpty(from)) {
-			return new HashSet<>();
+			return new LinkedHashSet<>();
 		}
 		return convertSetByFlatMap(stream(from), mapper, func);
 	}
@@ -404,7 +396,7 @@ public class Streams {
 		Function<? super T, ? extends U> mapper,
 		Function<U, ? extends Stream<? extends R>> func) {
 		if (Iterables.isEmpty(from)) {
-			return new HashSet<>();
+			return new LinkedHashSet<>();
 		}
 		return convertSetByFlatMap(stream(from), mapper, func);
 	}
@@ -413,7 +405,7 @@ public class Streams {
 		Function<? super T, ? extends U> mapper,
 		Function<U, ? extends Stream<? extends R>> func) {
 		if (Iterables.isEmpty(from)) {
-			return new HashSet<>();
+			return new LinkedHashSet<>();
 		}
 		return convertSetByFlatMap(stream(from), mapper, func);
 	}
@@ -471,19 +463,19 @@ public class Streams {
 
 
 	public static <T, K, V> Map<K, V> convertMap(Stream<T> from, Function<T, K> keyFunc, Function<T, V> valueFunc, BinaryOperator<V> mergeFunction) {
-		return convertMap(from, keyFunc, valueFunc, mergeFunction, HashMap::new);
+		return convertMap(from, keyFunc, valueFunc, mergeFunction, LinkedHashMap::new);
 	}
 
 	public static <T, K, V> Map<K, V> convertMap(Iterable<T> from, Function<T, K> keyFunc, Function<T, V> valueFunc, BinaryOperator<V> mergeFunction) {
-		return convertMap(from, keyFunc, valueFunc, mergeFunction, HashMap::new);
+		return convertMap(from, keyFunc, valueFunc, mergeFunction, LinkedHashMap::new);
 	}
 
 	public static <T, K, V> Map<K, V> convertMap(T[] from, Function<T, K> keyFunc, Function<T, V> valueFunc, BinaryOperator<V> mergeFunction) {
-		return convertMap(from, keyFunc, valueFunc, mergeFunction, HashMap::new);
+		return convertMap(from, keyFunc, valueFunc, mergeFunction, LinkedHashMap::new);
 	}
 
 	public static <T, K, V> Map<K, V> convertMap(Collection<T> from, Function<T, K> keyFunc, Function<T, V> valueFunc, BinaryOperator<V> mergeFunction) {
-		return convertMap(from, keyFunc, valueFunc, mergeFunction, HashMap::new);
+		return convertMap(from, keyFunc, valueFunc, mergeFunction, LinkedHashMap::new);
 	}
 
 
@@ -536,7 +528,7 @@ public class Streams {
 
 	public static <T, K> Map<K, List<T>> convertMultiMap(Stream<T> from, Function<T, K> keyFunc) {
 		if (from == null) {
-			return new HashMap<>();
+			return new LinkedHashMap<>();
 		}
 		return from
 			.collect(
@@ -546,21 +538,21 @@ public class Streams {
 
 	public static <T, K> Map<K, List<T>> convertMultiMap(Iterable<T> from, Function<T, K> keyFunc) {
 		if (Iterables.isEmpty(from)) {
-			return new HashMap<>();
+			return new LinkedHashMap<>();
 		}
 		return convertMultiMap(stream(from), keyFunc);
 	}
 
 	public static <T, K> Map<K, List<T>> convertMultiMap(T[] from, Function<T, K> keyFunc) {
 		if (Iterables.isEmpty(from)) {
-			return new HashMap<>();
+			return new LinkedHashMap<>();
 		}
 		return convertMultiMap(stream(from), keyFunc);
 	}
 
 	public static <T, K> Map<K, List<T>> convertMultiMap(Collection<T> from, Function<T, K> keyFunc) {
 		if (Iterables.isEmpty(from)) {
-			return new HashMap<>();
+			return new LinkedHashMap<>();
 		}
 		return convertMultiMap(stream(from), keyFunc);
 	}
@@ -568,7 +560,7 @@ public class Streams {
 
 	public static <T, K, V> Map<K, List<V>> convertMultiMap(Stream<T> from, Function<T, K> keyFunc, Function<T, V> valueFunc) {
 		if (from == null) {
-			return new HashMap<>();
+			return new LinkedHashMap<>();
 		}
 		return from
 			.collect(
@@ -578,21 +570,21 @@ public class Streams {
 
 	public static <T, K, V> Map<K, List<V>> convertMultiMap(Iterable<T> from, Function<T, K> keyFunc, Function<T, V> valueFunc) {
 		if (Iterables.isEmpty(from)) {
-			return new HashMap<>();
+			return new LinkedHashMap<>();
 		}
 		return convertMultiMap(stream(from), keyFunc, valueFunc);
 	}
 
 	public static <T, K, V> Map<K, List<V>> convertMultiMap(T[] from, Function<T, K> keyFunc, Function<T, V> valueFunc) {
 		if (Iterables.isEmpty(from)) {
-			return new HashMap<>();
+			return new LinkedHashMap<>();
 		}
 		return convertMultiMap(stream(from), keyFunc, valueFunc);
 	}
 
 	public static <T, K, V> Map<K, List<V>> convertMultiMap(Collection<T> from, Function<T, K> keyFunc, Function<T, V> valueFunc) {
 		if (Iterables.isEmpty(from)) {
-			return new HashMap<>();
+			return new LinkedHashMap<>();
 		}
 		return convertMultiMap(stream(from), keyFunc, valueFunc);
 	}
@@ -600,28 +592,28 @@ public class Streams {
 
 	public static <T, K, V> Map<K, Set<V>> convertMultiSetMap(Stream<T> from, Function<T, K> keyFunc, Function<T, V> valueFunc) {
 		if (from == null) {
-			return new HashMap<>();
+			return new LinkedHashMap<>();
 		}
-		return from.collect(Collectors.groupingBy(keyFunc, Collectors.mapping(valueFunc, Collectors.toSet())));
+		return from.collect(Collectors.groupingBy(keyFunc, Collectors.mapping(valueFunc, Collectors.toCollection(LinkedHashSet::new))));
 	}
 
 	public static <T, K, V> Map<K, Set<V>> convertMultiSetMap(Iterable<T> from, Function<T, K> keyFunc, Function<T, V> valueFunc) {
 		if (Iterables.isEmpty(from)) {
-			return new HashMap<>();
+			return new LinkedHashMap<>();
 		}
 		return convertMultiSetMap(stream(from), keyFunc, valueFunc);
 	}
 
 	public static <T, K, V> Map<K, Set<V>> convertMultiSetMap(T[] from, Function<T, K> keyFunc, Function<T, V> valueFunc) {
 		if (Iterables.isEmpty(from)) {
-			return new HashMap<>();
+			return new LinkedHashMap<>();
 		}
 		return convertMultiSetMap(stream(from), keyFunc, valueFunc);
 	}
 
 	public static <T, K, V> Map<K, Set<V>> convertMultiSetMap(Collection<T> from, Function<T, K> keyFunc, Function<T, V> valueFunc) {
 		if (Iterables.isEmpty(from)) {
-			return new HashMap<>();
+			return new LinkedHashMap<>();
 		}
 		return convertMultiSetMap(stream(from), keyFunc, valueFunc);
 	}
