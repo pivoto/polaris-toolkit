@@ -1,6 +1,15 @@
 ## 版本变更说明
 
-### 3.2.42
+### 3.2.44
+- ErrorCode类增加错误消息可变参数构造器
+- 添加inject注解依赖
+- Mybatis扩展插件处理参数为null的情况
+- SqlTextParsers添加`%{xxx}`格式表达式解析以便于xml内书写
+- Streams类方法中默认使用LinkedHashMap、LinkedHashSet等容器类型以维持有序性
+- 优化ObjectArrays中含可变参数的判断方法
+- Strings、Patterns中增加All、Any语义的匹配方法
+
+### 3.2.43
 - 增加Types.getClass方法对自定义类型JavaType的支持
 
 ### 3.2.42
