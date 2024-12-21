@@ -80,6 +80,34 @@ public class Patterns {
 		return pattern.matcher(content).matches();
 	}
 
+	/**
+	 * 判断是否存在任意字符串匹配，数组为空时返回false
+	 */
+	public static boolean matchesAny(Pattern pattern, CharSequence... contents) {
+		if (contents != null) {
+			for (CharSequence content : contents) {
+				if (matches(pattern, content)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * 判断是否所有字符串都匹配，数组为空时返回true
+	 */
+	public static boolean matchesAll(Pattern pattern, CharSequence... contents) {
+		if (contents != null) {
+			for (CharSequence content : contents) {
+				if (!matches(pattern, content)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
 	public static Matcher matcher(String regex, CharSequence content) {
 		return getPattern(regex).matcher(content);
 	}

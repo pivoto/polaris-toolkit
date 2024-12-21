@@ -38,7 +38,7 @@ public class Strings {
 		long b = byteSize % 1024;
 		long k = byteSize / 1024;
 		if (k == 0) {
-			return b + "B" ;
+			return b + "B";
 		}
 		long m = k / 1024;
 		k = k % 1024;
@@ -107,7 +107,7 @@ public class Strings {
 			return null;
 		}
 		if (count <= 0) {
-			return "" ;
+			return "";
 		}
 		if (count == 1) {
 			return str;
@@ -130,6 +130,10 @@ public class Strings {
 		return new String(array);
 	}
 
+	/**
+	 * @see #coalesce(String...)
+	 * @deprecated
+	 */
 	@Deprecated
 	public static <T> T nvl(T o, T reo) {
 		if (isEmpty(o)) {
@@ -275,7 +279,7 @@ public class Strings {
 				}
 				String k = matcher.group(1);
 				int groupCount = matcher.groupCount();
-				String separator = groupCount >= 3 ? matcher.group(2) : ":" ;
+				String separator = groupCount >= 3 ? matcher.group(2) : ":";
 				String defVal = groupCount >= 3 ? matcher.group(3) : groupCount == 2 ? matcher.group(2) : null;
 				String v = null;
 				if (resovedKeys.containsKey(k)) {
@@ -371,7 +375,7 @@ public class Strings {
 
 	public static String trimToEmpty(String str) {
 		if (str == null) {
-			return "" ;
+			return "";
 		}
 		return trim(str);
 	}
@@ -487,8 +491,11 @@ public class Strings {
 	}
 
 	public static boolean isEmpty(Object o) {
-		if (o == null || "".equals(o)) {
+		if (o == null) {
 			return true;
+		}
+		if (o instanceof CharSequence) {
+			return ((CharSequence) o).length() == 0;
 		}
 		return false;
 	}
@@ -497,16 +504,40 @@ public class Strings {
 		return !isEmpty(o);
 	}
 
-	public static boolean isNotNone(CharSequence str) {
-		return !isNone(str);
+	public static boolean isNone(Object o) {
+		if (o == null) {
+			return true;
+		}
+		if (o instanceof CharSequence) {
+			return isNone((CharSequence) o);
+		}
+		return false;
+	}
+
+	public static boolean isNotNone(Object o) {
+		return !isNone(o);
+	}
+
+	public static boolean isBlank(Object o) {
+		if (o == null) {
+			return true;
+		}
+		if (o instanceof CharSequence) {
+			return isBlank((CharSequence) o);
+		}
+		return false;
+	}
+
+	public static boolean isNotBlank(Object o) {
+		return !isBlank(o);
 	}
 
 	public static boolean isNone(CharSequence cs) {
 		return isBlank(cs) || "null".equals(cs.toString());
 	}
 
-	public static boolean isNotBlank(CharSequence str) {
-		return !isBlank(str);
+	public static boolean isNotNone(CharSequence str) {
+		return !isNone(str);
 	}
 
 	public static boolean isBlank(CharSequence str) {
@@ -521,12 +552,157 @@ public class Strings {
 		return true;
 	}
 
-	public static boolean isNotEmpty(CharSequence str) {
-		return !isEmpty(str);
+	public static boolean isNotBlank(CharSequence str) {
+		return !isBlank(str);
 	}
 
 	public static boolean isEmpty(final CharSequence str) {
 		return str == null || str.length() == 0;
+	}
+
+	public static boolean isNotEmpty(CharSequence str) {
+		return !isEmpty(str);
+	}
+
+
+	/**
+	 * 判断是否至少有一个字符串为空，数组为空时返回false
+	 */
+	public static boolean isAnyNone(CharSequence... strs) {
+		return isAnyMatched(Strings::isNone, strs);
+	}
+
+	/**
+	 * 判断是否至少有一个字符串不为空，数组为空时返回false
+	 */
+	public static boolean isAnyNotNone(CharSequence... strs) {
+		return isAnyMatched(Strings::isNotNone, strs);
+	}
+
+	/**
+	 * 判断是否所有字符串都为空，数组为空时返回true
+	 */
+	public static boolean isAllNone(CharSequence... strs) {
+		return isAllMatched(Strings::isNone, strs);
+	}
+
+	/**
+	 * 判断是否所有字符串都不为空，数组为空时返回true
+	 */
+	public static boolean isAllNotNone(CharSequence... strs) {
+		return isAllNotMatched(Strings::isNone, strs);
+	}
+
+	/**
+	 * 判断是否至少有一个字符串为空，数组为空时返回false
+	 */
+	public static boolean isAnyBlank(CharSequence... strs) {
+		return isAnyMatched(Strings::isBlank, strs);
+	}
+
+	/**
+	 * 判断是否至少有一个字符串不为空，数组为空时返回false
+	 */
+	public static boolean isAnyNotBlank(CharSequence... strs) {
+		return isAnyMatched(Strings::isNotBlank, strs);
+	}
+
+	/**
+	 * 判断是否所有字符串都为空，数组为空时返回true
+	 */
+	public static boolean isAllBlank(CharSequence... strs) {
+		return isAllMatched(Strings::isBlank, strs);
+	}
+
+	/**
+	 * 判断是否所有字符串都不为空，数组为空时返回true
+	 */
+	public static boolean isAllNotBlank(CharSequence... strs) {
+		return isAllNotMatched(Strings::isBlank, strs);
+	}
+
+	/**
+	 * 判断是否至少有一个字符串为空，数组为空时返回false
+	 */
+	public static boolean isAnyEmpty(CharSequence... strs) {
+		return isAnyMatched(Strings::isEmpty, strs);
+	}
+
+	/**
+	 * 判断是否至少有一个字符串不为空，数组为空时返回false
+	 */
+	public static boolean isAnyNotEmpty(CharSequence... strs) {
+		return isAnyMatched(Strings::isNotEmpty, strs);
+	}
+
+	/**
+	 * 判断是否所有字符串都为空，数组为空时返回true
+	 */
+	public static boolean isAllEmpty(CharSequence... strs) {
+		return isAllMatched(Strings::isEmpty, strs);
+	}
+
+	/**
+	 * 判断是否所有字符串都不为空，数组为空时返回true
+	 */
+	public static boolean isAllNotEmpty(CharSequence... strs) {
+		return isAllNotMatched(Strings::isEmpty, strs);
+	}
+
+	/**
+	 * 判断是否至少有一个字符串为空，数组为空时返回false
+	 */
+	public static boolean isAnyMatched(Predicate<CharSequence> predicate, CharSequence... strs) {
+		if (strs != null) {
+			for (CharSequence str : strs) {
+				if (predicate.test(str)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * 判断是否至少有一个字符串不为空，数组为空时返回false
+	 */
+	public static boolean isAnyNotMatched(Predicate<CharSequence> predicate, CharSequence... strs) {
+		if (strs != null) {
+			for (CharSequence str : strs) {
+				if (!predicate.test(str)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * 判断是否所有字符串都匹配，数组为空时返回true
+	 */
+	public static boolean isAllMatched(Predicate<CharSequence> predicate, CharSequence... strs) {
+		if (strs != null) {
+			for (CharSequence str : strs) {
+				if (!predicate.test(str)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * 判断是否所有字符串都不匹配，数组为空时返回true
+	 */
+	public static boolean isAllNotMatched(Predicate<CharSequence> predicate, CharSequence... strs) {
+		if (strs != null) {
+			for (CharSequence str : strs) {
+				if (predicate.test(str)) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	public static boolean containsAny(CharSequence str, char... testChars) {
@@ -712,11 +888,11 @@ public class Strings {
 		return str.toString().regionMatches(true, str.length() - suffix.length(), suffix.toString(), 0, suffix.length());
 	}
 
-	public static int indexOf(@Nonnull CharSequence source,@Nonnull CharSequence target) {
+	public static int indexOf(@Nonnull CharSequence source, @Nonnull CharSequence target) {
 		return source.toString().indexOf(target.toString());
 	}
 
-	public static int indexOf(@Nonnull CharSequence source,@Nonnull CharSequence target, int fromIndex) {
+	public static int indexOf(@Nonnull CharSequence source, @Nonnull CharSequence target, int fromIndex) {
 		return source.toString().indexOf(target.toString(), fromIndex);
 	}
 
@@ -1209,7 +1385,7 @@ public class Strings {
 	public static String format(String msg, Object... args) {
 		if (msg == null || msg.isEmpty()) {
 			if (args.length == 0) {
-				return "" ;
+				return "";
 			}
 			StringBuilder sb = new StringBuilder();
 			sb.append(args[0]);
