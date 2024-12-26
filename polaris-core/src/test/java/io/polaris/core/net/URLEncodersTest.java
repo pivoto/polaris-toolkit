@@ -1,5 +1,7 @@
 package io.polaris.core.net;
 
+import java.util.Arrays;
+
 import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Test;
 
@@ -24,4 +26,10 @@ class URLEncodersTest {
 		Consoles.println("encodeUserInfo: {}", args);
 	}
 
+	@Test
+	void test02() {
+		String url = "http://localhost:8080/group1/default/20241226/10/50/0/01JG0DYX1A71736RSREMRGQPCW.xlsx?name=01JG0DYX1A71736RSREMRGQPCW.xlsx&download=1";
+		Consoles.println(url.substring(url.indexOf('?')+1));
+		Consoles.println(Arrays.toString(url.substring(url.indexOf('?')+1).split("&")));
+	}
 }

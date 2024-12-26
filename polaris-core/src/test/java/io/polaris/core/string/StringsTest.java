@@ -106,4 +106,11 @@ class StringsTest {
 		Consoles.println(msg);
 	}
 
+	@Test
+	void test07() {
+		Consoles.println(Strings.normalize("app"));
+		Consoles.println(Strings.normalize("app-name"));
+		Consoles.println(Strings.normalize("$app-name"));
+		Consoles.println(Strings.normalize("$app name"));
+	}
 }
