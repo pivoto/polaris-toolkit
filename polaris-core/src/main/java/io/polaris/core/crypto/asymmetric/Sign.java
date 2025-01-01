@@ -14,6 +14,7 @@ import io.polaris.core.crypto.CryptoRuntimeException;
  * @since 1.8
  */
 public class Sign {
+	private final String provider;
 	private final String algorithm;
 	private final PublicKey publicKey;
 	private final PrivateKey privateKey;
@@ -21,31 +22,61 @@ public class Sign {
 	private Signature signSignature;
 	private Signature verifySignature;
 
-	public Sign(SignAlgorithm algorithm) {
-		this(algorithm.code(), CryptoKeys.generateKeyPair(algorithm.code()));
-	}
-
-	public Sign(SignAlgorithm algorithm, KeyPair keyPair) {
-		this(algorithm.code(), keyPair.getPrivate(), keyPair.getPublic());
-	}
-
-	public Sign(SignAlgorithm algorithm, PrivateKey privateKey, PublicKey publicKey) {
-		this(algorithm.code(), privateKey, publicKey);
-	}
-
-	public Sign(String algorithm) {
-		this(algorithm, CryptoKeys.generateKeyPair(algorithm));
-	}
-
-	public Sign(String algorithm, KeyPair keyPair) {
-		this(algorithm, keyPair.getPrivate(), keyPair.getPublic());
-	}
-
-	public Sign(String algorithm, PrivateKey privateKey, PublicKey publicKey) {
+	public Sign(String provider, String algorithm, PrivateKey privateKey, PublicKey publicKey) {
+		this.provider = provider;
 		this.algorithm = algorithm;
 		this.privateKey = privateKey;
 		this.publicKey = publicKey;
 	}
+
+	public static Sign of(String provider, String algorithm, PrivateKey privateKey, PublicKey publicKey) {
+		return new Sign(provider, algorithm, privateKey, publicKey);
+	}
+
+	public static Sign of(String provider, String algorithm, KeyPair keyPair) {
+		return of(provider, algorithm, keyPair.getPrivate(), keyPair.getPublic());
+	}
+
+	public static Sign of(String provider, String algorithm) {
+		return of(provider, algorithm, CryptoKeys.generateKeyPair(provider, algorithm));
+	}
+
+	public static Sign of(String algorithm, PrivateKey privateKey, PublicKey publicKey) {
+		return of(null, algorithm, privateKey, publicKey);
+	}
+
+	public static Sign of(String algorithm, KeyPair keyPair) {
+		return of(null, algorithm, keyPair.getPrivate(), keyPair.getPublic());
+	}
+
+	public static Sign of(String algorithm) {
+		return of(null, algorithm);
+	}
+
+	public static Sign of(String provider, SignAlgorithm algorithm, PrivateKey privateKey, PublicKey publicKey) {
+		return of(provider, algorithm.code(), privateKey, publicKey);
+	}
+
+	public static Sign of(String provider, SignAlgorithm algorithm, KeyPair keyPair) {
+		return of(provider, algorithm, keyPair.getPrivate(), keyPair.getPublic());
+	}
+
+	public static Sign of(String provider, SignAlgorithm algorithm) {
+		return of(provider, algorithm, CryptoKeys.generateKeyPair(provider, algorithm.code()));
+	}
+
+	public static Sign of(SignAlgorithm algorithm, PrivateKey privateKey, PublicKey publicKey) {
+		return of(null, algorithm, privateKey, publicKey);
+	}
+
+	public static Sign of(SignAlgorithm algorithm, KeyPair keyPair) {
+		return of(null, algorithm, keyPair.getPrivate(), keyPair.getPublic());
+	}
+
+	public static Sign of(SignAlgorithm algorithm) {
+		return of(null, algorithm);
+	}
+
 
 	public Sign signUpdate(byte[] data) {
 		try {

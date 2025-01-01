@@ -13,31 +13,54 @@ import io.polaris.core.crypto.IEncryptor;
  */
 public class Symmetric {
 
+	private final String provider;
 	private final String algorithm;
 	private final Key key;
 
 	private IEncryptor encryptor;
 	private IDecryptor decryptor;
 
-	public Symmetric(String algorithm, Key key) {
+	public Symmetric(String provider, String algorithm, Key key) {
+		this.provider = provider;
 		this.algorithm = algorithm;
+		if (key == null) {
+			key = provider == null ? CryptoKeys.generateKey(algorithm) : CryptoKeys.generateKey(provider, algorithm);
+		}
 		this.key = key;
 	}
 
-	public Symmetric(SymmetricAlgorithm algorithm, Key key) {
-		this.algorithm = algorithm.code();
-		this.key = key;
+	public static Symmetric of(String provider, String algorithm, Key key) {
+		return new Symmetric(provider, algorithm, key);
 	}
 
-	public Symmetric(String algorithm) {
-		this.algorithm = algorithm;
-		this.key = CryptoKeys.generateKey(this.algorithm);
+	public static Symmetric of(String provider, String algorithm) {
+		return of(provider, algorithm, CryptoKeys.generateKey(provider, algorithm));
 	}
 
-	public Symmetric(SymmetricAlgorithm algorithm) {
-		this.algorithm = algorithm.code();
-		this.key = CryptoKeys.generateKey(this.algorithm);
+	public static Symmetric of(String algorithm, Key key) {
+		return of(null, algorithm, key);
 	}
+
+	public static Symmetric of(String algorithm) {
+		return of(null, algorithm, CryptoKeys.generateKey(algorithm));
+	}
+
+	public static Symmetric of(String provider, SymmetricAlgorithm algorithm, Key key) {
+		return new Symmetric(provider, algorithm.code(), key);
+	}
+
+	public static Symmetric of(String provider, SymmetricAlgorithm algorithm) {
+		return of(provider, algorithm, CryptoKeys.generateKey(provider, algorithm.code()));
+	}
+
+	public static Symmetric of(SymmetricAlgorithm algorithm, Key key) {
+		return of(null, algorithm.code(), key);
+	}
+
+	public static Symmetric of(SymmetricAlgorithm algorithm) {
+		return of(null, algorithm, CryptoKeys.generateKey(algorithm.code()));
+	}
+
 
 	public IDecryptor getDecryptor() {
 		if (decryptor == null) {

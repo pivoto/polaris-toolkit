@@ -14,48 +14,80 @@ import io.polaris.core.crypto.IEncryptor;
  * @since 1.8
  */
 public class Asymmetric {
+	private final String provider;
 	private final String algorithm;
 	private final PublicKey publicKey;
 	private final PrivateKey privateKey;
 	private IEncryptor encryptor;
 	private IDecryptor decryptor;
 
-	public Asymmetric(AsymmetricAlgorithm algorithm) {
-		this(algorithm.code(), CryptoKeys.generateKeyPair(algorithm.code()));
-	}
-
-	public Asymmetric(AsymmetricAlgorithm algorithm, KeyPair keyPair) {
-		this(algorithm.code(), keyPair.getPrivate(), keyPair.getPublic());
-	}
-
-	public Asymmetric(AsymmetricAlgorithm algorithm, PrivateKey privateKey, PublicKey publicKey) {
-		this(algorithm.code(), privateKey, publicKey);
-	}
-
-	public Asymmetric(String algorithm) {
-		this(algorithm, CryptoKeys.generateKeyPair(algorithm));
-	}
-
-	public Asymmetric(String algorithm, KeyPair keyPair) {
-		this(algorithm, keyPair.getPrivate(), keyPair.getPublic());
-	}
-
-	public Asymmetric(String algorithm, PrivateKey privateKey, PublicKey publicKey) {
+	public Asymmetric(String provider, String algorithm, PrivateKey privateKey, PublicKey publicKey) {
+		this.provider = provider;
 		this.algorithm = algorithm;
 		this.privateKey = privateKey;
 		this.publicKey = publicKey;
 	}
 
+	public static Asymmetric of(String provider, String algorithm, PrivateKey privateKey, PublicKey publicKey) {
+		return new Asymmetric(provider, algorithm, privateKey, publicKey);
+	}
+
+	public static Asymmetric of(String provider, String algorithm, KeyPair keyPair) {
+		return of(provider, algorithm, keyPair.getPrivate(), keyPair.getPublic());
+	}
+
+	public static Asymmetric of(String provider, String algorithm) {
+		return of(provider, algorithm, CryptoKeys.generateKeyPair(algorithm));
+	}
+
+	public static Asymmetric of(String algorithm, PrivateKey privateKey, PublicKey publicKey) {
+		return of(null, algorithm, privateKey, publicKey);
+	}
+
+	public static Asymmetric of(String algorithm, KeyPair keyPair) {
+		return of(null, algorithm, keyPair);
+	}
+
+	public static Asymmetric of(String algorithm) {
+		return of(null, algorithm);
+	}
+
+
+	public static Asymmetric of(String provider, AsymmetricAlgorithm algorithm, PrivateKey privateKey, PublicKey publicKey) {
+		return of(provider, algorithm.code(), privateKey, publicKey);
+	}
+
+	public static Asymmetric of(String provider, AsymmetricAlgorithm algorithm, KeyPair keyPair) {
+		return of(provider, algorithm.code(), keyPair.getPrivate(), keyPair.getPublic());
+	}
+
+	public static Asymmetric of(String provider, AsymmetricAlgorithm algorithm) {
+		return of(provider, algorithm.code(), CryptoKeys.generateKeyPair(algorithm.code()));
+	}
+
+	public static Asymmetric of(AsymmetricAlgorithm algorithm, PrivateKey privateKey, PublicKey publicKey) {
+		return of(null, algorithm.code(), privateKey, publicKey);
+	}
+
+	public static Asymmetric of(AsymmetricAlgorithm algorithm, KeyPair keyPair) {
+		return of(null, algorithm.code(), keyPair);
+	}
+
+	public static Asymmetric of(AsymmetricAlgorithm algorithm) {
+		return of(null, algorithm.code());
+	}
+
+
 	public IDecryptor getDecryptor() {
 		if (decryptor == null) {
-			decryptor = Ciphers.getDecryptor(algorithm, privateKey);
+			decryptor = provider == null ? Ciphers.getDecryptor(algorithm, privateKey) : Ciphers.getDecryptor(provider, algorithm, privateKey);
 		}
 		return decryptor;
 	}
 
 	public IEncryptor getEncryptor() {
 		if (encryptor == null) {
-			encryptor = Ciphers.getEncryptor(algorithm, publicKey);
+			encryptor = provider == null ? Ciphers.getEncryptor(algorithm, publicKey) : Ciphers.getEncryptor(provider, algorithm, privateKey);
 		}
 		return encryptor;
 	}

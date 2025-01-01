@@ -5,21 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
-import java.security.Provider;
-import java.security.PublicKey;
-import java.security.SecureRandom;
-import java.security.Signature;
-import java.security.UnrecoverableKeyException;
+import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -86,7 +72,10 @@ public class CryptoKeys {
 		}
 	}
 
-	public static KeyGenerator getKeyGenerator(String algorithm, String provider) {
+	public static KeyGenerator getKeyGenerator(String provider, String algorithm) {
+		if (Strings.isEmpty(provider)) {
+			return getKeyGenerator(algorithm);
+		}
 		try {
 			return KeyGenerator.getInstance(getMainAlgorithm(algorithm), provider);
 		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
@@ -94,7 +83,10 @@ public class CryptoKeys {
 		}
 	}
 
-	public static KeyGenerator getKeyGenerator(String algorithm, Provider provider) {
+	public static KeyGenerator getKeyGenerator(Provider provider, String algorithm) {
+		if (Strings.isEmpty(provider)) {
+			return getKeyGenerator(algorithm);
+		}
 		try {
 			return KeyGenerator.getInstance(getMainAlgorithm(algorithm), provider);
 		} catch (NoSuchAlgorithmException e) {
@@ -115,7 +107,10 @@ public class CryptoKeys {
 		}
 	}
 
-	public static KeyPairGenerator getKeyPairGenerator(String algorithm, String provider) {
+	public static KeyPairGenerator getKeyPairGenerator(String provider, String algorithm) {
+		if (Strings.isEmpty(provider)) {
+			return getKeyPairGenerator(algorithm);
+		}
 		try {
 			return KeyPairGenerator.getInstance(getMainAlgorithm(algorithm), provider);
 		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
@@ -123,7 +118,10 @@ public class CryptoKeys {
 		}
 	}
 
-	public static KeyPairGenerator getKeyPairGenerator(String algorithm, Provider provider) {
+	public static KeyPairGenerator getKeyPairGenerator(Provider provider, String algorithm) {
+		if (Strings.isEmpty(provider)) {
+			return getKeyPairGenerator(algorithm);
+		}
 		try {
 			return KeyPairGenerator.getInstance(getMainAlgorithm(algorithm), provider);
 		} catch (NoSuchAlgorithmException e) {
@@ -144,7 +142,10 @@ public class CryptoKeys {
 		}
 	}
 
-	public static SecretKeyFactory getSecretKeyFactory(String algorithm, String provider) {
+	public static SecretKeyFactory getSecretKeyFactory(String provider, String algorithm) {
+		if (Strings.isEmpty(provider)) {
+			return getSecretKeyFactory(algorithm);
+		}
 		try {
 			return SecretKeyFactory.getInstance(getMainAlgorithm(algorithm), provider);
 		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
@@ -152,7 +153,10 @@ public class CryptoKeys {
 		}
 	}
 
-	public static SecretKeyFactory getSecretKeyFactory(String algorithm, Provider provider) {
+	public static SecretKeyFactory getSecretKeyFactory(Provider provider, String algorithm) {
+		if (Strings.isEmpty(provider)) {
+			return getSecretKeyFactory(algorithm);
+		}
 		try {
 			return SecretKeyFactory.getInstance(getMainAlgorithm(algorithm), provider);
 		} catch (NoSuchAlgorithmException e) {
@@ -173,7 +177,10 @@ public class CryptoKeys {
 		}
 	}
 
-	public static KeyFactory getKeyFactory(String algorithm, String provider) {
+	public static KeyFactory getKeyFactory(String provider, String algorithm) {
+		if (Strings.isEmpty(provider)) {
+			return getKeyFactory(algorithm);
+		}
 		try {
 			return KeyFactory.getInstance(getMainAlgorithm(algorithm), provider);
 		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
@@ -181,7 +188,10 @@ public class CryptoKeys {
 		}
 	}
 
-	public static KeyFactory getKeyFactory(String algorithm, Provider provider) {
+	public static KeyFactory getKeyFactory(Provider provider, String algorithm) {
+		if (Strings.isEmpty(provider)) {
+			return getKeyFactory(algorithm);
+		}
 		try {
 			return KeyFactory.getInstance(getMainAlgorithm(algorithm), provider);
 		} catch (NoSuchAlgorithmException e) {
@@ -198,7 +208,10 @@ public class CryptoKeys {
 		}
 	}
 
-	public static Signature getSignature(String algorithm, String provider) {
+	public static Signature getSignature(String provider, String algorithm) {
+		if (Strings.isEmpty(provider)) {
+			return getSignature(algorithm);
+		}
 		try {
 			return Signature.getInstance(getMainAlgorithm(algorithm), provider);
 		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
@@ -206,7 +219,10 @@ public class CryptoKeys {
 		}
 	}
 
-	public static Signature getSignature(String algorithm, Provider provider) {
+	public static Signature getSignature(Provider provider, String algorithm) {
+		if (Strings.isEmpty(provider)) {
+			return getSignature(algorithm);
+		}
 		try {
 			return Signature.getInstance(getMainAlgorithm(algorithm), provider);
 		} catch (NoSuchAlgorithmException e) {
@@ -222,7 +238,10 @@ public class CryptoKeys {
 		}
 	}
 
-	public static Cipher getCipher(String algorithm, String provider) {
+	public static Cipher getCipher(String provider, String algorithm) {
+		if (Strings.isEmpty(provider)) {
+			return getCipher(algorithm);
+		}
 		try {
 			return Cipher.getInstance(getMainAlgorithm(algorithm), provider);
 		} catch (NoSuchAlgorithmException | NoSuchProviderException | NoSuchPaddingException e) {
@@ -230,7 +249,10 @@ public class CryptoKeys {
 		}
 	}
 
-	public static Cipher getCipher(String algorithm, Provider provider) {
+	public static Cipher getCipher(Provider provider, String algorithm) {
+		if (Strings.isEmpty(provider)) {
+			return getCipher(algorithm);
+		}
 		try {
 			return Cipher.getInstance(getMainAlgorithm(algorithm), provider);
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
@@ -346,7 +368,7 @@ public class CryptoKeys {
 
 	public static SecretKey generateKey(String provider, String algorithm, int keySize, SecureRandom random) {
 		algorithm = getMainAlgorithm(algorithm);
-		final KeyGenerator keyGenerator = getKeyGenerator(algorithm, provider);
+		final KeyGenerator keyGenerator = getKeyGenerator(provider, algorithm);
 		if (keySize <= 0 && SymmetricAlgorithm.AES.code().equals(algorithm)) {
 			// 对于AES的密钥，除非指定，否则强制使用128位
 			keySize = 128;
@@ -363,7 +385,7 @@ public class CryptoKeys {
 
 	public static SecretKey generateKey(Provider provider, String algorithm, int keySize, SecureRandom random) {
 		algorithm = getMainAlgorithm(algorithm);
-		final KeyGenerator keyGenerator = getKeyGenerator(algorithm, provider);
+		final KeyGenerator keyGenerator = getKeyGenerator(provider, algorithm);
 		if (keySize <= 0 && SymmetricAlgorithm.AES.code().equals(algorithm)) {
 			// 对于AES的密钥，除非指定，否则强制使用128位
 			keySize = 128;
@@ -430,12 +452,24 @@ public class CryptoKeys {
 		return secretKey;
 	}
 
+	private static SecureRandom getDefaultPRNG(byte[] seed) {
+		SecureRandom secureRandom;
+		try {
+			secureRandom = SecureRandom.getInstance("SHA1PRNG");
+		} catch (NoSuchAlgorithmException e) {
+			throw new CryptoRuntimeException(e);
+		}
+		secureRandom.setSeed(seed);
+		return secureRandom;
+	}
+
 	public static SecretKey generateKeyBySeed(String algorithm, byte[] seed) {
 		if (seed == null) {
 			return generateKey(algorithm);
 		}
 		KeyGenerator keyGen = getKeyGenerator(algorithm);
-		keyGen.init(new SecureRandom(seed));
+		keyGen.init(getDefaultPRNG(seed));
+		// keyGen.init(new SecureRandom(seed));
 		return keyGen.generateKey();
 	}
 
@@ -443,8 +477,9 @@ public class CryptoKeys {
 		if (seed == null) {
 			return generateKey(algorithm);
 		}
-		KeyGenerator keyGen = getKeyGenerator(algorithm, provider);
-		keyGen.init(new SecureRandom(seed));
+		KeyGenerator keyGen = getKeyGenerator(provider, algorithm);
+		keyGen.init(getDefaultPRNG(seed));
+		// keyGen.init(new SecureRandom(seed));
 		return keyGen.generateKey();
 	}
 
@@ -452,8 +487,9 @@ public class CryptoKeys {
 		if (seed == null) {
 			return generateKey(algorithm);
 		}
-		KeyGenerator keyGen = getKeyGenerator(algorithm, provider);
-		keyGen.init(new SecureRandom(seed));
+		KeyGenerator keyGen = getKeyGenerator(provider, algorithm);
+		keyGen.init(getDefaultPRNG(seed));
+		// keyGen.init(new SecureRandom(seed));
 		return keyGen.generateKey();
 	}
 
@@ -593,7 +629,7 @@ public class CryptoKeys {
 	}
 
 	public static SecretKey generateKey(String provider, String algorithm, KeySpec keySpec) {
-		final SecretKeyFactory keyFactory = getSecretKeyFactory(algorithm, provider);
+		final SecretKeyFactory keyFactory = getSecretKeyFactory(provider, algorithm);
 		try {
 			return keyFactory.generateSecret(keySpec);
 		} catch (InvalidKeySpecException e) {
@@ -602,7 +638,7 @@ public class CryptoKeys {
 	}
 
 	public static SecretKey generateKey(Provider provider, String algorithm, KeySpec keySpec) {
-		final SecretKeyFactory keyFactory = getSecretKeyFactory(algorithm, provider);
+		final SecretKeyFactory keyFactory = getSecretKeyFactory(provider, algorithm);
 		try {
 			return keyFactory.generateSecret(keySpec);
 		} catch (InvalidKeySpecException e) {
@@ -673,7 +709,7 @@ public class CryptoKeys {
 	public static PrivateKey generatePrivateKey(String provider, @Nonnull String algorithm, @Nonnull KeySpec keySpec) {
 		algorithm = getAlgorithmAfterWith(algorithm);
 		try {
-			return getKeyFactory(algorithm, provider).generatePrivate(keySpec);
+			return getKeyFactory(provider, algorithm).generatePrivate(keySpec);
 		} catch (InvalidKeySpecException e) {
 			throw new CryptoRuntimeException(e);
 		}
@@ -682,7 +718,7 @@ public class CryptoKeys {
 	public static PrivateKey generatePrivateKey(Provider provider, @Nonnull String algorithm, @Nonnull KeySpec keySpec) {
 		algorithm = getAlgorithmAfterWith(algorithm);
 		try {
-			return getKeyFactory(algorithm, provider).generatePrivate(keySpec);
+			return getKeyFactory(provider, algorithm).generatePrivate(keySpec);
 		} catch (InvalidKeySpecException e) {
 			throw new CryptoRuntimeException(e);
 		}
@@ -746,7 +782,7 @@ public class CryptoKeys {
 	public static PublicKey generatePublicKey(String provider, String algorithm, KeySpec keySpec) {
 		algorithm = getAlgorithmAfterWith(algorithm);
 		try {
-			return getKeyFactory(algorithm, provider).generatePublic(keySpec);
+			return getKeyFactory(provider, algorithm).generatePublic(keySpec);
 		} catch (InvalidKeySpecException e) {
 			throw new CryptoRuntimeException(e);
 		}
@@ -755,7 +791,7 @@ public class CryptoKeys {
 	public static PublicKey generatePublicKey(Provider provider, String algorithm, KeySpec keySpec) {
 		algorithm = getAlgorithmAfterWith(algorithm);
 		try {
-			return getKeyFactory(algorithm, provider).generatePublic(keySpec);
+			return getKeyFactory(provider, algorithm).generatePublic(keySpec);
 		} catch (InvalidKeySpecException e) {
 			throw new CryptoRuntimeException(e);
 		}
@@ -937,14 +973,14 @@ public class CryptoKeys {
 
 	public static KeyPair generateKeyPair(String provider, String algorithm, int keySize, SecureRandom random, AlgorithmParameterSpec... params) {
 		algorithm = getAlgorithmAfterWith(algorithm);
-		final KeyPairGenerator keyPairGen = getKeyPairGenerator(algorithm, provider);
+		final KeyPairGenerator keyPairGen = getKeyPairGenerator(provider, algorithm);
 
 		return getKeyPair(keyPairGen, algorithm, keySize, random, params);
 	}
 
 	public static KeyPair generateKeyPair(Provider provider, String algorithm, int keySize, SecureRandom random, AlgorithmParameterSpec... params) {
 		algorithm = getAlgorithmAfterWith(algorithm);
-		final KeyPairGenerator keyPairGen = getKeyPairGenerator(algorithm, provider);
+		final KeyPairGenerator keyPairGen = getKeyPairGenerator(provider, algorithm);
 
 		return getKeyPair(keyPairGen, algorithm, keySize, random, params);
 	}
@@ -999,7 +1035,7 @@ public class CryptoKeys {
 
 	public static PrivateKey toPrivateKey(String provider, String algorithm, byte[] key) {
 		try {
-			return getKeyFactory(algorithm, provider).generatePrivate(new PKCS8EncodedKeySpec(key));
+			return getKeyFactory(provider, algorithm).generatePrivate(new PKCS8EncodedKeySpec(key));
 		} catch (InvalidKeySpecException e) {
 			throw new CryptoRuntimeException(e);
 		}
@@ -1007,7 +1043,7 @@ public class CryptoKeys {
 
 	public static PrivateKey toPrivateKey(Provider provider, String algorithm, byte[] key) {
 		try {
-			return getKeyFactory(algorithm, provider).generatePrivate(new PKCS8EncodedKeySpec(key));
+			return getKeyFactory(provider, algorithm).generatePrivate(new PKCS8EncodedKeySpec(key));
 		} catch (InvalidKeySpecException e) {
 			throw new CryptoRuntimeException(e);
 		}
@@ -1023,7 +1059,7 @@ public class CryptoKeys {
 
 	public static PublicKey toPublicKey(String provider, String algorithm, byte[] key) {
 		try {
-			return getKeyFactory(algorithm, provider).generatePublic(new X509EncodedKeySpec(key));
+			return getKeyFactory(provider, algorithm).generatePublic(new X509EncodedKeySpec(key));
 		} catch (InvalidKeySpecException e) {
 			throw new CryptoRuntimeException(e);
 		}
@@ -1031,7 +1067,7 @@ public class CryptoKeys {
 
 	public static PublicKey toPublicKey(Provider provider, String algorithm, byte[] key) {
 		try {
-			return getKeyFactory(algorithm, provider).generatePublic(new X509EncodedKeySpec(key));
+			return getKeyFactory(provider, algorithm).generatePublic(new X509EncodedKeySpec(key));
 		} catch (InvalidKeySpecException e) {
 			throw new CryptoRuntimeException(e);
 		}
@@ -1048,7 +1084,7 @@ public class CryptoKeys {
 
 	public static RSAPrivateKey toRSAPrivateKey(String provider, RSAPublicKey rsaPublicKey) {
 		try {
-			return (RSAPrivateKey) getKeyFactory(AsymmetricAlgorithm.RSA.code(), provider)
+			return (RSAPrivateKey) getKeyFactory(provider, AsymmetricAlgorithm.RSA.code())
 				.generatePrivate(new RSAPrivateKeySpec(rsaPublicKey.getModulus(), rsaPublicKey.getPublicExponent()));
 		} catch (InvalidKeySpecException e) {
 			throw new CryptoRuntimeException(e);
@@ -1057,7 +1093,7 @@ public class CryptoKeys {
 
 	public static RSAPrivateKey toRSAPrivateKey(Provider provider, RSAPublicKey rsaPublicKey) {
 		try {
-			return (RSAPrivateKey) getKeyFactory(AsymmetricAlgorithm.RSA.code(), provider)
+			return (RSAPrivateKey) getKeyFactory(provider, AsymmetricAlgorithm.RSA.code())
 				.generatePrivate(new RSAPrivateKeySpec(rsaPublicKey.getModulus(), rsaPublicKey.getPublicExponent()));
 		} catch (InvalidKeySpecException e) {
 			throw new CryptoRuntimeException(e);
@@ -1075,7 +1111,7 @@ public class CryptoKeys {
 
 	public static RSAPublicKey toRSAPublicKey(String provider, RSAPrivateKey rsaPrivateKey) {
 		try {
-			return (RSAPublicKey) getKeyFactory(AsymmetricAlgorithm.RSA.code(), provider)
+			return (RSAPublicKey) getKeyFactory(provider, AsymmetricAlgorithm.RSA.code())
 				.generatePrivate(new RSAPublicKeySpec(rsaPrivateKey.getModulus(), rsaPrivateKey.getPrivateExponent()));
 		} catch (InvalidKeySpecException e) {
 			throw new CryptoRuntimeException(e);
@@ -1084,7 +1120,7 @@ public class CryptoKeys {
 
 	public static RSAPublicKey toRSAPublicKey(Provider provider, RSAPrivateKey rsaPrivateKey) {
 		try {
-			return (RSAPublicKey) getKeyFactory(AsymmetricAlgorithm.RSA.code(), provider)
+			return (RSAPublicKey) getKeyFactory(provider, AsymmetricAlgorithm.RSA.code())
 				.generatePrivate(new RSAPublicKeySpec(rsaPrivateKey.getModulus(), rsaPrivateKey.getPrivateExponent()));
 		} catch (InvalidKeySpecException e) {
 			throw new CryptoRuntimeException(e);

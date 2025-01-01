@@ -1,10 +1,10 @@
 package io.polaris.crypto.symmetric;
 
-import io.polaris.core.crypto.symmetric.Symmetric;
-import io.polaris.core.crypto.symmetric.SymmetricAlgorithm;
-
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+
+import io.polaris.core.crypto.symmetric.Symmetric;
+import io.polaris.core.crypto.symmetric.SymmetricAlgorithm;
 
 /**
  * 国密对称加密算法SM4实现
@@ -22,10 +22,10 @@ import java.security.NoSuchAlgorithmException;
  */
 public class SM4 extends Symmetric {
 	public SM4(Key key) {
-		super(SymmetricAlgorithm.SM4, key);
+		super(null, SymmetricAlgorithm.SM4.code(), key);
 	}
 
 	public SM4() throws NoSuchAlgorithmException {
-		super(SymmetricAlgorithm.SM4);
+		super(null, SymmetricAlgorithm.SM4.code(), null);
 	}
 }

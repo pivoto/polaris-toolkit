@@ -34,7 +34,7 @@ class SymmetricTest {
 
 	private static void testAlgorithm(SymmetricAlgorithm algorithm) throws GeneralSecurityException {
 		System.out.println(algorithm);
-		Symmetric symmetric = new Symmetric(algorithm.code());
+		Symmetric symmetric = Symmetric.of(algorithm.code());
 		byte[] data = "测试".getBytes();
 		byte[] rs = symmetric.encrypt(data);
 		System.out.println(Base64.getEncoder().encodeToString(rs));
