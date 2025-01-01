@@ -1,6 +1,8 @@
 package io.polaris.core.assertion;
 
 import java.util.Objects;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import io.polaris.core.string.Strings;
 
@@ -9,6 +11,18 @@ import io.polaris.core.string.Strings;
  * @since  Jan 31, 2024
  */
 public interface Arguments {
+
+	public static void expect(Supplier<Boolean> condition, String message) throws IllegalArgumentException {
+		if (!condition.get()) {
+			throw new IllegalArgumentException(message);
+		}
+	}
+
+	public static void expect(boolean condition, String message) throws IllegalArgumentException {
+		if (!condition) {
+			throw new IllegalArgumentException(message);
+		}
+	}
 
 	public static void isTrue(boolean condition, String message) throws IllegalArgumentException {
 		if (!condition) {

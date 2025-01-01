@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,6 +27,18 @@ public class Assertions {
 
 	public static void fail(String message, Throwable t) throws AssertionException {
 		throw new AssertionException(message, t);
+	}
+
+	public static void expect(Supplier<Boolean> condition, String message) throws IllegalArgumentException {
+		if (!condition.get()) {
+			throw new AssertionException(message);
+		}
+	}
+
+	public static void expect(boolean condition, String message) throws IllegalArgumentException {
+		if (!condition) {
+			throw new AssertionException(message);
+		}
 	}
 
 	static String buildPrefix(String message) throws AssertionException {
