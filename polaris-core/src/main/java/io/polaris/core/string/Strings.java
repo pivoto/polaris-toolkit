@@ -201,6 +201,31 @@ public class Strings {
 		return StringCases.capitalize(name);
 	}
 
+	public static String getExistedEnv(String... keys) {
+		for (String key : keys) {
+			String val = getEnv(key);
+			if (val != null) {
+				return val;
+			}
+		}
+		return null;
+	}
+
+	public static String getEnv(String key) {
+		return System.getenv(key);
+	}
+
+	public static String getExistedSystemProperty(String... keys) {
+		for (String key : keys) {
+			String val = getSystemProperty(key);
+			if (val != null) {
+				return val;
+			}
+		}
+		return null;
+	}
+
+
 	/**
 	 * 获取系统属性或环境变量
 	 */
