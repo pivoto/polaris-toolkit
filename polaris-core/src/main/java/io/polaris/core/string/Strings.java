@@ -132,9 +132,7 @@ public class Strings {
 
 	/**
 	 * @see #coalesce(String...)
-	 * @deprecated
 	 */
-	@Deprecated
 	public static <T> T nvl(T o, T reo) {
 		if (isEmpty(o)) {
 			return reo;
