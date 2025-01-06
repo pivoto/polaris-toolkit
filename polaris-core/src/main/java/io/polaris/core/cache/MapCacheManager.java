@@ -1,5 +1,6 @@
 package io.polaris.core.cache;
 
+import io.polaris.core.env.GlobalStdEnv;
 import io.polaris.core.string.Strings;
 
 /**
@@ -19,7 +20,7 @@ public class MapCacheManager extends AbstractCacheManager {
 
 	private void init() {
 		{
-			String val = System.getProperty(KEY_MAX_CAPACITY);
+			String val = GlobalStdEnv.get(KEY_MAX_CAPACITY);
 			if (Strings.isNotBlank(val)) {
 				try {
 					maxCapacity = Integer.parseInt(val);
@@ -28,7 +29,7 @@ public class MapCacheManager extends AbstractCacheManager {
 			}
 		}
 		{
-			String val = System.getProperty(KEY_ACCESS_ORDER);
+			String val = GlobalStdEnv.get(KEY_ACCESS_ORDER);
 			if (Strings.isNotBlank(val)) {
 				accessOrder = Boolean.parseBoolean(val);
 			}

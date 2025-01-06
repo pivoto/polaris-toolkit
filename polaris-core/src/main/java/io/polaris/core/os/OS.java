@@ -16,7 +16,7 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import io.polaris.core.consts.StdConsts;
-import io.polaris.core.consts.SystemKeys;
+import io.polaris.core.consts.StdKeys;
 import io.polaris.core.env.GlobalStdEnv;
 import io.polaris.core.regex.Patterns;
 import io.polaris.core.string.Strings;
@@ -40,7 +40,7 @@ public class OS {
 
 	public static String getOsName() {
 		if (OS_NAME == null) {
-			OS_NAME = System.getProperty(SystemKeys.OS_NAME);
+			OS_NAME = System.getProperty(StdKeys.OS_NAME);
 		}
 		return OS_NAME;
 	}

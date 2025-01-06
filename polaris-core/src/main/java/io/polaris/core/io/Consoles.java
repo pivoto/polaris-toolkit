@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.concurrent.Callable;
 
 import io.polaris.core.converter.Converters;
+import io.polaris.core.env.GlobalStdEnv;
 import io.polaris.core.string.Strings;
 import io.polaris.core.time.Dates;
 
@@ -13,7 +14,7 @@ import io.polaris.core.time.Dates;
  */
 public class Consoles {
 	private static final String KEY_LOG_ENABLED = Consoles.class.getName() + ".log.enabled";
-	private static boolean printable = Converters.convertQuietly(boolean.class, System.getProperty(KEY_LOG_ENABLED, "true"), true);
+	private static boolean printable = Converters.convertQuietly(boolean.class, GlobalStdEnv.get(KEY_LOG_ENABLED, "true"), true);
 
 	public static void setPrintable(boolean printable) {
 		Consoles.printable = printable;

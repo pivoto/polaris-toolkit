@@ -1,7 +1,7 @@
 package io.polaris.core.compiler;
 
 
-import io.polaris.core.consts.SystemKeys;
+import io.polaris.core.consts.StdKeys;
 import io.polaris.core.io.IO;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
@@ -45,7 +45,7 @@ public class MemoryClassLoader extends URLClassLoader {
 		}
 	}
 	static{
-		String tmpdir = System.getProperty(SystemKeys.JAVA_CLASS_BYTES_TMPDIR);
+		String tmpdir = System.getProperty(StdKeys.JAVA_CLASS_BYTES_TMPDIR);
 		if (Strings.isNotBlank(tmpdir)){
 			File dir = new File(tmpdir.trim());
 			if (!dir.exists()){
@@ -230,7 +230,7 @@ public class MemoryClassLoader extends URLClassLoader {
 			}
 		}
 
-		String sysPath = System.getProperty(SystemKeys.JAVA_CLASS_PATH);
+		String sysPath = System.getProperty(StdKeys.JAVA_CLASS_PATH);
 		if (sysPath != null) {
 			String[] arr = sysPath.split(File.pathSeparator);
 			for (String path : arr) {

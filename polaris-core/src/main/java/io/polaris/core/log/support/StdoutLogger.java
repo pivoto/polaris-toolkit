@@ -3,7 +3,7 @@ package io.polaris.core.log.support;
 import java.time.Instant;
 
 import io.polaris.core.collection.ObjectArrays;
-import io.polaris.core.consts.SystemKeys;
+import io.polaris.core.consts.StdKeys;
 import io.polaris.core.function.ConsumerWithArgs4;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.Level;
@@ -23,7 +23,7 @@ public class StdoutLogger implements ILogger {
 		this.name = name;
 		Level level;
 		try {
-			String levelStr = System.getProperty(SystemKeys.LOGGER_LEVEL + "." + name);
+			String levelStr = System.getProperty(StdKeys.LOGGER_LEVEL + "." + name);
 			level = Level.valueOf(Strings.coalesce(levelStr, Level.DEBUG.name()).toLowerCase());
 		} catch (Throwable e) {
 			level = Level.DEBUG;

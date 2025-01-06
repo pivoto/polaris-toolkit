@@ -1,6 +1,7 @@
 package io.polaris.core.crypto.otp;
 
 import io.polaris.core.codec.Base32;
+import io.polaris.core.env.GlobalStdEnv;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
 
@@ -121,11 +122,11 @@ public final class GoogleAuthenticator implements IGoogleAuthenticator {
 	}
 
 	private String getRandomNumberAlgorithm() {
-		return System.getProperty(RNG_ALGORITHM_KEY, DEFAULT_RANDOM_NUMBER_ALGORITHM);
+		return GlobalStdEnv.get(RNG_ALGORITHM_KEY, DEFAULT_RANDOM_NUMBER_ALGORITHM);
 	}
 
 	private String getRandomNumberAlgorithmProvider() {
-		return System.getProperty(RNG_ALGORITHM_PROVIDER_KEY, DEFAULT_RANDOM_NUMBER_ALGORITHM_PROVIDER);
+		return GlobalStdEnv.get(RNG_ALGORITHM_PROVIDER_KEY, DEFAULT_RANDOM_NUMBER_ALGORITHM_PROVIDER);
 	}
 
 	/**

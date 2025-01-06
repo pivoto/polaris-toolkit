@@ -4,7 +4,7 @@ package io.polaris.core.consts;
  * @author Qt
  * @since May 10, 2024
  */
-public interface SystemKeys {
+public interface StdKeys {
 	String OS_NAME = "os.name";
 	String USER_DIR = "user.dir";
 	String LINE_SEPARATOR = "line.separator";

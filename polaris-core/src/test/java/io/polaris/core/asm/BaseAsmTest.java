@@ -1,6 +1,6 @@
 package io.polaris.core.asm;
 
-import io.polaris.core.consts.SystemKeys;
+import io.polaris.core.consts.StdKeys;
 
 /**
  * @author Qt
@@ -8,6 +8,6 @@ import io.polaris.core.consts.SystemKeys;
  */
 public class BaseAsmTest {
 	static {
-		System.setProperty(SystemKeys.JAVA_CLASS_BYTES_TMPDIR, "/data/classes");
+		System.setProperty(StdKeys.JAVA_CLASS_BYTES_TMPDIR, "/data/classes");
 	}
 }

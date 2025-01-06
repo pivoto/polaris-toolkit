@@ -113,4 +113,9 @@ class StringsTest {
 		Consoles.println(Strings.normalize("$app-name"));
 		Consoles.println(Strings.normalize("$app name"));
 	}
+
+	@Test
+	void test08() {
+		Consoles.println(Strings.getExistedSystemProperty("platform.dir", "user.dir"));
+	}
 }

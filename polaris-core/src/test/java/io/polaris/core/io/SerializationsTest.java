@@ -5,7 +5,8 @@ import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 
-import io.polaris.core.consts.SystemKeys;
+import io.polaris.core.consts.StdKeys;
+import io.polaris.core.env.GlobalStdEnv;
 import io.polaris.core.random.Randoms;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +19,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 @TestMethodOrder(MethodOrderer.MethodName.class)
 public class SerializationsTest {
 
-	String tmpDir = System.getProperty(SystemKeys.JAVA_IO_TMPDIR);
+	String tmpDir = GlobalStdEnv.get(StdKeys.JAVA_IO_TMPDIR);
 	String tmpFile = tmpDir + File.separator + "test.dat";
 
 	@Test

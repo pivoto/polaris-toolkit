@@ -26,7 +26,7 @@ import javax.servlet.SessionCookieConfig;
 import javax.servlet.SessionTrackingMode;
 import javax.servlet.descriptor.JspConfigDescriptor;
 
-import io.polaris.core.consts.SystemKeys;
+import io.polaris.core.consts.StdKeys;
 import io.polaris.core.string.Strings;
 import lombok.extern.slf4j.Slf4j;
 
@@ -63,7 +63,7 @@ public class MockServletContext implements ServletContext {
 	private String defaultServletName = COMMON_DEFAULT_SERVLET_NAME;
 
 	public MockServletContext() {
-		this(System.getProperty(SystemKeys.USER_DIR));
+		this(System.getProperty(StdKeys.USER_DIR));
 	}
 
 	public MockServletContext(String resourceBasePath) {

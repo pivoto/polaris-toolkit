@@ -1,6 +1,7 @@
 package io.polaris.core.guid;
 
-import io.polaris.core.consts.SystemKeys;
+import io.polaris.core.consts.StdKeys;
+import io.polaris.core.env.GlobalStdEnv;
 import io.polaris.core.os.OS;
 
 import java.io.RandomAccessFile;
@@ -18,7 +19,7 @@ public class LocalNode {
 			throw new IllegalArgumentException();
 		}
 		int nodeId = 0;
-		String tmpdir = System.getProperty(SystemKeys.JAVA_IO_TMPDIR);
+		String tmpdir = GlobalStdEnv.get(StdKeys.JAVA_IO_TMPDIR);
 		final String file = tmpdir + "/.guid." + appName + ".lck";
 		try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
 			FileLock lock = null;

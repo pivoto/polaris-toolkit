@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.LongAdder;
 import javax.annotation.Nonnull;
 
 import io.polaris.core.codec.Base32;
-import io.polaris.core.consts.SystemKeys;
+import io.polaris.core.consts.StdKeys;
 import io.polaris.core.lang.Numbers;
 import io.polaris.core.random.Randoms;
 import io.polaris.core.string.Hex;
@@ -49,7 +49,7 @@ public class Bytes {
 		try {
 			byteOrder = ByteOrder.nativeOrder();
 		} catch (Throwable e) {
-			byteOrder = "little".equals(System.getProperty(SystemKeys.SUN_CPU_ENDIAN)) ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+			byteOrder = "little".equals(System.getProperty(StdKeys.SUN_CPU_ENDIAN)) ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
 		}
 		CPU_ENDIAN = byteOrder;
 	}

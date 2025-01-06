@@ -11,7 +11,8 @@ import java.util.function.Predicate;
 
 import io.polaris.core.asm.internal.AsmReflects;
 import io.polaris.core.asm.internal.ClassNameReader;
-import io.polaris.core.consts.SystemKeys;
+import io.polaris.core.consts.StdKeys;
+import io.polaris.core.env.GlobalStdEnv;
 import io.polaris.core.err.BytecodeOperationException;
 import io.polaris.core.tuple.Tuple2;
 import lombok.Getter;
@@ -25,8 +26,7 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
 
 	private static volatile Map<ClassLoader, ClassLoaderData> CACHE = new WeakHashMap<>();
 
-	private static final boolean DEFAULT_USE_CACHE = Boolean.parseBoolean(
-		System.getProperty(SystemKeys.JAVA_CLASS_GENERATOR_CACHE, "true"));
+	private static final boolean DEFAULT_USE_CACHE = GlobalStdEnv.getBoolean(StdKeys.JAVA_CLASS_GENERATOR_CACHE, true);
 	private boolean frozen = false;
 	private GeneratorStrategy strategy = DefaultGeneratorStrategy.INSTANCE;
 	private NamingPolicy namingPolicy = DefaultNamingPolicy.INSTANCE;

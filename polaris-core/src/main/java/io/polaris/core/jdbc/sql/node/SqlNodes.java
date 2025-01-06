@@ -1,10 +1,11 @@
 package io.polaris.core.jdbc.sql.node;
 
-import io.polaris.core.consts.SystemKeys;
+import io.polaris.core.consts.StdKeys;
+import io.polaris.core.env.GlobalStdEnv;
 
 /**
  * @author Qt
- * @since  Aug 24, 2023
+ * @since Aug 24, 2023
  */
 public interface SqlNodes {
 
@@ -12,7 +13,7 @@ public interface SqlNodes {
 
 	TextNode NULL = new TextNode("NULL");
 	TextNode BLANK = new TextNode(" ");
-	TextNode LF = new TextNode(System.getProperty(SystemKeys.JDBC_SQL_LINE_SEPARATOR," "));
+	TextNode LF = new TextNode(GlobalStdEnv.get(StdKeys.JDBC_SQL_LINE_SEPARATOR, " "));
 	TextNode SELECT = new TextNode("SELECT ");
 	TextNode DELETE = new TextNode("DELETE ");
 	TextNode UPDATE = new TextNode("UPDATE ");
