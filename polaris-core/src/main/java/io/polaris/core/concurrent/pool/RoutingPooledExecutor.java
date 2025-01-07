@@ -1,9 +1,10 @@
 package io.polaris.core.concurrent.pool;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -11,6 +12,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
@@ -19,11 +21,11 @@ import lombok.Setter;
 
 /**
  * @author Qt
- * @since  Apr 23, 2024
+ * @since Apr 23, 2024
  */
 
-public class PooledExecutor2<E> {
-	private static final ILogger log = ILoggers.of(PooledExecutor2.class);
+public class RoutingPooledExecutor<E> {
+	private static final ILogger log = ILoggers.of(RoutingPooledExecutor.class);
 	/** 数据队列大小 */
 	@Setter
 	@Getter
@@ -35,34 +37,54 @@ public class PooledExecutor2<E> {
 	@Setter
 	@Getter
 	private boolean openStatistics = false;
+	/** 线程路由 */
+	@Setter
+	@Getter
+	private Function<E, Integer> router = Objects::hashCode;
 	private RunnableStatistics statistics;
-	private AtomicReference<Consumer<ErrorRecords<E>>> rejectConsumerRef = new AtomicReference();
-
-	private List<Executor<E>> executors = new ArrayList<>();
+	private final AtomicReference<Consumer<ErrorRecords<E>>> rejectConsumerRef = new AtomicReference<>();
+	private final List<Executor<E>> executors = new CopyOnWriteArrayList<>();
 
 	public void setRejectConsumer(Consumer<ErrorRecords<E>> rejectConsumer) {
 		this.rejectConsumerRef.set(rejectConsumer);
 	}
 
+	public void addConsumer(Consumer<E> consumer) {
+		addConsumer(1, consumer);
+	}
+
+	public <R> void addConsumer(TransactionConsumer<E, R> consumer) {
+		addConsumer(1, consumer);
+	}
+
 	public void addConsumer(int count, Consumer<E> consumer) {
+		if (isRunning()) {
+			throw new IllegalStateException("正在运行中");
+		}
 		for (int k = 0; k < count; k++) {
 			Executor<E> executor = new Executor<>();
-			Runnable runnable = RunnableDelegates.createDelegate(executor, consumer,this.rejectConsumerRef);
+			Runnable runnable = RunnableDelegates.createDelegate(executor, consumer, this.rejectConsumerRef);
 			executor.setRunnable(runnable);
 			executors.add(executor);
 		}
 	}
 
-	public <Resource> void addConsumer(int count, TransactionConsumer<E, Resource> consumer) {
+	public <R> void addConsumer(int count, TransactionConsumer<E, R> consumer) {
+		if (isRunning()) {
+			throw new IllegalStateException("正在运行中");
+		}
 		for (int k = 0; k < count; k++) {
 			Executor<E> executor = new Executor<>();
-			Runnable runnable = RunnableDelegates.createDelegate(executor, consumer,this.rejectConsumerRef);
+			Runnable runnable = RunnableDelegates.createDelegate(executor, consumer, this.rejectConsumerRef);
 			executor.setRunnable(runnable);
 			executors.add(executor);
 		}
 	}
 
 	public void start() {
+		if (isRunning()) {
+			throw new IllegalStateException("正在运行中");
+		}
 		if (executors.isEmpty()) {
 			throw new IllegalArgumentException("未提供消费者");
 		}
@@ -78,23 +100,66 @@ public class PooledExecutor2<E> {
 		}
 	}
 
-	public void offer(int i, Iterable<E> datas) {
-		Executor<E> executor = executors.get(i);
+	public boolean isRunning() {
+		int count = executors.size();
+		if (count > 0) {
+			for (int i = 0; i < count; i++) {
+				Executor<E> executor = executors.get(i);
+				if (executor.running) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public void offer(Iterable<E> datas) {
+		for (E data : datas) {
+			offer(data);
+		}
+	}
+
+	@SafeVarargs
+	public final void offer(E... datas) {
+		if (datas.length == 0) {
+			return;
+		}
+		if (datas.length == 1) {
+			offer(router.apply(datas[0]), datas[0]);
+			return;
+		}
+		for (E data : datas) {
+			offer(router.apply(data), data);
+		}
+	}
+
+	public void offer(E data) {
+		offer(router.apply(data), data);
+	}
+
+	public void offer(int index, Iterable<E> datas) {
+		Executor<E> executor = getExecutor(index);
 		for (E data : datas) {
 			executor.offer(data);
 		}
 	}
 
-	public void offer(int i, E... datas) {
-		Executor<E> executor = executors.get(i);
+	@SafeVarargs
+	public final void offer(int index, E... datas) {
+		Executor<E> executor = getExecutor(index);
 		for (E data : datas) {
 			executor.offer(data);
 		}
 	}
 
-	public void offer(int i, E data) {
-		Executor<E> executor = executors.get(i);
+	public void offer(int index, E data) {
+		Executor<E> executor = getExecutor(index);
 		executor.offer(data);
+	}
+
+	private Executor<E> getExecutor(int index) {
+		index = Math.abs(index) % executors.size();
+		return executors.get(index);
 	}
 
 
@@ -131,13 +196,17 @@ public class PooledExecutor2<E> {
 		return executors.size();
 	}
 
+	public RunnableStatistics runnableStatistics() {
+		return statistics;
+	}
 
-	class Executor<E> implements RunnableState<E> {
+
+	private class Executor<E> implements RunnableState<E> {
 		private volatile boolean running = false;
 		private BlockingQueue<E> blockingQueue;
-		private Lock awaitLock = new ReentrantLock();
-		private AtomicInteger activeCount = new AtomicInteger();
-		private Condition awaitCondition = awaitLock.newCondition();
+		private final Lock awaitLock = new ReentrantLock();
+		private final AtomicInteger activeCount = new AtomicInteger();
+		private final Condition awaitCondition = awaitLock.newCondition();
 		private Runnable runnable;
 
 		private Executor() {
@@ -232,4 +301,3 @@ public class PooledExecutor2<E> {
 
 
 }
-

@@ -1,9 +1,9 @@
 package io.polaris.core.concurrent.pool;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.SynchronousQueue;
@@ -23,7 +23,7 @@ import lombok.Setter;
 
 /**
  * @author Qt
- * @since  Apr 23, 2024
+ * @since Apr 23, 2024
  */
 
 public class PooledExecutor<E> implements RunnableState<E> {
@@ -53,13 +53,13 @@ public class PooledExecutor<E> implements RunnableState<E> {
 
 	private volatile boolean running = false;
 	private BlockingQueue<E> blockingQueue;
-	private Lock awaitLock = new ReentrantLock();
-	private Condition awaitCondition = awaitLock.newCondition();
-	private AtomicInteger activeCount = new AtomicInteger(0);
+	private final Lock awaitLock = new ReentrantLock();
+	private final Condition awaitCondition = awaitLock.newCondition();
+	private final AtomicInteger activeCount = new AtomicInteger(0);
+	private final List<Runnable> consumers = new CopyOnWriteArrayList<>();
 	private ThreadPoolExecutor pool;
-	private List<Runnable> consumers = new ArrayList<>();
 	private RunnableStatistics statistics;
-	private AtomicReference<Consumer<ErrorRecords<E>>> rejectConsumerRef = new AtomicReference();
+	private final AtomicReference<Consumer<ErrorRecords<E>>> rejectConsumerRef = new AtomicReference<>();
 
 	public static ThreadPoolExecutor newWorkerPool(int poolSize, int maximumPoolSize) {
 		return newWorkerPool(poolSize, maximumPoolSize, KEEP_ALIVE_TIME);
@@ -124,20 +124,26 @@ public class PooledExecutor<E> implements RunnableState<E> {
 		addConsumer(1, consumer);
 	}
 
-	public <Resource> void addConsumer(TransactionConsumer<E, Resource> consumer) {
+	public <R> void addConsumer(TransactionConsumer<E, R> consumer) {
 		addConsumer(1, consumer);
 	}
 
 	public void addConsumer(int count, Consumer<E> consumer) {
+		if (running) {
+			throw new IllegalStateException("正在运行中");
+		}
 		for (int k = 0; k < count; k++) {
-			Runnable delegate = RunnableDelegates.createDelegate(this, consumer,this.rejectConsumerRef);
+			Runnable delegate = RunnableDelegates.createDelegate(this, consumer, this.rejectConsumerRef);
 			consumers.add(delegate);
 		}
 	}
 
-	public <Resource> void addConsumer(int count, TransactionConsumer<E, Resource> consumer) {
+	public <R> void addConsumer(int count, TransactionConsumer<E, R> consumer) {
+		if (running) {
+			throw new IllegalStateException("正在运行中");
+		}
 		for (int k = 0; k < count; k++) {
-			Runnable delegate = RunnableDelegates.createDelegate(this, consumer,this.rejectConsumerRef);
+			Runnable delegate = RunnableDelegates.createDelegate(this, consumer, this.rejectConsumerRef);
 			consumers.add(delegate);
 		}
 	}
@@ -171,13 +177,18 @@ public class PooledExecutor<E> implements RunnableState<E> {
 		}
 	}
 
+	public boolean isRunning() {
+		return running;
+	}
+
 	public void offer(Iterable<E> datas) {
 		for (E data : datas) {
 			offer(data);
 		}
 	}
 
-	public void offer(E... datas) {
+	@SafeVarargs
+	public final void offer(E... datas) {
 		for (E data : datas) {
 			offer(data);
 		}
