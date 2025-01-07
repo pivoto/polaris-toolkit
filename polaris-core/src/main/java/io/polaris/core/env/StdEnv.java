@@ -1,19 +1,11 @@
 package io.polaris.core.env;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -28,96 +20,48 @@ import io.polaris.core.string.Strings;
  * @since Apr 23, 2024
  */
 public class StdEnv implements Env {
-	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-	private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
 	public static final String SYSTEM_PROPS = "SystemProps";
 	public static final String SYSTEM_ENV = "SystemEnv";
 	public static final String DEFAULT = "Default";
 	public static final String APP_ENV = "AppEnv";
 
-	private GroupEnv runtime = new GroupEnv(null, true);
-	private DelegateEnv appEnv = new DelegateEnv(APP_ENV, null);
-	private DelegateEnv defaults = new DelegateEnv(DEFAULT, null);
+	private final String name;
+	private final GroupEnv runtime = GroupEnv.newInstance(null, true);
+	private final DelegateEnv defaults = new DelegateEnv(DEFAULT, null);
 	private final AtomicBoolean customized = new AtomicBoolean(false);
 
-	private StdEnv(String appConf) {
-		runtime.addEnvLast(new SystemPropertiesWrapper(SYSTEM_PROPS));
-		runtime.addEnvLast(new SystemEnvWrapper(SYSTEM_ENV));
-		runtime.addEnvLast(appEnv);
-		runtime.addEnvLast(defaults);
+	private StdEnv(String name, String appConf) {
+		this.name = name;
+		this.runtime.addEnvLast(new SystemPropertiesWrapper(SYSTEM_PROPS));
+		this.runtime.addEnvLast(new SystemEnvWrapper(SYSTEM_ENV));
+		DelegateEnv appEnv = new DelegateEnv(APP_ENV, null);
+		this.runtime.addEnvLast(appEnv);
 		if (appConf != null) {
-			Env properties = loadProperties(APP_ENV, appConf);
+			Env properties = Env.file(APP_ENV, appConf);
 			appEnv.setDelegate(properties);
 		}
-	}
-
-	private Env loadProperties(String name, String appConf) {
-		if (appConf != null) {
-			GroupEnv group = new GroupEnv(name);
-			try {
-				try (FileInputStream fis = new FileInputStream(appConf);) {
-					Properties properties = new Properties();
-					properties.load(fis);
-					if (!properties.isEmpty()) {
-						group.addEnvLast(Env.wrap(properties));
-					}
-				} catch (IOException ignore) {
-				}
-
-				Properties propInDir = null;
-				Properties propInJar = null;
-				ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-				Enumeration<URL> urls = classLoader.getResources(appConf);
-				while (urls.hasMoreElements()) {
-					URL url = urls.nextElement();
-					Properties prop;
-					if ("file".equals(url.getProtocol())) {
-						if (propInDir == null) {
-							propInDir = new Properties();
-						}
-						prop = propInDir;
-					} else {
-						if (propInJar == null) {
-							propInJar = new Properties();
-						}
-						prop = propInJar;
-					}
-					try (InputStream in = url.openStream();) {
-						Properties properties = new Properties();
-						properties.load(in);
-						if (!properties.isEmpty()) {
-							for (String key : properties.stringPropertyNames()) {
-								prop.putIfAbsent(key, properties.get(key));
-							}
-						}
-					} catch (IOException ignore) {
-					}
-				}
-
-				if (propInDir != null) {
-					group.addEnvLast(Env.wrap(propInDir));
-				}
-				if (propInJar != null) {
-					group.addEnvLast(Env.wrap(propInJar));
-				}
-			} catch (IOException ignore) {
-			}
-			return group;
-		}
-		return null;
-	}
-
-	public void setAppEnv(Env appEnv) {
-		runtime.replaceEnv(APP_ENV, appEnv);
+		this.runtime.addEnvLast(defaults);
 	}
 
 	public static StdEnv newInstance() {
-		return new StdEnv(null);
+		return newInstance(null, null);
 	}
 
 	public static StdEnv newInstance(String conf) {
-		return new StdEnv(conf);
+		return newInstance(null, conf);
+	}
+
+	public static StdEnv newInstance(String name, String conf) {
+		return new StdEnv(name, conf);
+	}
+
+	@Override
+	public String name() {
+		return this.name;
+	}
+
+	public void setAppEnv(Env appEnv) {
+		this.runtime.replaceEnv(APP_ENV, appEnv);
 	}
 
 	public StdEnv withCustomizer() {
@@ -138,17 +82,17 @@ public class StdEnv implements Env {
 
 	@Override
 	public Set<String> keys() {
-		return runtime.keys();
+		return this.runtime.keys();
 	}
 
 	@Override
 	public void set(String key, String value) {
-		runtime.set(key, value);
+		this.runtime.set(key, value);
 	}
 
 	@Override
 	public void remove(final String key) {
-		runtime.remove(key);
+		this.runtime.remove(key);
 	}
 
 	public void setDefaults(Env defaults) {
@@ -163,64 +107,49 @@ public class StdEnv implements Env {
 	}
 
 	public void addEnvFirst(Env env) {
-		runtime.addEnvFirst(env);
+		this.runtime.addEnvFirst(env);
 	}
 
 	public void addEnvLast(Env env) {
-		runtime.addEnvBefore(DEFAULT, env);
+		this.runtime.addEnvBefore(DEFAULT, env);
 	}
 
 	public boolean addEnvBefore(String name, Env env) {
-		return runtime.addEnvBefore(name, env);
+		return this.runtime.addEnvBefore(name, env);
 	}
 
 	public boolean addEnvAfter(String name, Env env) {
-		return runtime.addEnvAfter(name, env);
+		return this.runtime.addEnvAfter(name, env);
 	}
 
 	public boolean replaceEnv(String name, Env env) {
-		return runtime.replaceEnv(name, env);
+		return this.runtime.replaceEnv(name, env);
 	}
 
 	public boolean removeEnv(String name) {
-		return runtime.removeEnv(name);
+		return this.runtime.removeEnv(name);
 	}
 
 	@Override
 	public String get(String key) {
-		String val = runtime.get(key);
-		try {
-			if (val != null) {
-				val = resolveRef(val);
-			}
-		} catch (Exception ignored) {
-		}
-		return val;
-	}
-
-	private boolean isInvalidPropertyValue(String val) {
-		return Strings.isBlank(val);
+		return this.runtime.get(key);
 	}
 
 	@Override
 	public String get(String key, String defaultVal) {
-		String val = get(key);
-		return val != null ? val : defaultVal;
+		return this.runtime.get(key, defaultVal);
 	}
 
 	public String getOrEmpty(String key) {
-		String val = get(key);
-		return val != null ? val : "";
+		return this.runtime.getOrEmpty(key);
 	}
 
 	public String getOrDefault(String key, String defaultVal) {
-		String val = get(key);
-		return val != null ? val : defaultVal;
+		return this.runtime.getOrDefault(key, defaultVal);
 	}
 
 	public String getOrDefaultIfEmpty(String key, String defaultVal) {
-		String val = get(key);
-		return Strings.isNotEmpty(val) ? val : defaultVal;
+		return this.runtime.getOrDefaultIfEmpty(key, defaultVal);
 	}
 
 	public String getOrDefaultIfBlank(String key, String defaultVal) {
@@ -229,99 +158,75 @@ public class StdEnv implements Env {
 	}
 
 	public String resolveRef(String origin, Function<String, String> getter) {
-		return Strings.resolvePlaceholders(origin, getter, false);
+		return this.runtime.resolveRef(origin, getter);
 	}
 
 	public String resolveRef(String origin) {
-		return resolveRef(origin, this::get);
+		return this.runtime.resolveRef(origin);
 	}
 
 	public String resolveRef(String origin, Map<String, String> map) {
-		return resolveRef(origin, map::get);
+		return this.runtime.resolveRef(origin, map);
 	}
 
 	public String resolveRef(String origin, Properties env) {
-		return resolveRef(origin, env::getProperty);
+		return this.runtime.resolveRef(origin, env);
 	}
 
 	public boolean getBoolean(String key) {
-		return getBoolean(key, false);
+		return this.runtime.getBoolean(key);
 	}
 
 	public boolean getBoolean(String key, boolean defaultVal) {
-		String val = get(key);
-		return isInvalidPropertyValue(val) ? defaultVal : Boolean.parseBoolean(val);
+		return this.runtime.getBoolean(key, defaultVal);
 	}
 
 	public int getInt(String key) {
-		return getInt(key, 0);
+		return this.runtime.getInt(key);
 	}
 
 	public int getInt(String key, int defaultVal) {
-		try {
-			String val = get(key);
-			return isInvalidPropertyValue(val) ? defaultVal : Integer.parseInt(val);
-		} catch (NumberFormatException e) {
-			return 0;
-		}
+		return this.runtime.getInt(key, defaultVal);
 	}
 
 	public long getLong(String key) {
-		return getLong(key, 0L);
+		return this.runtime.getLong(key);
 	}
 
 	public long getLong(String key, long defaultVal) {
-		try {
-			String val = get(key);
-			return isInvalidPropertyValue(val) ? defaultVal : Long.parseLong(val);
-		} catch (NumberFormatException e) {
-			return 0;
-		}
+		return this.runtime.getLong(key, defaultVal);
 	}
 
 	public LocalDate getLocalDate(String key, String defaultVal) {
-		String val = get(key, defaultVal);
-		LocalDate localDate = LocalDate.parse(val, DATE_FORMATTER);
-		return localDate;
+		return this.runtime.getLocalDate(key, defaultVal);
 	}
 
 	public LocalDateTime getLocalDateTime(String key, String defaultVal) {
-		String val = get(key, defaultVal);
-		LocalDateTime localDate = LocalDateTime.parse(val, DATE_TIME_FORMATTER);
-		return localDate;
+		return this.runtime.getLocalDateTime(key, defaultVal);
 	}
 
 	public LocalTime getLocalTime(String key, String defaultVal) {
-		String val = get(key, defaultVal);
-		LocalTime localDate = LocalTime.parse(val, TIME_FORMATTER);
-		return localDate;
+		return this.runtime.getLocalTime(key, defaultVal);
 	}
 
 	public Date getDate(String key, String defaultVal) {
-		LocalDate localDate = getLocalDate(key, defaultVal);
-		Instant instant = localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
-		return Date.from(instant);
+		return this.runtime.getDate(key, defaultVal);
 	}
 
 	public Timestamp getDateTime(String key, String defaultVal) {
-		LocalDateTime localDateTime = getLocalDateTime(key, defaultVal);
-		Instant instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
-		return Timestamp.from(instant);
+		return this.runtime.getDateTime(key, defaultVal);
 	}
 
 	public Time getTime(String key, String defaultVal) {
-		LocalDateTime localDateTime = getLocalTime(key, defaultVal).atDate(LocalDate.now());
-		Instant instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
-		return new Time(instant.toEpochMilli());
+		return this.runtime.getTime(key, defaultVal);
 	}
 
 	public String[] getArray(String key) {
-		return getArray(key, null);
+		return this.runtime.getArray(key);
 	}
 
 	public String[] getArray(String key, String[] defaultVal) {
-		String val = get(key);
-		return isInvalidPropertyValue(val) ? defaultVal : val.split("[,|\r\n]+");
+		return this.runtime.getArray(key, defaultVal);
 	}
 
 }

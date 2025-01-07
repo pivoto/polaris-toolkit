@@ -5,9 +5,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import io.polaris.core.string.Strings;
+
 /**
  * @author Qt
- * @since  Apr 23, 2024
+ * @since Apr 23, 2024
  */
 public interface Env {
 
@@ -49,6 +51,14 @@ public interface Env {
 		return properties;
 	}
 
+
+	static Env file(String path) {
+		return new FileEnv(null, path);
+	}
+
+	static Env file(String name, String path) {
+		return new FileEnv(name, path);
+	}
 
 	static Env wrap(Properties properties) {
 		return new PropertiesWrapper(properties);
