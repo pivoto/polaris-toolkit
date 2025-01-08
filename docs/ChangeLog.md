@@ -1,5 +1,8 @@
 ## 版本变更说明
 
+### 3.2.47
+- 优化池化处理器PooledExecutor、RoutingPooledExecutor
+
 ### 3.2.46
 - 优化Strings获取环境变量与系统属性的方法
 - 优化部分工具类对系统属性的获取
