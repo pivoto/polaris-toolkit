@@ -1,4 +1,4 @@
-# 计划
+# 研发计划
 
 
 - log4jdbc
@@ -32,4 +32,5 @@
   - [x] 通过mybatis插件实现动态修改MappedStatement中`useGeneratedKeys`等属性的能力
   - [ ] 工具类扩展：spring-boot-starter
 - maven插件
-  - [ ] 构建插件开发
+  - [x] 属性文件处理插件
+  - [ ] 代码分析插件
