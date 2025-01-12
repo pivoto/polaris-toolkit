@@ -3,32 +3,17 @@ package io.polaris.core.env;
 import java.util.Objects;
 import java.util.StringJoiner;
 
-import io.polaris.core.string.Strings;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 /**
  * @author Qt
- * @since  Apr 23, 2024
+ * @since Apr 23, 2024
  */
 @Getter
-@EqualsAndHashCode
 public class Version implements Comparable<Version> {
-	private static final Version CURRENT;
 	private final int major;
 	private final int minor;
 	private final int patch;
-
-	static {
-		String version = Version.class.getPackage().getImplementationVersion();
-		if (Strings.isBlank(version)) {
-			version = InternalProperties.INSTANCE.getProperty("version");
-		}
-		if (Strings.isBlank(version)) {
-			version = "0.0.0";
-		}
-		CURRENT = new Version(version);
-	}
 
 	public Version(int major, int minor, int patch) {
 		this.major = major;
@@ -43,23 +28,19 @@ public class Version implements Comparable<Version> {
 		int major = 0, minor = 0, patch = 0;
 		try {
 			major = Integer.parseInt(vs[0]);
-		} catch (NumberFormatException e) {
+		} catch (NumberFormatException ignored) {
 		}
 		try {
 			minor = Integer.parseInt(vs[1]);
-		} catch (NumberFormatException e) {
+		} catch (NumberFormatException ignored) {
 		}
 		try {
 			patch = Integer.parseInt(vs[2]);
-		} catch (NumberFormatException e) {
+		} catch (NumberFormatException ignored) {
 		}
 		this.major = major;
 		this.minor = minor;
 		this.patch = patch;
-	}
-
-	public static Version current() {
-		return CURRENT;
 	}
 
 	public int asInt() {
@@ -78,6 +59,36 @@ public class Version implements Comparable<Version> {
 	@Override
 	public int compareTo(Version another) {
 		return compare(this, another);
+	}
+
+	public boolean after(Version another) {
+		return compare(this, another) > 0;
+	}
+
+	public boolean afterOrEquals(Version another) {
+		return compare(this, another) >= 0;
+	}
+
+	public boolean before(Version another) {
+		return compare(this, another) < 0;
+	}
+
+	public boolean beforeOrEquals(Version another) {
+		return compare(this, another) <= 0;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof Version)) {
+			return false;
+		}
+		Version version = (Version) o;
+		return this.major == version.major && this.minor == version.minor && this.patch == version.patch;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.major, this.minor, this.patch);
 	}
 
 	public static int compare(Version x, Version y) {

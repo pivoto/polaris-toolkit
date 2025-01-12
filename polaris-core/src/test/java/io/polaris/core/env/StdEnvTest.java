@@ -19,7 +19,7 @@ class StdEnvTest {
 	void test02() {
 		Object[] args = new Object[]{GlobalStdEnv.asMap()};
 		Consoles.println(args);
-		Consoles.println(Version.current());
+		Consoles.println(Versions.current());
 	}
 
 	@Test
