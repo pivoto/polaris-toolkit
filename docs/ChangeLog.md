@@ -1,5 +1,8 @@
 ## 版本变更说明
 
+### 3.2.48
+- 添加Versions工具类，优化Version类，添加版本号比较方法
+
 ### 3.2.47
 - 优化池化处理器PooledExecutor、RoutingPooledExecutor
 
