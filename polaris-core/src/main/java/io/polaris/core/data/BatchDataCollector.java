@@ -13,6 +13,7 @@ import java.util.function.Consumer;
 import io.polaris.core.assertion.Arguments;
 import io.polaris.core.concurrent.PooledThreadFactory;
 import io.polaris.core.concurrent.Schedules;
+import io.polaris.core.io.Consoles;
 
 /**
  * @author Qt
@@ -130,7 +131,7 @@ public class BatchDataCollector<E> {
 		}
 		for (E datum : data) {
 			while (!buffer.offer(datum)) {
-				// 队列容量已满
+				// 队列容量已满，立即处理数据
 				flush(consumer);
 			}
 		}
@@ -142,7 +143,7 @@ public class BatchDataCollector<E> {
 		long now = System.nanoTime();
 		boolean expired = now - lastTime.get() > maxStoreNanos;
 		if (expired) {
-			// 时间跨度超限
+			// 时间跨度超限，立即处理数据
 			flush(consumer);
 		}
 	}
@@ -153,13 +154,14 @@ public class BatchDataCollector<E> {
 
 	public boolean tryFlush(Consumer<List<E>> consumer) {
 		if (buffer.size() >= maxStoreSize) {
+			// 队列容量已满，立即处理数据
 			flush(consumer);
 			return true;
 		}
 		long now = System.nanoTime();
 		boolean expired = now - lastTime.get() > maxStoreNanos;
 		if (expired) {
-			// 时间跨度超限
+			// 时间跨度超限，立即处理数据
 			flush(consumer);
 			return true;
 		}
@@ -174,6 +176,7 @@ public class BatchDataCollector<E> {
 		if (consumer == null) {
 			throw new IllegalStateException("数据消费器不能为空");
 		}
+		lastTime.set(System.nanoTime());
 		int size = buffer.size();
 		List<E> list = new ArrayList<>(size);
 		try {
@@ -182,7 +185,6 @@ public class BatchDataCollector<E> {
 				consumer.accept(list);
 			}
 		} finally {
-			lastTime.set(System.nanoTime());
 		}
 	}
 
