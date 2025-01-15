@@ -76,7 +76,7 @@ public class MultiBatchDataCollector<K, E> {
 				for (Map.Entry<K, BatchDataCollector<E>> entry : collectors.entrySet()) {
 					BatchDataCollector<E> collector = entry.getValue();
 					if (collector.getConsumer() != null) {
-						collector.flush();
+						collector.tryFlush();
 					}
 				}
 			}, maxStoreNanos, maxStoreNanos, TimeUnit.NANOSECONDS);
@@ -135,6 +135,10 @@ public class MultiBatchDataCollector<K, E> {
 		getCollector(key).collect(data);
 	}
 
+	public void tryFlush(K key) {
+		getCollector(key).tryFlush();
+	}
+
 	public void flush(K key) {
 		getCollector(key).flush();
 	}
@@ -147,6 +151,9 @@ public class MultiBatchDataCollector<K, E> {
 		getCollector(key, consumer).collect(data, consumer);
 	}
 
+	public void tryFlush(K key, Consumer<List<E>> consumer) {
+		getCollector(key, consumer).tryFlush(consumer);
+	}
 
 	public void flush(K key, Consumer<List<E>> consumer) {
 		getCollector(key, consumer).flush(consumer);

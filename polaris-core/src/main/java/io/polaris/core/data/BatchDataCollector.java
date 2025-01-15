@@ -83,7 +83,7 @@ public class BatchDataCollector<E> {
 			final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1,
 				new PooledThreadFactory(BatchDataCollector.class.getSimpleName()));
 			this.scheduler = scheduler;
-			scheduler.scheduleAtFixedRate(this::flush, maxStoreNanos, maxStoreNanos, TimeUnit.NANOSECONDS);
+			scheduler.scheduleAtFixedRate(this::tryFlush, maxStoreNanos, maxStoreNanos, TimeUnit.NANOSECONDS);
 			if (withShutdownHook) {
 				Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 					try {
@@ -134,7 +134,7 @@ public class BatchDataCollector<E> {
 				flush(consumer);
 			}
 		}
-		if (running) {
+		if (!running) {
 			// 数据收集器已停止，直接处理数据
 			flush(consumer);
 			return;
@@ -145,6 +145,25 @@ public class BatchDataCollector<E> {
 			// 时间跨度超限
 			flush(consumer);
 		}
+	}
+
+	public void tryFlush() {
+		tryFlush(consumer);
+	}
+
+	public boolean tryFlush(Consumer<List<E>> consumer) {
+		if (buffer.size() >= maxStoreSize) {
+			flush(consumer);
+			return true;
+		}
+		long now = System.nanoTime();
+		boolean expired = now - lastTime.get() > maxStoreNanos;
+		if (expired) {
+			// 时间跨度超限
+			flush(consumer);
+			return true;
+		}
+		return false;
 	}
 
 	public void flush() {

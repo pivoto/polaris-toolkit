@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 class MultiBatchDataCollectorTest {
 	@Test
 	void test01() throws InterruptedException {
-		MultiBatchDataCollector<String, Object> multiCollector = new MultiBatchDataCollector<>(100, 10, TimeUnit.MILLISECONDS);
+		MultiBatchDataCollector<String, Object> multiCollector = new MultiBatchDataCollector<>(100, 1000, TimeUnit.MILLISECONDS);
 		multiCollector.startScheduler();
 		AtomicLong key1Count = new AtomicLong(0);
 		AtomicLong key2Count = new AtomicLong(0);
@@ -35,10 +35,10 @@ class MultiBatchDataCollectorTest {
 			int count = Randoms.randomInt(200, 300);
 			System.out.println(Thread.currentThread().getName() + " 预生产量：" + count);
 			for (int i = 0; i < count; i++) {
-				try {
-					TimeUnit.NANOSECONDS.sleep(1);
-				} catch (InterruptedException ignored) {
-				}
+//				try {
+//					TimeUnit.NANOSECONDS.sleep(1);
+//				} catch (InterruptedException ignored) {
+//				}
 				multiCollector.collect("key1", i);
 				multiCollector.collect("key2", i);
 			}

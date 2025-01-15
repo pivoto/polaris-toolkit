@@ -13,7 +13,7 @@ class BatchDataCollectorTest {
 		BatchDataCollector<Object> collector = new BatchDataCollector<>(100, 10, TimeUnit.MILLISECONDS, (List<Object> data) -> {
 			System.out.println(Thread.currentThread().getName() + " 消费量：" + data.size() + " data:" + data);
 		});
-		collector.startScheduler();
+//		collector.startScheduler();
 
 		int COUNT = 3;
 		CountDownLatch latch = new CountDownLatch(COUNT);
