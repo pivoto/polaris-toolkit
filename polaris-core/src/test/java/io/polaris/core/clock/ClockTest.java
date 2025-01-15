@@ -9,6 +9,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import io.polaris.core.concurrent.Schedules;
 import io.polaris.core.time.StopWatch;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -290,7 +291,7 @@ public class ClockTest {
 				}
 			}, 0, 1, TimeUnit.MILLISECONDS);
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-				timer.shutdown();
+				Schedules.shutdown(timer);
 			}));
 		}
 

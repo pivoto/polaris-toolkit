@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 
 import io.polaris.core.assertion.Arguments;
 import io.polaris.core.concurrent.PooledThreadFactory;
+import io.polaris.core.concurrent.Schedules;
 
 /**
  * @author Qt
@@ -24,20 +25,36 @@ public class BatchDataCollector<E> {
 	private final int maxStoreSize;
 	private final long maxStoreNanos;
 	private final Consumer<List<E>> consumer;
-	private ScheduledExecutorService scheduler;
+	private final boolean withShutdownHook;
+	private volatile boolean running = true;
+	private volatile ScheduledExecutorService scheduler;
 
 	public BatchDataCollector(int maxStoreSize, long maxStoreTime, TimeUnit timeUnit, Consumer<List<E>> consumer) {
-		this(maxStoreSize, timeUnit.toNanos(maxStoreTime), consumer);
+		this(maxStoreSize, timeUnit.toNanos(maxStoreTime), consumer, true);
 	}
 
-	public BatchDataCollector(int maxStoreSize, long maxStoreNanos, Consumer<List<E>> consumer) {
+	public BatchDataCollector(int maxStoreSize, long maxStoreTime, TimeUnit timeUnit, Consumer<List<E>> consumer, boolean withShutdownHook) {
+		this(maxStoreSize, timeUnit.toNanos(maxStoreTime), consumer, withShutdownHook);
+	}
+
+	public BatchDataCollector(int maxStoreSize, long maxStoreNanos, Consumer<List<E>> consumer, boolean withShutdownHook) {
 		Arguments.isTrue(maxStoreSize > 0, "maxStoreSize must be greater than 0");
 		Arguments.isTrue(maxStoreNanos > 0, "maxStoreNanos must be greater than 0");
 		this.maxStoreNanos = maxStoreNanos;
 		this.maxStoreSize = maxStoreSize;
 		this.consumer = consumer;
+		this.withShutdownHook = withShutdownHook;
 		this.buffer = new ArrayBlockingQueue<>(maxStoreSize);
 		this.lastTime = new AtomicLong(System.nanoTime());
+		if (withShutdownHook) {
+			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+				try {
+					this.running = false;
+					this.flush();
+				} catch (Exception ignored) {
+				}
+			}));
+		}
 	}
 
 	public int getMaxStoreSize() {
@@ -63,10 +80,34 @@ public class BatchDataCollector<E> {
 			if (this.scheduler != null) {
 				return false;
 			}
-			ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1,
-				new PooledThreadFactory("BatchDataCollector"));
+			final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1,
+				new PooledThreadFactory(BatchDataCollector.class.getSimpleName()));
 			this.scheduler = scheduler;
 			scheduler.scheduleAtFixedRate(this::flush, maxStoreNanos, maxStoreNanos, TimeUnit.NANOSECONDS);
+			if (withShutdownHook) {
+				Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+					try {
+						this.scheduler = null;
+						Schedules.shutdown(scheduler);
+					} catch (Exception ignored) {
+					}
+				}));
+			}
+			return true;
+		}
+	}
+
+	public boolean stopScheduler() {
+		if (this.scheduler == null) {
+			return false;
+		}
+		synchronized (this) {
+			if (this.scheduler == null) {
+				return false;
+			}
+			ScheduledExecutorService scheduler = this.scheduler;
+			this.scheduler = null;
+			Schedules.shutdown(scheduler);
 			return true;
 		}
 	}
@@ -85,13 +126,18 @@ public class BatchDataCollector<E> {
 
 	public void collect(Iterable<E> data, Consumer<List<E>> consumer) {
 		if (consumer == null) {
-			throw new IllegalStateException("数据消费器不能为空");
+			throw new IllegalStateException("数据处理器不能为空");
 		}
 		for (E datum : data) {
 			while (!buffer.offer(datum)) {
 				// 队列容量已满
 				flush(consumer);
 			}
+		}
+		if (running) {
+			// 数据收集器已停止，直接处理数据
+			flush(consumer);
+			return;
 		}
 		long now = System.nanoTime();
 		boolean expired = now - lastTime.get() > maxStoreNanos;

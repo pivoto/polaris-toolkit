@@ -9,7 +9,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @since 1.8
  */
 public class ConsumeDriver<T> implements IConsumerDriver<T> {
-	private boolean running;
+	private volatile boolean running;
 	private final ConsumerThread<T>[] threads;
 	private final BufferChannel<T> channel;
 	private final ReentrantLock lock;

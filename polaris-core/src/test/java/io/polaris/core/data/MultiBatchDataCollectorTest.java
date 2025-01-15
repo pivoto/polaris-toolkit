@@ -2,10 +2,15 @@ package io.polaris.core.data;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import io.polaris.core.concurrent.PooledThreadFactory;
 import io.polaris.core.random.Randoms;
+import io.polaris.core.time.Dates;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 
 class MultiBatchDataCollectorTest {
@@ -50,5 +55,32 @@ class MultiBatchDataCollectorTest {
 		multiCollector.flush("key2");
 		System.out.println("end flush");
 		System.out.println("key1 count:" + key1Count.get() + " key2 count:" + key2Count.get());
+	}
+
+	@Test
+	void test02() throws InterruptedException {
+		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2,
+			new PooledThreadFactory("Test"));
+		@RequiredArgsConstructor
+		class Task implements Runnable {
+			private final String name;
+
+			@Override
+			public void run() {
+				System.out.println(name + " " + Thread.currentThread().getName() + " Start " + Dates.nowStr());
+				try {
+				Thread.sleep(2000);
+				} catch (Exception ignored) {
+				}
+				System.out.println(name + " " + Thread.currentThread().getName() + " End " + Dates.nowStr());
+			}
+		}
+
+
+		scheduler.scheduleAtFixedRate(new Task("task1"), 1000, 1000, TimeUnit.MILLISECONDS);
+		scheduler.scheduleAtFixedRate(new Task("task2"), 1000, 1000, TimeUnit.MILLISECONDS);
+
+
+		Thread.sleep(60000);
 	}
 }

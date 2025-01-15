@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 
 import io.polaris.core.assertion.Arguments;
 import io.polaris.core.concurrent.PooledThreadFactory;
+import io.polaris.core.concurrent.Schedules;
 
 /**
  * @author Qt
@@ -22,18 +23,24 @@ public class MultiBatchDataCollector<K, E> {
 	private final Map<K, BatchDataCollector<E>> collectors = new ConcurrentHashMap<>();
 	private final int maxStoreSize;
 	private final long maxStoreNanos;
-	private ScheduledExecutorService scheduler;
+	private final boolean withShutdownHook;
+	private volatile ScheduledExecutorService scheduler;
 
 
 	public MultiBatchDataCollector(int maxStoreSize, long maxStoreTime, TimeUnit timeUnit) {
-		this(maxStoreSize, timeUnit.toNanos(maxStoreTime));
+		this(maxStoreSize, timeUnit.toNanos(maxStoreTime), true);
 	}
 
-	public MultiBatchDataCollector(int maxStoreSize, long maxStoreNanos) {
+	public MultiBatchDataCollector(int maxStoreSize, long maxStoreTime, TimeUnit timeUnit, boolean withShutdownHook) {
+		this(maxStoreSize, timeUnit.toNanos(maxStoreTime), withShutdownHook);
+	}
+
+	public MultiBatchDataCollector(int maxStoreSize, long maxStoreNanos, boolean withShutdownHook) {
 		Arguments.isTrue(maxStoreSize > 0, "maxStoreSize must be greater than 0");
 		Arguments.isTrue(maxStoreNanos > 0, "maxStoreNanos must be greater than 0");
 		this.maxStoreSize = maxStoreSize;
 		this.maxStoreNanos = maxStoreNanos;
+		this.withShutdownHook = withShutdownHook;
 	}
 
 	public long getMaxStoreNanos() {
@@ -44,6 +51,14 @@ public class MultiBatchDataCollector<K, E> {
 		return maxStoreSize;
 	}
 
+	public void startSchedulerSeverally() {
+		collectors.forEach((k, v) -> v.startScheduler());
+	}
+
+	public void stopSchedulerSeverally() {
+		collectors.forEach((k, v) -> v.stopScheduler());
+	}
+
 	public boolean startScheduler() {
 		if (this.scheduler != null) {
 			return false;
@@ -52,8 +67,10 @@ public class MultiBatchDataCollector<K, E> {
 			if (this.scheduler != null) {
 				return false;
 			}
-			ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1,
-				new PooledThreadFactory("MultiBatchDataCollector"));
+			int poolSize = collectors.isEmpty() ? Runtime.getRuntime().availableProcessors()
+				: Integer.max(collectors.size(), 4);
+			ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(poolSize,
+				new PooledThreadFactory(MultiBatchDataCollector.class.getSimpleName()));
 			this.scheduler = scheduler;
 			scheduler.scheduleAtFixedRate(() -> {
 				for (Map.Entry<K, BatchDataCollector<E>> entry : collectors.entrySet()) {
@@ -63,12 +80,38 @@ public class MultiBatchDataCollector<K, E> {
 					}
 				}
 			}, maxStoreNanos, maxStoreNanos, TimeUnit.NANOSECONDS);
+
+			if (withShutdownHook) {
+				Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+					try {
+						this.scheduler = null;
+						Schedules.shutdown(scheduler);
+					} catch (Exception ignored) {
+					}
+				}));
+			}
 			return true;
 		}
 	}
 
+	public boolean stopScheduler() {
+		if (this.scheduler == null) {
+			return false;
+		}
+		synchronized (this) {
+			if (this.scheduler == null) {
+				return false;
+			}
+			ScheduledExecutorService scheduler = this.scheduler;
+			this.scheduler = null;
+			Schedules.shutdown(scheduler);
+			return true;
+		}
+	}
+
+
 	private BatchDataCollector<E> getCollector(K key, Consumer<List<E>> consumer) {
-		return collectors.computeIfAbsent(key, k -> new BatchDataCollector<>(maxStoreSize, maxStoreNanos, consumer));
+		return collectors.computeIfAbsent(key, k -> new BatchDataCollector<>(maxStoreSize, maxStoreNanos, consumer, withShutdownHook));
 	}
 
 	private BatchDataCollector<E> getCollector(K key) {
@@ -76,7 +119,7 @@ public class MultiBatchDataCollector<K, E> {
 	}
 
 	public boolean register(K key, Consumer<List<E>> consumer) {
-		return register(key, new BatchDataCollector<>(maxStoreSize, maxStoreNanos, consumer));
+		return register(key, new BatchDataCollector<>(maxStoreSize, maxStoreNanos, consumer, withShutdownHook));
 	}
 
 	public boolean register(K key, BatchDataCollector<E> collector) {

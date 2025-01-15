@@ -3,6 +3,8 @@ package io.polaris.core.clock;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import io.polaris.core.concurrent.Schedules;
+
 /**
  * @author Qt
  * @since 1.8
@@ -17,7 +19,7 @@ public class TimeMillisClock {
 		ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1, r -> new Thread(r, "Clock-" + period));
 		executor.scheduleAtFixedRate(() -> currentTimeMillis = (System.currentTimeMillis()), period, period, TimeUnit.MILLISECONDS);
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-			executor.shutdown();
+			Schedules.shutdown(executor);
 		}));
 	}
 
