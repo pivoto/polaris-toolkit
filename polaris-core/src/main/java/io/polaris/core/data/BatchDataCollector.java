@@ -13,7 +13,6 @@ import java.util.function.Consumer;
 import io.polaris.core.assertion.Arguments;
 import io.polaris.core.concurrent.PooledThreadFactory;
 import io.polaris.core.concurrent.Schedules;
-import io.polaris.core.io.Consoles;
 
 /**
  * @author Qt
