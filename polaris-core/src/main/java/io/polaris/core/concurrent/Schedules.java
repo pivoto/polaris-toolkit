@@ -11,23 +11,50 @@ import java.util.concurrent.TimeUnit;
  */
 public class Schedules {
 
-	public static ScheduledExecutorService single() {
-		return new ScheduledThreadPoolExecutor(1);
-	}
-
 	public static ScheduledExecutorService create(int core) {
-		return new ScheduledThreadPoolExecutor(core);
+		return create((WrappingTaskFactory) null, core);
 	}
 
 	public static ScheduledExecutorService create(int core, final String threadNamePrefix) {
-		return create(core, threadNamePrefix, true);
+		return create((WrappingTaskFactory) null, core, threadNamePrefix, true);
 	}
 
 	public static ScheduledExecutorService create(int core, final String threadNamePrefix, final boolean isDaemon) {
-		return create(core, new PooledThreadFactory().withPrefix(threadNamePrefix).withDaemon(isDaemon));
+		return create((WrappingTaskFactory) null, core, new PooledThreadFactory().withPrefix(threadNamePrefix).withDaemon(isDaemon));
 	}
 
 	public static ScheduledExecutorService create(int core, ThreadFactory threadFactory) {
+		return create((WrappingTaskFactory) null, core, threadFactory);
+	}
+
+	public static ScheduledExecutorService single(WrappingTaskFactory wrappingTaskFactory) {
+		if (wrappingTaskFactory != null) {
+			WrappingScheduledThreadPoolExecutor executor = new WrappingScheduledThreadPoolExecutor(1);
+			executor.setWrappedTaskFactory(wrappingTaskFactory);
+			return executor;
+		}
+		return new ScheduledThreadPoolExecutor(1);
+	}
+
+	public static ScheduledExecutorService create(WrappingTaskFactory wrappingTaskFactory, int core) {
+		if (wrappingTaskFactory != null) {
+			WrappingScheduledThreadPoolExecutor executor = new WrappingScheduledThreadPoolExecutor(core);
+			executor.setWrappedTaskFactory(wrappingTaskFactory);
+			return executor;
+		}
+		return new ScheduledThreadPoolExecutor(core);
+	}
+
+	public static ScheduledExecutorService create(WrappingTaskFactory wrappingTaskFactory, int core, final String threadNamePrefix, final boolean isDaemon) {
+		return create(wrappingTaskFactory, core, new PooledThreadFactory().withPrefix(threadNamePrefix).withDaemon(isDaemon));
+	}
+
+	public static ScheduledExecutorService create(WrappingTaskFactory wrappingTaskFactory, int core, ThreadFactory threadFactory) {
+		if (wrappingTaskFactory != null) {
+			WrappingScheduledThreadPoolExecutor executor = new WrappingScheduledThreadPoolExecutor(core, threadFactory);
+			executor.setWrappedTaskFactory(wrappingTaskFactory);
+			return executor;
+		}
 		return new ScheduledThreadPoolExecutor(core, threadFactory);
 	}
 
