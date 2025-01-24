@@ -53,8 +53,8 @@ public class DefaultWrappingTaskFactory implements WrappingTaskFactory {
 			this.interceptor = interceptor;
 			if (interceptor != null) {
 				this.runnable = () -> {
-					interceptor.onBefore();
 					try {
+						interceptor.onBefore();
 						runnable.run();
 						interceptor.onAfter();
 					} catch (Throwable e) {
@@ -74,8 +74,8 @@ public class DefaultWrappingTaskFactory implements WrappingTaskFactory {
 			this.interceptor = interceptor;
 			if (interceptor != null) {
 				this.callable = () -> {
-					interceptor.onBefore();
 					try {
+						interceptor.onBefore();
 						V rs = callable.call();
 						interceptor.onAfter();
 						return rs;

@@ -1,12 +1,14 @@
 package io.polaris.core.concurrent;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 /**
  * @author Qt
@@ -153,16 +155,20 @@ public class Executors {
 
 
 	public static void shutdown(ExecutorService pool) {
+		shutdown(pool, 60);
+	}
+
+	public static void shutdown(ExecutorService pool, int timeoutSeconds) {
 		if (pool == null) {
 			return;
 		}
 		pool.shutdown(); // Disable new tasks from being submitted
 		try {
 			// Wait a while for existing tasks to terminate
-			if (!pool.awaitTermination(60, TimeUnit.SECONDS)) {
+			if (!pool.awaitTermination(timeoutSeconds, TimeUnit.SECONDS)) {
 				pool.shutdownNow(); // Cancel currently executing tasks
 				// Wait a while for tasks to respond to being cancelled
-				if (!pool.awaitTermination(60, TimeUnit.SECONDS)) {
+				if (!pool.awaitTermination(timeoutSeconds, TimeUnit.SECONDS)) {
 					System.err.println("Pool did not terminate");
 				}
 			}
@@ -172,5 +178,37 @@ public class Executors {
 			// Preserve interrupt status
 			Thread.currentThread().interrupt();
 		}
+	}
+
+	public static Runnable ignoreThrowable(Runnable runnable) {
+		return () -> {
+			try {
+				runnable.run();
+			} catch (Throwable ignored) {
+			}
+		};
+	}
+
+	public static Runnable ignoreThrowable(ThrowableRunnable runnable) {
+		return () -> {
+			try {
+				runnable.run();
+			} catch (Throwable ignored) {
+			}
+		};
+	}
+
+	public static <V> Supplier<V> ignoreThrowable(Callable<V> callable) {
+		return () -> {
+			try {
+				return callable.call();
+			} catch (Throwable ignored) {
+				return null;
+			}
+		};
+	}
+
+	public static interface ThrowableRunnable {
+		void run() throws Throwable;
 	}
 }

@@ -3,7 +3,6 @@ package io.polaris.core.concurrent;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Qt
@@ -60,25 +59,11 @@ public class Schedules {
 
 
 	public static void shutdown(ScheduledExecutorService pool) {
-		if (pool == null) {
-			return;
-		}
-		pool.shutdown(); // Disable new tasks from being submitted
-		try {
-			// Wait a while for existing tasks to terminate
-			if (!pool.awaitTermination(60, TimeUnit.SECONDS)) {
-				pool.shutdownNow(); // Cancel currently executing tasks
-				// Wait a while for tasks to respond to being cancelled
-				if (!pool.awaitTermination(60, TimeUnit.SECONDS)) {
-					System.err.println("Pool did not terminate");
-				}
-			}
-		} catch (InterruptedException ie) {
-			// (Re-)Cancel if current thread also interrupted
-			pool.shutdownNow();
-			// Preserve interrupt status
-			Thread.currentThread().interrupt();
-		}
+		shutdown(pool, 60);
+	}
+
+	public static void shutdown(ScheduledExecutorService pool, int timeoutSeconds) {
+		Executors.shutdown(pool, timeoutSeconds);
 	}
 
 }
