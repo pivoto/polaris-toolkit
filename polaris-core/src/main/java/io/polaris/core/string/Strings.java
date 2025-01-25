@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.collection.PrimitiveArrays;
 import io.polaris.core.consts.StdConsts;
+import io.polaris.core.lang.primitive.Booleans;
 import io.polaris.core.lang.primitive.Chars;
 import io.polaris.core.regex.Patterns;
 import io.polaris.core.tuple.Ref;
@@ -1539,11 +1540,7 @@ public class Strings {
 		if (str == null) {
 			return def;
 		}
-		try {
-			return Boolean.parseBoolean(str);
-		} catch (NumberFormatException ignore) {
-			return def;
-		}
+		return Booleans.parseBoolean(str);
 	}
 
 	public static Boolean toBoolean(String str) {

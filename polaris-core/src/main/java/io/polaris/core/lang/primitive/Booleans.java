@@ -1,10 +1,16 @@
 package io.polaris.core.lang.primitive;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.Random;
 
-import io.polaris.core.lang.Objs;
 import io.polaris.core.random.Randoms;
 
 /**
@@ -86,9 +92,80 @@ public class Booleans {
 			return ((int) ((Character) value).charValue()) != 0;
 		}
 		if (value instanceof CharSequence) {
-			return Boolean.parseBoolean(value.toString());
+			return parseBoolean(value.toString());
 		}
-		return Boolean.parseBoolean(Objs.toString(value));
+		if (value instanceof Optional) {
+			return ((Optional<?>) value).isPresent();
+		}
+		if (value instanceof OptionalInt) {
+			return ((OptionalInt) value).isPresent();
+		}
+		if (value instanceof OptionalDouble) {
+			return ((OptionalDouble) value).isPresent();
+		}
+		if (value instanceof OptionalLong) {
+			return ((OptionalLong) value).isPresent();
+		}
+		if (value instanceof Collection) {
+			return !((Collection<?>) value).isEmpty();
+		}
+		if (value instanceof Map) {
+			return !((Map<?, ?>) value).isEmpty();
+		}
+		if (value instanceof Iterable) {
+			return !((Iterable<?>) value).iterator().hasNext();
+		}
+		if (value instanceof Iterator) {
+			return ((Iterator<?>) value).hasNext();
+		}
+		if (value instanceof long[]) {
+			return ((long[]) value).length != 0;
+		}
+		if (value instanceof int[]) {
+			return ((int[]) value).length != 0;
+		}
+		if (value instanceof short[]) {
+			return ((short[]) value).length != 0;
+		}
+		if (value instanceof char[]) {
+			return ((char[]) value).length != 0;
+		}
+		if (value instanceof byte[]) {
+			return ((byte[]) value).length != 0;
+		}
+		if (value instanceof boolean[]) {
+			return ((boolean[]) value).length != 0;
+		}
+		if (value instanceof double[]) {
+			return ((double[]) value).length != 0;
+		}
+		if (value instanceof float[]) {
+			return ((float[]) value).length != 0;
+		}
+		if (value instanceof Object[]) {
+			return ((Object[]) value).length != 0;
+		}
+		if (value.getClass().isArray()) {
+			try {
+				return Array.getLength(value) != 0;
+			} catch (Exception e) {
+				return false;
+			}
+		}
+		// 其他类型的非空对象认为是true
+		return true;
+	}
+
+	public static boolean parseBoolean(String s) {
+		if (s == null || s.isEmpty()) {
+			return false;
+		}
+		return s.equalsIgnoreCase("true")
+			|| s.equalsIgnoreCase("on")
+			|| s.equalsIgnoreCase("yes")
+			|| s.equalsIgnoreCase("1")
+			|| s.equalsIgnoreCase("y")
+			|| s.equalsIgnoreCase("t");
 	}
 
 	// endregion 转换

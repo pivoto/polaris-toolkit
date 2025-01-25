@@ -1,6 +1,7 @@
 package io.polaris.core.cache;
 
 import io.polaris.core.env.GlobalStdEnv;
+import io.polaris.core.lang.primitive.Booleans;
 import io.polaris.core.string.Strings;
 
 /**
@@ -31,7 +32,7 @@ public class MapCacheManager extends AbstractCacheManager {
 		{
 			String val = GlobalStdEnv.get(KEY_ACCESS_ORDER);
 			if (Strings.isNotBlank(val)) {
-				accessOrder = Boolean.parseBoolean(val);
+				accessOrder = Booleans.parseBoolean(val);
 			}
 		}
 	}

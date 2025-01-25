@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 
+import io.polaris.core.lang.primitive.Booleans;
 import io.polaris.core.string.Strings;
 
 /**
@@ -293,7 +294,7 @@ public class GroupEnv implements Env {
 
 	public boolean getBoolean(String key, boolean defaultVal) {
 		String val = get(key);
-		return isInvalidPropertyValue(val) ? defaultVal : Boolean.parseBoolean(val);
+		return isInvalidPropertyValue(val) ? defaultVal : Booleans.parseBoolean(val);
 	}
 
 	public int getInt(String key) {

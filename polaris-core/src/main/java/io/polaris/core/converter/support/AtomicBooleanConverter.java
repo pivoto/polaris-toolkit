@@ -2,6 +2,7 @@ package io.polaris.core.converter.support;
 
 import io.polaris.core.converter.AbstractSimpleConverter;
 import io.polaris.core.lang.JavaType;
+import io.polaris.core.lang.primitive.Booleans;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -26,6 +27,6 @@ public class AtomicBooleanConverter extends AbstractSimpleConverter<AtomicBoolea
 			return new AtomicBoolean(0 != ((Number) value).intValue());
 		}
 		String valueStr = asString(value);
-		return new AtomicBoolean(Boolean.parseBoolean(valueStr));
+		return new AtomicBoolean(Booleans.parseBoolean(valueStr));
 	}
 }

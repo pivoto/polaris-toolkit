@@ -2,6 +2,7 @@ package io.polaris.core.converter.support;
 
 import io.polaris.core.converter.AbstractSimpleConverter;
 import io.polaris.core.lang.JavaType;
+import io.polaris.core.lang.primitive.Booleans;
 
 /**
  * @author Qt
@@ -24,6 +25,6 @@ public class BooleanConverter extends AbstractSimpleConverter<Boolean> {
 			// 0为false，其它数字为true
 			return 0 != ((Number) value).intValue();
 		}
-		return Boolean.parseBoolean(asString(value));
+		return Booleans.parseBoolean(asString(value));
 	}
 }
