@@ -18,6 +18,8 @@
 	<link rel="stylesheet" href="static/cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.css">
 	<link rel="stylesheet" href="static/cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.css" integrity="sha384-exe4Ak6B0EoJI0ogGxjJ8rn+RN3ftPnEQrGwX59KTCl5ybGzvHGKjhPKk/KC3abb" crossorigin="anonymous">
 	<link rel="stylesheet" href="static/cdn.jsdelivr.net/npm/docsify-jx-toc/dist/jx-toc.css">
+	<link rel="stylesheet" href="static/cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/sidebar.min.css" />
+
 	<script src="static/cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0-alpha2/katex.min.js" integrity="sha384-OMvkZ24ANLwviZR2lVq8ujbE/bUO8IR1FdBrKLQBI14Gq5Xp/lksIccGkmKL8m+h" crossorigin="anonymous"></script>
 	<style>
 		a.demo-theme-preview:hover {
@@ -74,6 +76,7 @@
 		executeScript: true,
 		//relativePath: true,
 		mergeNavbar: true,
+		sidebarDisplayLevel: 6,
 		maxLevel: 6,
 		subMaxLevel: 0,
 		//别名
@@ -93,14 +96,15 @@
 		search: {
 			maxAge: 3600000, // 过期时间，单位毫秒，默认一天 86400000
 			paths: 'auto',
-			placeholder: 'Search',
+			namespace: 'pivoto',
+			// placeholder: 'Search',
 			// 支持本地化
 			placeholder: {
 				'/zh/': '搜索',
 				'/en/': 'Search',
 				'/': 'Search'
 			},
-			noData: 'No Results!',
+			// noData: 'No Results!',
 			// 支持本地化
 			noData: {
 				'/zh/': '找不到结果',
@@ -154,11 +158,29 @@
 			}
 		},
 		formatUpdated: '{YYYY}/{MM}/{DD} {HH}:{mm}',
-		plugins: [function (hook, vm) {
-			hook.beforeEach(function (html) {
-				return html + '\n----\n' + 'Last modified {docsify-updated} '
-			})
-		}],
+		plugins: [
+			function (hook, vm) {
+				hook.beforeEach(function (html) {
+					return html + '\n----\n' + 'Last modified {docsify-updated} '
+				})
+			},
+			function (hook, vm) {
+				hook.beforeEach(function (html) {
+					if (/githubusercontent\.com/.test(vm.route.file)) {
+						url = vm.route.file
+							.replace('raw.githubusercontent.com', 'github.com')
+							.replace(/\/master/, '/blob/master')
+					} else {
+						url = 'https://github.com/docsifyjs/docsify/blob/master/docs/' + vm.route.file
+					}
+					var editHtml = '[:memo: Edit Document](' + url + ')\n'
+
+					// return editHtml + html
+					//+ '\n\n----\n\n'
+					//+ '<a href="https://docsify.js.org" target="_blank" style="color: inherit; font-weight: normal; text-decoration: none;">Powered by docsify</a>'
+				})
+			}
+		],
 		name: '',
 		repo: '',
 		autoHeaders: {
@@ -200,8 +222,15 @@
 		}
 		var searchClear = Docsify.dom.find('.demo-search-clear');
 		searchClear.onclick = function (e) {
-			localStorage.removeItem('docsify.search.expires');
-			localStorage.removeItem('docsify.search.index');
+			for (var i = 0; i < localStorage.length; i++) {
+				var key = localStorage.key(i);
+				if (/^docsify.search.index/.test(key) || /^docsify.search.expires/.test(key)){
+					localStorage.removeItem(key);
+				}
+			}
+			window.location.reload();
+			// localStorage.removeItem('docsify.search.expires');
+			// localStorage.removeItem('docsify.search.index');
 			//alert('全文索引缓存清理完成!');
 		}
 	}
@@ -244,6 +273,7 @@
 <script src="static/unpkg.com/docsify-plugin-advance-blockquote/dist/index.min.js"></script>
 <script src="static/unpkg.com/@markbattistella/docsify-autoheaders/docsify-autoHeaders.js"></script>
 <script src="static/cdn.jsdelivr.net/npm/docsify-jx-toc/dist/jx-toc.js"></script>
+<script src="static/cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/docsify-sidebar-collapse.js"></script>
 
 </body>
 </html>
