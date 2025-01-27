@@ -2,8 +2,10 @@ package io.polaris.core.ulid;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.SplittableRandom;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * A class that represents ULIDs.
@@ -38,14 +40,18 @@ import java.util.UUID;
  * @author Qt
  * @see <a href="https://github.com/ulid/spec">ULID Specification</a>
  * @see <a href="https://github.com/f4b6a3/ulid-creator">ULID Creator</a>
- * @since 1.8
  */
 public final class Ulid implements Serializable, Comparable<Ulid> {
-
 	private static final long serialVersionUID = 2625269413446854731L;
 
-	private final long msb; // most significant bits
-	private final long lsb; // least significant bits
+	/**
+	 * The most significant bits
+	 */
+	private final long msb;
+	/**
+	 * The least significant bits
+	 */
+	private final long lsb;
 
 	/**
 	 * Number of characters of a ULID.
@@ -72,88 +78,42 @@ public final class Ulid implements Serializable, Comparable<Ulid> {
 	 * Number of bytes of the random component of a ULID.
 	 */
 	public static final int RANDOM_BYTES = 10;
+	/**
+	 * A special ULID that has all 128 bits set to ZERO.
+	 */
+	public static final Ulid MIN = new Ulid(0x0000000000000000L, 0x0000000000000000L);
+	/**
+	 * A special ULID that has all 128 bits set to ONE.
+	 */
+	public static final Ulid MAX = new Ulid(0xffffffffffffffffL, 0xffffffffffffffffL);
 
-	private static final char[] ALPHABET_UPPERCASE = //
-		{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', //
-			'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', //
-			'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X', 'Y', 'Z'};
-
-	private static final char[] ALPHABET_LOWERCASE = //
-		{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', //
-			'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'j', 'k', //
-			'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z'};
-
-	private static final long[] ALPHABET_VALUES = new long[128];
+	static final SplittableRandom RANDOM = new SplittableRandom();
+	static final byte[] ALPHABET_VALUES = new byte[256];
+	static final char[] ALPHABET_UPPERCASE = "0123456789ABCDEFGHJKMNPQRSTVWXYZ".toCharArray();
+	static final char[] ALPHABET_LOWERCASE = "0123456789abcdefghjkmnpqrstvwxyz".toCharArray();
 
 	static {
-		for (int i = 0; i < ALPHABET_VALUES.length; i++) {
-			ALPHABET_VALUES[i] = -1;
+
+		// Initialize the alphabet map with -1
+		Arrays.fill(ALPHABET_VALUES, (byte) -1);
+
+		// Map the alphabets chars to values
+		for (int i = 0; i < ALPHABET_UPPERCASE.length; i++) {
+			ALPHABET_VALUES[ALPHABET_UPPERCASE[i]] = (byte) i;
 		}
-		// Numbers
-		ALPHABET_VALUES['0'] = 0x00;
-		ALPHABET_VALUES['1'] = 0x01;
-		ALPHABET_VALUES['2'] = 0x02;
-		ALPHABET_VALUES['3'] = 0x03;
-		ALPHABET_VALUES['4'] = 0x04;
-		ALPHABET_VALUES['5'] = 0x05;
-		ALPHABET_VALUES['6'] = 0x06;
-		ALPHABET_VALUES['7'] = 0x07;
-		ALPHABET_VALUES['8'] = 0x08;
-		ALPHABET_VALUES['9'] = 0x09;
-		// Lower case
-		ALPHABET_VALUES['a'] = 0x0a;
-		ALPHABET_VALUES['b'] = 0x0b;
-		ALPHABET_VALUES['c'] = 0x0c;
-		ALPHABET_VALUES['d'] = 0x0d;
-		ALPHABET_VALUES['e'] = 0x0e;
-		ALPHABET_VALUES['f'] = 0x0f;
-		ALPHABET_VALUES['g'] = 0x10;
-		ALPHABET_VALUES['h'] = 0x11;
-		ALPHABET_VALUES['j'] = 0x12;
-		ALPHABET_VALUES['k'] = 0x13;
-		ALPHABET_VALUES['m'] = 0x14;
-		ALPHABET_VALUES['n'] = 0x15;
-		ALPHABET_VALUES['p'] = 0x16;
-		ALPHABET_VALUES['q'] = 0x17;
-		ALPHABET_VALUES['r'] = 0x18;
-		ALPHABET_VALUES['s'] = 0x19;
-		ALPHABET_VALUES['t'] = 0x1a;
-		ALPHABET_VALUES['v'] = 0x1b;
-		ALPHABET_VALUES['w'] = 0x1c;
-		ALPHABET_VALUES['x'] = 0x1d;
-		ALPHABET_VALUES['y'] = 0x1e;
-		ALPHABET_VALUES['z'] = 0x1f;
-		// Lower case OIL
-		ALPHABET_VALUES['o'] = 0x00;
-		ALPHABET_VALUES['i'] = 0x01;
-		ALPHABET_VALUES['l'] = 0x01;
-		// Upper case
-		ALPHABET_VALUES['A'] = 0x0a;
-		ALPHABET_VALUES['B'] = 0x0b;
-		ALPHABET_VALUES['C'] = 0x0c;
-		ALPHABET_VALUES['D'] = 0x0d;
-		ALPHABET_VALUES['E'] = 0x0e;
-		ALPHABET_VALUES['F'] = 0x0f;
-		ALPHABET_VALUES['G'] = 0x10;
-		ALPHABET_VALUES['H'] = 0x11;
-		ALPHABET_VALUES['J'] = 0x12;
-		ALPHABET_VALUES['K'] = 0x13;
-		ALPHABET_VALUES['M'] = 0x14;
-		ALPHABET_VALUES['N'] = 0x15;
-		ALPHABET_VALUES['P'] = 0x16;
-		ALPHABET_VALUES['Q'] = 0x17;
-		ALPHABET_VALUES['R'] = 0x18;
-		ALPHABET_VALUES['S'] = 0x19;
-		ALPHABET_VALUES['T'] = 0x1a;
-		ALPHABET_VALUES['V'] = 0x1b;
-		ALPHABET_VALUES['W'] = 0x1c;
-		ALPHABET_VALUES['X'] = 0x1d;
-		ALPHABET_VALUES['Y'] = 0x1e;
-		ALPHABET_VALUES['Z'] = 0x1f;
+		for (int i = 0; i < ALPHABET_LOWERCASE.length; i++) {
+			ALPHABET_VALUES[ALPHABET_LOWERCASE[i]] = (byte) i;
+		}
+
 		// Upper case OIL
 		ALPHABET_VALUES['O'] = 0x00;
 		ALPHABET_VALUES['I'] = 0x01;
 		ALPHABET_VALUES['L'] = 0x01;
+
+		// Lower case OIL
+		ALPHABET_VALUES['o'] = 0x00;
+		ALPHABET_VALUES['i'] = 0x01;
+		ALPHABET_VALUES['l'] = 0x01;
 	}
 
 	// 0xffffffffffffffffL + 1 = 0x0000000000000000L
@@ -188,12 +148,16 @@ public final class Ulid implements Serializable, Comparable<Ulid> {
 	/**
 	 * Creates a new ULID.
 	 * <p>
-	 * Time parameter is the number of milliseconds since 1970-01-01 (Unix epoch).
-	 * It must be a positive number not larger than 2^48-1.
+	 * The time parameter is the number of milliseconds since 1970-01-01, also known
+	 * as Unix epoch. It must be a positive number not larger than 2^48-1.
 	 * <p>
-	 * Random parameter must be an array of 10 bytes.
+	 * The random parameter must be an arbitrary array of 10 bytes.
+	 * <p>
+	 * Note: ULIDs cannot be composed of dates before 1970-01-01, as their embedded
+	 * timestamp is internally treated as an unsigned integer, i.e., it can only
+	 * represent the set of natural numbers including zero, up to 2^48-1.
 	 *
-	 * @param time   the the number of milliseconds since 1970-01-01
+	 * @param time   the number of milliseconds since 1970-01-01
 	 * @param random an array of 10 bytes
 	 * @throws IllegalArgumentException if time is negative or larger than 2^48-1
 	 * @throws IllegalArgumentException if random is null or its length is not 10
@@ -237,6 +201,26 @@ public final class Ulid implements Serializable, Comparable<Ulid> {
 	 * <p>
 	 * This static method is a quick alternative to {@link UlidCreator#getUlid()}.
 	 * <p>
+	 * It employs {@link ThreadLocalRandom} which works very well, although not
+	 * cryptographically strong. It can be useful, for example, for logging.
+	 * <p>
+	 * Security-sensitive applications that require a cryptographically secure
+	 * pseudo-random generator should use {@link UlidCreator#getUlid()}.
+	 *
+	 * @return a ULID
+	 * @see ThreadLocalRandom
+	 */
+	public static Ulid fast() {
+		final long time = System.currentTimeMillis();
+		ThreadLocalRandom random = ThreadLocalRandom.current();
+		return new Ulid((time << 16) | (random.nextLong() & 0xffffL), random.nextLong());
+	}
+
+	/**
+	 * Returns a fast new ULID.
+	 * <p>
+	 * This static method is a quick alternative to {@link UlidCreator#getUlid()}.
+	 * <p>
 	 * It employs {@link SplittableRandom} which works very well, although not
 	 * cryptographically strong.
 	 * <p>
@@ -244,12 +228,54 @@ public final class Ulid implements Serializable, Comparable<Ulid> {
 	 * pseudo-random generator should use {@link UlidCreator#getUlid()}.
 	 *
 	 * @return a ULID
-	 * @see {@link SplittableRandom}
+	 * @see SplittableRandom
 	 */
-	public static Ulid fast() {
+	public static Ulid fast2() {
 		final long time = System.currentTimeMillis();
-		final SplittableRandom random = new SplittableRandom();
+		final SplittableRandom random = RANDOM.split();
 		return new Ulid((time << 16) | (random.nextLong() & 0xffffL), random.nextLong());
+	}
+
+	/**
+	 * Returns the minimum ULID for a given time.
+	 * <p>
+	 * The 48 bits of the time component are filled with the given time and the 80
+	 * bits of the random component are all set to ZERO.
+	 * <p>
+	 * For example, the minimum ULID for 2022-02-22 22:22:22.222 is
+	 * `{@code new Ulid(0x017f2387460e0000L, 0x0000000000000000L)}`, where
+	 * `{@code 0x017f2387460e}` is the timestamp in hexadecimal.
+	 * <p>
+	 * It can be useful to find all records before or after a specific timestamp in
+	 * a table without a `{@code created_at}` field.
+	 *
+	 * @param time the number of milliseconds since 1970-01-01
+	 * @return a ULID
+	 * @since 5.2.0
+	 */
+	public static Ulid min(long time) {
+		return new Ulid((time << 16) | 0x0000L, 0x0000000000000000L);
+	}
+
+	/**
+	 * Returns the maximum ULID for a given time.
+	 * <p>
+	 * The 48 bits of the time component are filled with the given time and the 80
+	 * bits or the random component are all set to ONE.
+	 * <p>
+	 * For example, the maximum ULID for 2022-02-22 22:22:22.222 is
+	 * `{@code new Ulid(0x017f2387460effffL, 0xffffffffffffffffL)}`, where
+	 * `{@code 0x017f2387460e}` is the timestamp in hexadecimal.
+	 * <p>
+	 * It can be useful to find all records before or after a specific timestamp in
+	 * a table without a `{@code created_at}` field.
+	 *
+	 * @param time the number of milliseconds since 1970-01-01
+	 * @return a ULID
+	 * @since 5.2.0
+	 */
+	public static Ulid max(long time) {
+		return new Ulid((time << 16) | 0xffffL, 0xffffffffffffffffL);
 	}
 
 	/**
@@ -320,34 +346,34 @@ public final class Ulid implements Serializable, Comparable<Ulid> {
 		long random0 = 0;
 		long random1 = 0;
 
-		time |= ALPHABET_VALUES[chars[0x00]] << 45;
-		time |= ALPHABET_VALUES[chars[0x01]] << 40;
-		time |= ALPHABET_VALUES[chars[0x02]] << 35;
-		time |= ALPHABET_VALUES[chars[0x03]] << 30;
-		time |= ALPHABET_VALUES[chars[0x04]] << 25;
-		time |= ALPHABET_VALUES[chars[0x05]] << 20;
-		time |= ALPHABET_VALUES[chars[0x06]] << 15;
-		time |= ALPHABET_VALUES[chars[0x07]] << 10;
-		time |= ALPHABET_VALUES[chars[0x08]] << 5;
-		time |= ALPHABET_VALUES[chars[0x09]];
+		time |= (long) ALPHABET_VALUES[chars[0x00]] << 45;
+		time |= (long) ALPHABET_VALUES[chars[0x01]] << 40;
+		time |= (long) ALPHABET_VALUES[chars[0x02]] << 35;
+		time |= (long) ALPHABET_VALUES[chars[0x03]] << 30;
+		time |= (long) ALPHABET_VALUES[chars[0x04]] << 25;
+		time |= (long) ALPHABET_VALUES[chars[0x05]] << 20;
+		time |= (long) ALPHABET_VALUES[chars[0x06]] << 15;
+		time |= (long) ALPHABET_VALUES[chars[0x07]] << 10;
+		time |= (long) ALPHABET_VALUES[chars[0x08]] << 5;
+		time |= (long) ALPHABET_VALUES[chars[0x09]];
 
-		random0 |= ALPHABET_VALUES[chars[0x0a]] << 35;
-		random0 |= ALPHABET_VALUES[chars[0x0b]] << 30;
-		random0 |= ALPHABET_VALUES[chars[0x0c]] << 25;
-		random0 |= ALPHABET_VALUES[chars[0x0d]] << 20;
-		random0 |= ALPHABET_VALUES[chars[0x0e]] << 15;
-		random0 |= ALPHABET_VALUES[chars[0x0f]] << 10;
-		random0 |= ALPHABET_VALUES[chars[0x10]] << 5;
-		random0 |= ALPHABET_VALUES[chars[0x11]];
+		random0 |= (long) ALPHABET_VALUES[chars[0x0a]] << 35;
+		random0 |= (long) ALPHABET_VALUES[chars[0x0b]] << 30;
+		random0 |= (long) ALPHABET_VALUES[chars[0x0c]] << 25;
+		random0 |= (long) ALPHABET_VALUES[chars[0x0d]] << 20;
+		random0 |= (long) ALPHABET_VALUES[chars[0x0e]] << 15;
+		random0 |= (long) ALPHABET_VALUES[chars[0x0f]] << 10;
+		random0 |= (long) ALPHABET_VALUES[chars[0x10]] << 5;
+		random0 |= (long) ALPHABET_VALUES[chars[0x11]];
 
-		random1 |= ALPHABET_VALUES[chars[0x12]] << 35;
-		random1 |= ALPHABET_VALUES[chars[0x13]] << 30;
-		random1 |= ALPHABET_VALUES[chars[0x14]] << 25;
-		random1 |= ALPHABET_VALUES[chars[0x15]] << 20;
-		random1 |= ALPHABET_VALUES[chars[0x16]] << 15;
-		random1 |= ALPHABET_VALUES[chars[0x17]] << 10;
-		random1 |= ALPHABET_VALUES[chars[0x18]] << 5;
-		random1 |= ALPHABET_VALUES[chars[0x19]];
+		random1 |= (long) ALPHABET_VALUES[chars[0x12]] << 35;
+		random1 |= (long) ALPHABET_VALUES[chars[0x13]] << 30;
+		random1 |= (long) ALPHABET_VALUES[chars[0x14]] << 25;
+		random1 |= (long) ALPHABET_VALUES[chars[0x15]] << 20;
+		random1 |= (long) ALPHABET_VALUES[chars[0x16]] << 15;
+		random1 |= (long) ALPHABET_VALUES[chars[0x17]] << 10;
+		random1 |= (long) ALPHABET_VALUES[chars[0x18]] << 5;
+		random1 |= (long) ALPHABET_VALUES[chars[0x19]];
 
 		final long msb = (time << 16) | (random0 >>> 24);
 		final long lsb = (random0 << 40) | (random1 & 0xffffffffffL);
@@ -371,7 +397,7 @@ public final class Ulid implements Serializable, Comparable<Ulid> {
 	/**
 	 * Convert the ULID into a byte array.
 	 *
-	 * @return an byte array.
+	 * @return a byte array.
 	 */
 	public byte[] toBytes() {
 
@@ -432,7 +458,7 @@ public final class Ulid implements Serializable, Comparable<Ulid> {
 	}
 
 	/**
-	 * Converts the ULID into into another ULID that is compatible with UUIDv4.
+	 * Converts the ULID into another ULID that is compatible with UUIDv4.
 	 * <p>
 	 * The bytes of the returned ULID are compliant with the RFC-4122 version 4.
 	 * <p>
@@ -506,16 +532,16 @@ public final class Ulid implements Serializable, Comparable<Ulid> {
 
 		long time = 0;
 
-		time |= ALPHABET_VALUES[chars[0x00]] << 45;
-		time |= ALPHABET_VALUES[chars[0x01]] << 40;
-		time |= ALPHABET_VALUES[chars[0x02]] << 35;
-		time |= ALPHABET_VALUES[chars[0x03]] << 30;
-		time |= ALPHABET_VALUES[chars[0x04]] << 25;
-		time |= ALPHABET_VALUES[chars[0x05]] << 20;
-		time |= ALPHABET_VALUES[chars[0x06]] << 15;
-		time |= ALPHABET_VALUES[chars[0x07]] << 10;
-		time |= ALPHABET_VALUES[chars[0x08]] << 5;
-		time |= ALPHABET_VALUES[chars[0x09]];
+		time |= (long) ALPHABET_VALUES[chars[0x00]] << 45;
+		time |= (long) ALPHABET_VALUES[chars[0x01]] << 40;
+		time |= (long) ALPHABET_VALUES[chars[0x02]] << 35;
+		time |= (long) ALPHABET_VALUES[chars[0x03]] << 30;
+		time |= (long) ALPHABET_VALUES[chars[0x04]] << 25;
+		time |= (long) ALPHABET_VALUES[chars[0x05]] << 20;
+		time |= (long) ALPHABET_VALUES[chars[0x06]] << 15;
+		time |= (long) ALPHABET_VALUES[chars[0x07]] << 10;
+		time |= (long) ALPHABET_VALUES[chars[0x08]] << 5;
+		time |= (long) ALPHABET_VALUES[chars[0x09]];
 
 		return time;
 	}
@@ -562,23 +588,23 @@ public final class Ulid implements Serializable, Comparable<Ulid> {
 		long random0 = 0;
 		long random1 = 0;
 
-		random0 |= ALPHABET_VALUES[chars[0x0a]] << 35;
-		random0 |= ALPHABET_VALUES[chars[0x0b]] << 30;
-		random0 |= ALPHABET_VALUES[chars[0x0c]] << 25;
-		random0 |= ALPHABET_VALUES[chars[0x0d]] << 20;
-		random0 |= ALPHABET_VALUES[chars[0x0e]] << 15;
-		random0 |= ALPHABET_VALUES[chars[0x0f]] << 10;
-		random0 |= ALPHABET_VALUES[chars[0x10]] << 5;
-		random0 |= ALPHABET_VALUES[chars[0x11]];
+		random0 |= (long) ALPHABET_VALUES[chars[0x0a]] << 35;
+		random0 |= (long) ALPHABET_VALUES[chars[0x0b]] << 30;
+		random0 |= (long) ALPHABET_VALUES[chars[0x0c]] << 25;
+		random0 |= (long) ALPHABET_VALUES[chars[0x0d]] << 20;
+		random0 |= (long) ALPHABET_VALUES[chars[0x0e]] << 15;
+		random0 |= (long) ALPHABET_VALUES[chars[0x0f]] << 10;
+		random0 |= (long) ALPHABET_VALUES[chars[0x10]] << 5;
+		random0 |= (long) ALPHABET_VALUES[chars[0x11]];
 
-		random1 |= ALPHABET_VALUES[chars[0x12]] << 35;
-		random1 |= ALPHABET_VALUES[chars[0x13]] << 30;
-		random1 |= ALPHABET_VALUES[chars[0x14]] << 25;
-		random1 |= ALPHABET_VALUES[chars[0x15]] << 20;
-		random1 |= ALPHABET_VALUES[chars[0x16]] << 15;
-		random1 |= ALPHABET_VALUES[chars[0x17]] << 10;
-		random1 |= ALPHABET_VALUES[chars[0x18]] << 5;
-		random1 |= ALPHABET_VALUES[chars[0x19]];
+		random1 |= (long) ALPHABET_VALUES[chars[0x12]] << 35;
+		random1 |= (long) ALPHABET_VALUES[chars[0x13]] << 30;
+		random1 |= (long) ALPHABET_VALUES[chars[0x14]] << 25;
+		random1 |= (long) ALPHABET_VALUES[chars[0x15]] << 20;
+		random1 |= (long) ALPHABET_VALUES[chars[0x16]] << 15;
+		random1 |= (long) ALPHABET_VALUES[chars[0x17]] << 10;
+		random1 |= (long) ALPHABET_VALUES[chars[0x18]] << 5;
+		random1 |= (long) ALPHABET_VALUES[chars[0x19]];
 
 		final byte[] bytes = new byte[RANDOM_BYTES];
 
@@ -790,6 +816,16 @@ public final class Ulid implements Serializable, Comparable<Ulid> {
 			return false; // null or wrong size!
 		}
 
+		for (int i = 0; i < chars.length; i++) {
+			try {
+				if (ALPHABET_VALUES[chars[i]] == -1) {
+					return false; // invalid character!
+				}
+			} catch (ArrayIndexOutOfBoundsException e) {
+				return false; // Multibyte character!
+			}
+		}
+
 		// The time component has 48 bits.
 		// The base32 encoded time component has 50 bits.
 		// The time component cannot be greater than than 2^48-1.
@@ -800,12 +836,6 @@ public final class Ulid implements Serializable, Comparable<Ulid> {
 			// "Any attempt to decode or encode a ULID larger than this (time > 2^48-1)
 			// should be rejected by all implementations, to prevent overflow bugs."
 			return false; // time overflow!
-		}
-
-		for (int i = 0; i < chars.length; i++) {
-			if (ALPHABET_VALUES[chars[i]] == -1) {
-				return false; // invalid character!
-			}
 		}
 
 		return true; // It seems to be OK.

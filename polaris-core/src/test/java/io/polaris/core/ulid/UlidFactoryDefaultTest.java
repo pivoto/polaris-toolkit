@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * @since 1.8
  */
 public class UlidFactoryDefaultTest extends UlidFactoryTest {
+
 	@Test
 	public void testGetUlid() {
 		Ulid[] list = new Ulid[DEFAULT_LOOP_MAX];

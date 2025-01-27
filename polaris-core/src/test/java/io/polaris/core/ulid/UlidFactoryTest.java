@@ -8,6 +8,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UlidFactoryTest {
+
 	protected static final int DEFAULT_LOOP_MAX = 10_000;
 
 	protected static final String DUPLICATE_UUID_MSG = "A duplicate ULID was created.";

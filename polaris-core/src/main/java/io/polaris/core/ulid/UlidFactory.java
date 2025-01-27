@@ -2,7 +2,9 @@ package io.polaris.core.ulid;
 
 import java.security.SecureRandom;
 import java.time.Clock;
+import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.IntFunction;
 import java.util.function.LongFunction;
 import java.util.function.LongSupplier;
@@ -26,12 +28,12 @@ import java.util.function.LongSupplier;
  * @author Qt
  * @see <a href="https://github.com/ulid/spec">ULID Specification</a>
  * @see <a href="https://github.com/f4b6a3/ulid-creator">ULID Creator</a>
- * @since 1.8
  */
 public final class UlidFactory {
 
-	private final Clock clock; // for tests
+	private final LongSupplier timeFunction;
 	private final LongFunction<Ulid> ulidFunction;
+	private final ReentrantLock lock = new ReentrantLock();
 
 	// ******************************
 	// Constructors
@@ -41,27 +43,36 @@ public final class UlidFactory {
 	 * Default constructor.
 	 */
 	public UlidFactory() {
-		this(new UlidFunction(IRandom.newInstance()));
+		this(new UlidFunction());
 	}
 
 	private UlidFactory(LongFunction<Ulid> ulidFunction) {
-		this(ulidFunction, null);
+		this(ulidFunction, System::currentTimeMillis);
 	}
 
-	private UlidFactory(LongFunction<Ulid> ulidFunction, Clock clock) {
+	private UlidFactory(LongFunction<Ulid> ulidFunction, LongSupplier timeFunction) {
+
+		Objects.requireNonNull(ulidFunction, "ULID function must not be null");
+		Objects.requireNonNull(timeFunction, "Time function must not be null");
+
 		this.ulidFunction = ulidFunction;
-		this.clock = clock != null ? clock : Clock.systemUTC();
+		this.timeFunction = timeFunction;
+
+		if (this.ulidFunction instanceof MonotonicFunction) {
+			// initialize the internal state of the monotonic function
+			((MonotonicFunction) this.ulidFunction).initialize(this.timeFunction);
+		}
 	}
 
 	/**
 	 * Returns a new factory.
 	 * <p>
-	 * It is equivalent to {@code new UlidFactory()}.
+	 * It is equivalent to the default constructor {@code new UlidFactory()}.
 	 *
 	 * @return {@link UlidFactory}
 	 */
 	public static UlidFactory newInstance() {
-		return new UlidFactory(new UlidFunction(IRandom.newInstance()));
+		return new UlidFactory(new UlidFunction());
 	}
 
 	/**
@@ -71,7 +82,7 @@ public final class UlidFactory {
 	 * @return {@link UlidFactory}
 	 */
 	public static UlidFactory newInstance(Random random) {
-		return new UlidFactory(new UlidFunction(IRandom.newInstance(random)));
+		return new UlidFactory(new UlidFunction(random));
 	}
 
 	/**
@@ -83,7 +94,7 @@ public final class UlidFactory {
 	 * @return {@link UlidFactory}
 	 */
 	public static UlidFactory newInstance(LongSupplier randomFunction) {
-		return new UlidFactory(new UlidFunction(IRandom.newInstance(randomFunction)));
+		return new UlidFactory(new UlidFunction(randomFunction));
 	}
 
 	/**
@@ -95,7 +106,7 @@ public final class UlidFactory {
 	 * @return {@link UlidFactory}
 	 */
 	public static UlidFactory newInstance(IntFunction<byte[]> randomFunction) {
-		return new UlidFactory(new UlidFunction(IRandom.newInstance(randomFunction)));
+		return new UlidFactory(new UlidFunction(randomFunction));
 	}
 
 	/**
@@ -104,7 +115,7 @@ public final class UlidFactory {
 	 * @return {@link UlidFactory}
 	 */
 	public static UlidFactory newMonotonicInstance() {
-		return new UlidFactory(new MonotonicFunction(IRandom.newInstance()));
+		return new UlidFactory(new MonotonicFunction());
 	}
 
 	/**
@@ -114,7 +125,7 @@ public final class UlidFactory {
 	 * @return {@link UlidFactory}
 	 */
 	public static UlidFactory newMonotonicInstance(Random random) {
-		return new UlidFactory(new MonotonicFunction(IRandom.newInstance(random)));
+		return new UlidFactory(new MonotonicFunction(random));
 	}
 
 	/**
@@ -126,7 +137,7 @@ public final class UlidFactory {
 	 * @return {@link UlidFactory}
 	 */
 	public static UlidFactory newMonotonicInstance(LongSupplier randomFunction) {
-		return new UlidFactory(new MonotonicFunction(IRandom.newInstance(randomFunction)));
+		return new UlidFactory(new MonotonicFunction(randomFunction));
 	}
 
 	/**
@@ -138,7 +149,19 @@ public final class UlidFactory {
 	 * @return {@link UlidFactory}
 	 */
 	public static UlidFactory newMonotonicInstance(IntFunction<byte[]> randomFunction) {
-		return new UlidFactory(new MonotonicFunction(IRandom.newInstance(randomFunction)));
+		return new UlidFactory(new MonotonicFunction(randomFunction));
+	}
+
+	/**
+	 * Returns a new monotonic factory.
+	 *
+	 * @param random       a {@link Random} generator
+	 * @param timeFunction a function that returns the current time in milliseconds,
+	 *                     measured from the UNIX epoch of 1970-01-01T00:00Z (UTC)
+	 * @return {@link UlidFactory}
+	 */
+	public static UlidFactory newMonotonicInstance(Random random, LongSupplier timeFunction) {
+		return new UlidFactory(new MonotonicFunction(random), timeFunction);
 	}
 
 	/**
@@ -147,11 +170,13 @@ public final class UlidFactory {
 	 * The given random function must return a long value.
 	 *
 	 * @param randomFunction a random function that returns a long value
-	 * @param clock          a custom clock instance for tests
+	 * @param timeFunction   a function that returns the current time in
+	 *                       milliseconds, measured from the UNIX epoch of
+	 *                       1970-01-01T00:00Z (UTC)
 	 * @return {@link UlidFactory}
 	 */
-	static UlidFactory newMonotonicInstance(LongSupplier randomFunction, Clock clock) {
-		return new UlidFactory(new MonotonicFunction(IRandom.newInstance(randomFunction)), clock);
+	public static UlidFactory newMonotonicInstance(LongSupplier randomFunction, LongSupplier timeFunction) {
+		return new UlidFactory(new MonotonicFunction(randomFunction), timeFunction);
 	}
 
 	/**
@@ -160,11 +185,13 @@ public final class UlidFactory {
 	 * The given random function must return a byte array.
 	 *
 	 * @param randomFunction a random function that returns a byte array
-	 * @param clock          a custom clock instance for tests
+	 * @param timeFunction   a function that returns the current time in
+	 *                       milliseconds, measured from the UNIX epoch of
+	 *                       1970-01-01T00:00Z (UTC)
 	 * @return {@link UlidFactory}
 	 */
-	static UlidFactory newMonotonicInstance(IntFunction<byte[]> randomFunction, Clock clock) {
-		return new UlidFactory(new MonotonicFunction(IRandom.newInstance(randomFunction)), clock);
+	public static UlidFactory newMonotonicInstance(IntFunction<byte[]> randomFunction, LongSupplier timeFunction) {
+		return new UlidFactory(new MonotonicFunction(randomFunction), timeFunction);
 	}
 
 	// ******************************
@@ -172,22 +199,28 @@ public final class UlidFactory {
 	// ******************************
 
 	/**
-	 * Returns a UUID.
+	 * Returns a new ULID.
 	 *
 	 * @return a ULID
 	 */
-	public synchronized Ulid create() {
-		return this.ulidFunction.apply(clock.millis());
+	public Ulid create() {
+		return create(timeFunction.getAsLong());
 	}
 
 	/**
-	 * Returns a UUID with a specific time.
+	 * Returns a new ULID.
 	 *
-	 * @param time a number of milliseconds since 1970-01-01 (Unix epoch).
+	 * @param time the current time in milliseconds, measured from the UNIX epoch of
+	 *             1970-01-01T00:00Z (UTC)
 	 * @return a ULID
 	 */
-	public synchronized Ulid create(final long time) {
-		return this.ulidFunction.apply(time);
+	public Ulid create(final long time) {
+		lock.lock();
+		try {
+			return this.ulidFunction.apply(time);
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	// ******************************
@@ -201,8 +234,24 @@ public final class UlidFactory {
 
 		private final IRandom random;
 
-		public UlidFunction(IRandom random) {
+		private UlidFunction(IRandom random) {
 			this.random = random;
+		}
+
+		public UlidFunction() {
+			this(IRandom.newInstance());
+		}
+
+		public UlidFunction(Random random) {
+			this(IRandom.newInstance(random));
+		}
+
+		public UlidFunction(LongSupplier randomFunction) {
+			this(IRandom.newInstance(randomFunction));
+		}
+
+		public UlidFunction(IntFunction<byte[]> randomFunction) {
+			this(IRandom.newInstance(randomFunction));
 		}
 
 		@Override
@@ -229,16 +278,35 @@ public final class UlidFactory {
 		// Used to preserve monotonicity when the system clock is
 		// adjusted by NTP after a small clock drift or when the
 		// system clock jumps back by 1 second due to leap second.
-		protected static final int CLOCK_DRIFT_TOLERANCE = 10_000;
+		static final int CLOCK_DRIFT_TOLERANCE = 10_000;
 
-		public MonotonicFunction(IRandom random) {
+		private MonotonicFunction(IRandom random) {
 			this.random = random;
-			// initialize internal state
+		}
+
+		public MonotonicFunction() {
+			this(IRandom.newInstance());
+		}
+
+		public MonotonicFunction(Random random) {
+			this(IRandom.newInstance(random));
+		}
+
+		public MonotonicFunction(LongSupplier randomFunction) {
+			this(IRandom.newInstance(randomFunction));
+		}
+
+		public MonotonicFunction(IntFunction<byte[]> randomFunction) {
+			this(IRandom.newInstance(randomFunction));
+		}
+
+		void initialize(LongSupplier timeFunction) {
+			// initialize the factory with the instant 1970-01-01 00:00:00.000 UTC
 			this.lastUlid = new Ulid(0L, this.random.nextBytes(Ulid.RANDOM_BYTES));
 		}
 
 		@Override
-		public synchronized Ulid apply(final long time) {
+		public Ulid apply(final long time) {
 
 			final long lastTime = lastUlid.getTime();
 
