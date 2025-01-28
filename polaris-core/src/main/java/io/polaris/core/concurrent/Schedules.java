@@ -10,6 +10,10 @@ import java.util.concurrent.ThreadFactory;
  */
 public class Schedules {
 
+	public static ScheduledExecutorService single() {
+		return single((WrappingTaskFactory) null);
+	}
+
 	public static ScheduledExecutorService create(int core) {
 		return create((WrappingTaskFactory) null, core);
 	}
