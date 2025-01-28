@@ -196,7 +196,13 @@ public class Randoms {
 	public static String randomStringLowerCase(int length) {
 		return randomString(BASE_CHAR_NUMBER_LOWER, length);
 	}
-
+	public static String randomChineseString(int length) {
+		StringBuilder sb = new StringBuilder(length);
+		for (int i = 0; i < length; i++) {
+			sb.append(randomChinese());
+		}
+		return sb.toString();
+	}
 
 	public static char randomNumberChar() {
 		return randomChar(BASE_NUMBER);
