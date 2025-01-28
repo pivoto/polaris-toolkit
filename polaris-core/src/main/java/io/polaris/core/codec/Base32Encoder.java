@@ -8,7 +8,7 @@ import java.io.OutputStream;
  * @since 1.8
  */
 public class Base32Encoder implements Encoder {
-	private static final byte[] DEAULT_ENCODING_TABLE =
+	private static final byte[] DEFAULT_ENCODING_TABLE =
 		{
 			(byte) 'A', (byte) 'B', (byte) 'C', (byte) 'D', (byte) 'E', (byte) 'F', (byte) 'G',
 			(byte) 'H', (byte) 'I', (byte) 'J', (byte) 'K', (byte) 'L', (byte) 'M', (byte) 'N',
@@ -26,21 +26,12 @@ public class Base32Encoder implements Encoder {
 	private final byte padding;
 	private final byte[] decodingTable = new byte[128];
 
-	protected void initialiseDecodingTable() {
-		for (int i = 0; i < decodingTable.length; i++) {
-			decodingTable[i] = (byte) 0xff;
-		}
-
-		for (int i = 0; i < encodingTable.length; i++) {
-			decodingTable[encodingTable[i]] = (byte) i;
-		}
-	}
 
 	/**
 	 * Base constructor for RFC 4648, Section 6.
 	 */
 	public Base32Encoder() {
-		this.encodingTable = DEAULT_ENCODING_TABLE;
+		this.encodingTable = DEFAULT_ENCODING_TABLE;
 		this.padding = DEFAULT_PADDING;
 
 		initialiseDecodingTable();
@@ -61,6 +52,16 @@ public class Base32Encoder implements Encoder {
 		this.padding = padding;
 
 		initialiseDecodingTable();
+	}
+
+	protected void initialiseDecodingTable() {
+		for (int i = 0; i < decodingTable.length; i++) {
+			decodingTable[i] = (byte) 0xff;
+		}
+
+		for (int i = 0; i < encodingTable.length; i++) {
+			decodingTable[encodingTable[i]] = (byte) i;
+		}
 	}
 
 	public int encode(byte[] inBuf, int inOff, int inLen, byte[] outBuf, int outOff) throws IOException {
@@ -304,8 +305,8 @@ public class Base32Encoder implements Encoder {
 
 
 	private int decodeLastBlock(OutputStream out,
-								char c1, char c2, char c3, char c4,
-								char c5, char c6, char c7, char c8)
+		char c1, char c2, char c3, char c4,
+		char c5, char c6, char c7, char c8)
 		throws IOException {
 		byte b1, b2, b3, b4, b5, b6, b7, b8;
 

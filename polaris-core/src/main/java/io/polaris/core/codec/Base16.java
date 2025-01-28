@@ -8,8 +8,8 @@ import java.io.OutputStream;
  * @author Qt
  * @since 1.8
  */
-public class HexCodec {
-	private static final HexEncoder encoder = new HexEncoder();
+public class Base16 {
+	private static final Base16Encoder encoder = new Base16Encoder();
 
 	public static String encodeToString(byte[] data) {
 		return encodeToString(data, 0, data.length);
@@ -21,32 +21,32 @@ public class HexCodec {
 	}
 
 	/**
-	 * encode the input data producing a HexCodec encoded byte array.
+	 * encode the input data producing a Base16 encoded byte array.
 	 *
-	 * @return a byte array containing the HexCodec encoded data.
+	 * @return a byte array containing the Base16 encoded data.
 	 */
 	public static byte[] encode(byte[] data) {
 		return encode(data, 0, data.length);
 	}
 
 	/**
-	 * encode the input data producing a HexCodec encoded byte array.
+	 * encode the input data producing a Base16 encoded byte array.
 	 *
-	 * @return a byte array containing the HexCodec encoded data.
+	 * @return a byte array containing the Base16 encoded data.
 	 */
 	public static byte[] encode(byte[] data, int off, int length) {
 		ByteArrayOutputStream bOut = new ByteArrayOutputStream();
 		try {
 			encoder.encode(data, off, length, bOut);
 		} catch (Exception e) {
-			throw new CodecException("exception encoding HexCodec string: " + e.getMessage(), e);
+			throw new CodecException("exception encoding Base16 string: " + e.getMessage(), e);
 		}
 
 		return bOut.toByteArray();
 	}
 
 	/**
-	 * HexCodec encode the byte data writing it to the given output stream.
+	 * Base16 encode the byte data writing it to the given output stream.
 	 *
 	 * @return the number of bytes produced.
 	 */
@@ -55,7 +55,7 @@ public class HexCodec {
 	}
 
 	/**
-	 * HexCodec encode the byte data writing it to the given output stream.
+	 * Base16 encode the byte data writing it to the given output stream.
 	 *
 	 * @return the number of bytes produced.
 	 */
@@ -65,7 +65,7 @@ public class HexCodec {
 	}
 
 	/**
-	 * decode the HexCodec encoded input data. It is assumed the input data is valid.
+	 * decode the Base16 encoded input data. It is assumed the input data is valid.
 	 *
 	 * @return a byte array representing the decoded data.
 	 */
@@ -75,14 +75,14 @@ public class HexCodec {
 		try {
 			encoder.decode(data, 0, data.length, bOut);
 		} catch (Exception e) {
-			throw new CodecException("exception decoding HexCodec data: " + e.getMessage(), e);
+			throw new CodecException("exception decoding Base16 data: " + e.getMessage(), e);
 		}
 
 		return bOut.toByteArray();
 	}
 
 	/**
-	 * decode the HexCodec encoded String data - whitespace will be ignored.
+	 * decode the Base16 encoded String data - whitespace will be ignored.
 	 *
 	 * @return a byte array representing the decoded data.
 	 */
@@ -92,14 +92,14 @@ public class HexCodec {
 		try {
 			encoder.decode(data, bOut);
 		} catch (Exception e) {
-			throw new CodecException("exception decoding HexCodec string: " + e.getMessage(), e);
+			throw new CodecException("exception decoding Base16 string: " + e.getMessage(), e);
 		}
 
 		return bOut.toByteArray();
 	}
 
 	/**
-	 * decode the HexCodec encoded String data writing it to the given output stream,
+	 * decode the Base16 encoded String data writing it to the given output stream,
 	 * whitespace characters will be ignored.
 	 *
 	 * @return the number of bytes produced.
@@ -119,7 +119,7 @@ public class HexCodec {
 		try {
 			return encoder.decodeStrict(str, 0, str.length());
 		} catch (Exception e) {
-			throw new CodecException("exception decoding HexCodec string: " + e.getMessage(), e);
+			throw new CodecException("exception decoding Base16 string: " + e.getMessage(), e);
 		}
 	}
 
@@ -133,7 +133,7 @@ public class HexCodec {
 		try {
 			return encoder.decodeStrict(str, off, len);
 		} catch (Exception e) {
-			throw new CodecException("exception decoding HexCodec string: " + e.getMessage(), e);
+			throw new CodecException("exception decoding Base16 string: " + e.getMessage(), e);
 		}
 	}
 }

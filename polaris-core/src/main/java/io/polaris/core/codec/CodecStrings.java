@@ -1,30 +1,10 @@
 package io.polaris.core.codec;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-
 /**
  * @author Qt
  * @since 1.8
  */
 class CodecStrings {
-	static String LINE_SEPARATOR;
-
-	static {
-		try {
-			LINE_SEPARATOR = AccessController.doPrivileged(new PrivilegedAction<String>() {
-				public String run() {
-					return System.lineSeparator();
-				}
-			});
-		} catch (Exception e) {
-			try {
-				LINE_SEPARATOR = String.format("%n");
-			} catch (Exception ef) {
-				LINE_SEPARATOR = "\n";   // we're desperate use this...
-			}
-		}
-	}
 
 	public static byte[] toByteArray(char[] chars) {
 		byte[] bytes = new byte[chars.length];
@@ -51,6 +31,10 @@ class CodecStrings {
 			buf[off + i] = (byte) c;
 		}
 		return count;
+	}
+
+	public static String fromCharArray(char[] chars) {
+		return new String(chars);
 	}
 
 	public static String fromByteArray(byte[] bytes) {

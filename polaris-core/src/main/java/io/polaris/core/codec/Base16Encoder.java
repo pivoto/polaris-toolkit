@@ -7,7 +7,7 @@ import java.io.OutputStream;
  * @author Qt
  * @since 1.8
  */
-public class HexEncoder implements Encoder {
+public class Base16Encoder implements Encoder {
 	protected final byte[] encodingTable =
 		{
 			(byte) '0', (byte) '1', (byte) '2', (byte) '3', (byte) '4', (byte) '5', (byte) '6', (byte) '7',
@@ -36,7 +36,7 @@ public class HexEncoder implements Encoder {
 		decodingTable['F'] = decodingTable['f'];
 	}
 
-	public HexEncoder() {
+	public Base16Encoder() {
 		initialiseDecodingTable();
 	}
 
@@ -66,7 +66,7 @@ public class HexEncoder implements Encoder {
 	}
 
 	/**
-	 * encode the input data producing a HexCodec output stream.
+	 * encode the input data producing a Base16 output stream.
 	 *
 	 * @return the number of bytes produced.
 	 */
@@ -93,7 +93,7 @@ public class HexEncoder implements Encoder {
 	}
 
 	/**
-	 * decode the HexCodec encoded byte data writing it to the given output stream,
+	 * decode the Base16 encoded byte data writing it to the given output stream,
 	 * whitespace characters will be ignored.
 	 *
 	 * @return the number of bytes produced.
@@ -130,7 +130,7 @@ public class HexEncoder implements Encoder {
 			b2 = decodingTable[data[i++]];
 
 			if ((b1 | b2) < 0) {
-				throw new IOException("invalid characters encountered in HexCodec data");
+				throw new IOException("invalid characters encountered in Base16 data");
 			}
 
 			buf[bufOff++] = (byte) ((b1 << 4) | b2);
@@ -150,7 +150,7 @@ public class HexEncoder implements Encoder {
 	}
 
 	/**
-	 * decode the HexCodec encoded String data writing it to the given output stream,
+	 * decode the Base16 encoded String data writing it to the given output stream,
 	 * whitespace characters will be ignored.
 	 *
 	 * @return the number of bytes produced.
@@ -187,7 +187,7 @@ public class HexEncoder implements Encoder {
 			b2 = decodingTable[data.charAt(i++)];
 
 			if ((b1 | b2) < 0) {
-				throw new IOException("invalid characters encountered in HexCodec string");
+				throw new IOException("invalid characters encountered in Base16 string");
 			}
 
 			buf[bufOff++] = (byte) ((b1 << 4) | b2);
@@ -228,7 +228,7 @@ public class HexEncoder implements Encoder {
 
 			int n = (b1 << 4) | b2;
 			if (n < 0) {
-				throw new IOException("invalid characters encountered in HexCodec string");
+				throw new IOException("invalid characters encountered in Base16 string");
 			}
 
 			result[i] = (byte) n;
