@@ -1,10 +1,12 @@
 package io.polaris.core.err;
 
-import io.polaris.core.collection.Iterables;
-import io.polaris.core.consts.StdConsts;
-
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.List;
+
+import io.polaris.core.collection.Iterables;
+import io.polaris.core.consts.StdConsts;
 
 /**
  * @author Qt
@@ -31,7 +33,7 @@ public class MultipleException extends IllegalArgumentException {
 
 	private static String nullSafeMessage(Throwable failure) {
 		String str = failure.getMessage();
-		if ((str == null || str.trim().length() == 0)) {
+		if ((str == null || str.trim().isEmpty())) {
 			return failure.getClass().getName() + ": <no message>";
 		}
 		return failure.getClass().getName() + ": " + failure.getMessage();
@@ -39,6 +41,7 @@ public class MultipleException extends IllegalArgumentException {
 
 	@Override
 	public String getMessage() {
+		getStackTrace();
 		int failureCount = this.failures.size();
 		String heading = super.getMessage();
 		if (failureCount == 0) {
@@ -57,6 +60,21 @@ public class MultipleException extends IllegalArgumentException {
 		builder.append('\t').append(nullSafeMessage(this.failures.get(lastIndex)));
 
 		return builder.toString();
+	}
+
+
+	@Override
+	public void printStackTrace(PrintStream s) {
+		for (Throwable e : failures) {
+			e.printStackTrace(s);
+		}
+	}
+
+	@Override
+	public void printStackTrace(PrintWriter s) {
+		for (Throwable e : failures) {
+			e.printStackTrace(s);
+		}
 	}
 
 	public List<Throwable> getFailures() {
