@@ -5,10 +5,13 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+
+import io.polaris.core.concurrent.queue.MemorySafeLinkedBlockingQueue;
 
 /**
  * @author Qt
@@ -20,7 +23,10 @@ public class Executors {
 	public static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.MILLISECONDS;
 	private static int defaultKeepAliveTime = KEEP_ALIVE_TIME;
 	private static TimeUnit defaultKeepAliveTimeUnit = KEEP_ALIVE_TIME_UNIT;
-	private static RejectedExecutionHandler defaultRejectedPolicy = new ThreadPoolExecutor.CallerRunsPolicy();
+	private static RejectedExecutionHandler defaultRejectedPolicy = RejectedPolicy.CALLER_RUNS.policy();
+	private static int defaultQueueSize = 1000;
+
+	// region default param
 
 	public static int getDefaultKeepAliveTime() {
 		return defaultKeepAliveTime;
@@ -46,39 +52,64 @@ public class Executors {
 		return defaultRejectedPolicy;
 	}
 
-	static BlockingQueue<Runnable> createDefaultBlockingQueue() {
-		return new LinkedBlockingQueue<>(1000);
+	public static int getDefaultQueueSize() {
+		return defaultQueueSize;
 	}
 
-	public static ThreadPoolExecutor create(int core, final String threadNamePrefix) {
+	public static void setDefaultQueueSize(int defaultQueueSize) {
+		Executors.defaultQueueSize = defaultQueueSize;
+	}
+
+	// endregion
+
+
+	static BlockingQueue<Runnable> createDefaultBlockingQueue() {
+		return createBlockingQueue(defaultQueueSize);
+	}
+
+	public static BlockingQueue<Runnable> createBlockingQueue(int queueSize) {
+		if (queueSize > 0) {
+			return new LinkedBlockingQueue<>(queueSize);
+		}
+		if (queueSize == 0) {
+			return new SynchronousQueue<>();
+		}
+		return new MemorySafeLinkedBlockingQueue<>();
+	}
+
+	public static ThreadPoolExecutor create(int core, String threadNamePrefix) {
 		return create((WrappingTaskFactory) null, core, core, threadNamePrefix, true);
 	}
 
-	public static ThreadPoolExecutor create(int core, int max, final String threadNamePrefix) {
+	public static ThreadPoolExecutor create(int core, int max, String threadNamePrefix) {
 		return create((WrappingTaskFactory) null, core, max, threadNamePrefix, true);
 	}
 
-	public static ThreadPoolExecutor create(int core, final String threadNamePrefix, final boolean isDaemon) {
-		return create((WrappingTaskFactory) null, core, core, createDefaultBlockingQueue(), threadNamePrefix, isDaemon);
+	public static ThreadPoolExecutor create(int core, String threadNamePrefix, boolean isDaemon) {
+		return create((WrappingTaskFactory) null, core, core, threadNamePrefix, isDaemon);
 	}
 
-	public static ThreadPoolExecutor create(int core, int max, final String threadNamePrefix, final boolean isDaemon) {
+	public static ThreadPoolExecutor create(int core, String threadNamePrefix, int queueSize, boolean isDaemon) {
+		return create((WrappingTaskFactory) null, core, threadNamePrefix, isDaemon);
+	}
+
+	public static ThreadPoolExecutor create(int core, int max, String threadNamePrefix, boolean isDaemon) {
 		return create((WrappingTaskFactory) null, core, max, createDefaultBlockingQueue(), threadNamePrefix, isDaemon);
 	}
 
-	public static ThreadPoolExecutor create(int core, BlockingQueue<Runnable> blockingQueue, final String threadNamePrefix, final boolean isDaemon) {
+	public static ThreadPoolExecutor create(int core, BlockingQueue<Runnable> blockingQueue, String threadNamePrefix, boolean isDaemon) {
 		return create((WrappingTaskFactory) null, core, core, blockingQueue, new PooledThreadFactory().withPrefix(threadNamePrefix).withDaemon(isDaemon)
 		);
 	}
 
-	public static ThreadPoolExecutor create(int core, int max, BlockingQueue<Runnable> blockingQueue, final String threadNamePrefix, final boolean isDaemon) {
+	public static ThreadPoolExecutor create(int core, int max, BlockingQueue<Runnable> blockingQueue, String threadNamePrefix, boolean isDaemon) {
 		return create((WrappingTaskFactory) null, core, max, blockingQueue, new PooledThreadFactory().withPrefix(threadNamePrefix).withDaemon(isDaemon)
 		);
 	}
 
 
 	public static ThreadPoolExecutor create(int core, ThreadFactory threadFactory) {
-		return create((WrappingTaskFactory) null, core, core, createDefaultBlockingQueue(), threadFactory);
+		return create((WrappingTaskFactory) null, core, threadFactory);
 	}
 
 	public static ThreadPoolExecutor create(int core, int max, ThreadFactory threadFactory) {
@@ -99,35 +130,35 @@ public class Executors {
 	}
 
 
-	public static ThreadPoolExecutor create(WrappingTaskFactory wrappingTaskFactory, int core, final String threadNamePrefix) {
+	public static ThreadPoolExecutor create(WrappingTaskFactory wrappingTaskFactory, int core, String threadNamePrefix) {
 		return create(wrappingTaskFactory, core, core, threadNamePrefix, true);
 	}
 
-	public static ThreadPoolExecutor create(WrappingTaskFactory wrappingTaskFactory, int core, int max, final String threadNamePrefix) {
+	public static ThreadPoolExecutor create(WrappingTaskFactory wrappingTaskFactory, int core, int max, String threadNamePrefix) {
 		return create(wrappingTaskFactory, core, max, threadNamePrefix, true);
 	}
 
-	public static ThreadPoolExecutor create(WrappingTaskFactory wrappingTaskFactory, int core, final String threadNamePrefix, final boolean isDaemon) {
-		return create(wrappingTaskFactory, core, core, createDefaultBlockingQueue(), threadNamePrefix, isDaemon);
+	public static ThreadPoolExecutor create(WrappingTaskFactory wrappingTaskFactory, int core, String threadNamePrefix, boolean isDaemon) {
+		return create(wrappingTaskFactory, core, core, threadNamePrefix, isDaemon);
 	}
 
-	public static ThreadPoolExecutor create(WrappingTaskFactory wrappingTaskFactory, int core, int max, final String threadNamePrefix, final boolean isDaemon) {
+	public static ThreadPoolExecutor create(WrappingTaskFactory wrappingTaskFactory, int core, int max, String threadNamePrefix, boolean isDaemon) {
 		return create(wrappingTaskFactory, core, max, createDefaultBlockingQueue(), threadNamePrefix, isDaemon);
 	}
 
-	public static ThreadPoolExecutor create(WrappingTaskFactory wrappingTaskFactory, int core, BlockingQueue<Runnable> blockingQueue, final String threadNamePrefix, final boolean isDaemon) {
+	public static ThreadPoolExecutor create(WrappingTaskFactory wrappingTaskFactory, int core, BlockingQueue<Runnable> blockingQueue, String threadNamePrefix, boolean isDaemon) {
 		return create(wrappingTaskFactory, core, core, blockingQueue, new PooledThreadFactory().withPrefix(threadNamePrefix).withDaemon(isDaemon)
 		);
 	}
 
-	public static ThreadPoolExecutor create(WrappingTaskFactory wrappingTaskFactory, int core, int max, BlockingQueue<Runnable> blockingQueue, final String threadNamePrefix, final boolean isDaemon) {
+	public static ThreadPoolExecutor create(WrappingTaskFactory wrappingTaskFactory, int core, int max, BlockingQueue<Runnable> blockingQueue, String threadNamePrefix, boolean isDaemon) {
 		return create(wrappingTaskFactory, core, max, blockingQueue, new PooledThreadFactory().withPrefix(threadNamePrefix).withDaemon(isDaemon)
 		);
 	}
 
 
 	public static ThreadPoolExecutor create(WrappingTaskFactory wrappingTaskFactory, int core, ThreadFactory threadFactory) {
-		return create(wrappingTaskFactory, core, core, createDefaultBlockingQueue(), threadFactory);
+		return create(wrappingTaskFactory, core, core, threadFactory);
 	}
 
 	public static ThreadPoolExecutor create(WrappingTaskFactory wrappingTaskFactory, int core, int max, ThreadFactory threadFactory) {
