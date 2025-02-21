@@ -328,11 +328,11 @@ public class Dates implements DateConsts {
 	}
 
 	public static int diffMonths(Date t1, Date t2) {
-		return diffYears(toLocalDateTime(t1), toLocalDateTime(t2));
+		return diffMonths(toLocalDateTime(t1), toLocalDateTime(t2));
 	}
 
-	public static int diffDays(Date t1, Date t2) {
-		return diffYears(toLocalDateTime(t1), toLocalDateTime(t2));
+	public static long diffDays(Date t1, Date t2) {
+		return diffDays(toLocalDateTime(t1), toLocalDateTime(t2));
 	}
 
 
@@ -359,7 +359,7 @@ public class Dates implements DateConsts {
 
 	public static int diffMonths(TemporalAccessor t1, TemporalAccessor t2) {
 		Period period = Period.between(toLocalDate(t1), toLocalDate(t2));
-		return period.getYears()* 12 + period.getMonths();
+		return period.getYears() * 12 + period.getMonths();
 	}
 
 	public static long diffDays(TemporalAccessor t1, TemporalAccessor t2) {
