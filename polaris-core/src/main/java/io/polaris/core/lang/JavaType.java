@@ -109,7 +109,7 @@ public class JavaType<T> implements Type {
 	@Nonnull
 	public Type getActualType(Class<?> genericClass, int typeParameterIndex) {
 		TypeVariable<? extends Class<?>>[] typeParameters = genericClass.getTypeParameters();
-		if (typeParameters.length < typeParameterIndex) {
+		if (typeParameters.length <= typeParameterIndex) {
 			throw new IndexOutOfBoundsException();
 		}
 		TypeVariable<?> variable = typeParameters[typeParameterIndex];
