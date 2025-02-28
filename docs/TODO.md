@@ -18,6 +18,10 @@
   - [x] 添加SQL逻辑删除的支持(注解声明与主动编码)
   - [ ] 添加SQL默认排序注解支持
   - [ ] 支持Mybatis非Map类型的入参（转为直接sql拼接）
+  - 考虑实现自定义ORM工具，或直接引用Mybatis底层API，以支持框架内部场景的SQL管理，独立生命周期
+    - 借鉴mybatis的org.apache.ibatis.scripting.xmltags下的SqlNode
+    - SqlTextParsers.parse
+    - IfSqlNode(if/elif/else)、ForeachSqlNode、TrimSqlNode
 - 其他工具库
   - [x] 滑动窗口统计工具
   - [ ] 集群模式工具（注册节点、健康检测、分布式锁、分布式事务）
