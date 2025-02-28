@@ -5,11 +5,14 @@ import java.io.StringWriter;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
+
+import io.polaris.core.function.Executable;
 
 /**
  * @author Qt
@@ -18,6 +21,7 @@ import javax.annotation.Nonnull;
 public class Exceptions {
 
 
+	@SuppressWarnings("unchecked")
 	public static <T extends Exception> T of(Throwable t, Class<T> type, Function<Throwable, T> builder) {
 		if (t == null) {
 			return builder.apply(t);
@@ -34,6 +38,7 @@ public class Exceptions {
 		return builder.apply(t);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <T extends Exception> T of(Throwable t, Class<T> type, Supplier<T> builder) {
 		if (t == null) {
 			return builder.get();
@@ -110,5 +115,110 @@ public class Exceptions {
 		PrintWriter pw = new PrintWriter(sw, true);
 		t.printStackTrace(pw);
 		return sw.toString();
+	}
+
+	public static void quietlyClose(AutoCloseable closeable) {
+		if (closeable != null) {
+			try {
+				closeable.close();
+			} catch (Throwable e) {
+				// ignore
+			}
+		}
+	}
+
+	public static void quietlyClose(AutoCloseable closeable, Throwable t) {
+		if (closeable != null) {
+			try {
+				closeable.close();
+			} catch (Throwable e) {
+				t.addSuppressed(e);
+			}
+		}
+	}
+
+	public static void runQuietly(Runnable runnable) {
+		if (runnable != null) {
+			try {
+				runnable.run();
+			} catch (Throwable e) {
+				// ignore
+			}
+		}
+	}
+
+	public static void runQuietly(Runnable runnable, Throwable t) {
+		if (runnable != null) {
+			try {
+				runnable.run();
+			} catch (Throwable e) {
+				t.addSuppressed(e);
+			}
+		}
+	}
+
+	public static <T> T getQuietly(Supplier<T> supplier) {
+		if (supplier != null) {
+			try {
+				return supplier.get();
+			} catch (Throwable e) {
+				// ignore
+			}
+		}
+		return null;
+	}
+
+	public static <T> T getQuietly(Supplier<T> supplier, Throwable t) {
+		if (supplier != null) {
+			try {
+				return supplier.get();
+			} catch (Throwable e) {
+				t.addSuppressed(e);
+			}
+		}
+		return null;
+	}
+
+	public static void executeQuietly(Executable executable) {
+		if (executable != null) {
+			try {
+				executable.execute();
+			} catch (Throwable e) {
+				// ignore
+			}
+		}
+	}
+
+	public static void executeQuietly(Executable executable, Throwable t) {
+		if (executable != null) {
+			try {
+				executable.execute();
+			} catch (Throwable e) {
+				t.addSuppressed(e);
+			}
+		}
+	}
+
+
+	public static <T> T callQuietly(Callable<T> callable) {
+		if (callable != null) {
+			try {
+				return callable.call();
+			} catch (Throwable e) {
+				// ignore
+			}
+		}
+		return null;
+	}
+
+	public static <T> T callQuietly(Callable<T> callable, Throwable t) {
+		if (callable != null) {
+			try {
+				return callable.call();
+			} catch (Throwable e) {
+				t.addSuppressed(e);
+			}
+		}
+		return null;
 	}
 }
