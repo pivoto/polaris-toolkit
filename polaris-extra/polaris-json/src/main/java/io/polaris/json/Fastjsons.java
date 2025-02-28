@@ -224,16 +224,21 @@ public class Fastjsons {
 		}
 	}
 
-	public static Object toJsonObject(Object obj) {
-		return JSON.toJSON(obj, writerFeatures);
+	public static JSONObject toJsonObject(Object obj) {
+		// fix 由于fastjson转换JSONObject对象在不同版本表现有差异，所以这里使用parseObject
+		//return JSON.toJSON(obj, writerFeatures);
+		return toJsonObject(toJsonString(obj));
 	}
 
-	public static Object toJsonObjectWithClassName(Object obj) {
-		return JSON.toJSON(obj, writerClassNameFeatures);
+	public static JSONObject toJsonObjectWithClassName(Object obj) {
+		// fix 由于fastjson转换JSONObject对象在不同版本表现有差异，所以这里使用parseObject
+		//return JSON.toJSON(obj, writerClassNameFeatures);
+		return toJsonObject(toJsonString(obj, writerClassNameFeatures));
 	}
 
-	public static Object toJsonObject(Object obj, JSONWriter.Feature... features) {
-		return JSON.toJSON(obj, merge(writerFeatures, features));
+	public static JSONObject toJsonObject(Object obj, JSONWriter.Feature... features) {
+		// fix 由于fastjson转换JSONObject对象在不同版本表现有差异，所以这里使用parseObject
+		return toJsonObject(toJsonString(obj, features));
 	}
 
 	public static Object toJson(String text) {
