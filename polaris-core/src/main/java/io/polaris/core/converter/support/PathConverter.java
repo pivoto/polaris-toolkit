@@ -36,7 +36,7 @@ public class PathConverter extends AbstractSimpleConverter<Path> {
 				return ((File)value).toPath();
 			}
 
-			return Paths.get(asString(value));
+			return Paths.get(asSimpleString(value));
 		} catch (Exception ignore) {
 		}
 		return null;

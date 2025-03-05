@@ -19,6 +19,6 @@ public class UUIDConverter extends AbstractSimpleConverter<UUID> {
 
 	@Override
 	protected UUID doConvert(Object value, JavaType<UUID> targetType) {
-		return UUID.fromString(asString(value));
+		return UUID.fromString(asSimpleString(value));
 	}
 }

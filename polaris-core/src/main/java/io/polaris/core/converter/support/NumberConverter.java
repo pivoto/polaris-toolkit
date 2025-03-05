@@ -83,7 +83,7 @@ public class NumberConverter<T extends Number> extends AbstractSimpleConverter<T
 			} else if (value instanceof Boolean) {
 				return (T) (((Boolean) value).booleanValue() ? Integer.valueOf(1) : Integer.valueOf(0));
 			}
-			return (T) parseNumber(asString(value));
+			return (T) parseNumber(asSimpleString(value));
 		}
 		return null;
 	}
@@ -94,7 +94,7 @@ public class NumberConverter<T extends Number> extends AbstractSimpleConverter<T
 		} else if (value instanceof Boolean) {
 			return (((Boolean) value).booleanValue() ? Byte.valueOf((byte) 1) : Byte.valueOf((byte) 0));
 		}
-		String str = asString(value);
+		String str = asSimpleString(value);
 		try {
 			return Byte.valueOf(str);
 		} catch (NumberFormatException e) {
@@ -109,7 +109,7 @@ public class NumberConverter<T extends Number> extends AbstractSimpleConverter<T
 		} else if (value instanceof Boolean) {
 			return (((Boolean) value).booleanValue() ? Short.valueOf((short) 1) : Short.valueOf((short) 0));
 		}
-		String str = asString(value);
+		String str = asSimpleString(value);
 		try {
 			return Short.valueOf(str);
 		} catch (NumberFormatException e) {
@@ -130,7 +130,7 @@ public class NumberConverter<T extends Number> extends AbstractSimpleConverter<T
 		} else if (value instanceof TemporalAccessor) {
 			return (int) Dates.toMills(Dates.toLocalDateTime((TemporalAccessor) value));
 		}
-		String str = asString(value);
+		String str = asSimpleString(value);
 		try {
 			return Integer.valueOf(str);
 		} catch (NumberFormatException e) {
@@ -150,7 +150,7 @@ public class NumberConverter<T extends Number> extends AbstractSimpleConverter<T
 		} else if (value instanceof TemporalAccessor) {
 			return Dates.toMills(Dates.toLocalDateTime((TemporalAccessor) value));
 		}
-		String str = asString(value);
+		String str = asSimpleString(value);
 		try {
 			return Long.valueOf(str);
 		} catch (NumberFormatException e) {
@@ -164,7 +164,7 @@ public class NumberConverter<T extends Number> extends AbstractSimpleConverter<T
 		} else if (value instanceof Boolean) {
 			return ((Boolean) value).booleanValue() ? Float.valueOf(1) : Float.valueOf(0);
 		}
-		String str = asString(value);
+		String str = asSimpleString(value);
 		try {
 			return Float.valueOf(str);
 		} catch (NumberFormatException e) {
@@ -177,7 +177,7 @@ public class NumberConverter<T extends Number> extends AbstractSimpleConverter<T
 		} else if (value instanceof Boolean) {
 			return ((Boolean) value).booleanValue() ? Double.valueOf(1) : Double.valueOf(0);
 		}
-		String str = asString(value);
+		String str = asSimpleString(value);
 		try {
 			return Double.valueOf(str);
 		} catch (NumberFormatException e) {
@@ -226,7 +226,7 @@ public class NumberConverter<T extends Number> extends AbstractSimpleConverter<T
 		} else if (value instanceof Boolean) {
 			return ((boolean) value) ? BigDecimal.ONE : BigDecimal.ZERO;
 		}
-		String str = asString(value);
+		String str = asSimpleString(value);
 		Number number = parseNumber(str);
 		if (number != null) {
 			return toBigDecimal(number);
@@ -262,7 +262,7 @@ public class NumberConverter<T extends Number> extends AbstractSimpleConverter<T
 		} else if (value instanceof Number) {
 			return BigInteger.valueOf(((Number) value).longValue());
 		}
-		String str = Strings.trimToNull(asString(value));
+		String str = Strings.trimToNull(asSimpleString(value));
 		if (str == null) {
 			return BigInteger.ZERO;
 		}

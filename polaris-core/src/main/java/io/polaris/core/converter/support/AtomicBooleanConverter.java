@@ -26,7 +26,7 @@ public class AtomicBooleanConverter extends AbstractSimpleConverter<AtomicBoolea
 		if (value instanceof Number) {
 			return new AtomicBoolean(0 != ((Number) value).intValue());
 		}
-		String valueStr = asString(value);
+		String valueStr = asSimpleString(value);
 		return new AtomicBoolean(Booleans.parseBoolean(valueStr));
 	}
 }

@@ -1,11 +1,11 @@
 package io.polaris.core.converter;
 
+import java.util.Optional;
+
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.json.JsonSerializer;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.service.StatefulServiceLoader;
-
-import java.util.Optional;
 
 /**
  * @author Qt
@@ -38,7 +38,7 @@ public abstract class AbstractSimpleConverter<T> extends AbstractConverter<T> {
 
 	protected abstract T doConvert(Object value, JavaType<T> targetType);
 
-	protected String asString(Object value) {
+	protected String asComplexString(Object value) {
 		if (value == null) {
 			return null;
 		}
@@ -56,6 +56,19 @@ public abstract class AbstractSimpleConverter<T> extends AbstractConverter<T> {
 
 		if (value.getClass().isArray()) {
 			return Iterables.toArrayString(value);
+		}
+		return value.toString();
+	}
+
+	protected String asSimpleString(Object value) {
+		if (value == null) {
+			return null;
+		}
+		if (value instanceof CharSequence) {
+			return value.toString();
+		}
+		if (value instanceof Character) {
+			return String.valueOf((char) value);
 		}
 		return value.toString();
 	}

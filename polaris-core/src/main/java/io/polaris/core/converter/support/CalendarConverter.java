@@ -39,7 +39,7 @@ public class CalendarConverter extends AbstractSimpleConverter<Calendar> {
 		} else if (value instanceof Long) {
 			cal.setTimeInMillis(((Long) value));
 		} else {
-			String valueStr = asString(value);
+			String valueStr = asSimpleString(value);
 			Date date = Dates.parseDate(valueStr);
 			cal.setTime(date);
 		}

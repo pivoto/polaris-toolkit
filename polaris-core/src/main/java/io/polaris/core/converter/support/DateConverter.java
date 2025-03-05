@@ -45,6 +45,7 @@ public class DateConverter<T extends Date> extends AbstractSimpleConverter<T> {
 		return targetType;
 	}
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
 	protected T doConvert(Object value, JavaType<T> type) {
 		if (value == null || (value instanceof CharSequence && Strings.isBlank(value.toString()))) {
@@ -80,7 +81,7 @@ public class DateConverter<T extends Date> extends AbstractSimpleConverter<T> {
 		if (value instanceof Number) {
 			return Dates.toDate(((Number) value).longValue());
 		}
-		String valueStr = asString(value);
+		String valueStr = asSimpleString(value);
 		Date date = Strings.isBlank(format) ? Dates.parseDate(valueStr) : Dates.parseDate(format, valueStr);
 		return date;
 	}

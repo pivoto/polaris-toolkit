@@ -19,6 +19,6 @@ public class TimeZoneConverter extends AbstractSimpleConverter<TimeZone> {
 
 	@Override
 	protected TimeZone doConvert(Object value, JavaType<TimeZone> targetType) {
-		return TimeZone.getTimeZone(asString(value));
+		return TimeZone.getTimeZone(asSimpleString(value));
 	}
 }

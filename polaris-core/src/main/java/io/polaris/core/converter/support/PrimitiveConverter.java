@@ -25,8 +25,8 @@ public class PrimitiveConverter extends AbstractSimpleConverter<Object> {
 	}
 
 	@Override
-	protected String asString(Object value) {
-		return Strings.trimToEmpty(super.asString(value));
+	protected String asComplexString(Object value) {
+		return Strings.trimToEmpty(super.asSimpleString(value));
 	}
 
 	@Override

@@ -21,7 +21,7 @@ public class ClassConverter extends AbstractSimpleConverter<Class<?>> {
 
 	@Override
 	protected Class<?> doConvert(Object value, JavaType<Class<?>> targetType) {
-		String str = asString(value);
+		String str = asSimpleString(value);
 		try {
 			Class<?> c = Reflects.loadClass(str.trim());
 			return c;

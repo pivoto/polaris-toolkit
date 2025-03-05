@@ -24,7 +24,7 @@ public class DurationConverter extends AbstractSimpleConverter<Duration> {
 		} else if(value instanceof Long){
 			return Duration.ofMillis((Long) value);
 		} else {
-			return Duration.parse(asString(value));
+			return Duration.parse(asSimpleString(value));
 		}
 	}
 }

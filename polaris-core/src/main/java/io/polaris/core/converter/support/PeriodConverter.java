@@ -25,7 +25,7 @@ public class PeriodConverter extends AbstractSimpleConverter<Period> {
 		} else if (value instanceof Integer) {
 			return Period.ofDays((Integer) value);
 		} else {
-			return Period.parse(asString(value));
+			return Period.parse(asSimpleString(value));
 		}
 	}
 }

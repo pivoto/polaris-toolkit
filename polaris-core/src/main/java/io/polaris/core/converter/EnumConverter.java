@@ -27,7 +27,7 @@ public class EnumConverter<T extends Enum<T>> extends AbstractSimpleConverter<T>
 			int i = ((Number) value).intValue();
 			return i >= 0 && i < enumConstants.length ? enumConstants[i] : null;
 		} else {
-			return (T) Enum.valueOf(targetType.getRawClass(), asString(value));
+			return (T) Enum.valueOf(targetType.getRawClass(), asSimpleString(value));
 		}
 	}
 

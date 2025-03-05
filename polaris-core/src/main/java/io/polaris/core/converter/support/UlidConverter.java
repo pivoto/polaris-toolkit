@@ -18,6 +18,6 @@ public class UlidConverter extends AbstractSimpleConverter<Ulid> {
 
 	@Override
 	protected Ulid doConvert(Object value, JavaType<Ulid> targetType) {
-		return Ulid.from(asString(value));
+		return Ulid.from(asSimpleString(value));
 	}
 }

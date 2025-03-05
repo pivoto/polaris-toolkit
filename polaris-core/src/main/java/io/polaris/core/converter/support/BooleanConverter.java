@@ -25,6 +25,6 @@ public class BooleanConverter extends AbstractSimpleConverter<Boolean> {
 			// 0为false，其它数字为true
 			return 0 != ((Number) value).intValue();
 		}
-		return Booleans.parseBoolean(asString(value));
+		return Booleans.parseBoolean(asSimpleString(value));
 	}
 }

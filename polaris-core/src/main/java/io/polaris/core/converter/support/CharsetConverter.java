@@ -19,7 +19,7 @@ public class CharsetConverter extends AbstractSimpleConverter<Charset> {
 	}
 	@Override
 	protected Charset doConvert(Object value, JavaType<Charset> targetType) {
-		String str = asString(value);
+		String str = asSimpleString(value);
 		return Strings.isBlank(str) ? Charset.defaultCharset() : Charset.forName(str);
 	}
 }

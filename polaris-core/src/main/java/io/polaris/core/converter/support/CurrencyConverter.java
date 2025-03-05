@@ -19,6 +19,6 @@ public class CurrencyConverter extends AbstractSimpleConverter<Currency> {
 
 	@Override
 	protected Currency doConvert(Object value, JavaType<Currency> targetType) {
-		return Currency.getInstance(asString(value));
+		return Currency.getInstance(asSimpleString(value));
 	}
 }

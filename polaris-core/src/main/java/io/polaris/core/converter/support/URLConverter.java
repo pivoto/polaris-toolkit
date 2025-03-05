@@ -29,7 +29,7 @@ public class URLConverter extends AbstractSimpleConverter<URL> {
 			if (value instanceof URI) {
 				return ((URI) value).toURL();
 			}
-			return new URL(asString(value));
+			return new URL(asSimpleString(value));
 		} catch (Exception ignore) {
 		}
 		return null;

@@ -22,7 +22,7 @@ public class LocaleConverter extends AbstractSimpleConverter<Locale> {
 	@Override
 	protected Locale doConvert(Object value, JavaType<Locale> targetType) {
 		try {
-			String str = asString(value);
+			String str = asSimpleString(value);
 			if (Strings.isBlank(str)) {
 				return null;
 			}

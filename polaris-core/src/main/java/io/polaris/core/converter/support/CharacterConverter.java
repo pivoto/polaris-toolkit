@@ -21,7 +21,7 @@ public class CharacterConverter extends AbstractSimpleConverter<Character> {
 		if (value instanceof Boolean) {
 			return Boolean.TRUE.equals(value) ? (char) 1 : (char) 0;
 		}
-		String valueStr = asString(value);
+		String valueStr = asSimpleString(value);
 		return Strings.isBlank(valueStr) ? null : valueStr.charAt(0);
 	}
 }

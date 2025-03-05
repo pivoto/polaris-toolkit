@@ -41,6 +41,7 @@ public class TemporalAccessorConverter<T extends TemporalAccessor> extends Abstr
 		return targetType;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected T doConvert(Object value, JavaType<T> targetType) {
 		if (value == null || (value instanceof CharSequence && Strings.isBlank(value.toString()))) {
@@ -101,7 +102,7 @@ public class TemporalAccessorConverter<T extends TemporalAccessor> extends Abstr
 		if (value instanceof Number) {
 			return Dates.toLocalDateTime(((Number) value).longValue());
 		}
-		String valueStr = asString(value);
+		String valueStr = asSimpleString(value);
 		return Strings.isBlank(format) ? Dates.parseLocalDateTime(valueStr) : Dates.parseLocalDateTime(format, valueStr);
 	}
 }

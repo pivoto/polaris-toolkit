@@ -36,7 +36,7 @@ public class StringConverter extends AbstractSimpleConverter<String> {
 		} else if (value instanceof Type) {
 			return ((Type) value).getTypeName();
 		}
-		return asString(value);
+		return asComplexString(value);
 	}
 
 	private static String clobToStr(Clob clob) {
