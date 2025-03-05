@@ -217,7 +217,7 @@ public class Jdbcs {
 	public static <T> T query(Connection conn, SqlNode sqlNode, @Nonnull JdbcOptions options
 		, ResultExtractor<T> extractor) throws SQLException {
 		PreparedSql sql = sqlNode.asPreparedSql();
-		return query(conn, sql.getText(), preparerOfParameters(sql.getBindings()), extractor);
+		return query(conn, sql.getText(), options, preparerOfParameters(sql.getBindings()), extractor);
 	}
 
 	public static void query(Connection conn, SqlNode sqlNode, @Nonnull JdbcOptions options
