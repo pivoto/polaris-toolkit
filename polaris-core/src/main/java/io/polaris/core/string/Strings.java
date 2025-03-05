@@ -1,5 +1,7 @@
 package io.polaris.core.string;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -65,6 +67,25 @@ public class Strings {
 			return str;
 		}
 		return str.substring(0, maxLength);
+	}
+
+	public static String truncate(String str, int maxLength, Charset charset) {
+		if (str == null) {
+			return null;
+		}
+		str = str.trim();
+		if (str.length() <= (maxLength / 3)) {
+			return str;
+		}
+		byte[] bytes = str.getBytes(charset);
+		if (bytes.length > maxLength) {
+			str = new String(bytes, 0, maxLength, StandardCharsets.UTF_8);
+		}
+		return str;
+	}
+
+	public static String truncate(String str, int maxLength, String charset) {
+		return truncate(str, maxLength, Charset.forName(charset));
 	}
 
 	public static String padStart(String str, int minLength, char pad) {
