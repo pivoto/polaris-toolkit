@@ -1,5 +1,10 @@
 ## 版本变更说明
 
+### 3.2.56
+- 优化字符串转换逻辑
+- MetaObject 类添加新的 getPathProperty 方法
+- 重构 JDBC 结果集映射逻辑，添加对已知结果类型的提前判定与转换处理
+
 ### 3.2.55
 - 新增异常静默处理方法
 - 修复 Fastjsons 类中 toJsonObject 方法问题
