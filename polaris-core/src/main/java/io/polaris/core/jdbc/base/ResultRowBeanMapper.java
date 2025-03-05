@@ -36,9 +36,14 @@ public class ResultRowBeanMapper<T> extends BaseResultRowMapper<T> {
 	@Override
 	protected T doMap(ResultSet rs, String[] columns) throws SQLException {
 		T bean = metaObject.newInstance();
-		for (int i = 1; i <= columns.length; i++) {
-			String key = columns[i - 1];
-			metaObject.setPathProperty(bean, caseMode, key, rs.getObject(i));
+		if (bean != null) {
+			for (int i = 1; i <= columns.length; i++) {
+				String key = columns[i - 1];
+				// 防止数据库驱动获取的对象类型无法正常转换，这里对常见类型做提前判定
+				MetaObject<?> valMeta = metaObject.getPathProperty(caseMode, key);
+				Object val = BeanMappings.getResultValue(rs, i, valMeta);
+				metaObject.setPathProperty(bean, caseMode, key, val);
+			}
 		}
 		return bean;
 	}

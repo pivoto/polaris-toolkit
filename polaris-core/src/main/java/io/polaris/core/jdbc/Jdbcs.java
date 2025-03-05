@@ -574,7 +574,8 @@ public class Jdbcs {
 				if (rs.next()) {
 					MetaObject metaObject = MetaObject.of((Class) generatedKeyBinding.getClass());
 					for (int i = 0; i < keyProperties.length; i++) {
-						Object val = rs.getObject(i + 1);
+						MetaObject valMeta = metaObject.getPathProperty(keyProperties[i]);
+						Object val = BeanMappings.getResultValue(rs, i + 1, valMeta);
 						metaObject.setPathProperty(generatedKeyBinding, keyProperties[i], val);
 					}
 				}

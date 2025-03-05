@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 
 import io.polaris.core.collection.ObjectArrays;
 import io.polaris.core.jdbc.Jdbcs;
+import io.polaris.core.jdbc.base.BeanMappings;
 import io.polaris.core.jdbc.base.DefaultParameterPreparer;
 import io.polaris.core.jdbc.base.JdbcOptions;
 import io.polaris.core.jdbc.base.StatementPreparer;
@@ -52,7 +53,8 @@ public class JdbcBatch {
 					if (rs.next()) {
 						MetaObject metaObject = MetaObject.of((Class) o.getClass());
 						for (int i = 0; i < keyProperties.length; i++) {
-							Object val = rs.getObject(i + 1);
+							MetaObject valMeta = metaObject.getPathProperty(keyProperties[i]);
+							Object val = BeanMappings.getResultValue(rs, i + 1, valMeta);
 							metaObject.setPathProperty(o, keyProperties[i], val);
 						}
 					} else {

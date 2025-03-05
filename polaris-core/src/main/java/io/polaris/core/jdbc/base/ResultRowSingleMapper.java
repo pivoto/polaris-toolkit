@@ -22,7 +22,7 @@ public class ResultRowSingleMapper<T> extends BaseResultRowMapper<T> {
 
 	@Override
 	public T map(ResultSet rs, String[] columns) throws SQLException {
-		Object o = rs.getObject(1);
+		Object o = BeanMappings.getResultValue(rs, 1, type);
 		return Converters.convertQuietly(type, o);
 	}
 

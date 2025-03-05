@@ -14,7 +14,9 @@ import java.util.Map;
 import java.util.Set;
 
 import io.polaris.core.converter.Converters;
+import io.polaris.core.jdbc.base.BeanMappings;
 import io.polaris.core.jdbc.dbv.annotation.DbvColumn;
+import io.polaris.core.lang.bean.MetaObject;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
 import io.polaris.core.map.CaseInsensitiveMap;

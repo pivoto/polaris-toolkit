@@ -7,10 +7,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.polaris.core.lang.bean.CaseModeOption;
+import io.polaris.core.lang.bean.MetaObject;
 
 /**
  * @author Qt
- * @since  Feb 06, 2024
+ * @since Feb 06, 2024
  */
 public class ResultRowBeanMappingMapper<T> extends BaseResultRowMapper<T> {
 
@@ -30,18 +31,23 @@ public class ResultRowBeanMappingMapper<T> extends BaseResultRowMapper<T> {
 			for (int i = 1; i <= columns.length; i++) {
 				cols.put(columns[i - 1], i);
 			}
-			BeanMappingKit.removeMappingCols(cols, mapping);
+			BeanMappings.removeMappingCols(cols, mapping);
 			unmappedCols = Collections.unmodifiableMap(cols);
 			colsLast = columns;
 		}
 		CaseModeOption caseModel = mapping.getCaseMode();
 		T bean = mapping.getMetaObject().newInstance();
-		for (Map.Entry<String, Integer> entry : unmappedCols.entrySet()) {
-			String key = entry.getKey();
-			Object val = rs.getObject(entry.getValue());
-			mapping.getMetaObject().setPathProperty(bean, caseModel, key, val);
+		if (bean != null) {
+			for (Map.Entry<String, Integer> entry : unmappedCols.entrySet()) {
+				String key = entry.getKey();
+				Integer columnIndex = entry.getValue();
+				// 防止数据库驱动获取的对象类型无法正常转换，这里对常见类型做提前判定
+				MetaObject<?> valMeta = mapping.getMetaObject().getPathProperty(caseModel,key);
+				Object val = BeanMappings.getResultValue(rs, columnIndex, valMeta);
+				mapping.getMetaObject().setPathProperty(bean, caseModel, key, val);
+			}
 		}
-		BeanMappingKit.setProperty(rs, mapping, caseModel, bean);
+		BeanMappings.setProperty(rs, mapping, caseModel, bean);
 		return bean;
 	}
 

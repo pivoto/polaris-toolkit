@@ -1,6 +1,5 @@
 package io.polaris.core.jdbc.base;
 
-import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
@@ -35,7 +34,8 @@ public class ResultRowMapMapper<T extends Map<String, Object>> extends BaseResul
 		T map = mapBuilder.get();
 		for (int i = 1; i <= columns.length; i++) {
 			String key = columns[i - 1];
-			map.put(key, rs.getObject(i));
+			Object val = BeanMappings.getResultValue(rs, i, Object.class);
+			map.put(key, val);
 		}
 		return map;
 	}
