@@ -81,7 +81,7 @@ public enum JdbcDriver {
 	}
 
 	public static JdbcDriver parse(String url) {
-		if (url != null && url.length() > 0 && url.startsWith("jdbc")) {
+		if (url != null && url.startsWith("jdbc")) {
 			for (JdbcDriver driver : values()) {
 				if (driver == UNKNOWN) {
 					continue;
