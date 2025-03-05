@@ -366,6 +366,11 @@ public abstract class MetaObject<T> {
 		return getBeanProperty(caseMode, property);
 	}
 
+	public MetaObject<?> getPathProperty(@Nonnull String property) {
+		return getPathProperty(CaseModeOption.empty(), property);
+	}
+
+
 	public MetaObject<?> getPathProperty(CaseModeOption caseMode, @Nonnull String property) {
 		Deque<String> properties = Beans.parseProperty(property);
 		MetaObject meta = this;
