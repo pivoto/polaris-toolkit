@@ -576,13 +576,6 @@ public class Reflects {
 			;
 	}
 
-	public static Method getPublicMethod(Class<?> clazz, String methodName, Class<?>... paramTypes) {
-		try {
-			return clazz.getMethod(methodName, paramTypes);
-		} catch (NoSuchMethodException ex) {
-			return null;
-		}
-	}
 
 	/**
 	 * 获得本类及其父类所有Public方法
@@ -600,6 +593,224 @@ public class Reflects {
 			}
 		}
 		return methodList;
+	}
+
+	public static Method getPublicMethod(Class<?> clazz, String methodName, Class<?>... argTypes) {
+		try {
+			return clazz.getMethod(methodName, argTypes);
+		} catch (NoSuchMethodException ex) {
+			return null;
+		}
+	}
+
+	public static Method getPublicMethod(Class<?> clazz, String methodName, Class<?>[] argTypes, Class<?> returnType) {
+		try {
+			Method method = clazz.getMethod(methodName, argTypes);
+			if (method.getReturnType() != returnType) {
+				return null;
+			}
+			return method;
+		} catch (NoSuchMethodException ex) {
+			return null;
+		}
+	}
+
+
+	public static Method getPrivateMethod(Class<?> clazz, String name, Class<?>... argTypes) {
+		// see java.io.ObjectStreamClass.getPrivateMethod
+		try {
+			Method method = clazz.getDeclaredMethod(name, argTypes);
+			method.setAccessible(true);
+			int mods = method.getModifiers();
+			return (
+				((mods & Modifier.STATIC) == 0) &&
+					((mods & Modifier.PRIVATE) != 0)
+			) ? method : null;
+		} catch (NoSuchMethodException e) {
+			return null;
+		}
+	}
+
+	public static Method getPrivateMethod(Class<?> clazz, String name, Class<?>[] argTypes, Class<?> returnType) {
+		// see java.io.ObjectStreamClass.getPrivateMethod
+		try {
+			Method method = clazz.getDeclaredMethod(name, argTypes);
+			method.setAccessible(true);
+			int mods = method.getModifiers();
+			return ((method.getReturnType() == returnType) &&
+				((mods & Modifier.STATIC) == 0) &&
+				((mods & Modifier.PRIVATE) != 0)) ? method : null;
+		} catch (NoSuchMethodException e) {
+			return null;
+		}
+	}
+
+	public static Method getPrivateStaticMethod(Class<?> clazz, String name, Class<?>... argTypes) {
+		try {
+			Method method = clazz.getDeclaredMethod(name, argTypes);
+			method.setAccessible(true);
+			int mods = method.getModifiers();
+			return (
+				((mods & Modifier.STATIC) != 0) &&
+					((mods & Modifier.PRIVATE) != 0)
+			) ? method : null;
+		} catch (NoSuchMethodException e) {
+			return null;
+		}
+	}
+
+	public static Method getPrivateStaticMethod(Class<?> clazz, String name, Class<?>[] argTypes, Class<?> returnType) {
+		try {
+			Method method = clazz.getDeclaredMethod(name, argTypes);
+			method.setAccessible(true);
+			int mods = method.getModifiers();
+			return ((method.getReturnType() == returnType) &&
+				((mods & Modifier.STATIC) != 0) &&
+				((mods & Modifier.PRIVATE) != 0)) ? method : null;
+		} catch (NoSuchMethodException e) {
+			return null;
+		}
+	}
+
+	public static Method getInheritableStaticMethod(Class<?> clazz, String name, Class<?>... argTypes) {
+		Method method = null;
+		Class<?> defClass = clazz;
+		while (defClass != null) {
+			try {
+				method = defClass.getDeclaredMethod(name, argTypes);
+				break;
+			} catch (NoSuchMethodException e) {
+				defClass = defClass.getSuperclass();
+			}
+		}
+
+		if (method == null) {
+			return null;
+		}
+		method.setAccessible(true);
+		int mods = method.getModifiers();
+		if ((mods & Modifier.ABSTRACT) == 0) {
+			if ((mods & (Modifier.PUBLIC | Modifier.PROTECTED)) != 0) {
+				if ((mods & Modifier.STATIC) != 0) {
+					return method;
+				}
+			} else if ((mods & Modifier.PRIVATE) != 0) {
+				if (clazz == defClass) {
+					return method;
+				}
+			} else {
+				if ((mods & Modifier.STATIC) != 0 && isSamePackage(clazz, defClass)) {
+					return method;
+				}
+			}
+		}
+		return null;
+	}
+
+	public static Method getInheritableStaticMethod(Class<?> clazz, String name, Class<?>[] argTypes, Class<?> returnType) {
+		Method method = null;
+		Class<?> defClass = clazz;
+		while (defClass != null) {
+			try {
+				method = defClass.getDeclaredMethod(name, argTypes);
+				break;
+			} catch (NoSuchMethodException e) {
+				defClass = defClass.getSuperclass();
+			}
+		}
+
+		if ((method == null) || (method.getReturnType() != returnType)) {
+			return null;
+		}
+		method.setAccessible(true);
+		int mods = method.getModifiers();
+		if ((mods & Modifier.ABSTRACT) == 0) {
+			if ((mods & (Modifier.PUBLIC | Modifier.PROTECTED)) != 0) {
+				if ((mods & Modifier.STATIC) != 0) {
+					return method;
+				}
+			} else if ((mods & Modifier.PRIVATE) != 0) {
+				if (clazz == defClass) {
+					return method;
+				}
+			} else {
+				if ((mods & Modifier.STATIC) != 0 && isSamePackage(clazz, defClass)) {
+					return method;
+				}
+			}
+		}
+		return null;
+	}
+
+	public static Method getInheritableMethod(Class<?> clazz, String name, Class<?>... argTypes) {
+		Method method = null;
+		Class<?> defClass = clazz;
+		while (defClass != null) {
+			try {
+				method = defClass.getDeclaredMethod(name, argTypes);
+				break;
+			} catch (NoSuchMethodException e) {
+				defClass = defClass.getSuperclass();
+			}
+		}
+
+		if (method == null) {
+			return null;
+		}
+		method.setAccessible(true);
+		int mods = method.getModifiers();
+		if ((mods & (Modifier.STATIC | Modifier.ABSTRACT)) != 0) {
+			return null;
+		} else if ((mods & (Modifier.PUBLIC | Modifier.PROTECTED)) != 0) {
+			return method;
+		} else if ((mods & Modifier.PRIVATE) != 0) {
+			return (clazz == defClass) ? method : null;
+		} else {
+			return isSamePackage(clazz, defClass) ? method : null;
+		}
+	}
+
+	public static Method getInheritableMethod(Class<?> clazz, String name, Class<?>[] argTypes, Class<?> returnType) {
+		Method method = null;
+		Class<?> defClass = clazz;
+		while (defClass != null) {
+			try {
+				method = defClass.getDeclaredMethod(name, argTypes);
+				break;
+			} catch (NoSuchMethodException e) {
+				defClass = defClass.getSuperclass();
+			}
+		}
+
+		if ((method == null) || (method.getReturnType() != returnType)) {
+			return null;
+		}
+		method.setAccessible(true);
+		int mods = method.getModifiers();
+		if ((mods & (Modifier.STATIC | Modifier.ABSTRACT)) != 0) {
+			return null;
+		} else if ((mods & (Modifier.PUBLIC | Modifier.PROTECTED)) != 0) {
+			return method;
+		} else if ((mods & Modifier.PRIVATE) != 0) {
+			return (clazz == defClass) ? method : null;
+		} else {
+			return isSamePackage(clazz, defClass) ? method : null;
+		}
+	}
+
+	public static boolean isSamePackage(Class<?> cl1, Class<?> cl2) {
+		return (cl1.getClassLoader() == cl2.getClassLoader() && getPackageName(cl1).equals(getPackageName(cl2)));
+	}
+
+	public static String getPackageName(Class<?> cl) {
+		// see java.io.ObjectStreamClass.getPackageName
+		String s = cl.getName();
+		int i = s.lastIndexOf('[');
+		if (i >= 0) {
+			s = s.substring(i + 2);
+		}
+		i = s.lastIndexOf('.');
+		return (i >= 0) ? s.substring(0, i) : "";
 	}
 
 	public static <T> T newInstance(String className) throws ReflectiveOperationException {
