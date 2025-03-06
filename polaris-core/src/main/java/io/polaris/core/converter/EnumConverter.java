@@ -1,17 +1,37 @@
 package io.polaris.core.converter;
 
+import java.lang.reflect.Method;
+
 import io.polaris.core.lang.JavaType;
+import io.polaris.core.log.ILogger;
+import io.polaris.core.log.ILoggers;
+import io.polaris.core.reflect.Reflects;
 
 /**
  * @author Qt
  * @since 1.8
  */
 public class EnumConverter<T extends Enum<T>> extends AbstractSimpleConverter<T> {
-	private final JavaType<T> targetType ;
+	private static final ILogger log = ILoggers.of(EnumConverter.class);
+	private final static String[] parseMethodNames = new String[]{"parseOf", "parse", "of",};
+	private final JavaType<T> targetType;
+	private final Class<T> enumClass;
+	private final Method parseMethod;
 
 	public EnumConverter(Class<T> enumClass) {
 		this.targetType = JavaType.of(enumClass);
+		this.enumClass = enumClass;
+
+		Method method = null;
+		for (String name : parseMethodNames) {
+			method = Reflects.getInheritableStaticMethod(enumClass, name, new Class[]{String.class}, enumClass);
+			if (method != null) {
+				break;
+			}
+		}
+		this.parseMethod = method;
 	}
+
 	@Override
 	public JavaType<T> getTargetType() {
 		return targetType;
@@ -22,12 +42,33 @@ public class EnumConverter<T extends Enum<T>> extends AbstractSimpleConverter<T>
 		if (value == null) {
 			return null;
 		}
-		T[] enumConstants = targetType.getRawClass().getEnumConstants();
 		if (value instanceof Number) {
 			int i = ((Number) value).intValue();
+			T[] enumConstants = enumClass.getEnumConstants();
 			return i >= 0 && i < enumConstants.length ? enumConstants[i] : null;
 		} else {
-			return (T) Enum.valueOf(targetType.getRawClass(), asSimpleString(value));
+			String str = asSimpleString(value);
+			T rs = null;
+			if (parseMethod != null) {
+				try {
+					rs = Reflects.invokeStatic(parseMethod, str);
+					if (rs != null) {
+						return rs;
+					}
+				} catch (ReflectiveOperationException e) {
+					if (log.isDebugEnabled()) {
+						log.debug("枚举类型转换失败：{}", e.getMessage(), e);
+					}
+				}
+			}
+			try {
+				rs = Enum.valueOf(targetType.getRawClass(), str);
+			} catch (Exception e) {
+				if (log.isDebugEnabled()) {
+					log.debug("枚举类型转换失败：{}", e.getMessage(), e);
+				}
+			}
+			return rs;
 		}
 	}
 
