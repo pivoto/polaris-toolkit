@@ -1,0 +1,20 @@
+<sql-manager>
+	<sql>
+		<if test="sqlText != null">
+			${sqlText}
+		</if>
+		<elif test="sqlTextElif != null">
+			${sqlTextElif}
+		</elif>
+		<else>
+			{sqlTextElse}
+		</else>
+		<for item="" open="" close="" separator="" index="">
+
+		</for>
+		<trim prefix="" suffix="" suffixOverrides="" prefixOverrides="">
+
+		</trim>
+	</sql>
+
+</sql-manager>
