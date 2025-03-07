@@ -139,19 +139,34 @@ public class Codes {
 				if (defaultTemplate != null) {
 
 					List<Template> list = new ArrayList<>();
-					String[] excludeTemplatePaths = metadata.defaultTemplateExcludedPaths == null ? new String[0] : metadata.defaultTemplateExcludedPaths.value();
-					if (excludeTemplatePaths.length == 0) {
-						list.addAll(Arrays.asList(defaultTemplate.value()));
-					} else {
-						loop:
-						for (Template template : defaultTemplate.value()) {
-							String path = template.path();
-							for (String excludeTemplatePath : excludeTemplatePaths) {
-								if (path.equals(excludeTemplatePath)) {
-									continue loop;
+					Set<String> includeTemplatePaths = Sets.asSet(metadata.defaultTemplateIncludedPaths == null ? new String[0] : metadata.defaultTemplateIncludedPaths.value());
+					Set<String> excludeTemplatePaths = Sets.asSet(metadata.defaultTemplateExcludedPaths == null ? new String[0] : metadata.defaultTemplateExcludedPaths.value());
+					if (excludeTemplatePaths.isEmpty()) {
+						if (includeTemplatePaths.isEmpty()) {
+							list.addAll(Arrays.asList(defaultTemplate.value()));
+						} else {
+							for (Template template : defaultTemplate.value()) {
+								String path = template.path();
+								if (includeTemplatePaths.contains(path)) {
+									list.add(template);
 								}
 							}
-							list.add(template);
+						}
+					} else {
+						if (includeTemplatePaths.isEmpty()) {
+							for (Template template : defaultTemplate.value()) {
+								String path = template.path();
+								if (!excludeTemplatePaths.contains(path)) {
+									list.add(template);
+								}
+							}
+						} else {
+							for (Template template : defaultTemplate.value()) {
+								String path = template.path();
+								if (!excludeTemplatePaths.contains(path) && includeTemplatePaths.contains(path)) {
+									list.add(template);
+								}
+							}
 						}
 					}
 					DefaultTemplateAdditional defaultTemplateAdditional = metadata.defaultTemplateAdditional;
@@ -284,6 +299,7 @@ public class Codes {
 		metadata.defaultMapping = AnnotatedElementUtils.findMergedAnnotation(element, DefaultMapping.class);
 		metadata.defaultTemplateAdditional = AnnotatedElementUtils.findMergedAnnotation(element, DefaultTemplateAdditional.class);
 		metadata.defaultTemplateExcludedPaths = AnnotatedElementUtils.findMergedAnnotation(element, DefaultTemplateExcludedPaths.class);
+		metadata.defaultTemplateIncludedPaths = AnnotatedElementUtils.findMergedAnnotation(element, DefaultTemplateIncludedPaths.class);
 		return metadata;
 	}
 
@@ -294,5 +310,6 @@ public class Codes {
 		DefaultMapping defaultMapping;
 		DefaultTemplateAdditional defaultTemplateAdditional;
 		DefaultTemplateExcludedPaths defaultTemplateExcludedPaths;
+		DefaultTemplateIncludedPaths defaultTemplateIncludedPaths;
 	}
 }

@@ -1,11 +1,11 @@
 package io.polaris.builder.code.annotation;
 
-import org.springframework.core.annotation.AliasFor;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import org.springframework.core.annotation.AliasFor;
 
 import static io.polaris.builder.code.annotation.Template.*;
 
@@ -156,6 +156,12 @@ public @interface CodeWithDefaults {
 	 */
 	@AliasFor(annotation = DefaultTemplateAdditional.class, value = "value")
 	Template[] additionalTemplates() default {};
+
+	/**
+	 * 明确指定使用哪些默认模板，如使用自定义模板，则忽略此配置
+	 */
+	@AliasFor(annotation = DefaultTemplateIncludedPaths.class, value = "value")
+	String[] includeTemplatePaths() default {};
 
 	/**
 	 * 排除默认模板中指定模板路径的使用，如使用自定义模板，则忽略此配置
