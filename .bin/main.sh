@@ -129,7 +129,6 @@ Usage: ${SHELL_DIR}/${SHELL_NAME} -h
 	-g, -goal) install|deploy 默认为install
 	-p, -profile) 启用的profile
 	-central) true|false 是否启用dist-central,配置`-profile`时忽略
-	-ossrh) true|false 是否启用dist-ossrh,配置`-profile`时忽略
 	-jcfc) true|false 是否启用dist-jcfc,配置`-profile`时忽略
 	-e, -errors) Produce execution error messages
 	-x, -debug) Produce execution debug output
@@ -175,8 +174,6 @@ log_debug "goal: ${goal}"
 if [[ -z ${profile} ]]; then
 	if [[ -n "$(filter_true ${ARGS[central]})" ]]; then
 		profile="dist,dist-central"
-	elif [[ -n "$(filter_true ${ARGS[ossrh]})" ]];then
-		profile="dist,dist-ossrh"
 	elif [[ -n "$(filter_true ${ARGS[jcfc]})" ]];then
 		profile="withDoc,dist-jcfc"
 	fi
