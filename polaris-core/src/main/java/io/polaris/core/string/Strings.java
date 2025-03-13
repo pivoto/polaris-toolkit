@@ -163,16 +163,13 @@ public class Strings {
 		}
 	}
 
+	/**
+	 * @see #coalesceBlank(String[])
+	 */
 	public static String coalesce(String... args) {
-		String v = null;
-		for (String arg : args) {
-			v = arg;
-			if (Strings.isNotBlank(v)) {
-				break;
-			}
-		}
-		return v;
+		return coalesceBlank(args);
 	}
+
 
 	public static String coalesceNull(String... args) {
 		String v = null;
@@ -196,6 +193,16 @@ public class Strings {
 		return v;
 	}
 
+	public static String coalesceBlank(String... args) {
+		String v = null;
+		for (String arg : args) {
+			v = arg;
+			if (Strings.isNotBlank(v)) {
+				break;
+			}
+		}
+		return v;
+	}
 
 	public static String uuid() {
 		return UUID.randomUUID().toString().replace("-", "");

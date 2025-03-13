@@ -116,8 +116,23 @@ public class Objs {
 
 	// region 默认值
 
+
+	/**
+	 * @see #coalesceNull(Object[]) 
+	 */
 	@SafeVarargs
 	public static <T> T coalesce(T... args) {
+		return coalesceNull(args);
+	}
+	/**
+	 * 返回参数列表中第一个非空的值。如果所有参数均为null或参数列表为空，则返回null。
+	 *
+	 * @param args 可变数量的参数，按顺序检查每个参数是否为null
+	 * @param <T>  参数及返回值的泛型类型
+	 * @return 第一个非null的参数值，或null（若所有参数均为null或无参数）
+	 */
+	@SafeVarargs
+	public static <T> T coalesceNull(T... args) {
 		T v = null;
 		for (T arg : args) {
 			v = arg;
@@ -134,6 +149,18 @@ public class Objs {
 		for (T arg : args) {
 			v = arg;
 			if (!isEmpty(v)) {
+				break;
+			}
+		}
+		return v;
+	}
+
+	@SafeVarargs
+	public static <T> T coalesceBlank(T... args) {
+		T v = null;
+		for (T arg : args) {
+			v = arg;
+			if (!isBlank(v)) {
 				break;
 			}
 		}
@@ -606,6 +633,56 @@ public class Objs {
 	 */
 	public static boolean isNotEmpty(Object obj) {
 		return !isEmpty(obj);
+	}
+
+	/**
+	 * 判断指定对象是否为空，支持：
+	 *
+	 * <pre>
+	 * 1. CharSequence
+	 * 2. Map
+	 * 3. Iterable
+	 * 4. Iterator
+	 * 5. Array
+	 * </pre>
+	 *
+	 * @param obj 被判断的对象
+	 * @return 是否为空，如果类型不支持，返回false
+	 */
+	public static boolean isBlank(Object obj) {
+		if (null == obj) {
+			return true;
+		}
+		if (obj instanceof CharSequence) {
+			return Strings.isBlank((CharSequence) obj);
+		} else if (obj instanceof Map) {
+			return ((Map<?, ?>) obj).isEmpty();
+		} else if (obj instanceof Iterable) {
+			return !((Iterable<?>) obj).iterator().hasNext();
+		} else if (obj instanceof Iterator) {
+			return !((Iterator<?>) obj).hasNext();
+		} else if (ObjectArrays.isArray(obj)) {
+			return ObjectArrays.isEmpty(obj);
+		}
+		return false;
+	}
+
+	/**
+	 * 判断指定对象是否为非空，支持：
+	 *
+	 * <pre>
+	 * 1. CharSequence
+	 * 2. Map
+	 * 3. Iterable
+	 * 4. Iterator
+	 * 5. Array
+	 * </pre>
+	 *
+	 * @param obj 被判断的对象
+	 * @return 是否为空，如果类型不支持，返回true
+	 */
+	public static boolean isNotBlank(Object obj) {
+		return !isBlank(obj);
 	}
 
 
