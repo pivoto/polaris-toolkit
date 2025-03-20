@@ -5,7 +5,7 @@
 ```xml
 <dependency>
   <groupId>cn.fossc.polaris.toolkit</groupId>
-  <artifactId>polaris-bytecode</artifactId>
+  <artifactId>polaris-crypto</artifactId>
   <version>${polaris-version}</version>
 </dependency>
 ```
