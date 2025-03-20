@@ -2,10 +2,14 @@ package io.polaris.core.crypto.asymmetric;
 
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
+import java.security.KeyFactory;
 import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Security;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Base64;
 
 import io.polaris.core.crypto.Ciphers;
@@ -72,4 +76,22 @@ class RSATest {
 		Consoles.println(new String(decrypted));
 		Assertions.assertEquals(s, new String(decrypted));
 	}
+
+	@Test
+	void test03() throws Exception {
+		// 生成 RSA 密钥对
+		KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(AsymmetricAlgorithm.RSA.code());
+		keyPairGenerator.initialize(2048);
+		KeyPair keyPair = keyPairGenerator.generateKeyPair();
+		PrivateKey privateKey = keyPair.getPrivate();
+		PublicKey publicKey = keyPair.getPublic();
+
+		// 打印私钥和公钥的 Base64 编码
+		Consoles.println("Private Key (Base64): " + Base64.getEncoder().encodeToString(privateKey.getEncoded()));
+		Consoles.println("Public Key (Base64): " + Base64.getEncoder().encodeToString(publicKey.getEncoded()));
+		// 根据私钥生成公钥
+		Consoles.println("Public Key (Base64): " + Base64.getEncoder().encodeToString(CryptoKeys.getRSAPublicKeyFromPrivateKey((RSAPrivateKey) privateKey).getEncoded()));
+		Consoles.println("Public Key (Base64): " + Base64.getEncoder().encodeToString(CryptoKeys.getRSAPublicKeyFromPrivateKey((RSAPrivateKey) privateKey).getEncoded()));
+	}
+
 }

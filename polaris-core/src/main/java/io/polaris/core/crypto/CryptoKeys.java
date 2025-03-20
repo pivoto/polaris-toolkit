@@ -16,6 +16,7 @@ import java.security.spec.ECGenParameterSpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.RSAPrivateCrtKeySpec;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
@@ -1141,6 +1142,18 @@ public class CryptoKeys {
 			return (RSAPublicKey) getKeyFactory(AsymmetricAlgorithm.RSA.code())
 				.generatePublic(new RSAPublicKeySpec(new BigInteger(modulus), new BigInteger(publicExponent)));
 		} catch (InvalidKeySpecException e) {
+			throw new CryptoRuntimeException(e);
+		}
+	}
+
+	/** 从私钥中提取公钥 */
+	public static RSAPublicKey getRSAPublicKeyFromPrivateKey(RSAPrivateKey privateKey) {
+		try {
+			KeyFactory keyFactory = KeyFactory.getInstance(AsymmetricAlgorithm.RSA.code());
+			RSAPrivateCrtKeySpec privateCrtKeySpec = keyFactory.getKeySpec(privateKey, RSAPrivateCrtKeySpec.class);
+			RSAPublicKeySpec publicKeySpec = new RSAPublicKeySpec(privateCrtKeySpec.getModulus(), privateCrtKeySpec.getPublicExponent());
+			return (RSAPublicKey) keyFactory.generatePublic(publicKeySpec);
+		} catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
 			throw new CryptoRuntimeException(e);
 		}
 	}
