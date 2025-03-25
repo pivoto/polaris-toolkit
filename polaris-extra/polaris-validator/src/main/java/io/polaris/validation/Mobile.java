@@ -8,8 +8,6 @@ import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
 
-import io.polaris.validation.validator.InEnumArrayValidator;
-import io.polaris.validation.validator.InEnumCollectionValidator;
 import io.polaris.validation.validator.MobileArrayValidator;
 import io.polaris.validation.validator.MobileCollectionValidator;
 import io.polaris.validation.validator.MobileValidator;
@@ -39,5 +37,4 @@ public @interface Mobile {
 
 	Class<? extends Payload>[] payload() default {};
 
-	Class<? extends Enum<?>>[] value();
 }

@@ -40,5 +40,4 @@ public @interface Telephone {
 
 	Class<? extends Payload>[] payload() default {};
 
-	Class<? extends Enum<?>>[] value();
 }
