@@ -17,12 +17,12 @@ import io.polaris.core.map.Maps;
 import io.polaris.core.string.StringCases;
 import org.objectweb.asm.Type;
 
-import com.squareup.javapoet.ArrayTypeName;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeVariableName;
-import com.squareup.javapoet.WildcardTypeName;
+import io.polaris.core.javapoet.ArrayTypeName;
+import io.polaris.core.javapoet.ClassName;
+import io.polaris.core.javapoet.ParameterizedTypeName;
+import io.polaris.core.javapoet.TypeName;
+import io.polaris.core.javapoet.TypeVariableName;
+import io.polaris.core.javapoet.WildcardTypeName;
 
 /**
  * @author Qt

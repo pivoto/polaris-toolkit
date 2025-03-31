@@ -1,7 +1,12 @@
 package io.polaris.core.annotation;
 
 import io.polaris.core.annotation.processing.AnnotationProcessorUtils;
-import com.squareup.javapoet.*;
+
+import io.polaris.core.javapoet.ArrayTypeName;
+import io.polaris.core.javapoet.ParameterizedTypeName;
+import io.polaris.core.javapoet.TypeName;
+import io.polaris.core.javapoet.TypeVariableName;
+import io.polaris.core.javapoet.WildcardTypeName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

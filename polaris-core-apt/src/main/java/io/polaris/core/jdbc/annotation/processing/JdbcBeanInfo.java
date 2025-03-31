@@ -6,8 +6,8 @@ import io.polaris.core.jdbc.annotation.Column;
 import io.polaris.core.jdbc.annotation.Expression;
 import io.polaris.core.jdbc.annotation.Id;
 import io.polaris.core.jdbc.annotation.Table;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.TypeName;
+import io.polaris.core.javapoet.ClassName;
+import io.polaris.core.javapoet.TypeName;
 import lombok.Data;
 
 import javax.lang.model.element.*;

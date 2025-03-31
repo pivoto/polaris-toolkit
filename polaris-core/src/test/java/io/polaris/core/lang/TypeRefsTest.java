@@ -1,6 +1,6 @@
 package io.polaris.core.lang;
 
-import com.squareup.javapoet.TypeName;
+import io.polaris.core.javapoet.TypeName;
 
 import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Test;

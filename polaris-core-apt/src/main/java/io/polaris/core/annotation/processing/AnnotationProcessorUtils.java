@@ -1,7 +1,7 @@
 package io.polaris.core.annotation.processing;
 
 import io.polaris.core.annotation.Internal;
-import com.squareup.javapoet.*;
+import io.polaris.core.javapoet.*;
 
 import java.beans.Introspector;
 import java.util.List;

@@ -21,8 +21,6 @@ import io.polaris.core.jdbc.annotation.processing.JdbcBeanInfo;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
 
-import com.squareup.javapoet.TypeName;
-
 /**
  * @author Qt
  * @since Aug 20, 2023

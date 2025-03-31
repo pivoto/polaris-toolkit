@@ -1,8 +1,8 @@
 package io.polaris.core.annotation.processing;
 
 import io.polaris.core.annotation.Access;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.TypeName;
+import io.polaris.core.javapoet.ClassName;
+import io.polaris.core.javapoet.TypeName;
 import lombok.Data;
 
 import javax.lang.model.element.*;

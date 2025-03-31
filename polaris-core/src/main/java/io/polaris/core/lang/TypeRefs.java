@@ -21,13 +21,13 @@ import io.polaris.core.log.ILoggers;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 
-import com.squareup.javapoet.ArrayTypeName;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeSpec;
-import com.squareup.javapoet.WildcardTypeName;
+import io.polaris.core.javapoet.ArrayTypeName;
+import io.polaris.core.javapoet.ClassName;
+import io.polaris.core.javapoet.JavaFile;
+import io.polaris.core.javapoet.ParameterizedTypeName;
+import io.polaris.core.javapoet.TypeName;
+import io.polaris.core.javapoet.TypeSpec;
+import io.polaris.core.javapoet.WildcardTypeName;
 
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;

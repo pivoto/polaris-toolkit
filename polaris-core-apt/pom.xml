@@ -18,11 +18,11 @@
 	</properties>
 
 	<dependencies>
-		<dependency>
+		<!--<dependency>
 			<groupId>com.squareup</groupId>
 			<artifactId>javapoet</artifactId>
 			<version>${dependency.javapoet.version}</version>
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>cn.fossc.jdk</groupId>
 			<artifactId>tools</artifactId>

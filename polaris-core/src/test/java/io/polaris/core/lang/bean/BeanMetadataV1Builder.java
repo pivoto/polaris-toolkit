@@ -29,13 +29,13 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeSpec;
+import io.polaris.core.javapoet.ClassName;
+import io.polaris.core.javapoet.CodeBlock;
+import io.polaris.core.javapoet.JavaFile;
+import io.polaris.core.javapoet.MethodSpec;
+import io.polaris.core.javapoet.ParameterizedTypeName;
+import io.polaris.core.javapoet.TypeName;
+import io.polaris.core.javapoet.TypeSpec;
 
 import static org.objectweb.asm.Opcodes.*;
 

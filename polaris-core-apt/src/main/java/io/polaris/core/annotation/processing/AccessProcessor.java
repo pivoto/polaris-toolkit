@@ -25,7 +25,7 @@ import javax.tools.Diagnostic;
 
 import io.polaris.core.annotation.Access;
 
-import com.squareup.javapoet.*;
+import io.polaris.core.javapoet.*;
 
 /**
  * @author Qt

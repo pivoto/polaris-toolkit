@@ -23,7 +23,7 @@ import io.polaris.core.jdbc.ExpressionMeta;
 import io.polaris.core.jdbc.IEntityMeta;
 import io.polaris.core.jdbc.annotation.Table;
 
-import com.squareup.javapoet.*;
+import io.polaris.core.javapoet.*;
 
 /**
  * @author Qt
