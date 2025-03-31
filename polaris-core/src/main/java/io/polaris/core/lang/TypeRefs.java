@@ -1,22 +1,40 @@
 package io.polaris.core.lang;
 
+import java.io.StringWriter;
+import java.lang.reflect.Type;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+
+import javax.lang.model.element.Modifier;
+
 import io.polaris.core.asm.internal.AsmTypes;
 import io.polaris.core.compiler.MemoryClassLoader;
 import io.polaris.core.compiler.MemoryCompiler;
 import io.polaris.core.log.ILogger;
-import com.squareup.javapoet.*;
 import io.polaris.core.log.ILoggers;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 
-import javax.lang.model.element.Modifier;
-import java.io.StringWriter;
-import java.lang.reflect.Type;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
+import com.squareup.javapoet.ArrayTypeName;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.WildcardTypeName;
 
-import static org.objectweb.asm.Opcodes.*;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.ACC_SUPER;
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
+import static org.objectweb.asm.Opcodes.RETURN;
+import static org.objectweb.asm.Opcodes.V1_8;
 
 /**
  * @author Qt
@@ -217,6 +235,11 @@ public class TypeRefs {
 
 	public static Type getType(TypeName typeName) {
 		return refs.computeIfAbsent(typeName.toString(), s -> createType(typeName));
+	}
+
+	public static Type getType(Class<?> rawType, Type... typeArguments) {
+		ParameterizedTypeName typeName = ParameterizedTypeName.get(rawType, typeArguments);
+		return getType(typeName);
 	}
 
 	static Type createType(TypeName typeName) {
