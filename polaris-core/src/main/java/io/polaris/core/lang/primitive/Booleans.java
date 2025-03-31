@@ -77,7 +77,7 @@ public class Booleans {
 
 	// region 转换
 
-	public static Boolean toBoolean(Object value) {
+	public static boolean toBoolean(Object value) {
 		if (value == null) {
 			return false;
 		}
