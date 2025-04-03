@@ -1,5 +1,7 @@
 package io.polaris.core.err;
 
+import java.util.function.Supplier;
+
 import io.polaris.core.msg.MessageResources;
 import io.polaris.core.string.Strings;
 
@@ -118,15 +120,59 @@ public class MessageException extends UncheckedException implements IErrorCode {
 			return new MessageException(message);
 		}
 		if (t instanceof MessageException) {
+			String msg = t.getMessage();
+			if (msg == null) {
+				((MessageException) t).withMessage(message);
+			} else if (!msg.startsWith(message)) {
+				((MessageException) t).withMessage(message + ": " + msg);
+			}
 			return (MessageException) t;
 		}
 		while (t.getCause() != null) {
 			t = t.getCause();
 			if (t instanceof MessageException) {
+				String msg = t.getMessage();
+				if (msg == null) {
+					((MessageException) t).withMessage(message);
+				} else if (!msg.startsWith(message)) {
+					((MessageException) t).withMessage(message + ": " + msg);
+				}
 				return (MessageException) t;
 			}
 		}
 		return new MessageException(t, message);
 	}
 
+	@SuppressWarnings("unchecked")
+	public static <T extends MessageException> T of(Throwable t, Class<T> type, String message, Supplier<T> builder) {
+		if (t == null) {
+			return builder.get();
+		}
+		if (type.isAssignableFrom(t.getClass())) {
+			if (MessageException.class.isAssignableFrom(type)) {
+				String msg = t.getMessage();
+				if (msg == null) {
+					((MessageException) t).withMessage(message);
+				} else if (!msg.startsWith(message)) {
+					((MessageException) t).withMessage(message + ": " + msg);
+				}
+			}
+			return (T) t;
+		}
+		while (t.getCause() != null) {
+			t = t.getCause();
+			if (type.isAssignableFrom(t.getClass())) {
+				if (MessageException.class.isAssignableFrom(type)) {
+					String msg = t.getMessage();
+					if (msg == null) {
+						((MessageException) t).withMessage(message);
+					} else if (!msg.startsWith(message)) {
+						((MessageException) t).withMessage(message + ": " + msg);
+					}
+				}
+				return (T) t;
+			}
+		}
+		return builder.get();
+	}
 }

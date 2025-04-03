@@ -1,5 +1,7 @@
 package io.polaris.core.err;
 
+import java.util.function.Supplier;
+
 import io.polaris.core.msg.MessageResources;
 import io.polaris.core.string.Strings;
 
@@ -106,15 +108,60 @@ public class MessageCheckedException extends CheckedException implements IErrorC
 			return new MessageCheckedException(message);
 		}
 		if (t instanceof MessageCheckedException) {
+			String msg = t.getMessage();
+			if (msg == null) {
+				((MessageCheckedException) t).withMessage(message);
+			} else if (!msg.startsWith(message)) {
+				((MessageCheckedException) t).withMessage(message + ": " + msg);
+			}
 			return (MessageCheckedException) t;
 		}
 		while (t.getCause() != null) {
 			t = t.getCause();
 			if (t instanceof MessageCheckedException) {
+				String msg = t.getMessage();
+				if (msg == null) {
+					((MessageCheckedException) t).withMessage(message);
+				} else if (!msg.startsWith(message)) {
+					((MessageCheckedException) t).withMessage(message + ": " + msg);
+				}
 				return (MessageCheckedException) t;
 			}
 		}
 		return new MessageCheckedException(t, message);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T extends MessageCheckedException> T of(Throwable t, Class<T> type, String message, Supplier<T> builder) {
+		if (t == null) {
+			return builder.get();
+		}
+		if (type.isAssignableFrom(t.getClass())) {
+			if (MessageCheckedException.class.isAssignableFrom(type)) {
+				String msg = t.getMessage();
+				if (msg == null) {
+					((MessageCheckedException) t).withMessage(message);
+				} else if (!msg.startsWith(message)) {
+					((MessageCheckedException) t).withMessage(message + ": " + msg);
+				}
+			}
+			return (T) t;
+		}
+		while (t.getCause() != null) {
+			t = t.getCause();
+			if (type.isAssignableFrom(t.getClass())) {
+				if (MessageCheckedException.class.isAssignableFrom(type)) {
+					String msg = t.getMessage();
+					if (msg == null) {
+						((MessageCheckedException) t).withMessage(message);
+					} else if (!msg.startsWith(message)) {
+						((MessageCheckedException) t).withMessage(message + ": " + msg);
+					}
+				}
+				return (T) t;
+			}
+		}
+		return builder.get();
 	}
 
 }
