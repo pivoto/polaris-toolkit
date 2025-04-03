@@ -5,7 +5,7 @@ package io.polaris.core.os;
  * @since 1.8
  */
 public enum OsType {
-	LINUX, WINDOWS, MAC, SOLARIS, UNKOWN;
+	LINUX, WINDOWS, MAC, SOLARIS, UNKNOWN;
 
 
 

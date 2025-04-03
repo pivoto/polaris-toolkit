@@ -93,7 +93,7 @@ public class Shells {
 				return new String[]{"/bin/sh", "-c", CharConsts.DOUBLE_QUOTATION
 					+ cmdStr.replace("\\", "\\\\").replace("\"", "\\\"")
 					+ CharConsts.DOUBLE_QUOTATION};
-			case UNKOWN:
+			case UNKNOWN:
 			default:
 				return parse(cmdStr);
 		}

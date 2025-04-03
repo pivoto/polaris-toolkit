@@ -15,6 +15,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nullable;
+
 import io.polaris.core.consts.StdConsts;
 import io.polaris.core.consts.StdKeys;
 import io.polaris.core.env.GlobalStdEnv;
@@ -56,7 +58,7 @@ public class OS {
 		else if (osName.contains("sunos"))
 			return OsType.SOLARIS;
 		else
-			return OsType.UNKOWN;
+			return OsType.UNKNOWN;
 	}
 
 	public static String getHostName() {
@@ -270,5 +272,46 @@ public class OS {
 
 	public static long getVmUpTime() {
 		return ManagementFactory.getRuntimeMXBean().getUptime();
+	}
+
+	@Nullable
+	public static IpType getIpType(String ip) {
+		if (ip == null) {
+			return IpType.X;
+		}
+		try {
+			InetAddress address = InetAddress.getByName(ip);
+			if (address instanceof Inet6Address) {
+				return IpType.X;
+			}
+			byte[] addrBytes = address.getAddress();
+			if (addrBytes.length != 4) {
+				return IpType.X;
+			}
+			int firstOctet = addrBytes[0] & 0xFF;
+			if (firstOctet >= 1 && firstOctet <= 126) {
+				return IpType.A;
+			} else if (firstOctet == 127) {
+				return IpType.L;
+			} else if (firstOctet >= 128 && firstOctet <= 191) {
+				return IpType.B;
+			} else if (firstOctet >= 192 && firstOctet <= 223) {
+				return IpType.C;
+			} else if (firstOctet >= 224 && firstOctet <= 239) {
+				return IpType.D;
+			} else if (firstOctet >= 240 && firstOctet <= 255) {
+				return IpType.E;
+			} else {
+				if (addrBytes[0] == 0 && addrBytes[1] == 0 && addrBytes[2] == 0 && addrBytes[3] == 0) {
+					return IpType.O;
+				}
+				if (addrBytes[0] == (byte) 0xFF && addrBytes[1] == (byte) 0xFF && addrBytes[2] == (byte) 0xFF && addrBytes[3] == (byte) 0xFF) {
+					return IpType.W;
+				}
+				return IpType.X;
+			}
+		} catch (UnknownHostException e) {
+			return IpType.X;
+		}
 	}
 }
