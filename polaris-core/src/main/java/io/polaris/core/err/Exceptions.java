@@ -65,6 +65,18 @@ public class Exceptions {
 		return t;
 	}
 
+	public static Throwable getRootCauseSafelyUntil(@Nonnull Throwable t, Predicate<Throwable> predicate) {
+		Set<Throwable> set = new HashSet<>();
+		while (t.getCause() != null && !set.contains(t)) {
+			set.add(t);
+			t = t.getCause();
+			if (predicate.test(t)) {
+				return t;
+			}
+		}
+		return t;
+	}
+
 	public static Throwable getRootCause(@Nonnull Throwable t) {
 		while (t.getCause() != null) {
 			t = t.getCause();
