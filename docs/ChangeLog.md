@@ -1,5 +1,13 @@
 ## 版本变更说明
 
+### 3.3.7
+- 新增 IP 地址类型枚举和判断方法
+
+### 3.3.6
+- 重构基础异常构造处理逻辑并添加泛型方法
+- Exceptions新增获取根因异常方法getRootCauseSafelyUntil
+- 优化 Booleans 类中的 toBoolean 方法返回类型
+
 ### 3.3.5
 - TypeRefs新增构建带泛型参数类型的方法
 - 新增JSON相关类，用于对使用到fastjson的几个主要类的代码进行迁移
