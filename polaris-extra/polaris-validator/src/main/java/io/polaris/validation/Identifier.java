@@ -42,9 +42,9 @@ public @interface Identifier {
 	Class<? extends Payload>[] payload() default {};
 
 	/**
-	 * 正则表达式,默认支持 \w _ . $ + -
+	 * 正则表达式,默认支持 \w _ . $ + - = , ; :
 	 */
-	String regexp() default "^[\\w_.$+-]*$";
+	String regexp() default "^[\\w_.$+-=,;:]*$";
 
 	int flags() default 0;
 }
