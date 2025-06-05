@@ -10,6 +10,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>polaris-mybatis</artifactId>
+	<name>polaris-mybatis</name>
 
 	<properties>
 		<mybatis.version>3.5.7</mybatis.version>

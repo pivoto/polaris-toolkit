@@ -9,6 +9,7 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>polaris-boot-demo</artifactId>
+	<name>polaris-boot-demo</name>
 
 
 	<properties>

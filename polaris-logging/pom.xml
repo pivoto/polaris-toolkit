@@ -11,6 +11,7 @@
 
 	<artifactId>polaris-logging</artifactId>
 	<packaging>pom</packaging>
+	<name>polaris-logging</name>
 
 	<properties>
 	</properties>

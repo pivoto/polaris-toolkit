@@ -10,6 +10,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>polaris-boot</artifactId>
 	<packaging>pom</packaging>
+	<name>polaris-boot</name>
 
 	<modules>
 		<module>polaris-boot-core</module>

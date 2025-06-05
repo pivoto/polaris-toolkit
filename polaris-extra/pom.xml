@@ -11,6 +11,7 @@
 
 	<artifactId>polaris-extra</artifactId>
 	<packaging>pom</packaging>
+	<name>polaris-extra</name>
 
 	<modules>
 		<module>polaris-validator</module>

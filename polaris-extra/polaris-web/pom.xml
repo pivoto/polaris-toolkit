@@ -10,6 +10,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>polaris-web</artifactId>
 	<packaging>jar</packaging>
+	<name>polaris-web</name>
 
 	<properties>
 		<okhttp.version>4.10.0</okhttp.version>

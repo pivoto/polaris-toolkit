@@ -10,6 +10,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>polaris-json</artifactId>
 	<packaging>jar</packaging>
+	<name>polaris-json</name>
 
 	<properties>
 	</properties>

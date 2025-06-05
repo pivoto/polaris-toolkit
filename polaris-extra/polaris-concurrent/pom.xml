@@ -9,6 +9,7 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>polaris-concurrent</artifactId>
+	<name>polaris-concurrent</name>
 	<packaging>jar</packaging>
 
 	<properties>

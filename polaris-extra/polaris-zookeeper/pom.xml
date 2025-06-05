@@ -10,6 +10,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>polaris-zookeeper</artifactId>
 	<packaging>jar</packaging>
+	<name>polaris-zookeeper</name>
 
 	<properties>
 		<dependency.curator.version>4.2.0</dependency.curator.version>

@@ -9,6 +9,7 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>polaris-bytecode</artifactId>
+	<name>polaris-bytecode</name>
 	<properties>
 	</properties>
 
