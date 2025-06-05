@@ -57,6 +57,30 @@
         "label": "Comment",
         "icon": "fa fa-comments",
         "className": "info"
+      },
+      "tag": {
+        "iconVisible": "true",
+        "labelVisible": "false"
+      },
+      "tip": {
+        "iconVisible": "true",
+        "labelVisible": "false"
+      },
+      "question": {
+        "iconVisible": "true",
+        "labelVisible": "false"
+      },
+      "note": {
+        "iconVisible": "true",
+        "labelVisible": "false"
+      },
+      "warning": {
+        "iconVisible": "true",
+        "labelVisible": "false"
+      },
+      "danger": {
+        "iconVisible": "true",
+        "labelVisible": "false"
       }
     },
     "embed-file": {
