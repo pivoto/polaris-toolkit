@@ -23,7 +23,7 @@ public class Executors {
 	public static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.MILLISECONDS;
 	private static int defaultKeepAliveTime = KEEP_ALIVE_TIME;
 	private static TimeUnit defaultKeepAliveTimeUnit = KEEP_ALIVE_TIME_UNIT;
-	private static RejectedExecutionHandler defaultRejectedPolicy = RejectedPolicies.CALLER_RUNS.policy();
+	private static RejectedExecutionHandler defaultRejectedPolicy = RejectedPolicies.FORCE_QUEUE.policy();
 	private static int defaultQueueSize = 1000;
 
 	// region default param
