@@ -14,6 +14,11 @@ public class ForceQueueRejectedPolicy implements RejectedExecutionHandler {
 
 	@Override
 	public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+		if (executor.isShutdown()) {
+			throw new RejectedExecutionException("Task " + r.toString() +
+				" rejected from shutdown " +
+				executor.toString());
+		}
 		try {
 			executor.getQueue().put(r);
 		} catch (InterruptedException e) {

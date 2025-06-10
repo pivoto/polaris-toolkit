@@ -40,4 +40,6 @@ public enum RejectedPolicies {
 		return this.policy;
 	}
 
+
+
 }
