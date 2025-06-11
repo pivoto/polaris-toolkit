@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import io.polaris.core.asm.reflect.AccessClassLoader;
 import io.polaris.core.collection.PrimitiveArrays;
 import io.polaris.core.jdbc.base.BeanMapping;
 import io.polaris.core.jdbc.base.JdbcOptions;
@@ -75,9 +76,13 @@ public class JdbcExecutorMetadata<T> {
 		this.methodMetadataMap = Collections.unmodifiableMap(methodMetadataMap);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "ConstantValue", "StatementWithEmptyBody"})
 	public static <T> JdbcExecutorMetadata<T> of(Class<T> interfaceClass) {
-		return (JdbcExecutorMetadata<T>) metabaseCache.computeIfAbsent(interfaceClass, k -> new JdbcExecutorMetadata<T>(interfaceClass));
+		JdbcExecutorMetadata<T> rs = null;
+		// 防止因对象回收后导致SoftMap结果丢失，尝试多次获取
+		while ((rs = (JdbcExecutorMetadata<T>) metabaseCache.computeIfAbsent(interfaceClass, k -> new JdbcExecutorMetadata<T>(interfaceClass))) == null) {
+		}
+		return rs;
 	}
 
 	public Map<Method, MethodMetadata> getMethodMetadataMap() {

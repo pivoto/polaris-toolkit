@@ -19,7 +19,7 @@ import io.polaris.core.string.StringCases;
 
 /**
  * @author Qt
- * @since  Apr 12, 2024
+ * @since Apr 12, 2024
  */
 public class LambdaMetaObject<T> extends MetaObject<T> {
 	private static final ILogger log = ILoggers.of(LambdaMetaObject.class);
@@ -46,7 +46,10 @@ public class LambdaMetaObject<T> extends MetaObject<T> {
 
 	@SuppressWarnings("all")
 	public static <T> LambdaMetaObject<T> of(JavaType<T> beanType) {
-		LambdaMetaObject<T> metaObject = (LambdaMetaObject<T>) CACHE.computeIfAbsent(beanType, LambdaMetaObject::new);
+		LambdaMetaObject<T> metaObject = null;
+		// 防止因对象回收后导致WeakMap结果丢失，尝试多次获取
+		while ((metaObject = (LambdaMetaObject<T>) CACHE.computeIfAbsent(beanType, LambdaMetaObject::new)) == null) {
+		}
 		if (metaObject.state() == INIT) {
 			synchronized (metaObject) {
 				if (metaObject.state() == INIT) {

@@ -13,16 +13,20 @@ import io.polaris.core.map.Maps;
 
 /**
  * @author Qt
- * @since  Feb 05, 2024
+ * @since Feb 05, 2024
  */
 @SuppressWarnings("unused")
 public class JdbcExecutors {
 	private static final ThreadLocal<Connection> currentConnection = new ThreadLocal<>();
 	private static final Map<Class<?>, Object> executorCache = Maps.newSoftMap(new ConcurrentHashMap<>());
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "StatementWithEmptyBody", "ConstantValue"})
 	public static <T> T createExecutor(Class<T> interfaceClass) {
-		return (T) executorCache.computeIfAbsent(interfaceClass, JdbcExecutors::doCreateExecutor);
+		T rs = null;
+		// 防止因对象回收后导致SoftMap结果丢失，尝试多次获取
+		while ((rs = (T) executorCache.computeIfAbsent(interfaceClass, JdbcExecutors::doCreateExecutor)) == null) {
+		}
+		return rs;
 	}
 
 	@SuppressWarnings("unchecked")

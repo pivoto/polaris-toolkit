@@ -376,8 +376,13 @@ public class Beans {
 		}
 
 		@Nonnull
+		@SuppressWarnings({"StatementWithEmptyBody", "ConstantValue"})
 		static <T> Map<String, PropertyAccessor>[] getMetadata(Class<T> beanType) {
-			return PROPERTIES.computeIfAbsent(beanType, IndexedCache::createMetadata);
+			Map<String, PropertyAccessor>[] rs = null;
+			// 防止因对象回收后导致SoftMap结果丢失，尝试多次获取
+			while ((rs = PROPERTIES.computeIfAbsent(beanType, IndexedCache::createMetadata)) == null) {
+			}
+			return rs;
 		}
 	}
 
@@ -411,8 +416,13 @@ public class Beans {
 		}
 
 		@Nonnull
+		@SuppressWarnings({"StatementWithEmptyBody", "ConstantValue"})
 		static <T> Map<String, PropertyAccessor>[] getMetadata(Class<T> beanType) {
-			return PROPERTIES.computeIfAbsent(beanType, LambdaCache::createMetadata);
+			Map<String, PropertyAccessor>[] rs = null;
+			// 防止因对象回收后导致SoftMap结果丢失，尝试多次获取
+			while ((rs = PROPERTIES.computeIfAbsent(beanType, LambdaCache::createMetadata)) == null) {
+			}
+			return rs;
 		}
 	}
 }

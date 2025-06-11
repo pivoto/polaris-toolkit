@@ -19,7 +19,7 @@ import io.polaris.core.string.StringCases;
 
 /**
  * @author Qt
- * @since  Apr 12, 2024
+ * @since Apr 12, 2024
  */
 public class IndexedMetaObject<T> extends MetaObject<T> {
 	private static final ILogger log = ILoggers.of(IndexedMetaObject.class);
@@ -46,7 +46,10 @@ public class IndexedMetaObject<T> extends MetaObject<T> {
 
 	@SuppressWarnings("all")
 	public static <T> IndexedMetaObject<T> of(JavaType<T> beanType) {
-		IndexedMetaObject<T> metaObject = (IndexedMetaObject<T>) CACHE.computeIfAbsent(beanType, IndexedMetaObject::new);
+		IndexedMetaObject<T> metaObject = null;
+		// 防止因对象回收后导致WeakMap结果丢失，尝试多次获取
+		while ((metaObject = (IndexedMetaObject<T>) CACHE.computeIfAbsent(beanType, IndexedMetaObject::new)) == null) {
+		}
 		if (metaObject.state() == INIT) {
 			synchronized (metaObject) {
 				if (metaObject.state() == INIT) {
@@ -89,7 +92,7 @@ public class IndexedMetaObject<T> extends MetaObject<T> {
 				PropertyAccessor accessor = entry.getValue();
 				Type type = accessor.type();
 				IndexedMetaObject<?> meta = IndexedMetaObject.of(type);
-				IndexedProperty indexedProperty =  	new IndexedProperty(meta, accessor);
+				IndexedProperty indexedProperty = new IndexedProperty(meta, accessor);
 				properties.put(propertyName, indexedProperty);
 				propertiesCaseInsensitive.put(propertyName, indexedProperty);
 			}

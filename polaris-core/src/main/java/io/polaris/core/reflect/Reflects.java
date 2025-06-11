@@ -306,8 +306,13 @@ public class Reflects {
 		return null;
 	}
 
+	@SuppressWarnings({"ConstantValue", "StatementWithEmptyBody"})
 	public static <T> Constructor<T>[] getConstructors(@Nonnull Class<T> beanClass) {
-		return (Constructor<T>[]) CONSTRUCTORS_CACHE.computeIfAbsent(beanClass, (c) -> getConstructorsDirectly(beanClass));
+		Constructor<T>[] rs;
+		// 防止因对象回收后导致WeakMap结果丢失，尝试多次获取
+		while ((rs = (Constructor<T>[]) CONSTRUCTORS_CACHE.computeIfAbsent(beanClass, (c) -> getConstructorsDirectly(beanClass))) == null) {
+		}
+		return rs;
 	}
 
 	public static <T> Constructor<T>[] getConstructorsDirectly(@Nonnull Class<T> beanClass) {
@@ -317,8 +322,13 @@ public class Reflects {
 	/**
 	 * 获得一个类中所有字段列表，包括其父类中的字段，子类字段在前
 	 */
+	@SuppressWarnings({"ConstantValue", "StatementWithEmptyBody"})
 	public static Field[] getFields(Class<?> beanClass) {
-		return FIELDS_CACHE.computeIfAbsent(beanClass, (c) -> getFieldsDirectly(beanClass, true));
+		Field[] rs;
+		// 防止因对象回收后导致WeakMap结果丢失，尝试多次获取
+		while ((rs = FIELDS_CACHE.computeIfAbsent(beanClass, (c) -> getFieldsDirectly(beanClass, true))) == null) {
+		}
+		return rs;
 	}
 
 	@SuppressWarnings({"UseBulkOperation", "ManualArrayToCollectionCopy"})
@@ -407,9 +417,14 @@ public class Reflects {
 	/**
 	 * 获得一个类中所有方法列表，包括其父类中的方法
 	 */
+	@SuppressWarnings({"ConstantValue", "StatementWithEmptyBody"})
 	public static Method[] getMethods(Class<?> beanClass) {
-		return METHODS_CACHE.computeIfAbsent(beanClass,
-			(c) -> getMethodsDirectly(beanClass, true, true));
+		Method[] rs;
+		// 防止因对象回收后导致WeakMap结果丢失，尝试多次获取
+		while ((rs = METHODS_CACHE.computeIfAbsent(beanClass,
+			(c) -> getMethodsDirectly(beanClass, true, true))) == null) {
+		}
+		return rs;
 	}
 
 	/**

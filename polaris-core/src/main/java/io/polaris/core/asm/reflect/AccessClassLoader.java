@@ -196,7 +196,11 @@ public class AccessClassLoader extends ClassLoader {
 			return selfContextAccessClassLoader;
 		}
 		// 2. normal search:
-		return accessClassLoaders.computeIfAbsent(parent, k -> new AccessClassLoader(parent));
+		AccessClassLoader rs = null;
+		// 防止因对象回收后导致SoftMap结果丢失，尝试多次获取
+		while ((rs = accessClassLoaders.computeIfAbsent(parent, k -> new AccessClassLoader(parent))) == null) {
+		}
+		return rs;
 	}
 
 
