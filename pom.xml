@@ -1375,41 +1375,6 @@
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>cobertura-maven-plugin</artifactId>
-				<configuration>
-					<check>
-						<branchRate>85</branchRate>
-						<lineRate>85</lineRate>
-						<haltOnFailure>true</haltOnFailure>
-						<totalBranchRate>85</totalBranchRate>
-						<totalLineRate>85</totalLineRate>
-						<packageLineRate>85</packageLineRate>
-						<packageBranchRate>85</packageBranchRate>
-						<regexes>
-							<regex>
-								<pattern>todo.*</pattern>
-								<branchRate>90</branchRate>
-								<lineRate>80</lineRate>
-							</regex>
-						</regexes>
-					</check>
-					<instrumentation>
-						<ignores>
-							<ignore>todo.*</ignore>
-						</ignores>
-						<excludes>
-							<exclude>todo/**/*.class</exclude>
-						</excludes>
-					</instrumentation>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<reportSets>
 					<reportSet><!-- by default, id = "default" -->
@@ -1456,6 +1421,37 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
+			<!-- 覆盖率 -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<configuration>
+					<check>
+						<branchRate>85</branchRate>
+						<lineRate>85</lineRate>
+						<haltOnFailure>true</haltOnFailure>
+						<totalBranchRate>85</totalBranchRate>
+						<totalLineRate>85</totalLineRate>
+						<packageLineRate>85</packageLineRate>
+						<packageBranchRate>85</packageBranchRate>
+						<regexes>
+							<regex>
+								<pattern>todo.*</pattern>
+								<branchRate>90</branchRate>
+								<lineRate>80</lineRate>
+							</regex>
+						</regexes>
+					</check>
+					<instrumentation>
+						<ignores>
+							<ignore>todo.*</ignore>
+						</ignores>
+						<excludes>
+							<exclude>todo/**/*.class</exclude>
+						</excludes>
+					</instrumentation>
+				</configuration>
 			</plugin>
 			<!-- 源码查看生成 -->
 			<plugin>
