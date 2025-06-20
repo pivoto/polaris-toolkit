@@ -13,7 +13,7 @@ import io.polaris.core.time.Dates;
  * @since Sep 08, 2023
  */
 public class Consoles {
-	private static final String KEY_LOG_ENABLED = Consoles.class.getName() + ".log.enabled";
+	private static final String KEY_LOG_ENABLED = Consoles.class.getName() + ".printable";
 	private static boolean printable = Converters.convertQuietly(boolean.class, GlobalStdEnv.get(KEY_LOG_ENABLED, "true"), true);
 
 	public static void setPrintable(boolean printable) {
