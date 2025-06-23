@@ -1,10 +1,13 @@
 package io.polaris.core.jdbc.sql.statement;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 
+import io.polaris.core.collection.Iterables;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.sql.BindingValues;
@@ -26,16 +29,23 @@ import io.polaris.core.string.Strings;
  * Oracle Merge Into
  *
  * @author Qt
- * @since  Aug 30, 2023
+ * @since Aug 30, 2023
  */
 @SuppressWarnings({"unused", "UnusedReturnValue"})
 public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S> implements TableAccessible {
+	/** 合并操作的目标表 */
 	private final TableSegment<?> table;
+	/** 合并操作的源表 */
 	private TableSegment<?> using;
+	/** 合并操作的条件 */
 	private AndSegment<S, ?> on;
-	private final List<ColumnSegment<S,?>> insertColumns = new ArrayList<>();
-	private final List<ColumnSegment<S,?>> updateColumns = new ArrayList<>();
+	/** 插入列集合，表示在未匹配到记录时要插入的列 */
+	private final List<ColumnSegment<S, ?>> insertColumns = new ArrayList<>();
+	/** 更新列集合，表示在匹配到记录时要更新的列 */
+	private final List<ColumnSegment<S, ?>> updateColumns = new ArrayList<>();
+	/** 是否在匹配到记录时进行更新 */
 	private boolean updateWhenMatched;
+	/** 是否在未匹配到记录时进行插入 */
 	private boolean insertWhenNotMatched;
 
 	public MergeStatement(Class<?> entityClass, String alias) {
@@ -96,7 +106,7 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 		sql.addNode(SqlNodes.WHEN_MATCHED_THEN);
 		sql.addNode(SqlNodes.UPDATE);
 		boolean first = true;
-		for (ColumnSegment<S,?> column : this.updateColumns) {
+		for (ColumnSegment<S, ?> column : this.updateColumns) {
 			if (first) {
 				sql.addNode(SqlNodes.LF);
 				sql.addNode(SqlNodes.SET);
@@ -122,7 +132,7 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 		sql.addNode(SqlNodes.INSERT);
 		{
 			boolean first = true;
-			for (ColumnSegment<S,?> column : this.insertColumns) {
+			for (ColumnSegment<S, ?> column : this.insertColumns) {
 				if (first) {
 					sql.addNode(SqlNodes.LF);
 					sql.addNode(SqlNodes.LEFT_PARENTHESIS);
@@ -138,7 +148,7 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 		}
 		{
 			boolean first = true;
-			for (ColumnSegment<S,?> column : this.insertColumns) {
+			for (ColumnSegment<S, ?> column : this.insertColumns) {
 				if (first) {
 					sql.addNode(SqlNodes.LF);
 					sql.addNode(SqlNodes.VALUES);
@@ -159,17 +169,34 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 		return withEntity(entity, ColumnPredicate.DEFAULT);
 	}
 
+	public S withEntity(Object entity, Set<String> keyColumns) {
+		return withEntity(entity, ColumnPredicate.DEFAULT, keyColumns);
+	}
+
 	public S withEntity(Object entity, boolean updateWhenMatched, boolean insertWhenNotMatched) {
 		return withEntity(entity, updateWhenMatched, insertWhenNotMatched, ColumnPredicate.DEFAULT);
+	}
+
+	public S withEntity(Object entity, boolean updateWhenMatched, boolean insertWhenNotMatched, Set<String> keyColumns) {
+		return withEntity(entity, updateWhenMatched, insertWhenNotMatched, ColumnPredicate.DEFAULT, keyColumns);
 	}
 
 	public S withEntity(Object entity, ColumnPredicate columnPredicate) {
 		return withEntity(entity, true, true, columnPredicate);
 	}
 
+	public S withEntity(Object entity, ColumnPredicate columnPredicate, Set<String> keyColumns) {
+		return withEntity(entity, true, true, columnPredicate, keyColumns);
+	}
+
 	public S withEntity(Object entity, Predicate<String> isIncludeEmptyColumns) {
 		return withEntity(entity, true, true,
-			ConfigurableColumnPredicate.of( isIncludeEmptyColumns));
+			ConfigurableColumnPredicate.of(isIncludeEmptyColumns));
+	}
+
+	public S withEntity(Object entity, Predicate<String> isIncludeEmptyColumns, Set<String> keyColumns) {
+		return withEntity(entity, true, true,
+			ConfigurableColumnPredicate.of(isIncludeEmptyColumns), keyColumns);
 	}
 
 	public S withEntity(Object entity, Predicate<String> isIncludeColumns, Predicate<String> isExcludeColumns,
@@ -178,9 +205,20 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 			ConfigurableColumnPredicate.of(isIncludeColumns, isExcludeColumns, isIncludeEmptyColumns, includeAllEmpty));
 	}
 
+	public S withEntity(Object entity, Predicate<String> isIncludeColumns, Predicate<String> isExcludeColumns,
+		Predicate<String> isIncludeEmptyColumns, boolean includeAllEmpty, Set<String> keyColumns) {
+		return withEntity(entity, true, true,
+			ConfigurableColumnPredicate.of(isIncludeColumns, isExcludeColumns, isIncludeEmptyColumns, includeAllEmpty), keyColumns);
+	}
+
 	public S withEntity(Object entity, boolean updateWhenMatched, boolean insertWhenNotMatched, Predicate<String> isIncludeEmptyColumns) {
 		return withEntity(entity, updateWhenMatched, insertWhenNotMatched,
-			ConfigurableColumnPredicate.of( isIncludeEmptyColumns));
+			ConfigurableColumnPredicate.of(isIncludeEmptyColumns));
+	}
+
+	public S withEntity(Object entity, boolean updateWhenMatched, boolean insertWhenNotMatched, Predicate<String> isIncludeEmptyColumns, Set<String> keyColumns) {
+		return withEntity(entity, updateWhenMatched, insertWhenNotMatched,
+			ConfigurableColumnPredicate.of(isIncludeEmptyColumns), keyColumns);
 	}
 
 	public S withEntity(Object entity, boolean updateWhenMatched, boolean insertWhenNotMatched,
@@ -190,11 +228,33 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 			ConfigurableColumnPredicate.of(isIncludeColumns, isExcludeColumns, isIncludeEmptyColumns, includeAllEmpty));
 	}
 
+	public S withEntity(Object entity, boolean updateWhenMatched, boolean insertWhenNotMatched,
+		Predicate<String> isIncludeColumns, Predicate<String> isExcludeColumns,
+		Predicate<String> isIncludeEmptyColumns, boolean includeAllEmpty,
+		Set<String> keyColumns) {
+		return withEntity(entity, updateWhenMatched, insertWhenNotMatched,
+			ConfigurableColumnPredicate.of(isIncludeColumns, isExcludeColumns, isIncludeEmptyColumns, includeAllEmpty),
+			keyColumns);
+	}
+
 	public S withEntity(Object entity, boolean updateWhenMatched, boolean insertWhenNotMatched, ColumnPredicate columnPredicate) {
+		return withEntity(entity, updateWhenMatched, insertWhenNotMatched, columnPredicate, Collections.emptySet());
+	}
+
+	public S withEntity(Object entity, boolean updateWhenMatched, boolean insertWhenNotMatched, ColumnPredicate columnPredicate, Set<String> keyColumns) {
 		TableMeta tableMeta = table.getTableMeta();
 		if (tableMeta != null) {
-			if (tableMeta.getColumns().values().stream().noneMatch(ColumnMeta::isPrimaryKey)) {
-				throw new IllegalArgumentException("未配置主键列：" + tableMeta.getEntityClass().getName());
+			// 未配置主键列，且未指定关键条件列
+			if (Iterables.isEmpty(keyColumns)) {
+				if (tableMeta.getColumns().values().stream().noneMatch(ColumnMeta::isPrimaryKey)) {
+					throw new IllegalArgumentException("未配置主键列：" + tableMeta.getEntityClass().getName());
+				}
+			} else {
+				for (String keyColumn : keyColumns) {
+					if (!tableMeta.getColumns().containsKey(keyColumn)) {
+						throw new IllegalArgumentException("关键条件列不存在：" + tableMeta.getEntityClass().getName() + "#" + keyColumn);
+					}
+				}
 			}
 
 			@SuppressWarnings("unchecked")
@@ -217,13 +277,22 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 			String usingAlias = "S".equalsIgnoreCase(tableAlias) ? "O" : "S";
 			this.using(using, usingAlias);
 
-			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
-				String name = entry.getKey();
-				ColumnMeta meta = entry.getValue();
-				if (meta.isPrimaryKey()) {
-					this.on().column(name).eq(TableField.of(usingAlias, name));
+			if (Iterables.isEmpty(keyColumns)) {
+				for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
+					String name = entry.getKey();
+					ColumnMeta meta = entry.getValue();
+					if (meta.isPrimaryKey()) {
+						this.on().column(name).eq(TableField.of(usingAlias, name));
+					}
+				}
+			} else {
+				for (String keyColumn : keyColumns) {
+					if (!tableMeta.getColumns().containsKey(keyColumn)) {
+						this.on().column(keyColumn).eq(TableField.of(usingAlias, keyColumn));
+					}
 				}
 			}
+
 			this.updateWhenMatched(updateWhenMatched);
 			if (updateWhenMatched) {
 				for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
@@ -316,7 +385,7 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 	}
 
 	public S insertWith(String field, String usingField) {
-		ColumnSegment<S,?> column = buildColumnSegment();
+		ColumnSegment<S, ?> column = buildColumnSegment();
 		column.column(field).value(SqlNodes.text(this.using.getColumnExpression(usingField)));
 		this.insertColumns.add(column);
 		return getThis();
@@ -324,49 +393,49 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 
 
 	public S insert(String field, Object value) {
-		ColumnSegment<S,?> column = buildColumnSegment();
+		ColumnSegment<S, ?> column = buildColumnSegment();
 		column.column(field).value(value);
 		this.insertColumns.add(column);
 		return getThis();
 	}
 
 	public S insertRawWith(String rawColumn, String usingColumn) {
-		ColumnSegment<S,?> column = buildColumnSegment();
+		ColumnSegment<S, ?> column = buildColumnSegment();
 		column.rawColumn(rawColumn).value(SqlNodes.text(usingColumn));
 		this.insertColumns.add(column);
 		return getThis();
 	}
 
 	public S insertRaw(String rawColumn, Object value) {
-		ColumnSegment<S,?> column = buildColumnSegment();
+		ColumnSegment<S, ?> column = buildColumnSegment();
 		column.rawColumn(rawColumn).value(value);
 		this.insertColumns.add(column);
 		return getThis();
 	}
 
 	public S updateWith(String field, String usingField) {
-		ColumnSegment<S,?> column = buildColumnSegment();
+		ColumnSegment<S, ?> column = buildColumnSegment();
 		column.column(field).value(SqlNodes.text(this.using.getColumnExpression(usingField)));
 		this.updateColumns.add(column);
 		return getThis();
 	}
 
 	public S update(String field, Object value) {
-		ColumnSegment<S,?> column = buildColumnSegment();
+		ColumnSegment<S, ?> column = buildColumnSegment();
 		column.column(field).value(value);
 		this.updateColumns.add(column);
 		return getThis();
 	}
 
 	public S updateRawWith(String rawColumn, String usingColumn) {
-		ColumnSegment<S,?> column = buildColumnSegment();
+		ColumnSegment<S, ?> column = buildColumnSegment();
 		column.rawColumn(rawColumn).value(SqlNodes.text(usingColumn));
 		this.updateColumns.add(column);
 		return getThis();
 	}
 
 	public S updateRaw(String rawColumn, Object value) {
-		ColumnSegment<S,?> column = buildColumnSegment();
+		ColumnSegment<S, ?> column = buildColumnSegment();
 		column.rawColumn(rawColumn).value(value);
 		this.updateColumns.add(column);
 		return getThis();
