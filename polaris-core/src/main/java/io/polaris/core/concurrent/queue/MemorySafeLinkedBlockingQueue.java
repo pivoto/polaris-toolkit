@@ -18,29 +18,20 @@ public class MemorySafeLinkedBlockingQueue<E> extends LinkedBlockingQueue<E> {
 
 	@Setter
 	@Getter
-	private int maxFreeMemory;
-	@Setter
-	@Getter
-	private double maxPercentage = 0.8;
+	private int limitedFreeMemory;
 
 	public MemorySafeLinkedBlockingQueue() {
-		this(THE_256_MB);
+		this(Math.min(THE_256_MB, (int) (Runtime.getRuntime().maxMemory() / 8)));
 	}
 
-	public MemorySafeLinkedBlockingQueue(int maxFreeMemory) {
+	public MemorySafeLinkedBlockingQueue(int limitedFreeMemory) {
 		super(Integer.MAX_VALUE);
-		this.maxFreeMemory = maxFreeMemory;
-	}
-
-	public MemorySafeLinkedBlockingQueue(int maxFreeMemory, double maxPercentage) {
-		super(Integer.MAX_VALUE);
-		this.maxFreeMemory = maxFreeMemory;
-		this.maxPercentage = maxPercentage;
+		this.limitedFreeMemory = limitedFreeMemory;
 	}
 
 
 	public boolean hasRemainedMemory() {
-		return MemoryLimitCalculator.calculate(maxPercentage) > maxFreeMemory;
+		return MemoryLimitCalculator.maxAvailable() > limitedFreeMemory;
 	}
 
 	@Override
