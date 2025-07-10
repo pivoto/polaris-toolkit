@@ -1,6 +1,7 @@
 package io.polaris.core.json;
 
 import io.polaris.core.lang.TypeRef;
+import io.polaris.core.service.ServiceLoadable;
 
 import java.lang.reflect.Type;
 
@@ -8,7 +9,7 @@ import java.lang.reflect.Type;
  * @author Qt
  * @since 1.8
  */
-public interface JsonSerializer {
+public interface JsonSerializer extends ServiceLoadable {
 
 	String serialize(Object value);
 

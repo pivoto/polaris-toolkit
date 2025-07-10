@@ -1,5 +1,6 @@
 package io.polaris.core.cache;
 
+import io.polaris.core.service.ServiceLoadable;
 import io.polaris.core.service.StatefulServiceLoader;
 
 import javax.annotation.Nullable;
@@ -9,7 +10,7 @@ import java.util.Optional;
  * @author Qt
  * @since 1.8
  */
-public interface ICacheManagerFactory {
+public interface ICacheManagerFactory extends ServiceLoadable {
 
 	ICacheManager getCacheManager();
 

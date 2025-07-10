@@ -2,11 +2,13 @@ package io.polaris.core.script;
 
 import java.util.Map;
 
+import io.polaris.core.service.ServiceLoadable;
+
 /**
  * @author Qt
  * @since 1.8
  */
-public interface Evaluator {
+public interface Evaluator extends ServiceLoadable {
 	String INPUT = "input";
 	String OUTPUT = "output";
 	String BINDINGS = "bindings";
