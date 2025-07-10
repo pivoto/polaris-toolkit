@@ -1,6 +1,9 @@
 ## 版本变更说明
 
-### 3.3.10
+### 3.3.12
+- 内置的SPI接口类增加ServiceLoadable标识
+
+### 3.3.11
 - 修改控制台输出开关的键名，更新测试配置默认关闭输出开关
 - MergeStatement新增withEntity重载方法，支持指定条件列进行合并操作
 - 优化MemorySafeLinkedBlockingQueue，默认空闲内存值限制通过最大内存计算，防止小内存进程无法合理使用
