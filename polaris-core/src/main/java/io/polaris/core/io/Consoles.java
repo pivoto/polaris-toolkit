@@ -33,19 +33,29 @@ public class Consoles {
 		log("", args);
 	}
 
+	public static void log(Throwable t, String msg, Object... args) {
+		printStackTrace(t);
+		log(msg, args);
+	}
+
+	public static void log(Throwable t, Object... args) {
+		log(t, "", args);
+	}
+
+	@SuppressWarnings("all")
+	public static void printStackTrace(Throwable t) {
+		if (!printable) {
+			return;
+		}
+		t.printStackTrace(System.out);
+	}
+
 	public static void println(Callable<?> supplier) {
 		try {
 			println(supplier.call());
 		} catch (Throwable t) {
 			printStackTrace(t);
 		}
-	}
-
-	public static void print(String msg, Object... args) {
-		if (!printable) {
-			return;
-		}
-		System.out.print(Strings.format(msg, args));
 	}
 
 	public static void println(String msg, Object... args) {
@@ -55,20 +65,29 @@ public class Consoles {
 		System.out.println(Strings.format(msg, args));
 	}
 
-	public static void print(Object... args) {
-		print("", args);
-	}
-
 	public static void println(Object... args) {
 		println("", args);
 	}
 
-	@SuppressWarnings("all")
-	public static void printStackTrace(Throwable t) {
+	public static void println(Throwable t, String msg, Object... args) {
+		printStackTrace(t);
+		println(msg, args);
+	}
+
+	public static void println(Throwable t, Object... args) {
+		printStackTrace(t);
+		println("", args);
+	}
+
+	public static void print(String msg, Object... args) {
 		if (!printable) {
 			return;
 		}
-		t.printStackTrace(System.out);
+		System.out.print(Strings.format(msg, args));
+	}
+
+	public static void print(Object... args) {
+		print("", args);
 	}
 
 
