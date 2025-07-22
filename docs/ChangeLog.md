@@ -1,5 +1,9 @@
 ## 版本变更说明
 
+### 3.3.13
+- 修复代码生成器中CodeGenerator对列忽略配置的处理
+- 优化Consoles工具类方法
+
 ### 3.3.12
 - 内置的SPI接口类增加ServiceLoadable标识
 
