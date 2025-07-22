@@ -181,7 +181,8 @@ public class CodeGenerator {
 				if (tableConfig.getIgnoredColumns() != null) {
 					ignoredColumns.addAll(tableConfig.getIgnoredColumns());
 				}
-				table.getColumns().removeIf(c -> {
+				Set<String> removedColumns = new HashSet<>();
+				table.getNormalColumns().removeIf(c -> {
 					// 匹配忽略列
 					if (columnSet != null && columnSet.stream().anyMatch(o -> o.isIgnored() && c.getName().equals(o.getName()))) {
 						return true;
@@ -189,10 +190,12 @@ public class CodeGenerator {
 					// 匹配正则则忽略列
 					if (ignoredColumns.stream().anyMatch(regex ->
 						Patterns.getPattern(regex, Pattern.CASE_INSENSITIVE).matcher(c.getName()).matches())) {
+						removedColumns.add(c.getName());
 						return true;
 					}
 					return false;
 				});
+				table.getColumns().removeIf(c -> removedColumns.contains(c.getName()));
 			}
 
 			Set<String> tablePrefix = splitToSet(tableConfig.getTablePrefix(), group.getTablePrefix(), codeEnv.getTablePrefix());
