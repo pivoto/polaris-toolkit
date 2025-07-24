@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -159,6 +160,16 @@ public class Exceptions {
 		}
 	}
 
+	public static void runQuietly(Runnable runnable, Consumer<Throwable> consumer) {
+		if (runnable != null) {
+			try {
+				runnable.run();
+			} catch (Throwable e) {
+				consumer.accept(e);
+			}
+		}
+	}
+
 	public static void runQuietly(Runnable runnable, Throwable t) {
 		if (runnable != null) {
 			try {
@@ -175,6 +186,17 @@ public class Exceptions {
 				return supplier.get();
 			} catch (Throwable e) {
 				// ignore
+			}
+		}
+		return null;
+	}
+
+	public static <T> T getQuietly(Supplier<T> supplier, Consumer<Throwable> consumer) {
+		if (supplier != null) {
+			try {
+				return supplier.get();
+			} catch (Throwable e) {
+				consumer.accept(e);
 			}
 		}
 		return null;
@@ -201,6 +223,16 @@ public class Exceptions {
 		}
 	}
 
+	public static void executeQuietly(Executable executable, Consumer<Throwable> consumer) {
+		if (executable != null) {
+			try {
+				executable.execute();
+			} catch (Throwable e) {
+				consumer.accept(e);
+			}
+		}
+	}
+
 	public static void executeQuietly(Executable executable, Throwable t) {
 		if (executable != null) {
 			try {
@@ -218,6 +250,17 @@ public class Exceptions {
 				return callable.call();
 			} catch (Throwable e) {
 				// ignore
+			}
+		}
+		return null;
+	}
+
+	public static <T> T callQuietly(Callable<T> callable, Consumer<Throwable> consumer) {
+		if (callable != null) {
+			try {
+				return callable.call();
+			} catch (Throwable e) {
+				consumer.accept(e);
 			}
 		}
 		return null;
