@@ -29,10 +29,10 @@ import io.polaris.core.ulid.UlidCreator;
 public class Strings {
 
 	private static final ThreadLocal<Map<String, Ref<String>>> resolvedKeysLocal = new ThreadLocal<>();
-	private static final Pattern patternPlaceholder = Pattern.compile("\\$\\{([\\w\\.\\-]+)(?:(:-?)([^${}]*))?\\}");
+	private static final Pattern patternPlaceholder = Patterns.getPattern("\\$\\{([\\w\\.\\-]+)(?:(:-?)([^${}]*))?\\}");
 	/// /private static final String patternPlaceholderSeparator = "\\Q:\\E";
-	private static final Pattern patternDigits = Pattern.compile("(?<!\\\\)\\{(\\d+)\\}");
-	private static final Pattern patternEmpty = Pattern.compile("(?<!\\\\)\\{\\}");
+	private static final Pattern patternDigits = Patterns.getPattern("(?<!\\\\)\\{(\\d+)\\}");
+	private static final Pattern patternEmpty = Patterns.getPattern("(?<!\\\\)\\{\\}");
 
 	/**
 	 * 字节大小值转为带单位的可读字符串
@@ -1435,8 +1435,12 @@ public class Strings {
 	}
 
 	public static String format(String msg, Object... args) {
+		return format(true, msg, args);
+	}
+
+	public static String format(boolean appendExtraArgs, String msg, Object... args) {
 		if (msg == null || msg.isEmpty()) {
-			if (args.length == 0) {
+			if (args.length == 0 || !appendExtraArgs) {
 				return "";
 			}
 			StringBuilder sb = new StringBuilder();
@@ -1478,7 +1482,7 @@ public class Strings {
 				return msg;
 			}
 		}
-		if (bitSet.cardinality() < args.length) {
+		if (appendExtraArgs && bitSet.cardinality() < args.length) {
 			for (int i = 0; i < args.length; i++) {
 				if (!bitSet.get(i)) {
 					sb.append(", ").append(String.valueOf(args[i]));
