@@ -27,4 +27,22 @@ public class MessageResources {
 		}
 		MessageResources.defaultMessageResource = defaultMessageResource;
 	}
+
+	public static String format(String msg, String defaultMsg, Object[] args) {
+		if (msg == null || msg.isEmpty()) {
+			msg = defaultMsg;
+			defaultMsg = null;
+		}
+		if (msg == null || msg.isEmpty()) {
+			return "";
+		}
+		if (!msg.contains("{") && !msg.contains("}")) {
+			return msg;
+		}
+		if (defaultMsg != null) {
+			return MessageFormat.formatWithEmpty(msg, defaultMsg, args);
+		}
+		return MessageFormat.format(msg, args);
+	}
+
 }

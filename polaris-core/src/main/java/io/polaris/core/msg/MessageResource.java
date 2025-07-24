@@ -1,10 +1,11 @@
 package io.polaris.core.msg;
 
-import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.concurrent.ConcurrentHashMap;
+
+import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
@@ -32,19 +33,17 @@ public class MessageResource {
 
 	public String getMessageOrDefault(String code, String defaults, Locale locale, Object... params) {
 		MemoryResourceBundle bundle = getBundle(locale);
-		String val = null;
+		String msg = null;
 		try {
-			val = bundle.getString(code);
-		} catch (MissingResourceException e) {
-			val = defaults;
+			msg = bundle.getString(code);
+		} catch (MissingResourceException ignored) {
 		}
-		if (val == null) {
-			return val;
+		if (msg != null && !msg.isEmpty()) {
+			if (Strings.equals(code, defaults)) {
+				defaults = "";
+			}
 		}
-		if (params.length == 0) {
-			return val;
-		}
-		return MessageFormat.format(val, params);
+		return MessageResources.format(msg, defaults, params);
 	}
 
 	public String getMessage(String code, Object... params) {
