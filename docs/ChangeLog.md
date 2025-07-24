@@ -1,5 +1,12 @@
 ## 版本变更说明
 
+### 3.3.14
+- Exceptions类新增异常处理方法以支持自定义异常消费逻辑
+- 优化Strings字符串工具类增加格式化方法，控制是否追加额外参数
+- 新增 MessageFormat 类，用于格式化消息
+- 重构消息资源类，使用自定义的MessageFormat工具用于格式化消息
+- MessageException、MessageCheckedException异常类添加新构造函数以支持参数化消息码
+
 ### 3.3.13
 - 修复代码生成器中CodeGenerator对列忽略配置的处理
 - 优化Consoles工具类方法
