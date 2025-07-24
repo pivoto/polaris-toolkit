@@ -27,34 +27,94 @@ public class MessageCheckedException extends CheckedException implements IErrorC
 		withCode(code, message);
 	}
 
+	public MessageCheckedException(String code, String message, Object[] params) {
+		super(message);
+		withCode(code, message, params);
+	}
+
+	public MessageCheckedException(IErrorCode errorCode) {
+		this(errorCode.getCode(), errorCode.getMessage());
+	}
+
+
+	public MessageCheckedException(IErrorCode errorCode, Object[] params) {
+		this(errorCode.getCode(), errorCode.getMessage(), params);
+	}
+
 	public MessageCheckedException(Throwable cause) {
 		super(cause);
-		fetchCode(null, cause, null);
+		fetchCode(cause, null, null);
+	}
+
+	public MessageCheckedException(Throwable cause, Object[] params) {
+		super(cause);
+		fetchCode(cause, null, null, params);
 	}
 
 	public MessageCheckedException(Throwable cause, String message) {
 		super(message, cause);
-		fetchCode(null, cause, message);
+		fetchCode(cause, null, message);
+	}
+
+	public MessageCheckedException(Throwable cause, String message, Object[] params) {
+		super(message, cause);
+		fetchCode(cause, null, message, params);
 	}
 
 	public MessageCheckedException(Throwable cause, String code, String message) {
 		super(message, cause);
-		fetchCode(code, cause, message);
+		fetchCode(cause, code, message);
+	}
+
+	public MessageCheckedException(Throwable cause, String code, String message, Object[] params) {
+		super(message, cause);
+		fetchCode(cause, code, message, params);
+	}
+
+	public MessageCheckedException(Throwable cause, IErrorCode errorCode) {
+		this(cause, errorCode.getCode(), errorCode.getMessage());
+	}
+
+	public MessageCheckedException(Throwable cause, IErrorCode errorCode, Object[] params) {
+		this(cause, errorCode.getCode(), errorCode.getMessage(), params);
 	}
 
 	public MessageCheckedException(Throwable cause, boolean enableSuppression, boolean writableStackTrace, String code, String message) {
 		super(message, cause, enableSuppression, writableStackTrace);
-		fetchCode(code, cause, message);
+		fetchCode(cause, code, message);
+	}
+
+	public MessageCheckedException(Throwable cause, boolean enableSuppression, boolean writableStackTrace, String code, String message, Object[] params) {
+		super(message, cause, enableSuppression, writableStackTrace);
+		fetchCode(cause, code, message, params);
+	}
+
+	public MessageCheckedException(Throwable cause, boolean enableSuppression, boolean writableStackTrace, IErrorCode errorCode) {
+		this(cause, enableSuppression, writableStackTrace, errorCode.getCode(), errorCode.getMessage());
+	}
+
+	public MessageCheckedException(Throwable cause, boolean enableSuppression, boolean writableStackTrace, IErrorCode errorCode, Object[] params) {
+		this(cause, enableSuppression, writableStackTrace, errorCode.getCode(), errorCode.getMessage(), params);
 	}
 
 
-	private void fetchCode(String code, Throwable cause, String message) {
-		if (code == null || code.trim().length() == 0) {
+	private void fetchCode(Throwable cause, String code, String message) {
+		if (code == null || code.trim().isEmpty()) {
 			if (cause instanceof IErrorCode) {
 				withCode(((IErrorCode) cause).getCode(), Strings.coalesce(message, cause.getMessage(), code));
 			}
 		} else {
 			withCode(code, Strings.coalesce(message, cause.getMessage(), code));
+		}
+	}
+
+	private void fetchCode(Throwable cause, String code, String message, Object[] params) {
+		if (code == null || code.trim().isEmpty()) {
+			if (cause instanceof IErrorCode) {
+				withCode(((IErrorCode) cause).getCode(), Strings.coalesce(message, cause.getMessage(), code), params);
+			}
+		} else {
+			withCode(code, Strings.coalesce(message, cause == null ? null : cause.getMessage(), code), params);
 		}
 	}
 
@@ -68,11 +128,25 @@ public class MessageCheckedException extends CheckedException implements IErrorC
 		return this;
 	}
 
+	public MessageCheckedException withCode(String code, Object[] params) {
+		withCode(code, this.message, params);
+		return this;
+	}
+
 	public MessageCheckedException withCode(String code, String defaultMessage) {
 		this.code = code;
-		if (code != null && code.length() > 0) {
+		if (code != null && !code.isEmpty()) {
 			// 获取编码对应的提示信息，不存在则使用默认消息
 			this.message = MessageResources.getDefaultMessageResource().getMessageOrDefault(code, defaultMessage);
+		}
+		return this;
+	}
+
+	public MessageCheckedException withCode(String code, String defaultMessage, Object[] params) {
+		this.code = code;
+		if (code != null && !code.isEmpty()) {
+			// 获取编码对应的提示信息，不存在则使用默认消息
+			this.message = MessageResources.getDefaultMessageResource().getMessageOrDefault(code, defaultMessage, params);
 		}
 		return this;
 	}
@@ -84,7 +158,7 @@ public class MessageCheckedException extends CheckedException implements IErrorC
 
 	@Override
 	public String getMessage() {
-		return message != null && message.length() > 0 ? message : super.getMessage();
+		return message != null && !message.isEmpty() ? message : super.getMessage();
 	}
 
 	public static MessageCheckedException of(Throwable t) {

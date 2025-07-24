@@ -27,8 +27,18 @@ public class MessageException extends UncheckedException implements IErrorCode {
 		withCode(code, message);
 	}
 
+	public MessageException(String code, String message, Object[] params) {
+		super(message);
+		withCode(code, message, params);
+	}
+
 	public MessageException(IErrorCode errorCode) {
 		this(errorCode.getCode(), errorCode.getMessage());
+	}
+
+
+	public MessageException(IErrorCode errorCode, Object[] params) {
+		this(errorCode.getCode(), errorCode.getMessage(), params);
 	}
 
 	public MessageException(Throwable cause) {
@@ -36,9 +46,19 @@ public class MessageException extends UncheckedException implements IErrorCode {
 		fetchCode(cause, null, null);
 	}
 
+	public MessageException(Throwable cause, Object[] params) {
+		super(cause);
+		fetchCode(cause, null, null, params);
+	}
+
 	public MessageException(Throwable cause, String message) {
 		super(message, cause);
 		fetchCode(cause, null, message);
+	}
+
+	public MessageException(Throwable cause, String message, Object[] params) {
+		super(message, cause);
+		fetchCode(cause, null, message, params);
 	}
 
 	public MessageException(Throwable cause, String code, String message) {
@@ -46,8 +66,17 @@ public class MessageException extends UncheckedException implements IErrorCode {
 		fetchCode(cause, code, message);
 	}
 
+	public MessageException(Throwable cause, String code, String message, Object[] params) {
+		super(message, cause);
+		fetchCode(cause, code, message, params);
+	}
+
 	public MessageException(Throwable cause, IErrorCode errorCode) {
 		this(cause, errorCode.getCode(), errorCode.getMessage());
+	}
+
+	public MessageException(Throwable cause, IErrorCode errorCode, Object[] params) {
+		this(cause, errorCode.getCode(), errorCode.getMessage(), params);
 	}
 
 	public MessageException(Throwable cause, boolean enableSuppression, boolean writableStackTrace, String code, String message) {
@@ -55,18 +84,37 @@ public class MessageException extends UncheckedException implements IErrorCode {
 		fetchCode(cause, code, message);
 	}
 
+	public MessageException(Throwable cause, boolean enableSuppression, boolean writableStackTrace, String code, String message, Object[] params) {
+		super(message, cause, enableSuppression, writableStackTrace);
+		fetchCode(cause, code, message, params);
+	}
+
 	public MessageException(Throwable cause, boolean enableSuppression, boolean writableStackTrace, IErrorCode errorCode) {
 		this(cause, enableSuppression, writableStackTrace, errorCode.getCode(), errorCode.getMessage());
 	}
 
+	public MessageException(Throwable cause, boolean enableSuppression, boolean writableStackTrace, IErrorCode errorCode, Object[] params) {
+		this(cause, enableSuppression, writableStackTrace, errorCode.getCode(), errorCode.getMessage(), params);
+	}
+
 
 	private void fetchCode(Throwable cause, String code, String message) {
-		if (code == null || code.trim().length() == 0) {
+		if (code == null || code.trim().isEmpty()) {
 			if (cause instanceof IErrorCode) {
 				withCode(((IErrorCode) cause).getCode(), Strings.coalesce(message, cause.getMessage(), code));
 			}
 		} else {
 			withCode(code, Strings.coalesce(message, cause == null ? null : cause.getMessage(), code));
+		}
+	}
+
+	private void fetchCode(Throwable cause, String code, String message, Object[] params) {
+		if (code == null || code.trim().isEmpty()) {
+			if (cause instanceof IErrorCode) {
+				withCode(((IErrorCode) cause).getCode(), Strings.coalesce(message, cause.getMessage(), code), params);
+			}
+		} else {
+			withCode(code, Strings.coalesce(message, cause == null ? null : cause.getMessage(), code), params);
 		}
 	}
 
@@ -80,11 +128,25 @@ public class MessageException extends UncheckedException implements IErrorCode {
 		return this;
 	}
 
+	public MessageException withCode(String code, Object[] params) {
+		withCode(code, this.message, params);
+		return this;
+	}
+
 	public MessageException withCode(String code, String defaultMessage) {
 		this.code = code;
-		if (code != null && code.length() > 0) {
+		if (code != null && !code.isEmpty()) {
 			// 获取编码对应的提示信息，不存在则使用默认消息
 			this.message = MessageResources.getDefaultMessageResource().getMessageOrDefault(code, defaultMessage);
+		}
+		return this;
+	}
+
+	public MessageException withCode(String code, String defaultMessage, Object[] params) {
+		this.code = code;
+		if (code != null && !code.isEmpty()) {
+			// 获取编码对应的提示信息，不存在则使用默认消息
+			this.message = MessageResources.getDefaultMessageResource().getMessageOrDefault(code, defaultMessage, params);
 		}
 		return this;
 	}
@@ -96,7 +158,7 @@ public class MessageException extends UncheckedException implements IErrorCode {
 
 	@Override
 	public String getMessage() {
-		return message != null && message.length() > 0 ? message : super.getMessage();
+		return message != null && !message.isEmpty() ? message : super.getMessage();
 	}
 
 	public static MessageException of(Throwable t) {
