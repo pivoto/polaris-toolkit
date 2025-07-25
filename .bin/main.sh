@@ -115,10 +115,10 @@ parse_args $@
 
 
 filter_true(){
-	echo "$1" | egrep '^(true|on|yes|y|1)$'
+	echo "$1" | grep -E '^(true|on|yes|y|1)$'
 }
 filter_false(){
-	echo "$1" | egrep '^(false|off|no|n|0)$'
+	echo "$1" | grep -E '^(false|off|no|n|0)$'
 }
 usage() {
 	cat <<EOF

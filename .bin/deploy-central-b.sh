@@ -1,2 +1,4 @@
 #!/bin/bash
+
+grep -E '<version>' $(cd $(dirname $0) && pwd -P)/pom.xml  --max-count=1 >> $(cd $(dirname $0) && pwd -P)/version.log
 sh $(cd $(dirname $0) && pwd -P)/main.sh -central -g deploy 2>&1 | tee deploy-central.log
