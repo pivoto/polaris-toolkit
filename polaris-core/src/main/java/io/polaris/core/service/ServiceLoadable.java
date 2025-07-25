@@ -8,5 +8,6 @@ package io.polaris.core.service;
  * @author Qt
  * @since Sep 26, 2024
  */
+@Spi
 public interface ServiceLoadable {
 }
