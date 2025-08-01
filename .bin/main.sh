@@ -180,6 +180,19 @@ if [[ -z ${profile} ]]; then
 fi
 
 cd ${SHELL_DIR}
+
+GROUP_ID=$(grep -Eo '<groupId>([A-Za-z0-9.-]+)</groupId>' ../pom.xml --max-count=1)
+GROUP_ID=${GROUP_ID/<groupId>/}
+GROUP_ID=${GROUP_ID/<\/groupId>/}
+
+ARTIFACT_ID=$(grep -Eo '<artifactId>([A-Za-z0-9.-]+)</artifactId>' ../pom.xml --max-count=1)
+ARTIFACT_ID=${ARTIFACT_ID/<artifactId>/}
+ARTIFACT_ID=${ARTIFACT_ID/<\/artifactId>/}
+
+VERSION=$(grep -Eo '<version>([A-Za-z0-9.-]+)</version>' ../pom.xml --max-count=1)
+VERSION=${VERSION/<version>/}
+VERSION=${VERSION/<\/version>/}
+
 # -Dmaven.test.skip=true
 CMD="mvn -f ../pom.xml -DskipTests -Dfile.encoding=UTF-8"
 if [[ -z ${profile} ]]; then
@@ -200,6 +213,15 @@ export MAVEN_OPTS="-Dfile.encoding=UTF-8"
 export JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8"
 log_debug "当前目录: ${PWD}"
 log_debug "执行命令: ${CMD}"
+
 ${CMD}
+if [[ $? -eq 0 ]];then
+	echo "$(date +'%Y-%m-%d %H:%M:%S') BUILD ${GROUP_ID}:${ARTIFACT_ID}:${VERSION} SUCCESS"  >> version.log
+else
+	echo "$(date +'%Y-%m-%d %H:%M:%S') BUILD ${GROUP_ID}:${ARTIFACT_ID}:${VERSION} FAILURE"  >> version.log
+fi
+
+
+
 
 cd ${WORK_DIR}
