@@ -216,9 +216,9 @@ log_debug "执行命令: ${CMD}"
 
 ${CMD}
 if [[ $? -eq 0 ]];then
-	echo "$(date +'%Y-%m-%d %H:%M:%S') BUILD ${GROUP_ID}:${ARTIFACT_ID}:${VERSION} SUCCESS"  >> version.log
+	echo "$(date +'%Y-%m-%d %H:%M:%S') ${GROUP_ID}:${ARTIFACT_ID}:${VERSION} BUILD SUCCESS"  >> version.log
 else
-	echo "$(date +'%Y-%m-%d %H:%M:%S') BUILD ${GROUP_ID}:${ARTIFACT_ID}:${VERSION} FAILURE"  >> version.log
+	echo "$(date +'%Y-%m-%d %H:%M:%S') ${GROUP_ID}:${ARTIFACT_ID}:${VERSION} BUILD FAILURE"  >> version.log
 fi
 
 
