@@ -11,6 +11,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import javax.annotation.Nonnull;
+
 import io.polaris.core.concurrent.queue.MemorySafeLinkedBlockingQueue;
 
 /**
@@ -184,6 +186,18 @@ public class Executors {
 		return new ThreadPoolExecutor(core, max, keepAliveTime, unit, blockingQueue, threadFactory, defaultRejectedPolicy);
 	}
 
+	@Nonnull
+	public static <T> Callable<T> callable(@Nonnull Runnable task, T result) {
+		return () -> {
+			task.run();
+			return result;
+		};
+	}
+
+	@Nonnull
+	public static <T> Callable<T> callable(@Nonnull Runnable task) {
+		return callable(task, null);
+	}
 
 	public static void shutdown(ExecutorService pool) {
 		shutdown(pool, 60);

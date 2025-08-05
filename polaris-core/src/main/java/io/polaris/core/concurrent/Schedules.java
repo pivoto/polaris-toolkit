@@ -14,6 +14,10 @@ public class Schedules {
 		return single((WrappingTaskFactory) null);
 	}
 
+	public static ScheduledExecutorService defaults() {
+		return defaults((WrappingTaskFactory) null);
+	}
+
 	public static ScheduledExecutorService create(int core) {
 		return create((WrappingTaskFactory) null, core);
 	}
@@ -31,12 +35,11 @@ public class Schedules {
 	}
 
 	public static ScheduledExecutorService single(WrappingTaskFactory wrappingTaskFactory) {
-		if (wrappingTaskFactory != null) {
-			WrappingScheduledThreadPoolExecutor executor = new WrappingScheduledThreadPoolExecutor(1);
-			executor.setWrappedTaskFactory(wrappingTaskFactory);
-			return executor;
-		}
-		return new ScheduledThreadPoolExecutor(1);
+		return create(wrappingTaskFactory, 1);
+	}
+
+	public static ScheduledExecutorService defaults(WrappingTaskFactory wrappingTaskFactory) {
+		return create(wrappingTaskFactory, Runtime.getRuntime().availableProcessors());
 	}
 
 	public static ScheduledExecutorService create(WrappingTaskFactory wrappingTaskFactory, int core) {

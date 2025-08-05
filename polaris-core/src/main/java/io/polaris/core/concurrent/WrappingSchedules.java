@@ -7,7 +7,7 @@ import java.util.concurrent.ThreadFactory;
  * @author Qt
  * @since Jan 24, 2025
  */
-public class WrappingSchedules extends Schedules{
+public class WrappingSchedules extends Schedules {
 	private static WrappingTaskFactory defaultWrappingTaskFactory;
 
 	public static WrappingTaskFactory getDefaultWrappingTaskFactory() {

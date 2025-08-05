@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since 1.8
  */
 public class PooledThreadFactory implements ThreadFactory {
-	private static AtomicInteger poolNumber = new AtomicInteger(0);
+	private static final AtomicInteger poolNumber = new AtomicInteger(0);
 	private final AtomicInteger tid = new AtomicInteger(0);
 	private final int pid;
 	private String prefix;
