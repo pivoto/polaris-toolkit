@@ -17,6 +17,7 @@ import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
 import java.util.*;
 
+@SuppressWarnings("rawtypes")
 class TestValidations {
 
 
@@ -118,6 +119,7 @@ class TestValidations {
 		Set<ConstraintViolation<M>> set = Validations.getDefaultValidator().forExecutables().validateParameters(new M(), M.class.getMethod("exec", B.class),
 			new Object[]{b});
 		System.out.println(set);
+		System.out.println(Validations.buildMessage(set));
 	}
 
 	static class M{@Valid

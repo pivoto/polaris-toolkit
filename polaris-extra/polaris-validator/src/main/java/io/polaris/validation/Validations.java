@@ -1,7 +1,35 @@
 package io.polaris.validation;
 
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.regex.Pattern;
+
+import javax.annotation.Nonnull;
+import javax.validation.ConstraintTarget;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import javax.validation.ConstraintViolation;
+import javax.validation.MessageInterpolator;
+import javax.validation.Payload;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import javax.validation.metadata.ConstraintDescriptor;
+import javax.validation.metadata.ValidateUnwrappedValue;
+
 import io.polaris.core.annotation.Experimental;
 import io.polaris.core.err.ValidationException;
+import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.Types;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.string.Strings;
@@ -16,19 +44,11 @@ import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpo
 import org.hibernate.validator.resourceloading.PlatformResourceBundleLocator;
 import org.hibernate.validator.spi.resourceloading.ResourceBundleLocator;
 
-import javax.validation.*;
-import javax.validation.metadata.ConstraintDescriptor;
-import javax.validation.metadata.ValidateUnwrappedValue;
-import java.lang.annotation.Annotation;
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.regex.Pattern;
-
 /**
  * @author Qt
  * @since 1.8
  */
+@SuppressWarnings("rawtypes")
 public class Validations {
 
 	private static final Pattern patternPlaceholder = Pattern.compile("\\{([^}]+)\\}");
@@ -63,6 +83,7 @@ public class Validations {
 		return defaultValidator = getDefaultFactory().getValidator();
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <A extends Annotation, T> List<Class<? extends ConstraintValidator<A, ?>>> getConstraintValidator(Class<A> annotationType, Class<T> type) {
 
 		type = (Class<T>) Types.getWrapperClass(type);
@@ -74,13 +95,14 @@ public class Validations {
 		for (ConstraintValidatorDescriptor<A> descriptor : list) {
 			Class<? extends ConstraintValidator<A, ?>> c = descriptor.getValidatorClass();
 			Class target = Reflects.findActualTypeArgument(ConstraintValidator.class, c, 1);
-			if (target.isAssignableFrom(type)) {
+			if (target != null && target.isAssignableFrom(type)) {
 				targets.add(c);
 			}
 		}
 		return targets;
 	}
 
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	public static <A extends Annotation, T> Class<? extends ConstraintValidator<A, ?>> getFirstConstraintValidator(Class<A> annotationType, Class<T> type) {
 
 		type = (Class<T>) Types.getWrapperClass(type);
@@ -93,11 +115,13 @@ public class Validations {
 		for (ConstraintValidatorDescriptor<A> descriptor : list) {
 			Class<? extends ConstraintValidator<A, ?>> c = descriptor.getValidatorClass();
 			Class target = Reflects.findActualTypeArgument(ConstraintValidator.class, c, 1);
-			if (target.equals(type)) {
-				matched = c;
-				break;
-			} else if (target.isAssignableFrom(type)) {
-				targets.add(c);
+			if (target != null) {
+				if (target.equals(type)) {
+					matched = c;
+					break;
+				} else if (target.isAssignableFrom(type)) {
+					targets.add(c);
+				}
 			}
 		}
 		if (matched != null) {
@@ -252,20 +276,36 @@ public class Validations {
 		return ValidationResult.error(messageBuilder.apply(violationSet));
 	}
 
-	private static <T> String buildMessage(Set<ConstraintViolation<T>> violationSet) {
+	public static <T> String buildMessage(Set<ConstraintViolation<T>> violationSet) {
+		String separator = "\n";
+		String prefix = "参数规则验证失败！";
+		return buildMessage(violationSet, prefix, separator, false);
+	}
+
+	public static <T> @Nonnull String buildMessage(Set<ConstraintViolation<T>> violationSet, String prefix, String separator, boolean withInvalidValue) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("参数规则验证失败！");
+		if (prefix != null) {
+			sb.append(prefix);
+		}
 		for (ConstraintViolation<T> violation : violationSet) {
 			String errorMsg = violation.getMessage();
 			String path = violation.getPropertyPath().toString();
-			sb.append("\n");
-			if (Strings.isNotBlank(path)) {
-				sb.append("属性[").append(path).append("]：");
+			if (sb.length() > 0 && separator != null) {
+				sb.append(separator);
 			}
-			sb.append(errorMsg).append("！");
+			if (Strings.isNotBlank(path)) {
+				sb.append("[").append(path).append("]");
+			}
+			sb.append(errorMsg);
+			if (withInvalidValue) {
+				Object invalidValue = violation.getInvalidValue();
+				if (invalidValue != null) {
+					sb.append("，").append("当前值为`").append(Objs.toString(invalidValue)).append("`");
+				}
+			}
+			sb.append("！");
 		}
-		String msg = sb.toString();
-		return msg;
+		return sb.toString();
 	}
 
 
@@ -390,6 +430,7 @@ public class Validations {
 			throw new ValidationException(message);
 		}
 	}
+
 	public static void isSame(Object expected, Object actual, String message) throws ValidationException {
 		if (expected != actual) {
 			throw new ValidationException(message);
@@ -509,6 +550,7 @@ public class Validations {
 			throw new ValidationException(message);
 		}
 	}
+
 	public static void endsWithAny(CharSequence[] expected, CharSequence actual, String message) throws ValidationException {
 		if (!Strings.endsWithAny(actual, expected)) {
 			throw new ValidationException(message);
@@ -532,6 +574,7 @@ public class Validations {
 			throw new ValidationException(message);
 		}
 	}
+
 	public static void endsWithAnyIgnoreCase(CharSequence[] expected, CharSequence actual, String message) throws ValidationException {
 		if (!Strings.endsWithAnyIgnoreCase(actual, expected)) {
 			throw new ValidationException(message);

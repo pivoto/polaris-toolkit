@@ -29,6 +29,9 @@ class ValidationsTest {
 		b.setId(Strings.uuid());
 		b.setId2("a/b/c/");
 
+		System.out.println(Validations.validateQuietly(b));
+		System.out.println(Validations.validateQuietly(b, set->Validations.buildMessage(set, "","", true)));
+
 		ValidationResult validationResult = Validations.validateQuietly(b
 			, violationSet -> violationSet.stream().collect(
 				StringBuilder::new, (s, v) -> s.append(v.getMessage()).append("！"), (s0, s1) -> s0.append(s1)).toString()

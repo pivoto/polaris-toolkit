@@ -1,11 +1,11 @@
 package io.polaris.core.err;
 
+import java.util.Collection;
+import java.util.LinkedHashSet;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Collection;
-import java.util.LinkedHashSet;
 
 /**
  * @author Qt
@@ -55,6 +55,14 @@ public class ValidationException extends MessageException {
 			return sb.toString();
 		}
 		return super.getMessage();
+	}
+
+	public ValidationException addErrorDetail(String field, String message) {
+		ErrorDetail errorDetail = new ErrorDetail();
+		errorDetail.setField(field);
+		errorDetail.setMessage(message);
+		errorDetails.add(errorDetail);
+		return this;
 	}
 
 	public Collection<ErrorDetail> getErrorDetails() {
