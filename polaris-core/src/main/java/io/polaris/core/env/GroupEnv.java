@@ -306,7 +306,7 @@ public class GroupEnv implements Env {
 			String val = get(key);
 			return isInvalidPropertyValue(val) ? defaultVal : Integer.parseInt(val);
 		} catch (NumberFormatException e) {
-			return 0;
+			return defaultVal;
 		}
 	}
 
@@ -319,7 +319,7 @@ public class GroupEnv implements Env {
 			String val = get(key);
 			return isInvalidPropertyValue(val) ? defaultVal : Long.parseLong(val);
 		} catch (NumberFormatException e) {
-			return 0;
+			return defaultVal;
 		}
 	}
 
