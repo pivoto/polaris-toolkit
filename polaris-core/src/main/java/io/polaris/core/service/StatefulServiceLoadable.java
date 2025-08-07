@@ -9,5 +9,5 @@ package io.polaris.core.service;
  * @since Sep 26, 2024
  */
 @Spi
-public interface StatefulServiceLoadable {
+public interface StatefulServiceLoadable extends ServiceLoadable{
 }

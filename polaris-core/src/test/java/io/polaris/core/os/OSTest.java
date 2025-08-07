@@ -1,12 +1,13 @@
 package io.polaris.core.os;
 
+import io.polaris.core.consts.StdKeys;
 import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Test;
 
 class OSTest {
 
 	static {
-		System.setProperty(OS.KEY_IP_REGEX,"192\\.,172\\.");
+		System.setProperty(StdKeys.IP_REGEX,"192\\.,172\\.");
 	}
 
 	@Test

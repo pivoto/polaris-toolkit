@@ -30,7 +30,6 @@ import io.polaris.core.string.Strings;
 @SuppressWarnings("All")
 public class OS {
 
-	public static final String KEY_IP_REGEX = "ip.regex";
 	private static volatile int PID = -1;
 	private static volatile String LOCAL_HOST_IP;
 	private static volatile List<String> CACHE_ALL_IPS;
@@ -91,7 +90,7 @@ public class OS {
 		if (null != CACHE_IP) {
 			return CACHE_IP;
 		}
-		String ipRegex = GlobalStdEnv.get(KEY_IP_REGEX);
+		String ipRegex = GlobalStdEnv.get(StdKeys.IP_REGEX);
 		if (Strings.isNotBlank(ipRegex)) {
 			// 从系统属性中取优先IP范式，存在则使用
 			String[] arr = Strings.delimitedToArray(ipRegex, ",");

@@ -199,6 +199,11 @@ public class Executors {
 		return callable(task, null);
 	}
 
+	@Nonnull
+	public static <T> Callable<T> callable(@Nonnull Supplier<T> task) {
+		return task::get;
+	}
+
 	public static void shutdown(ExecutorService pool) {
 		shutdown(pool, 60);
 	}
@@ -223,6 +228,19 @@ public class Executors {
 			// Preserve interrupt status
 			Thread.currentThread().interrupt();
 		}
+	}
+
+
+	/**
+	 * 判断线程池中是否有正在执行的任务，只是近似而非准确结果
+	 */
+	public static boolean hasRunningTasks(ThreadPoolExecutor executor) {
+		// 线程池已终止，则无任务
+		if (executor.isTerminated()) {
+			return false;
+		}
+		// 活跃线程数 > 0 或 任务队列非空，说明有运行中/等待中的任务
+		return executor.getActiveCount() > 0 || !executor.getQueue().isEmpty();
 	}
 
 	public static Runnable ignoreThrowable(Runnable runnable) {
