@@ -100,25 +100,25 @@ public class Ciphers {
 		return doInitDecryptMode(cipher, key);
 	}
 
-	public static IEncryptor getEncryptor(String algorithm, Key key) {
+	public static Encryptor getEncryptor(String algorithm, Key key) {
 		Cipher cipher = getEncryptCipher(algorithm, key);
 		return getEncryptor(cipher);
 	}
 
-	public static IEncryptor getEncryptor(String provider, String algorithm, Key key) {
+	public static Encryptor getEncryptor(String provider, String algorithm, Key key) {
 		Cipher cipher = getEncryptCipher(provider, algorithm, key);
 		return getEncryptor(cipher);
 	}
 
-	public static IEncryptor getEncryptor(Provider provider, String algorithm, Key key) {
+	public static Encryptor getEncryptor(Provider provider, String algorithm, Key key) {
 		Cipher cipher = getEncryptCipher(provider, algorithm, key);
 		return getEncryptor(cipher);
 	}
 
-	private static IEncryptor getEncryptor(Cipher cipher) {
-		return new IEncryptor() {
+	private static Encryptor getEncryptor(Cipher cipher) {
+		return new Encryptor() {
 			@Override
-			public IEncryptor update(byte[] data, int offset, int len) {
+			public Encryptor update(byte[] data, int offset, int len) {
 				doUpdate(cipher, data, offset, len);
 				return this;
 			}

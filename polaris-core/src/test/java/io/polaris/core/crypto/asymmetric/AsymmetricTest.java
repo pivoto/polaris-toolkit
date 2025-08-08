@@ -8,7 +8,7 @@ import java.security.Security;
 import io.polaris.core.crypto.Ciphers;
 import io.polaris.core.crypto.CryptoKeys;
 import io.polaris.core.crypto.Decryptor;
-import io.polaris.core.crypto.IEncryptor;
+import io.polaris.core.crypto.Encryptor;
 import io.polaris.core.io.Consoles;
 import io.polaris.core.string.Strings;
 import org.junit.jupiter.api.Assertions;
@@ -38,7 +38,7 @@ class AsymmetricTest {
 		Consoles.println("algorithm: {}", algorithm);
 		Consoles.println("data: {}", data);
 		KeyPair pair = CryptoKeys.generateKeyPair(algorithm.code());
-		IEncryptor encryptor = Ciphers.getEncryptor(algorithm.code(), pair.getPublic());
+		Encryptor encryptor = Ciphers.getEncryptor(algorithm.code(), pair.getPublic());
 		byte[] encrypted = encryptor.encrypt(data.getBytes(StandardCharsets.UTF_8));
 		Consoles.println("encrypted: {}", new String(encrypted, StandardCharsets.UTF_8));
 

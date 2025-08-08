@@ -7,7 +7,7 @@ import java.security.PublicKey;
 import io.polaris.core.crypto.Ciphers;
 import io.polaris.core.crypto.CryptoKeys;
 import io.polaris.core.crypto.Decryptor;
-import io.polaris.core.crypto.IEncryptor;
+import io.polaris.core.crypto.Encryptor;
 
 /**
  * @author Qt
@@ -18,7 +18,7 @@ public class Asymmetric {
 	private final String algorithm;
 	private final PublicKey publicKey;
 	private final PrivateKey privateKey;
-	private IEncryptor encryptor;
+	private Encryptor encryptor;
 	private Decryptor decryptor;
 
 	public Asymmetric(String provider, String algorithm, PrivateKey privateKey, PublicKey publicKey) {
@@ -85,7 +85,7 @@ public class Asymmetric {
 		return decryptor;
 	}
 
-	public IEncryptor getEncryptor() {
+	public Encryptor getEncryptor() {
 		if (encryptor == null) {
 			encryptor = provider == null ? Ciphers.getEncryptor(algorithm, publicKey) : Ciphers.getEncryptor(provider, algorithm, privateKey);
 		}

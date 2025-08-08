@@ -5,7 +5,7 @@ import java.security.Key;
 import io.polaris.core.crypto.Ciphers;
 import io.polaris.core.crypto.CryptoKeys;
 import io.polaris.core.crypto.Decryptor;
-import io.polaris.core.crypto.IEncryptor;
+import io.polaris.core.crypto.Encryptor;
 
 /**
  * @author Qt
@@ -17,7 +17,7 @@ public class Symmetric {
 	private final String algorithm;
 	private final Key key;
 
-	private IEncryptor encryptor;
+	private Encryptor encryptor;
 	private Decryptor decryptor;
 
 	public Symmetric(String provider, String algorithm, Key key) {
@@ -69,7 +69,7 @@ public class Symmetric {
 		return decryptor;
 	}
 
-	public IEncryptor getEncryptor() {
+	public Encryptor getEncryptor() {
 		if (encryptor == null) {
 			encryptor = Ciphers.getEncryptor(algorithm, key);
 		}
