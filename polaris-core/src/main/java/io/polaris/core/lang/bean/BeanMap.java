@@ -14,7 +14,7 @@ import io.polaris.core.log.Loggers;
  * @author Qt
  * @since 1.8
  */
-public class BeanMap<T> extends AbstractMap<String, Object> implements IBeanMap<T>, Map<String, Object> {
+public class BeanMap<T> extends AbstractMap<String, Object> implements BeanMapSpec<T>, Map<String, Object> {
 	private static final Logger log = Loggers.of(BeanMap.class);
 	protected final T bean;
 	protected final Class<?> beanType;
