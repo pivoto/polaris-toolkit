@@ -58,7 +58,7 @@ public class Fastjsons {
 	};
 
 	static {
-		for (IFastjsonCustomizer customizer : StatefulServiceLoader.load(IFastjsonCustomizer.class)) {
+		for (FastjsonCustomizer customizer : StatefulServiceLoader.load(FastjsonCustomizer.class)) {
 			try {
 				customizer.customize();
 			} catch (Throwable e) {
