@@ -4,7 +4,7 @@ package io.polaris.core.data.partition;
  * @author Qt
  * @since 1.8
  */
-public class ProducerThreadPartitioner<T> implements IDataPartitioner<T> {
+public class ProducerThreadPartitioner<T> implements DataPartitioner<T> {
 	public ProducerThreadPartitioner() {
 	}
 

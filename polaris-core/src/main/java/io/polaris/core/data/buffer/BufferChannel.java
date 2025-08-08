@@ -1,6 +1,6 @@
 package io.polaris.core.data.buffer;
 
-import io.polaris.core.data.partition.IDataPartitioner;
+import io.polaris.core.data.partition.DataPartitioner;
 
 /**
  * @author Qt
@@ -11,10 +11,10 @@ public class BufferChannel<T> {
 	private final BufferStrategy strategy;
 	private final long size;
 	private int maxRetryCount = 3;
-	private IDataPartitioner<T> dataPartitioner;
+	private DataPartitioner<T> dataPartitioner;
 
 	@SuppressWarnings({"unchecked", "PointlessArithmeticExpression"})
-	public BufferChannel(int bufferCount, int bufferSize, IDataPartitioner<T> partitioner, BufferStrategy strategy) {
+	public BufferChannel(int bufferCount, int bufferSize, DataPartitioner<T> partitioner, BufferStrategy strategy) {
 		this.dataPartitioner = partitioner;
 		this.strategy = strategy;
 		buffers = new QueueBuffer[bufferCount];
@@ -60,7 +60,7 @@ public class BufferChannel<T> {
 		this.maxRetryCount = maxRetryCount;
 	}
 
-	public void setPartitioner(IDataPartitioner<T> dataPartitioner) {
+	public void setPartitioner(DataPartitioner<T> dataPartitioner) {
 		this.dataPartitioner = dataPartitioner;
 	}
 

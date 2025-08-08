@@ -6,7 +6,7 @@ import io.polaris.core.data.consumer.DataConsumer;
 import io.polaris.core.data.buffer.BufferStrategy;
 import io.polaris.core.data.consumer.BulkConsumerDriver;
 import io.polaris.core.data.consumer.ConsumerDriver;
-import io.polaris.core.data.partition.IDataPartitioner;
+import io.polaris.core.data.partition.DataPartitioner;
 import io.polaris.core.data.partition.SimpleRollingPartitioner;
 
 /**
@@ -35,7 +35,7 @@ public class DataCarrier<T> {
 	}
 
 
-	public DataCarrier(String name, int bufferCount, int bufferSize, BufferStrategy strategy,IDataPartitioner<T> partitioner) {
+	public DataCarrier(String name, int bufferCount, int bufferSize, BufferStrategy strategy, DataPartitioner<T> partitioner) {
 		this.name = name;
 		channel = new BufferChannel<>(bufferCount, bufferSize, partitioner, strategy);
 	}
@@ -69,7 +69,7 @@ public class DataCarrier<T> {
 		return this;
 	}
 
-	public DataCarrier<T> setPartitioner(IDataPartitioner<T> dataPartitioner) {
+	public DataCarrier<T> setPartitioner(DataPartitioner<T> dataPartitioner) {
 		this.channel.setPartitioner(dataPartitioner);
 		return this;
 	}
