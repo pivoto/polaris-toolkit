@@ -5,7 +5,7 @@ package io.polaris.core.log.support;
  * @author Qt
  * @since  Aug 04, 2023
  */
-class NoopStack implements IStack {
+class NoopStack implements Stack {
 
 	@Override
 	public void put(String key, String val) {

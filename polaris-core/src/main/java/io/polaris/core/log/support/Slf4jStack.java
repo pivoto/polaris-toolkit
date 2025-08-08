@@ -6,7 +6,7 @@ import org.slf4j.MDC;
  * @author Qt
  * @since  Aug 04, 2023
  */
-class Slf4jStack implements IStack {
+class Slf4jStack implements Stack {
 	public static final String DELIMITER = "|";
 	public static final String STACK_KEY = "MSG";
 

@@ -4,7 +4,7 @@ package io.polaris.core.log.support;
  * @author Qt
  * @since  Aug 04, 2023
  */
-interface IStack {
+interface Stack {
 	void put(String key, String val);
 
 	String get(String key);

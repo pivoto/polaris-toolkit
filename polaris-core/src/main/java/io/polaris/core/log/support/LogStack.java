@@ -5,59 +5,57 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Objects;
 
-import lombok.val;
-
 /**
  * @author Qt
  * @since 1.8
  */
 public class LogStack {
 
-	private static IStack iStack;
+	private static Stack stack;
 
 	static {
 		try {
 			org.apache.logging.log4j.ThreadContext.peek(); // 执行log4j2的方法, 确定可用
-			iStack = new Log4j2Stack();
+			stack = new Log4j2Stack();
 		} catch (Throwable ignored) {
 		}
-		if (iStack == null) {
+		if (stack == null) {
 			try{
 				// noinspection ResultOfMethodCallIgnored
 				org.slf4j.MDC.getMDCAdapter(); // 执行slf4j的方法, 确定可用
-				iStack = new Slf4jStack();
+				stack = new Slf4jStack();
 			}catch (Throwable ignored){
 			}
 		}
-		if (iStack == null) {
-			iStack = new NoopStack();
+		if (stack == null) {
+			stack = new NoopStack();
 		}
 	}
 
 	public static void put(String key, String val) {
-		iStack.put(key, val);
+		stack.put(key, val);
 	}
 
 	public static String get(String key) {
-		return iStack.get(key);
+		return stack.get(key);
 	}
 
 	public static void remove(String key) {
-		iStack.remove(key);
+		stack.remove(key);
 	}
 
 	public static void clear() {
-		iStack.clear();
+		stack.clear();
 	}
 
 	public static void push(String msg) {
-		iStack.push(msg);
+		stack.push(msg);
 	}
 
 	public static void pushIfAbsent(String msg) {
-		String last = iStack.peek();
+		String last = stack.peek();
 		if (!Objects.equals(last, msg)) {
-			iStack.push(msg);
+			stack.push(msg);
 		}
 	}
 
@@ -77,11 +75,11 @@ public class LogStack {
 	}
 
 	public static String pop() {
-		return iStack.pop();
+		return stack.pop();
 	}
 
 	public static String peek() {
-		return iStack.peek();
+		return stack.peek();
 	}
 
 }
