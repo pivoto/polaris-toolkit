@@ -1,7 +1,6 @@
 package io.polaris.core.ulid;
 
 import java.security.SecureRandom;
-import java.time.Clock;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
@@ -232,26 +231,26 @@ public final class UlidFactory {
 	 */
 	static final class UlidFunction implements LongFunction<Ulid> {
 
-		private final IRandom random;
+		private final RandomSpec random;
 
-		private UlidFunction(IRandom random) {
+		private UlidFunction(RandomSpec random) {
 			this.random = random;
 		}
 
 		public UlidFunction() {
-			this(IRandom.newInstance());
+			this(RandomSpec.newInstance());
 		}
 
 		public UlidFunction(Random random) {
-			this(IRandom.newInstance(random));
+			this(RandomSpec.newInstance(random));
 		}
 
 		public UlidFunction(LongSupplier randomFunction) {
-			this(IRandom.newInstance(randomFunction));
+			this(RandomSpec.newInstance(randomFunction));
 		}
 
 		public UlidFunction(IntFunction<byte[]> randomFunction) {
-			this(IRandom.newInstance(randomFunction));
+			this(RandomSpec.newInstance(randomFunction));
 		}
 
 		@Override
@@ -273,31 +272,31 @@ public final class UlidFactory {
 
 		private Ulid lastUlid;
 
-		private final IRandom random;
+		private final RandomSpec random;
 
 		// Used to preserve monotonicity when the system clock is
 		// adjusted by NTP after a small clock drift or when the
 		// system clock jumps back by 1 second due to leap second.
 		static final int CLOCK_DRIFT_TOLERANCE = 10_000;
 
-		private MonotonicFunction(IRandom random) {
+		private MonotonicFunction(RandomSpec random) {
 			this.random = random;
 		}
 
 		public MonotonicFunction() {
-			this(IRandom.newInstance());
+			this(RandomSpec.newInstance());
 		}
 
 		public MonotonicFunction(Random random) {
-			this(IRandom.newInstance(random));
+			this(RandomSpec.newInstance(random));
 		}
 
 		public MonotonicFunction(LongSupplier randomFunction) {
-			this(IRandom.newInstance(randomFunction));
+			this(RandomSpec.newInstance(randomFunction));
 		}
 
 		public MonotonicFunction(IntFunction<byte[]> randomFunction) {
-			this(IRandom.newInstance(randomFunction));
+			this(RandomSpec.newInstance(randomFunction));
 		}
 
 		void initialize(LongSupplier timeFunction) {
@@ -329,17 +328,17 @@ public final class UlidFactory {
 		}
 	}
 
-	static interface IRandom {
+	static interface RandomSpec {
 
 		public long nextLong();
 
 		public byte[] nextBytes(int length);
 
-		static IRandom newInstance() {
+		static RandomSpec newInstance() {
 			return new ByteRandom();
 		}
 
-		static IRandom newInstance(Random random) {
+		static RandomSpec newInstance(Random random) {
 			if (random == null) {
 				return new ByteRandom();
 			} else {
@@ -351,16 +350,16 @@ public final class UlidFactory {
 			}
 		}
 
-		static IRandom newInstance(LongSupplier randomFunction) {
+		static RandomSpec newInstance(LongSupplier randomFunction) {
 			return new LongRandom(randomFunction);
 		}
 
-		static IRandom newInstance(IntFunction<byte[]> randomFunction) {
+		static RandomSpec newInstance(IntFunction<byte[]> randomFunction) {
 			return new ByteRandom(randomFunction);
 		}
 	}
 
-	static class LongRandom implements IRandom {
+	static class LongRandom implements RandomSpec {
 
 		private final LongSupplier randomFunction;
 
@@ -406,7 +405,7 @@ public final class UlidFactory {
 		}
 	}
 
-	static class ByteRandom implements IRandom {
+	static class ByteRandom implements RandomSpec {
 
 		private final IntFunction<byte[]> randomFunction;
 

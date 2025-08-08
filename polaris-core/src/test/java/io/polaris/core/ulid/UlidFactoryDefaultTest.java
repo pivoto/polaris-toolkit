@@ -132,7 +132,7 @@ public class UlidFactoryDefaultTest extends UlidFactoryTest {
 			byte[] bytes = new byte[Long.BYTES];
 			(new Random()).nextBytes(bytes);
 			long number = ByteBuffer.wrap(bytes).getLong();
-			UlidFactory.IRandom random = new UlidFactory.ByteRandom((x) -> bytes);
+			UlidFactory.RandomSpec random = new UlidFactory.ByteRandom((x) -> bytes);
 			assertEquals(number, random.nextLong());
 		}
 
@@ -146,7 +146,7 @@ public class UlidFactoryDefaultTest extends UlidFactoryTest {
 			ByteBuffer buffer1 = ByteBuffer.wrap(bytes);
 			ByteBuffer buffer2 = ByteBuffer.wrap(bytes);
 
-			UlidFactory.IRandom random = new UlidFactory.ByteRandom((x) -> {
+			UlidFactory.RandomSpec random = new UlidFactory.ByteRandom((x) -> {
 				byte[] octects = new byte[x];
 				buffer1.get(octects);
 				return octects;
@@ -164,7 +164,7 @@ public class UlidFactoryDefaultTest extends UlidFactoryTest {
 		for (int i = 0; i < 10; i++) {
 			byte[] bytes = new byte[Long.BYTES];
 			(new Random()).nextBytes(bytes);
-			UlidFactory.IRandom random = new UlidFactory.ByteRandom((x) -> bytes);
+			UlidFactory.RandomSpec random = new UlidFactory.ByteRandom((x) -> bytes);
 			assertEquals(Arrays.toString(bytes), Arrays.toString(random.nextBytes(Long.BYTES)));
 		}
 
@@ -178,7 +178,7 @@ public class UlidFactoryDefaultTest extends UlidFactoryTest {
 			ByteBuffer buffer1 = ByteBuffer.wrap(bytes);
 			ByteBuffer buffer2 = ByteBuffer.wrap(bytes);
 
-			UlidFactory.IRandom random = new UlidFactory.ByteRandom((x) -> {
+			UlidFactory.RandomSpec random = new UlidFactory.ByteRandom((x) -> {
 				byte[] octects = new byte[x];
 				buffer1.get(octects);
 				return octects;
@@ -199,7 +199,7 @@ public class UlidFactoryDefaultTest extends UlidFactoryTest {
 			byte[] bytes = new byte[Long.BYTES];
 			(new Random()).nextBytes(bytes);
 			long number = ByteBuffer.wrap(bytes).getLong();
-			UlidFactory.IRandom random = new UlidFactory.LongRandom(() -> number);
+			UlidFactory.RandomSpec random = new UlidFactory.LongRandom(() -> number);
 			assertEquals(number, random.nextLong());
 		}
 
@@ -213,7 +213,7 @@ public class UlidFactoryDefaultTest extends UlidFactoryTest {
 			ByteBuffer buffer1 = ByteBuffer.wrap(bytes);
 			ByteBuffer buffer2 = ByteBuffer.wrap(bytes);
 
-			UlidFactory.IRandom random = new UlidFactory.LongRandom(() -> buffer1.getLong());
+			UlidFactory.RandomSpec random = new UlidFactory.LongRandom(() -> buffer1.getLong());
 
 			for (int j = 0; j < ints; j++) {
 				assertEquals(buffer2.getLong(), random.nextLong());
@@ -228,7 +228,7 @@ public class UlidFactoryDefaultTest extends UlidFactoryTest {
 			byte[] bytes = new byte[Long.BYTES];
 			(new Random()).nextBytes(bytes);
 			long number = ByteBuffer.wrap(bytes).getLong();
-			UlidFactory.IRandom random = new UlidFactory.LongRandom(() -> number);
+			UlidFactory.RandomSpec random = new UlidFactory.LongRandom(() -> number);
 			assertEquals(Arrays.toString(bytes), Arrays.toString(random.nextBytes(Long.BYTES)));
 		}
 
@@ -242,7 +242,7 @@ public class UlidFactoryDefaultTest extends UlidFactoryTest {
 			ByteBuffer buffer1 = ByteBuffer.wrap(bytes);
 			ByteBuffer buffer2 = ByteBuffer.wrap(bytes);
 
-			UlidFactory.IRandom random = new UlidFactory.LongRandom(() -> buffer1.getLong());
+			UlidFactory.RandomSpec random = new UlidFactory.LongRandom(() -> buffer1.getLong());
 
 			for (int j = 0; j < ints; j++) {
 				byte[] octects = new byte[Long.BYTES];
