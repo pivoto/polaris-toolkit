@@ -9,7 +9,7 @@ import io.polaris.core.string.Strings;
  * @author Qt
  * @since 1.8
  */
-public class MessageCheckedException extends CheckedException implements IErrorCode {
+public class MessageCheckedException extends CheckedException implements ErrorCoded {
 	private static final long serialVersionUID = 1L;
 	private String code;
 	private String message;
@@ -32,12 +32,12 @@ public class MessageCheckedException extends CheckedException implements IErrorC
 		withCode(code, message, params);
 	}
 
-	public MessageCheckedException(IErrorCode errorCode) {
+	public MessageCheckedException(ErrorCoded errorCode) {
 		this(errorCode.getCode(), errorCode.getMessage());
 	}
 
 
-	public MessageCheckedException(IErrorCode errorCode, Object[] params) {
+	public MessageCheckedException(ErrorCoded errorCode, Object[] params) {
 		this(errorCode.getCode(), errorCode.getMessage(), params);
 	}
 
@@ -71,11 +71,11 @@ public class MessageCheckedException extends CheckedException implements IErrorC
 		fetchCode(cause, code, message, params);
 	}
 
-	public MessageCheckedException(Throwable cause, IErrorCode errorCode) {
+	public MessageCheckedException(Throwable cause, ErrorCoded errorCode) {
 		this(cause, errorCode.getCode(), errorCode.getMessage());
 	}
 
-	public MessageCheckedException(Throwable cause, IErrorCode errorCode, Object[] params) {
+	public MessageCheckedException(Throwable cause, ErrorCoded errorCode, Object[] params) {
 		this(cause, errorCode.getCode(), errorCode.getMessage(), params);
 	}
 
@@ -89,19 +89,19 @@ public class MessageCheckedException extends CheckedException implements IErrorC
 		fetchCode(cause, code, message, params);
 	}
 
-	public MessageCheckedException(Throwable cause, boolean enableSuppression, boolean writableStackTrace, IErrorCode errorCode) {
+	public MessageCheckedException(Throwable cause, boolean enableSuppression, boolean writableStackTrace, ErrorCoded errorCode) {
 		this(cause, enableSuppression, writableStackTrace, errorCode.getCode(), errorCode.getMessage());
 	}
 
-	public MessageCheckedException(Throwable cause, boolean enableSuppression, boolean writableStackTrace, IErrorCode errorCode, Object[] params) {
+	public MessageCheckedException(Throwable cause, boolean enableSuppression, boolean writableStackTrace, ErrorCoded errorCode, Object[] params) {
 		this(cause, enableSuppression, writableStackTrace, errorCode.getCode(), errorCode.getMessage(), params);
 	}
 
 
 	private void fetchCode(Throwable cause, String code, String message) {
 		if (code == null || code.trim().isEmpty()) {
-			if (cause instanceof IErrorCode) {
-				withCode(((IErrorCode) cause).getCode(), Strings.coalesce(message, cause.getMessage(), code));
+			if (cause instanceof ErrorCoded) {
+				withCode(((ErrorCoded) cause).getCode(), Strings.coalesce(message, cause.getMessage(), code));
 			}
 		} else {
 			withCode(code, Strings.coalesce(message, cause.getMessage(), code));
@@ -110,8 +110,8 @@ public class MessageCheckedException extends CheckedException implements IErrorC
 
 	private void fetchCode(Throwable cause, String code, String message, Object[] params) {
 		if (code == null || code.trim().isEmpty()) {
-			if (cause instanceof IErrorCode) {
-				withCode(((IErrorCode) cause).getCode(), Strings.coalesce(message, cause.getMessage(), code), params);
+			if (cause instanceof ErrorCoded) {
+				withCode(((ErrorCoded) cause).getCode(), Strings.coalesce(message, cause.getMessage(), code), params);
 			}
 		} else {
 			withCode(code, Strings.coalesce(message, cause == null ? null : cause.getMessage(), code), params);

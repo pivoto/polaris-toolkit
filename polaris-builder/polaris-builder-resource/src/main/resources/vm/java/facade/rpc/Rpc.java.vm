@@ -11,7 +11,6 @@ import io.polaris.core.jdbc.sql.query.OrderBy;
 import io.polaris.core.jdbc.sql.query.Queries;
 import io.polaris.core.jdbc.sql.query.Pageable;
 import io.polaris.core.lang.bean.Beans;
-import io.polaris.core.lang.bean.IBeanMap;
 
 import lombok.extern.slf4j.Slf4j;
 

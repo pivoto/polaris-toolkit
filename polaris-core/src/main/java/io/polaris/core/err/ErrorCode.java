@@ -6,7 +6,7 @@ import io.polaris.core.string.Strings;
  * @author Qt
  * @since 1.8
  */
-public class ErrorCode implements IErrorCode {
+public class ErrorCode implements ErrorCoded {
 	private String code;
 	private String message;
 
