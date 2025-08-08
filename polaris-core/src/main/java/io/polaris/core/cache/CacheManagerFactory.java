@@ -10,20 +10,20 @@ import java.util.Optional;
  * @author Qt
  * @since 1.8
  */
-public interface ICacheManagerFactory extends ServiceLoadable {
+public interface CacheManagerFactory extends ServiceLoadable {
 
 	CacheManager getCacheManager();
 
 
 	@Nullable
-	static ICacheManagerFactory defaultCacheManagerFactory() {
-		StatefulServiceLoader<ICacheManagerFactory> loader = StatefulServiceLoader.load(ICacheManagerFactory.class);
+	static CacheManagerFactory defaultCacheManagerFactory() {
+		StatefulServiceLoader<CacheManagerFactory> loader = StatefulServiceLoader.load(CacheManagerFactory.class);
 		return loader.service();
 	}
 
 	@Nullable
 	static CacheManager defaultCacheManager() {
-		return Optional.ofNullable(defaultCacheManagerFactory()).map(ICacheManagerFactory::getCacheManager).orElse(null);
+		return Optional.ofNullable(defaultCacheManagerFactory()).map(CacheManagerFactory::getCacheManager).orElse(null);
 	}
 
 }

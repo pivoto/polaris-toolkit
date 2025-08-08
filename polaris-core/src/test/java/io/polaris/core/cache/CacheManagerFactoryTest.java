@@ -13,11 +13,11 @@ class CacheManagerFactoryTest {
 
 	@Test
 	void test01() {
-		ICacheManagerFactory factory = ICacheManagerFactory.defaultCacheManagerFactory();
+		CacheManagerFactory factory = CacheManagerFactory.defaultCacheManagerFactory();
 		Assertions.assertInstanceOf(MapCacheManagerFactory.class, factory);
-		Assertions.assertSame(factory.getCacheManager(), ICacheManagerFactory.defaultCacheManager());
+		Assertions.assertSame(factory.getCacheManager(), CacheManagerFactory.defaultCacheManager());
 
-		Cache<String, Object> cache = ICacheManagerFactory.defaultCacheManager().getCache("test");
+		Cache<String, Object> cache = CacheManagerFactory.defaultCacheManager().getCache("test");
 		Assertions.assertInstanceOf(MapCache.class, cache);
 
 		for (int i = 0; i < 20; i++) {

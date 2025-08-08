@@ -7,7 +7,7 @@ import io.polaris.core.service.ServiceDefault;
  * @since 1.8
  */
 @ServiceDefault(Integer.MAX_VALUE)
-public class MapCacheManagerFactory implements ICacheManagerFactory {
+public class MapCacheManagerFactory implements CacheManagerFactory {
 
 	private MapCacheManager cacheManager;
 
