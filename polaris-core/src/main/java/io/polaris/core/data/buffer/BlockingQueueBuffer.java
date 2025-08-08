@@ -8,7 +8,7 @@ import java.util.concurrent.BlockingQueue;
  * @author Qt
  * @since 1.8
  */
-public class BlockingQueueBuffer<T> implements IQueueBuffer<T> {
+public class BlockingQueueBuffer<T> implements QueueBuffer<T> {
 	private final BlockingQueue<T> queue;
 	private final int size;
 

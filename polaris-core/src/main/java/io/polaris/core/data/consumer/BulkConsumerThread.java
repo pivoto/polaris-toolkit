@@ -1,7 +1,7 @@
 package io.polaris.core.data.consumer;
 
 import io.polaris.core.data.buffer.BufferChannel;
-import io.polaris.core.data.buffer.IQueueBuffer;
+import io.polaris.core.data.buffer.QueueBuffer;
 import io.polaris.core.tuple.Tuple2;
 
 import java.util.ArrayList;
@@ -73,7 +73,7 @@ public class BulkConsumerThread<T> extends Thread {
 
 	private boolean consume(Tuple2<BufferChannel<T>, IConsumer<T>> target, List<T> consumeList) {
 		for (int i = 0; i < target.getFirst().getBufferCount(); i++) {
-			IQueueBuffer<T> buffer = target.getFirst().getBuffer(i);
+			QueueBuffer<T> buffer = target.getFirst().getBuffer(i);
 			buffer.drainTo(consumeList);
 		}
 

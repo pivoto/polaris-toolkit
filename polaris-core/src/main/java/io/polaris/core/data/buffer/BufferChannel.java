@@ -7,7 +7,7 @@ import io.polaris.core.data.partition.IDataPartitioner;
  * @since 1.8
  */
 public class BufferChannel<T> {
-	private final IQueueBuffer<T>[] buffers;
+	private final QueueBuffer<T>[] buffers;
 	private final BufferStrategy strategy;
 	private final long size;
 	private int maxRetryCount = 3;
@@ -17,7 +17,7 @@ public class BufferChannel<T> {
 	public BufferChannel(int bufferCount, int bufferSize, IDataPartitioner<T> partitioner, BufferStrategy strategy) {
 		this.dataPartitioner = partitioner;
 		this.strategy = strategy;
-		buffers = new IQueueBuffer[bufferCount];
+		buffers = new QueueBuffer[bufferCount];
 		switch (strategy) {
 			case BLOCKING:
 				for (int i = 0; i < bufferCount; i++) {
@@ -26,13 +26,13 @@ public class BufferChannel<T> {
 				break;
 			case FAIL_FAST:
 				for (int i = 0; i < bufferCount; i++) {
-					buffers[i] = new QueueBuffer<>(bufferSize, false);
+					buffers[i] = new DefaultQueueBuffer<>(bufferSize, false);
 				}
 				break;
 			case OVERRIDE:
 			default:
 				for (int i = 0; i < bufferCount; i++) {
-					buffers[i] = new QueueBuffer<>(bufferSize, true);
+					buffers[i] = new DefaultQueueBuffer<>(bufferSize, true);
 				}
 				break;
 		}
@@ -72,7 +72,7 @@ public class BufferChannel<T> {
 		return size;
 	}
 
-	public IQueueBuffer<T> getBuffer(int index) {
+	public QueueBuffer<T> getBuffer(int index) {
 		return this.buffers[index];
 	}
 

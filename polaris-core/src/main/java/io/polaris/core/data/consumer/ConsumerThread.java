@@ -1,6 +1,6 @@
 package io.polaris.core.data.consumer;
 
-import io.polaris.core.data.buffer.IQueueBuffer;
+import io.polaris.core.data.buffer.QueueBuffer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
 public class ConsumerThread<T> extends Thread {
 	private volatile boolean running = false;
 	private final IConsumer<T> consumer;
-	private final List<IQueueBuffer<T>> queueBuffers = new ArrayList<>(1);
+	private final List<QueueBuffer<T>> queueBuffers = new ArrayList<>(1);
 	private final long thinkTime;
 
 	ConsumerThread(String name, IConsumer<T> consumer, long thinkTime) {
@@ -21,7 +21,7 @@ public class ConsumerThread<T> extends Thread {
 		this.thinkTime = thinkTime;
 	}
 
-	void addSource(IQueueBuffer<T> sourceBuffer) {
+	void addSource(QueueBuffer<T> sourceBuffer) {
 		queueBuffers.add(sourceBuffer);
 	}
 
@@ -42,7 +42,7 @@ public class ConsumerThread<T> extends Thread {
 	}
 
 	private boolean consume(List<T> consumeList) {
-		for (IQueueBuffer<T> sourceBuffer : queueBuffers) {
+		for (QueueBuffer<T> sourceBuffer : queueBuffers) {
 			sourceBuffer.drainTo(consumeList);
 		}
 		if (!consumeList.isEmpty()) {
