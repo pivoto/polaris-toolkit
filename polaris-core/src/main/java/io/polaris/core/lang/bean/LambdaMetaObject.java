@@ -12,7 +12,7 @@ import io.polaris.core.converter.Converters;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.TypeRef;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 import io.polaris.core.map.CaseInsensitiveMap;
 import io.polaris.core.map.Maps;
 import io.polaris.core.string.StringCases;
@@ -22,7 +22,7 @@ import io.polaris.core.string.StringCases;
  * @since Apr 12, 2024
  */
 public class LambdaMetaObject<T> extends MetaObject<T> {
-	private static final ILogger log = ILoggers.of(LambdaMetaObject.class);
+	private static final ILogger log = Loggers.of(LambdaMetaObject.class);
 	private static final Map<JavaType<?>, LambdaMetaObject<?>> CACHE = Maps.newWeakKeyMap(new ConcurrentHashMap<>());
 	private Map<String, LambdaProperty> properties;
 	private Map<String, LambdaProperty> propertiesCaseInsensitive;

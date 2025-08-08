@@ -5,7 +5,7 @@ import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.TypeRef;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.service.Service;
 import io.polaris.core.service.ServiceLoader;
@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.*;
  */
 @SuppressWarnings({"all"})
 public class ConverterRegistry {
-	private static final ILogger log = ILoggers.of(ConverterRegistry.class);
+	private static final ILogger log = Loggers.of(ConverterRegistry.class);
 	private static final Map<Type, Converter<?>> standardConverters = new ConcurrentHashMap<>();
 	private static final Map<Type, Converter<?>> serviceConverters = new ConcurrentHashMap<>();
 	private final Map<Type, Converter<?>> customConverters = new ConcurrentHashMap<>();

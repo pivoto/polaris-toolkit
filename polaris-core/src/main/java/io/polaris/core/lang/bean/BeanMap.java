@@ -8,14 +8,14 @@ import java.util.Map;
 import java.util.Set;
 
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 
 /**
  * @author Qt
  * @since 1.8
  */
 public class BeanMap<T> extends AbstractMap<String, Object> implements IBeanMap<T>, Map<String, Object> {
-	private static final ILogger log = ILoggers.of(BeanMap.class);
+	private static final ILogger log = Loggers.of(BeanMap.class);
 	protected final T bean;
 	protected final Class<?> beanType;
 	protected final BeanMapOptions options;

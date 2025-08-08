@@ -17,7 +17,7 @@ public class LogTest {
 
 	@Test
 	void test01() {
-		ILogger log = ILoggers.of(getClass());
+		ILogger log = Loggers.of(getClass());
 		Consoles.log("", log);
 		log.trace("test....");
 		log.trace("test....{}", "arg1");

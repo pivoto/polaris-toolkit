@@ -23,14 +23,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 
 /**
  * @author Qt
  * @since 1.8
  */
 public class ServiceLoader<S> implements Iterable<Service<S>> {
-	private static final ILogger log = ILoggers.of(ServiceLoader.class);
+	private static final ILogger log = Loggers.of(ServiceLoader.class);
 	public static final String[] PREFIX = {"META-INF/services/"};
 	private final Class<S> type;
 	private final ClassLoader loader;

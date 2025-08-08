@@ -19,7 +19,7 @@ import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.TypeRef;
 import io.polaris.core.lang.Types;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 import io.polaris.core.reflect.Reflects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,7 +34,7 @@ public abstract class MetaObject<T> {
 	public static final int INIT = 0;
 	public static final int PARSING = 1;
 	public static final int READY = 2;
-	private static final ILogger log = ILoggers.of(MetaObject.class);
+	private static final ILogger log = Loggers.of(MetaObject.class);
 	private static final Set<Class> basicTypes;
 	private final JavaType<T> beanType;
 	private int state = INIT;

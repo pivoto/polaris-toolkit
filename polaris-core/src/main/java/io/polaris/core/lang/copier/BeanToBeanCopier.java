@@ -10,7 +10,7 @@ import io.polaris.core.lang.Types;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.lang.bean.PropertyAccessor;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 import io.polaris.core.map.CaseInsensitiveMap;
 import io.polaris.core.string.StringCases;
 
@@ -19,7 +19,7 @@ import io.polaris.core.string.StringCases;
  * @since 1.8
  */
 public class BeanToBeanCopier<S, T> implements Copier<T> {
-	private static final ILogger log = ILoggers.of(BeanToBeanCopier.class);
+	private static final ILogger log = Loggers.of(BeanToBeanCopier.class);
 	private final S source;
 	private final T target;
 	private final Type sourceType;

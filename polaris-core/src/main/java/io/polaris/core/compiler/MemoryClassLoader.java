@@ -4,7 +4,7 @@ package io.polaris.core.compiler;
 import io.polaris.core.consts.StdKeys;
 import io.polaris.core.io.IO;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 import io.polaris.core.string.Strings;
 
 import javax.annotation.Nullable;
@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 1.8
  */
 public class MemoryClassLoader extends URLClassLoader {
-	private static final ILogger log = ILoggers.of(MemoryClassLoader.class);
+	private static final ILogger log = Loggers.of(MemoryClassLoader.class);
 	private static final String classBytesCacheDir;
 	private static final boolean classBytesCacheEnabled;
 	private final Map<String, MemoryJavaFileObject> classes = new ConcurrentHashMap<>();

@@ -12,7 +12,7 @@ import java.util.function.BiFunction;
 
 import io.polaris.core.asm.internal.AsmUtils;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 import io.polaris.core.reflect.SerializableConsumerWithArgs4;
 import io.polaris.core.reflect.SerializableTriFunction;
 import org.objectweb.asm.ClassWriter;
@@ -28,7 +28,7 @@ import static org.objectweb.asm.Opcodes.*;
  * @since  Apr 11, 2024
  */
 public abstract class BeanAccess<T> {
-	private static ILogger log = ILoggers.of(BeanAccess.class);
+	private static ILogger log = Loggers.of(BeanAccess.class);
 	@SuppressWarnings({"rawtypes"})
 	private static final AccessClassPool<Class<?>, BeanAccess> pool = new AccessClassPool<>();
 

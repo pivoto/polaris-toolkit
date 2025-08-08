@@ -15,14 +15,14 @@ import io.polaris.core.concurrent.Executors;
 import io.polaris.core.concurrent.policy.BackoffPolicy;
 import io.polaris.core.err.Exceptions;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 
 /**
  * @author Qt
  * @since 1.8
  */
 public class Retry {
-	private static final ILogger log = ILoggers.of(Retry.class);
+	private static final ILogger log = Loggers.of(Retry.class);
 
 	// region ScheduledExecutorService
 

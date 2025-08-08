@@ -13,14 +13,14 @@ import java.util.Set;
 import io.polaris.core.asm.reflect.BeanAccess;
 import io.polaris.core.lang.Objs;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 
 /**
  * @author Qt
  * @since  Apr 12, 2024
  */
 class BeanIndexedMap<T> extends BeanMap<T> {
-	private static final ILogger log = ILoggers.of(BeanIndexedMap.class);
+	private static final ILogger log = Loggers.of(BeanIndexedMap.class);
 	private final BeanAccess<?> access;
 	private final Map<String, Integer> setterIndices;
 	private final Map<String, Integer> getterIndices;

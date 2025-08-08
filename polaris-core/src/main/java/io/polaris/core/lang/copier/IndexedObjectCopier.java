@@ -3,7 +3,7 @@ package io.polaris.core.lang.copier;
 import java.lang.reflect.Type;
 
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 
 /**
  * @author Qt
@@ -11,7 +11,7 @@ import io.polaris.core.log.ILoggers;
  */
 @SuppressWarnings("rawtypes")
 public class IndexedObjectCopier<T> implements Copier<T> {
-	private static final ILogger log = ILoggers.of(IndexedObjectCopier.class);
+	private static final ILogger log = Loggers.of(IndexedObjectCopier.class);
 	private final Object source;
 	private final T target;
 	private final CopyOptions options;

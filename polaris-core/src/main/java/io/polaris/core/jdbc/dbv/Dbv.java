@@ -18,7 +18,7 @@ import io.polaris.core.jdbc.dbv.model.Schema;
 import io.polaris.core.jdbc.dbv.model.Table;
 import io.polaris.core.jdbc.dbv.model.TableType;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 import io.polaris.core.string.Strings;
 
 /**
@@ -26,7 +26,7 @@ import io.polaris.core.string.Strings;
  * @since 1.8
  */
 public class Dbv {
-	private static final ILogger log = ILoggers.of(Dbv.class);
+	private static final ILogger log = Loggers.of(Dbv.class);
 
 	public static <T> List<T> read(ResultSet rs, List<T> list, final Class<? extends T> clazz)
 		throws InstantiationException, IllegalAccessException {

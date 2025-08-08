@@ -11,7 +11,7 @@ import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.Types;
 import io.polaris.core.lang.copier.CopyOptions;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 import io.polaris.core.reflect.SerializableBiFunction;
 import io.polaris.core.reflect.SerializableConsumer;
 import io.polaris.core.reflect.SerializableTriConsumer;
@@ -29,7 +29,7 @@ import static org.objectweb.asm.Opcodes.*;
  * @since Apr 14, 2024
  */
 public abstract class BeanDirectCopier<S, T> {
-	private static ILogger log = ILoggers.of(BeanCopier.class);
+	private static ILogger log = Loggers.of(BeanCopier.class);
 	private static final String CLASS_NAME_PREFIX = "Direct$";
 	public static final String FIELD_PREFIX_TYPE = BeanCopier.FIELD_PREFIX_TYPE;
 	public static final String FIELD_PREFIX_CLASS = BeanCopier.FIELD_PREFIX_CLASS;

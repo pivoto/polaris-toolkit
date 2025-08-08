@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 import io.polaris.core.reflect.Reflects;
 
 /**
@@ -12,7 +12,7 @@ import io.polaris.core.reflect.Reflects;
  * @since 1.8
  */
 public class EnumConverter<T extends Enum<T>> extends AbstractSimpleConverter<T> {
-	private static final ILogger log = ILoggers.of(EnumConverter.class);
+	private static final ILogger log = Loggers.of(EnumConverter.class);
 	private final static String[] parseMethodNames = new String[]{"parseOf", "parse", "of",};
 	private final JavaType<T> targetType;
 	private final Class<T> enumClass;

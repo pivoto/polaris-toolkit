@@ -12,7 +12,7 @@ import io.polaris.core.converter.Converters;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.TypeRef;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 import io.polaris.core.map.CaseInsensitiveMap;
 import io.polaris.core.map.Maps;
 import io.polaris.core.string.StringCases;
@@ -22,7 +22,7 @@ import io.polaris.core.string.StringCases;
  * @since Apr 12, 2024
  */
 public class IndexedMetaObject<T> extends MetaObject<T> {
-	private static final ILogger log = ILoggers.of(IndexedMetaObject.class);
+	private static final ILogger log = Loggers.of(IndexedMetaObject.class);
 	private static final Map<JavaType<?>, IndexedMetaObject<?>> CACHE = Maps.newWeakKeyMap(new ConcurrentHashMap<>());
 	private Map<String, IndexedProperty> properties;
 	private Map<String, IndexedProperty> propertiesCaseInsensitive;

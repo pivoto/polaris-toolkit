@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
 
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -21,7 +21,7 @@ import lombok.Getter;
  * @since 1.8
  */
 public class StatefulServiceLoader<S> implements Iterable<S> {
-	private static final ILogger log = ILoggers.of(StatefulServiceLoader.class);
+	private static final ILogger log = Loggers.of(StatefulServiceLoader.class);
 	private final static Map<Class<?>, State<?>> store = new ConcurrentHashMap<>();
 	private final ServiceLoader<S> serviceLoader;
 

@@ -19,14 +19,14 @@ import io.polaris.core.jdbc.sql.PreparedSql;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.lang.bean.MetaObject;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 
 /**
  * @author Qt
  * @since  Feb 07, 2024
  */
 public class JdbcBatch {
-	private static final ILogger log = ILoggers.of(JdbcBatch.class);
+	private static final ILogger log = Loggers.of(JdbcBatch.class);
 	private static final JdbcOptions DEFAULT_OPTIONS = JdbcOptions.ofDefault();
 	private final List<BatchResult> resultList = new ArrayList<>();
 	private String currentSql;

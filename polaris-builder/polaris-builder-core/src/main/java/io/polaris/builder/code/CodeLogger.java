@@ -1,7 +1,7 @@
 package io.polaris.builder.code;
 
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 import io.polaris.core.log.support.StdoutLogger;
 
 /**
@@ -14,7 +14,7 @@ public class CodeLogger {
 	private static ILogger log;
 
 	static {
-		slf4jLog = ILoggers.of("code.builder" );
+		slf4jLog = Loggers.of("code.builder" );
 		if (slf4jLog instanceof StdoutLogger) {
 			stdLog = slf4jLog;
 		} else {

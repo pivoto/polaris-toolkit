@@ -6,7 +6,7 @@ import io.polaris.core.jdbc.Jdbcs;
 import io.polaris.core.jdbc.entity.DemoTest01Entity;
 import io.polaris.core.jdbc.entity.DemoTest02Entity;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,7 @@ import org.junit.jupiter.api.TestInfo;
  * @since  Feb 08, 2024
  */
 public class TestA01JdbcExecutor extends BaseTestJdbcExecutor {
-	private static final ILogger log = ILoggers.of();
+	private static final ILogger log = Loggers.of();
 	DemoTestExecutor demoTestExecutor = Jdbcs.createExecutor(DemoTestExecutor.class);
 
 	@BeforeAll

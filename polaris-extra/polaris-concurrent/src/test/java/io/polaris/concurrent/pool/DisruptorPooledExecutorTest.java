@@ -3,13 +3,11 @@ package io.polaris.concurrent.pool;
 import io.polaris.core.concurrent.pool.RunnableStatistics;
 import io.polaris.core.concurrent.pool.TransactionConsumer;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class DisruptorPooledExecutorTest {
-	final ILogger log = ILoggers.of(getClass());
+	final ILogger log = Loggers.of(getClass());
 
 	@Test
 	public void test01() {

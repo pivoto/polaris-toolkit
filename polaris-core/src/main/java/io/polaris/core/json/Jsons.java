@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 
 import io.polaris.core.lang.TypeRef;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 import io.polaris.core.service.Service;
 import io.polaris.core.service.ServiceLoader;
 import io.polaris.core.service.StatefulServiceLoader;
@@ -18,7 +18,7 @@ import io.polaris.core.tuple.ValueRef;
  * @since  Feb 04, 2024
  */
 public class Jsons {
-	private static final ILogger log = ILoggers.of(Jsons.class);
+	private static final ILogger log = Loggers.of(Jsons.class);
 	private static volatile ValueRef<JsonSerializer> ref;
 
 	@Nullable

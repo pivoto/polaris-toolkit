@@ -6,7 +6,7 @@ import java.net.URLClassLoader;
 
 import io.polaris.core.io.Consoles;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 import io.polaris.core.log.support.DynamicLoggerResolver;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,7 @@ class ClassLoadersTest {
 	@BeforeAll
 	public static void beforeAll() {
 		System.setProperty(DynamicLoggerResolver.PREFER_DYNAMIC_SLF4J, "true");
-		ILoggers.setResolver(new DynamicLoggerResolver());
+		Loggers.setResolver(new DynamicLoggerResolver());
 	}
 
 	private static URLClassLoader newLog4jClassLoader() {
@@ -69,7 +69,7 @@ class ClassLoadersTest {
 	@Test
 	void test01() throws Exception {
 //		ClassLoaders.INSTANCE.prependClassLoader(log4jClassLoader);
-		ILogger logger = ILoggers.of("root");
+		ILogger logger = Loggers.of("root");
 		Consoles.log("", logger);
 		logger.debug("xxxx");
 		logger.info("xxxx");
@@ -89,7 +89,7 @@ class ClassLoadersTest {
 			}
 		}
 
-		logger = ILoggers.of("root");
+		logger = Loggers.of("root");
 		Consoles.log("", logger);
 		logger.debug("xxxx");
 		logger.info("xxxx");

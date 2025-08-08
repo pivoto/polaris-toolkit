@@ -1,6 +1,5 @@
 package io.polaris.core.log;
 
-import io.polaris.core.classloader.ClassLoaders;
 import io.polaris.core.log.support.JdkLoggerResolver;
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +10,7 @@ import org.junit.jupiter.api.Test;
 public class JdkLoggerResolverTest {
 	@Test
 	void test01() throws ClassNotFoundException {
-		ILoggers.setResolver(new JdkLoggerResolver());
-		ILoggers.of(JdkLoggerResolverTest.class).error("test..");
+		Loggers.setResolver(new JdkLoggerResolver());
+		Loggers.of(JdkLoggerResolverTest.class).error("test..");
 	}
 }

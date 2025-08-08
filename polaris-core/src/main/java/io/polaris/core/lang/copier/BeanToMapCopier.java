@@ -7,7 +7,7 @@ import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.lang.bean.PropertyAccessor;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 
 /**
  * @author Qt
@@ -15,7 +15,7 @@ import io.polaris.core.log.ILoggers;
  */
 @SuppressWarnings("rawtypes")
 public class BeanToMapCopier<T> implements Copier<Map> {
-	private static final ILogger log = ILoggers.of(BeanToMapCopier.class);
+	private static final ILogger log = Loggers.of(BeanToMapCopier.class);
 	private final T source;
 	private final Map target;
 	private final Type sourceType;

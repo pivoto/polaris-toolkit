@@ -5,14 +5,14 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 
 /**
  * @author Qt
  * @since  Apr 23, 2024
  */
 public class ConsumerDelegates {
-	private static final ILogger log = ILoggers.of(ConsumerDelegates.class);
+	private static final ILogger log = Loggers.of(ConsumerDelegates.class);
 
 	public static <E> Consumer<E> createDelegate(RunnableStatisticsHolder pStatistics, Consumer<E> pConsumer) {
 		return data -> {

@@ -3,7 +3,7 @@ package io.polaris.core.data;
 import io.polaris.core.data.consumer.DefaultBulkConsumerDriver;
 import io.polaris.core.data.consumer.DataConsumer;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
  * @since 1.8
  */
 public class DataCarrierTest {
-	private static final ILogger log = ILoggers.of(DataCarrierTest.class);
+	private static final ILogger log = Loggers.of(DataCarrierTest.class);
 
 	@Test
 	public void testBlockingProduce() throws IllegalAccessException {

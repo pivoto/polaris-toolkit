@@ -1,7 +1,6 @@
 package io.polaris.core.log;
 
 import io.polaris.core.log.support.DefaultLoggerResolver;
-import io.polaris.core.log.support.DynamicLoggerResolver;
 import io.polaris.core.log.support.StdoutLogger;
 import io.polaris.core.string.Strings;
 
@@ -9,7 +8,7 @@ import io.polaris.core.string.Strings;
  * @author Qt
  * @since Jan 10, 2024
  */
-public class ILoggers {
+public class Loggers {
 	/** 日志对象构造工厂实现。在javaagent环境下需要尽早注入以适配应用自身的日志配置 */
 	private static ILogResolver RESOLVER = new DefaultLoggerResolver();
 
@@ -36,7 +35,7 @@ public class ILoggers {
 		StackTraceElement[] elements = Thread.currentThread().getStackTrace();
 		for (int i = 1; i < elements.length; i++) {
 			String className = elements[i].getClassName();
-			if (!ILoggers.class.getName().equals(className)) {
+			if (!Loggers.class.getName().equals(className)) {
 				name = className;
 				break;
 			}

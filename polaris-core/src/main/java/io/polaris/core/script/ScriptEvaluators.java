@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import io.polaris.core.io.IO;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 import io.polaris.core.service.Service;
 import io.polaris.core.service.ServiceLoader;
 import io.polaris.core.string.Strings;
@@ -20,7 +20,7 @@ import io.polaris.core.string.Strings;
  * @since 1.8
  */
 public class ScriptEvaluators {
-	private static final ILogger log = ILoggers.of(ScriptEvaluators.class);
+	private static final ILogger log = Loggers.of(ScriptEvaluators.class);
 	private static final String FILE_PREFIX = "file:";
 	private static final String CLASSPATH_PREFIX = "classpath:";
 	private static final Map<String, Evaluator> engineMap = new ConcurrentHashMap<>();

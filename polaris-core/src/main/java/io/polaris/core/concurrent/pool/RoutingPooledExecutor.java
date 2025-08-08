@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,7 +25,7 @@ import lombok.Setter;
  */
 
 public class RoutingPooledExecutor<E> {
-	private static final ILogger log = ILoggers.of(RoutingPooledExecutor.class);
+	private static final ILogger log = Loggers.of(RoutingPooledExecutor.class);
 	/** 数据队列大小 */
 	@Setter
 	@Getter

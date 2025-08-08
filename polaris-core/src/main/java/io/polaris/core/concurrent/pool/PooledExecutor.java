@@ -17,7 +17,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,7 +27,7 @@ import lombok.Setter;
  */
 
 public class PooledExecutor<E> implements RunnableState<E> {
-	private static final ILogger log = ILoggers.of(PooledExecutor.class);
+	private static final ILogger log = Loggers.of(PooledExecutor.class);
 	public static final int CORE_NUM = Runtime.getRuntime().availableProcessors();
 	public static final float MAXIMUM_FACTOR = 8;
 	public static final int KEEP_ALIVE_TIME = 1000;

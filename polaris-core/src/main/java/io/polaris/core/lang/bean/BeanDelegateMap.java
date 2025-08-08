@@ -7,14 +7,14 @@ import java.util.Map;
 import java.util.Set;
 
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 
 /**
  * @author Qt
  * @since  Apr 12, 2024
  */
 class BeanDelegateMap<T> extends BeanMap<T> {
-	private static final ILogger log = ILoggers.of(BeanDelegateMap.class);
+	private static final ILogger log = Loggers.of(BeanDelegateMap.class);
 	protected final Map<String, Object> raw;
 
 	public BeanDelegateMap(T raw, Class<?> beanType, BeanMapOptions options) {

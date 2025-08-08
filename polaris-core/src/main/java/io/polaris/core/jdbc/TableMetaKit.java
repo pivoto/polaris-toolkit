@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import io.polaris.core.annotation.processing.AnnotationProcessorUtils;
 import io.polaris.core.asm.reflect.ClassAccess;
 import io.polaris.core.jdbc.annotation.Column;
 import io.polaris.core.jdbc.annotation.Expression;
@@ -19,14 +18,14 @@ import io.polaris.core.jdbc.annotation.Id;
 import io.polaris.core.jdbc.annotation.Table;
 import io.polaris.core.jdbc.annotation.processing.JdbcBeanInfo;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 
 /**
  * @author Qt
  * @since Aug 20, 2023
  */
 public class TableMetaKit {
-	private static final ILogger log = ILoggers.of(TableMetaKit.class);
+	private static final ILogger log = Loggers.of(TableMetaKit.class);
 	private static final TableMetaKit instance = new TableMetaKit();
 	private final Map<Class<?>, TableMeta> cache = new ConcurrentHashMap<>();
 	private final Map<Class<?>, TableMeta> mutableCache = new ConcurrentHashMap<>();

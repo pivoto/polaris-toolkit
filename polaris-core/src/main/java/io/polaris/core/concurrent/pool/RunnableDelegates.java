@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 
 /**
  * @author Qt
@@ -15,7 +15,7 @@ import io.polaris.core.log.ILoggers;
  */
 public class RunnableDelegates {
 
-	private static final ILogger log = ILoggers.of(RunnableDelegates.class);
+	private static final ILogger log = Loggers.of(RunnableDelegates.class);
 
 	public static <E> Runnable createDelegate(RunnableState<E> pState, Consumer<E> pConsumer,
 		AtomicReference<Consumer<ErrorRecords<E>>> rejectConsumerRef) {

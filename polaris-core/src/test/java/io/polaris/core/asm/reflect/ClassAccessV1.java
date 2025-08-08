@@ -18,7 +18,7 @@ import java.util.function.Function;
 
 import io.polaris.core.lang.Types;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.reflect.SerializableFunction;
 import io.polaris.core.tuple.Tuple2;
@@ -37,7 +37,7 @@ import static org.objectweb.asm.Opcodes.*;
  */
 @SuppressWarnings("all")
 public abstract class ClassAccessV1<T> {
-	private static ILogger log = ILoggers.of(ClassAccessV1.class);
+	private static ILogger log = Loggers.of(ClassAccessV1.class);
 	private int constructorIndex = -1;
 	private Class[][] constructorParamTypes;
 	private Function<Object[], Object>[] constructors;

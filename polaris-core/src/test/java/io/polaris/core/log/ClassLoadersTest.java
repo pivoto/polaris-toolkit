@@ -21,7 +21,7 @@ public class ClassLoadersTest {
 	@BeforeAll
 	public static void beforeAll() {
 		System.setProperty(DynamicLoggerResolver.PREFER_DYNAMIC_SLF4J, "true");
-		ILoggers.setResolver(new DynamicLoggerResolver());
+		Loggers.setResolver(new DynamicLoggerResolver());
 	}
 
 	private static URLClassLoader newLog4jClassLoader() {
@@ -74,7 +74,7 @@ public class ClassLoadersTest {
 			Consoles.log("", c, c.getClassLoader());
 		}
 
-		ILogger logger = ILoggers.of("root");
+		ILogger logger = Loggers.of("root");
 		Consoles.log("", logger);
 		logger.debug("xxxx");
 		logger.info("xxxx");
@@ -89,7 +89,7 @@ public class ClassLoadersTest {
 			Consoles.log("", c, c.getClassLoader());
 		}
 
-		logger = ILoggers.of("root");
+		logger = Loggers.of("root");
 		Consoles.log("", logger);
 		logger.debug("xxxx");
 		logger.info("xxxx");

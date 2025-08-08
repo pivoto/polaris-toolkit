@@ -20,7 +20,7 @@ import java.util.function.Function;
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.lang.Types;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.reflect.SerializableConsumerWithArgs4;
 import io.polaris.core.reflect.SerializableFunction;
@@ -42,7 +42,7 @@ import static org.objectweb.asm.Opcodes.*;
  */
 @SuppressWarnings("all")
 public abstract class ClassAccessV2<T> {
-	private static ILogger log = ILoggers.of(ClassAccessV2.class);
+	private static ILogger log = Loggers.of(ClassAccessV2.class);
 	private int defaultConstructorIndex = -1;
 	private Class[][] constructorParamTypes;
 

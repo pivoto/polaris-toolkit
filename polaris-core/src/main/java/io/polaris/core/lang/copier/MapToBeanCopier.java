@@ -12,7 +12,7 @@ import io.polaris.core.lang.Types;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.lang.bean.PropertyAccessor;
 import io.polaris.core.log.ILogger;
-import io.polaris.core.log.ILoggers;
+import io.polaris.core.log.Loggers;
 import io.polaris.core.map.CaseInsensitiveMap;
 import io.polaris.core.string.StringCases;
 
@@ -22,7 +22,7 @@ import io.polaris.core.string.StringCases;
  */
 @SuppressWarnings("rawtypes")
 public class MapToBeanCopier<T> implements Copier<T> {
-	private static final ILogger log = ILoggers.of(MapToBeanCopier.class);
+	private static final ILogger log = Loggers.of(MapToBeanCopier.class);
 	private final Map source;
 	private final T target;
 	private final Type targetType;
