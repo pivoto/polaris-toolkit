@@ -22,7 +22,7 @@ import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 
 /**
@@ -30,7 +30,7 @@ import io.polaris.core.log.Loggers;
  * @since 1.8
  */
 public class ServiceLoader<S> implements Iterable<Service<S>> {
-	private static final ILogger log = Loggers.of(ServiceLoader.class);
+	private static final Logger log = Loggers.of(ServiceLoader.class);
 	public static final String[] PREFIX = {"META-INF/services/"};
 	private final Class<S> type;
 	private final ClassLoader loader;

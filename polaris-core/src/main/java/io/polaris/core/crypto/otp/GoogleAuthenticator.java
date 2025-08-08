@@ -2,7 +2,7 @@ package io.polaris.core.crypto.otp;
 
 import io.polaris.core.codec.Base32;
 import io.polaris.core.env.GlobalStdEnv;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 
 import javax.crypto.Mac;
@@ -45,7 +45,7 @@ import java.util.Random;
  * @see <a href="http://tools.ietf.org/id/draft-mraihi-totp-timebased-06.txt"></a>
  */
 public final class GoogleAuthenticator implements Authenticator {
-	private static final ILogger log = Loggers.of(GoogleAuthenticator.class);
+	private static final Logger log = Loggers.of(GoogleAuthenticator.class);
 	public static final String RNG_ALGORITHM_KEY = "googleauth.rng.algorithm";
 	public static final String RNG_ALGORITHM_PROVIDER_KEY = "googleauth.rng.algorithmProvider";
 	private static final String DEFAULT_RANDOM_NUMBER_ALGORITHM = "SHA1PRNG";

@@ -23,7 +23,7 @@ import java.util.function.Function;
 import io.polaris.core.converter.Converters;
 import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.Types;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 
 /**
@@ -31,7 +31,7 @@ import io.polaris.core.log.Loggers;
  * @since 1.8
  */
 public class BeanMapV1<T> extends AbstractMap<String, Object> implements IBeanMap<T>, Map<String, Object> {
-	private static final ILogger log = Loggers.of(BeanMapV1.class);
+	private static final Logger log = Loggers.of(BeanMapV1.class);
 	protected final BeanMetadataV1 metadata;
 	protected final Map<String, Function<Object, Object>> getters;
 	protected final Map<String, BiConsumer<Object, Object>> setters;

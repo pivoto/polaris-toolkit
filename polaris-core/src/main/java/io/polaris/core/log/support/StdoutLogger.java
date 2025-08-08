@@ -5,7 +5,7 @@ import java.time.Instant;
 import io.polaris.core.collection.ObjectArrays;
 import io.polaris.core.consts.StdKeys;
 import io.polaris.core.function.ConsumerWithArgs4;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Level;
 import io.polaris.core.string.Strings;
 import io.polaris.core.time.Dates;
@@ -14,7 +14,7 @@ import io.polaris.core.time.Dates;
  * @author Qt
  * @since Aug 04, 2023
  */
-public class StdoutLogger implements ILogger {
+public class StdoutLogger implements Logger {
 	private final String name;
 	private final Level level;
 	private ConsumerWithArgs4<Level, String, Object[], Throwable> printer;

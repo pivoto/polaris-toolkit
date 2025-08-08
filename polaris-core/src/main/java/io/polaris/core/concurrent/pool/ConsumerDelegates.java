@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 
 /**
@@ -12,7 +12,7 @@ import io.polaris.core.log.Loggers;
  * @since  Apr 23, 2024
  */
 public class ConsumerDelegates {
-	private static final ILogger log = Loggers.of(ConsumerDelegates.class);
+	private static final Logger log = Loggers.of(ConsumerDelegates.class);
 
 	public static <E> Consumer<E> createDelegate(RunnableStatisticsHolder pStatistics, Consumer<E> pConsumer) {
 		return data -> {

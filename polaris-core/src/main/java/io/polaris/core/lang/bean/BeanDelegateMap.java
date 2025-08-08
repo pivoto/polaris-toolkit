@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 
 /**
@@ -14,7 +14,7 @@ import io.polaris.core.log.Loggers;
  * @since  Apr 12, 2024
  */
 class BeanDelegateMap<T> extends BeanMap<T> {
-	private static final ILogger log = Loggers.of(BeanDelegateMap.class);
+	private static final Logger log = Loggers.of(BeanDelegateMap.class);
 	protected final Map<String, Object> raw;
 
 	public BeanDelegateMap(T raw, Class<?> beanType, BeanMapOptions options) {

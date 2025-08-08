@@ -4,7 +4,7 @@ import io.polaris.core.consts.CharConsts;
 import io.polaris.core.consts.StdConsts;
 import io.polaris.core.consts.SymbolConsts;
 import io.polaris.core.io.IO;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import lombok.Value;
 
@@ -21,7 +21,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @since 1.8
  */
 public class Shells {
-	private static final ILogger log = Loggers.of(Shells.class);
+	private static final Logger log = Loggers.of(Shells.class);
 
 
 	public static Result executeScriptContent(File workDir, String scriptFileName, String scriptContent) throws IOException {

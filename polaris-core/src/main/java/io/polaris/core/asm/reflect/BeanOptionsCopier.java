@@ -11,7 +11,7 @@ import java.util.function.Function;
 import io.polaris.core.asm.internal.AsmUtils;
 import io.polaris.core.lang.Types;
 import io.polaris.core.lang.copier.CopyOptions;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.map.Maps;
 import io.polaris.core.reflect.SerializableBiFunction;
@@ -36,7 +36,7 @@ import static org.objectweb.asm.Opcodes.*;
  * @since Apr 14, 2024
  */
 public abstract class BeanOptionsCopier<S, T> {
-	private static ILogger log = Loggers.of(BeanOptionsCopier.class);
+	private static Logger log = Loggers.of(BeanOptionsCopier.class);
 	private static final String CLASS_NAME_PREFIX = "Options$";
 	public static final String FIELD_PREFIX_TYPE = BeanCopier.FIELD_PREFIX_TYPE;
 	public static final String FIELD_PREFIX_CLASS = BeanCopier.FIELD_PREFIX_CLASS;

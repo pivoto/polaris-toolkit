@@ -17,7 +17,7 @@ import io.polaris.core.jdbc.annotation.Expression;
 import io.polaris.core.jdbc.annotation.Id;
 import io.polaris.core.jdbc.annotation.Table;
 import io.polaris.core.jdbc.annotation.processing.JdbcBeanInfo;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 
 /**
@@ -25,7 +25,7 @@ import io.polaris.core.log.Loggers;
  * @since Aug 20, 2023
  */
 public class TableMetaKit {
-	private static final ILogger log = Loggers.of(TableMetaKit.class);
+	private static final Logger log = Loggers.of(TableMetaKit.class);
 	private static final TableMetaKit instance = new TableMetaKit();
 	private final Map<Class<?>, TableMeta> cache = new ConcurrentHashMap<>();
 	private final Map<Class<?>, TableMeta> mutableCache = new ConcurrentHashMap<>();

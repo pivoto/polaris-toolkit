@@ -1,7 +1,7 @@
 package io.polaris.core.service;
 
 import io.polaris.core.io.Consoles;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Optional;
 
 class ServiceLoaderTest {
-	private static final ILogger log = Loggers.of(ServiceLoaderTest.class);
+	private static final Logger log = Loggers.of(ServiceLoaderTest.class);
 
 	@Test
 	void test01() {

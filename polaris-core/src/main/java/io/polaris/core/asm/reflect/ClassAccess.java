@@ -16,7 +16,7 @@ import java.util.TreeMap;
 
 import io.polaris.core.asm.internal.AsmUtils;
 import io.polaris.core.lang.Types;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.reflect.SerializableConsumerWithArgs4;
@@ -37,7 +37,7 @@ import static org.objectweb.asm.Opcodes.*;
 @SuppressWarnings("all")
 public abstract class ClassAccess<T> {
 	private static final AccessClassPool<Class, ClassAccess> pool = new AccessClassPool<>();
-	private static ILogger log = Loggers.of(ClassAccess.class);
+	private static Logger log = Loggers.of(ClassAccess.class);
 	private final int defaultConstructorIndex;
 	private final Class[][] constructorParamTypes;
 

@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import io.polaris.core.cache.Cache;
 import io.polaris.core.cache.MapCache;
 import io.polaris.core.crypto.digest.Digests;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.script.Evaluator;
 import io.polaris.core.script.ScriptEvalException;
@@ -25,7 +25,7 @@ import org.codehaus.commons.compiler.IExpressionEvaluator;
  * @since  Feb 06, 2024
  */
 public class JaninoEvaluator implements Evaluator {
-	private static final ILogger log = Loggers.of(JaninoEvaluator.class);
+	private static final Logger log = Loggers.of(JaninoEvaluator.class);
 	private static final AtomicLong CLASS_NO = new AtomicLong(0);
 	private static final Pattern importPattern = Pattern.compile("\\s*\\bimport\\s+((static\\s+)?[\\w\\.\\*]+);\\s*+");
 	private Cache<String, IExpressionEvaluator> cache = new MapCache<>(0x1000, true);

@@ -2,25 +2,24 @@ package io.polaris.core.log.support;
 
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import java.util.logging.Logger;
 
 import io.polaris.core.collection.ObjectArrays;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
  */
-public class JdkLogger implements ILogger {
+public class JdkLogger implements Logger {
 	static final String INNER_CALLER = JdkLogger.class.getName();
-	private final Logger logger;
+	private final java.util.logging.Logger logger;
 
 	public JdkLogger(String name) {
-		this.logger = Logger.getLogger(name);
+		this.logger = java.util.logging.Logger.getLogger(name);
 	}
 
 	public JdkLogger(Class clazz) {
-		this.logger = Logger.getLogger(clazz.getName());
+		this.logger = java.util.logging.Logger.getLogger(clazz.getName());
 	}
 
 	private void fillSource(LogRecord record) {

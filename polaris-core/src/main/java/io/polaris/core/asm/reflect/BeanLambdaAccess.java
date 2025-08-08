@@ -12,7 +12,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import io.polaris.core.asm.internal.AsmUtils;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.reflect.SerializableFunction;
 import org.objectweb.asm.ClassWriter;
@@ -30,7 +30,7 @@ import static org.objectweb.asm.Opcodes.*;
  */
 public abstract class BeanLambdaAccess<T> {
 	private static final AccessClassPool<Class, BeanLambdaAccess> pool = new AccessClassPool<>();
-	private static ILogger log = Loggers.of(BeanLambdaAccess.class);
+	private static Logger log = Loggers.of(BeanLambdaAccess.class);
 
 
 	private Map<String, BeanPropertyInfo> properties;

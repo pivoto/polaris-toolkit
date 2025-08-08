@@ -9,14 +9,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import io.polaris.core.classloader.ClassLoaders;
 import io.polaris.core.env.GlobalStdEnv;
 import io.polaris.core.log.ILogResolver;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 
 /**
  * @author Qt
  */
 public class DynamicLoggerResolver implements ILogResolver {
 	public static final String PREFER_DYNAMIC_SLF4J = DynamicLoggerResolver.class.getName() + ".prefer-dynamic-slf4j";
-	private final Map<String, ILogger> CACHE = new ConcurrentHashMap<>();
+	private final Map<String, Logger> CACHE = new ConcurrentHashMap<>();
 	private volatile long lastLoaderChangeId = ClassLoaders.INSTANCE.changeId();
 	private final boolean preferDynamicSlf4j;
 
@@ -25,7 +25,7 @@ public class DynamicLoggerResolver implements ILogResolver {
 	}
 
 	@Override
-	public ILogger getLogger(String name) {
+	public Logger getLogger(String name) {
 		if (ClassLoaders.INSTANCE.changeId() != lastLoaderChangeId) {
 			lastLoaderChangeId = ClassLoaders.INSTANCE.changeId();
 			CACHE.clear();
@@ -34,8 +34,8 @@ public class DynamicLoggerResolver implements ILogResolver {
 	}
 
 
-	private ILogger newLogger(String name) {
-		ILogger logger = null;
+	private Logger newLogger(String name) {
+		Logger logger = null;
 		if (preferDynamicSlf4j) {
 			logger = getDynamicSlf4jLogger(name);
 			if (logger != null) {
@@ -55,7 +55,7 @@ public class DynamicLoggerResolver implements ILogResolver {
 		return new StdoutLogger(name);
 	}
 
-	private static ILogger getDynamicSlf4jLogger(String name) {
+	private static Logger getDynamicSlf4jLogger(String name) {
 		try {
 			Class<?> classLoggerFactory = ClassLoaders.INSTANCE.loadClass("org.slf4j.LoggerFactory");
 			Class<?> classLogger = ClassLoaders.INSTANCE.loadClass("org.slf4j.Logger");
@@ -78,7 +78,7 @@ public class DynamicLoggerResolver implements ILogResolver {
 		return null;
 	}
 
-	private static ILogger getDirectSlf4jLogger(String name) {
+	private static Logger getDirectSlf4jLogger(String name) {
 		try {
 			org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(name);
 			if (logger instanceof org.slf4j.spi.LocationAwareLogger) {

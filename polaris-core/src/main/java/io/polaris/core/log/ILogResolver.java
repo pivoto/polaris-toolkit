@@ -5,10 +5,10 @@ package io.polaris.core.log;
  */
 public interface ILogResolver {
 
-	default ILogger getLogger(Class<?> clazz) {
+	default Logger getLogger(Class<?> clazz) {
 		return getLogger(clazz.getName());
 	}
 
-	ILogger getLogger(String name);
+	Logger getLogger(String name);
 
 }

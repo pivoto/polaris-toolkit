@@ -18,7 +18,7 @@ import java.util.function.Function;
 
 import io.polaris.core.asm.internal.AsmUtils;
 import io.polaris.core.lang.Types;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.reflect.SerializableFunction;
@@ -39,7 +39,7 @@ import static org.objectweb.asm.Opcodes.*;
 @SuppressWarnings("all")
 public abstract class ClassLambdaAccess<T> {
 	private static final AccessClassPool<Class, ClassLambdaAccess> pool = new AccessClassPool<>();
-	private static ILogger log = Loggers.of(ClassLambdaAccess.class);
+	private static Logger log = Loggers.of(ClassLambdaAccess.class);
 	private int constructorIndex = -1;
 	private Class[][] constructorParamTypes;
 	private Function<Object[], Object>[] constructors;

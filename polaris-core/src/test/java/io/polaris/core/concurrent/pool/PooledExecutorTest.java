@@ -1,11 +1,11 @@
 package io.polaris.core.concurrent.pool;
 
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import org.junit.jupiter.api.Test;
 
 class PooledExecutorTest {
-	final ILogger log = Loggers.of(getClass());
+	final Logger log = Loggers.of(getClass());
 
 	@Test
 	public void test01() {

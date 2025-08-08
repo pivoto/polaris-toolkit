@@ -12,21 +12,21 @@ public class Loggers {
 	/** 日志对象构造工厂实现。在javaagent环境下需要尽早注入以适配应用自身的日志配置 */
 	private static ILogResolver RESOLVER = new DefaultLoggerResolver();
 
-	public static ILogger of(Class<?> c) {
+	public static Logger of(Class<?> c) {
 		if (RESOLVER == null) {
 			return new StdoutLogger(c.getName());
 		}
 		return RESOLVER.getLogger(c);
 	}
 
-	public static ILogger of(String name) {
+	public static Logger of(String name) {
 		if (RESOLVER == null) {
 			return new StdoutLogger(name);
 		}
 		return RESOLVER.getLogger(name);
 	}
 
-	public static ILogger of() {
+	public static Logger of() {
 		return of(detectLoggerName());
 	}
 

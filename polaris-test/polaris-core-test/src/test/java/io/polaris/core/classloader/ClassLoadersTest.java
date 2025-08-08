@@ -5,7 +5,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 import io.polaris.core.io.Consoles;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.log.support.DynamicLoggerResolver;
 import org.junit.jupiter.api.BeforeAll;
@@ -69,7 +69,7 @@ class ClassLoadersTest {
 	@Test
 	void test01() throws Exception {
 //		ClassLoaders.INSTANCE.prependClassLoader(log4jClassLoader);
-		ILogger logger = Loggers.of("root");
+		Logger logger = Loggers.of("root");
 		Consoles.log("", logger);
 		logger.debug("xxxx");
 		logger.info("xxxx");

@@ -11,7 +11,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.function.Function;
 
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 
 /**
@@ -19,7 +19,7 @@ import io.polaris.core.log.Loggers;
  * @since  Apr 23, 2024
  */
 public class GlobalStdEnv {
-	private static final ILogger log = Loggers.of(GlobalStdEnv.class);
+	private static final Logger log = Loggers.of(GlobalStdEnv.class);
 
 	private static class Holder {
 		private static final StdEnv env = StdEnv.newInstance();

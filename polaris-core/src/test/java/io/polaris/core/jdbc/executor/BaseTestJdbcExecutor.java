@@ -11,7 +11,7 @@ import io.polaris.core.function.Executable;
 import io.polaris.core.function.ExecutableWithArgs1;
 import io.polaris.core.io.IO;
 import io.polaris.core.jdbc.Jdbcs;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.string.Strings;
 
@@ -20,7 +20,7 @@ import io.polaris.core.string.Strings;
  * @since  Feb 08, 2024
  */
 public class BaseTestJdbcExecutor {
-	private static final ILogger log = Loggers.of(BaseTestJdbcExecutor.class);
+	private static final Logger log = Loggers.of(BaseTestJdbcExecutor.class);
 
 	protected static Connection getConnection() throws SQLException {
 		return Jdbcs.getConnection("jdbc:oracle:thin:@localhost:1521/cmisdb", "basesv", "basesv");

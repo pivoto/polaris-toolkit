@@ -1,6 +1,6 @@
 package io.polaris.core.lang.bean;
 
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
@@ -12,7 +12,7 @@ import lombok.experimental.FieldNameConstants;
 @Data
 @FieldNameConstants
 public class Bean01Parent {
-	private static final ILogger log = Loggers.of(Bean01.class);
+	private static final Logger log = Loggers.of(Bean01.class);
 	static String staticIdParent;
 	String idParent;
 	String nameParent;

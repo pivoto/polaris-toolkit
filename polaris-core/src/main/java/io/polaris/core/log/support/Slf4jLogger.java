@@ -1,19 +1,18 @@
 package io.polaris.core.log.support;
 
 import io.polaris.core.collection.ObjectArrays;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.string.Strings;
-import org.slf4j.Logger;
 
 /**
  * @author Qt
  * @since  Aug 04, 2023
  */
-public class Slf4jLogger implements ILogger {
+public class Slf4jLogger implements Logger {
 
-	private Logger log;
+	private org.slf4j.Logger log;
 
-	public Slf4jLogger(Logger log) {
+	public Slf4jLogger(org.slf4j.Logger log) {
 		this.log = log;
 	}
 

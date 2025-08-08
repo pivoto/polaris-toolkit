@@ -9,7 +9,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 
 /**
@@ -17,7 +17,7 @@ import io.polaris.core.log.Loggers;
  * @since  Apr 23, 2024
  */
 public class WorkerPoolExecutor extends ThreadPoolExecutor {
-	private static final ILogger log = Loggers.of(WorkerPoolExecutor.class);
+	private static final Logger log = Loggers.of(WorkerPoolExecutor.class);
 	public static final int CORE_NUM = Runtime.getRuntime().availableProcessors();
 	public static final float MAXIMUM_FACTOR = 8;
 	public static final float EXTEND_MAXIMUM_FACTOR = 100;

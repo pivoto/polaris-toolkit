@@ -15,7 +15,7 @@ import java.util.Set;
 
 import io.polaris.core.converter.Converters;
 import io.polaris.core.jdbc.dbv.annotation.DbvColumn;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.map.CaseInsensitiveMap;
 import io.polaris.core.reflect.Reflects;
@@ -25,7 +25,7 @@ import io.polaris.core.reflect.Reflects;
  * @since 1.8
  */
 public class DbvResultSetFetcher {
-	private static final ILogger log = Loggers.of(DbvResultSetFetcher.class);
+	private static final Logger log = Loggers.of(DbvResultSetFetcher.class);
 
 	public static Map<String, Object> fetch(final ResultSet rs) throws SQLException {
 		final ResultSetMetaData meta = rs.getMetaData();

@@ -21,7 +21,7 @@ import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.TypeRef;
 import io.polaris.core.lang.Types;
 import io.polaris.core.lang.copier.CopyOptions;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.map.CaseInsensitiveMap;
 import io.polaris.core.map.Maps;
@@ -49,7 +49,7 @@ import static org.objectweb.asm.Opcodes.*;
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class BeanCopier<S> {
-	private static ILogger log = Loggers.of(BeanCopier.class);
+	private static Logger log = Loggers.of(BeanCopier.class);
 	@SuppressWarnings({"rawtypes"})
 	private static final AccessClassPool<Class<?>, BeanCopier> pool = new AccessClassPool<>();
 	public static final String FIELD_PREFIX_TYPE = "type_";

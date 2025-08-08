@@ -31,7 +31,7 @@ import io.polaris.core.jdbc.executor.JdbcExecutors;
 import io.polaris.core.jdbc.sql.PreparedSql;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.lang.bean.MetaObject;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.string.Strings;
 
@@ -41,7 +41,7 @@ import io.polaris.core.string.Strings;
  */
 @SuppressWarnings({"unused"})
 public class Jdbcs {
-	private static final ILogger log = Loggers.of(Jdbcs.class);
+	private static final Logger log = Loggers.of(Jdbcs.class);
 	private static final JdbcOptions DEFAULT_OPTIONS = JdbcOptions.ofDefault();
 	private static final ThreadLocal<JdbcBatch> currentBatch = new ThreadLocal<>();
 

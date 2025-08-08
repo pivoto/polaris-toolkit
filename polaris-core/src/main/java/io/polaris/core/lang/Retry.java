@@ -14,7 +14,7 @@ import io.polaris.core.concurrent.BackoffPolicies;
 import io.polaris.core.concurrent.Executors;
 import io.polaris.core.concurrent.policy.BackoffPolicy;
 import io.polaris.core.err.Exceptions;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 
 /**
@@ -22,7 +22,7 @@ import io.polaris.core.log.Loggers;
  * @since 1.8
  */
 public class Retry {
-	private static final ILogger log = Loggers.of(Retry.class);
+	private static final Logger log = Loggers.of(Retry.class);
 
 	// region ScheduledExecutorService
 

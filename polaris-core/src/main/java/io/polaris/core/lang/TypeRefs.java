@@ -16,7 +16,7 @@ import javax.lang.model.element.Modifier;
 import io.polaris.core.asm.internal.AsmTypes;
 import io.polaris.core.compiler.MemoryClassLoader;
 import io.polaris.core.compiler.MemoryCompiler;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -41,7 +41,7 @@ import static org.objectweb.asm.Opcodes.V1_8;
  * @since 1.8
  */
 public class TypeRefs {
-	private static final ILogger log = Loggers.of(TypeRefs.class);
+	private static final Logger log = Loggers.of(TypeRefs.class);
 	private static final AtomicLong seq = new AtomicLong(0);
 	private static final Map<String, Type> refs = new ConcurrentHashMap<>();
 

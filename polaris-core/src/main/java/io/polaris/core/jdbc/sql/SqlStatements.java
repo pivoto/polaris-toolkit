@@ -25,7 +25,7 @@ import io.polaris.core.jdbc.sql.statement.ColumnPredicate;
 import io.polaris.core.jdbc.sql.statement.ConfigurableColumnPredicate;
 import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.bean.Beans;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.string.Strings;
 
@@ -37,7 +37,7 @@ import io.polaris.core.string.Strings;
  */
 @SuppressWarnings("ALL")
 public class SqlStatements {
-	private static ILogger log = Loggers.of(SqlStatements.class);
+	private static Logger log = Loggers.of(SqlStatements.class);
 
 	private static final String KEY_WHERE_PREFIX = "_w" ;
 	private static final String KEY_VALUE_PREFIX = "_v" ;

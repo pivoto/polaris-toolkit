@@ -1,13 +1,13 @@
 package io.polaris.core.log.support;
 
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import org.slf4j.spi.LocationAwareLogger;
 
 /**
  * @author Qt
  * @since  Aug 04, 2023
  */
-public class Slf4jAwareLogger implements ILogger {
+public class Slf4jAwareLogger implements Logger {
 	private static final String FQCN = Slf4jAwareLogger.class.getName();
 
 	private LocationAwareLogger log;

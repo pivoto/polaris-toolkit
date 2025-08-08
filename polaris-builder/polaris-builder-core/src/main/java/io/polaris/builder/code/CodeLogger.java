@@ -1,6 +1,6 @@
 package io.polaris.builder.code;
 
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.log.support.StdoutLogger;
 
@@ -9,9 +9,9 @@ import io.polaris.core.log.support.StdoutLogger;
  * @since 1.8
  */
 public class CodeLogger {
-	private static final ILogger stdLog;
-	private static final ILogger slf4jLog;
-	private static ILogger log;
+	private static final Logger stdLog;
+	private static final Logger slf4jLog;
+	private static Logger log;
 
 	static {
 		slf4jLog = Loggers.of("code.builder" );

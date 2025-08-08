@@ -4,7 +4,7 @@ package io.polaris.core.log;
  * @author Qt
  * @since  Aug 04, 2023
  */
-public interface ILogger {
+public interface Logger {
 
 	boolean isTraceEnabled();
 

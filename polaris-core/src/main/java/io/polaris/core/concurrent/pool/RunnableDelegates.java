@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import io.polaris.core.collection.Iterables;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 
 /**
@@ -15,7 +15,7 @@ import io.polaris.core.log.Loggers;
  */
 public class RunnableDelegates {
 
-	private static final ILogger log = Loggers.of(RunnableDelegates.class);
+	private static final Logger log = Loggers.of(RunnableDelegates.class);
 
 	public static <E> Runnable createDelegate(RunnableState<E> pState, Consumer<E> pConsumer,
 		AtomicReference<Consumer<ErrorRecords<E>>> rejectConsumerRef) {

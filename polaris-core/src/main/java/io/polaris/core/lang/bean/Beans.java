@@ -25,7 +25,7 @@ import io.polaris.core.lang.bean.property.PropertyBuilder;
 import io.polaris.core.lang.bean.property.StdPropertyBuilder;
 import io.polaris.core.lang.copier.Copiers;
 import io.polaris.core.lang.copier.CopyOptions;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.map.Maps;
 import io.polaris.core.reflect.Reflects;
@@ -36,7 +36,7 @@ import io.polaris.core.string.StringCases;
  * @since 1.8
  */
 public class Beans {
-	private static final ILogger log = Loggers.of(Beans.class);
+	private static final Logger log = Loggers.of(Beans.class);
 
 	public static boolean isBeanClass(@Nonnull Class clazz) {
 		for (Method method : clazz.getMethods()) {

@@ -15,7 +15,7 @@ import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.TypeRef;
 import io.polaris.core.lang.Types;
 import io.polaris.core.lang.bean.MetaObject;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.reflect.Reflects;
 
@@ -24,7 +24,7 @@ import io.polaris.core.reflect.Reflects;
  * @since 1.8
  */
 public class Copiers {
-	private static final ILogger log = Loggers.of(Copiers.class);
+	private static final Logger log = Loggers.of(Copiers.class);
 
 	public static <E> E fastCopy(@Nonnull Object source, @Nonnull E target) {
 		return fastCopy(source.getClass(), source, target.getClass(), target);

@@ -74,7 +74,7 @@ public class ClassLoadersTest {
 			Consoles.log("", c, c.getClassLoader());
 		}
 
-		ILogger logger = Loggers.of("root");
+		Logger logger = Loggers.of("root");
 		Consoles.log("", logger);
 		logger.debug("xxxx");
 		logger.info("xxxx");

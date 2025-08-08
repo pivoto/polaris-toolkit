@@ -4,12 +4,12 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 
 /**
  * @author Qt
  */
-public class DynamicSlf4jAwareLogger implements ILogger {
+public class DynamicSlf4jAwareLogger implements Logger {
 	private static final String FQCN = Slf4jAwareLogger.class.getName();
 	private static final int TRACE_INT = 00;
 	private static final int DEBUG_INT = 10;

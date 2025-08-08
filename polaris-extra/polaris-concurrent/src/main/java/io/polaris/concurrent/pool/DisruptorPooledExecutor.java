@@ -11,7 +11,7 @@ import io.polaris.core.concurrent.pool.ResourceableConsumer;
 import io.polaris.core.concurrent.pool.RunnableStatistics;
 import io.polaris.core.concurrent.pool.RunnableStatisticsHolder;
 import io.polaris.core.concurrent.pool.TransactionConsumer;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,7 +27,7 @@ import com.lmax.disruptor.dsl.ProducerType;
  * @since  Apr 23, 2024
  */
 public class DisruptorPooledExecutor<E> implements RunnableStatisticsHolder {
-	private static final ILogger log = Loggers.of(DisruptorPooledExecutor.class);
+	private static final Logger log = Loggers.of(DisruptorPooledExecutor.class);
 	/** 错误数限制 */
 	@Setter
 	@Getter

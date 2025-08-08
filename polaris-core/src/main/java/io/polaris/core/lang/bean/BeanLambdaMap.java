@@ -14,7 +14,7 @@ import java.util.function.Function;
 
 import io.polaris.core.asm.reflect.BeanLambdaAccess;
 import io.polaris.core.lang.Objs;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 
 /**
@@ -22,7 +22,7 @@ import io.polaris.core.log.Loggers;
  * @since  Apr 12, 2024
  */
 class BeanLambdaMap<T> extends BeanMap<T> {
-	private static final ILogger log = Loggers.of(BeanLambdaMap.class);
+	private static final Logger log = Loggers.of(BeanLambdaMap.class);
 	private final BeanLambdaAccess<?> access;
 	private final Map<String, Function<Object, Object>> getters;
 	private final Map<String, BiConsumer<Object, Object>> setters;

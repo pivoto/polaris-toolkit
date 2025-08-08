@@ -5,15 +5,14 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 
 import io.polaris.core.collection.ObjectArrays;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.string.Strings;
-import org.slf4j.Logger;
 
 /**
  * @author Qt
  * @since Aug 04, 2023
  */
-public class DynamicSlf4jLogger implements ILogger {
+public class DynamicSlf4jLogger implements Logger {
 
 	private final Class<?> classLogger;
 	private final Object instanceLogger;
@@ -38,7 +37,7 @@ public class DynamicSlf4jLogger implements ILogger {
 	private final MethodHandle error2;
 	private final MethodHandle error3;
 
-	private Logger log;
+	private org.slf4j.Logger log;
 
 	public DynamicSlf4jLogger(Class<?> classLogger,   Object instanceLogger) throws NoSuchMethodException, IllegalAccessException {
 		this.classLogger = classLogger;

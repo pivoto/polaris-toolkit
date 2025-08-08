@@ -18,7 +18,7 @@ import io.polaris.core.jdbc.base.StatementPreparer;
 import io.polaris.core.jdbc.sql.PreparedSql;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.lang.bean.MetaObject;
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 
 /**
@@ -26,7 +26,7 @@ import io.polaris.core.log.Loggers;
  * @since  Feb 07, 2024
  */
 public class JdbcBatch {
-	private static final ILogger log = Loggers.of(JdbcBatch.class);
+	private static final Logger log = Loggers.of(JdbcBatch.class);
 	private static final JdbcOptions DEFAULT_OPTIONS = JdbcOptions.ofDefault();
 	private final List<BatchResult> resultList = new ArrayList<>();
 	private String currentSql;

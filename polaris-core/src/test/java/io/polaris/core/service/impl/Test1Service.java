@@ -1,6 +1,6 @@
 package io.polaris.core.service.impl;
 
-import io.polaris.core.log.ILogger;
+import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.service.ITestService;
 import io.polaris.core.service.ServiceProperty;
@@ -11,7 +11,7 @@ import io.polaris.core.service.ServiceProperty;
  */
 @ServiceProperty(name = "key", value = "test1")
 public class Test1Service implements ITestService {
-	private static final ILogger log = Loggers.of(ITestService.class);
+	private static final Logger log = Loggers.of(ITestService.class);
 	@Override
 	public void call() {
 		log.info("called in {}", this.getClass().getName());
