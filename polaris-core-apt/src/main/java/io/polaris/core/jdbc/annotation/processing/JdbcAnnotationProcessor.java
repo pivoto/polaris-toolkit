@@ -20,7 +20,7 @@ import javax.tools.Diagnostic;
 import io.polaris.core.annotation.processing.BaseProcessor;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.ExpressionMeta;
-import io.polaris.core.jdbc.IEntityMeta;
+import io.polaris.core.jdbc.EntityMeta;
 import io.polaris.core.jdbc.annotation.Table;
 
 import io.polaris.core.javapoet.*;
@@ -54,7 +54,7 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 
 	private void generateMetaClass(JdbcBeanInfo beanInfo) {
 		ClassName className = beanInfo.getMetaClassName();
-		ClassName entityMetaClassName = ClassName.get(IEntityMeta.class);
+		ClassName entityMetaClassName = ClassName.get(EntityMeta.class);
 		ClassName columnMetaClassName = ClassName.get(ColumnMeta.class);
 		ClassName expressionMetaClassName = ClassName.get(ExpressionMeta.class);
 

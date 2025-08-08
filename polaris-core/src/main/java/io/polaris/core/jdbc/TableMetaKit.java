@@ -148,7 +148,7 @@ public class TableMetaKit {
 		try {
 			String metaClassName = entityClassName + annotation.metaSuffix();
 			Class<?> c = Class.forName(metaClassName);
-			if (IEntityMeta.class.isAssignableFrom(c)) {
+			if (EntityMeta.class.isAssignableFrom(c)) {
 				ClassAccess<?> classAccess = ClassAccess.get(c);
 				String schema = (String) classAccess.getField(null, "SCHEMA");
 				String catalog = (String) classAccess.getField(null, "CATALOG");
