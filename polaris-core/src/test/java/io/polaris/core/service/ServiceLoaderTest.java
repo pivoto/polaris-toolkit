@@ -13,14 +13,14 @@ class ServiceLoaderTest {
 
 	@Test
 	void test01() {
-		ServiceLoader<ITestService> loader = new ServiceLoader<>(ITestService.class);
+		ServiceLoader<SpiTestService> loader = new ServiceLoader<>(SpiTestService.class);
 
 		Object[] args2 = new Object[]{loader.get()};
 		Consoles.println(args2);
 		Object[] args1 = new Object[]{loader.get("test")};
 		Consoles.println(args1);
 
-		for (Service<ITestService> service : loader.getProviders()) {
+		for (Service<SpiTestService> service : loader.getProviders()) {
 			Consoles.println(service);
 		}
 		Object[] args = new Object[]{loader.getNamings()};
@@ -29,7 +29,7 @@ class ServiceLoaderTest {
 
 	@Test
 	void test02() {
-		ServiceLoader<ITestService> loader = new ServiceLoader<>(ITestService.class);
+		ServiceLoader<SpiTestService> loader = new ServiceLoader<>(SpiTestService.class);
 		Assertions.assertNotNull(loader.getSingleton());
 		Object[] args = new Object[]{loader.getSingleton()};
 		Consoles.println(args);
@@ -38,7 +38,7 @@ class ServiceLoaderTest {
 
 	@Test
 	void test03() {
-		ServiceLoader<ITestService> loader = new ServiceLoader<>(ITestService.class);
+		ServiceLoader<SpiTestService> loader = new ServiceLoader<>(SpiTestService.class);
 		Assertions.assertNotNull(loader.getSingleton("test"));
 		Object[] args = new Object[]{loader.getSingleton("test")};
 		Consoles.println(args);
@@ -47,7 +47,7 @@ class ServiceLoaderTest {
 
 	@Test
 	void test04() {
-		ServiceLoader<ITestService> loader = new ServiceLoader<>(ITestService.class);
+		ServiceLoader<SpiTestService> loader = new ServiceLoader<>(SpiTestService.class);
 		Assertions.assertNotNull(loader.getSingleton("key", "test0"));
 		Object[] args = new Object[]{loader.getSingleton("key", "test0")};
 		Consoles.println(args);
@@ -56,11 +56,11 @@ class ServiceLoaderTest {
 
 	@Test
 	void test05() {
-		ServiceLoader<ITestService> loader = new ServiceLoader<>(ITestService.class);
+		ServiceLoader<SpiTestService> loader = new ServiceLoader<>(SpiTestService.class);
 		Assertions.assertNull(loader.getSingleton("key", "test"));
 		Object[] args = new Object[]{loader.getSingleton("key", "test")};
 		Consoles.println(args);
-		Optional.ofNullable(loader.getSingleton("key", "test")).ifPresent(ITestService::call);
+		Optional.ofNullable(loader.getSingleton("key", "test")).ifPresent(SpiTestService::call);
 	}
 
 }

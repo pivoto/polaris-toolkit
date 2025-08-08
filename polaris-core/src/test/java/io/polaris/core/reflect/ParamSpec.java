@@ -6,5 +6,5 @@ import java.io.Serializable;
  * @author Qt
  * @since 1.8
  */
-public interface IParam<A,B,C extends Serializable>{
+public interface ParamSpec<A,B,C extends Serializable>{
 }

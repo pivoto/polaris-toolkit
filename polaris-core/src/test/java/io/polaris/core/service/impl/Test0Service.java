@@ -2,7 +2,7 @@ package io.polaris.core.service.impl;
 
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
-import io.polaris.core.service.ITestService;
+import io.polaris.core.service.SpiTestService;
 import io.polaris.core.service.ServiceDefault;
 import io.polaris.core.service.ServiceProperty;
 
@@ -12,8 +12,8 @@ import io.polaris.core.service.ServiceProperty;
  */
 @ServiceDefault()
 @ServiceProperty(name = "key", value = "test0")
-public class Test0Service implements ITestService {
-	private static final Logger log = Loggers.of(ITestService.class);
+public class Test0Service implements SpiTestService {
+	private static final Logger log = Loggers.of(SpiTestService.class);
 
 	@Override
 	public void call() {
