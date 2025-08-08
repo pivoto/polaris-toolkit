@@ -4,7 +4,7 @@ import java.security.Key;
 
 import io.polaris.core.crypto.Ciphers;
 import io.polaris.core.crypto.CryptoKeys;
-import io.polaris.core.crypto.IDecryptor;
+import io.polaris.core.crypto.Decryptor;
 import io.polaris.core.crypto.IEncryptor;
 
 /**
@@ -18,7 +18,7 @@ public class Symmetric {
 	private final Key key;
 
 	private IEncryptor encryptor;
-	private IDecryptor decryptor;
+	private Decryptor decryptor;
 
 	public Symmetric(String provider, String algorithm, Key key) {
 		this.provider = provider;
@@ -62,7 +62,7 @@ public class Symmetric {
 	}
 
 
-	public IDecryptor getDecryptor() {
+	public Decryptor getDecryptor() {
 		if (decryptor == null) {
 			decryptor = Ciphers.getDecryptor(algorithm, key);
 		}

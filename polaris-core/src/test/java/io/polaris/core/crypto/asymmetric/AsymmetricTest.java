@@ -7,7 +7,7 @@ import java.security.Security;
 
 import io.polaris.core.crypto.Ciphers;
 import io.polaris.core.crypto.CryptoKeys;
-import io.polaris.core.crypto.IDecryptor;
+import io.polaris.core.crypto.Decryptor;
 import io.polaris.core.crypto.IEncryptor;
 import io.polaris.core.io.Consoles;
 import io.polaris.core.string.Strings;
@@ -42,7 +42,7 @@ class AsymmetricTest {
 		byte[] encrypted = encryptor.encrypt(data.getBytes(StandardCharsets.UTF_8));
 		Consoles.println("encrypted: {}", new String(encrypted, StandardCharsets.UTF_8));
 
-		IDecryptor decryptor = Ciphers.getDecryptor(algorithm.code(), pair.getPrivate());
+		Decryptor decryptor = Ciphers.getDecryptor(algorithm.code(), pair.getPrivate());
 		byte[] decrypted = decryptor.decrypt(encrypted);
 		Consoles.println("decrypted: {}", new String(decrypted, StandardCharsets.UTF_8));
 

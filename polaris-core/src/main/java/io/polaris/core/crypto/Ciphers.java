@@ -130,25 +130,25 @@ public class Ciphers {
 		};
 	}
 
-	public static IDecryptor getDecryptor(String algorithm, Key key) {
+	public static Decryptor getDecryptor(String algorithm, Key key) {
 		Cipher cipher = getDecryptCipher(algorithm, key);
 		return getDecryptor(cipher);
 	}
 
-	public static IDecryptor getDecryptor(String provider, String algorithm, Key key) {
+	public static Decryptor getDecryptor(String provider, String algorithm, Key key) {
 		Cipher cipher = getDecryptCipher(provider, algorithm, key);
 		return getDecryptor(cipher);
 	}
 
-	public static IDecryptor getDecryptor(Provider provider, String algorithm, Key key) {
+	public static Decryptor getDecryptor(Provider provider, String algorithm, Key key) {
 		Cipher cipher = getDecryptCipher(provider, algorithm, key);
 		return getDecryptor(cipher);
 	}
 
-	private static IDecryptor getDecryptor(Cipher cipher) {
-		return new IDecryptor() {
+	private static Decryptor getDecryptor(Cipher cipher) {
+		return new Decryptor() {
 			@Override
-			public IDecryptor update(byte[] data, int offset, int len) {
+			public Decryptor update(byte[] data, int offset, int len) {
 				doUpdate(cipher, data, offset, len);
 				return this;
 			}

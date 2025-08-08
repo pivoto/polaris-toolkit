@@ -6,7 +6,7 @@ import java.security.PublicKey;
 
 import io.polaris.core.crypto.Ciphers;
 import io.polaris.core.crypto.CryptoKeys;
-import io.polaris.core.crypto.IDecryptor;
+import io.polaris.core.crypto.Decryptor;
 import io.polaris.core.crypto.IEncryptor;
 
 /**
@@ -19,7 +19,7 @@ public class Asymmetric {
 	private final PublicKey publicKey;
 	private final PrivateKey privateKey;
 	private IEncryptor encryptor;
-	private IDecryptor decryptor;
+	private Decryptor decryptor;
 
 	public Asymmetric(String provider, String algorithm, PrivateKey privateKey, PublicKey publicKey) {
 		this.provider = provider;
@@ -78,7 +78,7 @@ public class Asymmetric {
 	}
 
 
-	public IDecryptor getDecryptor() {
+	public Decryptor getDecryptor() {
 		if (decryptor == null) {
 			decryptor = provider == null ? Ciphers.getDecryptor(algorithm, privateKey) : Ciphers.getDecryptor(provider, algorithm, privateKey);
 		}
