@@ -9,11 +9,11 @@ import java.util.List;
  * @author Qt
  * @since 1.8
  */
-public class BulkConsumeDriver<T> implements IBulkConsumerDriver<T> {
+public class DefaultBulkConsumerDriver<T> implements BulkConsumerDriver<T> {
 	private final List<BulkConsumerThread<T>> threads;
 	private volatile boolean running = false;
 
-	public BulkConsumeDriver(String name, int size, long thinkTime) {
+	public DefaultBulkConsumerDriver(String name, int size, long thinkTime) {
 		threads = new ArrayList<>(size);
 		for (int i = 0; i < size; i++) {
 			BulkConsumerThread<T> thread = new BulkConsumerThread<T>("DataCarrier." + name + ".BulkConsumer." + i + "", thinkTime);

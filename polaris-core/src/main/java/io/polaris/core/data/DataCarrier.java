@@ -4,7 +4,7 @@ import io.polaris.core.data.buffer.BufferChannel;
 import io.polaris.core.data.consumer.DefaultConsumerDriver;
 import io.polaris.core.data.consumer.IConsumer;
 import io.polaris.core.data.buffer.BufferStrategy;
-import io.polaris.core.data.consumer.IBulkConsumerDriver;
+import io.polaris.core.data.consumer.BulkConsumerDriver;
 import io.polaris.core.data.consumer.ConsumerDriver;
 import io.polaris.core.data.partition.IDataPartitioner;
 import io.polaris.core.data.partition.SimpleRollingPartitioner;
@@ -62,7 +62,7 @@ public class DataCarrier<T> {
 		return this;
 	}
 
-	public DataCarrier<T> consume(IBulkConsumerDriver<T> consumerDriver, IConsumer<T> consumer) {
+	public DataCarrier<T> consume(BulkConsumerDriver<T> consumerDriver, IConsumer<T> consumer) {
 		driver = consumerDriver;
 		consumerDriver.add(channel, consumer);
 		driver.begin(channel);

@@ -1,6 +1,6 @@
 package io.polaris.core.data;
 
-import io.polaris.core.data.consumer.BulkConsumeDriver;
+import io.polaris.core.data.consumer.DefaultBulkConsumerDriver;
 import io.polaris.core.data.consumer.IConsumer;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
@@ -39,7 +39,7 @@ public class DataCarrierTest {
 		IConsumer<SampleData> consumer = data -> log.info("{} consume: {}", System.currentTimeMillis(), data.size());
 
 		final DataCarrier<SampleData> carrier = new DataCarrier<>(3, 100);
-		BulkConsumeDriver<SampleData> bulkConsumeDriver = new BulkConsumeDriver<>("test", 3, 20);
+		DefaultBulkConsumerDriver<SampleData> bulkConsumeDriver = new DefaultBulkConsumerDriver<>("test", 3, 20);
 		carrier.consume(bulkConsumeDriver, consumer);
 
 		long time1 = System.currentTimeMillis();
@@ -60,7 +60,7 @@ public class DataCarrierTest {
 
 		final DataCarrier<SampleData> carrier = new DataCarrier<>(3, 100);
 		final DataCarrier<SampleData> carrier2 = new DataCarrier<>(3, 100);
-		BulkConsumeDriver<SampleData> bulkConsumeDriver = new BulkConsumeDriver<>("test", 3, 20);
+		DefaultBulkConsumerDriver<SampleData> bulkConsumeDriver = new DefaultBulkConsumerDriver<>("test", 3, 20);
 		carrier.consume(bulkConsumeDriver, consumer);
 		carrier2.consume(bulkConsumeDriver, consumer);
 
