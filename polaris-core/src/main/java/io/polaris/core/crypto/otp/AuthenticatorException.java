@@ -38,7 +38,7 @@ import io.polaris.core.err.UncheckedException;
  *
  * @author Enrico M. Crisostomo
  */
-public class GoogleAuthenticatorException extends UncheckedException {
+public class AuthenticatorException extends UncheckedException {
 
 	private static final long serialVersionUID = 1L;
 
@@ -47,7 +47,7 @@ public class GoogleAuthenticatorException extends UncheckedException {
 	 *
 	 * @param message the error message.
 	 */
-	public GoogleAuthenticatorException(String message) {
+	public AuthenticatorException(String message) {
 		super(message);
 	}
 
@@ -58,7 +58,7 @@ public class GoogleAuthenticatorException extends UncheckedException {
 	 * @param message the error message.
 	 * @param cause   the cause.
 	 */
-	public GoogleAuthenticatorException(String message, Throwable cause) {
+	public AuthenticatorException(String message, Throwable cause) {
 		super(message, cause);
 	}
 }

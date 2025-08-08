@@ -35,14 +35,14 @@ public final class GoogleAuthenticatorQRGenerator {
 	}
 
 
-	public static String getOtpAuthQrUrl(String issuer, String accountName, GoogleAuthenticatorKey credentials) {
+	public static String getOtpAuthQrUrl(String issuer, String accountName, AuthenticatorKey credentials) {
 		return String.format(TOTP_URI_FORMAT,
 			internalURLEncode(getOtpAuthUrl(issuer, accountName, credentials)));
 	}
 
-	public static String getOtpAuthUrl(String issuer, String accountName, GoogleAuthenticatorKey credentials) {
+	public static String getOtpAuthUrl(String issuer, String accountName, AuthenticatorKey credentials) {
 		String secret = credentials.getKey();
-		final GoogleAuthenticatorConfig config = credentials.getConfig();
+		final AuthenticatorConfig config = credentials.getConfig();
 		String algorithm = config.getHmacHash().getHashAlgorithm();
 		int digits = config.getCodeDigits();
 		int period = (int) (config.getTimeStepSizeInMillis() / 1000);

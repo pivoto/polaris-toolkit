@@ -2,7 +2,7 @@ package io.polaris.core.crypto.otp;
 
 import java.util.concurrent.TimeUnit;
 
-public class GoogleAuthenticatorConfig {
+public class AuthenticatorConfig {
 	private long timeStepSizeInMillis = TimeUnit.SECONDS.toMillis(30);
 	private int windowSize = 3;
 	private int codeDigits = 6;
@@ -95,9 +95,9 @@ public class GoogleAuthenticatorConfig {
 	}
 
 	public static class GoogleAuthenticatorConfigBuilder {
-		private GoogleAuthenticatorConfig config = new GoogleAuthenticatorConfig();
+		private AuthenticatorConfig config = new AuthenticatorConfig();
 
-		public GoogleAuthenticatorConfig build() {
+		public AuthenticatorConfig build() {
 			return config;
 		}
 

@@ -49,7 +49,7 @@ class ReseedingSecureRandom {
 				this.secureRandom = SecureRandom.getInstance(this.algorithm, this.provider);
 			}
 		} catch (NoSuchAlgorithmException e) {
-			throw new GoogleAuthenticatorException(
+			throw new AuthenticatorException(
 				String.format(
 					"Could not initialise SecureRandom with the specified algorithm: %s. " +
 						"Another provider can be chosen setting the %s system property.",
@@ -58,7 +58,7 @@ class ReseedingSecureRandom {
 				), e
 			);
 		} catch (NoSuchProviderException e) {
-			throw new GoogleAuthenticatorException(
+			throw new AuthenticatorException(
 				String.format(
 					"Could not initialise SecureRandom with the specified provider: %s. " +
 						"Another provider can be chosen setting the %s system property.",

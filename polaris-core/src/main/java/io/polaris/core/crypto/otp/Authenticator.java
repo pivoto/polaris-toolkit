@@ -5,7 +5,7 @@ package io.polaris.core.crypto.otp;
  *
  * @see <a href="https://github.com/wstrange/GoogleAuth">GoogleAuth</a>
  */
-public interface IGoogleAuthenticator {
+public interface Authenticator {
 	/**
 	 * This method generates a new set of credentials including:
 	 * <ol>
@@ -18,7 +18,7 @@ public interface IGoogleAuthenticator {
 	 *
 	 * @return secret key
 	 */
-	GoogleAuthenticatorKey createCredentials();
+	AuthenticatorKey createCredentials();
 
 	/**
 	 * This method generates a new set of credentials invoking the
@@ -31,7 +31,7 @@ public interface IGoogleAuthenticator {
 	 * @param userName the user name.
 	 * @return secret key
 	 */
-	GoogleAuthenticatorKey createCredentials(String userName);
+	AuthenticatorKey createCredentials(String userName);
 
 	/**
 	 * This method generates the current TOTP password.
@@ -59,7 +59,7 @@ public interface IGoogleAuthenticator {
 	 * @param verificationCode the verification code.
 	 * @return <code>true</code> if the validation code is valid,
 	 * <code>false</code> otherwise.
-	 * @throws GoogleAuthenticatorException if a failure occurs during the
+	 * @throws AuthenticatorException if a failure occurs during the
 	 *                                      calculation of the validation code.
 	 *                                      The only failures that should occur
 	 *                                      are related with the cryptographic
@@ -81,7 +81,7 @@ public interface IGoogleAuthenticator {
 	 * @param time             The time to use to calculate the TOTP password..
 	 * @return {@code true} if the validation code is valid, {@code false}
 	 * otherwise.
-	 * @throws GoogleAuthenticatorException if a failure occurs during the
+	 * @throws AuthenticatorException if a failure occurs during the
 	 *                                      calculation of the validation code.
 	 *                                      The only failures that should occur
 	 *                                      are related with the cryptographic

@@ -44,7 +44,7 @@ import java.util.Random;
  * @see <a href="http://code.google.com/p/google-authenticator"></a>
  * @see <a href="http://tools.ietf.org/id/draft-mraihi-totp-timebased-06.txt"></a>
  */
-public final class GoogleAuthenticator implements IGoogleAuthenticator {
+public final class GoogleAuthenticator implements Authenticator {
 	private static final ILogger log = ILoggers.of(GoogleAuthenticator.class);
 	public static final String RNG_ALGORITHM_KEY = "googleauth.rng.algorithm";
 	public static final String RNG_ALGORITHM_PROVIDER_KEY = "googleauth.rng.algorithmProvider";
@@ -71,7 +71,7 @@ public final class GoogleAuthenticator implements IGoogleAuthenticator {
 	/**
 	 * The configuration used by the current instance.
 	 */
-	private final GoogleAuthenticatorConfig config;
+	private final AuthenticatorConfig config;
 
 	/**
 	 * The internal SecureRandom instance used by this class.  Since Java 7
@@ -84,13 +84,13 @@ public final class GoogleAuthenticator implements IGoogleAuthenticator {
 	private ReseedingSecureRandom secureRandom;
 
 	public GoogleAuthenticator() {
-		config = new GoogleAuthenticatorConfig();
+		config = new AuthenticatorConfig();
 		this.secureRandom = new ReseedingSecureRandom(
 			getRandomNumberAlgorithm(),
 			getRandomNumberAlgorithmProvider());
 	}
 
-	public GoogleAuthenticator(GoogleAuthenticatorConfig config) {
+	public GoogleAuthenticator(AuthenticatorConfig config) {
 		if (config == null) {
 			throw new IllegalArgumentException("Configuration cannot be null.");
 		}
@@ -102,10 +102,10 @@ public final class GoogleAuthenticator implements IGoogleAuthenticator {
 	}
 
 	public GoogleAuthenticator(final String randomNumberAlgorithm, final String randomNumberAlgorithmProvider) {
-		this(new GoogleAuthenticatorConfig(), randomNumberAlgorithm, randomNumberAlgorithmProvider);
+		this(new AuthenticatorConfig(), randomNumberAlgorithm, randomNumberAlgorithmProvider);
 	}
 
-	public GoogleAuthenticator(GoogleAuthenticatorConfig config, final String randomNumberAlgorithm, final String randomNumberAlgorithmProvider) {
+	public GoogleAuthenticator(AuthenticatorConfig config, final String randomNumberAlgorithm, final String randomNumberAlgorithmProvider) {
 		if (config == null) {
 			throw new IllegalArgumentException("Configuration cannot be null.");
 		}
@@ -174,7 +174,7 @@ public final class GoogleAuthenticator implements IGoogleAuthenticator {
 			// Logging the exception.
 			log.error(ex.getMessage(), ex);
 			// We're not disclosing internal error details to our clients.
-			throw new GoogleAuthenticatorException("The operation cannot be performed now.");
+			throw new AuthenticatorException("The operation cannot be performed now.");
 		}
 	}
 
@@ -224,7 +224,7 @@ public final class GoogleAuthenticator implements IGoogleAuthenticator {
 	}
 
 	@Override
-	public GoogleAuthenticatorKey createCredentials() {
+	public AuthenticatorKey createCredentials() {
 		// Allocating a buffer sufficiently large to hold the bytes required by
 		// the secret key.
 		int bufferSize = config.getSecretBits() / 8;
@@ -242,7 +242,7 @@ public final class GoogleAuthenticator implements IGoogleAuthenticator {
 		// Calculate scratch codes
 		List<Integer> scratchCodes = calculateScratchCodes();
 
-		return new GoogleAuthenticatorKey
+		return new AuthenticatorKey
 			.Builder(generatedKey)
 			.setConfig(config)
 			.setVerificationCode(validationCode)
@@ -251,12 +251,12 @@ public final class GoogleAuthenticator implements IGoogleAuthenticator {
 	}
 
 	@Override
-	public GoogleAuthenticatorKey createCredentials(String userName) {
+	public AuthenticatorKey createCredentials(String userName) {
 		// Further validation will be performed by the configured provider.
 		if (userName == null) {
 			throw new IllegalArgumentException("User name cannot be null.");
 		}
-		GoogleAuthenticatorKey key = createCredentials();
+		AuthenticatorKey key = createCredentials();
 		return key;
 	}
 

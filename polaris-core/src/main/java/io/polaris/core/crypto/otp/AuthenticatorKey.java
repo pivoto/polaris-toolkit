@@ -17,11 +17,11 @@ import java.util.List;
  * @see GoogleAuthenticator
  * @see <a href="https://github.com/wstrange/GoogleAuth">GoogleAuth</a>
  */
-public final class GoogleAuthenticatorKey {
+public final class AuthenticatorKey {
 	/**
 	 * The configuration of this key.
 	 */
-	private final GoogleAuthenticatorConfig config;
+	private final AuthenticatorConfig config;
 
 	/**
 	 * The secret key in Base32 encoding.
@@ -46,8 +46,8 @@ public final class GoogleAuthenticatorKey {
 	 * @param verificationCode the verification code at time = 0 (the UNIX epoch).
 	 * @param scratchCodes     the list of scratch codes.
 	 */
-	private GoogleAuthenticatorKey(
-		GoogleAuthenticatorConfig config, String key, int verificationCode, List<Integer> scratchCodes) {
+	private AuthenticatorKey(
+		AuthenticatorConfig config, String key, int verificationCode, List<Integer> scratchCodes) {
 		if (key == null) {
 			throw new IllegalArgumentException("Key cannot be null");
 		}
@@ -80,7 +80,7 @@ public final class GoogleAuthenticatorKey {
 	 *
 	 * @return the config of this key.
 	 */
-	public GoogleAuthenticatorConfig getConfig() {
+	public AuthenticatorConfig getConfig() {
 		return config;
 	}
 
@@ -107,10 +107,10 @@ public final class GoogleAuthenticatorKey {
 	}
 
 	/**
-	 * This class is a builder to create instances of the {@link GoogleAuthenticatorKey} class.
+	 * This class is a builder to create instances of the {@link AuthenticatorKey} class.
 	 */
 	public static class Builder {
-		private GoogleAuthenticatorConfig config = new GoogleAuthenticatorConfig();
+		private AuthenticatorConfig config = new AuthenticatorConfig();
 		private String key;
 		private int verificationCode;
 		private List<Integer> scratchCodes = new ArrayList<>();
@@ -119,20 +119,20 @@ public final class GoogleAuthenticatorKey {
 		 * Creates an instance of the builder.
 		 *
 		 * @param key the secret key in Base32 encoding.
-		 * @see GoogleAuthenticatorKey#GoogleAuthenticatorKey(GoogleAuthenticatorConfig, String, int, List)
+		 * @see AuthenticatorKey#AuthenticatorKey(AuthenticatorConfig, String, int, List)
 		 */
 		public Builder(String key) {
 			this.key = key;
 		}
 
 		/**
-		 * Creates an instance of the {@link GoogleAuthenticatorKey} class.
+		 * Creates an instance of the {@link AuthenticatorKey} class.
 		 *
-		 * @return an instance of the {@link GoogleAuthenticatorKey} class initialized with the properties set in this builder.
-		 * @see GoogleAuthenticatorKey#GoogleAuthenticatorKey(GoogleAuthenticatorConfig, String, int, List)
+		 * @return an instance of the {@link AuthenticatorKey} class initialized with the properties set in this builder.
+		 * @see AuthenticatorKey#AuthenticatorKey(AuthenticatorConfig, String, int, List)
 		 */
-		public GoogleAuthenticatorKey build() {
-			return new GoogleAuthenticatorKey(config, key, verificationCode, scratchCodes);
+		public AuthenticatorKey build() {
+			return new AuthenticatorKey(config, key, verificationCode, scratchCodes);
 		}
 
 		/**
@@ -140,9 +140,9 @@ public final class GoogleAuthenticatorKey {
 		 *
 		 * @param config the config of the TOTP algorithm for this key.
 		 * @return the builder.
-		 * @see GoogleAuthenticatorKey#GoogleAuthenticatorKey(GoogleAuthenticatorConfig, String, int, List)
+		 * @see AuthenticatorKey#AuthenticatorKey(AuthenticatorConfig, String, int, List)
 		 */
-		public Builder setConfig(GoogleAuthenticatorConfig config) {
+		public Builder setConfig(AuthenticatorConfig config) {
 			this.config = config;
 			return this;
 		}
@@ -152,7 +152,7 @@ public final class GoogleAuthenticatorKey {
 		 *
 		 * @param key the secret key.
 		 * @return the builder.
-		 * @see GoogleAuthenticatorKey#GoogleAuthenticatorKey(GoogleAuthenticatorConfig, String, int, List)
+		 * @see AuthenticatorKey#AuthenticatorKey(AuthenticatorConfig, String, int, List)
 		 */
 		public Builder setKey(String key) {
 			this.key = key;
@@ -164,7 +164,7 @@ public final class GoogleAuthenticatorKey {
 		 *
 		 * @param verificationCode the verification code.
 		 * @return the builder.
-		 * @see GoogleAuthenticatorKey#GoogleAuthenticatorKey(GoogleAuthenticatorConfig, String, int, List)
+		 * @see AuthenticatorKey#AuthenticatorKey(AuthenticatorConfig, String, int, List)
 		 */
 		public Builder setVerificationCode(int verificationCode) {
 			this.verificationCode = verificationCode;
@@ -176,7 +176,7 @@ public final class GoogleAuthenticatorKey {
 		 *
 		 * @param scratchCodes the scratch codes.
 		 * @return the builder.
-		 * @see GoogleAuthenticatorKey#GoogleAuthenticatorKey(GoogleAuthenticatorConfig, String, int, List)
+		 * @see AuthenticatorKey#AuthenticatorKey(AuthenticatorConfig, String, int, List)
 		 */
 		public Builder setScratchCodes(List<Integer> scratchCodes) {
 			this.scratchCodes = scratchCodes;

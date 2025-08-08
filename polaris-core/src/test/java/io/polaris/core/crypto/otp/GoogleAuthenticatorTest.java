@@ -48,12 +48,12 @@ class GoogleAuthenticatorTest {
 
 	@Test
 	void testGen() {
-		GoogleAuthenticatorConfig config = GoogleAuthenticatorConfig.builder()
+		AuthenticatorConfig config = AuthenticatorConfig.builder()
 			.numberOfScratchCodes(10)
 			.build();
 
 		GoogleAuthenticator gAuth = new GoogleAuthenticator(config);
-		GoogleAuthenticatorKey key = gAuth.createCredentials("Apollo");
+		AuthenticatorKey key = gAuth.createCredentials("Apollo");
 		Consoles.println("key: {}", key.getKey());
 		Consoles.println("scratchCodes: {}", key.getScratchCodes());
 		Consoles.println("verificationCode: {}", key.getVerificationCode());
