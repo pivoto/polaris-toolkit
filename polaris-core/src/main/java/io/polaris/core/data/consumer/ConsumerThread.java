@@ -11,11 +11,11 @@ import java.util.List;
  */
 public class ConsumerThread<T> extends Thread {
 	private volatile boolean running = false;
-	private final IConsumer<T> consumer;
+	private final DataConsumer<T> consumer;
 	private final List<QueueBuffer<T>> queueBuffers = new ArrayList<>(1);
 	private final long thinkTime;
 
-	ConsumerThread(String name, IConsumer<T> consumer, long thinkTime) {
+	ConsumerThread(String name, DataConsumer<T> consumer, long thinkTime) {
 		super(name);
 		this.consumer = consumer;
 		this.thinkTime = thinkTime;

@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class BulkConsumerThread<T> extends Thread {
 	private volatile boolean running = true;
-	private volatile List<Tuple2<BufferChannel<T>, IConsumer<T>>> bulkConsumers;
+	private volatile List<Tuple2<BufferChannel<T>, DataConsumer<T>>> bulkConsumers;
 	private volatile long size;
 	private final long thinkTime;
 
@@ -30,10 +30,10 @@ public class BulkConsumerThread<T> extends Thread {
 		return thread;
 	}
 
-	public void addBulk(BufferChannel<T> channel, IConsumer<T> consumer) {
-		Tuple2<BufferChannel<T>, IConsumer<T>> group = new Tuple2<>(channel, consumer);
+	public void addBulk(BufferChannel<T> channel, DataConsumer<T> consumer) {
+		Tuple2<BufferChannel<T>, DataConsumer<T>> group = new Tuple2<>(channel, consumer);
 		// 重建列表防止添加时正在消费中
-		List<Tuple2<BufferChannel<T>, IConsumer<T>>> newList = new ArrayList<>();
+		List<Tuple2<BufferChannel<T>, DataConsumer<T>>> newList = new ArrayList<>();
 		newList.addAll(bulkConsumers);
 		newList.add(group);
 		bulkConsumers = newList;
@@ -51,7 +51,7 @@ public class BulkConsumerThread<T> extends Thread {
 		final List<T> consumeList = new ArrayList<>(2000);
 		while (running) {
 			boolean hasData = false;
-			for (Tuple2<BufferChannel<T>, IConsumer<T>> target : bulkConsumers) {
+			for (Tuple2<BufferChannel<T>, DataConsumer<T>> target : bulkConsumers) {
 				boolean consume = consume(target, consumeList);
 				hasData = hasData || consume;
 			}
@@ -65,13 +65,13 @@ public class BulkConsumerThread<T> extends Thread {
 		}
 
 		// 余量消费
-		for (Tuple2<BufferChannel<T>, IConsumer<T>> target : bulkConsumers) {
+		for (Tuple2<BufferChannel<T>, DataConsumer<T>> target : bulkConsumers) {
 			consume(target, consumeList);
 			target.getSecond().onExit();
 		}
 	}
 
-	private boolean consume(Tuple2<BufferChannel<T>, IConsumer<T>> target, List<T> consumeList) {
+	private boolean consume(Tuple2<BufferChannel<T>, DataConsumer<T>> target, List<T> consumeList) {
 		for (int i = 0; i < target.getFirst().getBufferCount(); i++) {
 			QueueBuffer<T> buffer = target.getFirst().getBuffer(i);
 			buffer.drainTo(consumeList);

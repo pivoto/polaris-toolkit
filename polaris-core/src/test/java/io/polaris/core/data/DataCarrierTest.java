@@ -1,7 +1,7 @@
 package io.polaris.core.data;
 
 import io.polaris.core.data.consumer.DefaultBulkConsumerDriver;
-import io.polaris.core.data.consumer.IConsumer;
+import io.polaris.core.data.consumer.DataConsumer;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ public class DataCarrierTest {
 		}
 
 		long time1 = System.currentTimeMillis();
-		IConsumer<SampleData> consumer = data -> log.info("{} consume: {}", System.currentTimeMillis(), data.size());
+		DataConsumer<SampleData> consumer = data -> log.info("{} consume: {}", System.currentTimeMillis(), data.size());
 		carrier.consume(consumer, 3);
 		carrier.produce(new SampleData().setName("blocking-data"));
 
@@ -36,7 +36,7 @@ public class DataCarrierTest {
 
 	@Test
 	public void testBlockingProduce2() throws Exception {
-		IConsumer<SampleData> consumer = data -> log.info("{} consume: {}", System.currentTimeMillis(), data.size());
+		DataConsumer<SampleData> consumer = data -> log.info("{} consume: {}", System.currentTimeMillis(), data.size());
 
 		final DataCarrier<SampleData> carrier = new DataCarrier<>(3, 100);
 		DefaultBulkConsumerDriver<SampleData> bulkConsumeDriver = new DefaultBulkConsumerDriver<>("test", 3, 20);
@@ -56,7 +56,7 @@ public class DataCarrierTest {
 	}
 	@Test
 	public void testBlockingProduce3() throws Exception {
-		IConsumer<SampleData> consumer = data -> log.info("{} consume: {}", System.currentTimeMillis(), data.size());
+		DataConsumer<SampleData> consumer = data -> log.info("{} consume: {}", System.currentTimeMillis(), data.size());
 
 		final DataCarrier<SampleData> carrier = new DataCarrier<>(3, 100);
 		final DataCarrier<SampleData> carrier2 = new DataCarrier<>(3, 100);

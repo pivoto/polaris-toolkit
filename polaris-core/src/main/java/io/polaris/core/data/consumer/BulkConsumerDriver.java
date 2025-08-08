@@ -8,6 +8,6 @@ import io.polaris.core.data.buffer.BufferChannel;
  */
 public interface BulkConsumerDriver<T> extends ConsumerDriver<T> {
 
-	void add(BufferChannel<T> channel, IConsumer<T> consumer);
+	void add(BufferChannel<T> channel, DataConsumer<T> consumer);
 
 }

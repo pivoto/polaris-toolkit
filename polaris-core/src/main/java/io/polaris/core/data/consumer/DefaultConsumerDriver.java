@@ -22,7 +22,7 @@ public class DefaultConsumerDriver<T> implements ConsumerDriver<T> {
 		this.lock = new ReentrantLock();
 	}
 
-	public DefaultConsumerDriver(String name, BufferChannel<T> channel, IConsumer<T> consumer, int num, long thinkTime) {
+	public DefaultConsumerDriver(String name, BufferChannel<T> channel, DataConsumer<T> consumer, int num, long thinkTime) {
 		this(channel, num);
 		for (int i = 0; i < num; i++) {
 			threads[i] = new ConsumerThread<T>("DataCarrier." + name + ".Consumer." + i + "", consumer, thinkTime);

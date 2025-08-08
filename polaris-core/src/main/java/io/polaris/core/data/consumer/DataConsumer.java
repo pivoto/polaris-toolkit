@@ -6,7 +6,7 @@ import java.util.List;
  * @author Qt
  * @since 1.8
  */
-public interface IConsumer<T> {
+public interface DataConsumer<T> {
 
 	void consume(List<T> data);
 

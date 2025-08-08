@@ -2,7 +2,7 @@ package io.polaris.core.data;
 
 import io.polaris.core.data.buffer.BufferChannel;
 import io.polaris.core.data.consumer.DefaultConsumerDriver;
-import io.polaris.core.data.consumer.IConsumer;
+import io.polaris.core.data.consumer.DataConsumer;
 import io.polaris.core.data.buffer.BufferStrategy;
 import io.polaris.core.data.consumer.BulkConsumerDriver;
 import io.polaris.core.data.consumer.ConsumerDriver;
@@ -49,11 +49,11 @@ public class DataCarrier<T> {
 		return this.channel.produce(data);
 	}
 
-	public DataCarrier<T> consume(IConsumer<T> consumer, int num) {
+	public DataCarrier<T> consume(DataConsumer<T> consumer, int num) {
 		return this.consume(consumer, num, 20);
 	}
 
-	public DataCarrier<T> consume(IConsumer<T> consumer, int num, long thinkTime) {
+	public DataCarrier<T> consume(DataConsumer<T> consumer, int num, long thinkTime) {
 		if (driver != null) {
 			driver.close(channel);
 		}
@@ -62,7 +62,7 @@ public class DataCarrier<T> {
 		return this;
 	}
 
-	public DataCarrier<T> consume(BulkConsumerDriver<T> consumerDriver, IConsumer<T> consumer) {
+	public DataCarrier<T> consume(BulkConsumerDriver<T> consumerDriver, DataConsumer<T> consumer) {
 		driver = consumerDriver;
 		consumerDriver.add(channel, consumer);
 		driver.begin(channel);

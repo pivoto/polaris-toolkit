@@ -23,7 +23,7 @@ public class DefaultBulkConsumerDriver<T> implements BulkConsumerDriver<T> {
 	}
 
 	@Override
-	synchronized public void add(BufferChannel<T> channel, IConsumer<T> consumer) {
+	synchronized public void add(BufferChannel<T> channel, DataConsumer<T> consumer) {
 		BulkConsumerThread<T> thread = getLowestPayload();
 		thread.addBulk(channel, consumer);
 	}
