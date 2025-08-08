@@ -8,21 +8,21 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Qt
  * @since 1.8
  */
-public class ConsumeDriver<T> implements IConsumerDriver<T> {
+public class DefaultConsumerDriver<T> implements ConsumerDriver<T> {
 	private volatile boolean running;
 	private final ConsumerThread<T>[] threads;
 	private final BufferChannel<T> channel;
 	private final ReentrantLock lock;
 
 	@SuppressWarnings("unchecked")
-	private ConsumeDriver(BufferChannel<T> channel, int num) {
+	private DefaultConsumerDriver(BufferChannel<T> channel, int num) {
 		this.running = false;
 		this.channel = channel;
 		this.threads = new ConsumerThread[num];
 		this.lock = new ReentrantLock();
 	}
 
-	public ConsumeDriver(String name, BufferChannel<T> channel, IConsumer<T> consumer, int num, long thinkTime) {
+	public DefaultConsumerDriver(String name, BufferChannel<T> channel, IConsumer<T> consumer, int num, long thinkTime) {
 		this(channel, num);
 		for (int i = 0; i < num; i++) {
 			threads[i] = new ConsumerThread<T>("DataCarrier." + name + ".Consumer." + i + "", consumer, thinkTime);

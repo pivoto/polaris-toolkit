@@ -1,11 +1,11 @@
 package io.polaris.core.data;
 
 import io.polaris.core.data.buffer.BufferChannel;
-import io.polaris.core.data.consumer.ConsumeDriver;
+import io.polaris.core.data.consumer.DefaultConsumerDriver;
 import io.polaris.core.data.consumer.IConsumer;
 import io.polaris.core.data.buffer.BufferStrategy;
 import io.polaris.core.data.consumer.IBulkConsumerDriver;
-import io.polaris.core.data.consumer.IConsumerDriver;
+import io.polaris.core.data.consumer.ConsumerDriver;
 import io.polaris.core.data.partition.IDataPartitioner;
 import io.polaris.core.data.partition.SimpleRollingPartitioner;
 
@@ -15,7 +15,7 @@ import io.polaris.core.data.partition.SimpleRollingPartitioner;
  */
 public class DataCarrier<T> {
 	private BufferChannel<T> channel;
-	private IConsumerDriver<T> driver;
+	private ConsumerDriver<T> driver;
 	private String name;
 
 	public DataCarrier(int bufferCount, int bufferSize) {
@@ -57,7 +57,7 @@ public class DataCarrier<T> {
 		if (driver != null) {
 			driver.close(channel);
 		}
-		driver = new ConsumeDriver<T>(this.name, this.channel, consumer, num, thinkTime);
+		driver = new DefaultConsumerDriver<T>(this.name, this.channel, consumer, num, thinkTime);
 		driver.begin(channel);
 		return this;
 	}

@@ -6,6 +6,6 @@ import io.polaris.core.data.buffer.BufferChannel;
  * @author Qt
  * @since 1.8
  */
-public interface IBulkConsumerDriver<T> extends IConsumerDriver<T> {
+public interface IBulkConsumerDriver<T> extends ConsumerDriver<T> {
 	void add(BufferChannel<T> channel, IConsumer<T> consumer);
 }
