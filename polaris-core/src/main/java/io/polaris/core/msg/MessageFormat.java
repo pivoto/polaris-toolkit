@@ -588,7 +588,7 @@ public class MessageFormat {
 	 * 格式化器接口，定义了格式化消息的基本方法
 	 * 所有格式化相关的类都需要实现此接口
 	 */
-	private interface IFormatter {
+	private interface Formatter {
 		/**
 		 * 使用提供的参数格式化消息
 		 *
@@ -602,7 +602,7 @@ public class MessageFormat {
 	 * 消息段落类，表示格式化消息的一个片段
 	 * 包含原始文本和嵌套的格式化器数组
 	 */
-	private static class Segment implements IFormatter {
+	private static class Segment implements Formatter {
 		String raw;
 		SegmentFormat[] formats;
 
@@ -643,7 +643,7 @@ public class MessageFormat {
 	 * 段落格式化器抽象类，作为所有具体格式化器的基类
 	 * 包含位置信息和区域设置信息
 	 */
-	private static abstract class SegmentFormat implements IFormatter {
+	private static abstract class SegmentFormat implements Formatter {
 		/**
 		 * 格式化器在原始字符串中的位置
 		 */
