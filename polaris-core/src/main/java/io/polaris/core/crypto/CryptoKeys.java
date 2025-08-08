@@ -54,7 +54,7 @@ public class CryptoKeys {
 	public static final String CERT_TYPE_X509 = "X.509";
 
 	static {
-		ICryptoProviderLoader.loadProviders();
+		CryptoProviderLoader.loadProviders();
 	}
 
 

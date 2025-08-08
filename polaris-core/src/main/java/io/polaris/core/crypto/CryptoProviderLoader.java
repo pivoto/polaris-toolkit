@@ -12,7 +12,7 @@ import java.security.Security;
  * @author Qt
  * @since 1.8
  */
-public interface ICryptoProviderLoader extends ServiceLoadable {
+public interface CryptoProviderLoader extends ServiceLoadable {
 
 	Provider provider();
 
@@ -22,17 +22,17 @@ public interface ICryptoProviderLoader extends ServiceLoadable {
 
 	public static void loadProviders() {
 		try {
-			ServiceLoader<ICryptoProviderLoader> serviceLoader = ServiceLoader.of(ICryptoProviderLoader.class);
-			for (Service<ICryptoProviderLoader> service : serviceLoader) {
+			ServiceLoader<CryptoProviderLoader> serviceLoader = ServiceLoader.of(CryptoProviderLoader.class);
+			for (Service<CryptoProviderLoader> service : serviceLoader) {
 				try {
-					ICryptoProviderLoader providerLoader = service.getSingleton();
+					CryptoProviderLoader providerLoader = service.getSingleton();
 					Security.insertProviderAt(providerLoader.provider(), providerLoader.position());
 				} catch (Throwable e) {
-					LoggerFactory.getLogger(ICryptoProviderLoader.class).error("", e);
+					LoggerFactory.getLogger(CryptoProviderLoader.class).error("", e);
 				}
 			}
 		} catch (Throwable e) {
-			LoggerFactory.getLogger(ICryptoProviderLoader.class).error("", e);
+			LoggerFactory.getLogger(CryptoProviderLoader.class).error("", e);
 		}
 	}
 }
