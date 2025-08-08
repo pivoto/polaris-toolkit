@@ -179,22 +179,22 @@ if [[ -z ${profile} ]]; then
 	fi
 fi
 
-cd ${SHELL_DIR}
+POM_FILE=${SHELL_DIR}/../pom.xml
 
-GROUP_ID=$(grep -Eo '<groupId>([A-Za-z0-9.-]+)</groupId>' ../pom.xml --max-count=1)
+GROUP_ID=$(grep -Eo '<groupId>([A-Za-z0-9.-]+)</groupId>' "${POM_FILE}" --max-count=1)
 GROUP_ID=${GROUP_ID/<groupId>/}
 GROUP_ID=${GROUP_ID/<\/groupId>/}
 
-ARTIFACT_ID=$(grep -Eo '<artifactId>([A-Za-z0-9.-]+)</artifactId>' ../pom.xml --max-count=1)
+ARTIFACT_ID=$(grep -Eo '<artifactId>([A-Za-z0-9.-]+)</artifactId>' "${POM_FILE}" --max-count=1)
 ARTIFACT_ID=${ARTIFACT_ID/<artifactId>/}
 ARTIFACT_ID=${ARTIFACT_ID/<\/artifactId>/}
 
-VERSION=$(grep -Eo '<version>([A-Za-z0-9.-]+)</version>' ../pom.xml --max-count=1)
+VERSION=$(grep -Eo '<version>([A-Za-z0-9.-]+)</version>' "${POM_FILE}" --max-count=1)
 VERSION=${VERSION/<version>/}
 VERSION=${VERSION/<\/version>/}
 
 # -Dmaven.test.skip=true
-CMD="mvn -f ../pom.xml -DskipTests -Dfile.encoding=UTF-8"
+CMD="mvn -f ${POM_FILE} -DskipTests -Dfile.encoding=UTF-8"
 if [[ -z ${profile} ]]; then
 	log_warn "未配置profile参数"
 else
