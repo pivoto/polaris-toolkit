@@ -10,7 +10,7 @@ import io.polaris.core.string.Strings;
  */
 public class Loggers {
 	/** 日志对象构造工厂实现。在javaagent环境下需要尽早注入以适配应用自身的日志配置 */
-	private static ILogResolver RESOLVER = new DefaultLoggerResolver();
+	private static LogResolver RESOLVER = new DefaultLoggerResolver();
 
 	public static Logger of(Class<?> c) {
 		if (RESOLVER == null) {
@@ -43,7 +43,7 @@ public class Loggers {
 		return Strings.coalesce(name, "");
 	}
 
-	public static void setResolver(ILogResolver resolver) {
+	public static void setResolver(LogResolver resolver) {
 		RESOLVER = resolver;
 	}
 

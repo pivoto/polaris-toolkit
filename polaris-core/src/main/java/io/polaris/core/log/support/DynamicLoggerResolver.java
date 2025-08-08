@@ -8,13 +8,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import io.polaris.core.classloader.ClassLoaders;
 import io.polaris.core.env.GlobalStdEnv;
-import io.polaris.core.log.ILogResolver;
+import io.polaris.core.log.LogResolver;
 import io.polaris.core.log.Logger;
 
 /**
  * @author Qt
  */
-public class DynamicLoggerResolver implements ILogResolver {
+public class DynamicLoggerResolver implements LogResolver {
 	public static final String PREFER_DYNAMIC_SLF4J = DynamicLoggerResolver.class.getName() + ".prefer-dynamic-slf4j";
 	private final Map<String, Logger> CACHE = new ConcurrentHashMap<>();
 	private volatile long lastLoaderChangeId = ClassLoaders.INSTANCE.changeId();

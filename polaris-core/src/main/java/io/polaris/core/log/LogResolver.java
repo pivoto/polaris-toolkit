@@ -3,7 +3,7 @@ package io.polaris.core.log;
 /**
  * @author Qt
  */
-public interface ILogResolver {
+public interface LogResolver {
 
 	default Logger getLogger(Class<?> clazz) {
 		return getLogger(clazz.getName());

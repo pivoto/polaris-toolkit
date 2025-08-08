@@ -3,13 +3,13 @@ package io.polaris.core.log.support;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import io.polaris.core.log.ILogResolver;
+import io.polaris.core.log.LogResolver;
 import io.polaris.core.log.Logger;
 
 /**
  * @author Qt
  */
-public class DefaultLoggerResolver implements ILogResolver {
+public class DefaultLoggerResolver implements LogResolver {
 	private final Map<String, Logger> CACHE = new ConcurrentHashMap<>();
 
 	@Override
