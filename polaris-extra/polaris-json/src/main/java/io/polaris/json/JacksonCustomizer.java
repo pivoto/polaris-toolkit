@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author Qt
  * @since  Feb 04, 2024
  */
-public interface IJacksonCustomizer {
+public interface JacksonCustomizer {
 
 	void customize(ObjectMapper mapper);
 

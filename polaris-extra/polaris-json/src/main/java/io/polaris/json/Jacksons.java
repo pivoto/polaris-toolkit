@@ -81,7 +81,7 @@ public class Jacksons {
 		mapper.registerModule(simpleModule);
 		mapper.setHandlerInstantiator(new CustomHandlerInstantiator());
 
-		for (IJacksonCustomizer customizer : StatefulServiceLoader.load(IJacksonCustomizer.class)) {
+		for (JacksonCustomizer customizer : StatefulServiceLoader.load(JacksonCustomizer.class)) {
 			try {
 				customizer.customize(mapper);
 			} catch (Throwable e) {
