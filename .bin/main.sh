@@ -217,9 +217,11 @@ log_debug "执行命令: ${CMD}"
 ${CMD}
 if [[ $? -eq 0 ]];then
 	cd ${WORK_DIR}
+	log_warn "$(date +'%Y-%m-%d %H:%M:%S') ${GROUP_ID}:${ARTIFACT_ID}:${VERSION} BUILD SUCCESS"
 	echo "$(date +'%Y-%m-%d %H:%M:%S') ${GROUP_ID}:${ARTIFACT_ID}:${VERSION} BUILD SUCCESS"  >> version.log
 else
 	cd ${WORK_DIR}
+	log_warn "$(date +'%Y-%m-%d %H:%M:%S') ${GROUP_ID}:${ARTIFACT_ID}:${VERSION} BUILD FAILURE"
 	echo "$(date +'%Y-%m-%d %H:%M:%S') ${GROUP_ID}:${ARTIFACT_ID}:${VERSION} BUILD FAILURE"  >> version.log
 fi
 
