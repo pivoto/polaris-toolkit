@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentMap;
  * @since 1.8
  */
 @SuppressWarnings("rawtypes")
-public abstract class AbstractCacheManager implements ICacheManager {
+public abstract class AbstractCacheManager implements CacheManager {
 	private final ConcurrentMap<String, Cache> cacheMap = new ConcurrentHashMap(16);
 
 	@Override

@@ -16,7 +16,7 @@ public class MapCacheManagerFactory implements ICacheManagerFactory {
 	}
 
 	@Override
-	public ICacheManager getCacheManager() {
+	public CacheManager getCacheManager() {
 		return cacheManager;
 	}
 }

@@ -12,7 +12,7 @@ import java.util.Optional;
  */
 public interface ICacheManagerFactory extends ServiceLoadable {
 
-	ICacheManager getCacheManager();
+	CacheManager getCacheManager();
 
 
 	@Nullable
@@ -22,7 +22,7 @@ public interface ICacheManagerFactory extends ServiceLoadable {
 	}
 
 	@Nullable
-	static ICacheManager defaultCacheManager() {
+	static CacheManager defaultCacheManager() {
 		return Optional.ofNullable(defaultCacheManagerFactory()).map(ICacheManagerFactory::getCacheManager).orElse(null);
 	}
 
