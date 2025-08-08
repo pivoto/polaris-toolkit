@@ -11,7 +11,7 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
-import io.polaris.core.cache.ICache;
+import io.polaris.core.cache.Cache;
 import io.polaris.core.cache.MapCache;
 import io.polaris.core.crypto.digest.Digests;
 import io.polaris.core.log.ILogger;
@@ -30,7 +30,7 @@ public abstract class AbstractStandardEvaluator implements Evaluator {
 	protected final ScriptEngineManager manager = new ScriptEngineManager();
 	protected final ScriptEngine scriptEngine;
 	private boolean compilable;
-	private ICache<String, CompiledScript> cache;
+	private Cache<String, CompiledScript> cache;
 
 	public AbstractStandardEvaluator() {
 		String engineName = getEngineName();
@@ -39,11 +39,11 @@ public abstract class AbstractStandardEvaluator implements Evaluator {
 			initGlobalScope(scriptEngine);
 			if ((scriptEngine instanceof Compilable)) {
 				compilable = true;
-				ICache<String, CompiledScript> iCache = createCache();
-				if (iCache == null) {
-					iCache = new MapCache<>(0x1000, true);
+				Cache<String, CompiledScript> cache = createCache();
+				if (cache == null) {
+					cache = new MapCache<>(0x1000, true);
 				}
-				cache = iCache;
+				this.cache = cache;
 			}
 		} else {
 			log.error("脚本引擎不支持:{}", engineName);
@@ -52,7 +52,7 @@ public abstract class AbstractStandardEvaluator implements Evaluator {
 
 	protected abstract String getEngineName();
 
-	protected ICache<String, CompiledScript> createCache() {
+	protected Cache<String, CompiledScript> createCache() {
 		return null;
 	}
 

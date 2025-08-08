@@ -9,6 +9,6 @@ import javax.annotation.Nullable;
 public interface ICacheManager {
 
 	@Nullable
-	<K, V> ICache<K, V> getCache(String name);
+	<K, V> Cache<K, V> getCache(String name);
 
 }

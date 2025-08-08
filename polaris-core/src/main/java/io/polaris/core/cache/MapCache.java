@@ -14,7 +14,7 @@ import java.util.function.Supplier;
  * @author Qt
  * @since 1.8
  */
-public class MapCache<K, V> implements ICache<K, V> {
+public class MapCache<K, V> implements Cache<K, V> {
 
 	private final Map<K, Ref<V>> map;
 

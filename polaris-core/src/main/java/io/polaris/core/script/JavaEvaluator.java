@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.polaris.core.cache.ICache;
+import io.polaris.core.cache.Cache;
 import io.polaris.core.cache.MapCache;
 import io.polaris.core.compiler.MemoryCompiler;
 import io.polaris.core.crypto.digest.Digests;
@@ -31,7 +31,7 @@ public class JavaEvaluator implements Evaluator {
 	private static final AtomicLong CLASS_NO = new AtomicLong(0);
 	private static final Pattern importPattern = Pattern.compile("\\s*\\bimport\\s+(static\\s+)?[\\w\\.\\*]+;\\s*+");
 
-	private ICache<String, JavaEvaluatorFunction> cache = new MapCache<>(0x1000, true);
+	private Cache<String, JavaEvaluatorFunction> cache = new MapCache<>(0x1000, true);
 
 	static String nextClassName() {
 		return JavaEvaluatorFunction.class.getName() + "Impl" + CLASS_NO.incrementAndGet();

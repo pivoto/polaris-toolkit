@@ -10,16 +10,13 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.polaris.core.cache.ICache;
+import io.polaris.core.cache.Cache;
 import io.polaris.core.cache.MapCache;
 import io.polaris.core.crypto.digest.Digests;
 import io.polaris.core.log.ILogger;
 import io.polaris.core.log.ILoggers;
 import io.polaris.core.script.Evaluator;
-import io.polaris.core.script.JavaEvaluator;
 import io.polaris.core.script.ScriptEvalException;
-import io.polaris.core.service.ServiceDefault;
-import io.polaris.core.service.ServiceName;
 import org.codehaus.commons.compiler.CompilerFactoryFactory;
 import org.codehaus.commons.compiler.IExpressionEvaluator;
 
@@ -31,7 +28,7 @@ public class JaninoEvaluator implements Evaluator {
 	private static final ILogger log = ILoggers.of(JaninoEvaluator.class);
 	private static final AtomicLong CLASS_NO = new AtomicLong(0);
 	private static final Pattern importPattern = Pattern.compile("\\s*\\bimport\\s+((static\\s+)?[\\w\\.\\*]+);\\s*+");
-	private ICache<String, IExpressionEvaluator> cache = new MapCache<>(0x1000, true);
+	private Cache<String, IExpressionEvaluator> cache = new MapCache<>(0x1000, true);
 
 
 	@Override

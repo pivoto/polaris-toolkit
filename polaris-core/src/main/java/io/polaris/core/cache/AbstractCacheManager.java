@@ -9,26 +9,26 @@ import java.util.concurrent.ConcurrentMap;
  */
 @SuppressWarnings("rawtypes")
 public abstract class AbstractCacheManager implements ICacheManager {
-	private final ConcurrentMap<String, ICache> cacheMap = new ConcurrentHashMap(16);
+	private final ConcurrentMap<String, Cache> cacheMap = new ConcurrentHashMap(16);
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <K, V> ICache<K, V> getCache(String name) {
-		ICache<K, V> iCache = cacheMap.get(name);
-		if (iCache != null) {
-			return iCache;
+	public <K, V> Cache<K, V> getCache(String name) {
+		Cache<K, V> cache = cacheMap.get(name);
+		if (cache != null) {
+			return cache;
 		}
 		synchronized (cacheMap) {
-			iCache = cacheMap.get(name);
-			if (iCache == null) {
-				iCache = createCache(name);
-				cacheMap.put(name, iCache);
+			cache = cacheMap.get(name);
+			if (cache == null) {
+				cache = createCache(name);
+				cacheMap.put(name, cache);
 			}
-			return iCache;
+			return cache;
 		}
 	}
 
-	protected <K, V> ICache<K, V> createCache(String name) {
+	protected <K, V> Cache<K, V> createCache(String name) {
 		return null;
 	}
 }

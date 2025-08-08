@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-class ICacheManagerFactoryTest {
+class CacheManagerFactoryTest {
 	@BeforeAll
 	static void beforeAll() {
 		System.setProperty(MapCacheManager.KEY_MAX_CAPACITY, "10");
@@ -17,7 +17,7 @@ class ICacheManagerFactoryTest {
 		Assertions.assertInstanceOf(MapCacheManagerFactory.class, factory);
 		Assertions.assertSame(factory.getCacheManager(), ICacheManagerFactory.defaultCacheManager());
 
-		ICache<String, Object> cache = ICacheManagerFactory.defaultCacheManager().getCache("test");
+		Cache<String, Object> cache = ICacheManagerFactory.defaultCacheManager().getCache("test");
 		Assertions.assertInstanceOf(MapCache.class, cache);
 
 		for (int i = 0; i < 20; i++) {

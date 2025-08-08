@@ -11,7 +11,7 @@ import java.util.function.Supplier;
  * @author Qt
  * @since 1.8
  */
-public interface ICache<K, V> {
+public interface Cache<K, V> {
 
 	@Nullable
 	Ref<V> get(@Nonnull K key);

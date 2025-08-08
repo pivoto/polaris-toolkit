@@ -38,7 +38,7 @@ public class MapCacheManager extends AbstractCacheManager {
 	}
 
 	@Override
-	protected <K, V> ICache<K, V> createCache(String name) {
+	protected <K, V> Cache<K, V> createCache(String name) {
 		if (maxCapacity > 0) {
 			return new MapCache<>(maxCapacity, accessOrder);
 		} else {
