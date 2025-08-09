@@ -1,5 +1,31 @@
 ## 版本变更说明
 
+### 3.4.1
+- 重构代码，调整接口命名规范
+  - 重命名 IFormatter 为 Formatter
+  - 重命名 IRandom 为 RandomSpec
+  - 重命名 IBeanMap 为 BeanMapSpec
+  - 重命名 IJacksonCustomizer 为 JacksonCustomizer
+  - 重命名 IFastjsonCustomizer 为 FastjsonCustomizer
+  - 重命名 IEntityMeta 为 EntityMeta
+  - 重命名 IStack 为 Stack
+  - 重命名 ILogResolver 为 LogResolver
+  - 重命名 ILogger 为 Logger
+  - 重命名 ILoggers 为 Loggers
+  - 重命名 IErrorCode 为 ErrorCoded
+  - 重命名 IDataPartitioner 为 DataPartitioner
+  - 重命名 IConsumer 为 DataConsumer
+  - 重命名 IBulkConsumerDriver 为 BulkConsumerDriver
+  - 重命名 IConsumerDriver 为 ConsumerDriver
+  - 重命名 IQueueBuffer 为 QueueBuffer
+  - 重命名 IEncryptor 为 Encryptor
+  - 重命名 IDecryptor 为 Decryptor
+  - 重命名 ICryptoProviderLoader 为 CryptoProviderLoader
+  - 重命名 IGoogleGoogleAuthenticator 为 GoogleAuthenticator
+  - 重命名 ICacheManagerFactory 为 CacheManagerFactory
+  - 重命名 ICacheManager 为 CacheManager
+  - 重命名 ICache 为 Cache
+
 ### 3.3.15
 - 新增标识注解@Spi
 - 优化线程池任务工具类与方法
