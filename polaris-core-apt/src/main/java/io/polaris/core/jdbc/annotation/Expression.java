@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Expression {
 
-	/** 数据库字段表达式，注意表别名的占位符使用，以防止在多表关联等场景下字段混淆 */
+	/** 数据库字段表达式，注意表别名的占位符使用，以防止在多表关联等场景下字段混淆，如： coalesce($T.col_name, '1') */
 	String value();
 
 	/** 是否可查询 */
