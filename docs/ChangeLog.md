@@ -1,5 +1,12 @@
 ## 版本变更说明
 
+### 3.4.2
+- 新增 Predicates 类，提供常用的 Predicate 功能
+- 优化 GroupEnv 类的环境操作方法
+- 优化 SQL 模式表达式类，增加类和方法注释
+- 优化Streams，新增filterSet系列方法，添加常用方法注释
+
+
 ### 3.4.1
 - 重构代码，调整接口命名规范
   - 重命名 IFormatter 为 Formatter
