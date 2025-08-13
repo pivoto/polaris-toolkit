@@ -8,15 +8,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayDeque;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Deque;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 
@@ -68,14 +60,14 @@ public class GroupEnv implements Env {
 
 	public void addEnvFirst(Env env) {
 		synchronized (envList) {
-			envList.remove(env);
+			removeEnv(env.name());
 			envList.add(0, env);
 		}
 	}
 
 	public void addEnvLast(Env env) {
 		synchronized (envList) {
-			envList.remove(env);
+			removeEnv(env.name());
 			envList.add(env);
 		}
 	}
@@ -91,6 +83,20 @@ public class GroupEnv implements Env {
 			}
 		}
 		return false;
+	}
+
+	public int removeAllEnv(String name) {
+		int count = 0;
+		synchronized (envList) {
+			for (Iterator<Env> it = envList.iterator(); it.hasNext(); ) {
+				Env next = it.next();
+				if (Objects.equals(next.name(), name)) {
+					it.remove();
+					count++;
+				}
+			}
+		}
+		return count;
 	}
 
 	public boolean replaceEnv(String name, Env env) {
