@@ -20,6 +20,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class IO {
 
+	public static void close(AutoCloseable... closeables) {
+		for (AutoCloseable closeable : closeables) {
+			IO.close(closeable);
+		}
+	}
 
 	public static void close(AutoCloseable closeable) {
 		if (closeable != null) {
