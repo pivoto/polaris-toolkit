@@ -10,13 +10,18 @@ import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.consts.CharConsts;
 import io.polaris.core.lang.Types;
 import io.polaris.core.map.Maps;
+import io.polaris.core.tuple.Tuple1;
+import io.polaris.core.tuple.Tuple2;
+import io.polaris.core.tuple.Tuples;
 
 /**
  * @author Qt
@@ -281,9 +286,104 @@ public class Reflects {
 	}
 
 	public static void setAccessible(AccessibleObject accessibleObject) {
-		if ((null != accessibleObject) && (!accessibleObject.isAccessible())) {
+		if ((accessibleObject != null) && (!accessibleObject.isAccessible())) {
 			accessibleObject.setAccessible(true);
 		}
+	}
+
+	public static void setAccessible(AccessibleObject... accessibleObjects) {
+		for (AccessibleObject accessibleObject : accessibleObjects) {
+			if ((accessibleObject != null) && (!accessibleObject.isAccessible())) {
+				accessibleObject.setAccessible(true);
+			}
+		}
+	}
+
+	public static void withAccessible(AccessibleObject accessibleObject, Runnable runnable) {
+		if (accessibleObject != null) {
+			if (!accessibleObject.isAccessible()) {
+				accessibleObject.setAccessible(true);
+				try {
+					runnable.run();
+					return;
+				} finally {
+					try {
+						accessibleObject.setAccessible(false);
+					} catch (Throwable ignored) {
+					}
+				}
+			}
+		}
+		runnable.run();
+	}
+
+	public static <T> T withAccessible(AccessibleObject accessibleObject, Supplier<T> supplier) {
+		if (accessibleObject != null) {
+			if (!accessibleObject.isAccessible()) {
+				accessibleObject.setAccessible(true);
+				try {
+					return supplier.get();
+				} finally {
+					try {
+						accessibleObject.setAccessible(false);
+					} catch (Throwable ignored) {
+					}
+				}
+			}
+		}
+		return supplier.get();
+	}
+
+
+	public static void withAccessible(AccessibleObject[] accessibleObjects, Runnable runnable) {
+		if (accessibleObjects != null) {
+			boolean[] flags = new boolean[accessibleObjects.length];
+			for (int i = 0; i < accessibleObjects.length; i++) {
+				if (!accessibleObjects[i].isAccessible()) {
+					accessibleObjects[i].setAccessible(true);
+					flags[i] = true;
+				}
+			}
+			try {
+				runnable.run();
+				return;
+			} finally {
+				for (int i = 0; i < accessibleObjects.length; i++) {
+					if (flags[i]) {
+						try {
+							accessibleObjects[i].setAccessible(false);
+						} catch (Throwable ignored) {
+						}
+					}
+				}
+			}
+		}
+		runnable.run();
+	}
+
+	public static <T> T withAccessible(AccessibleObject[] accessibleObjects, Supplier<T> supplier) {
+		if (accessibleObjects != null) {
+			boolean[] flags = new boolean[accessibleObjects.length];
+			for (int i = 0; i < accessibleObjects.length; i++) {
+				if (!accessibleObjects[i].isAccessible()) {
+					accessibleObjects[i].setAccessible(true);
+					flags[i] = true;
+				}
+			}
+			try {
+				return supplier.get();
+			} finally {
+				for (int i = 0; i < accessibleObjects.length; i++) {
+					if (flags[i]) {
+						try {
+							accessibleObjects[i].setAccessible(false);
+						} catch (Throwable ignored) {
+						}
+					}
+				}
+			}
+		}
+		return supplier.get();
 	}
 
 	public static <T> Constructor<T> getConstructor(@Nonnull Class<T> clazz, Class<?>... parameterTypes) {
@@ -307,33 +407,33 @@ public class Reflects {
 	}
 
 	@SuppressWarnings({"ConstantValue", "StatementWithEmptyBody"})
-	public static <T> Constructor<T>[] getConstructors(@Nonnull Class<T> beanClass) {
+	public static <T> Constructor<T>[] getConstructors(@Nonnull Class<T> clazz) {
 		Constructor<T>[] rs;
 		// 防止因对象回收后导致WeakMap结果丢失，尝试多次获取
-		while ((rs = (Constructor<T>[]) CONSTRUCTORS_CACHE.computeIfAbsent(beanClass, (c) -> getConstructorsDirectly(beanClass))) == null) {
+		while ((rs = (Constructor<T>[]) CONSTRUCTORS_CACHE.computeIfAbsent(clazz, (c) -> getConstructorsDirectly(clazz))) == null) {
 		}
 		return rs;
 	}
 
-	public static <T> Constructor<T>[] getConstructorsDirectly(@Nonnull Class<T> beanClass) {
-		return (Constructor<T>[]) beanClass.getDeclaredConstructors();
+	public static <T> Constructor<T>[] getConstructorsDirectly(@Nonnull Class<T> clazz) {
+		return (Constructor<T>[]) clazz.getDeclaredConstructors();
 	}
 
 	/**
 	 * 获得一个类中所有字段列表，包括其父类中的字段，子类字段在前
 	 */
 	@SuppressWarnings({"ConstantValue", "StatementWithEmptyBody"})
-	public static Field[] getFields(Class<?> beanClass) {
+	public static Field[] getFields(Class<?> clazz) {
 		Field[] rs;
 		// 防止因对象回收后导致WeakMap结果丢失，尝试多次获取
-		while ((rs = FIELDS_CACHE.computeIfAbsent(beanClass, (c) -> getFieldsDirectly(beanClass, true))) == null) {
+		while ((rs = FIELDS_CACHE.computeIfAbsent(clazz, (c) -> getFieldsDirectly(clazz, true))) == null) {
 		}
 		return rs;
 	}
 
 	@SuppressWarnings({"UseBulkOperation", "ManualArrayToCollectionCopy"})
-	public static Field[] getFieldsDirectly(Class<?> beanClass, boolean withSuperClassFields) {
-		Class<?> searchType = beanClass;
+	public static Field[] getFieldsDirectly(Class<?> clazz, boolean withSuperClassFields) {
+		Class<?> searchType = clazz;
 		List<Field> list = new ArrayList<>();
 		while (searchType != null) {
 			Field[] declaredFields = searchType.getDeclaredFields();
@@ -345,17 +445,30 @@ public class Reflects {
 		return list.toArray(new Field[0]);
 	}
 
-	public static Field[] getFields(Class<?> beanClass, Predicate<Field> fieldFilter) {
-		return Arrays.stream(getFields(beanClass)).filter(fieldFilter).toArray(Field[]::new);
+	public static Field[] getFields(Class<?> clazz, Predicate<Field> fieldFilter) {
+		return Arrays.stream(getFields(clazz)).filter(fieldFilter).toArray(Field[]::new);
 	}
 
-	public static Field getField(Class<?> beanClass, String name) {
-		final Field[] fields = getFields(beanClass);
-		return Arrays.stream(getFields(beanClass)).filter(f -> f.getName().equals(name)).findFirst().orElse(null);
+	@Nullable
+	public static Field getField(Class<?> clazz, Predicate<Field> fieldFilter) {
+		return Arrays.stream(getFields(clazz)).filter(fieldFilter).findFirst().orElse(null);
 	}
 
-	public static Map<String, Field> getFieldMap(Class<?> beanClass) {
-		final Field[] fields = getFields(beanClass);
+	@Nullable
+	public static Field getField(Class<?> clazz, String name) {
+		final Field[] fields = getFields(clazz);
+		return Arrays.stream(getFields(clazz)).filter(f -> f.getName().equals(name)).findFirst().orElse(null);
+	}
+
+	@Nullable
+	public static Field getStaticField(Class<?> clazz, String name) {
+		final Field[] fields = getFields(clazz);
+		return Arrays.stream(getFields(clazz)).filter(f -> f.getName().equals(name) && Modifier.isStatic(f.getModifiers()))
+			.findFirst().orElse(null);
+	}
+
+	public static Map<String, Field> getFieldMap(Class<?> clazz) {
+		final Field[] fields = getFields(clazz);
 		Map<String, Field> map = new HashMap<>((int) (fields.length * 1.5));
 		for (Field field : fields) {
 			map.putIfAbsent(field.getName(), field);
@@ -371,17 +484,45 @@ public class Reflects {
 		}
 	}
 
+
 	public static Object getFieldValue(Object o, String name) throws ReflectiveOperationException {
 		Field field = getField(o.getClass(), name);
 		if (field == null) {
 			return null;
 		}
-		setAccessible(field);
-		if (Modifier.isStatic(field.getModifiers())) {
-			return field.get(null);
-		} else {
-			return field.get(o);
+		Tuple2<ReflectiveOperationException, Object> rs = withAccessible(field, () -> {
+			try {
+				if (Modifier.isStatic(field.getModifiers())) {
+					return Tuple2.of(null, field.get(null));
+				} else {
+					return Tuple2.of(null, field.get(o));
+				}
+			} catch (ReflectiveOperationException e) {
+				return Tuple2.of(e, null);
+			}
+		});
+		if (rs.getFirst() != null) {
+			throw rs.getFirst();
 		}
+		return rs.getSecond();
+	}
+
+	public static Object getStaticFieldValue(Class<?> clazz, String name) throws ReflectiveOperationException {
+		Field field = getStaticField(clazz, name);
+		if (field == null) {
+			return null;
+		}
+		Tuple2<ReflectiveOperationException, Object> rs = withAccessible(field, () -> {
+			try {
+				return Tuple2.of(null, field.get(null));
+			} catch (ReflectiveOperationException e) {
+				return Tuple2.of(e, null);
+			}
+		});
+		if (rs.getFirst() != null) {
+			throw rs.getFirst();
+		}
+		return rs.getSecond();
 	}
 
 	public static void setFieldValue(Object o, String name, Object value) throws ReflectiveOperationException {
@@ -392,11 +533,45 @@ public class Reflects {
 		if (!field.getType().isAssignableFrom(value.getClass())) {
 			throw new IllegalArgumentException();
 		}
-		setAccessible(field);
-		if (Modifier.isStatic(field.getModifiers())) {
-			field.set(null, value);
-		} else {
-			field.set(o, value);
+
+		Tuple1<ReflectiveOperationException> rs
+			= withAccessible(field, () -> {
+			try {
+				if (Modifier.isStatic(field.getModifiers())) {
+					field.set(null, value);
+				} else {
+					field.set(o, value);
+				}
+				return Tuples.of((ReflectiveOperationException) null);
+			} catch (IllegalAccessException e) {
+				return Tuples.of(e);
+			}
+		});
+		if (rs.getFirst() != null) {
+			throw rs.getFirst();
+		}
+	}
+
+	public static void setStaticFieldValue(Class<?> clazz, String name, Object value) throws ReflectiveOperationException {
+		Field field = getStaticField(clazz, name);
+		if (field == null) {
+			return;
+		}
+		if (!field.getType().isAssignableFrom(value.getClass())) {
+			throw new IllegalArgumentException();
+		}
+
+		Tuple1<ReflectiveOperationException> rs
+			= withAccessible(field, () -> {
+			try {
+				field.set(null, value);
+				return Tuples.of((ReflectiveOperationException) null);
+			} catch (IllegalAccessException e) {
+				return Tuples.of(e);
+			}
+		});
+		if (rs.getFirst() != null) {
+			throw rs.getFirst();
 		}
 	}
 
@@ -418,11 +593,11 @@ public class Reflects {
 	 * 获得一个类中所有方法列表，包括其父类中的方法
 	 */
 	@SuppressWarnings({"ConstantValue", "StatementWithEmptyBody"})
-	public static Method[] getMethods(Class<?> beanClass) {
+	public static Method[] getMethods(Class<?> clazz) {
 		Method[] rs;
 		// 防止因对象回收后导致WeakMap结果丢失，尝试多次获取
-		while ((rs = METHODS_CACHE.computeIfAbsent(beanClass,
-			(c) -> getMethodsDirectly(beanClass, true, true))) == null) {
+		while ((rs = METHODS_CACHE.computeIfAbsent(clazz,
+			(c) -> getMethodsDirectly(clazz, true, true))) == null) {
 		}
 		return rs;
 	}
@@ -430,18 +605,18 @@ public class Reflects {
 	/**
 	 * 获得一个类中所有方法列表
 	 *
-	 * @param beanClass            类或接口
+	 * @param clazz                类或接口
 	 * @param withSupers           是否包括父类或接口的方法列表
 	 * @param withMethodFromObject 是否包括Object中的方法
 	 * @return methods
 	 */
-	public static Method[] getMethodsDirectly(Class<?> beanClass, boolean withSupers, boolean withMethodFromObject) {
-		if (beanClass.isInterface()) {
+	public static Method[] getMethodsDirectly(Class<?> clazz, boolean withSupers, boolean withMethodFromObject) {
+		if (clazz.isInterface()) {
 			// 对于接口，直接调用Class.getMethods方法获取所有方法
-			return withSupers ? beanClass.getMethods() : beanClass.getDeclaredMethods();
+			return withSupers ? clazz.getMethods() : clazz.getDeclaredMethods();
 		}
 		Map<String, Method> map = new LinkedHashMap<>();
-		Class<?> searchType = beanClass;
+		Class<?> searchType = clazz;
 		while (searchType != null) {
 			if (!withMethodFromObject && Object.class == searchType) {
 				break;
