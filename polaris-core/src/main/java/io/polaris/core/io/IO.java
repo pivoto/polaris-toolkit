@@ -276,12 +276,14 @@ public class IO {
 		mkdirParent(file);
 		try (BufferedOutputStream out = IO.getOutputStream(file);) {
 			out.write(bytes);
+			out.flush();
 		}
 	}
 
 	public static void writeBytes(OutputStream out, byte[]... bytesArray) throws IOException {
 		for (byte[] bytes : bytesArray) {
 			out.write(bytes);
+			out.flush();
 		}
 	}
 
@@ -289,6 +291,7 @@ public class IO {
 		mkdirParent(file);
 		try (BufferedOutputStream out = IO.getOutputStream(file);) {
 			out.write(content.getBytes(charset));
+			out.flush();
 		}
 	}
 
