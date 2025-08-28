@@ -8,6 +8,6 @@ package io.polaris.core.service;
  * @author Qt
  * @since Sep 26, 2024
  */
-@Spi
-public interface StatefulServiceLoadable extends ServiceLoadable{
+@Spi("标识为一个有状态的SPI服务类")
+public interface StatefulServiceLoadable extends ServiceLoadable {
 }

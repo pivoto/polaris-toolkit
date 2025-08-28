@@ -8,6 +8,6 @@ package io.polaris.core.service;
  * @author Qt
  * @since Sep 26, 2024
  */
-@Spi
+@Spi("标识为一个SPI服务类")
 public interface ServiceLoadable {
 }
