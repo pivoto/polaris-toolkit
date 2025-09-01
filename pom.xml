@@ -442,6 +442,16 @@
 				<artifactId>asm-util</artifactId>
 				<version>${dependency.asm.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.ow2.asm</groupId>
+				<artifactId>asm-tree</artifactId>
+				<version>${dependency.asm.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ow2.asm</groupId>
+				<artifactId>asm-analysis</artifactId>
+				<version>${dependency.asm.version}</version>
+			</dependency>
 			<!-- endregion bytecode -->
 
 			<!-- region netty -->
