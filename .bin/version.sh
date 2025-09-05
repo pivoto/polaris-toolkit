@@ -5,7 +5,7 @@ SHELL_DIR=$(cd "$(dirname "$0")" && pwd -P)
 cd "${SHELL_DIR}"/ || exit
 
 BETA=0
-VER=3.4.2
+VER=3.4.3
 if [[ ${BETA} -eq 1 ]];then
 	VER=${VER}-SNAPSHOT
 fi
