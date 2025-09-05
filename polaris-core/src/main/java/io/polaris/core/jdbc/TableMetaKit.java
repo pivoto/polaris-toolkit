@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 import io.polaris.core.asm.reflect.ClassAccess;
 import io.polaris.core.jdbc.annotation.Column;
@@ -59,8 +60,42 @@ public class TableMetaKit {
 		mutableCache.put(entityClass, tableMeta);
 	}
 
+	public void addMutations(TableMetaMutation... mutations) {
+		for (TableMetaMutation mutation : mutations) {
+			addMutation(mutation);
+		}
+	}
+
 	public void removeMutation(Class<?> entityClass) {
 		mutableCache.remove(entityClass);
+	}
+
+	public void removeMutation(TableMetaMutation mutation) {
+		mutableCache.remove(mutation.entityClass());
+	}
+
+	public void removeMutations(TableMetaMutation... mutations) {
+		for (TableMetaMutation mutation : mutations) {
+			mutableCache.remove(mutation.entityClass());
+		}
+	}
+
+	public void withMutations(Runnable task, TableMetaMutation... mutations) {
+		try {
+			addMutations(mutations);
+			task.run();
+		} finally {
+			removeMutations(mutations);
+		}
+	}
+
+	public <T> T withMutations(Supplier<T> task, TableMetaMutation... mutations) {
+		try {
+			addMutations(mutations);
+			return task.get();
+		} finally {
+			removeMutations(mutations);
+		}
 	}
 
 	public void clearMutationsInCurrentThread() {
@@ -71,10 +106,6 @@ public class TableMetaKit {
 		mutationsInCurrentThread().put(mutation.entityClass(), mutation);
 	}
 
-	public void removeMutationInCurrentThread(TableMetaMutation mutation) {
-		mutationsInCurrentThread().remove(mutation.entityClass());
-	}
-
 	public void addMutationsInCurrentThread(TableMetaMutation... mutations) {
 		if (mutations.length == 0) {
 			return;
@@ -82,6 +113,46 @@ public class TableMetaKit {
 		Map<Class<?>, TableMetaMutation> map = mutationsInCurrentThread();
 		for (TableMetaMutation mutation : mutations) {
 			map.put(mutation.entityClass(), mutation);
+		}
+	}
+
+	public void removeMutationInCurrentThread(TableMetaMutation mutation) {
+		Map<Class<?>, TableMetaMutation> map = mutationsLocal.get();
+		if (map != null) {
+			map.remove(mutation.entityClass());
+			if (map.isEmpty()) {
+				mutationsLocal.remove();
+			}
+		}
+	}
+
+	public void removeMutationsInCurrentThread(TableMetaMutation... mutations) {
+		Map<Class<?>, TableMetaMutation> map = mutationsLocal.get();
+		if (map != null) {
+			for (TableMetaMutation mutation : mutations) {
+				map.remove(mutation.entityClass());
+			}
+			if (map.isEmpty()) {
+				mutationsLocal.remove();
+			}
+		}
+	}
+
+	public void withMutationsInCurrentThread(Runnable task, TableMetaMutation... mutations) {
+		try {
+			addMutationsInCurrentThread(mutations);
+			task.run();
+		} finally {
+			removeMutationsInCurrentThread(mutations);
+		}
+	}
+
+	public <T> T withMutationsInCurrentThread(Supplier<T> task, TableMetaMutation... mutations) {
+		try {
+			addMutationsInCurrentThread(mutations);
+			return task.get();
+		} finally {
+			removeMutationsInCurrentThread(mutations);
 		}
 	}
 
@@ -119,7 +190,7 @@ public class TableMetaKit {
 		return meta;
 	}
 
-	private TableMeta getOrigin(Class<?> entityClass) {
+	public TableMeta getOrigin(Class<?> entityClass) {
 		return cache.computeIfAbsent(entityClass, c -> parse(entityClass));
 	}
 
@@ -191,7 +262,7 @@ public class TableMetaKit {
 				}
 				Expression expression = field.getAnnotation(Expression.class);
 				if (expression != null) {
-					if (expression.value() != null && !expression.value().trim().isEmpty()){
+					if (expression.value() != null && !expression.value().trim().isEmpty()) {
 						JdbcBeanInfo.ExpressionInfo expressionInfo = new JdbcBeanInfo.ExpressionInfo();
 						expressionInfo.readExpression(fieldName, expression);
 						ExpressionMeta expressionMeta = ExpressionMeta.builder()

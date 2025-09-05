@@ -28,6 +28,9 @@ public class TableMetaMutation {
 		, Map<String, ColumnMeta> newColumnMetas
 		, Map<String, ValueRef<String>> newExpressionNames
 		, Map<String, ExpressionMeta> newExpressionMetas) {
+		if (entityClass == null) {
+			throw new IllegalArgumentException("entityClass cannot be null");
+		}
 		this.entityClass = entityClass;
 		this.newTableName = newTableName;
 		this.newColumnNames = newColumnNames;
