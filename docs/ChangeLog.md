@@ -1,6 +1,9 @@
 ## 版本变更说明
 
-### 3.4.3
+### 3.4.5
+- 重构Mybatis基础Mapper的删除和查询相关的方法命名，以兼容早期版本
+
+### 3.4.4
 - 优化SQL生成逻辑，重构逻辑删除相关方法
 - 重构实体基础Mapper，拆分并新增逻辑删除相关接口
 - 修改 DynamicUseGeneratedKeysInterceptor，优化实体类获取逻辑
