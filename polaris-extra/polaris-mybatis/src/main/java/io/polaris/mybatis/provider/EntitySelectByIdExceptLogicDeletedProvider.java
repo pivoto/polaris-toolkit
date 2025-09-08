@@ -10,7 +10,7 @@ import org.apache.ibatis.builder.annotation.ProviderContext;
  * @since Sep 11, 2023
  */
 @Slf4j
-public class EntitySelectExceptLogicDeletedByIdProvider extends BaseProviderMethodResolver {
+public class EntitySelectByIdExceptLogicDeletedProvider extends BaseProviderMethodResolver {
 
 	@Published
 	public static String provideSql(Object parameterObject, ProviderContext context) {

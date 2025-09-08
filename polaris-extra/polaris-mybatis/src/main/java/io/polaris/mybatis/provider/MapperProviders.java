@@ -33,11 +33,11 @@ public class MapperProviders {
 		map.put(MapperProviderKeys.insertEntity, MapperProviders::insertEntity);
 
 		map.put(MapperProviderKeys.deleteEntityById, MapperProviders::deleteEntityById);
-		map.put(MapperProviderKeys.deleteEntityDirectById, MapperProviders::deleteEntityDirectById);
-		map.put(MapperProviderKeys.deleteEntityLogicById, MapperProviders::deleteEntityLogicById);
+		map.put(MapperProviderKeys.directDeleteEntityById, MapperProviders::directDeleteEntityById);
+		map.put(MapperProviderKeys.logicDeleteEntityById, MapperProviders::logicDeleteEntityById);
 		map.put(MapperProviderKeys.deleteEntityByAny, MapperProviders::deleteEntityByAny);
-		map.put(MapperProviderKeys.deleteEntityDirectByAny, MapperProviders::deleteEntityDirectByAny);
-		map.put(MapperProviderKeys.deleteEntityLogicByAny, MapperProviders::deleteEntityLogicByAny);
+		map.put(MapperProviderKeys.directDeleteEntityByAny, MapperProviders::directDeleteEntityByAny);
+		map.put(MapperProviderKeys.logicDeleteEntityByAny, MapperProviders::logicDeleteEntityByAny);
 
 		map.put(MapperProviderKeys.updateEntityById, MapperProviders::updateEntityById);
 		map.put(MapperProviderKeys.updateEntityByAny, MapperProviders::updateEntityByAny);
@@ -46,15 +46,15 @@ public class MapperProviders {
 		map.put(MapperProviderKeys.existsEntityDirect, MapperProviders::existsEntityDirect);
 		map.put(MapperProviderKeys.existsEntityExceptLogicDeleted, MapperProviders::existsEntityExceptLogicDeleted);
 		map.put(MapperProviderKeys.existsEntityById, MapperProviders::existsEntityById);
-		map.put(MapperProviderKeys.existsEntityDirectById, MapperProviders::existsEntityDirectById);
-		map.put(MapperProviderKeys.existsEntityExceptLogicDeletedById, MapperProviders::existsEntityExceptLogicDeletedById);
+		map.put(MapperProviderKeys.existsEntityByIdDirect, MapperProviders::existsEntityByIdDirect);
+		map.put(MapperProviderKeys.existsEntityByIdExceptLogicDeleted, MapperProviders::existsEntityByIdExceptLogicDeleted);
 
 		map.put(MapperProviderKeys.selectEntity, MapperProviders::selectEntity);
 		map.put(MapperProviderKeys.selectEntityDirect, MapperProviders::selectEntityDirect);
 		map.put(MapperProviderKeys.selectEntityExceptLogicDeleted, MapperProviders::selectEntityExceptLogicDeleted);
 		map.put(MapperProviderKeys.selectEntityById, MapperProviders::selectEntityById);
-		map.put(MapperProviderKeys.selectEntityDirectById, MapperProviders::selectEntityDirectById);
-		map.put(MapperProviderKeys.selectEntityExceptLogicDeletedById, MapperProviders::selectEntityExceptLogicDeletedById);
+		map.put(MapperProviderKeys.selectEntityByIdDirect, MapperProviders::selectEntityByIdDirect);
+		map.put(MapperProviderKeys.selectEntityByIdExceptLogicDeleted, MapperProviders::selectEntityByIdExceptLogicDeleted);
 
 		map.put(MapperProviderKeys.countEntity, MapperProviders::countEntity);
 		map.put(MapperProviderKeys.countEntityDirect, MapperProviders::countEntityDirect);
@@ -95,12 +95,12 @@ public class MapperProviders {
 	}
 
 	@Published
-	public static String deleteEntityDirectById(Object parameterObject, ProviderContext context) {
+	public static String directDeleteEntityById(Object parameterObject, ProviderContext context) {
 		return EntityDeleteDirectByIdProvider.provideSql(parameterObject, context);
 	}
 
 	@Published
-	public static String deleteEntityLogicById(Object parameterObject, ProviderContext context) {
+	public static String logicDeleteEntityById(Object parameterObject, ProviderContext context) {
 		return EntityDeleteLogicByIdProvider.provideSql(parameterObject, context);
 	}
 	@Published
@@ -109,13 +109,13 @@ public class MapperProviders {
 	}
 
 	@Published
-	public static String deleteEntityDirectByAny(Object parameterObject, ProviderContext context) {
+	public static String directDeleteEntityByAny(Object parameterObject, ProviderContext context) {
 		return EntityDeleteDirectByAnyProvider.provideSql(parameterObject, context);
 	}
 
 
 	@Published
-	public static String deleteEntityLogicByAny(Object parameterObject, ProviderContext context) {
+	public static String logicDeleteEntityByAny(Object parameterObject, ProviderContext context) {
 		return EntityDeleteLogicByAnyProvider.provideSql(parameterObject, context);
 	}
 
@@ -153,13 +153,13 @@ public class MapperProviders {
 	}
 
 	@Published
-	public static String existsEntityDirectById(Object parameterObject, ProviderContext context) {
-		return EntityExistsDirectByIdProvider.provideSql(parameterObject, context);
+	public static String existsEntityByIdDirect(Object parameterObject, ProviderContext context) {
+		return EntityExistsByIdDirectProvider.provideSql(parameterObject, context);
 	}
 
 	@Published
-	public static String existsEntityExceptLogicDeletedById(Object parameterObject, ProviderContext context) {
-		return EntityExistsExceptLogicDeletedByIdProvider.provideSql(parameterObject, context);
+	public static String existsEntityByIdExceptLogicDeleted(Object parameterObject, ProviderContext context) {
+		return EntityExistsByIdExceptLogicDeletedProvider.provideSql(parameterObject, context);
 	}
 
 	@Published
@@ -184,13 +184,13 @@ public class MapperProviders {
 	}
 
 	@Published
-	public static String selectEntityDirectById(Object parameterObject, ProviderContext context) {
-		return EntitySelectDirectByIdProvider.provideSql(parameterObject, context);
+	public static String selectEntityByIdDirect(Object parameterObject, ProviderContext context) {
+		return EntitySelectByIdDirectProvider.provideSql(parameterObject, context);
 	}
 
 	@Published
-	public static String selectEntityExceptLogicDeletedById(Object parameterObject, ProviderContext context) {
-		return EntitySelectExceptLogicDeletedByIdProvider.provideSql(parameterObject, context);
+	public static String selectEntityByIdExceptLogicDeleted(Object parameterObject, ProviderContext context) {
+		return EntitySelectByIdExceptLogicDeletedProvider.provideSql(parameterObject, context);
 	}
 
 

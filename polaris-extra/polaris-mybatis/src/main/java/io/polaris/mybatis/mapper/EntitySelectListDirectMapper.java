@@ -21,174 +21,174 @@ public interface EntitySelectListDirectMapper<E> extends EntityMapper<E> {
 
 	@WithLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
-	List<E> selectEntityListDirect(@Param(BindingKeys.WHERE) E entity
+	List<E> directSelectEntityList(@Param(BindingKeys.WHERE) E entity
 		, @Param(BindingKeys.ORDER_BY) OrderBy orderBy
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields
 		, @Param(BindingKeys.WHERE_EXCLUDE_COLUMNS) Set<String> excludeFields);
 
-	default List<E> selectEntityListDirect(E entity, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
-		return selectEntityListDirect(entity, orderBy, false, includeEmptyFields, excludeFields);
+	default List<E> directSelectEntityList(E entity, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
+		return directSelectEntityList(entity, orderBy, false, includeEmptyFields, excludeFields);
 	}
 
-	default List<E> selectEntityListDirect(E entity, OrderBy orderBy, Set<String> includeEmptyFields) {
-		return selectEntityListDirect(entity, orderBy, false, includeEmptyFields, null);
+	default List<E> directSelectEntityList(E entity, OrderBy orderBy, Set<String> includeEmptyFields) {
+		return directSelectEntityList(entity, orderBy, false, includeEmptyFields, null);
 	}
 
-	default List<E> selectEntityListDirect(E entity, OrderBy orderBy, boolean includeEmpty) {
-		return selectEntityListDirect(entity, orderBy, includeEmpty, null, null);
+	default List<E> directSelectEntityList(E entity, OrderBy orderBy, boolean includeEmpty) {
+		return directSelectEntityList(entity, orderBy, includeEmpty, null, null);
 	}
 
-	default List<E> selectEntityListDirect(E entity, OrderBy orderBy) {
-		return selectEntityListDirect(entity, orderBy, false);
+	default List<E> directSelectEntityList(E entity, OrderBy orderBy) {
+		return directSelectEntityList(entity, orderBy, false);
 	}
 
-	default List<E> selectEntityListDirect(E entity) {
-		return selectEntityListDirect(entity, null, false);
+	default List<E> directSelectEntityList(E entity) {
+		return directSelectEntityList(entity, null, false);
 	}
 
 
 	@WithLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
-	List<E> selectEntityListDirectByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
+	List<E> directSelectEntityListByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
 		, @Param(BindingKeys.ORDER_BY) OrderBy orderBy
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields
 		, @Param(BindingKeys.WHERE_EXCLUDE_COLUMNS) Set<String> excludeFields);
 
-	default List<E> selectEntityListDirectByMap(Map<String, Object> entity, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
-		return selectEntityListDirectByMap(entity, orderBy, false, includeEmptyFields, excludeFields);
+	default List<E> directSelectEntityListByMap(Map<String, Object> entity, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
+		return directSelectEntityListByMap(entity, orderBy, false, includeEmptyFields, excludeFields);
 	}
 
-	default List<E> selectEntityListDirectByMap(Map<String, Object> entity, OrderBy orderBy, Set<String> includeEmptyFields) {
-		return selectEntityListDirectByMap(entity, orderBy, false, includeEmptyFields, null);
+	default List<E> directSelectEntityListByMap(Map<String, Object> entity, OrderBy orderBy, Set<String> includeEmptyFields) {
+		return directSelectEntityListByMap(entity, orderBy, false, includeEmptyFields, null);
 	}
 
-	default List<E> selectEntityListDirectByMap(Map<String, Object> entity, OrderBy orderBy, boolean includeEmpty) {
-		return selectEntityListDirectByMap(entity, orderBy, includeEmpty, null, null);
+	default List<E> directSelectEntityListByMap(Map<String, Object> entity, OrderBy orderBy, boolean includeEmpty) {
+		return directSelectEntityListByMap(entity, orderBy, includeEmpty, null, null);
 	}
 
-	default List<E> selectEntityListDirectByMap(Map<String, Object> entity, OrderBy orderBy) {
-		return selectEntityListDirectByMap(entity, orderBy, false);
+	default List<E> directSelectEntityListByMap(Map<String, Object> entity, OrderBy orderBy) {
+		return directSelectEntityListByMap(entity, orderBy, false);
 	}
 
-	default List<E> selectEntityListDirectByMap(Map<String, Object> entity) {
-		return selectEntityListDirectByMap(entity, null, false);
+	default List<E> directSelectEntityListByMap(Map<String, Object> entity) {
+		return directSelectEntityListByMap(entity, null, false);
 	}
 
 	@WithLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
-	List<E> selectEntityListDirectByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
+	List<E> directSelectEntityListByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
 		, @Param(BindingKeys.ORDER_BY) OrderBy orderBy
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields
 		, @Param(BindingKeys.WHERE_EXCLUDE_COLUMNS) Set<String> excludeFields);
 
-	default List<E> selectEntityListDirectByCriteria(Criteria criteria, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
-		return selectEntityListDirectByCriteria(criteria, orderBy, false, includeEmptyFields, excludeFields);
+	default List<E> directSelectEntityListByCriteria(Criteria criteria, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
+		return directSelectEntityListByCriteria(criteria, orderBy, false, includeEmptyFields, excludeFields);
 	}
 
-	default List<E> selectEntityListDirectByCriteria(Criteria criteria, OrderBy orderBy, Set<String> includeEmptyFields) {
-		return selectEntityListDirectByCriteria(criteria, orderBy, false, includeEmptyFields, null);
+	default List<E> directSelectEntityListByCriteria(Criteria criteria, OrderBy orderBy, Set<String> includeEmptyFields) {
+		return directSelectEntityListByCriteria(criteria, orderBy, false, includeEmptyFields, null);
 	}
 
-	default List<E> selectEntityListDirectByCriteria(Criteria criteria, OrderBy orderBy, boolean includeEmpty) {
-		return selectEntityListDirectByCriteria(criteria, orderBy, includeEmpty, null, null);
+	default List<E> directSelectEntityListByCriteria(Criteria criteria, OrderBy orderBy, boolean includeEmpty) {
+		return directSelectEntityListByCriteria(criteria, orderBy, includeEmpty, null, null);
 	}
 
-	default List<E> selectEntityListDirectByCriteria(Criteria criteria, OrderBy orderBy) {
-		return selectEntityListDirectByCriteria(criteria, orderBy, false);
+	default List<E> directSelectEntityListByCriteria(Criteria criteria, OrderBy orderBy) {
+		return directSelectEntityListByCriteria(criteria, orderBy, false);
 	}
 
-	default List<E> selectEntityListDirectByCriteria(Criteria criteria) {
-		return selectEntityListDirectByCriteria(criteria, null, false);
-	}
-
-
-	@WithLogicDeleted(false)
-	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
-	List<Map<String, Object>> selectMapListDirect(@Param(BindingKeys.WHERE) E entity
-		, @Param(BindingKeys.ORDER_BY) OrderBy orderBy
-		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
-		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields
-		, @Param(BindingKeys.WHERE_EXCLUDE_COLUMNS) Set<String> excludeFields);
-
-	default List<Map<String, Object>> selectMapListDirect(E entity, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
-		return selectMapListDirect(entity, orderBy, false, includeEmptyFields, excludeFields);
-	}
-
-	default List<Map<String, Object>> selectMapListDirect(E entity, OrderBy orderBy, Set<String> includeEmptyFields) {
-		return selectMapListDirect(entity, orderBy, false, includeEmptyFields, null);
-	}
-
-	default List<Map<String, Object>> selectMapListDirect(E entity, OrderBy orderBy, boolean includeEmpty) {
-		return selectMapListDirect(entity, orderBy, includeEmpty, null, null);
-	}
-
-	default List<Map<String, Object>> selectMapListDirect(E entity, OrderBy orderBy) {
-		return selectMapListDirect(entity, orderBy, false);
-	}
-
-	default List<Map<String, Object>> selectMapListDirect(E entity) {
-		return selectMapListDirect(entity, null, false);
+	default List<E> directSelectEntityListByCriteria(Criteria criteria) {
+		return directSelectEntityListByCriteria(criteria, null, false);
 	}
 
 
 	@WithLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
-	List<Map<String, Object>> selectMapListDirectByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
+	List<Map<String, Object>> directSelectMapList(@Param(BindingKeys.WHERE) E entity
 		, @Param(BindingKeys.ORDER_BY) OrderBy orderBy
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields
 		, @Param(BindingKeys.WHERE_EXCLUDE_COLUMNS) Set<String> excludeFields);
 
-	default List<Map<String, Object>> selectMapListDirectByMap(Map<String, Object> entity, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
-		return selectMapListDirectByMap(entity, orderBy, false, includeEmptyFields, excludeFields);
+	default List<Map<String, Object>> directSelectMapList(E entity, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
+		return directSelectMapList(entity, orderBy, false, includeEmptyFields, excludeFields);
 	}
 
-	default List<Map<String, Object>> selectMapListDirectByMap(Map<String, Object> entity, OrderBy orderBy, Set<String> includeEmptyFields) {
-		return selectMapListDirectByMap(entity, orderBy, false, includeEmptyFields, null);
+	default List<Map<String, Object>> directSelectMapList(E entity, OrderBy orderBy, Set<String> includeEmptyFields) {
+		return directSelectMapList(entity, orderBy, false, includeEmptyFields, null);
 	}
 
-	default List<Map<String, Object>> selectMapListDirectByMap(Map<String, Object> entity, OrderBy orderBy, boolean includeEmpty) {
-		return selectMapListDirectByMap(entity, orderBy, includeEmpty, null, null);
+	default List<Map<String, Object>> directSelectMapList(E entity, OrderBy orderBy, boolean includeEmpty) {
+		return directSelectMapList(entity, orderBy, includeEmpty, null, null);
 	}
 
-	default List<Map<String, Object>> selectMapListDirectByMap(Map<String, Object> entity) {
-		return selectMapListDirectByMap(entity, null, false);
+	default List<Map<String, Object>> directSelectMapList(E entity, OrderBy orderBy) {
+		return directSelectMapList(entity, orderBy, false);
 	}
 
-	default List<Map<String, Object>> selectMapListDirectByMap(Map<String, Object> entity, OrderBy orderBy) {
-		return selectMapListDirectByMap(entity, orderBy, false);
+	default List<Map<String, Object>> directSelectMapList(E entity) {
+		return directSelectMapList(entity, null, false);
 	}
 
 
 	@WithLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
-	List<Map<String, Object>> selectMapListDirectByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
+	List<Map<String, Object>> directSelectMapListByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
 		, @Param(BindingKeys.ORDER_BY) OrderBy orderBy
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields
 		, @Param(BindingKeys.WHERE_EXCLUDE_COLUMNS) Set<String> excludeFields);
 
-	default List<Map<String, Object>> selectMapListDirectByCriteria(Criteria criteria, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
-		return selectMapListDirectByCriteria(criteria, orderBy, false, includeEmptyFields, excludeFields);
+	default List<Map<String, Object>> directSelectMapListByMap(Map<String, Object> entity, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
+		return directSelectMapListByMap(entity, orderBy, false, includeEmptyFields, excludeFields);
 	}
 
-	default List<Map<String, Object>> selectMapListDirectByCriteria(Criteria criteria, OrderBy orderBy, Set<String> includeEmptyFields) {
-		return selectMapListDirectByCriteria(criteria, orderBy, false, includeEmptyFields, null);
+	default List<Map<String, Object>> directSelectMapListByMap(Map<String, Object> entity, OrderBy orderBy, Set<String> includeEmptyFields) {
+		return directSelectMapListByMap(entity, orderBy, false, includeEmptyFields, null);
 	}
 
-	default List<Map<String, Object>> selectMapListDirectByCriteria(Criteria criteria, OrderBy orderBy, boolean includeEmpty) {
-		return selectMapListDirectByCriteria(criteria, orderBy, includeEmpty, null, null);
+	default List<Map<String, Object>> directSelectMapListByMap(Map<String, Object> entity, OrderBy orderBy, boolean includeEmpty) {
+		return directSelectMapListByMap(entity, orderBy, includeEmpty, null, null);
 	}
 
-	default List<Map<String, Object>> selectMapListDirectByCriteria(Criteria criteria) {
-		return selectMapListDirectByCriteria(criteria, null, false);
+	default List<Map<String, Object>> directSelectMapListByMap(Map<String, Object> entity) {
+		return directSelectMapListByMap(entity, null, false);
 	}
 
-	default List<Map<String, Object>> selectMapListDirectByCriteria(Criteria criteria, OrderBy orderBy) {
-		return selectMapListDirectByCriteria(criteria, orderBy, false);
+	default List<Map<String, Object>> directSelectMapListByMap(Map<String, Object> entity, OrderBy orderBy) {
+		return directSelectMapListByMap(entity, orderBy, false);
+	}
+
+
+	@WithLogicDeleted(false)
+	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
+	List<Map<String, Object>> directSelectMapListByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
+		, @Param(BindingKeys.ORDER_BY) OrderBy orderBy
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
+		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields
+		, @Param(BindingKeys.WHERE_EXCLUDE_COLUMNS) Set<String> excludeFields);
+
+	default List<Map<String, Object>> directSelectMapListByCriteria(Criteria criteria, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
+		return directSelectMapListByCriteria(criteria, orderBy, false, includeEmptyFields, excludeFields);
+	}
+
+	default List<Map<String, Object>> directSelectMapListByCriteria(Criteria criteria, OrderBy orderBy, Set<String> includeEmptyFields) {
+		return directSelectMapListByCriteria(criteria, orderBy, false, includeEmptyFields, null);
+	}
+
+	default List<Map<String, Object>> directSelectMapListByCriteria(Criteria criteria, OrderBy orderBy, boolean includeEmpty) {
+		return directSelectMapListByCriteria(criteria, orderBy, includeEmpty, null, null);
+	}
+
+	default List<Map<String, Object>> directSelectMapListByCriteria(Criteria criteria) {
+		return directSelectMapListByCriteria(criteria, null, false);
+	}
+
+	default List<Map<String, Object>> directSelectMapListByCriteria(Criteria criteria, OrderBy orderBy) {
+		return directSelectMapListByCriteria(criteria, orderBy, false);
 	}
 
 

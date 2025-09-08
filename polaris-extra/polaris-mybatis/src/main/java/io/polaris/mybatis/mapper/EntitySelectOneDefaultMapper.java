@@ -217,7 +217,7 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 	@WithLogicDeleted(true)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.existsEntity)
 	@Options(fetchSize = 1)
-	@Internal("考虑到查询性能或分页实现的兼容性，声明此此方法，实际开发中不直接调用")
+	@Internal("考虑到查询性能与分页实现的兼容性，声明此此方法，实际开发中不直接调用")
 	Cursor<Boolean> existsInnerByAny(@Param(BindingKeys.WHERE) Object entity
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields

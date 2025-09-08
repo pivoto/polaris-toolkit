@@ -24,7 +24,7 @@ import org.apache.ibatis.cursor.Cursor;
 public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper<E> {
 
 
-	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeletedById)
+	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityByIdExceptLogicDeleted)
 	E selectEntityByIdExceptLogicDeleted(@Param(BindingKeys.ENTITY) E entity);
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeleted)
@@ -164,12 +164,12 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	}
 
 
-	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.existsEntityExceptLogicDeletedById)
+	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.existsEntityByIdExceptLogicDeleted)
 	boolean existsByIdExceptLogicDeleted(@Param(BindingKeys.ENTITY) E entity);
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.existsEntityExceptLogicDeleted)
 	@Options(fetchSize = 1)
-	@Internal("考虑到查询性能或分页实现的兼容性，声明此此方法，实际开发中不直接调用")
+	@Internal("考虑到查询性能与分页实现的兼容性，声明此此方法，实际开发中不直接调用")
 	Cursor<Boolean> existsInnerByAnyExceptLogicDeleted(@Param(BindingKeys.WHERE) Object entity
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields

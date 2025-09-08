@@ -20,25 +20,25 @@ public interface MapperProviderKeys {
 	String insertEntity = "insertEntity";
 
 	String deleteEntityById = "deleteEntityById";
-	String deleteEntityDirectById = "deleteEntityDirectById";
-	String deleteEntityLogicById = "logicDeleteEntityById";
 	String deleteEntityByAny = "deleteEntityByAny";
-	String deleteEntityDirectByAny = "deleteEntityDirectByAny";
-	String deleteEntityLogicByAny = "logicDeleteEntityByAny";
+	String directDeleteEntityById = "deleteEntityDirectById";
+	String directDeleteEntityByAny = "deleteEntityDirectByAny";
+	String logicDeleteEntityById = "logicDeleteEntityById";
+	String logicDeleteEntityByAny = "logicDeleteEntityByAny";
 
 	String updateEntityById = "updateEntityById";
 	String updateEntityByAny = "updateEntityByAny";
 
 	String existsEntityById = "existsEntityById";
-	String existsEntityDirectById = "existsEntityDirectById";
-	String existsEntityExceptLogicDeletedById = "existsEntityExceptLogicDeletedById";
+	String existsEntityByIdDirect = "existsEntityDirectById";
+	String existsEntityByIdExceptLogicDeleted = "existsEntityExceptLogicDeletedById";
 	String existsEntity = "existsEntity";
 	String existsEntityDirect = "existsEntityDirect";
 	String existsEntityExceptLogicDeleted = "existsEntityExceptLogicDeleted";
 
 	String selectEntityById = "selectEntityById";
-	String selectEntityDirectById = "selectEntityDirectById";
-	String selectEntityExceptLogicDeletedById = "selectEntityExceptLogicDeletedById";
+	String selectEntityByIdDirect = "selectEntityDirectById";
+	String selectEntityByIdExceptLogicDeleted = "selectEntityExceptLogicDeletedById";
 	String selectEntity = "selectEntity";
 	String selectEntityDirect = "selectEntityDirect";
 	String selectEntityExceptLogicDeleted = "selectEntityExceptLogicDeleted";

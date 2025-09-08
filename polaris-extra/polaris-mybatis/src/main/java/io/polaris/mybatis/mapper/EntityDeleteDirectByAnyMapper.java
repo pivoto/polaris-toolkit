@@ -28,8 +28,8 @@ public interface EntityDeleteDirectByAnyMapper<E> extends EntityMapper<E> {
 	 * @return 删除的记录数量
 	 */
 	@WithLogicDeleted(false)
-	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.deleteEntityDirectByAny)
-	int deleteEntityDirectByAny(@Param(BindingKeys.WHERE) E entity
+	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.directDeleteEntityByAny)
+	int directDeleteEntityByAny(@Param(BindingKeys.WHERE) E entity
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields
 		, @Param(BindingKeys.WHERE_EXCLUDE_COLUMNS) Set<String> excludeFields);
@@ -42,8 +42,8 @@ public interface EntityDeleteDirectByAnyMapper<E> extends EntityMapper<E> {
 	 * @param excludeFields 需要排除的字段集合
 	 * @return 删除的记录数量
 	 */
-	default int deleteEntityDirectByAny(E entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
-		return deleteEntityDirectByAny(entity, false, includeEmptyFields, excludeFields);
+	default int directDeleteEntityByAny(E entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
+		return directDeleteEntityByAny(entity, false, includeEmptyFields, excludeFields);
 	}
 
 	/**
@@ -53,8 +53,8 @@ public interface EntityDeleteDirectByAnyMapper<E> extends EntityMapper<E> {
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 删除的记录数量
 	 */
-	default int deleteEntityDirectByAny(E entity, Set<String> includeEmptyFields) {
-		return deleteEntityDirectByAny(entity, false, includeEmptyFields, (Set<String>) null);
+	default int directDeleteEntityByAny(E entity, Set<String> includeEmptyFields) {
+		return directDeleteEntityByAny(entity, false, includeEmptyFields, (Set<String>) null);
 	}
 
 	/**
@@ -64,8 +64,8 @@ public interface EntityDeleteDirectByAnyMapper<E> extends EntityMapper<E> {
 	 * @param includeEmpty 是否包含空值字段
 	 * @return 删除的记录数量
 	 */
-	default int deleteEntityDirectByAny(E entity, boolean includeEmpty) {
-		return deleteEntityDirectByAny(entity, includeEmpty, (Set<String>) null, (Set<String>) null);
+	default int directDeleteEntityByAny(E entity, boolean includeEmpty) {
+		return directDeleteEntityByAny(entity, includeEmpty, (Set<String>) null, (Set<String>) null);
 	}
 
 	/**
@@ -74,8 +74,8 @@ public interface EntityDeleteDirectByAnyMapper<E> extends EntityMapper<E> {
 	 * @param entity 实体对象，用于构建删除条件
 	 * @return 删除的记录数量
 	 */
-	default int deleteEntityDirectByAny(E entity) {
-		return deleteEntityDirectByAny(entity, false, (Set<String>) null, (Set<String>) null);
+	default int directDeleteEntityByAny(E entity) {
+		return directDeleteEntityByAny(entity, false, (Set<String>) null, (Set<String>) null);
 	}
 
 
@@ -89,8 +89,8 @@ public interface EntityDeleteDirectByAnyMapper<E> extends EntityMapper<E> {
 	 * @return 删除的记录数量
 	 */
 	@WithLogicDeleted(false)
-	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.deleteEntityDirectByAny)
-	int deleteEntityDirectByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
+	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.directDeleteEntityByAny)
+	int directDeleteEntityByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields
 		, @Param(BindingKeys.WHERE_EXCLUDE_COLUMNS) Set<String> excludeFields);
@@ -103,8 +103,8 @@ public interface EntityDeleteDirectByAnyMapper<E> extends EntityMapper<E> {
 	 * @param excludeFields 需要排除的字段集合
 	 * @return 删除的记录数量
 	 */
-	default int deleteEntityDirectByMap(Map<String, Object> entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
-		return deleteEntityDirectByMap(entity, false, includeEmptyFields, excludeFields);
+	default int directDeleteEntityByMap(Map<String, Object> entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
+		return directDeleteEntityByMap(entity, false, includeEmptyFields, excludeFields);
 	}
 
 	/**
@@ -114,8 +114,8 @@ public interface EntityDeleteDirectByAnyMapper<E> extends EntityMapper<E> {
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 删除的记录数量
 	 */
-	default int deleteEntityDirectByMap(Map<String, Object> entity, Set<String> includeEmptyFields) {
-		return deleteEntityDirectByMap(entity, false, includeEmptyFields, (Set<String>) null);
+	default int directDeleteEntityByMap(Map<String, Object> entity, Set<String> includeEmptyFields) {
+		return directDeleteEntityByMap(entity, false, includeEmptyFields, (Set<String>) null);
 	}
 
 	/**
@@ -125,8 +125,8 @@ public interface EntityDeleteDirectByAnyMapper<E> extends EntityMapper<E> {
 	 * @param includeEmpty 是否包含空值字段
 	 * @return 删除的记录数量
 	 */
-	default int deleteEntityDirectByMap(Map<String, Object> entity, boolean includeEmpty) {
-		return deleteEntityDirectByMap(entity, includeEmpty, (Set<String>) null, (Set<String>) null);
+	default int directDeleteEntityByMap(Map<String, Object> entity, boolean includeEmpty) {
+		return directDeleteEntityByMap(entity, includeEmpty, (Set<String>) null, (Set<String>) null);
 	}
 
 	/**
@@ -135,8 +135,8 @@ public interface EntityDeleteDirectByAnyMapper<E> extends EntityMapper<E> {
 	 * @param entity 包含删除条件的Map对象
 	 * @return 删除的记录数量
 	 */
-	default int deleteEntityDirectByMap(Map<String, Object> entity) {
-		return deleteEntityDirectByMap(entity, false, (Set<String>) null, (Set<String>) null);
+	default int directDeleteEntityByMap(Map<String, Object> entity) {
+		return directDeleteEntityByMap(entity, false, (Set<String>) null, (Set<String>) null);
 	}
 
 	/**
@@ -149,8 +149,8 @@ public interface EntityDeleteDirectByAnyMapper<E> extends EntityMapper<E> {
 	 * @return 删除的记录数量
 	 */
 	@WithLogicDeleted(false)
-	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.deleteEntityDirectByAny)
-	int deleteEntityDirectByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
+	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.directDeleteEntityByAny)
+	int directDeleteEntityByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields
 		, @Param(BindingKeys.WHERE_EXCLUDE_COLUMNS) Set<String> excludeFields);
@@ -164,8 +164,8 @@ public interface EntityDeleteDirectByAnyMapper<E> extends EntityMapper<E> {
 	 * @param excludeFields 需要排除的字段集合
 	 * @return 删除的记录数量
 	 */
-	default int deleteEntityDirectByCriteria(Criteria criteria, Set<String> includeEmptyFields, Set<String> excludeFields) {
-		return deleteEntityDirectByCriteria(criteria, false, includeEmptyFields, excludeFields);
+	default int directDeleteEntityByCriteria(Criteria criteria, Set<String> includeEmptyFields, Set<String> excludeFields) {
+		return directDeleteEntityByCriteria(criteria, false, includeEmptyFields, excludeFields);
 	}
 
 	/**
@@ -175,8 +175,8 @@ public interface EntityDeleteDirectByAnyMapper<E> extends EntityMapper<E> {
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 删除的记录数量
 	 */
-	default int deleteEntityDirectByCriteria(Criteria criteria, Set<String> includeEmptyFields) {
-		return deleteEntityDirectByCriteria(criteria, false, includeEmptyFields, (Set<String>) null);
+	default int directDeleteEntityByCriteria(Criteria criteria, Set<String> includeEmptyFields) {
+		return directDeleteEntityByCriteria(criteria, false, includeEmptyFields, (Set<String>) null);
 	}
 
 	/**
@@ -186,8 +186,8 @@ public interface EntityDeleteDirectByAnyMapper<E> extends EntityMapper<E> {
 	 * @param includeEmpty 是否包含空值字段
 	 * @return 删除的记录数量
 	 */
-	default int deleteEntityDirectByCriteria(Criteria criteria, boolean includeEmpty) {
-		return deleteEntityDirectByCriteria(criteria, includeEmpty, (Set<String>) null, (Set<String>) null);
+	default int directDeleteEntityByCriteria(Criteria criteria, boolean includeEmpty) {
+		return directDeleteEntityByCriteria(criteria, includeEmpty, (Set<String>) null, (Set<String>) null);
 	}
 
 	/**
@@ -196,8 +196,8 @@ public interface EntityDeleteDirectByAnyMapper<E> extends EntityMapper<E> {
 	 * @param criteria 条件对象，用于构建删除条件
 	 * @return 删除的记录数量
 	 */
-	default int deleteEntityDirectByCriteria(Criteria criteria) {
-		return deleteEntityDirectByCriteria(criteria, false, (Set<String>) null, (Set<String>) null);
+	default int directDeleteEntityByCriteria(Criteria criteria) {
+		return directDeleteEntityByCriteria(criteria, false, (Set<String>) null, (Set<String>) null);
 	}
 
 

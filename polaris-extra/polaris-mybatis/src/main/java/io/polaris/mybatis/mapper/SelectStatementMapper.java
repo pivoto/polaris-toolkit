@@ -28,7 +28,7 @@ public interface SelectStatementMapper<R> {
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.existsBySql)
 	@Options(fetchSize = 1)
-	@Internal("考虑到查询性能或分页实现的兼容性，声明此此方法，实际开发中不直接调用")
+	@Internal("考虑到查询性能与分页实现的兼容性，声明此此方法，实际开发中不直接调用")
 	Cursor<Boolean> existsInnerBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
 
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.countBySql)

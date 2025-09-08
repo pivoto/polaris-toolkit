@@ -17,7 +17,7 @@ import org.apache.ibatis.annotations.Param;
 public interface EntityDeleteLogicByAnyMapper<E> extends EntityMapper<E> {
 
 
-	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.deleteEntityLogicByAny)
+	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.logicDeleteEntityByAny)
 	int logicDeleteEntityByAny(@Param(BindingKeys.WHERE) E entity
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields
@@ -40,7 +40,7 @@ public interface EntityDeleteLogicByAnyMapper<E> extends EntityMapper<E> {
 	}
 
 
-	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.deleteEntityLogicByAny)
+	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.logicDeleteEntityByAny)
 	int logicDeleteEntityByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields
@@ -62,7 +62,7 @@ public interface EntityDeleteLogicByAnyMapper<E> extends EntityMapper<E> {
 		return logicDeleteEntityByMap(entity, false, (Set<String>) null, (Set<String>) null);
 	}
 
-	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.deleteEntityLogicByAny)
+	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.logicDeleteEntityByAny)
 	int logicDeleteEntityByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields

@@ -29,7 +29,7 @@ public interface EntityCountDirectMapper<E> extends EntityMapper<E> {
 	 */
 	@WithLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.countEntityDirect)
-	int countEntityDirect(@Param(BindingKeys.WHERE) E entity
+	int directCountEntity(@Param(BindingKeys.WHERE) E entity
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields
 		, @Param(BindingKeys.WHERE_EXCLUDE_COLUMNS) Set<String> excludeFields);
@@ -42,8 +42,8 @@ public interface EntityCountDirectMapper<E> extends EntityMapper<E> {
 	 * @param excludeFields 需要排除的字段集合
 	 * @return 符合条件的记录数量
 	 */
-	default int countEntityDirect(E entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
-		return countEntityDirect(entity, false, includeEmptyFields, excludeFields);
+	default int directCountEntity(E entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
+		return directCountEntity(entity, false, includeEmptyFields, excludeFields);
 	}
 
 	/**
@@ -53,8 +53,8 @@ public interface EntityCountDirectMapper<E> extends EntityMapper<E> {
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 符合条件的记录数量
 	 */
-	default int countEntityDirect(E entity, Set<String> includeEmptyFields) {
-		return countEntityDirect(entity, false, includeEmptyFields, (Set<String>) null);
+	default int directCountEntity(E entity, Set<String> includeEmptyFields) {
+		return directCountEntity(entity, false, includeEmptyFields, (Set<String>) null);
 	}
 
 	/**
@@ -64,8 +64,8 @@ public interface EntityCountDirectMapper<E> extends EntityMapper<E> {
 	 * @param includeEmpty 是否包含空值字段
 	 * @return 符合条件的记录数量
 	 */
-	default int countEntityDirect(E entity, boolean includeEmpty) {
-		return countEntityDirect(entity, includeEmpty, (Set<String>) null, (Set<String>) null);
+	default int directCountEntity(E entity, boolean includeEmpty) {
+		return directCountEntity(entity, includeEmpty, (Set<String>) null, (Set<String>) null);
 	}
 
 	/**
@@ -74,8 +74,8 @@ public interface EntityCountDirectMapper<E> extends EntityMapper<E> {
 	 * @param entity 实体对象，用于构建查询条件
 	 * @return 符合条件的记录数量
 	 */
-	default int countEntityDirect(E entity) {
-		return countEntityDirect(entity, false);
+	default int directCountEntity(E entity) {
+		return directCountEntity(entity, false);
 	}
 
 
@@ -90,7 +90,7 @@ public interface EntityCountDirectMapper<E> extends EntityMapper<E> {
 	 */
 	@WithLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.countEntityDirect)
-	int countEntityDirectByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
+	int directCountEntityByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields
 		, @Param(BindingKeys.WHERE_EXCLUDE_COLUMNS) Set<String> excludeFields);
@@ -104,8 +104,8 @@ public interface EntityCountDirectMapper<E> extends EntityMapper<E> {
 	 * @param excludeFields 需要排除的字段集合
 	 * @return 符合条件的记录数量
 	 */
-	default int countEntityDirectByMap(Map<String, Object> entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
-		return countEntityDirectByMap(entity, false, includeEmptyFields, excludeFields);
+	default int directCountEntityByMap(Map<String, Object> entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
+		return directCountEntityByMap(entity, false, includeEmptyFields, excludeFields);
 	}
 
 	/**
@@ -115,8 +115,8 @@ public interface EntityCountDirectMapper<E> extends EntityMapper<E> {
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 符合条件的记录数量
 	 */
-	default int countEntityDirectByMap(Map<String, Object> entity, Set<String> includeEmptyFields) {
-		return countEntityDirectByMap(entity, false, includeEmptyFields, (Set<String>) null);
+	default int directCountEntityByMap(Map<String, Object> entity, Set<String> includeEmptyFields) {
+		return directCountEntityByMap(entity, false, includeEmptyFields, (Set<String>) null);
 	}
 
 	/**
@@ -126,8 +126,8 @@ public interface EntityCountDirectMapper<E> extends EntityMapper<E> {
 	 * @param includeEmpty 是否包含空值字段
 	 * @return 符合条件的记录数量
 	 */
-	default int countEntityDirectByMap(Map<String, Object> entity, boolean includeEmpty) {
-		return countEntityDirectByMap(entity, includeEmpty, (Set<String>) null, (Set<String>) null);
+	default int directCountEntityByMap(Map<String, Object> entity, boolean includeEmpty) {
+		return directCountEntityByMap(entity, includeEmpty, (Set<String>) null, (Set<String>) null);
 	}
 
 	/**
@@ -136,8 +136,8 @@ public interface EntityCountDirectMapper<E> extends EntityMapper<E> {
 	 * @param entity 实体对象，用于构建查询条件
 	 * @return 符合条件的记录数量
 	 */
-	default int countEntityDirectByMap(Map<String, Object> entity) {
-		return countEntityDirectByMap(entity, false);
+	default int directCountEntityByMap(Map<String, Object> entity) {
+		return directCountEntityByMap(entity, false);
 	}
 
 	/**
@@ -151,7 +151,7 @@ public interface EntityCountDirectMapper<E> extends EntityMapper<E> {
 	 */
 	@WithLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.countEntityDirect)
-	int countEntityDirectByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
+	int directCountEntityByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields
 		, @Param(BindingKeys.WHERE_EXCLUDE_COLUMNS) Set<String> excludeFields);
@@ -165,8 +165,8 @@ public interface EntityCountDirectMapper<E> extends EntityMapper<E> {
 	 * @param excludeFields 需要排除的字段集合
 	 * @return 符合条件的记录数量
 	 */
-	default int countEntityDirectByCriteria(Criteria criteria, Set<String> includeEmptyFields, Set<String> excludeFields) {
-		return countEntityDirectByCriteria(criteria, false, includeEmptyFields, excludeFields);
+	default int directCountEntityByCriteria(Criteria criteria, Set<String> includeEmptyFields, Set<String> excludeFields) {
+		return directCountEntityByCriteria(criteria, false, includeEmptyFields, excludeFields);
 	}
 
 	/**
@@ -176,8 +176,8 @@ public interface EntityCountDirectMapper<E> extends EntityMapper<E> {
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 符合条件的记录数量
 	 */
-	default int countEntityDirectByCriteria(Criteria criteria, Set<String> includeEmptyFields) {
-		return countEntityDirectByCriteria(criteria, false, includeEmptyFields, (Set<String>) null);
+	default int directCountEntityByCriteria(Criteria criteria, Set<String> includeEmptyFields) {
+		return directCountEntityByCriteria(criteria, false, includeEmptyFields, (Set<String>) null);
 	}
 
 	/**
@@ -187,8 +187,8 @@ public interface EntityCountDirectMapper<E> extends EntityMapper<E> {
 	 * @param includeEmpty 是否包含空值字段
 	 * @return 符合条件的记录数量
 	 */
-	default int countEntityDirectByCriteria(Criteria criteria, boolean includeEmpty) {
-		return countEntityDirectByCriteria(criteria, includeEmpty, (Set<String>) null, (Set<String>) null);
+	default int directCountEntityByCriteria(Criteria criteria, boolean includeEmpty) {
+		return directCountEntityByCriteria(criteria, includeEmpty, (Set<String>) null, (Set<String>) null);
 	}
 
 	/**
@@ -197,8 +197,8 @@ public interface EntityCountDirectMapper<E> extends EntityMapper<E> {
 	 * @param criteria 条件对象，用于构建查询条件
 	 * @return 符合条件的记录数量
 	 */
-	default int countEntityDirectByCriteria(Criteria criteria) {
-		return countEntityDirectByCriteria(criteria, false);
+	default int directCountEntityByCriteria(Criteria criteria) {
+		return directCountEntityByCriteria(criteria, false);
 	}
 
 }

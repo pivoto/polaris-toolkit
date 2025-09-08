@@ -18,10 +18,10 @@ public interface EntityDeleteByIdMapper<E> extends EntityMapper<E> {
 	int deleteEntityById(@Param(BindingKeys.ENTITY) E entity);
 
 	@WithLogicDeleted(false)
-	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.deleteEntityDirectById)
-	int deleteEntityDirectById(@Param(BindingKeys.ENTITY) E entity);
+	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.directDeleteEntityById)
+	int directDeleteEntityById(@Param(BindingKeys.ENTITY) E entity);
 
-	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.deleteEntityLogicById)
+	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.logicDeleteEntityById)
 	int logicDeleteEntityById(@Param(BindingKeys.ENTITY) E entity);
 
 }
