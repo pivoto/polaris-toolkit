@@ -25,4 +25,6 @@ public interface BindingKeys {
 	String WHERE_INCLUDE_EMPTY = "_w_ie";
 	String WHERE_INCLUDE_COLUMNS = "_w_ic";
 	String WHERE_EXCLUDE_COLUMNS = "_w_xc";
+
+	String WITH_LOGIC_DELETED = "_w_ld";
 }

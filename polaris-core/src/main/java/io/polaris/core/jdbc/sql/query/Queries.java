@@ -2,6 +2,7 @@ package io.polaris.core.jdbc.sql.query;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
@@ -33,6 +34,7 @@ public class Queries {
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
 		return newColumnDiscovery(tableMeta);
 	}
+
 	public static Function<String, String> newColumnDiscovery(TableMeta tableMeta) {
 		return field -> {
 			String[] arr = field.split(Pattern.quote(SymbolConsts.DOT), 2);
@@ -55,6 +57,47 @@ public class Queries {
 			} else {
 				ColumnMeta columnMeta = tableMeta.getColumns().get(field);
 				if (columnMeta != null) {
+					return columnMeta.getColumnName();
+				}
+				ExpressionMeta expressionMeta = tableMeta.getExpressions().get(field);
+				if (expressionMeta != null) {
+					// 无别名时，使用表名，防止子查询中字段来源不明确
+					return expressionMeta.getExpressionWithTableName();
+				}
+			}
+			return null;
+		};
+	}
+
+	public static Function<String, String> newColumnDiscovery(Class<?> entityClass, Consumer<ColumnMeta> visitor) {
+		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
+		return newColumnDiscovery(tableMeta, visitor);
+	}
+
+	public static Function<String, String> newColumnDiscovery(TableMeta tableMeta, Consumer<ColumnMeta> visitor) {
+		return field -> {
+			String[] arr = field.split(Pattern.quote(SymbolConsts.DOT), 2);
+			String alias = null;
+			if (arr.length == 2) {
+				alias = arr[0].trim();
+				field = arr[1].trim();
+			}
+			if (alias != null) {
+				if (Strings.equalsIgnoreCase(alias, tableMeta.getAlias())) {
+					ColumnMeta columnMeta = tableMeta.getColumns().get(field);
+					if (columnMeta != null) {
+						visitor.accept(columnMeta);
+						return alias + SymbolConsts.DOT + columnMeta.getColumnName();
+					}
+					ExpressionMeta expressionMeta = tableMeta.getExpressions().get(field);
+					if (expressionMeta != null) {
+						return expressionMeta.getExpressionWithTableAlias(alias);
+					}
+				}
+			} else {
+				ColumnMeta columnMeta = tableMeta.getColumns().get(field);
+				if (columnMeta != null) {
+					visitor.accept(columnMeta);
 					return columnMeta.getColumnName();
 				}
 				ExpressionMeta expressionMeta = tableMeta.getExpressions().get(field);
@@ -124,6 +167,7 @@ public class Queries {
 		return newCriteria(entity, null);
 	}
 
+	@SuppressWarnings({"unchecked", "DuplicatedCode"})
 	public static Criteria newCriteria(Object entity, Class<?> entityClass) {
 		Criteria criteria = Criteria.newCriteria();
 		if (entityClass == null) {
@@ -259,6 +303,53 @@ public class Queries {
 			if (Strings.isNotBlank(column)) {
 				SqlNode sqlNode = parse(column, criterion, supportReplacement);
 				if (!sqlNode.isSkipped()) {
+					sql.addNodes(sqlNode.subset());
+				}
+			}
+		}
+		return sql;
+	}
+
+
+	public static SqlNode parse(Criteria criteria, Consumer<String> columnVisitor) {
+		return parse(criteria, false, Function.identity(), columnVisitor);
+	}
+
+	public static SqlNode parse(Criteria criteria, boolean supportReplacement, Consumer<String> columnVisitor) {
+		return parse(criteria, supportReplacement, Function.identity(), columnVisitor);
+	}
+
+
+	public static SqlNode parse(Criteria criteria, Function<String, String> columnDiscovery, Consumer<String> columnVisitor) {
+		return parse(criteria, false, columnDiscovery, columnVisitor);
+	}
+
+	public static SqlNode parse(Criteria criteria, boolean supportReplacement, Function<String, String> columnDiscovery, Consumer<String> columnVisitor) {
+		SqlNode sql = new ContainerNode();
+		if (!Iterables.isEmpty(criteria.getSubset())) {
+			boolean first = true;
+			for (Criteria subset : criteria.getSubset()) {
+				SqlNode sqlNode = parse(subset, supportReplacement, columnDiscovery, columnVisitor);
+				if (sqlNode.isSkipped()) {
+					continue;
+				}
+				if (first) {
+					first = false;
+				} else {
+					sql.addNode(getRelationOrDefault(criteria).getTextNode());
+				}
+				sql.addNode(SqlNodes.LEFT_PARENTHESIS);
+				sql.addNodes(sqlNode.subset());
+				sql.addNode(SqlNodes.RIGHT_PARENTHESIS);
+			}
+		} else if (Strings.isNotBlank(criteria.getField()) && criteria.getCriterion() != null) {
+			Criterion criterion = criteria.getCriterion();
+			String column = columnDiscovery.apply(criteria.getField());
+			// 为空表示此字段不存在或需跳过忽略
+			if (Strings.isNotBlank(column)) {
+				SqlNode sqlNode = parse(column, criterion, supportReplacement);
+				if (!sqlNode.isSkipped()) {
+					columnVisitor.accept(column);
 					sql.addNodes(sqlNode.subset());
 				}
 			}
