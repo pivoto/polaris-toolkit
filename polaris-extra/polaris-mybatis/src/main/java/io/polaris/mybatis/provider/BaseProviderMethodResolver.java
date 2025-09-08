@@ -5,14 +5,21 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.Types;
 import io.polaris.core.lang.bean.BeanMap;
 import io.polaris.core.lang.bean.Beans;
+import io.polaris.core.tuple.Ref;
 import io.polaris.core.tuple.Tuple2;
 import io.polaris.mybatis.annotation.MapperEntity;
+import io.polaris.mybatis.annotation.WithLogicDeleted;
 import io.polaris.mybatis.mapper.EntityMapper;
 import org.apache.ibatis.annotations.Lang;
 import org.apache.ibatis.builder.annotation.ProviderContext;
@@ -28,6 +35,8 @@ public abstract class BaseProviderMethodResolver implements ProviderMethodResolv
 
 	static final ThreadLocal<Tuple2<Object, Map<String, Object>>> ADDITIONAL_PARAMETERS = new ThreadLocal<>();
 	static final ThreadLocal<Boolean> QUERY_EXISTS_BY_COUNT = new ThreadLocal<>();
+	static final Map<Tuple2<Method, Class<?>>, Boolean> LOGIC_DELETED_MAP = new ConcurrentHashMap<>();
+	static final Map<Tuple2<Method, Class<?>>, Ref<Class<?>>> ENTITY_CLASS_MAP = new ConcurrentHashMap<>();
 
 
 	public static boolean isQueryExistsByCount() {
@@ -95,6 +104,19 @@ public abstract class BaseProviderMethodResolver implements ProviderMethodResolv
 
 	protected static Class<?> getEntityClass(ProviderContext context) {
 		Method mapperMethod = context.getMapperMethod();
+		Class<?> mapperType = context.getMapperType();
+
+		Ref<Class<?>> ref = ENTITY_CLASS_MAP.computeIfAbsent(Tuple2.of(mapperMethod, context.getMapperType()),
+			k -> Ref.of(innerGetEntityClass(mapperMethod, mapperType)));
+		Class<?> entityClass = ref.get();
+		if (entityClass != null) {
+			return entityClass;
+		}
+		throw new IllegalStateException("未知实体类型！");
+	}
+
+	@Nullable
+	private static Class<?> innerGetEntityClass(Method mapperMethod, Class<?> mapperType) {
 		// 从方法上获取
 		MapperEntity declared = mapperMethod.getAnnotation(MapperEntity.class);
 		Class<?> entityClass = null;
@@ -105,7 +127,6 @@ public abstract class BaseProviderMethodResolver implements ProviderMethodResolv
 			}
 		}
 		// 从Mapper接口类上获取
-		Class<?> mapperType = context.getMapperType();
 		declared = mapperType.getAnnotation(MapperEntity.class);
 		if (declared != null) {
 			entityClass = declared.entity();
@@ -132,7 +153,48 @@ public abstract class BaseProviderMethodResolver implements ProviderMethodResolv
 				return entityClass;
 			}
 		}
-		throw new IllegalStateException("未知实体类型！");
+		return null;
+	}
+
+	protected static boolean withLogicDeleted(Map<String, Object> bindings, ProviderContext context) {
+		Object sld = bindings.get(BindingKeys.WITH_LOGIC_DELETED);
+		if (sld != null) {
+			if (sld instanceof Boolean) {
+				return (Boolean) sld;
+			}
+		}
+		return withLogicDeleted(context);
+	}
+
+	protected static boolean withLogicDeleted(ProviderContext context) {
+		Method mapperMethod = context.getMapperMethod();
+		Class<?> mapperType = context.getMapperType();
+
+		return LOGIC_DELETED_MAP.computeIfAbsent(Tuple2.of(mapperMethod, context.getMapperType()),
+			k -> innerGetWithLogicDeleted(mapperMethod, mapperType));
+	}
+
+	private static boolean innerGetWithLogicDeleted(Method mapperMethod, Class<?> mapperType) {
+		// 从方法上获取
+		WithLogicDeleted declared = mapperMethod.getAnnotation(WithLogicDeleted.class);
+		Class<?> entityClass = null;
+		if (declared != null) {
+			return declared.value();
+		}
+		// 从Mapper接口类上获取
+		declared = mapperType.getAnnotation(WithLogicDeleted.class);
+		if (declared != null) {
+			return declared.value();
+		}
+		// 从方法所在接口类上获取
+		Class<?> declaringClass = mapperMethod.getDeclaringClass();
+		if (declaringClass != mapperType) {
+			declared = declaringClass.getAnnotation(WithLogicDeleted.class);
+			if (declared != null) {
+				return declared.value();
+			}
+		}
+		return false;
 	}
 
 

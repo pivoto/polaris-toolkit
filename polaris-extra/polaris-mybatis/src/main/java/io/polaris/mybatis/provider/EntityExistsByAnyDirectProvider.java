@@ -10,7 +10,7 @@ import org.apache.ibatis.builder.annotation.ProviderContext;
  * @since Sep 11, 2023
  */
 @Slf4j
-public class EntityExistsByAnyProvider extends BaseProviderMethodResolver {
+public class EntityExistsByAnyDirectProvider extends BaseProviderMethodResolver {
 
 	@Published
 	public static String provideSql(Object parameterObject, ProviderContext context) {
@@ -18,8 +18,7 @@ public class EntityExistsByAnyProvider extends BaseProviderMethodResolver {
 		boolean queryByCount = isQueryExistsByCount();
 		try {
 			return provideSql(parameterObject, context, (map, ctx) -> {
-				boolean withLogicDeleted = withLogicDeleted(map, ctx);
-				String sql = SqlStatements.buildExistsByAny(map, getEntityClass(context), queryByCount, withLogicDeleted);
+				String sql = SqlStatements.buildExistsByAny(map, getEntityClass(context), queryByCount, false);
 				if (log.isDebugEnabled()) {
 					log.debug("<sql>\n{}\n<bindings>\n{}", sql, map);
 				}

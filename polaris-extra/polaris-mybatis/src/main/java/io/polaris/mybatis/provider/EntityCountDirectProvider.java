@@ -7,16 +7,15 @@ import org.apache.ibatis.builder.annotation.ProviderContext;
 
 /**
  * @author Qt
- * @since Sep 11, 2023
+ * @since  Sep 11, 2023
  */
 @Slf4j
-public class EntityDeleteByIdProvider extends BaseProviderMethodResolver {
+public class EntityCountDirectProvider extends BaseProviderMethodResolver {
 
 	@Published
 	public static String provideSql(Object parameterObject, ProviderContext context) {
 		return provideSql(parameterObject, context, (map, ctx) -> {
-			boolean withLogicDeleted = withLogicDeleted(map, ctx);
-			String sql = SqlStatements.buildDeleteById(map, getEntityClass(context), withLogicDeleted);
+			String sql = SqlStatements.buildCount(map, getEntityClass(context), false);
 			if (log.isDebugEnabled()) {
 				log.debug("<sql>\n{}\n<bindings>\n{}", sql, map);
 			}

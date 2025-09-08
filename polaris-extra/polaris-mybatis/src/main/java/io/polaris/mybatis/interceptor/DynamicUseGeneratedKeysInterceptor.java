@@ -41,11 +41,34 @@ public class DynamicUseGeneratedKeysInterceptor implements Interceptor {
 	private final Map<String, Meta> cache = new ConcurrentHashMap<>();
 
 	protected static Class<?> getEntityClass(Method mapperMethod, Class<?> mapperType) {
+		Class<?> entityClass = null;
 		MapperEntity declared = mapperMethod.getAnnotation(MapperEntity.class);
 		if (declared != null) {
-			return declared.entity();
+			entityClass = declared.entity();
+			if (entityClass != null && entityClass != Object.class) {
+				return entityClass;
+			}
 		}
-		Class<?> entityClass = null;
+		// 从Mapper接口类上获取
+		declared = mapperType.getAnnotation(MapperEntity.class);
+		if (declared != null) {
+			entityClass = declared.entity();
+			if (entityClass != null && entityClass != Object.class) {
+				return entityClass;
+			}
+		}
+		// 从方法所在接口类上获取
+		Class<?> declaringClass = mapperMethod.getDeclaringClass();
+		if (declaringClass != mapperType) {
+			declared = declaringClass.getAnnotation(MapperEntity.class);
+			if (declared != null) {
+				entityClass = declared.entity();
+				if (entityClass != null && entityClass != Object.class) {
+					return entityClass;
+				}
+			}
+		}
+
 		if (EntityMapper.class.isAssignableFrom(mapperType)) {
 			Type actualType = JavaType.of(mapperType).getActualType(EntityMapper.class, 0);
 			entityClass = Types.getClass(actualType);

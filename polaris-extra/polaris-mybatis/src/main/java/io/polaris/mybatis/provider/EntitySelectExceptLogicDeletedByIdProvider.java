@@ -10,13 +10,12 @@ import org.apache.ibatis.builder.annotation.ProviderContext;
  * @since Sep 11, 2023
  */
 @Slf4j
-public class EntityDeleteByIdProvider extends BaseProviderMethodResolver {
+public class EntitySelectExceptLogicDeletedByIdProvider extends BaseProviderMethodResolver {
 
 	@Published
 	public static String provideSql(Object parameterObject, ProviderContext context) {
 		return provideSql(parameterObject, context, (map, ctx) -> {
-			boolean withLogicDeleted = withLogicDeleted(map, ctx);
-			String sql = SqlStatements.buildDeleteById(map, getEntityClass(context), withLogicDeleted);
+			String sql = SqlStatements.buildSelectById(map, getEntityClass(context), true);
 			if (log.isDebugEnabled()) {
 				log.debug("<sql>\n{}\n<bindings>\n{}", sql, map);
 			}
