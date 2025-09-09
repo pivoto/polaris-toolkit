@@ -1,0 +1,34 @@
+package io.polaris.core.reflect;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.Nonnull;
+
+/**
+ * @author Qt
+ * @since Sep 09, 2025
+ */
+public class ClassHandles {
+
+	private static final Map<Class<?>, ClassHandle<?>> CLASS_HANDLES = new ConcurrentHashMap<>();
+
+	@Nonnull
+	public static <T> ClassHandle<T> newClassHandle(Class<T> clazz) {
+		return new ClassHandle<>(clazz);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> ClassHandle<T> get(Class<T> clazz) {
+		return (ClassHandle<T>) CLASS_HANDLES.computeIfAbsent(clazz, (key) -> newClassHandle(clazz));
+	}
+
+	public static void clear() {
+		CLASS_HANDLES.clear();
+	}
+
+	public static void clear(Class<?> clazz) {
+		CLASS_HANDLES.remove(clazz);
+	}
+
+}
