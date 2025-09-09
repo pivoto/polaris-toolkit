@@ -1,5 +1,11 @@
 ## 版本变更说明
 
+### 3.4.6
+- 新增可抛出异常的函数式接口
+- 新增 Returnee 类，用于封装返回值和可能的异常
+- 重构 Methods 类并添加新功能，使用 MethodHandle 实现更高效的反射调用
+- 新增 ClassHandle 及 ClassHandles 工具类简化反射操作封装实现
+
 ### 3.4.5
 - 重构Mybatis基础Mapper的删除和查询相关的方法命名，以兼容早期版本
 
