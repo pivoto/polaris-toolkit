@@ -17,6 +17,7 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class Pair<A, B> extends Tuple2<A, B> implements Map.Entry<A, B>, Serializable, Tuple {
+	private static final long serialVersionUID = 1L;
 
 	public Pair(final A first, final B second) {
 		super(first, second);
