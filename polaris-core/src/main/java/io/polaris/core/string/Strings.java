@@ -69,6 +69,26 @@ public class Strings {
 		return str.substring(0, maxLength);
 	}
 
+	public static String truncateUtf8(String str, int maxLength) {
+		return truncate(str, maxLength, StandardCharsets.UTF_8);
+	}
+
+	public static String truncateGbk(String str, int maxLength) {
+		return truncate(str, maxLength, "GBK");
+	}
+
+	public static String truncateGb18030(String str, int maxLength) {
+		return truncate(str, maxLength, "GB18030");
+	}
+
+	public static String truncateAscii(String str, int maxLength) {
+		return truncate(str, maxLength, StandardCharsets.US_ASCII);
+	}
+
+	public static String truncateIso8859_1(String str, int maxLength) {
+		return truncate(str, maxLength, StandardCharsets.ISO_8859_1);
+	}
+
 	public static String truncate(String str, int maxLength, Charset charset) {
 		if (str == null) {
 			return null;
@@ -79,7 +99,7 @@ public class Strings {
 		}
 		byte[] bytes = str.getBytes(charset);
 		if (bytes.length > maxLength) {
-			str = new String(bytes, 0, maxLength, StandardCharsets.UTF_8);
+			str = new String(bytes, 0, maxLength, charset);
 		}
 		return str;
 	}
