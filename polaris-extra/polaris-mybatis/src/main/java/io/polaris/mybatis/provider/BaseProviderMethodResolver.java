@@ -22,6 +22,7 @@ import io.polaris.mybatis.annotation.MapperEntity;
 import io.polaris.mybatis.annotation.WithLogicDeleted;
 import io.polaris.mybatis.mapper.EntityMapper;
 import org.apache.ibatis.annotations.Lang;
+import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.apache.ibatis.builder.annotation.ProviderMethodResolver;
 import org.apache.ibatis.mapping.BoundSql;
@@ -157,11 +158,17 @@ public abstract class BaseProviderMethodResolver implements ProviderMethodResolv
 	}
 
 	protected static boolean withLogicDeleted(Map<String, Object> bindings, ProviderContext context) {
-		Object sld = bindings.get(BindingKeys.WITH_LOGIC_DELETED);
-		if (sld != null) {
-			if (sld instanceof Boolean) {
-				return (Boolean) sld;
+		try {
+			// fix for MapperMethod.ParamMap.get()
+			if (bindings.containsKey(BindingKeys.WITH_LOGIC_DELETED)) {
+				Object sld = bindings.get(BindingKeys.WITH_LOGIC_DELETED);
+				if (sld != null) {
+					if (sld instanceof Boolean) {
+						return (Boolean) sld;
+					}
+				}
 			}
+		} catch (Exception ignored) {
 		}
 		return withLogicDeleted(context);
 	}
