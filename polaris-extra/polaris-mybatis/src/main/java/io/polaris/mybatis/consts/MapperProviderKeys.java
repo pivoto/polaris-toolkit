@@ -31,14 +31,14 @@ public interface MapperProviderKeys {
 
 	String existsEntityById = "existsEntityById";
 	String existsEntityByIdDirect = "existsEntityByIdDirect";
-	String existsEntityByIdExceptLogicDeleted = "existsEntityExceptLogicDeletedById";
+	String existsEntityByIdExceptLogicDeleted = "existsEntityByIdExceptLogicDeleted";
 	String existsEntity = "existsEntity";
 	String existsEntityDirect = "existsEntityDirect";
 	String existsEntityExceptLogicDeleted = "existsEntityExceptLogicDeleted";
 
 	String selectEntityById = "selectEntityById";
 	String selectEntityByIdDirect = "selectEntityByIdDirect";
-	String selectEntityByIdExceptLogicDeleted = "selectEntityExceptLogicDeletedById";
+	String selectEntityByIdExceptLogicDeleted = "selectEntityByIdExceptLogicDeleted";
 	String selectEntity = "selectEntity";
 	String selectEntityDirect = "selectEntityDirect";
 	String selectEntityExceptLogicDeleted = "selectEntityExceptLogicDeleted";
