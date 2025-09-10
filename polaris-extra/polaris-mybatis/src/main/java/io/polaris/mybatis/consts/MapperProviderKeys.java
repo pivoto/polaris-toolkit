@@ -21,8 +21,8 @@ public interface MapperProviderKeys {
 
 	String deleteEntityById = "deleteEntityById";
 	String deleteEntityByAny = "deleteEntityByAny";
-	String directDeleteEntityById = "deleteEntityDirectById";
-	String directDeleteEntityByAny = "deleteEntityDirectByAny";
+	String directDeleteEntityById = "directDeleteEntityById";
+	String directDeleteEntityByAny = "directDeleteEntityByAny";
 	String logicDeleteEntityById = "logicDeleteEntityById";
 	String logicDeleteEntityByAny = "logicDeleteEntityByAny";
 
@@ -30,14 +30,14 @@ public interface MapperProviderKeys {
 	String updateEntityByAny = "updateEntityByAny";
 
 	String existsEntityById = "existsEntityById";
-	String existsEntityByIdDirect = "existsEntityDirectById";
+	String existsEntityByIdDirect = "existsEntityByIdDirect";
 	String existsEntityByIdExceptLogicDeleted = "existsEntityExceptLogicDeletedById";
 	String existsEntity = "existsEntity";
 	String existsEntityDirect = "existsEntityDirect";
 	String existsEntityExceptLogicDeleted = "existsEntityExceptLogicDeleted";
 
 	String selectEntityById = "selectEntityById";
-	String selectEntityByIdDirect = "selectEntityDirectById";
+	String selectEntityByIdDirect = "selectEntityByIdDirect";
 	String selectEntityByIdExceptLogicDeleted = "selectEntityExceptLogicDeletedById";
 	String selectEntity = "selectEntity";
 	String selectEntityDirect = "selectEntityDirect";
