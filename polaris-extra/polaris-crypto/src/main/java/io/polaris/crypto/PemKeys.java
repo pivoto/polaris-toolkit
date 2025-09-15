@@ -114,7 +114,7 @@ public class PemKeys {
 	 * @return {@link PemObject}
 	 */
 	public static PemObject readPemObject(InputStream keyStream) throws IOException {
-		return readPemObject(IO.getReader(keyStream, StandardCharsets.UTF_8));
+		return readPemObject(IO.toBufferedReader(keyStream, StandardCharsets.UTF_8));
 	}
 
 	/**

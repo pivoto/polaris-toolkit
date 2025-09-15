@@ -3,12 +3,14 @@ package io.polaris.core.io;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.CodeSource;
 import java.util.Objects;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import io.polaris.core.annotation.Compatible;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -46,26 +48,6 @@ public class IO {
 			return url.getFile();
 		}
 		return null;
-	}
-
-	public static BufferedInputStream getInputStream(File file) throws IOException {
-		return IO.toBuffered(IO.toStream(file));
-	}
-
-	public static ByteArrayInputStream toStream(byte[] content) {
-		return new ByteArrayInputStream(content);
-	}
-
-	public static FileInputStream toStream(File file) throws IOException {
-		return new FileInputStream(file);
-	}
-
-	public static BufferedInputStream toBuffered(InputStream in) {
-		return (in instanceof BufferedInputStream) ? (BufferedInputStream) in : new BufferedInputStream(in);
-	}
-
-	public static BufferedInputStream toBuffered(InputStream in, int bufferSize) {
-		return (in instanceof BufferedInputStream) ? (BufferedInputStream) in : new BufferedInputStream(in, bufferSize);
 	}
 
 
@@ -109,7 +91,88 @@ public class IO {
 		return in;
 	}
 
-	public static BufferedReader getReader(@Nonnull InputStream in, Charset charset) {
+	public static byte[] getBytes(String path) throws IOException {
+		try (InputStream in = IO.getInputStream(path);) {
+			return IO.toBytes(in);
+		}
+	}
+
+	public static String getUtf8String(String path) throws IOException {
+		try (InputStream in = IO.getInputStream(path);) {
+			return IO.toUtf8String(in);
+		}
+	}
+
+	public static String getString(String path) throws IOException {
+		try (InputStream in = IO.getInputStream(path);) {
+			return IO.toString(in);
+		}
+	}
+
+	public static String getString(String path, Charset charset) throws IOException {
+		try (InputStream in = IO.getInputStream(path);) {
+			return IO.toString(in, charset);
+		}
+	}
+
+	public static byte[] getBytes(String path, Class<?> caller) throws IOException {
+		try (InputStream in = IO.getInputStream(path, caller);) {
+			return IO.toBytes(in);
+		}
+	}
+
+	public static String getUtf8String(String path, Class<?> caller) throws IOException {
+		try (InputStream in = IO.getInputStream(path, caller);) {
+			return IO.toUtf8String(in);
+		}
+	}
+
+	public static String getString(String path, Class<?> caller) throws IOException {
+		try (InputStream in = IO.getInputStream(path, caller);) {
+			return IO.toString(in);
+		}
+	}
+
+	public static String getString(String path, Class<?> caller, Charset charset) throws IOException {
+		try (InputStream in = IO.getInputStream(path, caller);) {
+			return IO.toString(in, charset);
+		}
+	}
+
+	@Deprecated
+	@Compatible("使用 getInputStream(file) 替代")
+	public static BufferedInputStream getInputStream(File file) throws IOException {
+		return IO.toInputStream(file);
+	}
+
+	public static BufferedInputStream toInputStream(File file) throws IOException {
+		return IO.toBuffered(new FileInputStream(file));
+	}
+
+	@Deprecated
+	@Compatible("使用 toOutputStream(file) 替代")
+	public static BufferedOutputStream getOutputStream(@Nonnull File file) throws IOException {
+		return IO.toOutputStream(file);
+	}
+
+	public static BufferedOutputStream toOutputStream(@Nonnull File file) throws IOException {
+		return IO.toBuffered(new FileOutputStream(file));
+	}
+
+
+	public static ByteArrayInputStream toStream(byte[] content) {
+		return new ByteArrayInputStream(content);
+	}
+
+	public static BufferedInputStream toBuffered(InputStream in) {
+		return (in instanceof BufferedInputStream) ? (BufferedInputStream) in : new BufferedInputStream(in);
+	}
+
+	public static BufferedInputStream toBuffered(InputStream in, int bufferSize) {
+		return (in instanceof BufferedInputStream) ? (BufferedInputStream) in : new BufferedInputStream(in, bufferSize);
+	}
+
+	public static BufferedReader toBufferedReader(@Nonnull InputStream in, Charset charset) {
 		InputStreamReader reader;
 		if (null == charset) {
 			reader = new InputStreamReader(in);
@@ -119,7 +182,7 @@ public class IO {
 		return new BufferedReader(reader);
 	}
 
-	public static BufferedReader getReader(@Nonnull Reader reader) {
+	public static BufferedReader toBufferedReader(@Nonnull Reader reader) {
 		return (reader instanceof BufferedReader) ? (BufferedReader) reader : new BufferedReader(reader);
 	}
 
@@ -131,9 +194,6 @@ public class IO {
 		return (reader instanceof BufferedReader) ? (BufferedReader) reader : new BufferedReader(reader, bufferSize);
 	}
 
-	public static BufferedOutputStream getOutputStream(@Nonnull File file) throws IOException {
-		return IO.toBuffered(new FileOutputStream(file));
-	}
 
 	public static BufferedOutputStream toBuffered(@Nonnull OutputStream out) {
 		return (out instanceof BufferedOutputStream) ? (BufferedOutputStream) out : new BufferedOutputStream(out);
@@ -161,7 +221,9 @@ public class IO {
 
 
 	public static byte[] toBytes(File file) throws IOException {
-		return toBytes(toStream(file));
+		try (FileInputStream in = new FileInputStream(file);) {
+			return toBytes(in);
+		}
 	}
 
 	public static byte[] toBytes(InputStream input) throws IOException {
@@ -178,8 +240,26 @@ public class IO {
 		}
 	}
 
+	public static String toUtf8String(File file) throws IOException {
+		try (FileInputStream in = new FileInputStream(file);) {
+			return toUtf8String(in);
+		}
+	}
+
+
+	public static String toUtf8String(InputStream input) throws IOException {
+		return toString(input, StandardCharsets.UTF_8);
+	}
+
+
 	public static String toString(InputStream input) throws IOException {
 		return toString(input, Charset.defaultCharset());
+	}
+
+	public static String toString(File file, Charset charset) throws IOException {
+		try (FileInputStream in = new FileInputStream(file);) {
+			return toString(in, charset);
+		}
 	}
 
 	public static String toString(InputStream input, int bufferSize) throws IOException {
@@ -223,7 +303,7 @@ public class IO {
 
 	public static int copy(InputStream input, OutputStream output)
 		throws IOException {
-		return copy(input, output, 4096);
+		return copy(input, output, 8192);
 	}
 
 	public static int copy(InputStream input, OutputStream output, int bufferSize)
@@ -240,7 +320,7 @@ public class IO {
 	}
 
 	public static int copy(Reader input, Writer output) throws IOException {
-		return copy(input, output, 4096);
+		return copy(input, output, 8192);
 	}
 
 	public static int copy(Reader input, Writer output, int bufferSize) throws IOException {
@@ -274,7 +354,7 @@ public class IO {
 
 	public static void writeBytes(File file, byte[] bytes) throws IOException {
 		mkdirParent(file);
-		try (BufferedOutputStream out = IO.getOutputStream(file);) {
+		try (BufferedOutputStream out = IO.toOutputStream(file);) {
 			out.write(bytes);
 			out.flush();
 		}
@@ -287,9 +367,18 @@ public class IO {
 		}
 	}
 
+	public static void writeUtf8String(File file, String content) throws IOException {
+		writeString(file, StandardCharsets.UTF_8, content);
+	}
+
+	public static void writeUtf8String(OutputStream out, String... contents) throws IOException {
+		writeString(out, StandardCharsets.UTF_8, contents);
+
+	}
+
 	public static void writeString(File file, Charset charset, String content) throws IOException {
 		mkdirParent(file);
-		try (BufferedOutputStream out = IO.getOutputStream(file);) {
+		try (BufferedOutputStream out = IO.toOutputStream(file);) {
 			out.write(content.getBytes(charset));
 			out.flush();
 		}
@@ -297,6 +386,13 @@ public class IO {
 
 	public static void writeString(OutputStream out, Charset charset, String... contents) throws IOException {
 		OutputStreamWriter writer = getWriter(out, charset);
+		for (String content : contents) {
+			writer.write(content);
+		}
+		writer.flush();
+	}
+
+	public static void writeString(Writer writer, String... contents) throws IOException {
 		for (String content : contents) {
 			writer.write(content);
 		}

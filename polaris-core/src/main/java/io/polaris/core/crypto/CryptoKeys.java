@@ -1265,7 +1265,7 @@ public class CryptoKeys {
 	public static KeyStore readKeyStore(String type, File keyFile, char[] password) throws IOException {
 		InputStream in = null;
 		try {
-			in = IO.getInputStream(keyFile);
+			in = IO.toInputStream(keyFile);
 			return readKeyStore(type, in, password);
 		} finally {
 			IO.close(in);

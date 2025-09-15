@@ -119,7 +119,7 @@ public class Xml {
 		BufferedInputStream in = null;
 		try {
 			file = file.getCanonicalFile();
-			in = IO.getInputStream(file);
+			in = IO.toInputStream(file);
 			return readXML(in);
 		} finally {
 			IO.close(in);
@@ -188,7 +188,7 @@ public class Xml {
 	public static void readBySax(File file, ContentHandler contentHandler) throws IOException {
 		InputStream in = null;
 		try {
-			in = IO.getInputStream(file);
+			in = IO.toInputStream(file);
 			readBySax(new InputSource(in), contentHandler);
 		} finally {
 			IO.close(in);
@@ -745,7 +745,7 @@ public class Xml {
 	public static void writeObjectAsXml(File dest, Object bean) throws IOException {
 		XMLEncoder xmlenc = null;
 		try {
-			xmlenc = new XMLEncoder(IO.getOutputStream(dest));
+			xmlenc = new XMLEncoder(IO.toOutputStream(dest));
 			xmlenc.writeObject(bean);
 		} finally {
 			IO.close(xmlenc);
