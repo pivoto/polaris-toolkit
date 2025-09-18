@@ -17,6 +17,7 @@ import io.polaris.core.collection.PrimitiveArrays;
 import io.polaris.core.consts.StdConsts;
 import io.polaris.core.lang.primitive.Booleans;
 import io.polaris.core.lang.primitive.Chars;
+import io.polaris.core.map.Maps;
 import io.polaris.core.regex.Patterns;
 import io.polaris.core.tuple.Ref;
 import io.polaris.core.tuple.ValueRef;
@@ -1396,15 +1397,11 @@ public class Strings {
 	}
 
 	public static <T extends Map<String, String>> T asMap(Supplier<T> supplier, String... args) {
-		T map = supplier.get();
-		for (int i = 0; i + 1 < args.length; i += 2) {
-			map.put(args[i], args[i + 1]);
-		}
-		return map;
+		return Maps.asMap(supplier, args);
 	}
 
 	public static Map<String, String> asMap(String... args) {
-		return asMap(HashMap::new, args);
+		return Maps.asMap(HashMap::new, args);
 	}
 
 

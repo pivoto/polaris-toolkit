@@ -193,4 +193,30 @@ public class Maps {
 		return map != null && !map.isEmpty();
 	}
 
+
+	public static <T extends Map<String, String>> T asMap(Supplier<T> supplier, String... args) {
+		T map = supplier.get();
+		for (int i = 0; i + 1 < args.length; i += 2) {
+			map.put(args[i], args[i + 1]);
+		}
+		return map;
+	}
+
+	public static Map<String, String> asMap(String... args) {
+		return asMap(HashMap::new, args);
+	}
+
+
+	@SuppressWarnings("unchecked")
+	public static <T extends Map<K, V>, K, V> T asMap(Supplier<T> supplier, Object... args) {
+		T map = supplier.get();
+		for (int i = 0; i + 1 < args.length; i += 2) {
+			map.put((K) args[i], (V) args[i + 1]);
+		}
+		return map;
+	}
+
+	public static <K, V> Map<K, V> asMap(Object... args) {
+		return asMap(HashMap::new, args);
+	}
 }
