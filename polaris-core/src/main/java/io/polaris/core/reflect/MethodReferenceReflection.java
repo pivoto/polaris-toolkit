@@ -21,7 +21,7 @@ public interface MethodReferenceReflection extends Serializable {
 		}
 	}
 
-	default Class getContainingClass() {
+	default Class<?> getContainingClass() {
 		try {
 			String className = serialized().getImplClass().replaceAll("/", ".");
 			return Class.forName(className);
@@ -32,9 +32,8 @@ public interface MethodReferenceReflection extends Serializable {
 
 	default Method method() {
 		SerializedLambda lambda = serialized();
-		Class containingClass = getContainingClass();
-		return Arrays.asList(containingClass.getDeclaredMethods())
-			.stream()
+		Class<?> containingClass = getContainingClass();
+		return Arrays.stream(containingClass.getDeclaredMethods())
 			//TODO check parameter types to deal with overloads
 			.filter(method -> Objects.equals(method.getName(), lambda.getImplMethodName()))
 			.findFirst()

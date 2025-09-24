@@ -23,6 +23,7 @@ import javax.sql.DataSource;
 
 import io.polaris.core.collection.ObjectArrays;
 import io.polaris.core.collection.PrimitiveArrays;
+import io.polaris.core.function.Callable;
 import io.polaris.core.function.Executable;
 import io.polaris.core.jdbc.base.*;
 import io.polaris.core.jdbc.executor.BatchResult;
@@ -34,6 +35,7 @@ import io.polaris.core.lang.bean.MetaObject;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.string.Strings;
+import io.polaris.core.tuple.Returnee;
 
 /**
  * @author Qt
@@ -171,21 +173,97 @@ public class Jdbcs {
 		}
 	}
 
-	public static boolean doTransaction(Connection conn, Executable runnable) throws Throwable {
+	public static void doTransaction(Connection conn, Executable runnable) throws Throwable {
 		boolean autoCommit = conn.getAutoCommit();
 		try {
 			conn.setAutoCommit(false);
 			runnable.execute();
 			conn.commit();
-			return true;
 		} catch (Throwable e) {
 			log.error(e, e.getMessage());
 			try {
 				conn.rollback();
 			} catch (SQLException ex) {
+				e.addSuppressed(ex);
 				log.error(ex, ex.getMessage());
 			}
 			throw e;
+		} finally {
+			try {
+				conn.setAutoCommit(autoCommit);
+			} catch (SQLException ignored) {
+			}
+		}
+	}
+
+	public static <V> V doTransaction(Connection conn, Callable<V> callable) throws Throwable {
+		boolean autoCommit = conn.getAutoCommit();
+		try {
+			conn.setAutoCommit(false);
+			V v = callable.call();
+			conn.commit();
+			return v;
+		} catch (Throwable e) {
+			log.error(e, e.getMessage());
+			try {
+				conn.rollback();
+			} catch (SQLException ex) {
+				e.addSuppressed(ex);
+				log.error(ex, ex.getMessage());
+			}
+			throw e;
+		} finally {
+			try {
+				conn.setAutoCommit(autoCommit);
+			} catch (SQLException ignored) {
+			}
+		}
+	}
+
+
+	public static Returnee<Boolean, Throwable> doTransactionQuietly(Connection conn, Executable runnable) {
+		Boolean autoCommit = null;
+		try {
+			autoCommit = conn.getAutoCommit();
+			conn.setAutoCommit(false);
+			runnable.execute();
+			conn.commit();
+			return Returnee.of(true, null);
+		} catch (Throwable e) {
+			log.error(e, e.getMessage());
+			try {
+				conn.rollback();
+			} catch (SQLException ex) {
+				e.addSuppressed(ex);
+				log.error(ex, ex.getMessage());
+			}
+			return Returnee.of(false, e);
+		} finally {
+			if (autoCommit != null) {
+				try {
+					conn.setAutoCommit(autoCommit);
+				} catch (SQLException ignored) {
+				}
+			}
+		}
+	}
+
+	public static <V> Returnee<V, Throwable> doTransactionQuietly(Connection conn, Callable<V> callable) throws Throwable {
+		boolean autoCommit = conn.getAutoCommit();
+		try {
+			conn.setAutoCommit(false);
+			V v = callable.call();
+			conn.commit();
+			return Returnee.of(v, null);
+		} catch (Throwable e) {
+			log.error(e, e.getMessage());
+			try {
+				conn.rollback();
+			} catch (SQLException ex) {
+				e.addSuppressed(ex);
+				log.error(ex, ex.getMessage());
+			}
+			return Returnee.of(null, e);
 		} finally {
 			try {
 				conn.setAutoCommit(autoCommit);
@@ -202,55 +280,84 @@ public class Jdbcs {
 		return JdbcExecutors.createExecutor(interfaceClass, connection, batch);
 	}
 
+	/**
+	 * @see ResultExtractors
+	 */
 	public static <T> T query(Connection conn, SqlNode sqlNode
 		, ResultExtractor<T> extractor) throws SQLException {
 		PreparedSql sql = sqlNode.asPreparedSql();
 		return query(conn, sql.getText(), preparerOfParameters(sql.getBindings()), extractor);
 	}
 
-	public static void query(Connection conn, SqlNode sqlNode
-		, ResultSetVisitor visitor) throws SQLException {
+	/**
+	 * @see ResultSetVisitors
+	 */
+	public static void query(Connection conn, SqlNode sqlNode, ResultSetVisitor visitor) throws SQLException {
 		PreparedSql sql = sqlNode.asPreparedSql();
 		query(conn, sql.getText(), preparerOfParameters(sql.getBindings()), visitor);
 	}
 
+	/**
+	 * @see ResultExtractors
+	 */
 	public static <T> T query(Connection conn, SqlNode sqlNode, @Nonnull JdbcOptions options
 		, ResultExtractor<T> extractor) throws SQLException {
 		PreparedSql sql = sqlNode.asPreparedSql();
 		return query(conn, sql.getText(), options, preparerOfParameters(sql.getBindings()), extractor);
 	}
 
+	/**
+	 * @see ResultSetVisitors
+	 */
 	public static void query(Connection conn, SqlNode sqlNode, @Nonnull JdbcOptions options
 		, ResultSetVisitor visitor) throws SQLException {
 		PreparedSql sql = sqlNode.asPreparedSql();
 		query(conn, sql.getText(), options, preparerOfParameters(sql.getBindings()), visitor);
 	}
 
+	/**
+	 * @see ResultExtractors
+	 */
 	public static <T> T query(Connection conn, String sql, Iterable<?> parameters
 		, ResultExtractor<T> extractor) throws SQLException {
 		return query(conn, sql, preparerOfParameters(parameters), extractor);
 	}
 
-	public static <T> void query(Connection conn, String sql, Iterable<?> parameters
+	/**
+	 * @see ResultSetVisitors
+	 */
+	public static void query(Connection conn, String sql, Iterable<?> parameters
 		, ResultSetVisitor visitor) throws SQLException {
 		query(conn, sql, preparerOfParameters(parameters), visitor);
 	}
 
+	/**
+	 * @see ResultExtractors
+	 */
 	public static <T> T query(Connection conn, String sql, Object[] parameters
 		, ResultExtractor<T> extractor) throws SQLException {
 		return query(conn, sql, preparerOfParameters(parameters), extractor);
 	}
 
-	public static <T> void query(Connection conn, String sql, Object[] parameters
+	/**
+	 * @see ResultSetVisitors
+	 */
+	public static void query(Connection conn, String sql, Object[] parameters
 		, ResultSetVisitor visitor) throws SQLException {
 		query(conn, sql, preparerOfParameters(parameters), visitor);
 	}
 
+	/**
+	 * @see ResultExtractors
+	 */
 	public static <T> T query(Connection conn, String sql, ResultExtractor<T> extractor) throws SQLException {
 		return query(conn, sql, (StatementPreparer) null, extractor);
 	}
 
-	public static <T> void query(Connection conn, String sql, ResultSetVisitor visitor) throws SQLException {
+	/**
+	 * @see ResultSetVisitors
+	 */
+	public static void query(Connection conn, String sql, ResultSetVisitor visitor) throws SQLException {
 		query(conn, sql, (StatementPreparer) null, visitor);
 	}
 
