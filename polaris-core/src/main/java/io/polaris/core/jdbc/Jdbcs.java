@@ -24,7 +24,10 @@ import javax.sql.DataSource;
 import io.polaris.core.collection.ObjectArrays;
 import io.polaris.core.collection.PrimitiveArrays;
 import io.polaris.core.function.Callable;
-import io.polaris.core.function.Executable;
+import io.polaris.core.function.ThrowableExecution;
+import io.polaris.core.function.ThrowableExecutionWithArgs1;
+import io.polaris.core.function.ThrowableSupplier;
+import io.polaris.core.function.ThrowableSupplierWithArgs1;
 import io.polaris.core.jdbc.base.*;
 import io.polaris.core.jdbc.executor.BatchResult;
 import io.polaris.core.jdbc.executor.JdbcBatch;
@@ -120,6 +123,68 @@ public class Jdbcs {
 		return getConnection(null, url, user, password, true);
 	}
 
+	public static void doWithConnection(DataSource dataSource, ThrowableExecutionWithArgs1<Connection> executable) throws Throwable {
+		doWithConnection(dataSource::getConnection, executable);
+	}
+
+	public static <V> V doWithConnection(DataSource dataSource, ThrowableSupplierWithArgs1<Connection, V> executable) throws Throwable {
+		return doWithConnection(dataSource::getConnection, executable);
+	}
+
+	public static Returnee<Boolean, Throwable> doWithConnectionQuietly(DataSource dataSource, ThrowableExecutionWithArgs1<Connection> executable) {
+		return doWithConnectionQuietly(dataSource::getConnection, executable);
+	}
+
+	public static <V> Returnee<V, Throwable> doWithConnectionQuietly(DataSource dataSource, ThrowableSupplierWithArgs1<Connection, V> executable) {
+		return doWithConnectionQuietly(dataSource::getConnection, executable);
+	}
+
+
+	public static void doWithConnection(Callable<Connection> supplier, ThrowableExecutionWithArgs1<Connection> executable) throws Throwable {
+		Connection conn = null;
+		try {
+			conn = supplier.call();
+			executable.execute(conn);
+		} finally {
+			Jdbcs.close(conn);
+		}
+	}
+
+	public static <V> V doWithConnection(Callable<Connection> supplier, ThrowableSupplierWithArgs1<Connection, V> executable) throws Throwable {
+		Connection conn = null;
+		try {
+			conn = supplier.call();
+			return executable.get(conn);
+		} finally {
+			Jdbcs.close(conn);
+		}
+	}
+
+	public static Returnee<Boolean, Throwable> doWithConnectionQuietly(Callable<Connection> supplier, ThrowableExecutionWithArgs1<Connection> executable) {
+		Connection conn = null;
+		try {
+			conn = supplier.call();
+			executable.execute(conn);
+			return Returnee.of(true, null);
+		} catch (Throwable e) {
+			return Returnee.of(false, e);
+		} finally {
+			Jdbcs.close(conn);
+		}
+	}
+
+	public static <V> Returnee<V, Throwable> doWithConnectionQuietly(Callable<Connection> supplier, ThrowableSupplierWithArgs1<Connection, V> executable) {
+		Connection conn = null;
+		try {
+			conn = supplier.call();
+			return Returnee.of(executable.get(conn), null);
+		} catch (Throwable e) {
+			return Returnee.of(null, e);
+		} finally {
+			Jdbcs.close(conn);
+		}
+	}
+
 
 	public static <R extends AutoCloseable> void close(R r) {
 		try {
@@ -173,11 +238,11 @@ public class Jdbcs {
 		}
 	}
 
-	public static void doTransaction(Connection conn, Executable runnable) throws Throwable {
+	public static void doTransaction(Connection conn, ThrowableExecution executable) throws Throwable {
 		boolean autoCommit = conn.getAutoCommit();
 		try {
 			conn.setAutoCommit(false);
-			runnable.execute();
+			executable.execute();
 			conn.commit();
 		} catch (Throwable e) {
 			log.error(e, e.getMessage());
@@ -196,11 +261,11 @@ public class Jdbcs {
 		}
 	}
 
-	public static <V> V doTransaction(Connection conn, Callable<V> callable) throws Throwable {
+	public static <V> V doTransaction(Connection conn, ThrowableSupplier<V> callable) throws Throwable {
 		boolean autoCommit = conn.getAutoCommit();
 		try {
 			conn.setAutoCommit(false);
-			V v = callable.call();
+			V v = callable.get();
 			conn.commit();
 			return v;
 		} catch (Throwable e) {
@@ -221,12 +286,12 @@ public class Jdbcs {
 	}
 
 
-	public static Returnee<Boolean, Throwable> doTransactionQuietly(Connection conn, Executable runnable) {
+	public static Returnee<Boolean, Throwable> doTransactionQuietly(Connection conn, ThrowableExecution executable) {
 		Boolean autoCommit = null;
 		try {
 			autoCommit = conn.getAutoCommit();
 			conn.setAutoCommit(false);
-			runnable.execute();
+			executable.execute();
 			conn.commit();
 			return Returnee.of(true, null);
 		} catch (Throwable e) {
@@ -248,11 +313,11 @@ public class Jdbcs {
 		}
 	}
 
-	public static <V> Returnee<V, Throwable> doTransactionQuietly(Connection conn, Callable<V> callable) throws Throwable {
+	public static <V> Returnee<V, Throwable> doTransactionQuietly(Connection conn, ThrowableSupplier<V> callable) throws Throwable {
 		boolean autoCommit = conn.getAutoCommit();
 		try {
 			conn.setAutoCommit(false);
-			V v = callable.call();
+			V v = callable.get();
 			conn.commit();
 			return Returnee.of(v, null);
 		} catch (Throwable e) {
@@ -271,6 +336,59 @@ public class Jdbcs {
 			}
 		}
 	}
+
+
+	public static void doTransaction(DataSource dataSource, ThrowableExecution executable) throws Throwable {
+		doWithConnection(dataSource, conn -> {
+			doTransaction(conn, executable);
+		});
+	}
+
+	public static <V> V doTransaction(DataSource dataSource, ThrowableSupplier<V> callable) throws Throwable {
+		return doWithConnection(dataSource, conn -> {
+			return doTransaction(conn, callable);
+		});
+	}
+
+
+	public static Returnee<Boolean, Throwable> doTransactionQuietly(DataSource dataSource, ThrowableExecution executable) {
+		return doWithConnectionQuietly(dataSource, conn -> {
+			doTransaction(conn, executable);
+		});
+	}
+
+	public static <V> Returnee<V, Throwable> doTransactionQuietly(DataSource dataSource, ThrowableSupplier<V> callable) throws Throwable {
+		return doWithConnectionQuietly(dataSource, conn -> {
+			return doTransaction(conn, callable);
+		});
+	}
+
+
+	public static void doTransaction(Callable<Connection> supplier, ThrowableExecution executable) throws Throwable {
+		doWithConnection(supplier, conn -> {
+			doTransaction(conn, executable);
+		});
+	}
+
+	public static <V> V doTransaction(Callable<Connection> supplier, ThrowableSupplier<V> callable) throws Throwable {
+		return doWithConnection(supplier, conn -> {
+			return doTransaction(conn, callable);
+		});
+	}
+
+
+	public static Returnee<Boolean, Throwable> doTransactionQuietly(Callable<Connection> supplier, ThrowableExecution executable) {
+		return doWithConnectionQuietly(supplier, conn -> {
+			doTransaction(conn, executable);
+		});
+	}
+
+	public static <V> Returnee<V, Throwable> doTransactionQuietly(Callable<Connection> supplier, ThrowableSupplier<V> callable) throws Throwable {
+		return doWithConnectionQuietly(supplier, conn -> {
+			return doTransaction(conn, callable);
+		});
+	}
+
 
 	public static <T> T createExecutor(Class<T> interfaceClass) {
 		return JdbcExecutors.createExecutor(interfaceClass);
