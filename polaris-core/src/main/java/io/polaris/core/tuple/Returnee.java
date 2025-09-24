@@ -1,10 +1,7 @@
 package io.polaris.core.tuple;
 
 import java.io.Serializable;
-import java.util.concurrent.Callable;
-import java.util.function.Supplier;
 
-import io.polaris.core.function.Executable;
 import io.polaris.core.function.ThrowableExecution;
 import io.polaris.core.function.ThrowableSupplier;
 import lombok.EqualsAndHashCode;
@@ -32,13 +29,28 @@ public class Returnee<R, T extends Throwable> extends Tuple2<R, T> implements Se
 		return new Returnee<>(value, throwable);
 	}
 
+	public static <R, T extends Throwable> Returnee<R, T> of(Returnee<? extends R, ? extends T> value, T throwable) {
+		if (value == null) {
+			return new Returnee<>((R) null, throwable);
+		}
+		T t = value.getThrowable();
+		if (t != null) {
+			if (throwable != null) {
+				throwable.addSuppressed(t);
+				return new Returnee<>(value.getValue(), throwable);
+			}
+			return new Returnee<>(value.getValue(), t);
+		}
+		return new Returnee<>(value.getValue(), throwable);
+	}
+
 
 	public static <T> Returnee<Void, Throwable> of(ThrowableExecution executable) {
 		try {
 			executable.execute();
-			return Returnee.of(null, null);
+			return Returnee.of((Void) null, null);
 		} catch (Throwable e) {
-			return Returnee.of(null, e);
+			return Returnee.of((Void) null, e);
 		}
 	}
 
@@ -46,7 +58,7 @@ public class Returnee<R, T extends Throwable> extends Tuple2<R, T> implements Se
 		try {
 			return Returnee.of(supplier.get(), null);
 		} catch (Throwable e) {
-			return Returnee.of(null, e);
+			return Returnee.of((T) null, e);
 		}
 	}
 
