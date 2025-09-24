@@ -10,11 +10,9 @@ import io.polaris.core.concurrent.Schedules;
  * @since 1.8
  */
 public class TimeMillisClock {
-	private final int period;
 	private volatile long currentTimeMillis;
 
 	private TimeMillisClock(final int period) {
-		this.period = period;
 		currentTimeMillis = System.currentTimeMillis();
 		ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1, r -> new Thread(r, "Clock-" + period));
 		executor.scheduleAtFixedRate(() -> currentTimeMillis = (System.currentTimeMillis()), period, period, TimeUnit.MILLISECONDS);
