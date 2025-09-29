@@ -23,9 +23,12 @@ public final class ColumnMeta implements Cloneable{
 	private final String columnName;
 	private final String jdbcType;
 	private final int jdbcTypeValue;
+
 	private final boolean primaryKey;
 	private final boolean autoIncrement;
 	private final String seqName;
+	private final String idSql;
+
 	private final boolean nullable;
 	private final boolean insertable;
 	private final boolean updatable;
@@ -37,7 +40,7 @@ public final class ColumnMeta implements Cloneable{
 	private final boolean updateTime;
 
 	@Builder
-	public ColumnMeta(String catalog, String schema, String tableName, String fieldName, Class<?> fieldType, String columnName, String jdbcType, int jdbcTypeValue, boolean primaryKey, boolean autoIncrement, String seqName, boolean nullable, boolean insertable, boolean updatable, String updateDefault, String insertDefault, boolean version, boolean logicDeleted, boolean createTime, boolean updateTime) {
+	public ColumnMeta(String catalog, String schema, String tableName, String fieldName, Class<?> fieldType, String columnName, String jdbcType, int jdbcTypeValue, boolean primaryKey, boolean autoIncrement, String seqName, String idSql, boolean nullable, boolean insertable, boolean updatable, String updateDefault, String insertDefault, boolean version, boolean logicDeleted, boolean createTime, boolean updateTime) {
 		this.catalog = catalog;
 		this.schema = schema;
 		this.tableName = tableName;
@@ -49,6 +52,7 @@ public final class ColumnMeta implements Cloneable{
 		this.primaryKey = primaryKey;
 		this.autoIncrement = autoIncrement;
 		this.seqName = seqName;
+		this.idSql = idSql;
 		this.nullable = nullable;
 		this.insertable = insertable;
 		this.updatable = updatable;

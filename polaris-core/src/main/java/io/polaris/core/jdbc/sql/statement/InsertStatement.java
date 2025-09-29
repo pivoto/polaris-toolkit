@@ -20,10 +20,11 @@ import io.polaris.core.jdbc.sql.statement.segment.TableAccessible;
 import io.polaris.core.jdbc.sql.statement.segment.TableSegment;
 import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.bean.Beans;
+import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since  Aug 20, 2023
+ * @since Aug 20, 2023
  */
 @SuppressWarnings("all")
 @AnnotationProcessing
@@ -194,9 +195,24 @@ public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement
 					val = val == null ? 1L : ((Number) val).longValue();
 				}
 				// 需要包含空值字段,或为非空值
-				boolean include = columnPredicate.isIncludedEmptyColumn(name) || Objs.isNotEmpty(val);
-				if (include) {
+				if (Objs.isNotEmpty(val)) {
 					this.column(name, val);
+				} else {
+					if (meta.isPrimaryKey()) {
+						if (Strings.isNotBlank(meta.getIdSql())) {
+							// 存在自定义SQL
+							this.column(name, SqlNodes.text(meta.getIdSql()));
+						} else if (Strings.isNotBlank(meta.getSeqName())) {
+							// 存在序列，使用序列值
+							this.column(name, SqlNodes.text(meta.getSeqName() + ".NEXTVAL"));
+						} else if (meta.isAutoIncrement()) {
+							// 自增主键，不需要赋值
+							continue;
+						}
+					}
+					if (columnPredicate.isIncludedEmptyColumn(name)) {
+						this.column(name, val);
+					}
 				}
 			}
 		}

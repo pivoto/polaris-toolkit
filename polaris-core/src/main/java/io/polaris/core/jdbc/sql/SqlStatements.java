@@ -101,7 +101,21 @@ public class SqlStatements {
 				sql.columnAndValue(columnName, "#{" + keyName + "}");
 				bindings.put(keyName, val);
 			} else {
-				// 需要包含空值字段
+				if (meta.isPrimaryKey()) {
+					if (Strings.isNotBlank(meta.getIdSql())) {
+						// 存在自定义SQL
+						sql.columnAndValue(columnName, meta.getIdSql());
+						continue;
+					} else if (Strings.isNotBlank(meta.getSeqName())) {
+						// 存在序列，使用序列值
+						sql.columnAndValue(columnName, meta.getSeqName() + ".NEXTVAL");
+						continue;
+					} else if (meta.isAutoIncrement()) {
+						// 自增主键，不需要赋值
+						continue;
+					}
+				}
+				// 其他情况，判断是否需要包含空值字段
 				if (columnPredicate.isIncludedEmptyColumn(name)) {
 					sql.columnAndValue(columnName, "NULL");
 				}

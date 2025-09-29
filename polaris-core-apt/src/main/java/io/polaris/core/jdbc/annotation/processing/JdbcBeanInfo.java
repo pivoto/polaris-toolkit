@@ -169,6 +169,7 @@ public class JdbcBeanInfo {
 		private boolean id = false;
 		private boolean autoIncrement = false;
 		private String seqName;
+		private String idSql;
 		private int jdbcTypeValue;
 		private String jdbcTypeName;
 		private String columnName;
@@ -208,6 +209,7 @@ public class JdbcBeanInfo {
 				this.id = true;
 				this.autoIncrement = id.auto();
 				this.seqName = id.seqName();
+				this.idSql = id.sql();
 			}
 			if (this.columnName == null || this.columnName.isEmpty()) {
 				this.columnName = AnnotationProcessorUtils.camelToUnderlineUpperCase(this.fieldName);

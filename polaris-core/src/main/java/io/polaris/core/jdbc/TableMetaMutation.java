@@ -116,6 +116,7 @@ public class TableMetaMutation {
 						.primaryKey(value.isPrimaryKey())
 						.autoIncrement(value.isAutoIncrement())
 						.seqName(value.getSeqName())
+						.idSql(value.getIdSql())
 						.build();
 					newColumns.put(key, columnMeta);
 				});
