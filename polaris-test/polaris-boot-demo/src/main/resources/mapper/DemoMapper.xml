@@ -4,9 +4,9 @@
 	<select id="getOrgListByIds2" resultType="io.polaris.demo.mybatis.entity.DemoOrgEntity"
 					lang="io.polaris.mybatis.scripting.TableRefResolvableDriver">
 		<bind name="xEntity" value="'io.polaris.demo.mybatis.entity.DemoOrgEntity'"/>
-		select &amp;{x(${xEntity}).*} from &amp;{x(${xEntity})} where 1=1
+		select %{x(${xEntity}).*} from %{x(${xEntity})} where 1=1
 		<if test="ids != null and ids.length > 0">
-			and &amp;{x(${xEntity}).id} in
+			and %{x(${xEntity}).id} in
 			<foreach collection="ids" item="id" open="(" close=")" separator=",">
 				#{id}
 			</foreach>

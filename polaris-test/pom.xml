@@ -14,6 +14,7 @@
 
 	<modules>
 		<module>polaris-core-test</module>
+		<module>polaris-boot-demo</module>
 	</modules>
 
 	<dependencies>

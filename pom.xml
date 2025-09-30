@@ -1998,7 +1998,6 @@
 			</activation>
 			<modules>
 				<module>polaris-test</module>
-				<module>polaris-boot</module>
 			</modules>
 			<build>
 				<plugins>
