@@ -13,7 +13,7 @@ import lombok.experimental.FieldNameConstants;
  * @since  Feb 08, 2024
  */
 @Data
-@Table("DEMO_TEST01")
+@Table("T_DEMO_TEST01")
 @FieldNameConstants
 @NoArgsConstructor
 @AllArgsConstructor

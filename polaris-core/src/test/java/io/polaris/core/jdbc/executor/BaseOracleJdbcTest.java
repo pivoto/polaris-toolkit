@@ -19,8 +19,11 @@ import io.polaris.core.string.Strings;
  * @author Qt
  * @since  Feb 08, 2024
  */
-public class BaseTestJdbcExecutor {
-	private static final Logger log = Loggers.of(BaseTestJdbcExecutor.class);
+public class BaseOracleJdbcTest {
+	private static final Logger log = Loggers.of(BaseOracleJdbcTest.class);
+	public static final String TABLE_CREATE_SQL = "oracle/table_create.sql";
+	public static final String TABLE_INSERT_SQL = "oracle/table_insert.sql";
+	public static final String TABLE_DROP_SQL = "oracle/table_drop.sql";
 
 	protected static Connection getConnection() throws SQLException {
 		return Jdbcs.getConnection("jdbc:oracle:thin:@localhost:1521/cmisdb", "basesv", "basesv");
@@ -58,7 +61,7 @@ public class BaseTestJdbcExecutor {
 	}
 
 	protected static void tableCreate() {
-		try (InputStream in = IO.getInputStream("table_create.sql", BaseTestJdbcExecutor.class);) {
+		try (InputStream in = IO.getInputStream(TABLE_CREATE_SQL, BaseOracleJdbcTest.class);) {
 			String str = IO.toString(in);
 			String[] arr = str.split(";");
 			doWithConnection(conn -> {
@@ -81,7 +84,7 @@ public class BaseTestJdbcExecutor {
 	}
 
 	protected static void tableInsert() {
-		try (InputStream in = IO.getInputStream("table_insert.sql", BaseTestJdbcExecutor.class);) {
+		try (InputStream in = IO.getInputStream(TABLE_INSERT_SQL, BaseOracleJdbcTest.class);) {
 			String str = IO.toString(in);
 			String[] arr = str.split(";");
 			doWithConnection(conn -> {
@@ -102,7 +105,7 @@ public class BaseTestJdbcExecutor {
 	}
 
 	protected static void tableDrop() {
-		try (InputStream in = IO.getInputStream("table_drop.sql", BaseTestJdbcExecutor.class);) {
+		try (InputStream in = IO.getInputStream(TABLE_DROP_SQL, BaseOracleJdbcTest.class);) {
 			String str = IO.toString(in);
 			String[] arr = str.split(";");
 			doWithConnection(conn -> {

@@ -16,7 +16,7 @@ import org.junit.jupiter.api.TestInfo;
  * @author Qt
  * @since  Feb 08, 2024
  */
-public class TestA01JdbcExecutor extends BaseTestJdbcExecutor {
+public class OracleJdbcExecutorTest extends BaseOracleJdbcTest {
 	private static final Logger log = Loggers.of();
 	DemoTestExecutor demoTestExecutor = Jdbcs.createExecutor(DemoTestExecutor.class);
 
