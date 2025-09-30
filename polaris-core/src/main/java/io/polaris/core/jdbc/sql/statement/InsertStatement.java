@@ -201,15 +201,23 @@ public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement
 					if (meta.isPrimaryKey()) {
 						if (Strings.isNotBlank(meta.getIdSql())) {
 							// 存在自定义SQL
-							this.column(name, SqlNodes.text(meta.getIdSql()));
+							this.column(name).rawValue(meta.getIdSql());
+							continue;
 						} else if (Strings.isNotBlank(meta.getSeqName())) {
 							// 存在序列，使用序列值
-							this.column(name, SqlNodes.text(meta.getSeqName() + ".NEXTVAL"));
+							this.column(name).rawValue(meta.getSeqName() + ".NEXTVAL");
+							continue;
 						} else if (meta.isAutoIncrement()) {
 							// 自增主键，不需要赋值
 							continue;
 						}
 					}
+					if (Strings.isNotBlank(meta.getInsertDefaultSql())){
+						// 存在自定义默认值SQL
+						this.column(name).rawValue(meta.getInsertDefaultSql());
+						continue;
+					}
+
 					if (columnPredicate.isIncludedEmptyColumn(name)) {
 						this.column(name, val);
 					}

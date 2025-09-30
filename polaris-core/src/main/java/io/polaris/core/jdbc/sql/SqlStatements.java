@@ -53,6 +53,13 @@ public class SqlStatements {
 		return VarNameGenerator.newInstance(KEY_VALUE_PREFIX);
 	}
 
+	/**
+	 * 构建根据任意条件进行逻辑删除的SQL语句。
+	 *
+	 * @param bindings    参数绑定映射，用于存储SQL中的参数占位符与实际值的对应关系
+	 * @param entityClass 实体类类型，表示要操作的数据表对应的实体类
+	 * @return 返回构建好的逻辑删除SQL字符串
+	 */
 	public static String buildInsert(Map<String, Object> bindings, Class<?> entityClass) {
 		String entityKey = BindingKeys.ENTITY;
 		String includeColumnsKey = BindingKeys.INCLUDE_COLUMNS;
@@ -66,6 +73,15 @@ public class SqlStatements {
 		return buildInsert(bindings, entityClass, entityKey, columnPredicate);
 	}
 
+	/**
+	 * 构建插入语句（INSERT）的 SQL 字符串。
+	 *
+	 * @param bindings        参数绑定映射表，用于存放 SQL 中占位符对应的值
+	 * @param entityClass     实体类类型，用于获取表结构元数据
+	 * @param entityKey       实体对象在 bindings 中的键名
+	 * @param columnPredicate 列过滤条件接口，决定哪些列参与插入操作
+	 * @return 返回构建好的 INSERT SQL 语句字符串
+	 */
 	public static String buildInsert(Map<String, Object> bindings, Class<?> entityClass,
 		String entityKey, ColumnPredicate columnPredicate) {
 		Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, Collections.emptyMap());
@@ -115,6 +131,12 @@ public class SqlStatements {
 						continue;
 					}
 				}
+				// 存在默认值SQL
+				if (Strings.isNotBlank(meta.getInsertDefaultSql())) {
+					// 存在自定义默认值SQL
+					sql.columnAndValue(columnName, meta.getInsertDefaultSql());
+					continue;
+				}
 				// 其他情况，判断是否需要包含空值字段
 				if (columnPredicate.isIncludedEmptyColumn(name)) {
 					sql.columnAndValue(columnName, "NULL");
@@ -124,11 +146,29 @@ public class SqlStatements {
 		return sql.toSqlString();
 	}
 
+	/**
+	 * 构建根据ID删除实体的SQL语句
+	 *
+	 * @param bindings         参数绑定映射，用于存储SQL中的参数占位符和实际值的对应关系
+	 * @param entityClass      实体类的Class对象，用于获取表名和字段信息
+	 * @param withLogicDeleted 是否使用逻辑删除，true表示使用逻辑删除，false表示物理删除
+	 * @return 返回构建好的删除SQL语句字符串
+	 */
 	public static String buildDeleteById(Map<String, Object> bindings, Class<?> entityClass,
 		boolean withLogicDeleted) {
 		return buildDeleteById(bindings, entityClass, withLogicDeleted, BindingKeys.ENTITY, BindingKeys.WHERE);
 	}
 
+	/**
+	 * 构建根据主键逻辑删除或物理删除的SQL语句。
+	 *
+	 * @param bindings         参数绑定映射，用于存放SQL中需要的参数值
+	 * @param entityClass      实体类类型，表示要操作的表对应的实体类
+	 * @param withLogicDeleted 是否启用逻辑删除，true表示使用逻辑删除，false表示直接物理删除
+	 * @param entityKey        实体对象在bindings中的键名
+	 * @param whereKey         查询条件在bindings中的键名（备用）
+	 * @return 返回构建好的SQL字符串
+	 */
 	public static String buildDeleteById(Map<String, Object> bindings, Class<?> entityClass,
 		boolean withLogicDeleted, String entityKey, String whereKey) {
 		if (!withLogicDeleted) {
@@ -178,13 +218,12 @@ public class SqlStatements {
 				val = Converters.convertQuietly(meta.getFieldType(), true);
 			} else if (meta.isUpdateTime()) {
 				val = entityMap.get(name);
-				if (Objs.isEmpty(val)) {
-					Object value = new Date();
-					val = Converters.convertQuietly(meta.getFieldType(), value);
+				if (val == null) {
+					val = Converters.convertQuietly(meta.getFieldType(), new Date());
 				}
 			} else if (version) {
 				val = entityMap.get(name);
-				val = Objs.isEmpty(val) ? 1L : ((Number) val).longValue() + 1;
+				val = val == null ? 1L : ((Number) val).longValue() + 1;
 			}
 			if (Objs.isNotEmpty(val)) {
 				String keyName = valueKeyGen.generate();
@@ -199,12 +238,28 @@ public class SqlStatements {
 		return sql.toSqlString();
 	}
 
+	/**
+	 * 构建根据ID直接删除记录的SQL语句
+	 *
+	 * @param bindings    绑定参数映射，用于存储SQL构建过程中的各种绑定信息
+	 * @param entityClass 实体类，表示要操作的数据库表对应的Java实体类
+	 * @return 返回构建好的删除SQL语句字符串
+	 */
 	public static String buildDirectDeleteById(Map<String, Object> bindings, Class<?> entityClass) {
 		String entityKey = BindingKeys.ENTITY;
 		String whereKey = BindingKeys.WHERE;
 		return buildDirectDeleteById(bindings, entityClass, entityKey, whereKey);
 	}
 
+	/**
+	 * 构建根据ID直接删除记录的SQL语句
+	 *
+	 * @param bindings    绑定参数映射，包含实体数据或条件数据
+	 * @param entityClass 实体类类型，用于获取表元数据信息
+	 * @param entityKey   实体键名，用于从bindings中获取实体数据
+	 * @param whereKey    条件键名，当entityKey对应的数据不存在时，从bindings中获取条件数据
+	 * @return 构建好的删除SQL语句字符串
+	 */
 	public static String buildDirectDeleteById(Map<String, Object> bindings, Class<?> entityClass,
 		String entityKey, String whereKey) {
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
@@ -245,15 +300,39 @@ public class SqlStatements {
 		return sql.toSqlString();
 	}
 
+	/**
+	 * 构建根据ID逻辑删除的SQL语句
+	 *
+	 * @param bindings    参数绑定映射，用于存储SQL参数值
+	 * @param entityClass 实体类的Class对象，表示要操作的实体类型
+	 * @return 返回构建好的逻辑删除SQL语句
+	 */
 	public static String buildLogicDeleteById(Map<String, Object> bindings, Class<?> entityClass) {
 		return buildLogicDeleteById(bindings, entityClass, BindingKeys.ENTITY, BindingKeys.WHERE);
 	}
 
+	/**
+	 * 构建逻辑删除SQL语句
+	 *
+	 * @param bindings    参数绑定映射表，用于存储SQL参数值
+	 * @param entityClass 实体类的Class对象，表示要操作的数据库表对应的实体类
+	 * @param entityKey   实体键名，用于在bindings中存储实体对象的键
+	 * @param whereKey    条件键名，用于在bindings中存储WHERE条件参数的键
+	 * @return 返回构建好的逻辑删除SQL语句
+	 */
 	public static String buildLogicDeleteById(Map<String, Object> bindings, Class<?> entityClass,
 		String entityKey, String whereKey) {
 		return buildDeleteById(bindings, entityClass, true, entityKey, whereKey);
 	}
 
+	/**
+	 * 构建根据任意条件删除记录的SQL语句
+	 *
+	 * @param bindings         参数绑定映射，包含构建SQL所需的各种参数
+	 * @param entityClass      实体类，用于获取表结构信息
+	 * @param withLogicDeleted 是否使用逻辑删除，true表示使用逻辑删除，false表示物理删除
+	 * @return 构建好的删除SQL语句
+	 */
 	public static String buildDeleteByAny(Map<String, Object> bindings, Class<?> entityClass, boolean withLogicDeleted) {
 		String entityKey = BindingKeys.ENTITY;
 		String whereKey = BindingKeys.WHERE;
@@ -268,6 +347,20 @@ public class SqlStatements {
 		return buildDeleteByAny(bindings, entityClass, withLogicDeleted, entityKey, whereKey, columnPredicate);
 	}
 
+	/**
+	 * 构建根据任意条件进行（逻辑）删除的 SQL 语句。
+	 * <p>
+	 * 如果 {@code withLogicDeleted} 为 false 或实体类没有逻辑删除字段，则执行物理删除；
+	 * 否则构建更新语句将逻辑删除字段标记为已删除，并可能更新版本号和更新时间字段。
+	 *
+	 * @param bindings             参数绑定映射表，用于存放 SQL 中的参数占位符与实际值的对应关系
+	 * @param entityClass          实体类类型，表示要操作的数据表对应的 Java 类
+	 * @param withLogicDeleted     是否启用逻辑删除模式
+	 * @param entityKey            实体对象在 bindings 中的键名
+	 * @param whereKey             查询条件对象在 bindings 中的键名
+	 * @param whereColumnPredicate 查询条件列的谓词判断逻辑，决定哪些字段参与 where 条件构造
+	 * @return 返回构建好的 SQL 字符串
+	 */
 	public static String buildDeleteByAny(Map<String, Object> bindings, Class<?> entityClass, boolean withLogicDeleted,
 		String entityKey, String whereKey, ColumnPredicate whereColumnPredicate) {
 		if (!withLogicDeleted) {
@@ -305,13 +398,12 @@ public class SqlStatements {
 				val = Converters.convertQuietly(meta.getFieldType(), true);
 			} else if (meta.isUpdateTime()) {
 				val = entityMap.get(name);
-				if (Objs.isEmpty(val)) {
-					Object value = new Date();
-					val = Converters.convertQuietly(meta.getFieldType(), value);
+				if (val == null) {
+					val = Converters.convertQuietly(meta.getFieldType(), new Date());
 				}
 			} else if (version) {
 				val = entityMap.get(name);
-				val = Objs.isEmpty(val) ? 1L : ((Number) val).longValue() + 1;
+				val = val == null ? 1L : ((Number) val).longValue() + 1;
 			}
 			if (Objs.isNotEmpty(val)) {
 				String keyName = valueKeyGen.generate();
@@ -332,6 +424,13 @@ public class SqlStatements {
 		return sql.toSqlString();
 	}
 
+	/**
+	 * 构建直接删除语句，根据任意条件删除实体记录
+	 *
+	 * @param bindings    绑定参数映射，包含实体对象和查询条件
+	 * @param entityClass 实体类的Class对象，用于获取表结构信息
+	 * @return 构建完成的删除SQL语句
+	 */
 	public static String buildDirectDeleteByAny(Map<String, Object> bindings, Class<?> entityClass) {
 		String entityKey = BindingKeys.ENTITY;
 		String whereKey = BindingKeys.WHERE;
@@ -346,6 +445,16 @@ public class SqlStatements {
 		return buildDirectDeleteByAny(bindings, entityClass, entityKey, whereKey, columnPredicate);
 	}
 
+	/**
+	 * 构建直接删除SQL语句，支持通过实体对象或条件对象指定删除条件
+	 *
+	 * @param bindings        包含实体对象和条件对象的绑定参数映射
+	 * @param entityClass     实体类类型
+	 * @param entityKey       实体对象在bindings中的键名
+	 * @param whereKey        条件对象在bindings中的键名
+	 * @param columnPredicate 列谓词条件
+	 * @return 构建完成的删除SQL语句字符串
+	 */
 	public static String buildDirectDeleteByAny(Map<String, Object> bindings, Class<?> entityClass,
 		String entityKey, String whereKey, ColumnPredicate columnPredicate) {
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
@@ -376,6 +485,13 @@ public class SqlStatements {
 		return sql.toSqlString();
 	}
 
+	/**
+	 * 构建逻辑删除SQL语句，支持通过任意条件进行删除
+	 *
+	 * @param bindings    参数绑定映射，包含构建SQL所需的各种参数
+	 * @param entityClass 实体类对象，用于获取表结构信息
+	 * @return 构建完成的逻辑删除SQL语句
+	 */
 	public static String buildLogicDeleteByAny(Map<String, Object> bindings, Class<?> entityClass) {
 		String entityKey = BindingKeys.ENTITY;
 		String whereKey = BindingKeys.WHERE;
@@ -390,11 +506,28 @@ public class SqlStatements {
 		return buildLogicDeleteByAny(bindings, entityClass, entityKey, whereKey, columnPredicate);
 	}
 
+	/**
+	 * 构建逻辑删除SQL语句
+	 *
+	 * @param bindings             参数绑定映射表，用于存储SQL参数值
+	 * @param entityClass          实体类的Class对象，表示要操作的数据库表对应的实体类
+	 * @param entityKey            实体键名，用于标识实体对象在bindings中的键值
+	 * @param whereKey             条件键名，用于标识WHERE条件在bindings中的键值
+	 * @param whereColumnPredicate WHERE条件列的谓词对象，定义了删除条件的列信息和操作符
+	 * @return 返回构建好的逻辑删除SQL语句字符串
+	 */
 	public static String buildLogicDeleteByAny(Map<String, Object> bindings, Class<?> entityClass,
 		String entityKey, String whereKey, ColumnPredicate whereColumnPredicate) {
 		return buildDeleteByAny(bindings, entityClass, true, entityKey, whereKey, whereColumnPredicate);
 	}
 
+	/**
+	 * 构建根据ID更新实体的SQL语句
+	 *
+	 * @param bindings    包含构建SQL所需参数的绑定映射，如实体对象、WHERE条件等
+	 * @param entityClass 实体类的Class对象，用于获取表结构和列信息
+	 * @return 返回构建好的根据ID更新的SQL语句
+	 */
 	public static String buildUpdateById(Map<String, Object> bindings, Class<?> entityClass) {
 		String entityKey = BindingKeys.ENTITY;
 		String whereKey = BindingKeys.WHERE;
@@ -409,6 +542,16 @@ public class SqlStatements {
 		return buildUpdateById(bindings, entityClass, entityKey, whereKey, columnPredicate);
 	}
 
+	/**
+	 * 构建根据ID更新记录的SQL语句。
+	 *
+	 * @param bindings        参数绑定映射表，用于存放SQL中的参数占位符与实际值的对应关系
+	 * @param entityClass     实体类类型，表示数据库表对应的Java实体类
+	 * @param entityKey       实体对象在bindings中的键名，用于获取待更新的数据对象
+	 * @param whereKey        查询条件对象在bindings中的键名，当entity为空时使用该键获取查询条件数据
+	 * @param columnPredicate 列过滤谓词接口，决定哪些列可以被包含在更新操作中
+	 * @return 返回构建好的UPDATE SQL语句字符串
+	 */
 	public static String buildUpdateById(Map<String, Object> bindings, Class<?> entityClass,
 		String entityKey, String whereKey, ColumnPredicate columnPredicate) {
 
@@ -451,29 +594,25 @@ public class SqlStatements {
 				continue;
 			}
 
-			if (Objs.isEmpty(val)) {
-				if (meta.isUpdateTime()) {
-					Object value = new Date();
-					val = Converters.convertQuietly(meta.getFieldType(), value);
-				}
-			}
-			if (Objs.isEmpty(val)) {
-				String updateDefault = meta.getUpdateDefault();
-				if (Strings.isNotBlank(updateDefault)) {
-					val = Converters.convertQuietly(meta.getFieldType(), updateDefault);
-				}
-			}
+			Object entityVal = BindingValues.getValueForUpdate(meta, val);
 			if (version) {
-				val = Objs.isEmpty(val) ? 1L : ((Number) val).longValue() + 1;
+				entityVal = entityVal == null ? 1L : ((Number) entityVal).longValue() + 1;
 			} else if (primaryKey) {
 				// 不更新主键值
 				continue;
 			}
-			if (Objs.isNotEmpty(val)) {
+			if (Objs.isNotEmpty(entityVal)) {
 				String keyName = valueKeyGen.generate();
 				sql.set(columnName + " = #{" + keyName + "}");
-				bindings.put(keyName, val);
+				bindings.put(keyName, entityVal);
 			} else {
+				// 默认值SQL存在则使用
+				String updateDefaultSql = meta.getUpdateDefaultSql();
+				if (Strings.isNotBlank(updateDefaultSql)) {
+					sql.set(columnName + " = " + updateDefaultSql);
+					continue;
+				}
+
 				// 需要包含空值字段
 				boolean include = columnPredicate.isIncludedEmptyColumn(name);
 				if (include) {
@@ -488,7 +627,13 @@ public class SqlStatements {
 		return sql.toSqlString();
 	}
 
-
+	/**
+	 * 构建根据任意条件更新实体的SQL语句
+	 *
+	 * @param bindings    包含构建参数的映射表，用于指定更新条件和列过滤规则
+	 * @param entityClass 实体类的Class对象，表示要更新的实体类型
+	 * @return 返回构建好的UPDATE SQL语句字符串
+	 */
 	public static String buildUpdateByAny(Map<String, Object> bindings, Class<?> entityClass) {
 		String entityKey = BindingKeys.ENTITY;
 		String whereKey = BindingKeys.WHERE;
@@ -511,6 +656,17 @@ public class SqlStatements {
 		return buildUpdateByAny(bindings, entityClass, entityKey, whereKey, columnPredicate, whereColumnPredicate);
 	}
 
+	/**
+	 * 构建根据任意条件更新实体的 SQL 语句。
+	 *
+	 * @param bindings             参数绑定映射，用于存放 SQL 中的参数值
+	 * @param entityClass          实体类类型，用于获取表结构元数据
+	 * @param entityKey            实体对象在 bindings 中的键名
+	 * @param whereKey             更新条件对象在 bindings 中的键名
+	 * @param columnPredicate      列过滤谓词，决定哪些列可以被更新
+	 * @param whereColumnPredicate WHERE 条件中使用的列过滤谓词
+	 * @return 返回构建好的 UPDATE SQL 字符串
+	 */
 	public static String buildUpdateByAny(Map<String, Object> bindings, Class<?> entityClass,
 		String entityKey, String whereKey, ColumnPredicate columnPredicate, ColumnPredicate whereColumnPredicate) {
 
@@ -548,13 +704,20 @@ public class SqlStatements {
 			Object val = entityMap.get(meta.getFieldName());
 			Object entityVal = BindingValues.getValueForUpdate(meta, val);
 			if (version) {
-				entityVal = Objs.isEmpty(entityVal) ? 1L : ((Number) entityVal).longValue() + 1;
+				entityVal = entityVal == null ? 1L : ((Number) entityVal).longValue() + 1;
 			}
 			if (Objs.isNotEmpty(entityVal)) {
 				String keyName = valueKeyGen.generate();
 				sql.set(columnName + " = #{" + keyName + "}");
 				bindings.put(keyName, entityVal);
 			} else {
+				// 默认值SQL存在则使用
+				String updateDefaultSql = meta.getUpdateDefaultSql();
+				if (Strings.isNotBlank(updateDefaultSql)) {
+					sql.set(columnName + " = " + updateDefaultSql);
+					continue;
+				}
+
 				// 需要包含空值字段
 				boolean include = columnPredicate.isIncludedEmptyColumn(name);
 				if (include) {
@@ -575,11 +738,25 @@ public class SqlStatements {
 		return sql.toSqlString();
 	}
 
-
+	/**
+	 * 构建COUNT查询语句
+	 *
+	 * @param bindings    参数绑定映射，用于存储查询参数的键值对
+	 * @param entityClass 实体类，指定要查询的实体类型
+	 * @return 返回构建好的COUNT查询语句字符串
+	 */
 	public static String buildCount(Map<String, Object> bindings, Class<?> entityClass) {
 		return buildCount(bindings, entityClass, false);
 	}
 
+	/**
+	 * 构建COUNT查询语句
+	 *
+	 * @param bindings         绑定参数映射，包含查询条件和配置信息
+	 * @param entityClass      实体类，用于确定查询的表和字段信息
+	 * @param withLogicDeleted 是否包含逻辑删除的数据
+	 * @return 构建好的COUNT查询语句字符串
+	 */
 	public static String buildCount(Map<String, Object> bindings, Class<?> entityClass, boolean withLogicDeleted) {
 		String entityKey = BindingKeys.ENTITY;
 		String whereKey = BindingKeys.WHERE;
@@ -597,11 +774,32 @@ public class SqlStatements {
 		return buildCount(bindings, entityClass, entityKey, whereKey, columnPredicate, withLogicDeleted);
 	}
 
+	/**
+	 * 构建COUNT查询语句
+	 *
+	 * @param bindings        参数绑定映射表，用于存储查询参数
+	 * @param entityClass     实体类对象，表示要查询的实体类型
+	 * @param entityKey       实体键名，用于标识实体在bindings中的键值
+	 * @param whereKey        WHERE条件键名，用于标识WHERE条件在bindings中的键值
+	 * @param columnPredicate 列谓词对象，用于构建查询条件
+	 * @return 返回构建好的COUNT查询语句字符串
+	 */
 	public static String buildCount(Map<String, Object> bindings, Class<?> entityClass,
 		String entityKey, String whereKey, ColumnPredicate columnPredicate) {
 		return buildCount(bindings, entityClass, entityKey, whereKey, columnPredicate, false);
 	}
 
+	/**
+	 * 构建用于统计记录数量的 SQL COUNT 查询语句。
+	 *
+	 * @param bindings         参数绑定映射，用于存放 SQL 中的参数值
+	 * @param entityClass      实体类，用于获取表结构元数据
+	 * @param entityKey        实体对象在 bindings 中的键名，用于构建 WHERE 条件
+	 * @param whereKey         条件对象在 bindings 中的键名，用于构建额外的 WHERE 条件
+	 * @param columnPredicate  列过滤条件，用于控制哪些字段参与查询条件构建
+	 * @param withLogicDeleted 是否包含逻辑删除的数据，若为 true 则自动添加非逻辑删除条件
+	 * @return 生成的 COUNT 查询 SQL 语句字符串
+	 */
 	public static String buildCount(Map<String, Object> bindings, Class<?> entityClass,
 		String entityKey, String whereKey, ColumnPredicate columnPredicate, boolean withLogicDeleted) {
 
@@ -651,22 +849,55 @@ public class SqlStatements {
 		return sql.toSqlString();
 	}
 
-
+	/**
+	 * 构建根据ID判断实体是否存在的查询语句
+	 *
+	 * @param bindings    参数绑定映射，用于存储查询参数
+	 * @param entityClass 实体类对象，指定要查询的实体类型
+	 * @return 返回构建好的存在性检查查询语句字符串
+	 */
 	public static String buildExistsById(Map<String, Object> bindings, Class<?> entityClass) {
 		return buildExistsById(bindings, entityClass, false);
 	}
 
+	/**
+	 * 构建根据ID判断实体是否存在的SQL查询语句
+	 *
+	 * @param bindings         参数绑定映射表，用于存储SQL参数绑定信息
+	 * @param entityClass      实体类的Class对象，表示要查询的实体类型
+	 * @param withLogicDeleted 是否包含逻辑删除的数据，true表示包含已逻辑删除的数据，false表示不包含
+	 * @return 返回构建好的判断实体是否存在的SQL查询语句
+	 */
 	public static String buildExistsById(Map<String, Object> bindings, Class<?> entityClass, boolean withLogicDeleted) {
 		String entityKey = BindingKeys.ENTITY;
 		String whereKey = BindingKeys.WHERE;
 		return buildExistsById(bindings, entityClass, entityKey, whereKey, withLogicDeleted);
 	}
 
+	/**
+	 * 构建根据ID判断记录是否存在的SQL查询语句
+	 *
+	 * @param bindings    参数绑定映射表，用于存储SQL参数值
+	 * @param entityClass 实体类对象，表示要操作的数据库表对应的Java类
+	 * @param entityKey   实体键名，用于指定实体在bindings中的键值
+	 * @param whereKey    WHERE条件键名，用于指定WHERE子句中使用的参数键值
+	 * @return 返回构建好的SQL查询语句字符串
+	 */
 	public static String buildExistsById(Map<String, Object> bindings, Class<?> entityClass,
 		String entityKey, String whereKey) {
 		return buildExistsById(bindings, entityClass, entityKey, whereKey, false);
 	}
 
+	/**
+	 * 构建根据主键判断记录是否存在的SQL语句。
+	 *
+	 * @param bindings         参数绑定映射，用于存放SQL中的参数值
+	 * @param entityClass      实体类类型，用于获取表结构信息
+	 * @param entityKey        实体对象在bindings中的键名
+	 * @param whereKey         查询条件在bindings中的键名（备用）
+	 * @param withLogicDeleted 是否考虑逻辑删除字段，若为true则强制加入未删除条件
+	 * @return 返回构建好的查询SQL字符串，格式如：SELECT COUNT(*) EXISTED FROM table WHERE ...
+	 */
 	public static String buildExistsById(Map<String, Object> bindings, Class<?> entityClass,
 		String entityKey, String whereKey, boolean withLogicDeleted) {
 
@@ -714,11 +945,27 @@ public class SqlStatements {
 		return sql.toSqlString();
 	}
 
-
+	/**
+	 * 构建基于任意条件的存在性查询语句
+	 *
+	 * @param bindings     参数绑定映射，用于存储查询参数
+	 * @param entityClass  实体类对象，指定要查询的实体类型
+	 * @param queryByCount 是否通过计数方式进行查询
+	 * @return 返回构建好的存在性查询语句字符串
+	 */
 	public static String buildExistsByAny(Map<String, Object> bindings, Class<?> entityClass, boolean queryByCount) {
 		return buildExistsByAny(bindings, entityClass, queryByCount, false);
 	}
 
+	/**
+	 * 构建存在性查询SQL语句，支持任意条件匹配
+	 *
+	 * @param bindings         参数绑定映射，包含查询条件和实体信息
+	 * @param entityClass      实体类类型，用于获取表结构和字段信息
+	 * @param queryByCount     是否按数量查询，true时返回计数SQL，false时返回是否存在SQL
+	 * @param withLogicDeleted 是否包含逻辑删除数据，true时包含已逻辑删除的数据，false时排除
+	 * @return 构建好的存在性查询SQL语句
+	 */
 	public static String buildExistsByAny(Map<String, Object> bindings, Class<?> entityClass, boolean queryByCount, boolean withLogicDeleted) {
 		String entityKey = BindingKeys.ENTITY;
 		String whereKey = BindingKeys.WHERE;
@@ -734,12 +981,35 @@ public class SqlStatements {
 		return buildExistsByAny(bindings, entityClass, entityKey, whereKey, columnPredicate, queryByCount, withLogicDeleted);
 	}
 
-
+	/**
+	 * 构建存在性查询SQL语句，用于检查是否存在满足条件的记录
+	 *
+	 * @param bindings        参数绑定映射，用于存储查询参数
+	 * @param entityClass     实体类类型
+	 * @param entityKey       实体键名
+	 * @param whereKey        WHERE条件键名
+	 * @param columnPredicate 列谓词条件
+	 * @param queryByCount    是否通过COUNT查询
+	 * @return 构建好的存在性查询SQL语句
+	 */
 	public static String buildExistsByAny(Map<String, Object> bindings, Class<?> entityClass,
 		String entityKey, String whereKey, ColumnPredicate columnPredicate, boolean queryByCount) {
 		return buildExistsByAny(bindings, entityClass, entityKey, whereKey, columnPredicate, queryByCount, false);
 	}
 
+	/**
+	 * 构建一个用于判断记录是否存在的SQL语句，支持通过实体对象或条件对象（Criteria）指定查询条件。
+	 * 可以选择查询 COUNT(*) 或常量 1 来表示是否存在匹配的记录，并可控制是否排除逻辑删除的数据。
+	 *
+	 * @param bindings         参数绑定映射表，用于存放SQL中的参数值
+	 * @param entityClass      实体类类型，用于获取表结构元数据
+	 * @param entityKey        实体对象在bindings中的键名
+	 * @param whereKey         查询条件对象在bindings中的键名（可以是实体或Criteria）
+	 * @param columnPredicate  列过滤谓词，决定哪些列参与构建查询条件
+	 * @param queryByCount     是否使用 COUNT(*) 方式进行查询
+	 * @param withLogicDeleted 是否强制添加非逻辑删除条件
+	 * @return 构造完成的SQL字符串
+	 */
 	public static String buildExistsByAny(Map<String, Object> bindings, Class<?> entityClass,
 		String entityKey, String whereKey, ColumnPredicate columnPredicate, boolean queryByCount, boolean withLogicDeleted) {
 
@@ -793,10 +1063,25 @@ public class SqlStatements {
 		return sql.toSqlString();
 	}
 
+	/**
+	 * 构建根据ID查询的SQL语句
+	 *
+	 * @param bindings    参数绑定映射，用于存储SQL中的参数值
+	 * @param entityClass 实体类对象，用于获取表名和字段信息
+	 * @return 返回构建好的根据ID查询的SQL语句
+	 */
 	public static String buildSelectById(Map<String, Object> bindings, Class<?> entityClass) {
 		return buildSelectById(bindings, entityClass, false);
 	}
 
+	/**
+	 * 构建根据ID查询的SQL语句
+	 *
+	 * @param bindings         参数绑定映射，用于存储SQL中的参数值
+	 * @param entityClass      实体类的Class对象，用于获取表名和字段信息
+	 * @param withLogicDeleted 是否包含逻辑删除的数据，true表示包含已逻辑删除的数据，false表示不包含
+	 * @return 返回构建好的根据ID查询的SQL语句
+	 */
 	public static String buildSelectById(Map<String, Object> bindings, Class<?> entityClass, boolean withLogicDeleted) {
 		String entityKey = BindingKeys.ENTITY;
 		String whereKey = BindingKeys.WHERE;
@@ -804,11 +1089,32 @@ public class SqlStatements {
 		return buildSelectById(bindings, entityClass, entityKey, whereKey, orderByKey, withLogicDeleted);
 	}
 
+	/**
+	 * 构建根据ID查询的SQL语句
+	 *
+	 * @param bindings    参数绑定映射，用于存储SQL参数值
+	 * @param entityClass 实体类对象，用于获取表名和字段信息
+	 * @param entityKey   实体键名，用于指定主键字段名
+	 * @param whereKey    WHERE条件键名，用于指定查询条件参数
+	 * @param orderByKey  排序条件键名，用于指定排序字段
+	 * @return 返回构建好的SQL查询语句
+	 */
 	public static String buildSelectById(Map<String, Object> bindings, Class<?> entityClass,
 		String entityKey, String whereKey, String orderByKey) {
 		return buildSelectById(bindings, entityClass, entityKey, whereKey, orderByKey, false);
 	}
 
+	/**
+	 * 构建根据ID查询记录的SQL语句。
+	 *
+	 * @param bindings         参数绑定映射，用于存放SQL中的参数值
+	 * @param entityClass      实体类类型，表示要操作的数据表对应的实体类
+	 * @param entityKey        实体对象在bindings中的键名
+	 * @param whereKey         查询条件在bindings中的键名（备用）
+	 * @param orderByKey       排序字段在bindings中的键名（当前未使用）
+	 * @param withLogicDeleted 是否包含逻辑删除字段的过滤条件
+	 * @return 返回构建好的SELECT SQL语句字符串
+	 */
 	public static String buildSelectById(Map<String, Object> bindings, Class<?> entityClass,
 		String entityKey, String whereKey, String orderByKey, boolean withLogicDeleted) {
 
@@ -858,10 +1164,25 @@ public class SqlStatements {
 		return sql.toSqlString();
 	}
 
+	/**
+	 * 构建根据任意条件查询的SQL语句
+	 *
+	 * @param bindings    参数绑定映射，用于存储查询条件的键值对
+	 * @param entityClass 实体类的Class对象，用于获取表名和字段信息
+	 * @return 返回构建好的SELECT查询语句
+	 */
 	public static String buildSelectByAny(Map<String, Object> bindings, Class<?> entityClass) {
 		return buildSelectByAny(bindings, entityClass, false);
 	}
 
+	/**
+	 * 构建根据任意条件查询的SQL语句
+	 *
+	 * @param bindings         包含查询条件的绑定参数映射
+	 * @param entityClass      实体类类型
+	 * @param withLogicDeleted 是否包含逻辑删除的数据
+	 * @return 构建好的SELECT SQL语句
+	 */
 	public static String buildSelectByAny(Map<String, Object> bindings, Class<?> entityClass, boolean withLogicDeleted) {
 		String entityKey = BindingKeys.ENTITY;
 		String whereKey = BindingKeys.WHERE;
@@ -878,13 +1199,34 @@ public class SqlStatements {
 		return buildSelectByAny(bindings, entityClass, entityKey, whereKey, orderByKey, columnPredicate, withLogicDeleted);
 	}
 
-
+	/**
+	 * 构建根据任意条件查询的SQL语句
+	 *
+	 * @param bindings        参数绑定映射表，用于存储查询参数
+	 * @param entityClass     实体类对象，表示要查询的数据库表对应的Java类
+	 * @param entityKey       实体键名，用于标识实体在bindings中的存储键
+	 * @param whereKey        WHERE条件键名，用于标识WHERE条件在bindings中的存储键
+	 * @param orderByKey      排序条件键名，用于标识ORDER BY条件在bindings中的存储键
+	 * @param columnPredicate 列谓词接口，用于定义列的过滤条件
+	 * @return 返回构建好的SELECT SQL语句字符串
+	 */
 	public static String buildSelectByAny(Map<String, Object> bindings, Class<?> entityClass,
 		String entityKey, String whereKey, String orderByKey, ColumnPredicate columnPredicate) {
 		return buildSelectByAny(bindings, entityClass, entityKey, whereKey, orderByKey, columnPredicate, false);
 	}
 
-
+	/**
+	 * 构建一个 SELECT 查询语句，支持根据实体对象、条件对象（Criteria）、排序等动态生成 SQL。
+	 *
+	 * @param bindings         参数绑定映射，用于存放 SQL 中的参数占位符与实际值的对应关系
+	 * @param entityClass      实体类类型，用于获取表结构元数据
+	 * @param entityKey        实体对象在 bindings 中的键名，若存在则用作 WHERE 条件的一部分
+	 * @param whereKey         条件对象（如 Criteria）在 bindings 中的键名，用于构建 WHERE 子句
+	 * @param orderByKey       排序信息在 bindings 中的键名，可以是字符串或 OrderBy 对象
+	 * @param columnPredicate  列过滤谓词接口，决定哪些列参与查询条件判断
+	 * @param withLogicDeleted 是否强制加入逻辑删除字段的查询条件（默认为未删除状态）
+	 * @return 生成的 SELECT SQL 字符串
+	 */
 	public static String buildSelectByAny(Map<String, Object> bindings, Class<?> entityClass,
 		String entityKey, String whereKey, String orderByKey, ColumnPredicate columnPredicate,
 		boolean withLogicDeleted) {

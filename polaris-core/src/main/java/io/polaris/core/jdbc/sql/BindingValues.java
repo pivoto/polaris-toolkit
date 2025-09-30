@@ -28,7 +28,7 @@ import io.polaris.core.tuple.ValueRef;
 
 /**
  * @author Qt
- * @since  Jan 30, 2024
+ * @since Jan 30, 2024
  */
 public class BindingValues {
 
@@ -136,10 +136,15 @@ public class BindingValues {
 		return new Date();
 	}
 
+	public static Object getBindingValueOrNull(Map<String, Object> bindings, String key) {
+		return getBindingValueOrDefault(bindings, key, null);
+	}
+
 	public static Object getBindingValueOrDefault(Map<String, Object> bindings, String key, Object defVal) {
 		if (bindings == null) {
 			return defVal;
 		}
+		// 考虑如 org.apache.ibatis.binding.MapperMethod.ParamMap 等取值时可能存在异常，需要处理异常
 		try {
 			if (key.contains(".") || key.contains("[")) {
 				Object val = Beans.getPathProperty(bindings, key);
@@ -155,10 +160,15 @@ public class BindingValues {
 		}
 	}
 
+	public static Object getBindingValueOrNull(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, String key) {
+		return getBindingValueOrDefault(cache, bindings, key, null);
+	}
+
 	public static Object getBindingValueOrDefault(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, String key, Object defVal) {
 		if (bindings == null) {
 			return defVal;
 		}
+		// 考虑如 org.apache.ibatis.binding.MapperMethod.ParamMap 等取值时可能存在异常，需要处理异常
 		Object val;
 		if (cache != null) {
 			ValueRef<Object> ref = cache.get(key);

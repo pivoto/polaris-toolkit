@@ -25,6 +25,7 @@ import io.polaris.core.jdbc.sql.statement.segment.TableAccessible;
 import io.polaris.core.jdbc.sql.statement.segment.TableSegment;
 import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.bean.Beans;
+import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
@@ -199,7 +200,13 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 				}
 				Object val = BindingValues.getValueForUpdate(meta, entityMap.get(meta.getFieldName()));
 				if (meta.isVersion()) {
-					val = Objs.isEmpty(val) ? 1L : ((Number) val).longValue() + 1;
+					val = val == null ? 1L : ((Number) val).longValue() + 1;
+				}
+				// 默认值SQL存在则使用
+				String updateDefaultSql = meta.getUpdateDefaultSql();
+				if (Strings.isNotBlank(updateDefaultSql)) {
+					this.column(name).rawValue(updateDefaultSql);
+					continue;
 				}
 
 				// 需要包含空值字段或非空值
@@ -230,7 +237,7 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 				} else if (meta.isUpdateTime() || meta.isVersion()) {
 					val = BindingValues.getValueForUpdate(meta, entityMap.get(meta.getFieldName()));
 					if (meta.isVersion()) {
-						val = Objs.isEmpty(val) ? 1L : ((Number) val).longValue() + 1;
+						val = val == null ? 1L : ((Number) val).longValue() + 1;
 					}
 				}
 				if (val != null) {

@@ -57,6 +57,11 @@ public class ColumnSegment<O extends Segment<O>, S extends ColumnSegment<O, S>> 
 		return getThis();
 	}
 
+	public S rawValue(String text) {
+		this.value = SqlNodes.text(text);
+		return getThis();
+	}
+
 	public S apply(String functionPattern, String[] extFieldNames, Map<String, Object> bindings) {
 		return apply(Expressions.pattern(functionPattern), extFieldNames, bindings);
 	}

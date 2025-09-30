@@ -65,10 +65,22 @@ public class EntityStatements {
 
 	public static final String DEFAULT_TABLE_ALIAS = "T";
 
+	/**
+	 * 根据实体类名称获取对应的表元数据信息
+	 *
+	 * @param entityClassName 实体类的全限定名
+	 * @return 表元数据对象，如果未找到则返回null
+	 */
 	public static TableMeta getTableMeta(String entityClassName) {
 		return TableMetaKit.instance().get(entityClassName);
 	}
 
+	/**
+	 * 将SqlEntity转换为TableAccessible对象
+	 *
+	 * @param sqlEntityDeclared SQL实体声明对象，用于获取表信息和别名信息
+	 * @return 返回封装了表段信息的TableAccessible对象，如果输入为空或无法构建则返回null
+	 */
 	public static TableAccessible asTableAccessible(SqlEntity sqlEntityDeclared) {
 		TableAccessible tableAccessible = null;
 		if (sqlEntityDeclared != null) {
@@ -86,6 +98,17 @@ public class EntityStatements {
 		return tableAccessible;
 	}
 
+	/**
+	 * 根据方法上的注解构建对应的 SQL 更新函数。
+	 * <p>
+	 * 该方法会检查方法上是否存在特定的注解（如 EntityInsert、EntityDelete 等），
+	 * 并根据找到的第一个匹配注解构建相应的 SQL 语句生成函数。
+	 * 如果没有找到任何已知注解，则回退到原始 SQL 函数构建逻辑。
+	 *
+	 * @param method 要检查和处理的方法对象，不能为 null
+	 * @return 一个函数，接受绑定参数映射并返回对应的 SqlNode 对象；
+	 * 如果未找到匹配注解，则返回原始 SQL 构建函数
+	 */
 	public static java.util.function.Function<Map<String, Object>, SqlNode> buildSqlUpdateFunction(Method method) {
 		{
 			EntityInsert entityInsert = method.getAnnotation(EntityInsert.class);
@@ -114,24 +137,32 @@ public class EntityStatements {
 		{
 			SqlInsert sqlInsert = method.getAnnotation(SqlInsert.class);
 			if (sqlInsert != null) {
-				return (bindings) -> EntityStatements.buildInsert(bindings, sqlInsert).toSqlNode();
+				return (bindings) -> EntityStatements.buildSqlInsert(bindings, sqlInsert).toSqlNode();
 			}
 		}
 		{
 			SqlDelete sqlDelete = method.getAnnotation(SqlDelete.class);
 			if (sqlDelete != null) {
-				return (bindings) -> EntityStatements.buildDelete(bindings, sqlDelete).toSqlNode();
+				return (bindings) -> EntityStatements.buildSqlDelete(bindings, sqlDelete).toSqlNode();
 			}
 		}
 		{
 			SqlUpdate sqlUpdate = method.getAnnotation(SqlUpdate.class);
 			if (sqlUpdate != null) {
-				return (bindings) -> EntityStatements.buildUpdate(bindings, sqlUpdate).toSqlNode();
+				return (bindings) -> EntityStatements.buildSqlUpdate(bindings, sqlUpdate).toSqlNode();
 			}
 		}
+		// 如果以上注解都不存在，则使用默认的原始 SQL 构建函数
 		return buildSqlRawFunction(method);
 	}
 
+	/**
+	 * 构建SQL查询函数
+	 *
+	 * @param method 方法对象，用于获取注解信息
+	 * @return 返回一个函数，该函数接收Map<String, Object>类型的参数bindings，
+	 * 并返回SqlNode类型的SQL节点对象
+	 */
 	public static java.util.function.Function<Map<String, Object>, SqlNode> buildSqlSelectFunction(Method method) {
 		{
 			EntitySelect entitySelect = method.getAnnotation(EntitySelect.class);
@@ -146,23 +177,36 @@ public class EntityStatements {
 			SqlSelect sqlSelect = method.getAnnotation(SqlSelect.class);
 			if (sqlSelect != null) {
 				if (sqlSelect.count()) {
-					return (bindings) -> EntityStatements.buildSelect(bindings, sqlSelect).toCountSqlNode();
+					return (bindings) -> EntityStatements.buildSqlSelect(bindings, sqlSelect).toCountSqlNode();
 				}
-				return (bindings) -> EntityStatements.buildSelect(bindings, sqlSelect).toSqlNode();
+				return (bindings) -> EntityStatements.buildSqlSelect(bindings, sqlSelect).toSqlNode();
 			}
 		}
 		{
 			SqlSelectSet sqlSelect = method.getAnnotation(SqlSelectSet.class);
 			if (sqlSelect != null) {
 				if (sqlSelect.count()) {
-					return (bindings) -> EntityStatements.buildSelectSet(bindings, sqlSelect).toCountSqlNode();
+					return (bindings) -> EntityStatements.buildSqlSelectSet(bindings, sqlSelect).toCountSqlNode();
 				}
-				return (bindings) -> EntityStatements.buildSelectSet(bindings, sqlSelect).toSqlNode();
+				return (bindings) -> EntityStatements.buildSqlSelectSet(bindings, sqlSelect).toSqlNode();
 			}
 		}
 		return buildSqlRawFunction(method);
 	}
 
+	/**
+	 * 构建一个原始 SQL 函数，用于根据方法上的注解生成对应的 {@link SqlNode}。
+	 * <p>
+	 * 支持以下几种情况：
+	 * <ul>
+	 *   <li>如果方法上存在 {@link SqlRawSimple} 注解，则解析其定义的 SQL 文本，并可选地处理表引用。</li>
+	 *   <li>如果方法上存在 {@link SqlRaw} 注解，则使用更复杂的模型构建 SQL 节点。</li>
+	 *   <li>如果没有找到上述注解，则尝试从绑定参数中获取 SQL 内容（通过 {@code BindingKeys.SQL}）。</li>
+	 * </ul>
+	 *
+	 * @param method 方法对象，应包含 SQL 相关注解
+	 * @return 返回一个函数，该函数接收变量绑定映射并返回对应的 {@link SqlNode}
+	 */
 	public static java.util.function.Function<Map<String, Object>, SqlNode> buildSqlRawFunction(Method method) {
 		TableAccessible tableAccessible = asTableAccessible(method.getAnnotation(SqlEntity.class));
 
@@ -316,8 +360,14 @@ public class EntityStatements {
 		return sql;
 	}
 
-
-	public static InsertStatement<?> buildInsert(Map<String, Object> bindings, SqlInsert sqlInsert) {
+	/**
+	 * 构建SQL插入语句
+	 *
+	 * @param bindings  包含绑定值的映射表，用于获取字段的具体值
+	 * @param sqlInsert SQL插入注解，包含表信息、列信息和插入选项
+	 * @return 构建好的插入语句对象
+	 */
+	public static InsertStatement<?> buildSqlInsert(Map<String, Object> bindings, SqlInsert sqlInsert) {
 		Class<?> entityClass = sqlInsert.table();
 		InsertStatement<?> st = new InsertStatement<>(entityClass);
 
@@ -345,7 +395,32 @@ public class EntityStatements {
 			val = BindingValues.getValueForInsert(meta, val);
 			if (enabled || val != null) {
 				st.column(field, val);
+				continue;
 			}
+
+			// 存在主键策略
+			if (meta.isPrimaryKey()) {
+				if (Strings.isNotBlank(meta.getIdSql())) {
+					// 存在自定义SQL
+					st.column(field).rawValue(meta.getIdSql());
+					continue;
+				} else if (Strings.isNotBlank(meta.getSeqName())) {
+					// 存在序列，使用序列值
+					st.column(field).rawValue(meta.getSeqName() + ".NEXTVAL");
+					continue;
+				} else if (meta.isAutoIncrement()) {
+					// 自增主键，不需要赋值
+					continue;
+				}
+			}
+
+			// 存在默认值SQL
+			if (Strings.isNotBlank(meta.getInsertDefaultSql())){
+				// 存在自定义默认值SQL
+				st.column(field).rawValue(meta.getInsertDefaultSql());
+				continue;
+			}
+
 		}
 
 		if (sqlInsert.enableReplace()) {
@@ -357,7 +432,15 @@ public class EntityStatements {
 		return st;
 	}
 
-	public static SqlNodeBuilder buildDelete(Map<String, Object> bindings, SqlDelete sqlDelete) {
+	/**
+	 * 构建SQL删除语句的SqlNodeBuilder
+	 *
+	 * @param bindings  参数绑定映射表，用于存储SQL参数绑定信息
+	 * @param sqlDelete 删除注解对象，包含删除操作的相关配置信息
+	 * @return 返回构建好的SqlNodeBuilder实例，可以是UpdateStatement或DeleteStatement
+	 * @throws IllegalArgumentException 当实体类型为空时抛出异常
+	 */
+	public static SqlNodeBuilder buildSqlDelete(Map<String, Object> bindings, SqlDelete sqlDelete) {
 		Class<?> entityClass = sqlDelete.table();
 		if (entityClass == null || entityClass == void.class) {
 			throw new IllegalArgumentException("实体类型不能为空");
@@ -387,7 +470,14 @@ public class EntityStatements {
 		return st;
 	}
 
-	public static UpdateStatement<?> buildUpdate(Map<String, Object> bindings, SqlUpdate sqlUpdate) {
+	/**
+	 * 构建SQL更新语句
+	 *
+	 * @param bindings  绑定参数映射，用于获取列更新值和WHERE条件值
+	 * @param sqlUpdate SQL更新注解，包含表信息、列信息和WHERE条件信息
+	 * @return 构建好的更新语句对象
+	 */
+	public static UpdateStatement<?> buildSqlUpdate(Map<String, Object> bindings, SqlUpdate sqlUpdate) {
 		Class<?> entityClass = sqlUpdate.table();
 		UpdateStatement<?> st = new UpdateStatement<>(entityClass,
 			Strings.coalesce(sqlUpdate.alias(), DEFAULT_TABLE_ALIAS));
@@ -424,8 +514,15 @@ public class EntityStatements {
 		return st;
 	}
 
-
-	public static SetOpsStatement<?> buildSelectSet(Map<String, Object> bindings, SqlSelectSet sqlSelectSet) {
+	/**
+	 * 根据给定的绑定变量和 SqlSelectSet 构建一个 SetOpsStatement 对象。
+	 * 该方法会根据条件筛选出有效的 SqlSelect 项，并按照指定的集合操作（如 UNION、INTERSECT 等）组合成最终的查询语句。
+	 *
+	 * @param bindings     绑定变量映射，用于条件判断和 SQL 构建
+	 * @param sqlSelectSet 包含多个 SQL 查询项及其条件与操作符的集合定义
+	 * @return 构建完成的 SetOpsStatement 查询对象，如果没有任何有效项则可能返回 null
+	 */
+	public static SetOpsStatement<?> buildSqlSelectSet(Map<String, Object> bindings, SqlSelectSet sqlSelectSet) {
 		// binding-cache
 		Map<String, ValueRef<Object>> cache = new HashMap<>();
 		SetOpsStatement<?> sos = null;
@@ -447,7 +544,7 @@ public class EntityStatements {
 
 		for (SqlSelectSet.Item item : activeItems) {
 			SqlSelect sqlSelect = item.value();
-			SelectStatement<?> st = buildSelect(cache, bindings, sqlSelect);
+			SelectStatement<?> st = buildSqlSelect(cache, bindings, sqlSelect);
 			if (sos == null) {
 				sos = SetOpsStatement.of(st);
 				continue;
@@ -484,13 +581,20 @@ public class EntityStatements {
 		return sos;
 	}
 
-	public static SelectStatement<?> buildSelect(Map<String, Object> bindings, SqlSelect sqlSelect) {
+	/**
+	 * 构建SQL SELECT语句
+	 *
+	 * @param bindings  参数绑定映射，用于替换SQL中的占位符
+	 * @param sqlSelect SQL SELECT语句定义对象
+	 * @return 构建好的SelectStatement对象，可用于执行查询
+	 */
+	public static SelectStatement<?> buildSqlSelect(Map<String, Object> bindings, SqlSelect sqlSelect) {
 		// binding-cache
 		Map<String, ValueRef<Object>> cache = new HashMap<>();
-		return buildSelect(cache, bindings, sqlSelect);
+		return buildSqlSelect(cache, bindings, sqlSelect);
 	}
 
-	private static SelectStatement<?> buildSelect(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, SqlSelect sqlSelect) {
+	private static SelectStatement<?> buildSqlSelect(Map<String, ValueRef<Object>> cache, Map<String, Object> bindings, SqlSelect sqlSelect) {
 		Class<?> entityClass = sqlSelect.table();
 		SelectStatement<?> st = new SelectStatement<>(entityClass, Strings.coalesce(sqlSelect.alias(), DEFAULT_TABLE_ALIAS));
 		// select
@@ -1894,12 +1998,30 @@ public class EntityStatements {
 		return true;
 	}
 
+	/**
+	 * 构建插入语句的工厂方法
+	 *
+	 * @param bindings     参数绑定映射表，用于存储列名和对应值的映射关系
+	 * @param entityInsert 实体插入配置对象，包含表名、实体键等插入相关信息
+	 * @return 返回构建好的插入语句对象
+	 */
 	public static InsertStatement<?> buildInsert(Map<String, Object> bindings, EntityInsert entityInsert) {
 		return buildInsert(bindings, entityInsert.table(), entityInsert.entityKey()
 			, entityInsert.enableReplace(), entityInsert.enableUpdateByDuplicateKey()
 			, entityInsert.columnPredicate());
 	}
 
+	/**
+	 * 构建插入语句的工厂方法
+	 *
+	 * @param bindings                   参数绑定映射，用于存储列名和对应的值
+	 * @param entityClass                实体类的Class对象，表示要操作的数据库表对应的实体类
+	 * @param entityKey                  实体键标识，用于区分不同的实体实例
+	 * @param enableReplace              是否启用替换模式，当为true时允许替换已存在的记录
+	 * @param enableUpdateByDuplicateKey 是否启用重复键更新模式，当为true时在遇到重复键时执行更新操作
+	 * @param predicate                  列过滤谓词，用于决定哪些列应该包含在插入语句中
+	 * @return 返回构建好的插入语句对象
+	 */
 	public static InsertStatement<?> buildInsert(Map<String, Object> bindings, Class<?> entityClass, String entityKey,
 		boolean enableReplace, boolean enableUpdateByDuplicateKey,
 		io.polaris.core.jdbc.annotation.segment.ColumnPredicate predicate
@@ -1909,6 +2031,17 @@ public class EntityStatements {
 		return buildInsert(bindings, entityClass, entityKey, enableReplace, enableUpdateByDuplicateKey, columnPredicate);
 	}
 
+	/**
+	 * 构建插入语句对象
+	 *
+	 * @param bindings                   参数绑定映射表，用于获取实体对象
+	 * @param entityClass                实体类的Class对象，指定要插入的数据类型
+	 * @param entityKey                  实体在bindings中的键名
+	 * @param enableReplace              是否启用替换模式
+	 * @param enableUpdateByDuplicateKey 是否启用重复键更新模式
+	 * @param columnPredicate            列过滤谓词，用于筛选需要处理的列
+	 * @return 构建好的插入语句对象
+	 */
 	public static InsertStatement<?> buildInsert(Map<String, Object> bindings, Class<?> entityClass, String entityKey, boolean enableReplace, boolean enableUpdateByDuplicateKey, ColumnPredicate columnPredicate) {
 		Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, Collections.emptyMap());
 		InsertStatement<?> st = new InsertStatement<>(entityClass);
@@ -1922,6 +2055,13 @@ public class EntityStatements {
 		return st;
 	}
 
+	/**
+	 * 构建删除SQL节点构建器
+	 *
+	 * @param bindings     参数绑定映射表，用于存储SQL参数绑定信息
+	 * @param entityDelete 实体删除对象，包含删除操作的相关配置信息
+	 * @return SqlNodeBuilder SQL节点构建器，用于构建删除SQL语句
+	 */
 	public static SqlNodeBuilder buildDelete(Map<String, Object> bindings, EntityDelete entityDelete) {
 		return buildDelete(bindings, entityDelete.table()
 			, Strings.trimToNull(entityDelete.alias())
@@ -1930,6 +2070,19 @@ public class EntityStatements {
 			, entityDelete.logicDeleted());
 	}
 
+	/**
+	 * 构建 DELETE 或 UPDATE（逻辑删除时）SQL 语句的 SqlNodeBuilder。
+	 *
+	 * @param bindings        参数绑定映射，用于获取实体或条件对象
+	 * @param entityClass     实体类，表示要操作的表对应的 Java 类型
+	 * @param tableAlias      表别名，若为空则使用默认别名
+	 * @param byId            是否根据主键 ID 删除/更新
+	 * @param entityKey       实体参数在 bindings 中的键名
+	 * @param whereKey        条件参数在 bindings 中的键名
+	 * @param columnPredicate 列过滤谓词，决定哪些列参与 WHERE 条件构建
+	 * @param logicDeleted    是否启用逻辑删除模式
+	 * @return 返回构建好的 SqlNodeBuilder 实例（DeleteStatement 或 UpdateStatement）
+	 */
 	public static SqlNodeBuilder buildDelete(Map<String, Object> bindings, Class<?> entityClass, String tableAlias, boolean byId, String entityKey, String whereKey, ColumnPredicate columnPredicate, boolean logicDeleted) {
 		if (logicDeleted) {
 			TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
@@ -2007,7 +2160,13 @@ public class EntityStatements {
 		return st;
 	}
 
-
+	/**
+	 * 构建更新语句
+	 *
+	 * @param bindings     参数绑定映射表，用于存储SQL参数绑定
+	 * @param entityUpdate 实体更新对象，包含更新操作的相关信息
+	 * @return 返回构建好的更新语句对象
+	 */
 	public static UpdateStatement<?> buildUpdate(Map<String, Object> bindings, EntityUpdate entityUpdate) {
 		return buildUpdate(bindings, entityUpdate.table()
 			, Strings.trimToNull(entityUpdate.alias())
@@ -2016,6 +2175,19 @@ public class EntityStatements {
 		);
 	}
 
+	/**
+	 * 构建更新语句的静态方法
+	 *
+	 * @param bindings       参数绑定映射，用于存储SQL参数值
+	 * @param entityClass    实体类的Class对象，表示要更新的实体类型
+	 * @param tableAlias     表别名，用于在SQL中引用表
+	 * @param byId           是否通过ID进行更新的标识
+	 * @param entityKey      实体键，用于标识实体的主键字段
+	 * @param whereKey       条件键，用于构建WHERE子句的条件字段
+	 * @param predicate      列断言对象，定义更新字段的条件
+	 * @param wherePredicate WHERE子句列断言对象，定义WHERE条件的约束
+	 * @return 返回构建好的更新语句对象
+	 */
 	public static UpdateStatement<?> buildUpdate(Map<String, Object> bindings, Class<?> entityClass, String tableAlias,
 		boolean byId, String entityKey, String whereKey,
 		io.polaris.core.jdbc.annotation.segment.ColumnPredicate predicate,
@@ -2026,6 +2198,19 @@ public class EntityStatements {
 		return buildUpdate(bindings, entityClass, tableAlias, byId, entityKey, whereKey, columnPredicate, whereColumnPredicate);
 	}
 
+	/**
+	 * 构建更新语句
+	 *
+	 * @param bindings             绑定参数映射，用于获取实体和条件数据
+	 * @param entityClass          实体类类型
+	 * @param tableAlias           表别名，如果为null则使用默认别名
+	 * @param byId                 是否根据ID更新的标识
+	 * @param entityKey            实体数据在bindings中的键名
+	 * @param whereKey             条件数据在bindings中的键名
+	 * @param columnPredicate      实体列过滤谓词
+	 * @param whereColumnPredicate 条件列过滤谓词
+	 * @return 构建好的更新语句对象
+	 */
 	public static UpdateStatement<?> buildUpdate(Map<String, Object> bindings, Class<?> entityClass, String tableAlias, boolean byId, String entityKey, String whereKey, ColumnPredicate columnPredicate, ColumnPredicate whereColumnPredicate) {
 		UpdateStatement<?> st = new UpdateStatement<>(entityClass, Strings.coalesce(tableAlias, DEFAULT_TABLE_ALIAS));
 		if (byId) {
@@ -2051,7 +2236,13 @@ public class EntityStatements {
 		return st;
 	}
 
-
+	/**
+	 * 构建SELECT语句对象
+	 *
+	 * @param bindings     参数绑定映射表，用于存储查询参数的键值对
+	 * @param entitySelect 实体选择对象，包含查询所需的表信息和条件配置
+	 * @return 返回构建好的SelectStatement对象，用于执行数据库查询操作
+	 */
 	public static SelectStatement<?> buildSelect(Map<String, Object> bindings, EntitySelect entitySelect) {
 		return buildSelect(bindings, entitySelect.table()
 			, Strings.trimToNull(entitySelect.alias())
@@ -2061,7 +2252,20 @@ public class EntityStatements {
 			, entitySelect.exceptLogicDeleted());
 	}
 
-
+	/**
+	 * 构建一个 SelectStatement 对象，用于执行数据库查询操作。
+	 *
+	 * @param bindings           参数绑定映射，用于获取查询条件、排序等参数
+	 * @param entityClass        实体类，表示查询的目标表对应的实体类型
+	 * @param tableAlias         表别名，用于 SQL 查询中的表引用，默认为 "t"
+	 * @param byId               是否根据主键 ID 查询
+	 * @param entityKey          从 bindings 中获取实体对象的键名（优先作为整体实体条件）
+	 * @param whereKey           从 bindings 中获取 where 条件的键名（可为实体或 Criteria）
+	 * @param orderByKey         从 bindings 中获取排序条件的键名（可为字符串或 OrderBy 对象）
+	 * @param columnPredicate    列谓词过滤器，用于控制哪些字段参与条件构造
+	 * @param exceptLogicDeleted 是否排除逻辑删除的数据
+	 * @return 构造完成的 SelectStatement 查询对象
+	 */
 	public static SelectStatement<?> buildSelect(Map<String, Object> bindings, Class<?> entityClass, String tableAlias, boolean byId, String entityKey, String whereKey, String orderByKey, ColumnPredicate columnPredicate, boolean exceptLogicDeleted) {
 		SelectStatement<?> st = new SelectStatement<>(entityClass, Strings.coalesce(tableAlias, DEFAULT_TABLE_ALIAS));
 		st.selectAll();
@@ -2117,6 +2321,13 @@ public class EntityStatements {
 		return st;
 	}
 
+	/**
+	 * 构建合并语句对象
+	 *
+	 * @param bindings    参数绑定映射表，用于存储SQL参数绑定
+	 * @param entityMerge 实体合并配置对象，包含合并操作的相关配置信息
+	 * @return 返回构建好的合并语句对象
+	 */
 	public static MergeStatement<?> buildMerge(Map<String, Object> bindings, EntityMerge entityMerge) {
 		return buildMerge(bindings, entityMerge.table()
 			, Strings.trimToNull(entityMerge.alias())
@@ -2124,6 +2335,18 @@ public class EntityStatements {
 			, entityMerge.columnPredicate());
 	}
 
+	/**
+	 * 构建Merge语句对象
+	 *
+	 * @param bindings             参数绑定映射表，用于存储SQL参数值
+	 * @param entityClass          实体类类型，表示要操作的数据库表对应的实体类
+	 * @param tableAlias           表别名，用于在SQL语句中引用表
+	 * @param entityKey            实体键，用于标识实体的唯一性
+	 * @param updateWhenMatched    当匹配时是否执行更新操作的标志
+	 * @param insertWhenNotMatched 当不匹配时是否执行插入操作的标志
+	 * @param predicate            列谓词注解，用于定义列的过滤条件
+	 * @return 返回构建好的Merge语句对象
+	 */
 	public static MergeStatement<?> buildMerge(Map<String, Object> bindings, Class<?> entityClass,
 		String tableAlias, String entityKey,
 		boolean updateWhenMatched, boolean insertWhenNotMatched,
@@ -2133,6 +2356,18 @@ public class EntityStatements {
 		return buildMerge(bindings, entityClass, tableAlias, entityKey, updateWhenMatched, insertWhenNotMatched, columnPredicate);
 	}
 
+	/**
+	 * 构建MergeStatement对象的工厂方法
+	 *
+	 * @param bindings             包含实体数据的绑定映射表
+	 * @param entityClass          实体类的Class对象
+	 * @param tableAlias           表别名，如果为null则使用默认别名
+	 * @param entityKey            实体在bindings中的键名
+	 * @param updateWhenMatched    当匹配时是否执行更新操作
+	 * @param insertWhenNotMatched 当不匹配时是否执行插入操作
+	 * @param columnPredicate      列谓词，用于过滤列操作
+	 * @return 构建好的MergeStatement对象
+	 */
 	public static MergeStatement<?> buildMerge(Map<String, Object> bindings, Class<?> entityClass, String tableAlias, String entityKey, boolean updateWhenMatched, boolean insertWhenNotMatched, ColumnPredicate columnPredicate) {
 		MergeStatement<?> st = new MergeStatement<>(entityClass, Strings.coalesce(tableAlias, DEFAULT_TABLE_ALIAS));
 		Object entity = BindingValues.getBindingValueOrDefault(bindings, entityKey, Collections.emptyMap());
