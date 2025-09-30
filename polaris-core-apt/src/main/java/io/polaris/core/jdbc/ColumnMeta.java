@@ -34,13 +34,15 @@ public final class ColumnMeta implements Cloneable{
 	private final boolean updatable;
 	private final String updateDefault;
 	private final String insertDefault;
+	private final String updateDefaultSql;
+	private final String insertDefaultSql;
 	private final boolean version;
 	private final boolean logicDeleted;
 	private final boolean createTime;
 	private final boolean updateTime;
 
 	@Builder
-	public ColumnMeta(String catalog, String schema, String tableName, String fieldName, Class<?> fieldType, String columnName, String jdbcType, int jdbcTypeValue, boolean primaryKey, boolean autoIncrement, String seqName, String idSql, boolean nullable, boolean insertable, boolean updatable, String updateDefault, String insertDefault, boolean version, boolean logicDeleted, boolean createTime, boolean updateTime) {
+	public ColumnMeta(String catalog, String schema, String tableName, String fieldName, Class<?> fieldType, String columnName, String jdbcType, int jdbcTypeValue, boolean primaryKey, boolean autoIncrement, String seqName, String idSql, boolean nullable, boolean insertable, boolean updatable, String updateDefault, String insertDefault,  String updateDefaultSql, String insertDefaultSql, boolean version, boolean logicDeleted, boolean createTime, boolean updateTime) {
 		this.catalog = catalog;
 		this.schema = schema;
 		this.tableName = tableName;
@@ -58,6 +60,8 @@ public final class ColumnMeta implements Cloneable{
 		this.updatable = updatable;
 		this.updateDefault = updateDefault;
 		this.insertDefault = insertDefault;
+		this.updateDefaultSql = updateDefaultSql;
+		this.insertDefaultSql = insertDefaultSql;
 		this.version = version;
 		this.logicDeleted = logicDeleted;
 		this.createTime = createTime;

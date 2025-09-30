@@ -178,6 +178,8 @@ public class JdbcBeanInfo {
 		private boolean updatable = true;
 		private String updateDefault;
 		private String insertDefault;
+		private String updateDefaultSql;
+		private String insertDefaultSql;
 		private boolean version = false;
 		private boolean logicDeleted = false;
 		private boolean createTime = false;
@@ -193,6 +195,8 @@ public class JdbcBeanInfo {
 				this.updatable = column.updatable();
 				this.updateDefault = column.updateDefault();
 				this.insertDefault = column.insertDefault();
+				this.updateDefaultSql = column.updateDefaultSql();
+				this.insertDefaultSql = column.insertDefaultSql();
 				this.version = column.version();
 				this.logicDeleted = column.logicDeleted();
 				this.createTime = column.createTime();

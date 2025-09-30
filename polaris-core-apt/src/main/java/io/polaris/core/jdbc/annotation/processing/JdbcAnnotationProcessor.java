@@ -172,6 +172,8 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 						".autoIncrement($L)" +
 						".seqName($S)" +
 						".idSql($S)" +
+						".updateDefaultSql($S)" +
+						".insertDefaultSql($S)" +
 						".build())",
 					field.getFieldName(), columnMetaClassName
 					, beanInfo.getTableSchema()
@@ -195,6 +197,8 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 					, field.isAutoIncrement()
 					, field.getSeqName()
 					, field.getIdSql()
+					, field.getUpdateDefaultSql()
+					, field.getInsertDefaultSql()
 				);
 			}
 			classBuilder.addStaticBlock(

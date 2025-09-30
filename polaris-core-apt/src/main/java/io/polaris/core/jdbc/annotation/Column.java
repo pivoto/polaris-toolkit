@@ -34,6 +34,12 @@ public @interface Column {
 	/** insert的时候默认值 */
 	String insertDefault() default "";
 
+	/** 字段 update set 默认SQL */
+	String updateDefaultSql() default "";
+
+	/** insert的时候默认值SQL */
+	String insertDefaultSql() default "";
+
 	/** 版本锁字段标识 */
 	boolean version() default false;
 
