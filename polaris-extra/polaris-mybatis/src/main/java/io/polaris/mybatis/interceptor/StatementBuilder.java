@@ -59,7 +59,7 @@ public class StatementBuilder extends MappedStatement.Builder {
 	}
 
 
-	public MappedStatement useGeneratedKeys(List<ColumnMeta> columns, String prefix) {
+	public StatementBuilder useGeneratedKeys(List<ColumnMeta> columns, String prefix) {
 		StringJoiner keyProperty = new StringJoiner(SymbolConsts.COMMA);
 		StringJoiner keyColumn = new StringJoiner(SymbolConsts.COMMA);
 		for (ColumnMeta column : columns) {
@@ -76,14 +76,14 @@ public class StatementBuilder extends MappedStatement.Builder {
 		this.keyColumn(keyColumn.toString());
 		// TODO 后续添加 SelectKeyGenerator 的支持
 		this.keyGenerator(Jdbc3KeyGenerator.INSTANCE);
-		return this.build();
+		return this;
 	}
 
 
-	@SuppressWarnings("all")
 	/**
 	 * @see org.apache.ibatis.builder.BaseBuilder#resolveTypeHandler(Class, Class)
 	 */
+	@SuppressWarnings("all")
 	private TypeHandler<?> resolveTypeHandler(Class<?> javaType, Class<? extends TypeHandler<?>> typeHandlerType) {
 		if (typeHandlerType == null) {
 			return null;
