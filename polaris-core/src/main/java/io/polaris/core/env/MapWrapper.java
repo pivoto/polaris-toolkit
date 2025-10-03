@@ -7,7 +7,7 @@ import java.util.Set;
  * @author Qt
  * @since  Apr 23, 2024
  */
-class MapWrapper implements Env {
+class MapWrapper extends SimpleEnv {
 
 	private final String name;
 	private final Map<String, String> properties;

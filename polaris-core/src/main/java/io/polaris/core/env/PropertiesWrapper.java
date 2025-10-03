@@ -7,7 +7,7 @@ import java.util.Set;
  * @author Qt
  * @since  Apr 23, 2024
  */
-class PropertiesWrapper implements Env {
+class PropertiesWrapper extends SimpleEnv {
 
 	private final Properties properties;
 	private final String name;

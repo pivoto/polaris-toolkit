@@ -11,6 +11,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import io.polaris.core.service.StatefulServiceLoader;
 import io.polaris.core.string.Strings;
@@ -26,12 +27,15 @@ public class StdEnv implements Env {
 	public static final String APP_ENV = "AppEnv";
 
 	private final String name;
-	private final GroupEnv runtime = GroupEnv.newInstance(null, true);
-	private final DelegateEnv defaults = new DelegateEnv(DEFAULT, null);
+	private final GroupEnv runtime;
+	private final DelegateEnv defaults;
 	private final AtomicBoolean customized = new AtomicBoolean(false);
 
 	private StdEnv(String name, String appConf) {
 		this.name = name;
+		this.runtime = GroupEnv.newInstance(null, true);
+		this.defaults = new DelegateEnv(DEFAULT, null);
+
 		this.runtime.addEnvLast(new SystemPropertiesWrapper(SYSTEM_PROPS));
 		this.runtime.addEnvLast(new SystemEnvWrapper(SYSTEM_ENV));
 		DelegateEnv appEnv = new DelegateEnv(APP_ENV, null);
@@ -41,6 +45,12 @@ public class StdEnv implements Env {
 			appEnv.setDelegate(properties);
 		}
 		this.runtime.addEnvLast(defaults);
+	}
+
+	StdEnv(String name, GroupEnv runtime, DelegateEnv defaults) {
+		this.name = name;
+		this.runtime = runtime;
+		this.defaults = defaults;
 	}
 
 	public static StdEnv newInstance() {
@@ -53,6 +63,10 @@ public class StdEnv implements Env {
 
 	public static StdEnv newInstance(String name, String conf) {
 		return new StdEnv(name, conf);
+	}
+
+	public StdEnv shade(Predicate<Env> filter) {
+		return new ShadeStdEnv(name, runtime, defaults, filter);
 	}
 
 	@Override

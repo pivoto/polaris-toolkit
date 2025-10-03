@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import io.polaris.core.lang.primitive.Booleans;
 import io.polaris.core.string.Strings;
@@ -24,17 +25,26 @@ public class GroupEnv implements Env {
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
 
-	private final String name;
-	private final CopyOnWriteArrayList<Env> envList = new CopyOnWriteArrayList<>();
 	private final ThreadLocal<Deque<String>> resolvedKeys = new ThreadLocal<>();
 	private final ThreadLocal<Boolean> retrieved = new ThreadLocal<>();
-	private Env runtime;
+	private final String name;
+	private final CopyOnWriteArrayList<Env> envList;
+	private final Env runtime;
 
 	private GroupEnv(String name, boolean mutable) {
 		this.name = name;
+		this.envList = new CopyOnWriteArrayList<>();
 		if (mutable) {
 			runtime = Env.wrap(new Properties());
+		} else {
+			runtime = null;
 		}
+	}
+
+	GroupEnv(String name, Env runtime, CopyOnWriteArrayList<Env> envList) {
+		this.name = name;
+		this.runtime = runtime;
+		this.envList = envList;
 	}
 
 	public static GroupEnv newInstance() {
@@ -51,6 +61,10 @@ public class GroupEnv implements Env {
 
 	public static GroupEnv newInstance(String name, boolean mutable) {
 		return new GroupEnv(name, mutable);
+	}
+
+	public GroupEnv shade(Predicate<Env> filter) {
+		return new ShadeGroupEnv(name, runtime, envList, filter);
 	}
 
 	@Override
@@ -152,6 +166,10 @@ public class GroupEnv implements Env {
 		}
 	}
 
+	protected boolean filter(Env env) {
+		return true;
+	}
+
 	@Override
 	public String get(String key) {
 		if (isResolvingKey(key)) {
@@ -165,6 +183,9 @@ public class GroupEnv implements Env {
 			}
 			if (val == null) {
 				for (Env env : envList) {
+					if (!filter(env)) {
+						continue;
+					}
 					val = env.get(key);
 					if (val != null) {
 						break;
@@ -213,6 +234,9 @@ public class GroupEnv implements Env {
 				keys.addAll(runtime.keys());
 			}
 			for (Env env : envList) {
+				if (!filter(env)) {
+					continue;
+				}
 				Set<String> keySet = env.keys();
 				keys.addAll(keySet);
 			}

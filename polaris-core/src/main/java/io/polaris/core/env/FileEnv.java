@@ -15,7 +15,7 @@ import java.util.Set;
  * @author Qt
  * @since Jan 07, 2025
  */
-class FileEnv implements Env {
+class FileEnv extends SimpleEnv {
 
 	private final String name;
 	private final Env delegate;
