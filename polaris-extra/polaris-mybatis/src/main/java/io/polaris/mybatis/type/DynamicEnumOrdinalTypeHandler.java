@@ -1,19 +1,23 @@
 package io.polaris.mybatis.type;
 
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.type.Alias;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 
-import java.sql.*;
-
 /**
  * @author Qt
  * @see BlankableEnumOrdinalTypeHandler
- * @since  Aug 28, 2023
+ * @since Aug 28, 2023
  */
 @Slf4j
-@Alias("dynamicEnumOrdinalTypeHandler" )
+@Alias("dynamicEnumOrdinalTypeHandler")
 public class DynamicEnumOrdinalTypeHandler<E extends Enum<E>> extends BaseTypeHandler<Object> {
 
 	private final Class<E> type;
@@ -23,7 +27,7 @@ public class DynamicEnumOrdinalTypeHandler<E extends Enum<E>> extends BaseTypeHa
 		this.type = type;
 		this.enums = type.getEnumConstants();
 		if (this.enums == null) {
-			throw new IllegalArgumentException(type.getSimpleName() + " does not represent an enum type." );
+			throw new IllegalArgumentException(type.getSimpleName() + " does not represent an enum type.");
 		}
 	}
 

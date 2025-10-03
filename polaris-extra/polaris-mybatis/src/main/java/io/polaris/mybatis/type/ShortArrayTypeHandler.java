@@ -6,13 +6,13 @@ import org.apache.ibatis.type.MappedTypes;
 
 /**
  * @author Qt
- * @since  Aug 28, 2023
+ * @since Aug 28, 2023
  */
-@MappedTypes(Short[].class)
-@MappedJdbcTypes({JdbcType.VARCHAR,JdbcType.CHAR})
+@MappedTypes(short[].class)
+@MappedJdbcTypes(value = {JdbcType.VARCHAR, JdbcType.CHAR}, includeNullJdbcType = true)
 public class ShortArrayTypeHandler extends StringTokenizerTypeHandler<Short> {
 	public ShortArrayTypeHandler() {
-		super(Short.class);
+		super(short.class);
 	}
 
 	@Override

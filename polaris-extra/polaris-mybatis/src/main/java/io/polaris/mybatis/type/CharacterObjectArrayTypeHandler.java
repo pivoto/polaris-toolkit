@@ -8,15 +8,15 @@ import org.apache.ibatis.type.MappedTypes;
  * @author Qt
  * @since Aug 28, 2023
  */
-@MappedTypes(long[].class)
+@MappedTypes(Character[].class)
 @MappedJdbcTypes(value = {JdbcType.VARCHAR, JdbcType.CHAR}, includeNullJdbcType = true)
-public class LongArrayTypeHandler extends StringTokenizerTypeHandler<Long> {
-	public LongArrayTypeHandler() {
-		super(long.class);
+public class CharacterObjectArrayTypeHandler extends StringTokenizerTypeHandler<Character> {
+	public CharacterObjectArrayTypeHandler() {
+		super(Character.class);
 	}
 
 	@Override
-	Long parseString(String value) {
-		return Long.valueOf(value);
+	Character parseString(String value) {
+		return value.charAt(0);
 	}
 }

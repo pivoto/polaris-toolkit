@@ -1,17 +1,17 @@
 package io.polaris.mybatis.type;
 
-import org.apache.ibatis.type.BaseTypeHandler;
-import org.apache.ibatis.type.JdbcType;
-
 import java.lang.reflect.Array;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.apache.ibatis.type.BaseTypeHandler;
+import org.apache.ibatis.type.JdbcType;
+
 /**
  * @author Qt
- * @since  Aug 28, 2023
+ * @since Aug 28, 2023
  */
 public abstract class StringTokenizerTypeHandler<T> extends BaseTypeHandler<T[]> {
 	private Class<T> clazz;
@@ -23,7 +23,7 @@ public abstract class StringTokenizerTypeHandler<T> extends BaseTypeHandler<T[]>
 	@Override
 	public void setNonNullParameter(PreparedStatement ps, int i, T[] ts, JdbcType jdbcType) throws SQLException {
 		StringBuilder result = new StringBuilder();
-		if(ts.length>0){
+		if (ts.length > 0) {
 			result.append(ts[0]);
 			for (int idx = 1; idx < ts.length; idx++) {
 				result.append(",").append(ts[idx]);

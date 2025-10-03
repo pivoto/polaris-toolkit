@@ -6,13 +6,13 @@ import org.apache.ibatis.type.MappedTypes;
 
 /**
  * @author Qt
- * @since  Aug 28, 2023
+ * @since Aug 28, 2023
  */
-@MappedTypes(Character[].class)
-@MappedJdbcTypes({JdbcType.VARCHAR,JdbcType.CHAR})
+@MappedTypes(char[].class)
+@MappedJdbcTypes(value = {JdbcType.VARCHAR, JdbcType.CHAR}, includeNullJdbcType = true)
 public class CharacterArrayTypeHandler extends StringTokenizerTypeHandler<Character> {
 	public CharacterArrayTypeHandler() {
-		super(Character.class);
+		super(char.class);
 	}
 
 	@Override

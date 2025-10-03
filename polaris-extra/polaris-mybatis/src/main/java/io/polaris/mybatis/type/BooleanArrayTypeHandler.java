@@ -7,13 +7,13 @@ import org.apache.ibatis.type.MappedTypes;
 
 /**
  * @author Qt
- * @since  Aug 28, 2023
+ * @since Aug 28, 2023
  */
-@MappedTypes(Boolean[].class)
-@MappedJdbcTypes({JdbcType.VARCHAR, JdbcType.CHAR})
+@MappedTypes(boolean[].class)
+@MappedJdbcTypes(value = {JdbcType.VARCHAR, JdbcType.CHAR}, includeNullJdbcType = true)
 public class BooleanArrayTypeHandler extends StringTokenizerTypeHandler<Boolean> {
 	public BooleanArrayTypeHandler() {
-		super(Boolean.class);
+		super(boolean.class);
 	}
 
 	@Override

@@ -6,13 +6,13 @@ import org.apache.ibatis.type.MappedTypes;
 
 /**
  * @author Qt
- * @since  Aug 28, 2023
+ * @since Aug 28, 2023
  */
-@MappedTypes(Integer[].class)
-@MappedJdbcTypes({JdbcType.VARCHAR, JdbcType.CHAR})
+@MappedTypes(int[].class)
+@MappedJdbcTypes(value = {JdbcType.VARCHAR, JdbcType.CHAR}, includeNullJdbcType = true)
 public class IntegerArrayTypeHandler extends StringTokenizerTypeHandler<Integer> {
 	public IntegerArrayTypeHandler() {
-		super(Integer.class);
+		super(int.class);
 	}
 
 	@Override

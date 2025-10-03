@@ -6,13 +6,13 @@ import org.apache.ibatis.type.MappedTypes;
 
 /**
  * @author Qt
- * @since  Aug 28, 2023
+ * @since Aug 28, 2023
  */
-@MappedTypes(Float[].class)
-@MappedJdbcTypes({JdbcType.VARCHAR,JdbcType.CHAR})
+@MappedTypes(float[].class)
+@MappedJdbcTypes(value = {JdbcType.VARCHAR, JdbcType.CHAR}, includeNullJdbcType = true)
 public class FloatArrayTypeHandler extends StringTokenizerTypeHandler<Float> {
 	public FloatArrayTypeHandler() {
-		super(Float.class);
+		super(float.class);
 	}
 
 	@Override

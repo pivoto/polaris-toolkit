@@ -1,21 +1,33 @@
 package io.polaris.mybatis.type;
 
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.util.Date;
+
 import io.polaris.core.converter.Converters;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.type.*;
-
-import java.sql.*;
-import java.util.Date;
+import org.apache.ibatis.type.Alias;
+import org.apache.ibatis.type.BaseTypeHandler;
+import org.apache.ibatis.type.DateTypeHandler;
+import org.apache.ibatis.type.JdbcType;
+import org.apache.ibatis.type.LocalDateTypeHandler;
+import org.apache.ibatis.type.MappedJdbcTypes;
+import org.apache.ibatis.type.MappedTypes;
 
 /**
  * @author Qt
  * @see DateTypeHandler
  * @see LocalDateTypeHandler
- * @since  Aug 28, 2023
+ * @since Aug 28, 2023
  */
 @Slf4j
 @MappedTypes(Timestamp.class)
-@MappedJdbcTypes({JdbcType.DATE, JdbcType.TIMESTAMP})
+@MappedJdbcTypes(value = {JdbcType.DATE, JdbcType.TIMESTAMP, JdbcType.TIME}, includeNullJdbcType = true)
+@Alias("dynamicTimestampTypeHandler")
 public class DynamicTimestampTypeHandler extends BaseTypeHandler<Object> {
 
 	@Override

@@ -1,23 +1,29 @@
 package io.polaris.mybatis.type;
 
+import java.lang.reflect.Array;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Map;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.type.Alias;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.BooleanTypeHandler;
 import org.apache.ibatis.type.JdbcType;
-
-import java.lang.reflect.Array;
-import java.sql.*;
-import java.util.Collection;
-import java.util.Map;
+import org.apache.ibatis.type.MappedTypes;
 
 /**
  * @author Qt
  * @see BooleanTypeHandler
- * @since  Aug 28, 2023
+ * @since Aug 28, 2023
  */
 @Slf4j
-@Alias("dynamicBooleanTypeHandler" )
+@Alias("dynamicBooleanTypeHandler")
 public class DynamicBooleanTypeHandler extends BaseTypeHandler<Object> {
 
 	@Override
@@ -33,9 +39,9 @@ public class DynamicBooleanTypeHandler extends BaseTypeHandler<Object> {
 			} else if (parameter instanceof Number) {
 				val = ((Number) parameter).intValue() != 0;
 			} else if (parameter instanceof Collection) {
-				val = ((Collection) parameter).size() > 0;
+				val = !((Collection<?>) parameter).isEmpty();
 			} else if (parameter instanceof Map) {
-				val = ((Map) parameter).size() > 0;
+				val = !((Map<?, ?>) parameter).isEmpty();
 			} else if (parameter.getClass().isArray()) {
 				val = Array.getLength(parameter) > 0;
 			}

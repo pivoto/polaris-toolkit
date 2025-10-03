@@ -1,18 +1,18 @@
 package io.polaris.mybatis.type;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.type.Alias;
-import org.apache.ibatis.type.EnumOrdinalTypeHandler;
-import org.apache.ibatis.type.JdbcType;
-
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.type.Alias;
+import org.apache.ibatis.type.EnumOrdinalTypeHandler;
+import org.apache.ibatis.type.JdbcType;
+
 /**
  * @author Qt
- * @since  Aug 28, 2023
+ * @since Aug 28, 2023
  */
 @Slf4j
 @Alias("blankableEnumOrdinalTypeHandler")

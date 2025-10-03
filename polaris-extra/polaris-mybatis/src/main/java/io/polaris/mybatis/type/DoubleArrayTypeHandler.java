@@ -6,13 +6,13 @@ import org.apache.ibatis.type.MappedTypes;
 
 /**
  * @author Qt
- * @since  Aug 28, 2023
+ * @since Aug 28, 2023
  */
-@MappedTypes(Double[].class)
-@MappedJdbcTypes({JdbcType.VARCHAR,JdbcType.CHAR})
+@MappedTypes(double[].class)
+@MappedJdbcTypes(value = {JdbcType.VARCHAR, JdbcType.CHAR}, includeNullJdbcType = true)
 public class DoubleArrayTypeHandler extends StringTokenizerTypeHandler<Double> {
 	public DoubleArrayTypeHandler() {
-		super(Double.class);
+		super(double.class);
 	}
 
 	@Override

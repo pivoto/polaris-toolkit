@@ -1,5 +1,6 @@
 package io.polaris.mybatis.type;
 
+
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedJdbcTypes;
 import org.apache.ibatis.type.MappedTypes;
@@ -8,15 +9,15 @@ import org.apache.ibatis.type.MappedTypes;
  * @author Qt
  * @since Aug 28, 2023
  */
-@MappedTypes(long[].class)
+@MappedTypes(Boolean[].class)
 @MappedJdbcTypes(value = {JdbcType.VARCHAR, JdbcType.CHAR}, includeNullJdbcType = true)
-public class LongArrayTypeHandler extends StringTokenizerTypeHandler<Long> {
-	public LongArrayTypeHandler() {
-		super(long.class);
+public class BooleanObjectArrayTypeHandler extends StringTokenizerTypeHandler<Boolean> {
+	public BooleanObjectArrayTypeHandler() {
+		super(Boolean.class);
 	}
 
 	@Override
-	Long parseString(String value) {
-		return Long.valueOf(value);
+	Boolean parseString(String value) {
+		return Boolean.valueOf(value);
 	}
 }
