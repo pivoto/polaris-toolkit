@@ -1,7 +1,5 @@
 package io.polaris.core.lang.annotation;
 
-import io.polaris.core.reflect.Reflects;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Repeatable;
 import java.lang.reflect.AnnotatedElement;
@@ -9,31 +7,53 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import io.polaris.core.reflect.Reflects;
+
 /**
  * @author Qt
- * @since  Nov 12, 2023
+ * @since Nov 12, 2023
  */
 public class Annotations {
 
 
-	public static <A extends Annotation> A getAnnotation(AnnotatedElement element, Class<A> annotationType) {
+	@Nullable
+	public static <A extends Annotation> A getRawAnnotation(AnnotatedElement element, Class<A> annotationType) {
 		return RawAnnotations.getAnnotation(element, annotationType);
 	}
 
-	public static <A extends Annotation> A[] getRepeatableAnnotation(AnnotatedElement element, Class<A> annotationType) {
+	@Nonnull
+	public static <A extends Annotation> A[] getRawRepeatableAnnotation(AnnotatedElement element, Class<A> annotationType) {
 		return RawAnnotations.getRepeatableAnnotation(element, annotationType);
 	}
 
+	@Nullable
 	public static <A extends Annotation> A getMergedAnnotation(AnnotatedElement element, Class<A> annotationType) {
-		return MergedAnnotations.of(element).getMergedAnnotation(annotationType);
+		return MergedAnnotations.getMergedAnnotation(element, annotationType);
 	}
 
+	@Nonnull
 	public static <A extends Annotation> Set<A> getMergedRepeatableAnnotation(AnnotatedElement element, Class<A> annotationType) {
-		return MergedAnnotations.of(element).getMergedRepeatableAnnotation(annotationType);
+		return MergedAnnotations.getMergedRepeatableAnnotation(element, annotationType);
+	}
+
+	@Nonnull
+	public static <A extends Annotation> Set<A> getTopMergedRepeatableAnnotation(AnnotatedElement element, Class<A> annotationType) {
+		return MergedAnnotations.getTopMergedRepeatableAnnotation(element, annotationType);
 	}
 
 	public static <A extends Annotation> A newInstance(Class<A> annotationType, Map<String, Object> values) {
 		return AnnotationInvocationHandler.createProxy(annotationType, values);
+	}
+
+	public static <A extends Annotation> A newInstance(Class<A> annotationType, Map<String, Object> values, boolean allowedIncomplete) {
+		return AnnotationInvocationHandler.createProxy(annotationType, values, allowedIncomplete);
+	}
+
+	public static <A extends Annotation> A newInstanceWithDefaults(Class<A> annotationType, Map<String, Object> values) {
+		return AnnotationAttributes.of(annotationType).asAnnotation();
 	}
 
 	public static Annotation[] getRepeatedAnnotations(Annotation annotation) {
@@ -79,9 +99,28 @@ public class Annotations {
 	public static <A extends Annotation> boolean hasAliasDefinition(Class<A> annotationType) {
 		Method[] methods = AnnotationAttributes.getAnnotationMembers(annotationType);
 		for (Method method : methods) {
-			Alias alias = method.getAnnotation(Alias.class);
-			if (alias != null && (alias.annotation() == annotationType || alias.annotation() == Alias.DEFAULT_ANNOTATION)) {
-				return true;
+			Set<AliasAttribute> aliasAttributes = AliasFinders.findAliasAttributes(method);
+			if (aliasAttributes != null) {
+				for (AliasAttribute alias : aliasAttributes) {
+					if (alias != null && (alias.annotation() == annotationType || alias.annotation() == Annotation.class)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	public static <A extends Annotation> boolean hasAliasDefinition(AliasFinder aliasFinder, Class<A> annotationType) {
+		Method[] methods = AnnotationAttributes.getAnnotationMembers(annotationType);
+		for (Method method : methods) {
+			Set<AliasAttribute> aliasAttributes = AliasFinders.findAliasAttributes(aliasFinder, method);
+			if (aliasAttributes != null) {
+				for (AliasAttribute alias : aliasAttributes) {
+					if (alias != null && (alias.annotation() == annotationType || alias.annotation() == Annotation.class)) {
+						return true;
+					}
+				}
 			}
 		}
 		return false;

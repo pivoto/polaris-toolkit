@@ -1,32 +1,53 @@
 package io.polaris.core.lang.annotation;
 
-import io.polaris.core.tuple.Tuple2;
-
-import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * @author Qt
- * @since  Jan 06, 2024
+ * @since Jan 06, 2024
  */
-class MergedAnnotations {
-	private SortedMap<Integer, Set<MergedAnnotation>> sortedAnnotations = new TreeMap<>();
-
-	public MergedAnnotations(AnnotatedElement element) {
-		scanAnnotations(0, element);
+public class MergedAnnotations {
+	static HierarchyMergedAnnotation of(AnnotatedElement element) {
+		return new HierarchyMergedAnnotation(element);
 	}
 
-	public static MergedAnnotations of(AnnotatedElement element) {
-		return new MergedAnnotations(element);
+	@Nullable
+	public static <A extends Annotation> A getMergedAnnotation(AnnotatedElement element, Class<A> annotationType) {
+		return MergedAnnotations.of(element).getMergedAnnotation(annotationType);
 	}
 
-	static SortedMap<Integer, Set<MergedAnnotation>> scanHierarchyAnnotations(MergedAnnotation annotation) {
-		SortedMap<Integer, Set<MergedAnnotation>> hierarchyAnnotations = new TreeMap<>();
+	@Nonnull
+	public static <A extends Annotation> Set<A> getMergedRepeatableAnnotation(AnnotatedElement element, Class<A> annotationType) {
+		return MergedAnnotations.of(element).getMergedRepeatableAnnotation(annotationType);
+	}
+
+	@Nonnull
+	public static <A extends Annotation> Set<A> getTopMergedRepeatableAnnotation(AnnotatedElement element, Class<A> annotationType) {
+		return MergedAnnotations.of(element).getTopMergedRepeatableAnnotation(annotationType);
+	}
+
+	/**
+	 * 扫描注解的层次结构
+	 *
+	 * @param annotation 合并后的注解
+	 * @return 按距离排序的注解映射
+	 */
+	static List<Set<MergedAnnotation>> scanHierarchyAnnotations(MergedAnnotation annotation) {
+		List<Set<MergedAnnotation>> hierarchyAnnotations = new ArrayList<>();
 		Set<Class<? extends Annotation>> visitedAnnotation = new HashSet<>();
 		Collection<MergedAnnotation> candidates = Collections.singletonList(annotation);
 		while (!candidates.isEmpty()) {
@@ -35,12 +56,29 @@ class MergedAnnotations {
 		return hierarchyAnnotations;
 	}
 
-	private static void addHierarchyAnnotation(SortedMap<Integer, Set<MergedAnnotation>> hierarchyAnnotations, MergedAnnotation mergedAnnotation) {
-		Set<MergedAnnotation> annotations = hierarchyAnnotations.computeIfAbsent(mergedAnnotation.getDistance(), k -> new LinkedHashSet<>());
-		annotations.add(mergedAnnotation);
+	/**
+	 * 将合并后的注解添加到层次结构映射中
+	 *
+	 * @param hierarchyAnnotations 层次结构注解映射
+	 * @param mergedAnnotation     合并后的注解
+	 */
+	private static void addHierarchyAnnotation(List<Set<MergedAnnotation>> hierarchyAnnotations, MergedAnnotation mergedAnnotation) {
+		int level = mergedAnnotation.getLevel();
+		while (hierarchyAnnotations.size() <= level) {
+			hierarchyAnnotations.add(new LinkedHashSet<>());
+		}
+		hierarchyAnnotations.get(level).add(mergedAnnotation);
 	}
 
-	private static Collection<MergedAnnotation> scanHierarchyAnnotation(SortedMap<Integer, Set<MergedAnnotation>> hierarchyAnnotations, Collection<MergedAnnotation> lastCandidates, Set<Class<? extends Annotation>> visited) {
+	/**
+	 * 扫描注解的层次结构
+	 *
+	 * @param hierarchyAnnotations 层次结构注解映射
+	 * @param lastCandidates       上一轮的候选注解集合
+	 * @param visited              已访问的注解类型集合
+	 * @return 下一轮的候选注解集合
+	 */
+	private static Collection<MergedAnnotation> scanHierarchyAnnotation(List<Set<MergedAnnotation>> hierarchyAnnotations, Collection<MergedAnnotation> lastCandidates, Set<Class<? extends Annotation>> visited) {
 		Collection<MergedAnnotation> candidates = new LinkedHashSet<>();
 		for (MergedAnnotation mergedAnnotation : lastCandidates) {
 			Class<? extends Annotation> annotationType = mergedAnnotation.getAnnotationType();
@@ -52,261 +90,51 @@ class MergedAnnotations {
 			}
 			visited.add(annotationType);
 
+			Map<Class<? extends Annotation>, Map<String, String>> aliasMap = null;
 			if (!mergedAnnotation.isRepeatable()) {
 				// alias
 				Method[] annotationMembers = AnnotationAttributes.getAnnotationMembers(annotationType);
-				Map<Class<? extends Annotation>, Map<String, Method>> aliasMap = new LinkedHashMap<>();
+				aliasMap = new LinkedHashMap<>();
 
 				for (Method method : annotationMembers) {
-					Alias alias = method.getAnnotation(Alias.class);
-					if (alias != null && alias.annotation() != annotationType && alias.annotation() != Alias.DEFAULT_ANNOTATION) {
-						Map<String, Method> aliasMethods = aliasMap.computeIfAbsent(alias.annotation(), k -> new LinkedHashMap<>());
-						aliasMethods.put(alias.value(), method);
-					}
-				}
-				if (!aliasMap.isEmpty()) {
-					for (Map.Entry<Class<? extends Annotation>, Map<String, Method>> entry : aliasMap.entrySet()) {
-						Class<? extends Annotation> aliasAnnotationType = entry.getKey();
-						Map<String, Method> aliasMethods = entry.getValue();
-
-						MergedAnnotation aliasMergeAnnotation = MergedAnnotation.of(mergedAnnotation.getDistance() + 1, annotationType, aliasAnnotationType, mergedAnnotation, aliasMethods);
-						addHierarchyAnnotation(hierarchyAnnotations, aliasMergeAnnotation);
-						candidates.add(aliasMergeAnnotation);
+					Set<AliasAttribute> aliasAttributes = AliasFinders.findAliasAttributes(method);
+					if (aliasAttributes != null) {
+						for (AliasAttribute alias : aliasAttributes) {
+							if (alias != null && alias.annotation() != annotationType && alias.annotation() != Annotation.class) {
+								Map<String, String> aliasMethods = aliasMap.computeIfAbsent(alias.annotation(), k -> new LinkedHashMap<>());
+								aliasMethods.putIfAbsent(alias.value(), method.getName());
+							}
+						}
 					}
 				}
 			}
 
 			for (Annotation annotation : annotationType.getAnnotations()) {
-				MergedAnnotation relation = MergedAnnotation.of(mergedAnnotation.getDistance() + 1, annotationType, annotation);
-				addHierarchyAnnotation(hierarchyAnnotations, relation);
-				candidates.add(relation);
+				// 合并元注解与别名注解方法
+				Map<String, String> aliasMethods = aliasMap == null || aliasMap.isEmpty() ? null : aliasMap.remove(annotation.annotationType());
+				if (aliasMethods != null) {
+					MergedAnnotation aliasMergeAnnotation = MergedAnnotation.of(mergedAnnotation.getLevel() + 1, annotationType, annotation.annotationType(), annotation, mergedAnnotation, aliasMethods);
+					addHierarchyAnnotation(hierarchyAnnotations, aliasMergeAnnotation);
+					candidates.add(aliasMergeAnnotation);
+				} else {
+					MergedAnnotation relation = MergedAnnotation.of(mergedAnnotation.getLevel() + 1, annotationType, annotation);
+					addHierarchyAnnotation(hierarchyAnnotations, relation);
+					candidates.add(relation);
+				}
+			}
+			// 处理无元注解的别名注解方法
+			if (aliasMap != null && !aliasMap.isEmpty()) {
+				for (Map.Entry<Class<? extends Annotation>, Map<String, String>> entry : aliasMap.entrySet()) {
+					Class<? extends Annotation> aliasAnnotationType = entry.getKey();
+					Map<String, String> aliasMethods = entry.getValue();
+
+					MergedAnnotation aliasMergeAnnotation = MergedAnnotation.of(mergedAnnotation.getLevel() + 1, annotationType, aliasAnnotationType, null, mergedAnnotation, aliasMethods);
+					addHierarchyAnnotation(hierarchyAnnotations, aliasMergeAnnotation);
+					candidates.add(aliasMergeAnnotation);
+				}
 			}
 		}
 		return candidates;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Nullable
-	public <A extends Annotation> A getMergedAnnotation(Class<A> annotationType) {
-		MergedAnnotation matchedOne = null;
-		List<MergedAnnotation> aliasList = new ArrayList<>();
-
-		loop:
-		for (Map.Entry<Integer, Set<MergedAnnotation>> entry : sortedAnnotations.entrySet()) {
-			Set<MergedAnnotation> set = entry.getValue();
-			for (MergedAnnotation annotation : set) {
-				MatchedMergedAnnotation<A> matchedAnnotation = annotation.getMatchedAnnotation(annotationType);
-				if (matchedAnnotation != null) {
-					// match
-					MergedAnnotation matched = matchedAnnotation.getMatched();
-					if (matched != null) {
-						matchedOne = matched;
-						break loop;
-					}
-					aliasList.addAll(matchedAnnotation.getAliases());
-				}
-			}
-		}
-		if (matchedOne == null && aliasList.isEmpty()) {
-			// not match
-			return null;
-		}
-
-		return MatchedMergedAnnotation.of(annotationType, matchedOne, aliasList).getAnnotation();
-	}
-
-	public <A extends Annotation> Set<A> getMergedRepeatableAnnotation(Class<A> annotationType) {
-		Set<MatchedMergedAnnotation<A>> matchedSet = null;
-		loop:
-		for (Map.Entry<Integer, Set<MergedAnnotation>> entry : sortedAnnotations.entrySet()) {
-			Set<MergedAnnotation> set = entry.getValue();
-			for (MergedAnnotation annotation : set) {
-				matchedSet = annotation.getMatchedRepeatableAnnotation(annotationType);
-				if (matchedSet != null) {
-					// match
-					break loop;
-				}
-			}
-		}
-		if (matchedSet == null) {
-			return Collections.emptySet();
-		}
-		Set<A> annotationSet = new LinkedHashSet<>();
-		for (MatchedMergedAnnotation<A> matchedMergedAnnotation : matchedSet) {
-			annotationSet.add(matchedMergedAnnotation.getAnnotation());
-		}
-		return annotationSet;
-	}
-
-
-	private void addMergedAnnotation(MergedAnnotation mergedAnnotation) {
-		Set<MergedAnnotation> annotations = sortedAnnotations.computeIfAbsent(mergedAnnotation.getDistance(), k -> new LinkedHashSet<>());
-		annotations.add(mergedAnnotation);
-	}
-
-	private void scanAnnotations(int distance, AnnotatedElement element) {
-		Set<MergedAnnotation> first = new LinkedHashSet<>();
-
-		Annotation[] annotations = element.getAnnotations();
-		for (Annotation annotation : annotations) {
-			MergedAnnotation mergedAnnotation = MergedAnnotation.of(distance, element, annotation);
-			first.add(mergedAnnotation);
-			addMergedAnnotation(mergedAnnotation);
-		}
-
-		if (element instanceof Class) {
-			scanHierarchyClass(distance + 1, (Class<?>) element);
-		} else if (element instanceof Method) {
-			scanHierarchyMethod(distance + 1, (Method) element);
-		} else if (element instanceof Parameter) {
-			Executable executable = ((Parameter) element).getDeclaringExecutable();
-			if (executable instanceof Method) {
-				Parameter[] parameters = executable.getParameters();
-				for (int i = 0; i < parameters.length; i++) {
-					if (parameters[i] == element) {
-						scanHierarchyParameter(distance + 1, ((Parameter) element), (Method) executable, i);
-					}
-				}
-			}
-		}
-	}
-
-	private Tuple2<Class<?>, Class<?>[]> getHierarchyClassCandidates(Class<?> superclass, Class<?>[] interfaces, Set<Class<?>> visitedClass) {
-		Set<Class<?>> candidates = new LinkedHashSet<>();
-		if (interfaces == null) {
-			// first level
-			if (superclass != null && superclass != Object.class) {
-				interfaces = superclass.getInterfaces();
-				for (Class<?> anInterface : interfaces) {
-					candidates.add(anInterface);
-					visitedClass.add(anInterface);
-				}
-			}
-			superclass = superclass.getSuperclass();
-			return Tuple2.of(superclass, candidates.toArray(new Class[0]));
-		} else {
-			// next level
-			if (superclass != null && superclass != Object.class) {
-				for (Class<?> anInterface : superclass.getInterfaces()) {
-					if (visitedClass.contains(anInterface)) {
-						continue;
-					}
-					candidates.add(anInterface);
-					visitedClass.add(anInterface);
-				}
-				superclass = superclass.getSuperclass();
-			}
-			for (Class<?> anInterface : interfaces) {
-				for (Class<?> anInterfaceInterface : anInterface.getInterfaces()) {
-					if (visitedClass.contains(anInterfaceInterface)) {
-						continue;
-					}
-					candidates.add(anInterfaceInterface);
-					visitedClass.add(anInterfaceInterface);
-				}
-			}
-			return Tuple2.of(superclass, candidates.toArray(new Class[0]));
-		}
-	}
-
-	private void scanHierarchyClass(int distance, Class<?> element) {
-		Set<Class<?>> visitedClass = new LinkedHashSet<>();
-		Tuple2<Class<?>, Class<?>[]> classCandidates = getHierarchyClassCandidates(element, null, visitedClass);
-		Class<?> superclass = classCandidates.getFirst();
-		Class<?>[] interfaces = classCandidates.getSecond();
-		if ((superclass == null || superclass == Object.class) && interfaces.length == 0) {
-			return;
-		}
-
-		int nextDistance = distance;
-		while (superclass != null && superclass != Object.class || interfaces.length > 0) {
-			if (superclass != null && superclass != Object.class) {
-				scanAnnotations(nextDistance, superclass);
-			}
-			for (Class<?> anInterface : interfaces) {
-				scanAnnotations(nextDistance, anInterface);
-			}
-
-			// next level
-			nextDistance++;
-			classCandidates = getHierarchyClassCandidates(superclass, interfaces, visitedClass);
-			superclass = classCandidates.getFirst();
-			interfaces = classCandidates.getSecond();
-		}
-	}
-
-	private void scanHierarchyMethod(int distance, Method element) {
-		Class<?> declaringClass = element.getDeclaringClass();
-		Set<Class<?>> visited = new LinkedHashSet<>();
-		Tuple2<Class<?>, Class<?>[]> classCandidates = getHierarchyClassCandidates(declaringClass, null, visited);
-		Class<?> superclass = classCandidates.getFirst();
-		Class<?>[] interfaces = classCandidates.getSecond();
-		if ((superclass == null || superclass == Object.class) && interfaces.length == 0) {
-			return;
-		}
-
-		int nextDistance = distance;
-		while (superclass != null && superclass != Object.class || interfaces.length > 0) {
-			if (superclass != null && superclass != Object.class) {
-				try {
-					Method method = superclass.getDeclaredMethod(element.getName(), element.getParameterTypes());
-					scanAnnotations(nextDistance, method);
-				} catch (NoSuchMethodException e) {
-				}
-			}
-			for (Class<?> anInterface : interfaces) {
-				try {
-					Method method = anInterface.getDeclaredMethod(element.getName(), element.getParameterTypes());
-					scanAnnotations(nextDistance, method);
-				} catch (NoSuchMethodException e) {
-				}
-			}
-
-			// next level
-			nextDistance++;
-			classCandidates = getHierarchyClassCandidates(superclass, interfaces, visited);
-			superclass = classCandidates.getFirst();
-			interfaces = classCandidates.getSecond();
-		}
-	}
-
-
-	private void scanHierarchyParameter(int distance, Parameter element, Method declaringMethod, int position) {
-		Class<?> declaringClass = declaringMethod.getDeclaringClass();
-		Set<Class<?>> visited = new LinkedHashSet<>();
-		Tuple2<Class<?>, Class<?>[]> classCandidates = getHierarchyClassCandidates(declaringClass, null, visited);
-		Class<?> superclass = classCandidates.getFirst();
-		Class<?>[] interfaces = classCandidates.getSecond();
-		if ((superclass == null || superclass == Object.class) && interfaces.length == 0) {
-			return;
-		}
-
-		int nextDistance = distance;
-		while (superclass != null && superclass != Object.class || interfaces.length > 0) {
-			if (superclass != null && superclass != Object.class) {
-				try {
-					Parameter parameter = superclass.getDeclaredMethod(declaringMethod.getName(), declaringMethod.getParameterTypes()).getParameters()[position];
-					scanAnnotations(nextDistance, parameter);
-				} catch (NoSuchMethodException e) {
-				}
-			}
-			for (Class<?> anInterface : interfaces) {
-				try {
-					Parameter parameter = anInterface.getDeclaredMethod(declaringMethod.getName(), declaringMethod.getParameterTypes()).getParameters()[position];
-					scanAnnotations(nextDistance, parameter);
-				} catch (NoSuchMethodException e) {
-				}
-			}
-			// next level
-			nextDistance++;
-			classCandidates = getHierarchyClassCandidates(superclass, interfaces, visited);
-			superclass = classCandidates.getFirst();
-			interfaces = classCandidates.getSecond();
-		}
-	}
-
-	public SortedMap<Integer, Set<MergedAnnotation>> getSortedAnnotations() {
-		return Collections.unmodifiableSortedMap(sortedAnnotations);
 	}
 
 }

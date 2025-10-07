@@ -1,125 +1,215 @@
 package io.polaris.core.lang.annotation;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import io.polaris.core.reflect.Reflects;
-import lombok.AccessLevel;
+import io.polaris.core.tuple.LazyRef;
+import io.polaris.core.tuple.Ref;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-import javax.annotation.Nonnull;
-import java.lang.annotation.Annotation;
-import java.lang.annotation.Repeatable;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.util.*;
-
 /**
  * @author Qt
- * @since  Jan 06, 2024
+ * @since Jan 06, 2024
  */
-@Getter
 @ToString
 @EqualsAndHashCode
 public class MergedAnnotation {
-
-	private final int distance;
+	/** 注解层级 */
+	@Getter
+	private final int level;
+	/** 注解源元素 */
+	@Getter
 	private final AnnotatedElement annotatedElement;
-	private final Annotation annotation;
+	/** 注解类型 */
+	@Getter
 	private final Class<? extends Annotation> annotationType;
-	private final MergedAnnotation aliasSource;
-	private final Map<String, Method> aliasMethods;
+	/** 注解实例 */
+	private final Annotation annotation;
+	/** 别名的源注解实例 */
+	private final MergedAnnotation aliasSourceAnnotation;
+	/** 别名的源注解属性映射 */
+	private final Map<String, String> aliasSourceMembers;
+	/** 关联的可重复配置的目标注解 */
 	private final Class<? extends Annotation> repeatedAnnotationType;
+	/** 关联的可重复配置的目标注解实例 */
 	private final MergedAnnotation[] repeatedAnnotations;
+	/** 注解属性值 */
 	@EqualsAndHashCode.Exclude
 	@ToString.Exclude
-	@Getter(AccessLevel.NONE)
-	private SortedMap<Integer, Set<MergedAnnotation>> hierarchyAnnotations;
+	private final Ref<AnnotationAttributes> annotationAttributes;
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
+	private final Ref<List<Set<MergedAnnotation>>> hierarchyAnnotations;
 
-	static MergedAnnotation of(int distance, @Nonnull AnnotatedElement annotatedElement, @Nonnull Annotation annotation) {
-		MergedAnnotation mergedAnnotation = new MergedAnnotation(distance, annotatedElement, annotation.annotationType(), annotation, null, null);
-		return mergedAnnotation;
+	static MergedAnnotation of(int level, @Nonnull AnnotatedElement annotatedElement, @Nonnull Annotation annotation) {
+		return new MergedAnnotation(level, annotatedElement, annotation.annotationType(), annotation, null, null);
 	}
 
-	static MergedAnnotation of(int distance, AnnotatedElement annotatedElement, @Nonnull Class<? extends Annotation> annotationType, @Nonnull MergedAnnotation aliasSource, @Nonnull Map<String, Method> aliasMethods) {
-		MergedAnnotation mergedAnnotation = new MergedAnnotation(distance, annotatedElement, annotationType, null, aliasSource, aliasMethods);
-		return mergedAnnotation;
+	static MergedAnnotation of(int level, AnnotatedElement annotatedElement, @Nonnull Class<? extends Annotation> annotationType, @Nullable Annotation annotation, @Nonnull MergedAnnotation aliasSource, @Nonnull Map<String, String> aliasSourceMembers) {
+		return new MergedAnnotation(level, annotatedElement, annotationType, annotation, aliasSource, aliasSourceMembers);
 	}
 
 
-	private MergedAnnotation(int distance, AnnotatedElement annotatedElement, Class<? extends Annotation> annotationType, Annotation annotation, MergedAnnotation aliasSource, Map<String, Method> aliasMethods) {
-		this.distance = distance;
+	private MergedAnnotation(int level, @Nonnull AnnotatedElement annotatedElement, @Nonnull Class<? extends Annotation> annotationType, @Nullable Annotation annotation, @Nullable MergedAnnotation aliasSourceAnnotation, @Nullable Map<String, String> aliasSourceMembers) {
+		this.level = level;
 		this.annotatedElement = annotatedElement;
 		this.annotationType = annotationType;
-		this.aliasSource = aliasSource;
-		this.aliasMethods = aliasMethods;
+		this.annotation = annotation;
+		this.aliasSourceAnnotation = aliasSourceAnnotation;
+		this.aliasSourceMembers = aliasSourceMembers;
 
-		if (aliasSource != null && aliasMethods != null) {
-			this.repeatedAnnotationType = null;
-			this.repeatedAnnotations = null;
-			this.annotation = null;
-		} else {
-			this.annotation = annotation;
-
-			this.repeatedAnnotationType = Annotations.getRepeatedAnnotationType(annotationType);
-			if (this.repeatedAnnotationType != null) {
-				Annotation[] annotations = Reflects.invokeQuietly(annotation, annotationType.getDeclaredMethods()[0]);
+		this.repeatedAnnotationType = Annotations.getRepeatedAnnotationType(annotationType);
+		if (this.repeatedAnnotationType != null && annotation != null) {
+			Annotation[] annotations = Reflects.invokeQuietly(annotation, annotationType.getDeclaredMethods()[0]);
+			if (annotations != null) {
 				MergedAnnotation[] repeatedAnnotations = new MergedAnnotation[annotations.length];
 				for (int i = 0; i < annotations.length; i++) {
 					Annotation repeatedAnnotation = annotations[i];
-					repeatedAnnotations[i] = MergedAnnotation.of(this.distance + 1, annotatedElement, repeatedAnnotation);
+					repeatedAnnotations[i] = MergedAnnotation.of(this.level + 1, annotatedElement, repeatedAnnotation);
 				}
 				this.repeatedAnnotations = repeatedAnnotations;
 			} else {
 				this.repeatedAnnotations = null;
 			}
+		} else {
+			this.repeatedAnnotations = null;
 		}
+
+		this.hierarchyAnnotations = LazyRef.of(() -> Collections.unmodifiableList(MergedAnnotations.scanHierarchyAnnotations(this)));
+		this.annotationAttributes = LazyRef.of(() -> {
+			AnnotationAttributes annotationAttributes = annotation != null ? AnnotationAttributes.of(annotation) : AnnotationAttributes.of(annotationType);
+			if (aliasSourceAnnotation != null && aliasSourceMembers != null) {
+				AnnotationAttributes aliasAnnotationAttributes = aliasSourceAnnotation.getAnnotationAttributes();
+				for (Map.Entry<String, String> entry : aliasSourceMembers.entrySet()) {
+					if (annotationAttributes.hasMember(entry.getKey())) {
+						Object val = aliasAnnotationAttributes.get(entry.getValue());
+						if (val != null) {
+							annotationAttributes.setIfNotDefault(entry.getKey(), val);
+						}
+					}
+				}
+			}
+			return annotationAttributes;
+		});
 	}
 
 
 	public <A extends Annotation> MatchedMergedAnnotation<A> getMatchedAnnotation(Class<A> annotationType) {
-		if (!this.isAlias() && this.annotationType == annotationType) {
-			return MatchedMergedAnnotation.of(annotationType, this);
+		MergedAnnotation matchedAnnotation = null;
+		List<MergedAnnotation> aliasAnnotations = new ArrayList<>();
+
+		// 遍历所有层级的注解，第一个匹配的注解作为基础匹配注解，其他的匹配的注解作为别名注解
+		if (this.annotationType == annotationType) {
+			if (this.isAliasOnly()) {
+				aliasAnnotations.add(this);
+			} else {
+				matchedAnnotation = this;
+			}
 		}
 
-		MergedAnnotation matchedOne = null;
-		List<MergedAnnotation> aliasList = new ArrayList<>();
-
-		SortedMap<Integer, Set<MergedAnnotation>> hierarchyAnnotations = this.getHierarchyAnnotations();
-		loop:
-		for (Map.Entry<Integer, Set<MergedAnnotation>> entry : hierarchyAnnotations.entrySet()) {
-			Set<MergedAnnotation> set = entry.getValue();
+		List<Set<MergedAnnotation>> hierarchyAnnotations = this.getHierarchyAnnotations();
+		for (Set<MergedAnnotation> set : hierarchyAnnotations) {
 			for (MergedAnnotation mergedAnnotation : set) {
 				if (mergedAnnotation.annotationType == annotationType) {
 					// match
-					if (mergedAnnotation.isAlias()) {
-						aliasList.add(mergedAnnotation);
+					if (mergedAnnotation.isAliasOnly()) {
+						aliasAnnotations.add(mergedAnnotation);
 					} else {
-						matchedOne = mergedAnnotation;
-						break loop;
+						if (matchedAnnotation != null) {
+							aliasAnnotations.add(mergedAnnotation);
+						} else {
+							matchedAnnotation = mergedAnnotation;
+						}
 					}
 				}
 			}
 		}
 
-		if (matchedOne == null && aliasList.isEmpty()) {
+		if (matchedAnnotation == null && aliasAnnotations.isEmpty()) {
 			if (isRepeatable()) {
 				if (this.repeatedAnnotations.length > 0) {
-					MatchedMergedAnnotation<A> matchedAnnotation = this.repeatedAnnotations[0].getMatchedAnnotation(annotationType);
-					if (matchedAnnotation != null) {
-						matchedOne = matchedAnnotation.getMatched();
-						aliasList.addAll(matchedAnnotation.getAliases());
-					}
+					return this.repeatedAnnotations[0].getMatchedAnnotation(annotationType);
 				}
 			}
 		}
-		if (matchedOne == null && aliasList.isEmpty()) {
+		if (matchedAnnotation == null && aliasAnnotations.isEmpty()) {
 			// not match
 			return null;
 		}
-		return MatchedMergedAnnotation.of(annotationType, matchedOne, aliasList);
+		return MatchedMergedAnnotation.of(annotationType, matchedAnnotation, aliasAnnotations);
 	}
 
 	public <A extends Annotation> Set<MatchedMergedAnnotation<A>> getMatchedRepeatableAnnotation(Class<A> annotationType) {
+
+		Set<MatchedMergedAnnotation<A>> matchedSet = newMatchedSet(annotationType);
+
+		List<Set<MergedAnnotation>> hierarchyAnnotations = this.getHierarchyAnnotations();
+		for (Set<MergedAnnotation> set : hierarchyAnnotations) {
+			for (MergedAnnotation mergedAnnotation : set) {
+				if (mergedAnnotation.isRepeatable()) {
+					Set<MatchedMergedAnnotation<A>> matched1 = mergedAnnotation.getMatchedRepeatableAnnotation(annotationType);
+					if (matched1 != null) {
+						matchedSet.addAll(matched1);
+					}
+				} else {
+					MatchedMergedAnnotation<A> matched2 = mergedAnnotation.getMatchedAnnotation(annotationType);
+					if (matched2 != null) {
+						matchedSet.add(matched2);
+					}
+				}
+			}
+		}
+		if (matchedSet.isEmpty()) {
+			return null;
+		}
+		return matchedSet;
+	}
+
+	public <A extends Annotation> Set<MatchedMergedAnnotation<A>> getTopMatchedRepeatableAnnotation(Class<A> annotationType) {
+		Set<MatchedMergedAnnotation<A>> matchedSet = newMatchedSet(annotationType);
+
+		List<Set<MergedAnnotation>> hierarchyAnnotations = this.getHierarchyAnnotations();
+		for (Set<MergedAnnotation> set : hierarchyAnnotations) {
+			boolean found = false;
+			for (MergedAnnotation mergedAnnotation : set) {
+				if (mergedAnnotation.isRepeatable()) {
+					Set<MatchedMergedAnnotation<A>> matched1 = mergedAnnotation.getMatchedRepeatableAnnotation(annotationType);
+					if (matched1 != null && !matched1.isEmpty()) {
+						matchedSet.addAll(matched1);
+						found = true;
+					}
+				} else {
+					MatchedMergedAnnotation<A> matched2 = mergedAnnotation.getMatchedAnnotation(annotationType);
+					if (matched2 != null) {
+						matchedSet.add(matched2);
+						found = true;
+					}
+				}
+			}
+			if (found) {
+				break;
+			}
+		}
+		if (matchedSet.isEmpty()) {
+			return null;
+		}
+		return matchedSet;
+	}
+
+	@Nonnull
+	private <A extends Annotation> Set<MatchedMergedAnnotation<A>> newMatchedSet(Class<A> annotationType) {
 		Set<MatchedMergedAnnotation<A>> matchedSet = new LinkedHashSet<>();
 		if (this.isRepeatable()) {
 			for (MergedAnnotation repeatedAnnotation : this.repeatedAnnotations) {
@@ -128,46 +218,26 @@ public class MergedAnnotation {
 					matchedSet.add(matchedAnnotation);
 				}
 			}
-		}
-		if (!this.isAlias() && this.annotationType == annotationType) {
-			matchedSet.add(MatchedMergedAnnotation.of(annotationType, this));
-		}
-
-		SortedMap<Integer, Set<MergedAnnotation>> hierarchyAnnotations = this.getHierarchyAnnotations();
-		for (Map.Entry<Integer, Set<MergedAnnotation>> entry : hierarchyAnnotations.entrySet()) {
-			Set<MergedAnnotation> set = entry.getValue();
-			for (MergedAnnotation mergedAnnotation : set) {
-				if (mergedAnnotation.isRepeatable()) {
-					Set<MatchedMergedAnnotation<A>> matched1 = mergedAnnotation.getMatchedRepeatableAnnotation(annotationType);
-					if (matched1 != null) {
-						matchedSet.addAll(matched1);
-					}
-				}else{
-					MatchedMergedAnnotation<A> matched2 = mergedAnnotation.getMatchedAnnotation(annotationType);
-					if (matched2 != null) {
-						matchedSet.add(matched2);
-					}
-				}
+		} else {
+			// 可重复注解与元注解必然不相同
+			if (this.annotationType == annotationType) {
+				matchedSet.add(MatchedMergedAnnotation.of(annotationType, this));
 			}
-		}
-		if (matchedSet.isEmpty()){
-			return null;
 		}
 		return matchedSet;
 	}
 
-	public SortedMap<Integer, Set<MergedAnnotation>> getHierarchyAnnotations() {
-		if (this.hierarchyAnnotations == null) {
-			this.hierarchyAnnotations = Collections.unmodifiableSortedMap(MergedAnnotations.scanHierarchyAnnotations(this));
-		}
-		return this.hierarchyAnnotations;
+
+	public AnnotationAttributes getAnnotationAttributes() {
+		return annotationAttributes.get();
 	}
 
-	public Annotation getAnnotation() {
-		if (this.annotation != null) {
-			return this.annotation;
-		}
-		return AnnotationAttributes.of(this.annotationType).asAnnotation();
+	public List<Set<MergedAnnotation>> getHierarchyAnnotations() {
+		return this.hierarchyAnnotations.get();
+	}
+
+	public Annotation asAnnotation() {
+		return getAnnotationAttributes().asAnnotation();
 	}
 
 	public boolean isRepeatable() {
@@ -175,31 +245,11 @@ public class MergedAnnotation {
 	}
 
 
-	public boolean isAlias() {
-		return aliasSource != null && aliasMethods != null;
-	}
-
-	public Map<String, Object> getAliasValues() {
-		Map<String, Object> aliasValues = new HashMap<>();
-		if (aliasSource.isAlias()) {
-			AnnotationAttributes aliasAnnotationAttributes = aliasSource.getAliasAnnotationAttributes();
-			for (Map.Entry<String, Method> entry : aliasMethods.entrySet()) {
-				aliasValues.put(entry.getKey(), aliasAnnotationAttributes.get(entry.getValue().getName()));
-			}
-		} else {
-			for (Map.Entry<String, Method> entry : aliasMethods.entrySet()) {
-				aliasValues.put(entry.getKey(), Reflects.invokeQuietly(aliasSource.getAnnotation(), entry.getValue()));
-			}
-		}
-		return aliasValues;
-	}
-
-
-	AnnotationAttributes getAliasAnnotationAttributes() {
-		Map<String, Object> aliasValues = getAliasValues();
-		AnnotationAttributes attributes = AnnotationAttributes.of(annotationType);
-		attributes.set(aliasValues);
-		return attributes;
+	/**
+	 * 是否仅为别名注解，不含元注解实例
+	 */
+	public boolean isAliasOnly() {
+		return annotation == null && aliasSourceAnnotation != null && aliasSourceMembers != null;
 	}
 
 }

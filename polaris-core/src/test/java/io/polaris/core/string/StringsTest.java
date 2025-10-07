@@ -27,7 +27,7 @@ class StringsTest {
 		Method method = Reflects.getMethodByName(getClass(), methodName);
 		String msg1 = Arrays.toString(method.getAnnotationsByType(Tag.class));
 		Consoles.println(msg1);
-		String msg = Arrays.toString(Annotations.getRepeatableAnnotation(method, Tag.class));
+		String msg = Arrays.toString(Annotations.getRawRepeatableAnnotation(method, Tag.class));
 		Consoles.println(msg);
 		Object[] args = new Object[]{Annotations.getMergedRepeatableAnnotation(method, Tag.class)};
 		Consoles.println(args);

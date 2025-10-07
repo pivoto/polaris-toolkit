@@ -1,11 +1,13 @@
 package io.polaris.core.lang.annotation;
 
-import io.polaris.core.reflect.Reflects;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.AnnotationFormatError;
 import java.lang.annotation.IncompleteAnnotationException;
-import java.lang.reflect.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,28 +15,37 @@ import java.util.Map;
 
 /**
  * @author Qt
- * @since  Jan 06, 2024
+ * @since Jan 06, 2024
  */
 public class AnnotationInvocationHandler implements InvocationHandler {
+	public static final String TO_STRING = "toString";
+	public static final String HASH_CODE = "hashCode";
+	public static final String EQUALS = "equals";
+	public static final String ANNOTATION_TYPE = "annotationType";
 	private final Class<? extends Annotation> annotationType;
 	private final Map<String, Object> memberValues;
+	private final boolean allowedIncomplete;
 	private transient volatile Method[] memberMethods = null;
 
-	AnnotationInvocationHandler(Class<? extends Annotation> annotationType, Map<String, Object> values) {
+	AnnotationInvocationHandler(Class<? extends Annotation> annotationType, Map<String, Object> values, boolean allowedIncomplete) {
 		Class<?>[] interfaces = annotationType.getInterfaces();
 		if (annotationType.isAnnotation() && interfaces.length == 1 && interfaces[0] == Annotation.class) {
 			this.annotationType = annotationType;
 			this.memberValues = values;
+			this.allowedIncomplete = allowedIncomplete;
 		} else {
 			throw new AnnotationFormatError("Attempt to create proxy for a non-annotation type.");
 		}
 	}
 
+	public static <A extends Annotation> A createProxy(Class<A> annotationType, Map<String, Object> values) {
+		return createProxy(annotationType, values, false);
+	}
 
 	@SuppressWarnings("unchecked")
-	static <A extends Annotation> A createProxy(Class<A> annotationType, Map<String, Object> values) {
+	public static <A extends Annotation> A createProxy(Class<A> annotationType, Map<String, Object> values, boolean allowedIncomplete) {
 		ClassLoader classLoader = annotationType.getClassLoader();
-		AnnotationInvocationHandler handler = new AnnotationInvocationHandler(annotationType, values);
+		AnnotationInvocationHandler handler = new AnnotationInvocationHandler(annotationType, values, allowedIncomplete);
 		return (A) Proxy.newProxyInstance(classLoader, new Class<?>[]{annotationType}, handler);
 	}
 
@@ -44,22 +55,25 @@ public class AnnotationInvocationHandler implements InvocationHandler {
 		String methodName = method.getName();
 		if (method.getDeclaringClass() != annotationType) {
 			Class<?>[] parameterTypes = method.getParameterTypes();
-			if (methodName.equals(Reflects.EQUALS) && parameterTypes.length == 1 && parameterTypes[0] == Object.class) {
+			if (methodName.equals(EQUALS) && parameterTypes.length == 1 && parameterTypes[0] == Object.class) {
 				return this.equalsImpl(args[0]);
 			}
-			if (methodName.equals(Reflects.HASH_CODE) && parameterTypes.length == 0) {
+			if (methodName.equals(HASH_CODE) && parameterTypes.length == 0) {
 				return this.hashCodeImpl();
 			}
-			if (methodName.equals(Reflects.TO_STRING) && parameterTypes.length == 0) {
+			if (methodName.equals(TO_STRING) && parameterTypes.length == 0) {
 				return this.toStringImpl();
 			}
-			if (methodName.equals(Reflects.ANNOTATION_TYPE) && parameterTypes.length == 0) {
+			if (methodName.equals(ANNOTATION_TYPE) && parameterTypes.length == 0) {
 				return this.annotationType;
 			}
 			throw new IllegalStateException("Unexpected method: " + method);
 		}
 		Object value = this.memberValues.get(methodName);
 		if (value == null) {
+			if (allowedIncomplete) {
+				return null;
+			}
 			throw new IncompleteAnnotationException(this.annotationType, methodName);
 		}
 		if (value.getClass().isArray() && Array.getLength(value) != 0) {
@@ -182,6 +196,12 @@ public class AnnotationInvocationHandler implements InvocationHandler {
 	}
 
 	private static boolean memberValueEquals(Object value, Object target) {
+		if (value == target) {
+			return true;
+		}
+		if (value == null || target == null) {
+			return false;
+		}
 		Class<?> valueType = value.getClass();
 		if (!valueType.isArray()) {
 			return value.equals(target);
