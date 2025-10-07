@@ -4,8 +4,6 @@ import io.polaris.core.jdbc.annotation.Column;
 import io.polaris.core.jdbc.annotation.Table;
 import lombok.Data;
 
-import java.util.Map;
-
 /**
  * @author Qt
  * @since  Aug 20, 2023

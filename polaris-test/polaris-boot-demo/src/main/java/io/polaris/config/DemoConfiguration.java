@@ -3,6 +3,9 @@ package io.polaris.config;
 import io.polaris.mybatis.interceptor.DataAuthInterceptor;
 import io.polaris.mybatis.interceptor.DynamicUseGeneratedKeysInterceptor;
 import io.polaris.mybatis.interceptor.MybatisLogInterceptor;
+import io.polaris.mybatis.type.TypeHandlers;
+import org.apache.ibatis.type.TypeHandlerRegistry;
+import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -40,4 +43,12 @@ public class DemoConfiguration {
 		return new DynamicUseGeneratedKeysInterceptor();
 	}
 
+
+	@Bean
+	public ConfigurationCustomizer configurationCustomizer() {
+		return configuration -> {
+			TypeHandlerRegistry typeHandlerRegistry = configuration.getTypeHandlerRegistry();
+			TypeHandlers.registerAll(configuration);
+		};
+	}
 }

@@ -2,7 +2,6 @@ package io.polaris.core.annotation.processing;
 
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.TableMetaKit;
-import io.polaris.core.jdbc.sql.statement.JoinDriver;
 import org.junit.jupiter.api.Test;
 
 import com.alibaba.fastjson2.JSON;

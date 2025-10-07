@@ -33,14 +33,9 @@ import io.polaris.demo.mybatis.entity.DemoUserOrgEntityMeta;
 import io.polaris.mybatis.provider.AnyEntityProvider;
 import io.polaris.mybatis.provider.ProviderSqlSourceDriver;
 import io.polaris.mybatis.scripting.TableRefResolvableDriver;
-import org.apache.ibatis.annotations.DeleteProvider;
-import org.apache.ibatis.annotations.InsertProvider;
-import org.apache.ibatis.annotations.Lang;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.SelectProvider;
-import org.apache.ibatis.annotations.UpdateProvider;
+import io.polaris.mybatis.type.ArrayTypeHandler;
+import io.polaris.mybatis.type.StringArrayTypeHandler;
+import org.apache.ibatis.annotations.*;
 
 /**
  * @author Qt
@@ -61,6 +56,9 @@ public interface DemoMapper {
 	@EntityDelete(table = DemoOrgEntity.class, entityKey = "e")
 	int deleteEntity(@Param("e") DemoOrgEntity param);
 
+//	@Results({
+//		@Result(property = "intro", column = "intro",  typeHandler = StringArrayTypeHandler.class),
+//	})
 	@SelectProvider(AnyEntityProvider.class)
 	@EntitySelect(table = DemoOrgEntity.class, byId = true)
 	DemoOrgEntity selectOrgById(@Param(BindingKeys.ENTITY) DemoOrgEntity param);

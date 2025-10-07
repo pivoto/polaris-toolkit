@@ -6,9 +6,9 @@ insert into demo_user(name)
 values
 	('user');
 
-insert into demo_org(id, name)
+insert into demo_org(id, name,intro)
 values
-	(1, 'org1');
+	(1, 'org1', '{}');
 insert into demo_org(id, name)
 values
 	(2, 'org2');

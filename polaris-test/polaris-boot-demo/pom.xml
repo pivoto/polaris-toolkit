@@ -15,6 +15,8 @@
 		<maven.install.skip>true</maven.install.skip>
 		<maven.deploy.skip>true</maven.deploy.skip>
 		<dependency.spring-boot.version>2.4.2</dependency.spring-boot.version>
+		<mybatis.version>3.5.7</mybatis.version>
+		<spring.version>5.3.7</spring.version>
 	</properties>
 
 	<dependencies>
@@ -194,6 +196,16 @@
 				<version>${dependency.spring-boot.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.mybatis</groupId>
+				<artifactId>mybatis</artifactId>
+				<version>${mybatis.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context</artifactId>
+				<version>${spring.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

@@ -3,8 +3,10 @@ package io.polaris.demo.mybatis.entity;
 import java.util.Date;
 
 import io.polaris.core.jdbc.annotation.Column;
+import io.polaris.core.jdbc.annotation.ColumnProperty;
 import io.polaris.core.jdbc.annotation.Id;
 import io.polaris.core.jdbc.annotation.Table;
+import io.polaris.demo.annotation.DemoOrgTableId;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,6 +24,9 @@ import lombok.NoArgsConstructor;
 public class DemoOrgEntity {
 	@Id
 	@Column
+	@DemoOrgTableId
+	@ColumnProperty(key = "k1", stringValue = "v1")
+	@ColumnProperty(key = "k2", stringValue = "v2")
 	private Long id;
 	private String name;
 	private String intro;

@@ -20,6 +20,33 @@
 			<groupId>cn.fossc.polaris.toolkit</groupId>
 			<artifactId>polaris-core</artifactId>
 		</dependency>
+
+		<!-- region json-->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>${dependency.jackson.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>${dependency.jackson.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${dependency.jackson.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.alibaba.fastjson2</groupId>
+			<artifactId>fastjson2</artifactId>
+			<version>${dependency.fastjson2.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<!-- endregion json-->
 	</dependencies>
 
 	<build>
