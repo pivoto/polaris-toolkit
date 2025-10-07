@@ -1,8 +1,10 @@
 package io.polaris.core.jdbc.annotation.processing;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiPredicate;
@@ -13,17 +15,21 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.ElementScanner8;
 import javax.tools.Diagnostic;
 
+import io.polaris.core.annotation.processing.AnnotationProcessorUtils;
+import io.polaris.core.annotation.processing.AptAnnotationAttributes;
+import io.polaris.core.annotation.processing.AptAnnotations;
 import io.polaris.core.annotation.processing.BaseProcessor;
-import io.polaris.core.jdbc.ColumnMeta;
-import io.polaris.core.jdbc.ExpressionMeta;
-import io.polaris.core.jdbc.EntityMeta;
-import io.polaris.core.jdbc.annotation.Table;
-
 import io.polaris.core.javapoet.*;
+import io.polaris.core.jdbc.ColumnMeta;
+import io.polaris.core.jdbc.EntityMeta;
+import io.polaris.core.jdbc.ExpressionMeta;
+import io.polaris.core.jdbc.annotation.Table;
 
 /**
  * @author Qt
@@ -39,16 +45,85 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 		if (roundEnv.processingOver()) {
 			return true;
 		}
+		processMerged(roundEnv);
+		return true;
+	}
+
+	private void processMerged(RoundEnvironment roundEnv) {
+		Set<? extends Element> rootElements = roundEnv.getRootElements();
+		Map<Element, TableAnnotationAttributes> targets = new LinkedHashMap<>();
+		TypeElement tableType = env.getElementUtils().getTypeElement(Table.class.getCanonicalName());
+		ElementScanner8<Void, Void> scanner = new ElementScanner8<Void, Void>() {
+			@Override
+			public Void scan(Element element, Void p) {
+				if (element instanceof TypeElement) {
+					if (element.getKind() == ElementKind.CLASS) {
+						if (!targets.containsKey(element)) {
+							AptAnnotationAttributes annotationAttributes = AptAnnotations.getMergedAnnotation(env, element, tableType);
+							if (annotationAttributes != null) {
+								TableAnnotationAttributes table = new TableAnnotationAttributes(annotationAttributes);
+								targets.put(element, table);
+							}
+						}
+					}
+				}
+				return super.scan(element, p);
+			}
+		};
+		for (Element element : rootElements) {
+			scanner.scan(element);
+		}
+
+		targets.forEach((key, table) -> {
+			TypeElement element = (TypeElement) key;
+			JdbcBeanInfo beanInfo = new JdbcBeanInfo(this.env, element, table);
+			generateMetaClass(beanInfo);
+			generateSqlClass(beanInfo);
+		});
+	}
+
+	private void processDeeply(RoundEnvironment roundEnv) {
+		Set<? extends Element> rootElements = roundEnv.getRootElements();
+		Map<Element, Table> targets = new LinkedHashMap<>();
+		ElementScanner8<Void, Void> scanner = new ElementScanner8<Void, Void>() {
+			@Override
+			public Void scan(Element element, Void p) {
+				if (element instanceof TypeElement) {
+					if (element.getKind() == ElementKind.CLASS) {
+						Table table = AnnotationProcessorUtils.getAnnotation(env.getElementUtils(), element, Table.class);
+						if (table != null) {
+							targets.put(element, table);
+						}
+					}
+				}
+				return super.scan(element, p);
+			}
+		};
+		for (Element element : rootElements) {
+			scanner.scan(element);
+		}
+
+		targets.forEach((key, table) -> {
+			TypeElement element = (TypeElement) key;
+			JdbcBeanInfo beanInfo = new JdbcBeanInfo(this.env, element, table);
+			generateMetaClass(beanInfo);
+			generateSqlClass(beanInfo);
+		});
+	}
+
+	private void processDirectly(RoundEnvironment roundEnv) {
 		Set<? extends Element> set = roundEnv.getElementsAnnotatedWith(Table.class);
 		set.forEach(element -> {
 			if (!(element instanceof TypeElement)) {
 				return;
 			}
-			JdbcBeanInfo beanInfo = new JdbcBeanInfo((TypeElement) element);
+			if (element.getKind() != ElementKind.CLASS) {
+				return;
+			}
+			JdbcBeanInfo beanInfo = new JdbcBeanInfo(this.env, (TypeElement) element, null);
 			generateMetaClass(beanInfo);
 			generateSqlClass(beanInfo);
 		});
-		return true;
 	}
 
 
@@ -149,57 +224,66 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 			CodeBlock.Builder codeBlock = CodeBlock.builder()
 				.addStatement("$T map = new $T<>()", columnMetaMapTypeName, ClassName.get(LinkedHashMap.class));
 			for (JdbcBeanInfo.FieldInfo field : beanInfo.getFields()) {
-				codeBlock.addStatement(
-					"map.put($S,$T.builder()" +
-						".schema($S)" +
-						".catalog($S)" +
-						".tableName($S)" +
-						".fieldName($S)" +
-						".fieldType($T.class)" +
-						".columnName($S)" +
-						".jdbcType($S)" +
-						".jdbcTypeValue($L)" +
-						".updateDefault($S)" +
-						".insertDefault($S)" +
-						".nullable($L)" +
-						".insertable($L)" +
-						".updatable($L)" +
-						".version($L)" +
-						".logicDeleted($L)" +
-						".createTime($L)" +
-						".updateTime($L)" +
-						".primaryKey($L)" +
-						".autoIncrement($L)" +
-						".seqName($S)" +
-						".idSql($S)" +
-						".updateDefaultSql($S)" +
-						".insertDefaultSql($S)" +
-						".build())",
-					field.getFieldName(), columnMetaClassName
-					, beanInfo.getTableSchema()
-					, beanInfo.getTableCatalog()
-					, beanInfo.getTableName()
-					, field.getFieldName()
-					, field.getFieldRawTypeName()
-					, field.getColumnName()
-					, field.getJdbcTypeName()
-					, field.getJdbcTypeValue()
-					, field.getUpdateDefault()
-					, field.getInsertDefault()
-					, field.isNullable()
-					, field.isInsertable()
-					, field.isUpdatable()
-					, field.isVersion()
-					, field.isLogicDeleted()
-					, field.isCreateTime()
-					, field.isUpdateTime()
-					, field.isId()
-					, field.isAutoIncrement()
-					, field.getSeqName()
-					, field.getIdSql()
-					, field.getUpdateDefaultSql()
-					, field.getInsertDefaultSql()
-				);
+				StringBuilder format = new StringBuilder();
+				format.append("map.put($S,$T.builder()")
+					.append(".schema($S)")
+					.append(".catalog($S)")
+					.append(".tableName($S)")
+					.append(".fieldName($S)")
+					.append(".fieldType($T.class)")
+					.append(".columnName($S)")
+					.append(".jdbcType($S)")
+					.append(".jdbcTypeValue($L)")
+					.append(".updateDefault($S)")
+					.append(".insertDefault($S)")
+					.append(".nullable($L)")
+					.append(".insertable($L)")
+					.append(".updatable($L)")
+					.append(".version($L)")
+					.append(".logicDeleted($L)")
+					.append(".createTime($L)")
+					.append(".updateTime($L)")
+					.append(".primaryKey($L)")
+					.append(".autoIncrement($L)")
+					.append(".seqName($S)")
+					.append(".idSql($S)")
+					.append(".updateDefaultSql($S)")
+					.append(".insertDefaultSql($S)");
+				List<Object> args = new ArrayList<>();
+				args.add(field.getFieldName());
+				args.add(columnMetaClassName);
+				args.add(beanInfo.getTableSchema());
+				args.add(beanInfo.getTableCatalog());
+				args.add(beanInfo.getTableName());
+				args.add(field.getFieldName());
+				args.add(field.getFieldRawTypeName());
+				args.add(field.getColumnName());
+				args.add(field.getJdbcTypeName());
+				args.add(field.getJdbcTypeValue());
+				args.add(field.getUpdateDefault());
+				args.add(field.getInsertDefault());
+				args.add(field.isNullable());
+				args.add(field.isInsertable());
+				args.add(field.isUpdatable());
+				args.add(field.isVersion());
+				args.add(field.isLogicDeleted());
+				args.add(field.isCreateTime());
+				args.add(field.isUpdateTime());
+				args.add(field.isId());
+				args.add(field.isAutoIncrement());
+				args.add(field.getSeqName());
+				args.add(field.getIdSql());
+				args.add(field.getUpdateDefaultSql());
+				args.add(field.getInsertDefaultSql());
+				if (field.getProperties() != null) {
+					for (Map.Entry<String, String> entry : field.getProperties().entrySet()) {
+						args.add(entry.getKey());
+						args.add(entry.getValue());
+						format.append(".properties($S,$S)");
+					}
+				}
+				format.append(".build())");
+				codeBlock.addStatement(format.toString(), args.toArray(new Object[0]));
 			}
 			classBuilder.addStaticBlock(
 				codeBlock.addStatement("COLUMNS = $T.unmodifiableMap(map)", ClassName.get(Collections.class))
@@ -210,31 +294,40 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 			CodeBlock.Builder codeBlock = CodeBlock.builder()
 				.addStatement("$T map = new $T<>()", expressionMetaMapTypeName, ClassName.get(LinkedHashMap.class));
 			for (JdbcBeanInfo.ExpressionInfo field : beanInfo.getExpressions()) {
-				codeBlock.addStatement(
-					"map.put($S,$T.builder()" +
-						".schema($S)" +
-						".catalog($S)" +
-						".tableName($S)" +
-						".fieldName($S)" +
-						".fieldType($T.class)" +
-						".expression($S)" +
-						".jdbcType($S)" +
-						".jdbcTypeValue($L)" +
-						".tableAliasPlaceholder($S)" +
-						".selectable($L)" +
-						".build())",
-					field.getFieldName(), expressionMetaClassName
-					, beanInfo.getTableSchema()
-					, beanInfo.getTableCatalog()
-					, beanInfo.getTableName()
-					, field.getFieldName()
-					, field.getFieldRawTypeName()
-					, field.getExpression()
-					, field.getJdbcTypeName()
-					, field.getJdbcTypeValue()
-					, field.getTableAliasPlaceholder()
-					, field.isSelectable()
-				);
+				StringBuilder format = new StringBuilder()
+					.append("map.put($S,$T.builder()")
+					.append(".schema($S)")
+					.append(".catalog($S)")
+					.append(".tableName($S)")
+					.append(".fieldName($S)")
+					.append(".fieldType($T.class)")
+					.append(".expression($S)")
+					.append(".jdbcType($S)")
+					.append(".jdbcTypeValue($L)")
+					.append(".tableAliasPlaceholder($S)")
+					.append(".selectable($L)");
+				List<Object> args = new ArrayList<>();
+				args.add(field.getFieldName());
+				args.add(expressionMetaClassName);
+				args.add(beanInfo.getTableSchema());
+				args.add(beanInfo.getTableCatalog());
+				args.add(beanInfo.getTableName());
+				args.add(field.getFieldName());
+				args.add(field.getFieldRawTypeName());
+				args.add(field.getExpression());
+				args.add(field.getJdbcTypeName());
+				args.add(field.getJdbcTypeValue());
+				args.add(field.getTableAliasPlaceholder());
+				args.add(field.isSelectable());
+				if (field.getProperties() != null) {
+					for (Map.Entry<String, String> entry : field.getProperties().entrySet()) {
+						args.add(entry.getKey());
+						args.add(entry.getValue());
+						format.append(".properties($S,$S)");
+					}
+				}
+				format.append(".build())");
+				codeBlock.addStatement(format.toString(), args.toArray(new Object[0]));
 			}
 			classBuilder.addStaticBlock(
 				codeBlock.addStatement("EXPRESSIONS = $T.unmodifiableMap(map)", ClassName.get(Collections.class))

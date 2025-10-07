@@ -1,18 +1,23 @@
 package io.polaris.core.annotation.processing;
 
-import io.polaris.core.annotation.Access;
-import io.polaris.core.javapoet.ClassName;
-import io.polaris.core.javapoet.TypeName;
-import lombok.Data;
-
-import javax.lang.model.element.*;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.NoType;
-import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.NoType;
+import javax.lang.model.type.TypeMirror;
+
+import io.polaris.core.annotation.Access;
+import io.polaris.core.javapoet.ClassName;
+import io.polaris.core.javapoet.TypeName;
+import lombok.Data;
 
 /**
  * @author Qt
@@ -38,13 +43,15 @@ public class AccessBeanInfo {
 	private ClassName settersClassName;
 	private List<FieldInfo> fields = new ArrayList<>();
 
-	public AccessBeanInfo(TypeElement element) {
+	public AccessBeanInfo(TypeElement element, Access access) {
 		this.element = element;
-		init();
+		init(access);
 	}
 
-	private void init() {
-		Access access = element.getAnnotation(Access.class);
+	private void init(Access access) {
+		if (access == null) {
+			access = element.getAnnotation(Access.class);
+		}
 		if (access == null) {
 			return;
 		}
@@ -108,7 +115,7 @@ public class AccessBeanInfo {
 						fieldInfo.declaredClassName = declaredClassName;
 						fieldInfo.fieldName = fieldName;
 						fieldInfo.typeName = typeName;
-						fieldInfo.rawTypeName =AnnotationProcessorUtils.rawType(typeName);
+						fieldInfo.rawTypeName = AnnotationProcessorUtils.rawType(typeName);
 						fieldInfo.getterName = AnnotationProcessorUtils.toGetterName(fieldName, typeName);
 						fieldInfo.setterName = AnnotationProcessorUtils.toSetterName(fieldName);
 

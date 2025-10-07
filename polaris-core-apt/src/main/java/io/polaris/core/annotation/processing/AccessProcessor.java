@@ -6,6 +6,7 @@ import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -19,12 +20,13 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.ElementScanner8;
 import javax.tools.Diagnostic;
 
 import io.polaris.core.annotation.Access;
-
 import io.polaris.core.javapoet.*;
 
 /**
@@ -40,12 +42,34 @@ public class AccessProcessor extends BaseProcessor {
 		if (roundEnv.processingOver()) {
 			return true;
 		}
-		Set<? extends Element> set = roundEnv.getElementsAnnotatedWith(Access.class);
-		set.forEach(element -> {
-			if (!(element instanceof TypeElement)) {
-				return;
+		processDeeply(roundEnv);
+		return true;
+	}
+
+	private void processDeeply(RoundEnvironment roundEnv) {
+		Set<? extends Element> rootElements = roundEnv.getRootElements();
+		Map<Element, Access> targets = new LinkedHashMap<>();
+		ElementScanner8<Void, Void> scanner = new ElementScanner8<Void, Void>() {
+			@Override
+			public Void scan(Element element, Void p) {
+				if (element instanceof TypeElement) {
+					if (element.getKind() == ElementKind.CLASS) {
+						Access access = AnnotationProcessorUtils.getAnnotation(env.getElementUtils(), element, Access.class);
+						if (access != null) {
+							targets.put(element, access);
+						}
+					}
+				}
+				return super.scan(element, p);
 			}
-			AccessBeanInfo beanInfo = new AccessBeanInfo((TypeElement) element);
+		};
+		for (Element element : rootElements) {
+			scanner.scan(element);
+		}
+
+		targets.forEach((key, access) -> {
+			TypeElement element = (TypeElement) key;
+			AccessBeanInfo beanInfo = new AccessBeanInfo((TypeElement) element, access);
 			if (beanInfo.isAccessFluent()) {
 				generateFluentClass(beanInfo);
 			}
@@ -62,7 +86,31 @@ public class AccessProcessor extends BaseProcessor {
 				generateMapClass(beanInfo);
 			}
 		});
-		return true;
+	}
+
+	private void processDirectly(RoundEnvironment roundEnv) {
+		Set<? extends Element> set = roundEnv.getElementsAnnotatedWith(Access.class);
+		set.forEach(element -> {
+			if (!(element instanceof TypeElement)) {
+				return;
+			}
+			AccessBeanInfo beanInfo = new AccessBeanInfo((TypeElement) element, null);
+			if (beanInfo.isAccessFluent()) {
+				generateFluentClass(beanInfo);
+			}
+			if (beanInfo.isAccessFields()) {
+				generateFieldsClass(beanInfo);
+			}
+			if (beanInfo.isAccessGetters()) {
+				generateGettersClass(beanInfo);
+			}
+			if (beanInfo.isAccessSetters()) {
+				generateSettersClass(beanInfo);
+			}
+			if (beanInfo.isAccessMap()) {
+				generateMapClass(beanInfo);
+			}
+		});
 	}
 
 	private void generateFieldsClass(AccessBeanInfo beanInfo) {

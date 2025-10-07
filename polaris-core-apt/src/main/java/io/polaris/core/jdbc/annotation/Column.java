@@ -6,7 +6,7 @@ import java.lang.annotation.*;
  * @author Qt
  */
 @Documented
-@Target(ElementType.FIELD)
+@Target({ElementType.FIELD, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Column {
 

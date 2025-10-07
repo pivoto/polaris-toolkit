@@ -1,33 +1,46 @@
 package io.polaris.core.jdbc.annotation.processing;
 
-import io.polaris.core.annotation.processing.AnnotationProcessorUtils;
-import io.polaris.core.jdbc.ExpressionMeta;
-import io.polaris.core.jdbc.annotation.Column;
-import io.polaris.core.jdbc.annotation.Expression;
-import io.polaris.core.jdbc.annotation.Id;
-import io.polaris.core.jdbc.annotation.Table;
-import io.polaris.core.javapoet.ClassName;
-import io.polaris.core.javapoet.TypeName;
-import lombok.Data;
-
-import javax.lang.model.element.*;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.NoType;
-import javax.lang.model.type.TypeMirror;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.NoType;
+import javax.lang.model.type.TypeMirror;
+
+import io.polaris.core.annotation.processing.AnnotationProcessorUtils;
+import io.polaris.core.annotation.processing.AptAnnotationAttributes;
+import io.polaris.core.annotation.processing.AptAnnotations;
+import io.polaris.core.javapoet.ClassName;
+import io.polaris.core.javapoet.TypeName;
+import io.polaris.core.jdbc.annotation.Column;
+import io.polaris.core.jdbc.annotation.ColumnProperties;
+import io.polaris.core.jdbc.annotation.ColumnProperty;
+import io.polaris.core.jdbc.annotation.Expression;
+import io.polaris.core.jdbc.annotation.Id;
+import io.polaris.core.jdbc.annotation.Table;
+import lombok.Data;
 
 /**
  * @author Qt
- * @since  Aug 20, 2023
+ * @since Aug 20, 2023
  */
 @Data
 public class JdbcBeanInfo {
-	private TypeElement element;
+	private final ProcessingEnvironment env;
+	private final TypeElement element;
 	private String tableName;
 	private String tableAlias;
 	private String tableCatalog;
@@ -37,29 +50,32 @@ public class JdbcBeanInfo {
 	private ClassName beanClassName;
 	private ClassName metaClassName;
 	private List<FieldInfo> fields = new ArrayList<>();
-	private List<ExpressionInfo> expressions =  new ArrayList<>();
+	private List<ExpressionInfo> expressions = new ArrayList<>();
 	private boolean sqlGenerated;
 	private String sqlSuffix;
 	private ClassName sqlClassName;
 
-	public JdbcBeanInfo(TypeElement element) {
+	public JdbcBeanInfo(ProcessingEnvironment env, TypeElement element, Table table) {
+		this.env = env;
 		this.element = element;
-		init();
+		init(table);
 	}
 
-	private void init() {
-		Table access = element.getAnnotation(Table.class);
-		if (access == null) {
+	private void init(Table table) {
+		if (table == null) {
+			table = element.getAnnotation(Table.class);
+		}
+		if (table == null) {
 			return;
 		}
 
-		this.tableName = access.value();
-		this.tableAlias = access.alias();
-		this.tableCatalog = access.catalog();
-		this.tableSchema = access.schema();
-		this.metaSuffix = access.metaSuffix();
-		this.sqlGenerated = access.sqlGenerated();
-		this.sqlSuffix = access.sqlSuffix();
+		this.tableName = table.value();
+		this.tableAlias = table.alias();
+		this.tableCatalog = table.catalog();
+		this.tableSchema = table.schema();
+		this.metaSuffix = table.metaSuffix();
+		this.sqlGenerated = table.sqlGenerated();
+		this.sqlSuffix = table.sqlSuffix();
 
 		this.beanTypeName = TypeName.get(element.asType());
 		this.beanClassName = ClassName.get(element);
@@ -90,20 +106,26 @@ public class JdbcBeanInfo {
 						if (variableElement.getModifiers().contains(Modifier.TRANSIENT)) {
 							continue;
 						}
-						Column column = variableElement.getAnnotation(Column.class);
+						Map<String, String> columnProperties = getColumnProperties(variableElement);
+						//Column column = variableElement.getAnnotation(Column.class);
+						//Column column = getAnnotation(variableElement, Column.class);
+						Column column = getColumnAnnotation(variableElement);
 						if (column != null) {
 							if (column.ignored()) {
 								continue;
 							}
 						}
-						Expression expression = variableElement.getAnnotation(Expression.class);
+						//Expression expression = variableElement.getAnnotation(Expression.class);
+						//Expression expression = getAnnotation(variableElement, Expression.class);
+						Expression expression = getExpressionAnnotation(variableElement);
 						if (expression != null) {
-							if (expression.value() != null && !expression.value().trim().isEmpty()){
+							if (expression.value() != null && !expression.value().trim().isEmpty()) {
 								ExpressionInfo expressionInfo = new ExpressionInfo();
+								expressionInfo.properties = columnProperties;
 								expressionInfo.declaredTypeName = declaredTypeName;
 								expressionInfo.declaredClassName = declaredClassName;
 								expressionInfo.fieldTypeName = TypeName.get(variableElement.asType());
-								expressionInfo.fieldRawTypeName =AnnotationProcessorUtils.rawType(expressionInfo.fieldTypeName);
+								expressionInfo.fieldRawTypeName = AnnotationProcessorUtils.rawType(expressionInfo.fieldTypeName);
 								expressionInfo.readExpression(fieldName, expression);
 								expressions.add(expressionInfo);
 								continue;
@@ -111,11 +133,15 @@ public class JdbcBeanInfo {
 						}
 
 						FieldInfo fieldInfo = new FieldInfo();
+						fieldInfo.properties = columnProperties;
 						fieldInfo.declaredTypeName = declaredTypeName;
 						fieldInfo.declaredClassName = declaredClassName;
 						fieldInfo.fieldTypeName = TypeName.get(variableElement.asType());
-						fieldInfo.fieldRawTypeName =AnnotationProcessorUtils.rawType(fieldInfo.fieldTypeName);
-						fieldInfo.readColumn(fieldName, column, variableElement.getAnnotation(Id.class));
+						fieldInfo.fieldRawTypeName = AnnotationProcessorUtils.rawType(fieldInfo.fieldTypeName);
+						//Id id = variableElement.getAnnotation(Id.class);
+						//Id id = getAnnotation(variableElement, Id.class);
+						Id id = getIdAnnotation(variableElement);
+						fieldInfo.readColumn(fieldName, column, id);
 						fields.add(fieldInfo);
 					}
 				}
@@ -129,6 +155,86 @@ public class JdbcBeanInfo {
 		}
 	}
 
+	private <T extends Annotation> T getAnnotation(Element element, Class<T> annotationType) {
+		return AnnotationProcessorUtils.getAnnotation(env.getElementUtils(), element, annotationType);
+	}
+
+	private ColumnAnnotationAttributes getColumnAnnotation(Element element) {
+		TypeElement annotationType = env.getElementUtils().getTypeElement(Column.class.getCanonicalName());
+		AptAnnotationAttributes annotationAttributes = AptAnnotations.getMergedAnnotation(env, element, annotationType);
+		if (annotationAttributes == null) {
+			return null;
+		}
+		return new ColumnAnnotationAttributes(annotationAttributes);
+	}
+
+	private IdAnnotationAttributes getIdAnnotation(Element element) {
+		TypeElement annotationType = env.getElementUtils().getTypeElement(Id.class.getCanonicalName());
+		AptAnnotationAttributes annotationAttributes = AptAnnotations.getMergedAnnotation(env, element, annotationType);
+		if (annotationAttributes == null) {
+			return null;
+		}
+		return new IdAnnotationAttributes(annotationAttributes);
+	}
+
+	private ExpressionAnnotationAttributes getExpressionAnnotation(Element element) {
+		TypeElement annotationType = env.getElementUtils().getTypeElement(Expression.class.getCanonicalName());
+		AptAnnotationAttributes annotationAttributes = AptAnnotations.getMergedAnnotation(env, element, annotationType);
+		if (annotationAttributes == null) {
+			return null;
+		}
+		return new ExpressionAnnotationAttributes(annotationAttributes);
+	}
+
+	private Map<String, String> getColumnProperties(Element element) {
+		TypeElement annotationType = env.getElementUtils().getTypeElement(ColumnProperty.class.getCanonicalName());
+		Set<AptAnnotationAttributes> annotationAttributes = AptAnnotations.getMergedRepeatableAnnotation(env, element, annotationType);
+		Map<String, String> map = new LinkedHashMap<>();
+		for (AptAnnotationAttributes annotationAttribute : annotationAttributes) {
+			ColumnPropertyAnnotationAttributes columnProperty = new ColumnPropertyAnnotationAttributes(annotationAttribute);
+			String key = columnProperty.key();
+			String value = columnProperty.value();
+			if (key != null && !key.trim().isEmpty() && value != null && !value.trim().isEmpty()) {
+				map.putIfAbsent(key, value);
+			}
+		}
+		return map;
+	}
+
+//	private Map<String, String> getColumnProperties1(Element element) {
+//		Set<Element> retrieved = new HashSet<>();
+//		Set<ColumnProperty> set = new HashSet<>();
+//		getColumnProperties0(set, retrieved, element);
+//		Map<String, String> map = new LinkedHashMap<>();
+//		for (ColumnProperty columnProperty : set) {
+//			map.putIfAbsent(columnProperty.key(), columnProperty.stringValue());
+//		}
+//		return map;
+//	}
+//
+//	private void getColumnProperties0(Set<ColumnProperty> set, Set<Element> retrieved, Element element) {
+//		if (retrieved.contains(element)) {
+//			return;
+//		}
+//		ColumnProperty[] annotations = element.getAnnotationsByType(ColumnProperty.class);
+//		if (annotations != null) {
+//			Collections.addAll(set, annotations);
+//		}
+//		ColumnProperties[] columnPropertiesArray = element.getAnnotationsByType(ColumnProperties.class);
+//		if (columnPropertiesArray != null) {
+//			for (ColumnProperties columnProperties : columnPropertiesArray) {
+//				Collections.addAll(set, columnProperties.value());
+//			}
+//		}
+//		retrieved.add(element);
+//		List<? extends AnnotationMirror> annotationMirrors = env.getElementUtils().getAllAnnotationMirrors(element);
+//		if (annotationMirrors != null && !annotationMirrors.isEmpty()) {
+//			for (AnnotationMirror annotationMirror : annotationMirrors) {
+//				getColumnProperties0(set, retrieved, annotationMirror.getAnnotationType().asElement());
+//			}
+//		}
+//	}
+
 	@Data
 	public static class ExpressionInfo {
 		private TypeName declaredTypeName;
@@ -141,6 +247,7 @@ public class JdbcBeanInfo {
 		private String expression;
 		private String tableAliasPlaceholder;
 		private boolean selectable = true;
+		private Map<String, String> properties;
 
 		public void readExpression(String fieldName, Expression expression) {
 			this.fieldName = fieldName;
@@ -184,6 +291,7 @@ public class JdbcBeanInfo {
 		private boolean logicDeleted = false;
 		private boolean createTime = false;
 		private boolean updateTime = false;
+		private Map<String, String> properties;
 
 		public void readColumn(String fieldName, Column column, Id id) {
 			this.fieldName = fieldName;

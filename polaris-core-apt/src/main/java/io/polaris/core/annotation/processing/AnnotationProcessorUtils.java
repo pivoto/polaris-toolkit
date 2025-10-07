@@ -1,10 +1,22 @@
 package io.polaris.core.annotation.processing;
 
-import io.polaris.core.annotation.Internal;
-import io.polaris.core.javapoet.*;
-
 import java.beans.Introspector;
+import java.lang.annotation.Annotation;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.Element;
+import javax.lang.model.util.Elements;
+
+import io.polaris.core.annotation.Internal;
+import io.polaris.core.javapoet.ArrayTypeName;
+import io.polaris.core.javapoet.ClassName;
+import io.polaris.core.javapoet.ParameterizedTypeName;
+import io.polaris.core.javapoet.TypeName;
+import io.polaris.core.javapoet.TypeVariableName;
+import io.polaris.core.javapoet.WildcardTypeName;
 
 /**
  * @author Qt
@@ -187,5 +199,32 @@ public class AnnotationProcessorUtils {
 			}
 		}
 		return ClassName.OBJECT;
+	}
+
+
+	public static <T extends Annotation> T getAnnotation(Elements elements, Element element, Class<T> annotationType) {
+		Set<Element> retrieved = new HashSet<>();
+		return getAnnotation0(elements, retrieved, element, annotationType);
+	}
+
+	private static <T extends Annotation> T getAnnotation0(Elements elements, Set<Element> retrieved, Element element, Class<T> annotationType) {
+		if (retrieved.contains(element)) {
+			return null;
+		}
+		retrieved.add(element);
+		T annotation = element.getAnnotation(annotationType);
+		if (annotation != null) {
+			return annotation;
+		}
+		List<? extends AnnotationMirror> annotationMirrors = elements.getAllAnnotationMirrors(element);
+		if (annotationMirrors != null && !annotationMirrors.isEmpty()) {
+			for (AnnotationMirror annotationMirror : annotationMirrors) {
+				annotation = getAnnotation0(elements, retrieved, annotationMirror.getAnnotationType().asElement(), annotationType);
+				if (annotation != null) {
+					return annotation;
+				}
+			}
+		}
+		return null;
 	}
 }
