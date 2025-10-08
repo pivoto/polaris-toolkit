@@ -2359,10 +2359,7 @@
 							<deploymentName>${deploymentName}</deploymentName>
 							<ignorePublishedComponents>true</ignorePublishedComponents>
 							<excludeArtifacts>
-								<excludeArtifact>
-									<groupId>cn.fossc.polaris.toolkit</groupId>
-									<artifactId>polaris-core-apt</artifactId>
-								</excludeArtifact>
+								<excludeArtifact>polaris-core-apt</excludeArtifact>
 							</excludeArtifacts>
 						</configuration>
 					</plugin>
