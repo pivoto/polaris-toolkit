@@ -1,5 +1,7 @@
 package io.polaris.mybatis.util;
 
+import io.polaris.core.assertion.Arguments;
+import io.polaris.core.assertion.Assertions;
 import io.polaris.core.string.Strings;
 import lombok.Getter;
 import net.sf.jsqlparser.JSQLParserException;
@@ -12,7 +14,6 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.*;
-import org.springframework.util.Assert;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -147,7 +148,7 @@ public class SqlParsers {
 		SelectColumn(Table table, String columnName) {
 			this.table = table;
 			this.columnName = Strings.trimToNull(columnName);
-			Assert.notNull(this.columnName, "column name is required" );
+			Arguments.notNull(this.columnName, "column name is required" );
 		}
 
 		public void skip() {
