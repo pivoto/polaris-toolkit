@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.polaris.DemoApp;
+import io.polaris.core.time.Dates;
 import io.polaris.demo.mybatis.entity.DemoOrgEntity;
 import io.polaris.demo.mybatis.entity.DemoUserEntity;
 import io.polaris.demo.mybatis.service.DemoService;
@@ -39,6 +40,8 @@ public class DemoMapperTest {
 			param.setId(11L);
 			param.setVersion(11L);
 			param.setName("org11");
+			param.setCrtDt(Dates.nowDate());
+			param.setUptDt(Dates.nowDate());
 			log.warn("执行结果：{}", mapper.insertEntity(param));
 		});
 		demoService.doTransaction(mapper -> {
@@ -47,6 +50,8 @@ public class DemoMapperTest {
 			param.setVersion(11L);
 			param.setName("org11");
 			param.setIntro("test...");
+			param.setCrtDt(Dates.nowDate());
+			param.setUptDt(Dates.nowDate());
 			log.warn("执行结果：{}", mapper.updateEntity(param));
 		});
 		demoService.doTransaction(mapper -> {
