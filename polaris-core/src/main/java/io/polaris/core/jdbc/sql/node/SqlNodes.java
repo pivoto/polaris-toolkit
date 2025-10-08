@@ -73,15 +73,22 @@ public interface SqlNodes {
 		return new TextNode(text);
 	}
 
+	static VarNode mixed(String varName, Object varValue) {
+		MixedNode varNode = new MixedNode(varName);
+		varNode.bindVarValue(varValue);
+		return varNode;
+	}
+
 	static VarNode dynamic(String varName, Object varValue) {
 		DynamicNode varNode = new DynamicNode(varName);
 		varNode.bindVarValue(varValue);
 		return varNode;
 	}
 
-	static VarNode mixed(String varName, Object varValue) {
-		MixedNode varNode = new MixedNode(varName);
+	static VarNode dynamic(String varName, Object varValue, String varProperty) {
+		DynamicNode varNode = new DynamicNode(varName);
 		varNode.bindVarValue(varValue);
+		varNode.setVarProperty(varProperty);
 		return varNode;
 	}
 

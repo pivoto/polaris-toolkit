@@ -1,17 +1,17 @@
 package io.polaris.core.jdbc.sql.node;
 
-import io.polaris.core.jdbc.sql.BoundSql;
-import io.polaris.core.jdbc.sql.PreparedSql;
-
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import io.polaris.core.jdbc.sql.BoundSql;
+import io.polaris.core.jdbc.sql.PreparedSql;
+
 /**
  * @author Qt
- * @since  Aug 11, 2023
+ * @since Aug 11, 2023
  */
 public interface SqlNode {
 
@@ -25,7 +25,7 @@ public interface SqlNode {
 	}
 
 	default BoundSql asBoundSql(VarNameGenerator generator) {
-		return asBoundSql(generator,"#{", "}");
+		return asBoundSql(generator, "#{", "}");
 	}
 
 	default BoundSql asBoundSql(String openVarToken, String closeVarToken) {
@@ -147,6 +147,14 @@ public interface SqlNode {
 	}
 
 	default String getVarName() {
+		throw new UnsupportedOperationException();
+	}
+
+	default String getVarProperty() {
+		throw new UnsupportedOperationException();
+	}
+
+	default void setVarProperty(String varProperty) {
 		throw new UnsupportedOperationException();
 	}
 

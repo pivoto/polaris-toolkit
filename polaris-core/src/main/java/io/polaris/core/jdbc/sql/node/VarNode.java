@@ -13,6 +13,8 @@ public abstract class VarNode implements SqlNode {
 	/** 绑定变量值 */
 	protected Object varValue;
 	protected List<Object> varValues;
+	/** 绑定变量附加属性，用于生成BoundSql占位符 */
+	protected String varProperty;
 
 	public VarNode(String varName) {
 		this.varName = varName;
@@ -31,6 +33,16 @@ public abstract class VarNode implements SqlNode {
 	@Override
 	public String getVarName() {
 		return varName;
+	}
+
+	@Override
+	public String getVarProperty() {
+		return varProperty;
+	}
+
+	@Override
+	public void setVarProperty(String varProperty) {
+		this.varProperty = varProperty;
 	}
 
 	@Override

@@ -1,16 +1,22 @@
 package io.polaris.core.jdbc.sql.node;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import io.polaris.core.consts.SymbolConsts;
 import io.polaris.core.jdbc.sql.BoundSql;
 import io.polaris.core.jdbc.sql.PreparedSql;
-
-import java.util.*;
+import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since  Aug 11, 2023
+ * @since Aug 11, 2023
  */
 public class DynamicNode extends VarNode implements Cloneable {
+
 	public DynamicNode(String varName) {
 		super(varName);
 	}
@@ -49,9 +55,15 @@ public class DynamicNode extends VarNode implements Cloneable {
 				}
 				if (parameter == null) {
 					text.append(SqlNodes.NULL.getText());
-				}else{
+				} else {
 					String key = generator.generate();
-					text.append(openVarToken).append(key).append(closeVarToken);
+					text.append(openVarToken).append(key);
+					// 绑定变量附加属性，为如Mybatis等占位符增加配置项
+					String varProperty = getVarProperty();
+					if (Strings.isNotBlank(varProperty)){
+						text.append(SymbolConsts.COMMA).append(varProperty);
+					}
+					text.append(closeVarToken);
 					map.put(key, parameter);
 				}
 			}
@@ -75,6 +87,7 @@ public class DynamicNode extends VarNode implements Cloneable {
 		if (withVarValue && this.varValues != null) {
 			clone.varValue = this.varValue;
 			clone.varValues = new ArrayList<>(this.varValues);
+			clone.varProperty = this.varProperty;
 		}
 		return clone;
 	}
