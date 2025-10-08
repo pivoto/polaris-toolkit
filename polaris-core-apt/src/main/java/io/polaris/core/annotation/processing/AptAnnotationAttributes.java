@@ -23,7 +23,6 @@ import javax.lang.model.type.TypeMirror;
 
 import io.polaris.core.lang.annotation.Alias;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.ToString;
 
 /**
@@ -71,7 +70,8 @@ public class AptAnnotationAttributes implements Cloneable {
 		for (ExecutableElement method : methods) {
 			AnnotationValue value = annotationValues.get(method);
 			String name = method.getSimpleName().toString();
-			memberValues.put(name, new Member(env, method, value, method.getDefaultValue()));
+			AnnotationValue defaultValue = method.getDefaultValue();
+			memberValues.put(name, new Member(env, method, value, defaultValue));
 		}
 		aliasMembers.forEach((k, v) -> {
 			Member member = memberValues.get(k);
@@ -94,7 +94,8 @@ public class AptAnnotationAttributes implements Cloneable {
 		Map<String, Member> members = new LinkedHashMap<>();
 		for (ExecutableElement method : methods) {
 			String name = method.getSimpleName().toString();
-			members.put(name, new Member(env, method, method.getDefaultValue(), method.getDefaultValue()));
+			AnnotationValue defaultValue = method.getDefaultValue();
+			members.put(name, new Member(env, method, defaultValue, defaultValue));
 		}
 		aliasMembers.forEach((k, v) -> {
 			Member member = members.get(k);
@@ -114,7 +115,7 @@ public class AptAnnotationAttributes implements Cloneable {
 		TypeMirror defaultAnnotationType = env.getElementUtils().getTypeElement(Annotation.class.getCanonicalName()).asType();
 		for (ExecutableElement method : methods) {
 			List<? extends AnnotationMirror> annotationMirrors = method.getAnnotationMirrors();
-			if (annotationMirrors!=null) {
+			if (annotationMirrors != null) {
 				for (AnnotationMirror annotationMirror : annotationMirrors) {
 					TypeElement element = (TypeElement) annotationMirror.getAnnotationType().asElement();
 					if (element.getQualifiedName().toString().equals(Alias.class.getCanonicalName())) {
@@ -123,21 +124,21 @@ public class AptAnnotationAttributes implements Cloneable {
 						DeclaredType annotation = null;
 						for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : elementValues.entrySet()) {
 							ExecutableElement key = entry.getKey();
-							if (key.getSimpleName().toString().equals("annotation")){
+							if (key.getSimpleName().toString().equals("annotation")) {
 								Object v = entry.getValue().getValue();
 								if (v instanceof DeclaredType) {
 									annotation = (DeclaredType) v;
 								}
-							}else if (key.getSimpleName().toString().equals("value")){
+							} else if (key.getSimpleName().toString().equals("value")) {
 								Object v = entry.getValue().getValue();
 								if (v instanceof String) {
 									value = (String) v;
 								}
 							}
 						}
-						if (annotation != null && value != null){
-							if (AptAnnotations.equals(env,annotation, annotationType.asType())
-								|| AptAnnotations.equals(env,annotation, defaultAnnotationType)) {
+						if (annotation != null && value != null) {
+							if (AptAnnotations.equals(env, annotation, annotationType.asType())
+								|| AptAnnotations.equals(env, annotation, defaultAnnotationType)) {
 								String aliasName = value;
 								String name = method.getSimpleName().toString();
 								aliasMembers.putIfAbsent(name, aliasName);
@@ -430,7 +431,6 @@ public class AptAnnotationAttributes implements Cloneable {
 	}
 
 
-	@Getter
 	@ToString
 	@EqualsAndHashCode
 	public static class Member implements Cloneable {
@@ -453,6 +453,10 @@ public class AptAnnotationAttributes implements Cloneable {
 			return new Member(env, method, value, defaultValue);
 		}
 
+		public AnnotationValue getValue() {
+			return value;
+		}
+
 		public void setValue(AnnotationValue value) {
 			if (isDefault(value)) {
 				this.value = value;
@@ -460,11 +464,12 @@ public class AptAnnotationAttributes implements Cloneable {
 			}
 
 			TypeMirror returnType = method.getReturnType();
-			Object obj = value.getValue();
-			if (AptAnnotations.isInstance(env, returnType, obj)) {
-				this.value = value;
+			value = AptAnnotations.asTargetTypeIfNecessary(env, value, returnType);
+			// 无法匹配类型则忽略
+			if (value == null || value.getValue() == null) {
 				return;
 			}
+			this.value = value;
 		}
 
 		public void reset() {
@@ -472,7 +477,7 @@ public class AptAnnotationAttributes implements Cloneable {
 		}
 
 		public AnnotationValue getValueOrDefault() {
-			if (value == null) {
+			if (value == null || value.getValue() == null) {
 				return defaultValue;
 			}
 			return value;

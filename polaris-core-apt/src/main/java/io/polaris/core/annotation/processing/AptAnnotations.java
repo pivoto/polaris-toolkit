@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nullable;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -65,6 +67,177 @@ public class AptAnnotations {
 			if (annotation.value().getCanonicalName().equals(qualifiedName)) {
 				return (TypeElement) declaredType.asElement();
 			}
+		}
+		return null;
+	}
+
+	public static AnnotationValue asTargetTypeIfNecessary(ProcessingEnvironment env, AnnotationValue value, TypeMirror typeMirror) {
+		if (value == null) {
+			return null;
+		}
+		Object obj = value.getValue();
+		if (obj == null) {
+			return value;
+		}
+		if (AptAnnotations.isInstance(env, typeMirror, obj)) {
+			return value;
+		}
+
+		obj = convertAnnotationValue(env, obj, typeMirror);
+		return new InternalAnnotationValue(value, obj);
+	}
+
+	@Nullable
+	private static Object convertAnnotationValue(ProcessingEnvironment env, Object obj, TypeMirror typeMirror) {
+		// 尝试转换为目标类型，这里并不完善，现仅支持常用的功能
+		try {
+			TypeKind kind = typeMirror.getKind();
+			if (kind == TypeKind.BOOLEAN) {
+				if (obj instanceof Boolean) {
+					return ((Boolean) obj);
+				}
+				if (obj instanceof String) {
+					return Boolean.parseBoolean((String) obj);
+				}
+				if (obj instanceof Number) {
+					return ((Number) obj).intValue() != 0;
+				}
+				if (obj instanceof Character) {
+					return ((Character) obj).charValue() != 0;
+				}
+				if (obj instanceof List<?>) {
+					return !((List<?>) obj).isEmpty();
+				}
+			} else if (kind == TypeKind.BYTE) {
+				if (obj instanceof Boolean) {
+					return ((Boolean) obj) ? (byte) 1 : (byte) 0;
+				}
+				if (obj instanceof String) {
+					return Byte.parseByte((String) obj);
+				}
+				if (obj instanceof Number) {
+					return ((Number) obj).byteValue();
+				}
+				if (obj instanceof Character) {
+					return (byte) ((Character) obj).charValue();
+				}
+			} else if (kind == TypeKind.SHORT) {
+				if (obj instanceof Boolean) {
+					return ((Boolean) obj) ? (short) 1 : (short) 0;
+				}
+				if (obj instanceof String) {
+					return Short.parseShort((String) obj);
+				}
+				if (obj instanceof Number) {
+					return ((Number) obj).shortValue();
+				}
+				if (obj instanceof Character) {
+					return (short) ((Character) obj).charValue();
+				}
+			} else if (kind == TypeKind.INT) {
+				if (obj instanceof Boolean) {
+					return ((Boolean) obj) ? (int) 1 : (int) 0;
+				}
+				if (obj instanceof String) {
+					return Integer.parseInt((String) obj);
+				}
+				if (obj instanceof Number) {
+					return ((Number) obj).intValue();
+				}
+				if (obj instanceof Character) {
+					return (int) ((Character) obj).charValue();
+				}
+			} else if (kind == TypeKind.LONG) {
+				if (obj instanceof Boolean) {
+					return ((Boolean) obj) ? (long) 1 : (long) 0;
+				}
+				if (obj instanceof String) {
+					return Long.parseLong((String) obj);
+				}
+				if (obj instanceof Number) {
+					return ((Number) obj).longValue();
+				}
+				if (obj instanceof Character) {
+					return (long) ((Character) obj).charValue();
+				}
+			} else if (kind == TypeKind.CHAR) {
+				if (obj instanceof Boolean) {
+					return ((Boolean) obj) ? (char) 1 : (char) 0;
+				}
+				if (obj instanceof String) {
+					return !((String) obj).isEmpty() ? ((String) obj).charAt(0) : '\0';
+				}
+				if (obj instanceof Number) {
+					return (char) ((Number) obj).intValue();
+				}
+				if (obj instanceof Character) {
+					return (char) ((Character) obj).charValue();
+				}
+			} else if (kind == TypeKind.FLOAT) {
+				if (obj instanceof Boolean) {
+					return ((Boolean) obj) ? (float) 1 : (float) 0;
+				}
+				if (obj instanceof String) {
+					return Float.parseFloat((String) obj);
+				}
+				if (obj instanceof Number) {
+					return ((Number) obj).floatValue();
+				}
+				if (obj instanceof Character) {
+					return (float) ((Character) obj).charValue();
+				}
+			} else if (kind == TypeKind.DOUBLE) {
+				if (obj instanceof Boolean) {
+					return ((Boolean) obj) ? (double) 1 : (double) 0;
+				}
+				if (obj instanceof String) {
+					return Double.parseDouble((String) obj);
+				}
+				if (obj instanceof Number) {
+					return ((Number) obj).doubleValue();
+				}
+				if (obj instanceof Character) {
+					return (double) ((Character) obj).charValue();
+				}
+			} else if (kind == TypeKind.DECLARED) {
+				Element element = ((DeclaredType) typeMirror).asElement();
+				if (element instanceof TypeElement) {
+					ElementKind elementKind = element.getKind();
+					TypeElement typeElement = (TypeElement) element;
+					if (typeElement.getQualifiedName().toString().equals("java.lang.String")) {
+						if (obj instanceof String) {
+							return ((String) obj);
+						} else if (obj instanceof Number || obj instanceof Boolean || obj instanceof Character) {
+							return obj.toString();
+						} else if (obj instanceof TypeMirror) {
+							return ((TypeElement) ((DeclaredType) obj).asElement()).getQualifiedName();
+						} else if (obj instanceof VariableElement) {
+							return ((VariableElement) obj).getSimpleName();
+						}
+					} else if (typeElement.getQualifiedName().toString().equals("java.lang.Class")) {
+						if (obj instanceof TypeMirror) {
+							return obj;
+						}
+						if (obj instanceof AnnotationMirror) {
+							return ((AnnotationMirror) obj).getAnnotationType();
+						}
+					} else if (elementKind == ElementKind.ENUM) {
+						if (obj instanceof VariableElement) {
+							return ((VariableElement) obj);
+						}
+					} else if (elementKind == ElementKind.ANNOTATION_TYPE) {
+						if (obj instanceof AnnotationMirror) {
+							return (AnnotationMirror) obj;
+						}
+					}
+				}
+			} else if (kind == TypeKind.ARRAY) {
+				TypeMirror componentType = ((ArrayType) typeMirror).getComponentType();
+				if (obj instanceof List<?>) {
+					return obj;
+				}
+			}
+		} catch (Throwable ignored) {
 		}
 		return null;
 	}
@@ -142,6 +315,9 @@ public class AptAnnotations {
 			return obj1.equals(obj2);
 		}
 		if (obj1 instanceof VariableElement) {
+			if (!(obj2 instanceof VariableElement)) {
+				return false;
+			}
 			// 处理枚举常量
 			// 比较枚举常量的名称
 			VariableElement enumConstant1 = (VariableElement) obj1;
@@ -149,6 +325,9 @@ public class AptAnnotations {
 			return enumConstant1.getSimpleName().equals(enumConstant2.getSimpleName());
 		}
 		if (obj1 instanceof AnnotationMirror) {
+			if (!(obj2 instanceof AnnotationMirror)) {
+				return false;
+			}
 			// 处理嵌套注解，递归比较
 			AnnotationMirror mirror1 = (AnnotationMirror) obj1;
 			AnnotationMirror mirror2 = (AnnotationMirror) obj2;
@@ -178,6 +357,9 @@ public class AptAnnotations {
 			return true;
 		}
 		if (obj1 instanceof TypeMirror) {
+			if (!(obj2 instanceof TypeMirror)) {
+				return false;
+			}
 			// 处理 Class 类型的注解属性
 			TypeMirror typeMirror1 = (TypeMirror) obj1;
 			TypeMirror typeMirror2 = (TypeMirror) obj2;
@@ -188,7 +370,7 @@ public class AptAnnotations {
 		return obj1.equals(obj2);
 	}
 
-	private static boolean equals(ProcessingEnvironment env, AnnotationMirror mirror1, AnnotationMirror mirror2) {
+	public static boolean equals(ProcessingEnvironment env, AnnotationMirror mirror1, AnnotationMirror mirror2) {
 		if (mirror1 == mirror2) {
 			return true;
 		}
