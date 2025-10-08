@@ -39,6 +39,8 @@ public class SelectSegment<O extends Segment<O>, S extends SelectSegment<O, S>> 
 	private boolean aliasWithField = true;
 	/** 固定列值 */
 	private Object value;
+	/** 固定列值的扩展属性，为如Mybatis等占位符增加配置项 */
+	private String valueProperty;
 	/** 表达式 */
 	private ExpressionSegment<?> expression;
 
@@ -100,7 +102,11 @@ public class SelectSegment<O extends Segment<O>, S extends SelectSegment<O, S>> 
 
 		if (value != null && Strings.isNotBlank(fieldAlias)) {
 			ContainerNode containerNode = new ContainerNode();
-			containerNode.addNode(SqlNodes.dynamic(fieldAlias, value));
+			if (valueProperty != null) {
+				containerNode.addNode(SqlNodes.dynamic(fieldAlias, value, valueProperty));
+			} else {
+				containerNode.addNode(SqlNodes.dynamic(fieldAlias, value));
+			}
 			if (quotaAlias && !fieldAlias.startsWith("\"")) {
 				containerNode.addNode(new TextNode(" \"" + fieldAlias + "\""));
 			} else {
@@ -307,15 +313,6 @@ public class SelectSegment<O extends Segment<O>, S extends SelectSegment<O, S>> 
 		return apply(function, TableField.of(tableAlias, field));
 	}
 
-
-	public O value(Object value, String alias) {
-		if (Strings.isEmpty(alias)) {
-			throw new IllegalArgumentException("别名不能为空");
-		}
-		this.value = value;
-		return alias(alias);
-	}
-
 	public S count() {
 		this.expression = new ExpressionSegment<>(this.expression, AggregateFunction.COUNT.getExpression());
 		return getThis();
@@ -379,6 +376,23 @@ public class SelectSegment<O extends Segment<O>, S extends SelectSegment<O, S>> 
 	public O alias(String alias) {
 		this.alias = alias;
 		return end();
+	}
+
+	public O value(Object value, String alias) {
+		if (Strings.isEmpty(alias)) {
+			throw new IllegalArgumentException("别名不能为空");
+		}
+		this.value = value;
+		return alias(alias);
+	}
+
+	public O value(Object value, String valueProperty, String alias) {
+		if (Strings.isEmpty(alias)) {
+			throw new IllegalArgumentException("别名不能为空");
+		}
+		this.value = value;
+		this.valueProperty = Strings.trimToNull(valueProperty);
+		return alias(alias);
 	}
 
 

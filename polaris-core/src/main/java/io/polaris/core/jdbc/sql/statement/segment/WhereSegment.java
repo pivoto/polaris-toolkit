@@ -205,7 +205,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 			}
 		}
 
-		// 尚未绑定条件，考虑其他一般他情况
+		// 尚未绑定条件，考虑其他情况
 		if (val instanceof ValueRange) {
 			ValueRange<?> range = (ValueRange<?>) val;
 			Object start = range.getStart();

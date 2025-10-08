@@ -16,7 +16,7 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since  Aug 20, 2023
+ * @since Aug 20, 2023
  */
 @AnnotationProcessing
 public class ColumnSegment<O extends Segment<O>, S extends ColumnSegment<O, S>> extends BaseSegment<S> {
@@ -25,7 +25,10 @@ public class ColumnSegment<O extends Segment<O>, S extends ColumnSegment<O, S>> 
 	private final TableSegment<?> table;
 	private String field;
 	private transient String _rawColumn;
+	/** 列值 */
 	private Object value;
+	/** 列值的扩展属性，为如Mybatis等占位符增加配置项 */
+	private String valueProperty;
 	/** 表达式 */
 	private ExpressionSegment<?> expression;
 
@@ -49,6 +52,22 @@ public class ColumnSegment<O extends Segment<O>, S extends ColumnSegment<O, S>> 
 
 	public S rawColumn(String column) {
 		this._rawColumn = column;
+		return getThis();
+	}
+
+	public S removeProperty() {
+		this.valueProperty = null;
+		return getThis();
+	}
+
+	public S property(String valueProperty) {
+		this.valueProperty = Strings.trimToNull(valueProperty);
+		return getThis();
+	}
+
+	public S value(Object value, String valueProperty) {
+		this.value = value;
+		this.valueProperty = Strings.trimToNull(valueProperty);
 		return getThis();
 	}
 
@@ -130,7 +149,11 @@ public class ColumnSegment<O extends Segment<O>, S extends ColumnSegment<O, S>> 
 		if (columnValue == null) {
 			return SqlNodes.mixed(name(), null);
 		} else {
-			return SqlNodes.dynamic(name(), columnValue);
+			if (valueProperty != null) {
+				return SqlNodes.dynamic(name(), columnValue, valueProperty);
+			} else {
+				return SqlNodes.dynamic(name(), columnValue);
+			}
 		}
 	}
 
