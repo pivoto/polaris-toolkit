@@ -33,6 +33,7 @@ public enum LogicalExpression implements Expression {
 	NOT_CONTAINS(LikeExpression.NOT_CONTAINS),
 	NOT_STARTS_WITH(LikeExpression.NOT_STARTS_WITH),
 	NOT_ENDS_WITH(LikeExpression.NOT_ENDS_WITH),
+
 //	CONTAINS(Expressions.pattern("${ref} LIKE '%${0}%'")),
 //	STARTS_WITH(Expressions.pattern("${ref} LIKE '${0}%'")),
 //	ENDS_WITH(Expressions.pattern("${ref} LIKE '%${0}'")),

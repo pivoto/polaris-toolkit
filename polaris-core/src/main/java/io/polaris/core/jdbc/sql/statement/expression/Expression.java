@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.polaris.core.jdbc.sql.node.SqlNode;
+import io.polaris.core.jdbc.sql.node.SqlNodes;
 import io.polaris.core.jdbc.sql.node.TextNode;
 
 /**
@@ -41,15 +42,15 @@ public interface Expression {
 	}
 
 	default SqlNode toSqlNode(String source) {
-		return toSqlNode(new TextNode(source), null, Collections.emptyMap());
+		return toSqlNode(SqlNodes.text(source), null, Collections.emptyMap());
 	}
 
 	default SqlNode toSqlNode(String source, Object[] bindings) {
-		return toSqlNode(new TextNode(source), null, bindings);
+		return toSqlNode(SqlNodes.text(source), null, bindings);
 	}
 
 	default SqlNode toSqlNode(String source, Map<String, Object> bindings) {
-		return toSqlNode(new TextNode(source), null, bindings);
+		return toSqlNode(SqlNodes.text(source), null, bindings);
 	}
 
 	default SqlNode toSqlNode(SqlNode source) {

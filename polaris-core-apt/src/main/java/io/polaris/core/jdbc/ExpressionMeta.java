@@ -48,14 +48,18 @@ public final class ExpressionMeta implements Cloneable {
 		this.selectable = selectable;
 		this.tableAliasPlaceholder = tableAliasPlaceholder;
 		this.properties = properties == null ? Collections.emptyMap() : Collections.unmodifiableMap(new LinkedHashMap<>(properties));
-		StringBuilder sb = new StringBuilder();
-		this.properties.forEach((k, v) -> {
-			sb.append(k).append("=").append(v).append(",");
-		});
-		if (sb.length() > 0) {
-			sb.deleteCharAt(sb.length() - 1);
+		if (this.properties.isEmpty()) {
+			this.propertiesString = "";
+		} else {
+			StringBuilder sb = new StringBuilder();
+			this.properties.forEach((k, v) -> {
+				sb.append(k).append("=").append(v).append(",");
+			});
+			if (sb.length() > 0) {
+				sb.deleteCharAt(sb.length() - 1);
+			}
+			this.propertiesString = sb.toString();
 		}
-		this.propertiesString = sb.toString();
 	}
 
 	@Override

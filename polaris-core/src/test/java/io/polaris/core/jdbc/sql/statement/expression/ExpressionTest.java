@@ -11,11 +11,11 @@ class ExpressionTest {
 	@Test
 	void test01() {
 		Expression expr = Expressions.function("coalesce", true, false, false);
-		Object[] args2 = new Object[]{expr.toSqlNode(SqlNodes.text("col"), new Object[]{1}).asBoundSql()};
+		Object[] args2 = new Object[]{expr.toSqlNode(SqlNodes.text("col"), null, new Object[]{1}).asBoundSql()};
 		Consoles.println(args2);
-		Object[] args1 = new Object[]{expr.toSqlNode(SqlNodes.text("col"), new Object[]{1, 2}).asBoundSql()};
+		Object[] args1 = new Object[]{expr.toSqlNode(SqlNodes.text("col"), null, new Object[]{1, 2}).asBoundSql()};
 		Consoles.println(args1);
-		Object[] args = new Object[]{expr.toSqlNode(SqlNodes.text("col"), new Object[]{1, 2, 3, 4}).asBoundSql()};
+		Object[] args = new Object[]{expr.toSqlNode(SqlNodes.text("col"), null, new Object[]{1, 2, 3, 4}).asBoundSql()};
 		Consoles.println(args);
 	}
 

@@ -161,13 +161,14 @@ public class PatternExpression extends BaseExpression {
 	 */
 	@Override
 	protected FunctionWithArgs3<SqlNode, SqlNode[], Object[], ContainerNode> buildArrayFunction() {
-		return (baseSource, extSources, bindings) -> bind(baseSource, extSources, varName -> {
-			if (bindings == null) {
-				return null;
-			}
-			Integer i = argsIndices.get(varName);
-			return bindings.length <= i ? null : bindings[i];
-		});
+		return (baseSource, extSources, bindings) ->
+			bind(baseSource, extSources, varName -> {
+				if (bindings == null) {
+					return null;
+				}
+				Integer i = argsIndices.get(varName);
+				return bindings.length <= i ? null : bindings[i];
+			});
 	}
 
 	/**
@@ -177,7 +178,10 @@ public class PatternExpression extends BaseExpression {
 	 */
 	@Override
 	protected FunctionWithArgs3<SqlNode, SqlNode[], Map<String, Object>, ContainerNode> buildMapFunction() {
-		return (baseSource, extSources, bindings) -> bind(baseSource, extSources, varName -> bindings == null ? null : BindingValues.getBindingValueOrDefault(bindings, varName, null));
+		return (baseSource, extSources, bindings) ->
+			bind(baseSource, extSources, varName ->
+				bindings == null ? null : BindingValues.getBindingValueOrDefault(bindings, varName, null)
+			);
 	}
 
 	/**
