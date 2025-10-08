@@ -2348,15 +2348,22 @@
 					<plugin>
 						<groupId>org.sonatype.central</groupId>
 						<artifactId>central-publishing-maven-plugin</artifactId>
-						<version>0.6.0</version>
+						<version>0.9.0</version>
 						<extensions>true</extensions>
 						<configuration>
 							<publishingServerId>central</publishingServerId>
 							<autoPublish>true</autoPublish>
 							<waitUntil>validated</waitUntil>
+							<!--<waitUntil>uploaded</waitUntil>-->
 							<!--<waitUntil>published</waitUntil>-->
 							<deploymentName>${deploymentName}</deploymentName>
 							<ignorePublishedComponents>true</ignorePublishedComponents>
+							<excludeArtifacts>
+								<excludeArtifact>
+									<groupId>cn.fossc.polaris.toolkit</groupId>
+									<artifactId>polaris-core-apt</artifactId>
+								</excludeArtifact>
+							</excludeArtifacts>
 						</configuration>
 					</plugin>
 				</plugins>
