@@ -1,20 +1,21 @@
 package io.polaris.core.cache;
 
-import io.polaris.core.map.Maps;
-import io.polaris.core.tuple.Ref;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import io.polaris.core.map.Maps;
+import io.polaris.core.tuple.Ref;
+
 /**
  * @author Qt
  * @since 1.8
  */
-public class MapCache<K, V> implements Cache<K, V> {
+public class MapCache<K, V> implements MemCache<K, V>, Cache<K, V> {
 
 	private final Map<K, Ref<V>> map;
 
@@ -58,8 +59,8 @@ public class MapCache<K, V> implements Cache<K, V> {
 	@Nullable
 	@Override
 	public V get(@Nonnull K key, Supplier<V> loader) {
-		Ref<V> ref = map.get(key);
-		return ref == null ? loader.get() : ref.get(loader);
+		Ref<V> ref = map.computeIfAbsent(key, k -> Ref.of(loader.get()));
+		return ref.get();
 	}
 
 	@Override
