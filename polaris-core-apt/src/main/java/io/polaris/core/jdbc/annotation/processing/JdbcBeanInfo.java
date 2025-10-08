@@ -195,7 +195,7 @@ public class JdbcBeanInfo {
 			String key = columnProperty.key();
 			String value = columnProperty.value();
 			if (key != null && !key.trim().isEmpty() && value != null && !value.trim().isEmpty()) {
-				map.putIfAbsent(key, value);
+				map.putIfAbsent(key.trim(), value.trim());
 			}
 		}
 		return map;
