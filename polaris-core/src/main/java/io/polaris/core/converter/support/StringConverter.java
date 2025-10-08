@@ -33,6 +33,10 @@ public class StringConverter extends AbstractSimpleConverter<String> {
 			return clobToStr((Clob) value);
 		} else if (value instanceof Blob) {
 			return blobToStr((Blob) value);
+		} else if (value instanceof Enum) {
+			return ((Enum<?>) value).name();
+		} else if (value instanceof Class) {
+			return ((Class<?>) value).getCanonicalName();
 		} else if (value instanceof Type) {
 			return ((Type) value).getTypeName();
 		}
