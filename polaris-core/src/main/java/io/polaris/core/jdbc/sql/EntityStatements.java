@@ -394,7 +394,7 @@ public class EntityStatements {
 			}
 			val = BindingValues.getValueForInsert(meta, val);
 			if (enabled || val != null) {
-				st.column(field, val);
+				st.column(field).value(val, meta.getPropertiesString()).end();
 				continue;
 			}
 
@@ -505,7 +505,7 @@ public class EntityStatements {
 			}
 			val = BindingValues.getValueForUpdate(meta, val);
 			if (enabled || val != null) {
-				st.column(field, val);
+				st.column(field).value(val, meta.getPropertiesString()).end();
 			}
 		}
 

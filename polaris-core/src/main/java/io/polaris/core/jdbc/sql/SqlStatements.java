@@ -114,7 +114,12 @@ public class SqlStatements {
 			}
 			if (Objs.isNotEmpty(val)) {
 				String keyName = valueKeyGen.generate();
-				sql.columnAndValue(columnName, "#{" + keyName + "}");
+				String propertiesString = meta.getPropertiesString();
+				if (Strings.isNotBlank(propertiesString)) {
+					sql.columnAndValue(columnName, "#{" + keyName + "," + propertiesString + "}");
+				} else {
+					sql.columnAndValue(columnName, "#{" + keyName + "}");
+				}
 				bindings.put(keyName, val);
 			} else {
 				if (meta.isPrimaryKey()) {
@@ -202,13 +207,18 @@ public class SqlStatements {
 			boolean primaryKey = meta.isPrimaryKey();
 			boolean version = meta.isVersion();
 			boolean logicDeleted = meta.isLogicDeleted();
+			String propertiesString = meta.getPropertiesString();
 			if (primaryKey || version) {
 				Object val = entityMap.get(name);
 				if (Objs.isEmpty(val)) {
 					sql.where(columnName + " IS NULL");
 				} else {
 					String keyName = whereKeyGen.generate();
-					sql.where(columnName + " = #{" + keyName + "}");
+					if (Strings.isNotBlank(propertiesString)) {
+						sql.where(columnName + " = #{" + keyName + "," + propertiesString + "}");
+					} else {
+						sql.where(columnName + " = #{" + keyName + "}");
+					}
 					bindings.put(keyName, val);
 				}
 			}
@@ -227,7 +237,11 @@ public class SqlStatements {
 			}
 			if (Objs.isNotEmpty(val)) {
 				String keyName = valueKeyGen.generate();
-				sql.set(columnName + " = #{" + keyName + "}");
+				if (Strings.isNotBlank(propertiesString)) {
+					sql.set(columnName + " = #{" + keyName + "," + propertiesString + "}");
+				} else {
+					sql.set(columnName + " = #{" + keyName + "}");
+				}
 				bindings.put(keyName, val);
 			}
 		}
@@ -407,7 +421,12 @@ public class SqlStatements {
 			}
 			if (Objs.isNotEmpty(val)) {
 				String keyName = valueKeyGen.generate();
-				sql.set(columnName + " = #{" + keyName + "}");
+				String propertiesString = meta.getPropertiesString();
+				if (Strings.isNotBlank(propertiesString)) {
+					sql.set(columnName + " = #{" + keyName + "," + propertiesString + "}");
+				} else {
+					sql.set(columnName + " = #{" + keyName + "}");
+				}
 				bindings.put(keyName, val);
 			}
 		}
@@ -577,12 +596,17 @@ public class SqlStatements {
 			boolean version = meta.isVersion();
 			Object val = entityMap.get(name);
 			boolean updatable = meta.isUpdatable() || meta.isVersion() || meta.isUpdateTime();
+			String propertiesString = meta.getPropertiesString();
 			if (primaryKey || version) {
 				if (Objs.isEmpty(val)) {
 					sql.where(columnName + " IS NULL");
 				} else {
 					String keyName = whereKeyGen.generate();
-					sql.where(columnName + " = #{" + keyName + "}");
+					if (Strings.isNotBlank(propertiesString)) {
+						sql.where(columnName + " = #{" + keyName + "," + propertiesString + "}");
+					} else {
+						sql.where(columnName + " = #{" + keyName + "}");
+					}
 					bindings.put(keyName, val);
 				}
 			}
@@ -603,7 +627,11 @@ public class SqlStatements {
 			}
 			if (Objs.isNotEmpty(entityVal)) {
 				String keyName = valueKeyGen.generate();
-				sql.set(columnName + " = #{" + keyName + "}");
+				if (Strings.isNotBlank(propertiesString)) {
+					sql.set(columnName + " = #{" + keyName + "," + propertiesString + "}");
+				} else {
+					sql.set(columnName + " = #{" + keyName + "}");
+				}
 				bindings.put(keyName, entityVal);
 			} else {
 				// 默认值SQL存在则使用
@@ -701,6 +729,8 @@ public class SqlStatements {
 			if (!columnPredicate.isIncludedColumn(name)) {
 				continue;
 			}
+
+			String propertiesString = meta.getPropertiesString();
 			Object val = entityMap.get(meta.getFieldName());
 			Object entityVal = BindingValues.getValueForUpdate(meta, val);
 			if (version) {
@@ -708,7 +738,11 @@ public class SqlStatements {
 			}
 			if (Objs.isNotEmpty(entityVal)) {
 				String keyName = valueKeyGen.generate();
-				sql.set(columnName + " = #{" + keyName + "}");
+				if (Strings.isNotBlank(propertiesString)) {
+					sql.set(columnName + " = #{" + keyName + "," + propertiesString + "}");
+				} else {
+					sql.set(columnName + " = #{" + keyName + "}");
+				}
 				bindings.put(keyName, entityVal);
 			} else {
 				// 默认值SQL存在则使用
@@ -840,9 +874,14 @@ public class SqlStatements {
 						// 如已在where条件中，则忽略。本方法主要用于单表操作，不考虑存在表名别的字段的情况
 						return;
 					}
+					String propertiesString = meta.getPropertiesString();
 					Object val = Converters.convertQuietly(meta.getFieldType(), false);
 					String keyName = whereKeyGen.generate();
-					sql.where(columnName + " = #{" + keyName + "}");
+					if (Strings.isNotBlank(propertiesString)) {
+						sql.where(columnName + " = #{" + keyName + "," + propertiesString + "}");
+					} else {
+						sql.where(columnName + " = #{" + keyName + "}");
+					}
 					bindings.put(keyName, val);
 				});
 		}
@@ -923,19 +962,29 @@ public class SqlStatements {
 			boolean primaryKey = meta.isPrimaryKey();
 			boolean version = meta.isVersion();
 			Object val = entityMap.get(name);
+			String propertiesString = meta.getPropertiesString();
 			if (primaryKey) {
 				if (val == null) {
 					sql.where(columnName + " IS NULL");
 				} else {
 					String keyName = whereKeyGen.generate();
-					sql.where(columnName + " = #{" + keyName + "}");
+					if (Strings.isNotBlank(propertiesString)) {
+						sql.where(columnName + " = #{" + keyName + "," + propertiesString + "}");
+					} else {
+						sql.where(columnName + " = #{" + keyName + "}");
+					}
 					bindings.put(keyName, val);
 				}
 			} else if (withLogicDeleted && meta.isLogicDeleted()) {
 				// 强制添加非逻辑删除条件
 				String keyName = whereKeyGen.generate();
 				val = Converters.convertQuietly(meta.getFieldType(), false);
-				sql.where(columnName + " = #{" + keyName + "}");
+
+				if (Strings.isNotBlank(propertiesString)) {
+					sql.where(columnName + " = #{" + keyName + "," + propertiesString + "}");
+				} else {
+					sql.where(columnName + " = #{" + keyName + "}");
+				}
 				bindings.put(keyName, val);
 			}
 		}
@@ -1054,9 +1103,14 @@ public class SqlStatements {
 						// 如已在where条件中，则忽略。本方法主要用于单表操作，不考虑存在表名别的字段的情况
 						return;
 					}
+					String propertiesString = meta.getPropertiesString();
 					Object val = Converters.convertQuietly(meta.getFieldType(), false);
 					String keyName = whereKeyGen.generate();
-					sql.where(columnName + " = #{" + keyName + "}");
+					if (Strings.isNotBlank(propertiesString)) {
+						sql.where(columnName + " = #{" + keyName + "," + propertiesString + "}");
+					} else {
+						sql.where(columnName + " = #{" + keyName + "}");
+					}
 					bindings.put(keyName, val);
 				});
 		}
@@ -1142,19 +1196,29 @@ public class SqlStatements {
 
 			sql.select(columnName + " " + name);
 
+			String propertiesString = meta.getPropertiesString();
 			if (primaryKey) {
 				if (val == null) {
 					sql.where(columnName + " IS NULL");
 				} else {
 					String keyName = whereKeyGen.generate();
-					sql.where(columnName + " = #{" + keyName + "}");
+					if (Strings.isNotBlank(propertiesString)) {
+						sql.where(columnName + " = #{" + keyName + "," + propertiesString + "}");
+					} else {
+						sql.where(columnName + " = #{" + keyName + "}");
+					}
 					bindings.put(keyName, val);
 				}
 			} else if (withLogicDeleted && meta.isLogicDeleted()) {
 				// 强制添加非逻辑删除条件
 				String keyName = whereKeyGen.generate();
 				val = Converters.convertQuietly(meta.getFieldType(), false);
-				sql.where(columnName + " = #{" + keyName + "}");
+
+				if (Strings.isNotBlank(propertiesString)) {
+					sql.where(columnName + " = #{" + keyName + "," + propertiesString + "}");
+				} else {
+					sql.where(columnName + " = #{" + keyName + "}");
+				}
 				bindings.put(keyName, val);
 			}
 		}
@@ -1283,9 +1347,14 @@ public class SqlStatements {
 						// 如已在where条件中，则忽略。本方法主要用于单表操作，不考虑存在表名别的字段的情况
 						return;
 					}
+					String propertiesString = meta.getPropertiesString();
 					Object val = Converters.convertQuietly(meta.getFieldType(), false);
 					String keyName = whereKeyGen.generate();
-					sql.where(columnName + " = #{" + keyName + "}");
+					if (Strings.isNotBlank(propertiesString)) {
+						sql.where(columnName + " = #{" + keyName + "," + propertiesString + "}");
+					} else {
+						sql.where(columnName + " = #{" + keyName + "}");
+					}
 					bindings.put(keyName, val);
 				});
 		}
@@ -1464,7 +1533,8 @@ public class SqlStatements {
 		, @Nonnull SqlStatement sql, @Nonnull ExpressionMeta meta, @Nonnull Object val, String key) {
 		String columnName = meta.getExpressionWithTableName();
 		Class<?> fieldType = meta.getFieldType();
-		appendSqlWhereWithVal(bindings, sql, columnName, fieldType, val, key);
+		String propertiesString = meta.getPropertiesString();
+		appendSqlWhereWithVal(bindings, sql, columnName, fieldType, val, key, propertiesString);
 	}
 
 	/**
@@ -1474,10 +1544,12 @@ public class SqlStatements {
 		, @Nonnull SqlStatement sql, @Nonnull ColumnMeta meta, @Nonnull Object val, String key) {
 		String columnName = meta.getColumnName();
 		Class<?> fieldType = meta.getFieldType();
-		appendSqlWhereWithVal(bindings, sql, columnName, fieldType, val, key);
+		String propertiesString = meta.getPropertiesString();
+		appendSqlWhereWithVal(bindings, sql, columnName, fieldType, val, key, propertiesString);
 	}
 
-	private static void appendSqlWhereWithVal(Map<String, Object> bindings, SqlStatement sql, String columnName, Class<?> fieldType, Object val, String key) {
+	private static void appendSqlWhereWithVal(Map<String, Object> bindings, SqlStatement sql, String columnName, Class<?> fieldType, Object val, String key, String propertiesString) {
+		String varSuffix = Strings.isNotBlank(propertiesString) ? "," + propertiesString : "";
 		// 日期字段
 		if (Date.class.isAssignableFrom(fieldType)) {
 			// 两个元素的日期类字段特殊处理，认为是日期范围条件
@@ -1486,11 +1558,11 @@ public class SqlStatements {
 				Date start = range[0];
 				Date end = range[1];
 				if (start != null) {
-					sql.where(columnName + " >= #{" + key + "0} ");
+					sql.where(columnName + " >= #{" + key + "0" + varSuffix + "} ");
 					bindings.put(key + "0", start);
 				}
 				if (end != null) {
-					sql.where(columnName + " <= #{" + key + "1} ");
+					sql.where(columnName + " <= #{" + key + "1" + varSuffix + "} ");
 					bindings.put(key + "1", end);
 				}
 				// 日期条件完毕
@@ -1502,7 +1574,7 @@ public class SqlStatements {
 		if (String.class.isAssignableFrom(fieldType)) {
 			if (val instanceof String && (((String) val).startsWith("%") || ((String) val).endsWith("%"))) {
 				bindings.put(key, val);
-				sql.where(columnName + " like #{" + key + "} ");
+				sql.where(columnName + " like #{" + key + varSuffix + "} ");
 				// 完成条件绑定
 				return;
 			}
@@ -1513,11 +1585,11 @@ public class SqlStatements {
 			Object start = range.getStart();
 			Object end = range.getEnd();
 			if (Objs.isNotEmpty(start)) {
-				sql.where(columnName + " >= #{" + key + "0} ");
+				sql.where(columnName + " >= #{" + key + "0" + varSuffix + "} ");
 				bindings.put(key + "0", start);
 			}
 			if (Objs.isNotEmpty(end)) {
-				sql.where(columnName + " <= #{" + key + "1} ");
+				sql.where(columnName + " <= #{" + key + "1" + varSuffix + "} ");
 				bindings.put(key + "1", end);
 			}
 		} else if (val instanceof Iterable) {
@@ -1537,7 +1609,7 @@ public class SqlStatements {
 				} else {
 					where.append(", ");
 				}
-				where.append("#{").append(key).append(i).append("}");
+				where.append("#{").append(key).append(i).append(varSuffix).append("}");
 				bindings.put(key + i, Converters.convertQuietly(fieldType, next));
 				i++;
 			}
@@ -1559,13 +1631,13 @@ public class SqlStatements {
 				} else {
 					where.append(", ");
 				}
-				where.append("#{").append(key).append(i).append("}");
+				where.append("#{").append(key).append(i).append(varSuffix).append("}");
 				bindings.put(key + i, Converters.convertQuietly(fieldType, next));
 			}
 			where.append(" ) ");
 			sql.where(where.toString());
 		} else {
-			sql.where(columnName + " = #{" + key + "} ");
+			sql.where(columnName + " = #{" + key + varSuffix + "} ");
 			bindings.put(key, Converters.convertQuietly(fieldType, val));
 		}
 	}
