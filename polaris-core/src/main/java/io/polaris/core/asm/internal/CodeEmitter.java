@@ -819,7 +819,6 @@ public class CodeEmitter extends LocalVariablesSorter {
 	 * equivalent. For example, Character -> char.
 	 *
 	 * @param type the class indicating the desired type of the top stack value
-	 * @return true if the value was unboxed
 	 */
 	public void unbox(Type type) {
 		Type t = AsmConsts.TYPE_NUMBER;

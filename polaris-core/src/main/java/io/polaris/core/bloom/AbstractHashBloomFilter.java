@@ -85,7 +85,7 @@ public abstract class AbstractHashBloomFilter implements BloomFilter {
 	 * 计算Hash值
 	 *
 	 * @param data 被计算Hash的字符串
-	 * @return
+	 * @return Hash值
 	 */
 	protected int hash(String data) {
 		int hash = hashFunction.apply(data);

@@ -146,14 +146,14 @@ public final class ClassName extends TypeName implements Comparable<ClassName> {
     return new ClassName(packageName, this, name);
   }
 
-  /** Returns the simple name of this class, like {@code "Entry"} for {@link Map.Entry}. */
+  /** Returns the simple name of this class, like {@code "Entry"} for {@link java.util.Map.Entry}. */
   public String simpleName() {
     return simpleName;
   }
 
   /**
    * Returns the full class name of this class.
-   * Like {@code "java.util.Map.Entry"} for {@link Map.Entry}.
+   * Like {@code "java.util.Map.Entry"} for {@link java.util.Map.Entry}.
    * */
   public String canonicalName() {
     return canonicalName;
@@ -213,7 +213,7 @@ public final class ClassName extends TypeName implements Comparable<ClassName> {
 
   /**
    * Returns a class name created from the given parts. For example, calling this with package name
-   * {@code "java.util"} and simple names {@code "Map"}, {@code "Entry"} yields {@link Map.Entry}.
+   * {@code "java.util"} and simple names {@code "Map"}, {@code "Entry"} yields {@link java.util.Map.Entry}.
    */
   public static ClassName get(String packageName, String simpleName, String... simpleNames) {
     ClassName className = new ClassName(packageName, null, simpleName);

@@ -124,7 +124,7 @@ public abstract class AbstractMultiHashBloomFilter implements BloomFilter {
 	 * 生成多种类型Hash值
 	 *
 	 * @param data 被计算Hash的字符串
-	 * @return
+	 * @return Hash值
 	 */
 	protected int[] hash(String data) {
 		int[] rs = new int[hashCount];
