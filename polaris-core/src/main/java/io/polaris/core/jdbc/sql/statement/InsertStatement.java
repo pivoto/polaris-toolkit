@@ -196,7 +196,12 @@ public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement
 				}
 				// 需要包含空值字段,或为非空值
 				if (Objs.isNotEmpty(val)) {
-					this.column(name, val);
+					String propertiesString = meta.getPropertiesString();
+					if (Strings.isNotBlank(propertiesString)) {
+						this.column(name).value(val, propertiesString);
+					} else {
+						this.column(name, val);
+					}
 				} else {
 					if (meta.isPrimaryKey()) {
 						if (Strings.isNotBlank(meta.getIdSql())) {
@@ -212,7 +217,7 @@ public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement
 							continue;
 						}
 					}
-					if (Strings.isNotBlank(meta.getInsertDefaultSql())){
+					if (Strings.isNotBlank(meta.getInsertDefaultSql())) {
 						// 存在自定义默认值SQL
 						this.column(name).rawValue(meta.getInsertDefaultSql());
 						continue;

@@ -212,7 +212,12 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 				// 需要包含空值字段或非空值
 				boolean include = columnPredicate.isIncludedEmptyColumn(name) || Objs.isNotEmpty(val);
 				if (include) {
-					this.column(name, val);
+					String propertiesString = meta.getPropertiesString();
+					if (Strings.isNotBlank(propertiesString)) {
+						this.column(name).value(val, propertiesString);
+					} else {
+						this.column(name, val);
+					}
 				}
 			}
 		}
@@ -241,7 +246,12 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 					}
 				}
 				if (val != null) {
-					this.column(name, val);
+					String propertiesString = meta.getPropertiesString();
+					if (Strings.isNotBlank(propertiesString)) {
+						this.column(name).value(val, propertiesString);
+					} else {
+						this.column(name, val);
+					}
 				}
 			}
 		}
@@ -263,7 +273,12 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 					val = BindingValues.getValueForUpdate(meta, null);
 				}
 				if (val != null) {
-					this.column(name, val);
+					String propertiesString = meta.getPropertiesString();
+					if (Strings.isNotBlank(propertiesString)) {
+						this.column(name).value(val, propertiesString);
+					} else {
+						this.column(name, val);
+					}
 				}
 			}
 		}

@@ -148,6 +148,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 				(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
 					? Beans.newBeanMap(entity, tableMeta.getEntityClass())
 					: Beans.newBeanMap(entity));
+			// todo 查询条件支持ColumnProperties扩展属性
 			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
 				String name = entry.getKey();
 				// 不在包含列表
@@ -156,6 +157,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 				}
 				ColumnMeta meta = entry.getValue();
 				Object val = entityMap.get(name);
+				String propertiesString = meta.getPropertiesString();
 				addWhereSqlByColumnValue(meta.getFieldName(), meta.getFieldType(), val, columnPredicate);
 			}
 			for (Map.Entry<String, ExpressionMeta> entry : tableMeta.getExpressions().entrySet()) {
@@ -166,6 +168,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 				}
 				ExpressionMeta meta = entry.getValue();
 				Object val = entityMap.get(name);
+				String propertiesString = meta.getPropertiesString();
 				addWhereSqlByColumnValue(meta.getFieldName(), meta.getFieldType(), val, columnPredicate);
 			}
 		}
