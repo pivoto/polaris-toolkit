@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.RandomAccess;
 
+import io.polaris.core.consts.SymbolConsts;
 import io.polaris.core.jdbc.sql.VarRef;
 
 /**
@@ -22,7 +23,13 @@ public abstract class VarNode implements SqlNode {
 	protected List<Object> varValues;
 
 	public VarNode(String varName) {
-		this.varName = varName;
+		// varName 不能包含逗号，逗号后面视为扩展属性串
+		int i = varName.indexOf(SymbolConsts.COMMA);
+		if (i >= 0) {
+			this.varName = varName.substring(0, i);
+		} else {
+			this.varName = varName;
+		}
 	}
 
 	@Override
@@ -108,7 +115,7 @@ public abstract class VarNode implements SqlNode {
 			// 绑定变量附加属性
 			if (origVar.getValue() == varValue) {
 				list.add(origVar);
-			}else{
+			} else {
 				list.add(VarRef.of(varValue, origVar.getProps()));
 			}
 			return;
