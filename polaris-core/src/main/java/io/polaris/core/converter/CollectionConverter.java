@@ -6,6 +6,8 @@ import java.util.*;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import javax.annotation.Nonnull;
+
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.consts.SymbolConsts;
 import io.polaris.core.json.JsonSerializer;
@@ -55,7 +57,7 @@ public class CollectionConverter<T extends Collection<E>, E> extends AbstractCon
 	}
 
 	@Override
-	protected <S> T doConvert(S value, JavaType<T> targetType, JavaType<S> sourceType) {
+	protected <S> T doConvert(@Nonnull S value, JavaType<T> targetType, JavaType<S> sourceType) {
 		if (this.collectionType.getRawClass().isAssignableFrom(sourceType.getRawClass())) {
 			Type sourceElementType = sourceType.getActualType(Collection.class, 0);
 			// 元素泛型一致

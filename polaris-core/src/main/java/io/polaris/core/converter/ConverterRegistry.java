@@ -1,6 +1,7 @@
 package io.polaris.core.converter;
 
 import io.polaris.core.converter.support.*;
+import io.polaris.core.jdbc.sql.VarRef;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.TypeRef;
 import io.polaris.core.lang.bean.Beans;
@@ -9,6 +10,9 @@ import io.polaris.core.log.Loggers;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.service.Service;
 import io.polaris.core.service.ServiceLoader;
+import io.polaris.core.tuple.LazyRef;
+import io.polaris.core.tuple.Ref;
+import io.polaris.core.tuple.ValueRef;
 import io.polaris.core.ulid.Ulid;
 
 import javax.annotation.Nullable;
@@ -113,7 +117,7 @@ public class ConverterRegistry {
 		standardConverters.put(SoftReference.class, new ReferenceConverter(SoftReference.class));
 		standardConverters.put(AtomicReference.class, new AtomicReferenceConverter());
 
-		//AtomicXXXArray
+		// AtomicXXXArray
 		standardConverters.put(AtomicIntegerArray.class, new AtomicIntegerArrayConverter());
 		standardConverters.put(AtomicLongArray.class, new AtomicLongArrayConverter());
 
@@ -128,6 +132,10 @@ public class ConverterRegistry {
 		standardConverters.put(Ulid.class, new UlidConverter());
 		standardConverters.put(StackTraceElement.class, new StackTraceElementConverter());
 		standardConverters.put(Optional.class, new OptionalConverter());
+		standardConverters.put(Ref.class, new RefConverter(Ref.class));
+		standardConverters.put(ValueRef.class, new RefConverter(ValueRef.class));
+		standardConverters.put(LazyRef.class, new RefConverter(LazyRef.class));
+		standardConverters.put(VarRef.class, new VarRefConverter());
 	}
 
 	private static void loadServices() {

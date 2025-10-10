@@ -13,6 +13,8 @@ import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.annotation.Nonnull;
+
 /**
  * @author Qt
  * @since 1.8
@@ -40,7 +42,7 @@ public class BeanConverter<T> extends AbstractConverter<T> {
 	}
 
 	@Override
-	protected <S> T doConvert(S value, JavaType<T> targetType, JavaType<S> sourceType) {
+	protected <S> T doConvert(@Nonnull S value, JavaType<T> targetType, JavaType<S> sourceType) {
 		if (sourceType.getRawType() instanceof Class) {
 			if (targetType.getRawClass().isAssignableFrom((Class<?>) sourceType.getRawType())){
 				return (T) value;

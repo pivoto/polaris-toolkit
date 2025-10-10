@@ -16,6 +16,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.annotation.Nonnull;
+
 /**
  * @author Qt
  * @since 1.8
@@ -50,7 +52,7 @@ public class MapConverter<K, V> extends AbstractConverter<Map<K, V>> {
 	}
 
 	@Override
-	protected <S> Map<K, V> doConvert(S value, JavaType<Map<K, V>> targetType, JavaType<S> sourceType) {
+	protected <S> Map<K, V> doConvert(@Nonnull S value, JavaType<Map<K, V>> targetType, JavaType<S> sourceType) {
 		if (this.mapType.getRawClass().isAssignableFrom(sourceType.getRawClass())) {
 			boolean matchKeyType = false, matchValueType = false;
 			{

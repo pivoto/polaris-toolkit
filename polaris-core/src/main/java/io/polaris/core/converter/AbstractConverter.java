@@ -4,6 +4,8 @@ import io.polaris.core.lang.JavaType;
 
 import java.lang.reflect.Type;
 
+import javax.annotation.Nonnull;
+
 /**
  * @author Qt
  * @since 1.8
@@ -16,14 +18,17 @@ public abstract class AbstractConverter<T> implements Converter<T> {
 		//return (Class<T>) Reflects.findParameterizedType(Converter.class, getClass(), 0);
 	}
 
+	@Override
 	public final <S> T convert(Type valueType, S value) {
 		return convert(JavaType.of(valueType), value);
 	}
 
+	@Override
 	public final <S> T convert(S value) {
 		return convert(value.getClass(), value);
 	}
 
+	@Override
 	public final <S> T convertOrDefault(Type valueType, S value, T defaultValue) {
 		T t = convert(valueType, value);
 		if (t == null) {
@@ -32,6 +37,7 @@ public abstract class AbstractConverter<T> implements Converter<T> {
 		return t;
 	}
 
+	@Override
 	public final <S> T convertOrDefault(S value, T defaultValue) {
 		return convertOrDefault(value.getClass(), value, defaultValue);
 	}
@@ -74,5 +80,6 @@ public abstract class AbstractConverter<T> implements Converter<T> {
 		return doConvert(value, targetType, valueType);
 	}
 
-	protected abstract <S> T doConvert(S value, JavaType<T> targetType, JavaType<S> sourceType);
+	protected abstract <S> T doConvert(@Nonnull S value, JavaType<T> targetType, JavaType<S> sourceType);
+
 }

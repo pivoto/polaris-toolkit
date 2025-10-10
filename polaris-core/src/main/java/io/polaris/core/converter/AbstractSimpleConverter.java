@@ -1,11 +1,18 @@
 package io.polaris.core.converter;
 
+import java.lang.ref.Reference;
 import java.util.Optional;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import io.polaris.core.collection.Iterables;
+import io.polaris.core.jdbc.sql.VarRef;
 import io.polaris.core.json.JsonSerializer;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.service.StatefulServiceLoader;
+import io.polaris.core.tuple.Ref;
+import io.polaris.core.tuple.Tuple1;
 
 /**
  * @author Qt
@@ -13,30 +20,36 @@ import io.polaris.core.service.StatefulServiceLoader;
  */
 public abstract class AbstractSimpleConverter<T> extends AbstractConverter<T> {
 
-	protected final <S> T doConvert(S value, JavaType<T> targetType, JavaType<S> sourceType) {
+	@Override
+	protected final <S> T doConvert(@Nonnull S value, JavaType<T> targetType, JavaType<S> sourceType) {
+		Object obj = value;
+		while (true) {
+			if (obj instanceof Optional) {
+				obj = ((Optional<?>) obj).orElse(null);
+				continue;
+			}
+			if (obj instanceof Reference) {
+				obj = ((Reference<?>) obj).get();
+				continue;
+			}
+			if (obj instanceof Ref) {
+				obj = ((Ref<?>) obj).get();
+				continue;
+			}
+			if (obj instanceof VarRef) {
+				obj = ((VarRef<?>) obj).getValue();
+				continue;
+			}
+			if (obj instanceof Tuple1) {
+				obj = ((Tuple1<?>) obj).getFirst();
+				continue;
+			}
+			break;
+		}
 		return doConvert(value, targetType);
 	}
 
-//	@Override
-//	public T convert(Object value) {
-//		if (value == null) {
-//			return null;
-//		}
-//		JavaType<T> targetType = getTargetType();
-//		if (targetType.getRawType() instanceof Class && targetType.isInstance(value)) {
-//			// 无泛型且类型匹配
-//			return targetType.cast(value);
-//		}
-//		/*if (!Map.class.isAssignableFrom(targetType.getRawClass())
-//			&& !Collection.class.isAssignableFrom(targetType.getRawClass())) {
-//			if (targetType.isInstance(value)) {
-//				return targetType.cast(value);
-//			}
-//		}*/
-//		return doConvert(value, targetType);
-//	}
-
-	protected abstract T doConvert(Object value, JavaType<T> targetType);
+	protected abstract T doConvert(@Nullable Object value, JavaType<T> targetType);
 
 	protected String asComplexString(Object value) {
 		if (value == null) {

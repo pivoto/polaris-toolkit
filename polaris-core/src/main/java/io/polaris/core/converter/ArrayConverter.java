@@ -18,6 +18,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+import javax.annotation.Nonnull;
+
 /**
  * @author Qt
  * @since 1.8
@@ -67,7 +69,7 @@ public class ArrayConverter<T> extends AbstractConverter<T[]> {
 	}
 
 	@Override
-	protected <S> T[] doConvert(S value, JavaType<T[]> targetType, JavaType<S> sourceType) {
+	protected <S> T[] doConvert(@Nonnull S value, JavaType<T[]> targetType, JavaType<S> sourceType) {
 		if (sourceType.getRawType() instanceof Class) {
 			if (((Class<?>) sourceType.getRawType()).isArray() && targetComponentType.getRawClass().isAssignableFrom(((Class<?>) sourceType.getRawType()).getComponentType())) {
 				return (T[]) value;
