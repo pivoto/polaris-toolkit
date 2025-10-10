@@ -109,12 +109,18 @@ public class SqlStatements {
 			}
 			Object val1 = entityMap.get(meta.getFieldName());
 			Object val = BindingValues.getValueForInsert(meta, val1);
+			String propertiesString = meta.getPropertiesString();
+			if (val instanceof VarRef) {
+				// 优先使用VarRef携带的参数属性
+				propertiesString = ((VarRef<?>) val).getProps();
+				val = ((VarRef<?>) val).getValue();
+			}
+
 			if (meta.isVersion()) {
 				val = val == null ? 1L : ((Number) val).longValue();
 			}
 			if (Objs.isNotEmpty(val)) {
 				String keyName = valueKeyGen.generate();
-				String propertiesString = meta.getPropertiesString();
 				if (Strings.isNotBlank(propertiesString)) {
 					sql.columnAndValue(columnName, "#{" + keyName + "," + propertiesString + "}");
 				} else {
@@ -210,6 +216,12 @@ public class SqlStatements {
 			String propertiesString = meta.getPropertiesString();
 			if (primaryKey || version) {
 				Object val = entityMap.get(name);
+				if (val instanceof VarRef) {
+					// 优先使用VarRef携带的参数属性
+					propertiesString = ((VarRef<?>) val).getProps();
+					val = ((VarRef<?>) val).getValue();
+				}
+
 				if (Objs.isEmpty(val)) {
 					sql.where(columnName + " IS NULL");
 				} else {
@@ -228,11 +240,21 @@ public class SqlStatements {
 				val = Converters.convertQuietly(meta.getFieldType(), true);
 			} else if (meta.isUpdateTime()) {
 				val = entityMap.get(name);
+				if (val instanceof VarRef) {
+					// 优先使用VarRef携带的参数属性
+					propertiesString = ((VarRef<?>) val).getProps();
+					val = ((VarRef<?>) val).getValue();
+				}
 				if (val == null) {
 					val = Converters.convertQuietly(meta.getFieldType(), new Date());
 				}
 			} else if (version) {
 				val = entityMap.get(name);
+				if (val instanceof VarRef) {
+					// 优先使用VarRef携带的参数属性
+					propertiesString = ((VarRef<?>) val).getProps();
+					val = ((VarRef<?>) val).getValue();
+				}
 				val = val == null ? 1L : ((Number) val).longValue() + 1;
 			}
 			if (Objs.isNotEmpty(val)) {
@@ -298,10 +320,17 @@ public class SqlStatements {
 			boolean version = meta.isVersion();
 
 			Object val = entityMap.get(name);
+			String propertiesString = meta.getPropertiesString();
+			if (val instanceof VarRef) {
+				// 优先使用VarRef携带的参数属性
+				propertiesString = ((VarRef<?>) val).getProps();
+				val = ((VarRef<?>) val).getValue();
+			}
 			// 按主键条件删除，无需判断列的包含条件
 			if (primaryKey || version) {
 				if (Objs.isNotEmpty(val)) {
-					appendSqlWhereWithVal(bindings, sql, meta, val, whereKeyGen.generate());
+					String key = whereKeyGen.generate();
+					appendSqlWhereWithVal(bindings, sql, columnName, meta.getFieldType(), val, key, propertiesString);
 				} else {
 					sql.where(columnName + " IS NULL");
 				}
@@ -597,6 +626,11 @@ public class SqlStatements {
 			Object val = entityMap.get(name);
 			boolean updatable = meta.isUpdatable() || meta.isVersion() || meta.isUpdateTime();
 			String propertiesString = meta.getPropertiesString();
+			if (val instanceof VarRef) {
+				// 优先使用VarRef携带的参数属性
+				propertiesString = ((VarRef<?>) val).getProps();
+				val = ((VarRef<?>) val).getValue();
+			}
 			if (primaryKey || version) {
 				if (Objs.isEmpty(val)) {
 					sql.where(columnName + " IS NULL");
@@ -732,6 +766,11 @@ public class SqlStatements {
 
 			String propertiesString = meta.getPropertiesString();
 			Object val = entityMap.get(meta.getFieldName());
+			if (val instanceof VarRef) {
+				// 优先使用VarRef携带的参数属性
+				propertiesString = ((VarRef<?>) val).getProps();
+				val = ((VarRef<?>) val).getValue();
+			}
 			Object entityVal = BindingValues.getValueForUpdate(meta, val);
 			if (version) {
 				entityVal = entityVal == null ? 1L : ((Number) entityVal).longValue() + 1;
@@ -963,6 +1002,11 @@ public class SqlStatements {
 			boolean version = meta.isVersion();
 			Object val = entityMap.get(name);
 			String propertiesString = meta.getPropertiesString();
+			if (val instanceof VarRef) {
+				// 优先使用VarRef携带的参数属性
+				propertiesString = ((VarRef<?>) val).getProps();
+				val = ((VarRef<?>) val).getValue();
+			}
 			if (primaryKey) {
 				if (val == null) {
 					sql.where(columnName + " IS NULL");
@@ -1197,6 +1241,11 @@ public class SqlStatements {
 			sql.select(columnName + " " + name);
 
 			String propertiesString = meta.getPropertiesString();
+			if (val instanceof VarRef) {
+				// 优先使用VarRef携带的参数属性
+				propertiesString = ((VarRef<?>) val).getProps();
+				val = ((VarRef<?>) val).getValue();
+			}
 			if (primaryKey) {
 				if (val == null) {
 					sql.where(columnName + " IS NULL");
@@ -1405,9 +1454,16 @@ public class SqlStatements {
 			ColumnMeta meta = entry.getValue();
 			String columnName = meta.getColumnName();
 			Object val = entityMap.get(name);
+			String propertiesString = meta.getPropertiesString();
+			if (val instanceof VarRef) {
+				// 优先使用VarRef携带的参数属性
+				propertiesString = ((VarRef<?>) val).getProps();
+				val = ((VarRef<?>) val).getValue();
+			}
 
 			if (Objs.isNotEmpty(val)) {
-				appendSqlWhereWithVal(bindings, sql, meta, val, whereKeyGen.generate());
+				String key = whereKeyGen.generate();
+				appendSqlWhereWithVal(bindings, sql, columnName, meta.getFieldType(), val, key, propertiesString);
 				columnVisitor.accept(name);
 			} else {
 				// 需要包含空值字段
@@ -1431,8 +1487,15 @@ public class SqlStatements {
 			String columnName = meta.getExpressionWithTableName();
 			Object val = entityMap.get(name);
 
+			String propertiesString = meta.getPropertiesString();
+			if (val instanceof VarRef) {
+				// 优先使用VarRef携带的参数属性
+				propertiesString = ((VarRef<?>) val).getProps();
+				val = ((VarRef<?>) val).getValue();
+			}
 			if (Objs.isNotEmpty(val)) {
-				appendSqlWhereWithVal(bindings, sql, meta, val, whereKeyGen.generate());
+				String key = whereKeyGen.generate();
+				appendSqlWhereWithVal(bindings, sql, columnName, meta.getFieldType(), val, key, propertiesString);
 			} else {
 				// 需要包含空值字段
 				boolean include = columnPredicate.isIncludedEmptyColumn(name);
@@ -1476,9 +1539,16 @@ public class SqlStatements {
 			ColumnMeta meta = entry.getValue();
 			String columnName = meta.getColumnName();
 			Object val = entityMap.get(name);
+			String propertiesString = meta.getPropertiesString();
+			if (val instanceof VarRef) {
+				// 优先使用VarRef携带的参数属性
+				propertiesString = ((VarRef<?>) val).getProps();
+				val = ((VarRef<?>) val).getValue();
+			}
 
 			if (Objs.isNotEmpty(val)) {
-				appendSqlWhereWithVal(bindings, sql, meta, val, whereKeyGen.generate());
+				String key = whereKeyGen.generate();
+				appendSqlWhereWithVal(bindings, sql, columnName, meta.getFieldType(), val, key, propertiesString);
 			} else {
 				// 需要包含空值字段
 				boolean include = columnPredicate.isIncludedEmptyColumn(name);
@@ -1499,9 +1569,16 @@ public class SqlStatements {
 			// 无别名时，使用表名，防止子查询中字段来源不明确
 			String columnName = meta.getExpressionWithTableName();
 			Object val = entityMap.get(name);
+			String propertiesString = meta.getPropertiesString();
+			if (val instanceof VarRef) {
+				// 优先使用VarRef携带的参数属性
+				propertiesString = ((VarRef<?>) val).getProps();
+				val = ((VarRef<?>) val).getValue();
+			}
 
 			if (Objs.isNotEmpty(val)) {
-				appendSqlWhereWithVal(bindings, sql, meta, val, whereKeyGen.generate());
+				String key = whereKeyGen.generate();
+				appendSqlWhereWithVal(bindings, sql, columnName, meta.getFieldType(), val, key, propertiesString);
 			} else {
 				// 需要包含空值字段
 				boolean include = columnPredicate.isIncludedEmptyColumn(name);
@@ -1529,27 +1606,9 @@ public class SqlStatements {
 	/**
 	 * 添加查询条件， 支持处理集合与数组类型
 	 */
-	private static void appendSqlWhereWithVal(@Nonnull Map<String, Object> bindings
-		, @Nonnull SqlStatement sql, @Nonnull ExpressionMeta meta, @Nonnull Object val, String key) {
-		String columnName = meta.getExpressionWithTableName();
-		Class<?> fieldType = meta.getFieldType();
-		String propertiesString = meta.getPropertiesString();
-		appendSqlWhereWithVal(bindings, sql, columnName, fieldType, val, key, propertiesString);
-	}
-
-	/**
-	 * 添加查询条件， 支持处理集合与数组类型
-	 */
-	private static void appendSqlWhereWithVal(@Nonnull Map<String, Object> bindings
-		, @Nonnull SqlStatement sql, @Nonnull ColumnMeta meta, @Nonnull Object val, String key) {
-		String columnName = meta.getColumnName();
-		Class<?> fieldType = meta.getFieldType();
-		String propertiesString = meta.getPropertiesString();
-		appendSqlWhereWithVal(bindings, sql, columnName, fieldType, val, key, propertiesString);
-	}
-
-	private static void appendSqlWhereWithVal(Map<String, Object> bindings, SqlStatement sql, String columnName, Class<?> fieldType, Object val, String key, String propertiesString) {
-		String varSuffix = Strings.isNotBlank(propertiesString) ? "," + propertiesString : "";
+	private static void appendSqlWhereWithVal(@Nonnull Map<String, Object> bindings, @Nonnull SqlStatement sql, @Nonnull String columnName, @Nonnull Class<?> fieldType, @Nonnull Object val, @Nonnull String key, String varProps) {
+		// 注意： val 变量类型不可能为VarRef， 已在外部处理
+		String varSuffix = Strings.isNotBlank(varProps) ? "," + varProps : "";
 		// 日期字段
 		if (Date.class.isAssignableFrom(fieldType)) {
 			// 两个元素的日期类字段特殊处理，认为是日期范围条件

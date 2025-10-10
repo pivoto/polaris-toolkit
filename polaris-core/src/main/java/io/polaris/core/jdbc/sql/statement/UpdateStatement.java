@@ -12,6 +12,7 @@ import io.polaris.core.annotation.AnnotationProcessing;
 import io.polaris.core.converter.Converters;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.TableMeta;
+import io.polaris.core.jdbc.sql.VarRef;
 import io.polaris.core.jdbc.sql.BindingValues;
 import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.SqlNode;
@@ -199,6 +200,12 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 					continue;
 				}
 				Object val = BindingValues.getValueForUpdate(meta, entityMap.get(meta.getFieldName()));
+				String propertiesString = meta.getPropertiesString();
+				if (val instanceof VarRef) {
+					// 优先使用VarRef携带的参数属性
+					propertiesString = ((VarRef<?>) val).getProps();
+					val = ((VarRef<?>) val).getValue();
+				}
 				if (meta.isVersion()) {
 					val = val == null ? 1L : ((Number) val).longValue() + 1;
 				}
@@ -212,7 +219,6 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 				// 需要包含空值字段或非空值
 				boolean include = columnPredicate.isIncludedEmptyColumn(name) || Objs.isNotEmpty(val);
 				if (include) {
-					String propertiesString = meta.getPropertiesString();
 					if (Strings.isNotBlank(propertiesString)) {
 						this.column(name).value(val, propertiesString);
 					} else {
@@ -237,16 +243,21 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 				String name = entry.getKey();
 				ColumnMeta meta = entry.getValue();
 				Object val = null;
+				String propertiesString = meta.getPropertiesString();
 				if (meta.isLogicDeleted()) {
 					val = Converters.convertQuietly(meta.getFieldType(), true);
 				} else if (meta.isUpdateTime() || meta.isVersion()) {
 					val = BindingValues.getValueForUpdate(meta, entityMap.get(meta.getFieldName()));
+					if (val instanceof VarRef) {
+						// 优先使用VarRef携带的参数属性
+						propertiesString = ((VarRef<?>) val).getProps();
+						val = ((VarRef<?>) val).getValue();
+					}
 					if (meta.isVersion()) {
 						val = val == null ? 1L : ((Number) val).longValue() + 1;
 					}
 				}
 				if (val != null) {
-					String propertiesString = meta.getPropertiesString();
 					if (Strings.isNotBlank(propertiesString)) {
 						this.column(name).value(val, propertiesString);
 					} else {
@@ -272,8 +283,13 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 				} else if (meta.isUpdateTime()) {
 					val = BindingValues.getValueForUpdate(meta, null);
 				}
+				String propertiesString = meta.getPropertiesString();
+				if (val instanceof VarRef) {
+					// 优先使用VarRef携带的参数属性
+					propertiesString = ((VarRef<?>) val).getProps();
+					val = ((VarRef<?>) val).getValue();
+				}
 				if (val != null) {
-					String propertiesString = meta.getPropertiesString();
 					if (Strings.isNotBlank(propertiesString)) {
 						this.column(name).value(val, propertiesString);
 					} else {

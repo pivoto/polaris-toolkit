@@ -1,18 +1,25 @@
 package io.polaris.core.jdbc.sql.statement.expression;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.RandomAccess;
+
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.function.FunctionWithArgs3;
+import io.polaris.core.jdbc.sql.VarRef;
 import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.DynamicNode;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
 
-import java.lang.reflect.Array;
-import java.util.*;
-
 /**
  * @author Qt
- * @since  Aug 22, 2023
+ * @since Aug 22, 2023
  */
 class LargeInOrNotExpression extends BaseExpression {
 	private final int limit;
@@ -26,20 +33,92 @@ class LargeInOrNotExpression extends BaseExpression {
 		this.conjNode = conjNode;
 	}
 
+	private List<Object> splitVarRef(VarRef<?> origValue) {
+		List<Object> list = new ArrayList<>();
+		Object varValue = origValue.getValue();
+		String varProps = origValue.getProps();
 
-	private List<List<Object>> split(Object varValue) {
-		List<List<Object>> list = new ArrayList<>();
 		if (varValue instanceof List && varValue instanceof RandomAccess) {
 			int size = ((List<?>) varValue).size();
 			if (size <= this.limit) {
-				list.add((List<Object>) varValue);
+				list.add(origValue);
 				return list;
 			}
 			for (int i = 0; i < size; ) {
 				int count = Integer.min(size - i, this.limit);
 				List<Object> args = new ArrayList<>(count);
 				for (int j = 0; j < count; j++) {
-					Object o = ((List<?>) varValue).get(i+j);
+					Object o = ((List<?>) varValue).get(i + j);
+					args.add(VarRef.of(o, varProps));
+				}
+				list.add(args);
+				i += count;
+			}
+			return list;
+		}
+		if (varValue.getClass().isArray()) {
+			int count = 0;
+			List<Object> args = new ArrayList<>(count);
+			list.add(args);
+			int size = Array.getLength(varValue);
+			for (int i = 0; i < size; i++) {
+				Object o = Array.get(varValue, i);
+				count++;
+				if (count > this.limit) {
+					args = new ArrayList<>(count);
+					list.add(args);
+					count = 0;
+				}
+				args.add(VarRef.of(o, varProps));
+			}
+			return list;
+		}
+		if (varValue instanceof Iterable) {
+			varValue = ((Iterable<?>) varValue).iterator();
+		}
+		if (varValue instanceof Map) {
+			Collection<?> values = ((Map<?, ?>) varValue).values();
+			varValue = values.iterator();
+		}
+		if (varValue instanceof Iterator) {
+			int count = 0;
+			List<Object> args = new ArrayList<>(count);
+			list.add(args);
+			while (((Iterator<?>) varValue).hasNext()) {
+				Object o = ((Iterator<?>) varValue).next();
+				count++;
+				if (count > this.limit) {
+					args = new ArrayList<>(count);
+					list.add(args);
+					count = 0;
+				}
+				args.add(VarRef.of(o, varProps));
+			}
+			return list;
+		}
+
+		list.add(origValue);
+		return list;
+	}
+
+
+	private List<Object> split(Object varValue) {
+		List<Object> list = new ArrayList<>();
+		if (varValue instanceof VarRef) {
+			return splitVarRef((VarRef<?>)varValue);
+		}
+
+		if (varValue instanceof List && varValue instanceof RandomAccess) {
+			int size = ((List<?>) varValue).size();
+			if (size <= this.limit) {
+				list.add(varValue);
+				return list;
+			}
+			for (int i = 0; i < size; ) {
+				int count = Integer.min(size - i, this.limit);
+				List<Object> args = new ArrayList<>(count);
+				for (int j = 0; j < count; j++) {
+					Object o = ((List<?>) varValue).get(i + j);
 					args.add(o);
 				}
 				list.add(args);
@@ -93,10 +172,10 @@ class LargeInOrNotExpression extends BaseExpression {
 	}
 
 	private ContainerNode bind(SqlNode baseSource, SqlNode[] extSources, Object varValue) {
-		List<List<Object>> list = split(varValue);
+		List<Object> list = split(varValue);
 		int size = list.size();
 		if (size <= 1) {
-			List<Object> args = size == 0 ? Collections.emptyList() : list.get(0);
+			Object args = size == 0 ? Collections.emptyList() : list.get(0);
 			ContainerNode container = new ContainerNode();
 			container.addNode(baseSource);
 			container.addNode(logicalNode);
@@ -110,7 +189,7 @@ class LargeInOrNotExpression extends BaseExpression {
 		ContainerNode container = new ContainerNode();
 		container.addNodes(SqlNodes.LEFT_PARENTHESIS);
 		for (int i = 0; i < list.size(); i++) {
-			List<Object> args = list.get(i);
+			Object args = list.get(i);
 			if (i > 0) {
 				container.addNode(conjNode);
 			}

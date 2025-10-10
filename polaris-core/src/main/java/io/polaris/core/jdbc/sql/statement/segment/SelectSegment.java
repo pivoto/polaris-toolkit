@@ -8,6 +8,7 @@ import io.polaris.core.annotation.AnnotationProcessing;
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.consts.StdConsts;
 import io.polaris.core.consts.SymbolConsts;
+import io.polaris.core.jdbc.sql.VarRef;
 import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
@@ -103,7 +104,7 @@ public class SelectSegment<O extends Segment<O>, S extends SelectSegment<O, S>> 
 		if (value != null && Strings.isNotBlank(fieldAlias)) {
 			ContainerNode containerNode = new ContainerNode();
 			if (valueProperty != null) {
-				containerNode.addNode(SqlNodes.dynamic(fieldAlias, value, valueProperty));
+				containerNode.addNode(SqlNodes.dynamic(fieldAlias, VarRef.of(value, valueProperty)));
 			} else {
 				containerNode.addNode(SqlNodes.dynamic(fieldAlias, value));
 			}
@@ -382,7 +383,12 @@ public class SelectSegment<O extends Segment<O>, S extends SelectSegment<O, S>> 
 		if (Strings.isEmpty(alias)) {
 			throw new IllegalArgumentException("别名不能为空");
 		}
-		this.value = value;
+		if (value instanceof VarRef) {
+			this.valueProperty = Strings.trimToNull(((VarRef<?>) value).getProps());
+			this.value = ((VarRef<?>) value).getValue();
+		} else {
+			this.value = value;
+		}
 		return alias(alias);
 	}
 
@@ -390,8 +396,13 @@ public class SelectSegment<O extends Segment<O>, S extends SelectSegment<O, S>> 
 		if (Strings.isEmpty(alias)) {
 			throw new IllegalArgumentException("别名不能为空");
 		}
-		this.value = value;
-		this.valueProperty = Strings.trimToNull(valueProperty);
+		if (value instanceof VarRef) {
+			this.valueProperty = Strings.isNotBlank(valueProperty) ? Strings.trimToNull(valueProperty) : Strings.trimToNull(((VarRef<?>) value).getProps());
+			this.value = ((VarRef<?>) value).getValue();
+		} else {
+			this.value = value;
+			this.valueProperty = Strings.trimToNull(valueProperty);
+		}
 		return alias(alias);
 	}
 

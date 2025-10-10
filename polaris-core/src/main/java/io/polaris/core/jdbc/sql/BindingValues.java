@@ -1,6 +1,7 @@
 package io.polaris.core.jdbc.sql;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -19,6 +20,7 @@ import io.polaris.core.consts.StdConsts;
 import io.polaris.core.converter.Converters;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.sql.node.SqlNode;
+import io.polaris.core.jdbc.sql.node.VarNode;
 import io.polaris.core.jdbc.sql.statement.SqlNodeBuilder;
 import io.polaris.core.lang.bean.BeanMap;
 import io.polaris.core.lang.bean.Beans;
@@ -31,6 +33,41 @@ import io.polaris.core.tuple.ValueRef;
  * @since Jan 30, 2024
  */
 public class BindingValues {
+
+	public static Object unwrap(Object val) {
+		if (val instanceof VarRef) {
+			return ((VarRef<?>) val).getValue();
+		}
+		return val;
+	}
+
+	public static Object unwrapAndConvert(Type type, Object val) {
+		Object v = unwrap(val);
+		if (val == null) {
+			return null;
+		}
+		return Converters.convertQuietly(type, v);
+	}
+
+	public static VarRef<?> convert(Type type, Object val,String varProps) {
+		Object o = convert(type, val);
+		if (o instanceof VarRef) {
+			return (VarRef<?>) o;
+		}
+		return VarRef.of(o, varProps);
+	}
+
+	public static Object convert(Type type, Object val) {
+		if (val instanceof VarRef) {
+			return VarRef.of(Converters.convertQuietly(type, ((VarRef<?>) val).getValue()), ((VarRef<?>) val).getProps());
+		} else {
+			return Converters.convertQuietly(type, val);
+		}
+	}
+
+	public static Object convertDirectly(Type type, Object val) {
+		return Converters.convertQuietly(type, val);
+	}
 
 	public static Object getValueForInsert(ColumnMeta meta, Object val) {
 		if (val == null) {
@@ -78,6 +115,9 @@ public class BindingValues {
 	 */
 	@Nullable
 	public static Date[] getDateRangeOrNull(Object val) {
+		if (val instanceof VarRef) {
+			val = ((VarRef<?>) val).getValue();
+		}
 		Date[] range = new Date[2];
 		// 两个元素的日期类字段特殊处理，认为是日期范围条件
 		Object[] couple = new Object[2];

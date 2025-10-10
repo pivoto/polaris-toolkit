@@ -14,12 +14,12 @@ import java.util.function.Predicate;
 import io.polaris.core.annotation.AnnotationProcessing;
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.collection.ObjectArrays;
-import io.polaris.core.converter.Converters;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.ExpressionMeta;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.sql.BindingValues;
 import io.polaris.core.jdbc.sql.SqlTextParsers;
+import io.polaris.core.jdbc.sql.VarRef;
 import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
@@ -35,6 +35,7 @@ import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.reflect.GetterFunction;
 import io.polaris.core.reflect.Reflects;
+import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
@@ -148,7 +149,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 				(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
 					? Beans.newBeanMap(entity, tableMeta.getEntityClass())
 					: Beans.newBeanMap(entity));
-			// todo 查询条件支持ColumnProperties扩展属性
+
 			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
 				String name = entry.getKey();
 				// 不在包含列表
@@ -157,8 +158,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 				}
 				ColumnMeta meta = entry.getValue();
 				Object val = entityMap.get(name);
-				String propertiesString = meta.getPropertiesString();
-				addWhereSqlByColumnValue(meta.getFieldName(), meta.getFieldType(), val, columnPredicate);
+				addWhereSqlByColumnValue(meta.getFieldName(), meta.getFieldType(), meta.wrap(val), columnPredicate);
 			}
 			for (Map.Entry<String, ExpressionMeta> entry : tableMeta.getExpressions().entrySet()) {
 				String name = entry.getKey();
@@ -168,14 +168,16 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 				}
 				ExpressionMeta meta = entry.getValue();
 				Object val = entityMap.get(name);
-				String propertiesString = meta.getPropertiesString();
-				addWhereSqlByColumnValue(meta.getFieldName(), meta.getFieldType(), val, columnPredicate);
+				addWhereSqlByColumnValue(meta.getFieldName(), meta.getFieldType(), meta.wrap(val), columnPredicate);
 			}
 		}
 		return getThis();
 	}
 
-	private void addWhereSqlByColumnValue(String fieldName, Class<?> fieldType, Object val, ColumnPredicate columnPredicate) {
+	private void addWhereSqlByColumnValue(String fieldName, Class<?> fieldType, VarRef<?> varRef, ColumnPredicate columnPredicate) {
+		Object val = varRef.getValue();
+		String varProps = Strings.trimToNull(varRef.getProps());
+
 		if (Objs.isEmpty(val)) {
 			// 需要包含空值字段
 			if (columnPredicate.isIncludedEmptyColumn(fieldName)) {
@@ -190,10 +192,18 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 			Date[] range = BindingValues.getDateRangeOrNull(val);
 			if (range != null) {
 				if (range[0] != null) {
-					this.column(fieldName).ge(range[0]);
+					if (varProps != null) {
+						this.column(fieldName).ge(VarRef.of(range[0], varProps));
+					} else {
+						this.column(fieldName).ge(range[0]);
+					}
 				}
 				if (range[1] != null) {
-					this.column(fieldName).le(range[1]);
+					if (varProps != null) {
+						this.column(fieldName).ge(VarRef.of(range[1], varProps));
+					} else {
+						this.column(fieldName).le(range[1]);
+					}
 				}
 				// 完成条件绑定
 				return;
@@ -202,6 +212,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 		// 文本字段
 		else if (String.class.isAssignableFrom(fieldType)) {
 			if (val instanceof String && (((String) val).startsWith("%") || ((String) val).endsWith("%"))) {
+				// like 不需要VarRef附加属性
 				this.column(fieldName).like((String) val);
 				// 完成条件绑定
 				return;
@@ -214,27 +225,55 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 			Object start = range.getStart();
 			Object end = range.getEnd();
 			if (Objs.isNotEmpty(start)) {
-				this.column(fieldName).ge(start);
+				if (varProps != null) {
+					this.column(fieldName).ge(VarRef.of(start, varProps));
+				} else {
+					this.column(fieldName).ge((start));
+				}
 			}
 			if (Objs.isNotEmpty(end)) {
-				this.column(fieldName).le(end);
+				if (varProps != null) {
+					this.column(fieldName).le(VarRef.of(end, varProps));
+				} else {
+					this.column(fieldName).le(end);
+				}
 			}
 		} else if (val instanceof Collection) {
 			List<Object> list = new ArrayList<>((Collection<?>) val);
-			this.column(fieldName).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
+			if (varProps != null) {
+				this.column(fieldName).in(convertListElements(list, o -> BindingValues.convert(fieldType, o, varProps)));
+			} else {
+				this.column(fieldName).in(convertListElements(list, o -> BindingValues.convert(fieldType, o)));
+			}
 		} else if (val instanceof Iterable) {
 			@SuppressWarnings("unchecked")
 			List<Object> list = Iterables.asCollection(ArrayList::new, (Iterable<Object>) val);
-			this.column(fieldName).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
+			if (varProps != null) {
+				this.column(fieldName).in(convertListElements(list, o -> BindingValues.convert(fieldType, o, varProps)));
+			} else {
+				this.column(fieldName).in(convertListElements(list, o -> BindingValues.convert(fieldType, o)));
+			}
 		} else if (val instanceof Iterator) {
 			@SuppressWarnings("unchecked")
 			List<Object> list = Iterables.asCollection(ArrayList::new, (Iterator<Object>) val);
-			this.column(fieldName).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
+			if (varProps != null) {
+				this.column(fieldName).in(convertListElements(list, o -> BindingValues.convert(fieldType, o, varProps)));
+			} else {
+				this.column(fieldName).in(convertListElements(list, o -> BindingValues.convert(fieldType, o)));
+			}
 		} else if (val.getClass().isArray()) {
 			List<Object> list = ObjectArrays.toList(val);
-			this.column(fieldName).in(convertListElements(list, o -> Converters.convertQuietly(fieldType, o)));
+			if (varProps != null) {
+				this.column(fieldName).in(convertListElements(list, o -> BindingValues.convert(fieldType, o, varProps)));
+			} else {
+				this.column(fieldName).in(convertListElements(list, o -> BindingValues.convert(fieldType, o)));
+			}
 		} else {
-			this.column(fieldName).eq((Object) Converters.convertQuietly(fieldType, val));
+			if (varProps != null) {
+				this.column(fieldName).eq(BindingValues.convert(fieldType, val, varProps));
+			} else {
+				this.column(fieldName).eq(BindingValues.convert(fieldType, val));
+			}
 		}
 	}
 
@@ -263,7 +302,11 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 					if (val == null) {
 						this.column(name).isNull();
 					} else {
-						this.column(name).eq(val);
+						if (Strings.isNotBlank(meta.getPropertiesString())) {
+							this.column(name).eq(meta.wrap(val));
+						} else {
+							this.column(name).eq(val);
+						}
 					}
 				}
 			}
@@ -287,7 +330,11 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 					if (val == null) {
 						this.column(name).isNull();
 					} else {
-						this.column(name).eq(val);
+						if (Strings.isNotBlank(meta.getPropertiesString())) {
+							this.column(name).eq(meta.wrap(val));
+						} else {
+							this.column(name).eq(val);
+						}
 					}
 				}
 			}

@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import io.polaris.core.function.FunctionWithArgs3;
+import io.polaris.core.jdbc.sql.VarRef;
 import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.DynamicNode;
 import io.polaris.core.jdbc.sql.node.SqlNode;
@@ -11,7 +12,7 @@ import io.polaris.core.jdbc.sql.node.SqlNodes;
 
 /**
  * @author Qt
- * @since  Aug 22, 2023
+ * @since Aug 22, 2023
  */
 public class LikeExpression extends BaseExpression {
 	public static final LikeExpression CONTAINS = new LikeExpression(true, true, false);
@@ -30,7 +31,7 @@ public class LikeExpression extends BaseExpression {
 		this.not = not;
 	}
 
-	private ContainerNode bind(SqlNode baseSource, SqlNode[] extSources, Supplier<CharSequence> getter) {
+	private ContainerNode bind(SqlNode baseSource, SqlNode[] extSources, Supplier<Object> getter) {
 		ContainerNode container = new ContainerNode();
 		container.addNode(baseSource);
 		if (not) {
@@ -39,14 +40,26 @@ public class LikeExpression extends BaseExpression {
 		container.addNode(SqlNodes.LIKE);
 		DynamicNode varNode = new DynamicNode(nextVarName());
 
-		StringBuilder val = new StringBuilder(getter.get());
-		if (rightFuzzy && (val.length() == 0 || val.charAt(val.length() - 1) != '%')) {
-			val.append('%');
+		StringBuilder val = new StringBuilder();
+		String varProps = null;
+		Object obj = getter.get();
+		if (obj instanceof VarRef) {
+			varProps = ((VarRef<?>) obj).getProps();
+			val.append(((VarRef<?>) obj).getValue());
+		} else {
+			val.append(obj);
 		}
 		if (leftFuzzy && (val.length() == 0 || val.charAt(0) != '%')) {
 			val.insert(0, '%');
 		}
-		varNode.bindVarValue(val.toString());
+		if (rightFuzzy && (val.length() == 0 || val.charAt(val.length() - 1) != '%')) {
+			val.append('%');
+		}
+		if (varProps != null) {
+			varNode.bindVarValue(VarRef.of(val.toString(), varProps));
+		} else {
+			varNode.bindVarValue(val.toString());
+		}
 		container.addNode(varNode);
 		return container;
 	}

@@ -4,6 +4,7 @@ import java.util.Map;
 
 import io.polaris.core.annotation.AnnotationProcessing;
 import io.polaris.core.consts.StdConsts;
+import io.polaris.core.jdbc.sql.VarRef;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
 import io.polaris.core.jdbc.sql.statement.BaseSegment;
@@ -150,7 +151,7 @@ public class ColumnSegment<O extends Segment<O>, S extends ColumnSegment<O, S>> 
 			return SqlNodes.mixed(name(), null);
 		} else {
 			if (valueProperty != null) {
-				return SqlNodes.dynamic(name(), columnValue, valueProperty);
+				return SqlNodes.dynamic(name(), VarRef.of(columnValue, valueProperty));
 			} else {
 				return SqlNodes.dynamic(name(), columnValue);
 			}
