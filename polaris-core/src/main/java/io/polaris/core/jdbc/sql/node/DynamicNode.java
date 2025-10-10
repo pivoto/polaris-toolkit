@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.polaris.core.consts.SymbolConsts;
-import io.polaris.core.jdbc.VarRef;
+import io.polaris.core.jdbc.sql.VarRef;
 import io.polaris.core.jdbc.sql.BoundSql;
 import io.polaris.core.jdbc.sql.PreparedSql;
 import io.polaris.core.string.Strings;

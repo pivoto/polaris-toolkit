@@ -18,6 +18,7 @@ import io.polaris.core.jdbc.annotation.Expression;
 import io.polaris.core.jdbc.annotation.Id;
 import io.polaris.core.jdbc.annotation.Table;
 import io.polaris.core.jdbc.annotation.processing.JdbcBeanInfo;
+import io.polaris.core.jdbc.sql.VarRef;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 

@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import io.polaris.core.annotation.AnnotationProcessing;
+import io.polaris.core.jdbc.sql.VarRef;
 import io.polaris.core.lang.Copyable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

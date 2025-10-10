@@ -1,4 +1,4 @@
-package io.polaris.core.jdbc;
+package io.polaris.core.jdbc.sql;
 
 import java.util.Objects;
 
@@ -14,6 +14,7 @@ public class VarRef<T> implements Copyable<VarRef<T>> {
 	private final String props;
 
 	private VarRef(T value, String props) {
+		// assert !(value instanceof VarRef);
 		this.value = value;
 		this.props = props == null ? "" : props.trim();
 	}
@@ -23,7 +24,7 @@ public class VarRef<T> implements Copyable<VarRef<T>> {
 		if (value instanceof VarRef) {
 			T v = (T) (((VarRef<?>) value).getValue());
 			String props = ((VarRef<?>) value).getProps();
-			return new VarRef<>(v, props);
+			return of(v, props);
 		}
 		return of(value, null);
 	}
@@ -32,6 +33,7 @@ public class VarRef<T> implements Copyable<VarRef<T>> {
 	public static <T> VarRef<T> of(T value, String props) {
 		if (value instanceof VarRef) {
 			value = (T) (((VarRef<?>) value).getValue());
+			return of(value, props);
 		}
 		return new VarRef<>(value, props);
 	}
