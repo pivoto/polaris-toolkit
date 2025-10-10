@@ -19,7 +19,7 @@ import io.polaris.mybatis.interceptor.DynamicResultMappingInterceptor;
 @Documented
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface DynamicUseGeneratedKeys {
+public @interface DynamicResultMapping {
 
 	/**
 	 * @return 指定检测的目标实体类型，默认由Mapper上下文推断
@@ -27,11 +27,12 @@ public @interface DynamicUseGeneratedKeys {
 	Class<?> entity() default void.class;
 
 	/**
-	 * @return 实体在执行参数对象中的Key值，为空表示整个参数对象
+	 * @return 是否使用数据库列名映射，而不是使用实体属性名
 	 */
-	String value() default "";
+	boolean useColumnName() default false;
 
-
-	String[] columnPropertyKeys() default {ColumnJdbcType.KEY, ColumnTypeHandler.KEY};
-
+	/**
+	 * @return 列名前缀
+	 */
+	String columnPrefix() default "";
 }

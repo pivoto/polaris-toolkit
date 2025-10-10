@@ -17,8 +17,10 @@ import org.apache.ibatis.type.TypeHandler;
 @Documented
 @Target({ElementType.FIELD, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@ColumnProperty(key = "typeHandler", type = ColumnProperty.Type.CLASS)
+@ColumnProperty(key = ColumnTypeHandler.KEY, type = ColumnProperty.Type.CLASS)
 public @interface ColumnTypeHandler {
+
+	String KEY = "typeHandler";
 
 	@Alias(value = "classValue", annotation = ColumnProperty.class)
 	Class<? extends TypeHandler<?>> value();

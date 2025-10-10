@@ -1,6 +1,7 @@
 package io.polaris.config;
 
 import io.polaris.mybatis.interceptor.DataAuthInterceptor;
+import io.polaris.mybatis.interceptor.DynamicResultMappingInterceptor;
 import io.polaris.mybatis.interceptor.DynamicUseGeneratedKeysInterceptor;
 import io.polaris.mybatis.interceptor.MybatisLogInterceptor;
 import io.polaris.mybatis.type.TypeHandlers;
@@ -39,8 +40,8 @@ public class DemoConfiguration {
 
 	@Bean
 	@Order(Integer.MAX_VALUE)
-	public DynamicUseGeneratedKeysInterceptor dynamicUseGeneratedKeysInterceptor() {
-		return new DynamicUseGeneratedKeysInterceptor();
+	public DynamicResultMappingInterceptor dynamicResultMappingInterceptor() {
+		return new DynamicResultMappingInterceptor();
 	}
 
 

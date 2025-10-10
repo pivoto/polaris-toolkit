@@ -1,7 +1,9 @@
 package io.polaris.mybatis.interceptor;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringJoiner;
 
 import io.polaris.core.consts.SymbolConsts;
@@ -20,6 +22,7 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
  * @since Jul 04, 2024
  */
 public class StatementBuilder extends MappedStatement.Builder {
+	public static final String RESOURCE_MARK = "|Generated";
 	private final String id;
 	private final Configuration configuration;
 	private final MappedStatement statement;
@@ -32,7 +35,6 @@ public class StatementBuilder extends MappedStatement.Builder {
 		this.statement = statement;
 		this.configuration = statement.getConfiguration();
 		this.typeHandlerRegistry = this.configuration.getTypeHandlerRegistry();
-
 		// copy
 		this.resource(statement.getResource())
 			.fetchSize(statement.getFetchSize())
@@ -58,6 +60,11 @@ public class StatementBuilder extends MappedStatement.Builder {
 		return arr == null ? null : String.join(SymbolConsts.COMMA, arr);
 	}
 
+	@Override
+	public MappedStatement build() {
+		this.resource(statement.getResource() + RESOURCE_MARK);
+		return super.build();
+	}
 
 	public StatementBuilder useGeneratedKeys(List<ColumnMeta> columns, String prefix) {
 		StringJoiner keyProperty = new StringJoiner(SymbolConsts.COMMA);
@@ -80,11 +87,56 @@ public class StatementBuilder extends MappedStatement.Builder {
 	}
 
 
+	public StatementBuilder useResultMappings(Class<?> resultType, List<ResultMapping> resultMappings) {
+		String id = this.id + "__GeneratedResultMap";
+		List<ResultMap> resultMaps = new ArrayList<>();
+		List<ResultMap> originalResultMaps = statement.getResultMaps();
+		if (originalResultMaps != null) {
+			Set<String> propertySet = new HashSet<>();
+			for (ResultMap map : originalResultMaps) {
+				addPropertySet(map.getResultMappings(), propertySet);
+				addPropertySet(map.getIdResultMappings(), propertySet);
+				addPropertySet(map.getConstructorResultMappings(), propertySet);
+				addPropertySet(map.getPropertyResultMappings(), propertySet);
+			}
+			List<ResultMapping> filteredMappings = new ArrayList<>();
+			for (ResultMapping mapping : resultMappings) {
+				String property = mapping.getProperty();
+				if (property != null && propertySet.contains(property)) {
+					continue;
+				}
+				filteredMappings.add(mapping);
+			}
+			ResultMap resultMap = new ResultMap.Builder(this.configuration, id, resultType, filteredMappings, null)
+				.build();
+			resultMaps.addAll(originalResultMaps);
+			resultMaps.add(resultMap);
+		} else {
+			ResultMap resultMap = new ResultMap.Builder(this.configuration, id, resultType, resultMappings, null)
+				.build();
+			resultMaps.add(resultMap);
+		}
+		this.resultMaps(resultMaps);
+		return this;
+	}
+
+	private static void addPropertySet(List<ResultMapping> list, Set<String> propertySet) {
+		if (list != null && !list.isEmpty()) {
+			for (ResultMapping mapping : list) {
+				String property = mapping.getProperty();
+				if (property != null) {
+					propertySet.add(property);
+				}
+			}
+		}
+	}
+
+
 	/**
 	 * @see org.apache.ibatis.builder.BaseBuilder#resolveTypeHandler(Class, Class)
 	 */
 	@SuppressWarnings("all")
-	private TypeHandler<?> resolveTypeHandler(Class<?> javaType, Class<? extends TypeHandler<?>> typeHandlerType) {
+	public TypeHandler<?> resolveTypeHandler(Class<?> javaType, Class<? extends TypeHandler<?>> typeHandlerType) {
 		if (typeHandlerType == null) {
 			return null;
 		}
@@ -97,12 +149,7 @@ public class StatementBuilder extends MappedStatement.Builder {
 		return handler;
 	}
 
-	private List<ResultMap> statementResultMaps(String statementId, Class<?> resultType, List<ResultMapping> resultMappings) {
-		List<ResultMap> resultMaps = new ArrayList<>();
-		ResultMap resultMap = new ResultMap.Builder(configuration, statementId, resultType, resultMappings, null)
-			.build();
-		resultMaps.add(resultMap);
-		return resultMaps;
+	public Configuration getConfiguration() {
+		return configuration;
 	}
-
 }

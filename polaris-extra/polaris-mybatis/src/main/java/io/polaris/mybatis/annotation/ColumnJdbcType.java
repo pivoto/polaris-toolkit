@@ -8,6 +8,7 @@ import java.lang.annotation.Target;
 
 import io.polaris.core.jdbc.annotation.ColumnProperty;
 import io.polaris.core.lang.annotation.Alias;
+import org.apache.ibatis.type.JdbcType;
 
 /**
  * @author Qt
@@ -16,10 +17,12 @@ import io.polaris.core.lang.annotation.Alias;
 @Documented
 @Target({ElementType.FIELD, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@ColumnProperty(key = "jdbcType", type = ColumnProperty.Type.STRING)
+@ColumnProperty(key = ColumnJdbcType.KEY, type = ColumnProperty.Type.STRING)
 public @interface ColumnJdbcType {
 
+	String KEY = "jdbcType";
+
 	@Alias(value = "stringValue", annotation = ColumnProperty.class)
-	String value();
+	JdbcType value();
 
 }
