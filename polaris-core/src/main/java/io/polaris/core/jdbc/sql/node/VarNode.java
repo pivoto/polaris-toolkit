@@ -60,16 +60,14 @@ public abstract class VarNode implements SqlNode {
 		this.varValue = param;
 		this.varValues = new ArrayList<>();
 		if (param instanceof VarRef) {
-			String props = ((VarRef<?>) param).getProps();
-			Object value = ((VarRef<?>) param).getValue();
-			addVarValuesToList(value, this.varValues, props);
+			addVarValuesToList(((VarRef<?>) param).getValue(), this.varValues, ((VarRef<?>) param));
 		} else {
 			addVarValuesToList(param, this.varValues, null);
 		}
 	}
 
 
-	private void addVarValuesToList(Object varValue, List<Object> list, String varProps) {
+	private void addVarValuesToList(Object varValue, List<Object> list, VarRef<?> origVar) {
 		if (varValue == null) {
 			list.add(null);
 			return;
@@ -78,37 +76,41 @@ public abstract class VarNode implements SqlNode {
 			int size = ((List<?>) varValue).size();
 			for (int i = 0; i < size; i++) {
 				Object o = ((List<?>) varValue).get(i);
-				addVarValuesToList(o, list, varProps);
+				addVarValuesToList(o, list, origVar);
 			}
 			return;
 		}
 		if (varValue instanceof Iterable) {
 			for (Object o : ((Iterable<?>) varValue)) {
-				addVarValuesToList(o, list, varProps);
+				addVarValuesToList(o, list, origVar);
 			}
 			return;
 		}
 		if (varValue instanceof Iterator) {
-			((Iterator<?>) varValue).forEachRemaining(parameter1 -> addVarValuesToList(parameter1, list, varProps));
+			((Iterator<?>) varValue).forEachRemaining(parameter1 -> addVarValuesToList(parameter1, list, origVar));
 			return;
 		}
 		if (varValue instanceof Map) {
 			Collection<?> values = ((Map<?, ?>) varValue).values();
-			values.forEach(parameter1 -> addVarValuesToList(parameter1, list, varProps));
+			values.forEach(parameter1 -> addVarValuesToList(parameter1, list, origVar));
 			return;
 		}
 		if (varValue.getClass().isArray()) {
 			int len = Array.getLength(varValue);
 			if (len > 0) {
 				for (int i = 0; i < len; i++) {
-					addVarValuesToList(Array.get(varValue, i), list, varProps);
+					addVarValuesToList(Array.get(varValue, i), list, origVar);
 				}
 			}
 			return;
 		}
-		if (varProps != null) {
+		if (origVar != null) {
 			// 绑定变量附加属性
-			list.add(VarRef.of(varValue, varProps));
+			if (origVar.getValue() == varValue) {
+				list.add(origVar);
+			}else{
+				list.add(VarRef.of(varValue, origVar.getProps()));
+			}
 			return;
 		}
 		list.add(varValue);
