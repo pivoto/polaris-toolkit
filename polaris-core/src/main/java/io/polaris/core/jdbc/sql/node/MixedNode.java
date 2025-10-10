@@ -29,6 +29,7 @@ public class MixedNode extends VarNode implements Cloneable {
 				if (text.length() > 0) {
 					text.append(SymbolConsts.COMMA);
 				}
+				// 兼容 VarRef.toString
 				text.append(Objects.toString(parameter));
 			}
 			return text.toString();

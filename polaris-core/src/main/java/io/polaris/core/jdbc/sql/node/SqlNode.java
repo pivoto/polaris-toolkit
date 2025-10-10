@@ -150,14 +150,6 @@ public interface SqlNode {
 		throw new UnsupportedOperationException();
 	}
 
-	default String getVarProperty() {
-		throw new UnsupportedOperationException();
-	}
-
-	default void setVarProperty(String varProperty) {
-		throw new UnsupportedOperationException();
-	}
-
 	default Object getVarValue() {
 		throw new UnsupportedOperationException();
 	}

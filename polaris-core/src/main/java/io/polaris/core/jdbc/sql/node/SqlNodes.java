@@ -85,12 +85,4 @@ public interface SqlNodes {
 		return varNode;
 	}
 
-	static VarNode dynamic(String varName, Object varValue, String varProperty) {
-		DynamicNode varNode = new DynamicNode(varName);
-		varNode.bindVarValue(varValue);
-		varNode.setVarProperty(varProperty);
-		return varNode;
-	}
-
-
 }

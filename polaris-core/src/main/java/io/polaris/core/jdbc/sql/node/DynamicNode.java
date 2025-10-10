@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.polaris.core.consts.SymbolConsts;
+import io.polaris.core.jdbc.VarRef;
 import io.polaris.core.jdbc.sql.BoundSql;
 import io.polaris.core.jdbc.sql.PreparedSql;
 import io.polaris.core.string.Strings;
@@ -58,13 +59,17 @@ public class DynamicNode extends VarNode implements Cloneable {
 				} else {
 					String key = generator.generate();
 					text.append(openVarToken).append(key);
-					// 绑定变量附加属性，为如Mybatis等占位符增加配置项
-					String varProperty = getVarProperty();
-					if (Strings.isNotBlank(varProperty)){
-						text.append(SymbolConsts.COMMA).append(varProperty);
+					if (parameter instanceof VarRef) {
+						// 绑定变量附加属性，为如Mybatis等占位符增加配置项
+						String varProperty = ((VarRef<?>) parameter).getProps();
+						if (Strings.isNotBlank(varProperty)){
+							text.append(SymbolConsts.COMMA).append(varProperty);
+						}
+						map.put(key, ((VarRef<?>) parameter).getValue());
+					}else{
+						map.put(key, parameter);
 					}
 					text.append(closeVarToken);
-					map.put(key, parameter);
 				}
 			}
 			return new BoundSql(text.toString(), map);
@@ -87,7 +92,6 @@ public class DynamicNode extends VarNode implements Cloneable {
 		if (withVarValue && this.varValues != null) {
 			clone.varValue = this.varValue;
 			clone.varValues = new ArrayList<>(this.varValues);
-			clone.varProperty = this.varProperty;
 		}
 		return clone;
 	}
