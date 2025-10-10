@@ -16,6 +16,7 @@ import javax.annotation.Nonnull;
  */
 public class JavaType<T> implements Type {
 	private static class CacheHolder {
+		@SuppressWarnings("rawtypes")
 		private static final Map<Type, JavaType> cache = Collections.synchronizedMap(new WeakHashMap<>());
 	}
 
@@ -23,6 +24,7 @@ public class JavaType<T> implements Type {
 	private final Type type;
 	private Map<TypeVariable<?>, Type> typeVariableMap;
 
+	@SuppressWarnings("unchecked")
 	protected JavaType(Type type) {
 		this.type = type;
 		this.clazz = (Class<T>) Types.getClass(type);
@@ -55,12 +57,12 @@ public class JavaType<T> implements Type {
 
 	@Nonnull
 	public static <T> JavaType<T> of(@Nonnull TypeRef<T> type) {
-		return JavaType.of((Type) type.getType());
+		return JavaType.of(type.getType());
 	}
 
 	@Nonnull
 	public static <T> JavaType<T> of(@Nonnull String typeName) throws ClassNotFoundException {
-		return JavaType.of((Type) TypeRefs.getType(typeName));
+		return JavaType.of(TypeRefs.getType(typeName));
 	}
 
 	public Class<T> getRawClass() {
