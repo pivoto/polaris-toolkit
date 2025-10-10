@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.polaris.core.lang.Copyable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -15,7 +16,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @EqualsAndHashCode
-public final class TableMeta implements Cloneable {
+public final class TableMeta implements Cloneable, Copyable<TableMeta> {
 	private final Class<?> entityClass;
 	private final String schema;
 	private final String catalog;
@@ -56,13 +57,38 @@ public final class TableMeta implements Cloneable {
 		this.pkColumns = Collections.unmodifiableMap(pkColumns);
 	}
 
-	public static Builder builder() {
-		return new Builder();
+	public ColumnMeta getColumn(String fieldName) {
+		return columns.get(fieldName);
+	}
+
+	public ExpressionMeta getExpression(String fieldName) {
+		return expressions.get(fieldName);
+	}
+
+	public <V> VarRef<V> wrapColumn(String fieldName, V value) {
+		ColumnMeta meta = columns.get(fieldName);
+		if (meta != null) {
+			return meta.wrap(value);
+		}
+		return VarRef.of(value);
+	}
+
+	public <V> VarRef<V> wrapExpression(String fieldName, V value) {
+		ExpressionMeta meta = expressions.get(fieldName);
+		if (meta != null) {
+			return meta.wrap(value);
+		}
+		return VarRef.of(value);
 	}
 
 	@SuppressWarnings("MethodDoesntCallSuperMethod")
 	@Override
 	public TableMeta clone() {
+		return copy();
+	}
+
+	@Override
+	public TableMeta copy() {
 		Map<String, ColumnMeta> cloneColumns = new HashMap<>();
 		Map<String, ExpressionMeta> cloneExpressions = new HashMap<>();
 		// clone columns
@@ -81,6 +107,10 @@ public final class TableMeta implements Cloneable {
 			.columns(Collections.unmodifiableMap(cloneColumns))
 			.expressions(Collections.unmodifiableMap(cloneExpressions))
 			.build();
+	}
+
+	public static Builder builder() {
+		return new Builder();
 	}
 
 	public static final class Builder {

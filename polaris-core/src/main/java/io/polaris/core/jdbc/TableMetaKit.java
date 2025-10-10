@@ -199,7 +199,11 @@ public class TableMetaKit {
 	}
 
 	public ColumnMeta getColumn(Class<?> entityClass, String fieldName) {
-		return get(entityClass).getColumns().get(fieldName);
+		return get(entityClass).getColumn(fieldName);
+	}
+
+	public <V> VarRef<V> getColumn(Class<?> entityClass, String fieldName, V value) {
+		return get(entityClass).wrapColumn(fieldName, value);
 	}
 
 	public Map<String, ExpressionMeta> getExpressions(Class<?> entityClass) {
@@ -207,7 +211,11 @@ public class TableMetaKit {
 	}
 
 	public ExpressionMeta getExpression(Class<?> entityClass, String fieldName) {
-		return get(entityClass).getExpressions().get(fieldName);
+		return get(entityClass).getExpression(fieldName);
+	}
+
+	public <V> VarRef<V> getExpression(Class<?> entityClass, String fieldName, V value) {
+		return get(entityClass).wrapExpression(fieldName, value);
 	}
 
 	private TableMeta parse(Class<?> entityClass) {

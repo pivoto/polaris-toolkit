@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import io.polaris.core.annotation.AnnotationProcessing;
+import io.polaris.core.lang.Copyable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -16,7 +17,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @EqualsAndHashCode
-public final class ColumnMeta implements Cloneable {
+public final class ColumnMeta implements Cloneable, Copyable<ColumnMeta> {
 	private final String catalog;
 	private final String schema;
 	private final String tableName;
@@ -77,9 +78,7 @@ public final class ColumnMeta implements Cloneable {
 			this.propertiesString = "";
 		} else {
 			StringBuilder sb = new StringBuilder();
-			this.properties.forEach((k, v) -> {
-				sb.append(k).append("=").append(v).append(",");
-			});
+			this.properties.forEach((k, v) -> sb.append(k).append("=").append(v).append(","));
 			if (sb.length() > 0) {
 				sb.deleteCharAt(sb.length() - 1);
 			}
@@ -87,6 +86,9 @@ public final class ColumnMeta implements Cloneable {
 		}
 	}
 
+	public <V> VarRef<V> wrap(V value) {
+		return VarRef.of(value, propertiesString);
+	}
 
 	@Override
 	public ColumnMeta clone() {
@@ -95,6 +97,11 @@ public final class ColumnMeta implements Cloneable {
 		} catch (CloneNotSupportedException e) {
 			throw new AssertionError();
 		}
+	}
+
+	@Override
+	public ColumnMeta copy() {
+		return clone();
 	}
 
 	@AnnotationProcessing
