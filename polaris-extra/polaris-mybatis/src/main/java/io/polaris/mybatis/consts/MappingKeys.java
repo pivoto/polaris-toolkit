@@ -2,6 +2,7 @@ package io.polaris.mybatis.consts;
 
 import java.util.Collections;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import io.polaris.core.collection.Sets;
 
@@ -11,13 +12,10 @@ import io.polaris.core.collection.Sets;
  */
 public interface MappingKeys {
 
+	Set<String> PARAMETER_MAPPING_KEYS = Collections.unmodifiableSet(Sets.asSet("mode", "javaType", "jdbcType", "numericScale", "typeHandler"));
+	Set<String> RESULT_MAPPING_KEYS = Collections.unmodifiableSet(Sets.asSet("jdbcType", "typeHandler"));
 
-	Set<String> PARAMETER_MAPPING_KEYS = Collections.unmodifiableSet(Sets.asSet(
-		"mode"
-		, "javaType"
-		, "jdbcType"
-		, "numericScale"
-		, "typeHandler"
-	));
-	// RESULT_MAPPING_KEYS
+	Predicate<String> PARAMETER_MAPPING_KEYS_FILTER = MappingKeys.PARAMETER_MAPPING_KEYS::contains;
+	Predicate<String> RESULT_MAPPING_KEYS_FILTER = MappingKeys.RESULT_MAPPING_KEYS::contains;
+
 }

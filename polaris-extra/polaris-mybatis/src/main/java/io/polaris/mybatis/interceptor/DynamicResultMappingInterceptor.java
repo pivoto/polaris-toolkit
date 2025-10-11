@@ -206,13 +206,12 @@ public class DynamicResultMappingInterceptor implements Interceptor {
 						TableMeta tableMeta = TableMetaKit.instance().get(resultJavaType);
 						resultMappings = new ArrayList<>();
 						for (ColumnMeta col : tableMeta.getColumns().values()) {
-							Map<String, String> properties = col.getProperties();
-							boolean match = properties.keySet().stream().anyMatch(MappingKeys.PARAMETER_MAPPING_KEYS::contains);
+							boolean match = col.hasProperties(MappingKeys.RESULT_MAPPING_KEYS_FILTER);
 							// 是否存在
 							if (match) {
 								try {
 									ResultMappingMeta resultMappingMeta = new ResultMappingMeta();
-									String typeHandler = properties.get(ColumnTypeHandler.KEY);
+									String typeHandler = col.getProp(ColumnTypeHandler.KEY);
 									if (Strings.isNotBlank(typeHandler)) {
 										Class<?> clazz = Class.forName(typeHandler);
 										if (TypeHandler.class.isAssignableFrom(clazz)) {
@@ -220,7 +219,7 @@ public class DynamicResultMappingInterceptor implements Interceptor {
 											resultMappingMeta.typeHandlerClass = (Class<? extends TypeHandler<?>>) clazz;
 										}
 									}
-									String jdbcType = properties.get(ColumnJdbcType.KEY);
+									String jdbcType = col.getProp(ColumnJdbcType.KEY);
 									if (Strings.isNotBlank(jdbcType)) {
 										resultMappingMeta.jdbcType = JdbcType.valueOf(jdbcType);
 									}

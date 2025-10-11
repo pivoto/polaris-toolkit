@@ -2,6 +2,7 @@ package io.polaris.mybatis.provider;
 
 import io.polaris.core.annotation.Published;
 import io.polaris.core.jdbc.sql.SqlStatements;
+import io.polaris.mybatis.consts.MappingKeys;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.builder.annotation.ProviderContext;
 
@@ -19,7 +20,7 @@ public class EntityExistsByAnyProvider extends BaseProviderMethodResolver {
 		try {
 			return provideSql(parameterObject, context, (map, ctx) -> {
 				boolean withLogicDeleted = withLogicDeleted(map, ctx);
-				String sql = SqlStatements.buildExistsByAny(map, getEntityClass(context), queryByCount, withLogicDeleted);
+				String sql = SqlStatements.buildExistsByAny(MappingKeys.PARAMETER_MAPPING_KEYS_FILTER, map, getEntityClass(context), queryByCount, withLogicDeleted);
 				if (log.isDebugEnabled()) {
 					log.debug("<sql>\n{}\n<bindings>\n{}", sql, map);
 				}

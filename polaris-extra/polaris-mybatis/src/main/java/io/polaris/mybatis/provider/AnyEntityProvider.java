@@ -8,20 +8,21 @@ import io.polaris.core.annotation.Published;
 import io.polaris.core.jdbc.sql.BindingValues;
 import io.polaris.core.jdbc.sql.EntityStatements;
 import io.polaris.core.jdbc.sql.node.SqlNode;
+import io.polaris.mybatis.consts.MappingKeys;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.builder.annotation.ProviderContext;
 
 /**
  * @author Qt
- * @since  Jan 28, 2024
+ * @since Jan 28, 2024
  */
 @Slf4j
 public class AnyEntityProvider extends BaseProviderMethodResolver {
 
 	@Published
 	public static String provideSql(Object parameterObject, ProviderContext context) {
-		return provideSql(parameterObject, context, (map, ctx)->{
+		return provideSql(parameterObject, context, (map, ctx) -> {
 			String sql = doProvideSql(map, context.getMapperMethod());
 			if (log.isDebugEnabled()) {
 				log.debug("<sql>\n{}\n<bindings>\n{}", sql, map);
@@ -40,7 +41,7 @@ public class AnyEntityProvider extends BaseProviderMethodResolver {
 			function = EntityStatements.buildSqlUpdateFunction(method);
 		}
 		SqlNode sqlNode = function.apply(bindings);
-		return BindingValues.asSqlWithBindings(bindings, sqlNode);
+		return BindingValues.asSqlWithBindings(MappingKeys.PARAMETER_MAPPING_KEYS_FILTER, bindings, sqlNode);
 	}
 
 }

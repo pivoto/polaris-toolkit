@@ -5,6 +5,7 @@ import io.polaris.core.jdbc.sql.BindingValues;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.statement.SelectStatement;
+import io.polaris.mybatis.consts.MappingKeys;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.builder.annotation.ProviderContext;
 
@@ -26,7 +27,7 @@ public class SqlExistsProvider extends BaseProviderMethodResolver {
 					st = (SelectStatement<?>) map.get(BindingKeys.SQL);
 				}
 				SqlNode sqlNode = st.toExistsSqlNode(queryByCount);
-				String sql = BindingValues.asSqlWithBindings(map, sqlNode);
+				String sql = BindingValues.asSqlWithBindings(MappingKeys.PARAMETER_MAPPING_KEYS_FILTER, map, sqlNode);
 				if (log.isDebugEnabled()) {
 					log.debug("<sql>\n{}\n<bindings>\n{}", sql, map);
 				}

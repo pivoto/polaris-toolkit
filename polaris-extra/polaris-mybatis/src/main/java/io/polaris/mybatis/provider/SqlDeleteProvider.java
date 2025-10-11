@@ -4,6 +4,7 @@ import io.polaris.core.annotation.Published;
 import io.polaris.core.jdbc.sql.BindingValues;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.statement.DeleteStatement;
+import io.polaris.mybatis.consts.MappingKeys;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.builder.annotation.ProviderContext;
 
@@ -21,7 +22,7 @@ public class SqlDeleteProvider extends BaseProviderMethodResolver {
 			if (st == null) {
 				st = (DeleteStatement<?>) map.get(BindingKeys.SQL);
 			}
-			String sql = BindingValues.asSqlWithBindings(map, st);
+			String sql = BindingValues.asSqlWithBindings(MappingKeys.PARAMETER_MAPPING_KEYS_FILTER, map, st);
 			if (log.isDebugEnabled()) {
 				log.debug("<sql>\n{}\n<bindings>\n{}", sql, map);
 			}
