@@ -1,6 +1,7 @@
 # 研发计划
 
-
+- tuple
+  - 将一些使用Tuple类型参数的API优化为更易阅读的自定义类型
 - log4jdbc
   - 合并、优化log4jdbc监控
 - 通用对象操作
@@ -16,7 +17,7 @@
   - [x] SqlStatement orderBy 添加函数支持
   - [x] 通用Sql注解构建工具类
   - [x] 添加SQL逻辑删除的支持(注解声明与主动编码)
-  - [ ] 添加SQL默认排序注解支持
+  - [x] 添加SQL默认排序注解支持
   - [ ] 支持Mybatis非Map类型的入参（转为直接sql拼接）
   - 考虑实现自定义ORM工具，或直接引用Mybatis底层API，以支持框架内部场景的SQL管理，独立生命周期
     - 借鉴mybatis的org.apache.ibatis.scripting.xmltags下的SqlNode
