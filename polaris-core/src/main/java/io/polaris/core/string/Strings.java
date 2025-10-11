@@ -424,8 +424,31 @@ public class Strings {
 		return filter(str, c -> !Chars.isBlankChar(c));
 	}
 
+	public static String addPrefix(CharSequence str, CharSequence prefix) {
+		if (isEmpty(str)) {
+			return Objects.toString(prefix, "");
+		}
+		if (isEmpty(prefix)) {
+			return Objects.toString(str, "");
+		}
+		return new StringBuilder(str.length() + prefix.length()).append(prefix).append(str).toString();
+	}
+
+	public static String addSuffix(CharSequence str, CharSequence suffix) {
+		if (isEmpty(str)) {
+			return Objects.toString(suffix, "");
+		}
+		if (isEmpty(suffix)) {
+			return Objects.toString(str, "");
+		}
+		return new StringBuilder(str.length() + suffix.length()).append(str).append(suffix).toString();
+	}
+
 	public static String removePrefix(CharSequence str, CharSequence prefix) {
 		if (isEmpty(str) || isEmpty(prefix)) {
+			return Objects.toString(str, "");
+		}
+		if (str.length() < prefix.length()) {
 			return Objects.toString(str, "");
 		}
 		String str1 = str.toString();
@@ -437,6 +460,9 @@ public class Strings {
 
 	public static String removeSuffix(CharSequence str, CharSequence suffix) {
 		if (isEmpty(str) || isEmpty(suffix)) {
+			return Objects.toString(str, "");
+		}
+		if (str.length() < suffix.length()) {
 			return Objects.toString(str, "");
 		}
 		String str1 = str.toString();
