@@ -591,7 +591,6 @@ public class SelectStatement<S extends SelectStatement<S>> extends BaseStatement
 		if (this.table == null) {
 			throw new IllegalArgumentException("no table");
 		}
-		this.table.getAllColumnNames();
 		SelectSegment<S, ?> segment = buildSelect().column(SymbolConsts.ASTERISK);
 		selects.add(segment);
 		return getThis();

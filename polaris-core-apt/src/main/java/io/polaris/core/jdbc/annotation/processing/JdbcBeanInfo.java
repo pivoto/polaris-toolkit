@@ -201,40 +201,6 @@ public class JdbcBeanInfo {
 		return map;
 	}
 
-//	private Map<String, String> getColumnProperties1(Element element) {
-//		Set<Element> retrieved = new HashSet<>();
-//		Set<ColumnProperty> set = new HashSet<>();
-//		getColumnProperties0(set, retrieved, element);
-//		Map<String, String> map = new LinkedHashMap<>();
-//		for (ColumnProperty columnProperty : set) {
-//			map.putIfAbsent(columnProperty.key(), columnProperty.stringValue());
-//		}
-//		return map;
-//	}
-//
-//	private void getColumnProperties0(Set<ColumnProperty> set, Set<Element> retrieved, Element element) {
-//		if (retrieved.contains(element)) {
-//			return;
-//		}
-//		ColumnProperty[] annotations = element.getAnnotationsByType(ColumnProperty.class);
-//		if (annotations != null) {
-//			Collections.addAll(set, annotations);
-//		}
-//		ColumnProperties[] columnPropertiesArray = element.getAnnotationsByType(ColumnProperties.class);
-//		if (columnPropertiesArray != null) {
-//			for (ColumnProperties columnProperties : columnPropertiesArray) {
-//				Collections.addAll(set, columnProperties.value());
-//			}
-//		}
-//		retrieved.add(element);
-//		List<? extends AnnotationMirror> annotationMirrors = env.getElementUtils().getAllAnnotationMirrors(element);
-//		if (annotationMirrors != null && !annotationMirrors.isEmpty()) {
-//			for (AnnotationMirror annotationMirror : annotationMirrors) {
-//				getColumnProperties0(set, retrieved, annotationMirror.getAnnotationType().asElement());
-//			}
-//		}
-//	}
-
 	@Data
 	public static class ExpressionInfo {
 		private TypeName declaredTypeName;
@@ -247,6 +213,8 @@ public class JdbcBeanInfo {
 		private String expression;
 		private String tableAliasPlaceholder;
 		private boolean selectable = true;
+		private int sortDirection;
+		private int sortPosition;
 		private Map<String, String> properties;
 
 		public void readExpression(String fieldName, Expression expression) {
@@ -255,6 +223,8 @@ public class JdbcBeanInfo {
 			this.jdbcTypeName = expression.jdbcType().trim().toUpperCase();
 			this.tableAliasPlaceholder = expression.tableAliasPlaceholder().trim().toUpperCase();
 			this.selectable = expression.selectable();
+			this.sortDirection = expression.sortDirection();
+			this.sortPosition = expression.sortPosition();
 
 			if (!this.jdbcTypeName.isEmpty()) {
 				try {
@@ -291,6 +261,8 @@ public class JdbcBeanInfo {
 		private boolean logicDeleted = false;
 		private boolean createTime = false;
 		private boolean updateTime = false;
+		private int sortDirection;
+		private int sortPosition;
 		private Map<String, String> properties;
 
 		public void readColumn(String fieldName, Column column, Id id) {
@@ -309,6 +281,8 @@ public class JdbcBeanInfo {
 				this.logicDeleted = column.logicDeleted();
 				this.createTime = column.createTime();
 				this.updateTime = column.updateTime();
+				this.sortDirection = column.sortDirection();
+				this.sortPosition = column.sortPosition();
 			}
 			if (this.jdbcTypeName != null && !this.jdbcTypeName.isEmpty()) {
 				try {

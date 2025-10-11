@@ -29,19 +29,36 @@ public final class ExpressionMeta implements Cloneable, Copyable<ExpressionMeta>
 	private final String fieldName;
 	private final Class<?> fieldType;
 
+	/** 数据库字段表达式，注意表别名的占位符使用，以防止在多表关联等场景下字段混淆，如： coalesce($T.col_name, '1') */
 	private final String expression;
+	/** java.sql.Types 的 SQL 类型 */
 	private final String jdbcType;
+	/** java.sql.Types 的 SQL 类型 */
 	private final int jdbcTypeValue;
 	/** 是否可查询 */
 	private final boolean selectable;
 	/** 表别名占位符，带`.`分隔符 */
 	private final String tableAliasPlaceholder;
+
+	/**
+	 * 默认排序方向
+	 * <uL>
+	 * <li>0：不排序</li>
+	 * <li>1：正序</li>
+	 * <li>-1：逆序</li>
+	 * </uL>
+	 */
+	private final int sortDirection;
+	/** 默认排序位置 */
+	private final int sortPosition;
+
+	/** 扩展属性 */
 	private final Map<String, String> props;
 	/** 用于构造BoundSql 如`javaType=int,jdbcType=NUMERIC,typeHandler=MyTypeHandler` */
 	private final String propString;
 
 
-	private ExpressionMeta(String catalog, String schema, String tableName, String fieldName, Class<?> fieldType, String expression, String jdbcType, int jdbcTypeValue, boolean selectable, String tableAliasPlaceholder, Map<String, String> props) {
+	private ExpressionMeta(String catalog, String schema, String tableName, String fieldName, Class<?> fieldType, String expression, String jdbcType, int jdbcTypeValue, boolean selectable, String tableAliasPlaceholder, int sortDirection, int sortPosition, Map<String, String> props) {
 		this.catalog = catalog;
 		this.schema = schema;
 		this.tableName = tableName;
@@ -52,6 +69,8 @@ public final class ExpressionMeta implements Cloneable, Copyable<ExpressionMeta>
 		this.jdbcTypeValue = jdbcTypeValue;
 		this.selectable = selectable;
 		this.tableAliasPlaceholder = tableAliasPlaceholder;
+		this.sortDirection = sortDirection;
+		this.sortPosition = sortPosition;
 		this.props = props == null ? Collections.emptyMap() : Collections.unmodifiableMap(new LinkedHashMap<>(props));
 		if (this.props.isEmpty()) {
 			this.propString = "";
@@ -189,6 +208,8 @@ public final class ExpressionMeta implements Cloneable, Copyable<ExpressionMeta>
 		private int jdbcTypeValue;
 		private boolean selectable;
 		private String tableAliasPlaceholder;
+		private int sortDirection;
+		private int sortPosition;
 		private Map<String, String> props = new LinkedHashMap<>();
 
 		Builder() {
@@ -244,6 +265,16 @@ public final class ExpressionMeta implements Cloneable, Copyable<ExpressionMeta>
 			return this;
 		}
 
+		public Builder sortPosition(final int sortPosition) {
+			this.sortPosition = sortPosition;
+			return this;
+		}
+
+		public Builder sortDirection(final int sortDirection) {
+			this.sortDirection = sortDirection;
+			return this;
+		}
+
 		public Builder props(final Map<String, String> properties) {
 			this.props = properties;
 			return this;
@@ -256,7 +287,7 @@ public final class ExpressionMeta implements Cloneable, Copyable<ExpressionMeta>
 		}
 
 		public ExpressionMeta build() {
-			return new ExpressionMeta(this.catalog, this.schema, this.tableName, this.fieldName, this.fieldType, this.expression, this.jdbcType, this.jdbcTypeValue, this.selectable, this.tableAliasPlaceholder, this.props);
+			return new ExpressionMeta(this.catalog, this.schema, this.tableName, this.fieldName, this.fieldType, this.expression, this.jdbcType, this.jdbcTypeValue, this.selectable, this.tableAliasPlaceholder, sortDirection, sortPosition, this.props);
 		}
 
 	}

@@ -26,4 +26,16 @@ public @interface Expression {
 	/** java.sql.Types 的 SQL 类型 */
 	String jdbcType() default "";
 
+	/**
+	 * 默认排序方向
+	 * <uL>
+	 * <li>0：不排序</li>
+	 * <li>1：正序</li>
+	 * <li>-1：逆序</li>
+	 * </uL>
+	 */
+	int sortDirection() default 0;
+
+	/** 默认排序位置 */
+	int sortPosition() default 0;
 }

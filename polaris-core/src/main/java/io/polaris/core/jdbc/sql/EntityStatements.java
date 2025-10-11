@@ -6,14 +6,17 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 
 import io.polaris.core.converter.Converters;
 import io.polaris.core.jdbc.ColumnMeta;
+import io.polaris.core.jdbc.ExpressionMeta;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.TableMetaKit;
 import io.polaris.core.jdbc.annotation.*;
@@ -423,7 +426,7 @@ public class EntityStatements {
 			}
 
 			// 存在默认值SQL
-			if (Strings.isNotBlank(meta.getInsertDefaultSql())){
+			if (Strings.isNotBlank(meta.getInsertDefaultSql())) {
 				// 存在自定义默认值SQL
 				st.column(field).rawValue(meta.getInsertDefaultSql());
 				continue;
@@ -517,7 +520,7 @@ public class EntityStatements {
 				// 优先使用VarRef携带的参数属性
 				props = ((VarRef<?>) val).getProps();
 				val = ((VarRef<?>) val).getValue();
-			}else{
+			} else {
 				props = meta.getProps();
 			}
 			if (enabled || val != null) {
@@ -2333,6 +2336,74 @@ public class EntityStatements {
 		}
 		if (orderBy != null) {
 			st.orderBy(orderBy);
+		} else {
+			// 未指定排序字段，使用默认排序字段
+			TreeMap<Integer, List<Object>> nevigateOrderBy = new TreeMap<>(Comparator.reverseOrder());
+			TreeMap<Integer, List<Object>> positiveOrderBy = new TreeMap<>(Comparator.naturalOrder());
+			TableMeta tableMeta = st.getTable().getTableMeta();
+			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
+				ColumnMeta meta = entry.getValue();
+				if (meta.getSortDirection() == 0) {
+					continue;
+				}
+				if (meta.getSortPosition() < 0) {
+					nevigateOrderBy.computeIfAbsent(meta.getSortPosition(), k -> new ArrayList<>()).add(meta);
+				} else if (meta.getSortPosition() > 0) {
+					positiveOrderBy.computeIfAbsent(meta.getSortPosition(), k -> new ArrayList<>()).add(meta);
+				}
+			}
+			for (Map.Entry<String, ExpressionMeta> entry : tableMeta.getExpressions().entrySet()) {
+				String name = entry.getKey();
+				ExpressionMeta meta = entry.getValue();
+				if (meta.isSelectable()) {
+					if (meta.getSortDirection() == 0) {
+						continue;
+					}
+					if (meta.getSortPosition() < 0) {
+						nevigateOrderBy.computeIfAbsent(meta.getSortPosition(), k -> new ArrayList<>()).add(meta);
+					} else if (meta.getSortPosition() > 0) {
+						positiveOrderBy.computeIfAbsent(meta.getSortPosition(), k -> new ArrayList<>()).add(meta);
+					}
+				}
+			}
+			for (List<Object> list : positiveOrderBy.values()) {
+				for (Object value : list) {
+					if (value instanceof ColumnMeta) {
+						ColumnMeta col = (ColumnMeta) value;
+						if (col.getSortDirection() < 0) {
+							st.orderByDesc(col.getFieldName());
+						} else {
+							st.orderBy(col.getFieldName());
+						}
+					} else {
+						ExpressionMeta col = (ExpressionMeta) value;
+						if (col.getSortDirection() < 0) {
+							st.orderByDesc(col.getFieldName());
+						} else {
+							st.orderBy(col.getFieldName());
+						}
+					}
+				}
+			}
+			for (List<Object> list : nevigateOrderBy.values()) {
+				for (Object value : list) {
+					if (value instanceof ColumnMeta) {
+						ColumnMeta col = (ColumnMeta) value;
+						if (col.getSortDirection() < 0) {
+							st.orderByDesc(col.getFieldName());
+						} else {
+							st.orderBy(col.getFieldName());
+						}
+					} else {
+						ExpressionMeta col = (ExpressionMeta) value;
+						if (col.getSortDirection() < 0) {
+							st.orderByDesc(col.getFieldName());
+						} else {
+							st.orderBy(col.getFieldName());
+						}
+					}
+				}
+			}
 		}
 		return st;
 	}

@@ -109,4 +109,16 @@ class ColumnAnnotationAttributes implements Column {
 		Boolean val = annotationAttributes.getBoolean("updateTime");
 		return val != null && val;
 	}
+
+	@Override
+	public int sortDirection() {
+		Integer val = annotationAttributes.getInteger("sortDirection");
+		return val == null ? 0 : val;
+	}
+
+	@Override
+	public int sortPosition() {
+		Integer val = annotationAttributes.getInteger("sortPosition");
+		return val == null ? 0 : val;
+	}
 }

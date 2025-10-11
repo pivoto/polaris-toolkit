@@ -1,6 +1,10 @@
 package io.polaris.core.jdbc.annotation;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author Qt
@@ -53,4 +57,16 @@ public @interface Column {
 	/** 标识修改时间字段 */
 	boolean updateTime() default false;
 
+	/**
+	 * 默认排序方向
+	 * <uL>
+	 * <li>0：不排序</li>
+	 * <li>1：正序</li>
+	 * <li>-1：逆序</li>
+	 * </uL>
+	 */
+	int sortDirection() default 0;
+
+	/** 默认排序位置 */
+	int sortPosition() default 0;
 }

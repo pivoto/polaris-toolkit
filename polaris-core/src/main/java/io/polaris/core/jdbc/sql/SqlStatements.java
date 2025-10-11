@@ -1,12 +1,7 @@
 package io.polaris.core.jdbc.sql;
 
 import java.lang.reflect.Array;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -1453,6 +1448,57 @@ public class SqlStatements {
 				if (expressionMeta != null) {
 					sql.orderBy(expressionMeta.getExpressionWithTableName() + " " + item.getDirection().getSqlText());
 					continue;
+				}
+			}
+		} else {
+			// 未指定排序字段，使用默认排序字段
+			TreeMap<Integer, List<Object>> nevigateOrderBy = new TreeMap<>(Comparator.reverseOrder());
+			TreeMap<Integer, List<Object>> positiveOrderBy = new TreeMap<>(Comparator.naturalOrder());
+			for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
+				ColumnMeta meta = entry.getValue();
+				if (meta.getSortDirection() == 0) {
+					continue;
+				}
+				if (meta.getSortPosition() < 0) {
+					nevigateOrderBy.computeIfAbsent(meta.getSortPosition(), k -> new ArrayList<>()).add(meta);
+				} else if (meta.getSortPosition() > 0) {
+					positiveOrderBy.computeIfAbsent(meta.getSortPosition(), k -> new ArrayList<>()).add(meta);
+				}
+			}
+			for (Map.Entry<String, ExpressionMeta> entry : tableMeta.getExpressions().entrySet()) {
+				String name = entry.getKey();
+				ExpressionMeta meta = entry.getValue();
+				if (meta.isSelectable()) {
+					if (meta.getSortDirection() == 0) {
+						continue;
+					}
+					if (meta.getSortPosition() < 0) {
+						nevigateOrderBy.computeIfAbsent(meta.getSortPosition(), k -> new ArrayList<>()).add(meta);
+					} else if (meta.getSortPosition() > 0) {
+						positiveOrderBy.computeIfAbsent(meta.getSortPosition(), k -> new ArrayList<>()).add(meta);
+					}
+				}
+			}
+			for (List<Object> list : positiveOrderBy.values()) {
+				for (Object value : list) {
+					if (value instanceof ColumnMeta) {
+						ColumnMeta col = (ColumnMeta) value;
+						sql.orderBy(col.getSortDirection() < 0 ? col.getColumnName() + " DESC" : col.getColumnName());
+					} else {
+						ExpressionMeta col = (ExpressionMeta) value;
+						sql.orderBy(col.getSortDirection() < 0 ? col.getExpressionWithTableName() + " DESC" : col.getExpressionWithTableName());
+					}
+				}
+			}
+			for (List<Object> list : nevigateOrderBy.values()) {
+				for (Object value : list) {
+					if (value instanceof ColumnMeta) {
+						ColumnMeta col = (ColumnMeta) value;
+						sql.orderBy(col.getSortDirection() < 0 ? col.getColumnName() + " DESC" : col.getColumnName());
+					} else {
+						ExpressionMeta col = (ExpressionMeta) value;
+						sql.orderBy(col.getSortDirection() < 0 ? col.getExpressionWithTableName() + " DESC" : col.getExpressionWithTableName());
+					}
 				}
 			}
 		}

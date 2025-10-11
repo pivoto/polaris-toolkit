@@ -248,7 +248,9 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 					.append(".seqName($S)")
 					.append(".idSql($S)")
 					.append(".updateDefaultSql($S)")
-					.append(".insertDefaultSql($S)");
+					.append(".insertDefaultSql($S)")
+					.append(".sortDirection($L)")
+					.append(".sortPosition($L)");
 				List<Object> args = new ArrayList<>();
 				args.add(field.getFieldName());
 				args.add(columnMetaClassName);
@@ -275,6 +277,8 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 				args.add(field.getIdSql());
 				args.add(field.getUpdateDefaultSql());
 				args.add(field.getInsertDefaultSql());
+				args.add(field.getSortDirection());
+				args.add(field.getSortPosition());
 				if (field.getProperties() != null) {
 					for (Map.Entry<String, String> entry : field.getProperties().entrySet()) {
 						args.add(entry.getKey());
@@ -305,7 +309,9 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 					.append(".jdbcType($S)")
 					.append(".jdbcTypeValue($L)")
 					.append(".tableAliasPlaceholder($S)")
-					.append(".selectable($L)");
+					.append(".selectable($L)")
+					.append(".sortDirection($L)")
+					.append(".sortPosition($L)");
 				List<Object> args = new ArrayList<>();
 				args.add(field.getFieldName());
 				args.add(expressionMetaClassName);
@@ -319,6 +325,8 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 				args.add(field.getJdbcTypeValue());
 				args.add(field.getTableAliasPlaceholder());
 				args.add(field.isSelectable());
+				args.add(field.getSortDirection());
+				args.add(field.getSortPosition());
 				if (field.getProperties() != null) {
 					for (Map.Entry<String, String> entry : field.getProperties().entrySet()) {
 						args.add(entry.getKey());
