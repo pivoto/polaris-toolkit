@@ -8,6 +8,7 @@ import io.polaris.core.annotation.Internal;
 import io.polaris.core.io.IO;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
+import io.polaris.mybatis.annotation.DynamicResultMapping;
 import io.polaris.mybatis.annotation.WithLogicDeleted;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.EntityExistsByAnyProvider;
@@ -23,6 +24,7 @@ import org.apache.ibatis.cursor.Cursor;
  */
 public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 
+	@DynamicResultMapping
 	@WithLogicDeleted(true)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityById)
 	E selectEntityById(@Param(BindingKeys.ENTITY) E entity
@@ -32,6 +34,7 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 		return selectEntityById(entity, null);
 	}
 
+	@DynamicResultMapping
 	@WithLogicDeleted(true)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	E selectEntity(@Param(BindingKeys.WHERE) E entity
@@ -61,6 +64,7 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 	}
 
 
+	@DynamicResultMapping
 	@WithLogicDeleted(true)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	E selectEntityByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
@@ -90,6 +94,7 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 	}
 
 
+	@DynamicResultMapping
 	@WithLogicDeleted(true)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	E selectEntityByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
@@ -119,6 +124,7 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 	}
 
 
+	@DynamicResultMapping
 	@WithLogicDeleted(true)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	Map<String, Object> selectMap(@Param(BindingKeys.WHERE) E entity
@@ -147,6 +153,7 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 		return selectMap(entity, false);
 	}
 
+	@DynamicResultMapping
 	@WithLogicDeleted(true)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	Map<String, Object> selectMapByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
@@ -176,6 +183,7 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 	}
 
 
+	@DynamicResultMapping
 	@WithLogicDeleted(true)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	Map<String, Object> selectMapByCriteria(@Param(BindingKeys.WHERE) Criteria criteria

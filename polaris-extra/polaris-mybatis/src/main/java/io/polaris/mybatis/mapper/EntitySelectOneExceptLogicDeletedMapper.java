@@ -8,6 +8,7 @@ import io.polaris.core.annotation.Internal;
 import io.polaris.core.io.IO;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
+import io.polaris.mybatis.annotation.DynamicResultMapping;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.EntityExistsByAnyExceptLogicDeletedProvider;
 import io.polaris.mybatis.provider.EntityExistsByAnyProvider;
@@ -24,9 +25,11 @@ import org.apache.ibatis.cursor.Cursor;
 public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper<E> {
 
 
+	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityByIdExceptLogicDeleted)
 	E selectEntityByIdExceptLogicDeleted(@Param(BindingKeys.ENTITY) E entity);
 
+	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeleted)
 	E selectEntityExceptLogicDeleted(@Param(BindingKeys.WHERE) E entity
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
@@ -50,6 +53,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	}
 
 
+	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeleted)
 	E selectEntityExceptLogicDeletedByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
@@ -73,6 +77,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	}
 
 
+	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeleted)
 	E selectEntityExceptLogicDeletedByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
@@ -96,6 +101,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	}
 
 
+	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeleted)
 	Map<String, Object> selectMapExceptLogicDeleted(@Param(BindingKeys.WHERE) E entity
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
@@ -118,6 +124,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 		return selectMapExceptLogicDeleted(entity, false);
 	}
 
+	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeleted)
 	Map<String, Object> selectMapExceptLogicDeletedByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
@@ -141,6 +148,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	}
 
 
+	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeleted)
 	Map<String, Object> selectMapExceptLogicDeletedByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty

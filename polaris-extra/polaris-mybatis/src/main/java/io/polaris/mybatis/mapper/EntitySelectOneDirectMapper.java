@@ -8,6 +8,7 @@ import io.polaris.core.annotation.Internal;
 import io.polaris.core.io.IO;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
+import io.polaris.mybatis.annotation.DynamicResultMapping;
 import io.polaris.mybatis.annotation.WithLogicDeleted;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.EntityExistsByAnyProvider;
@@ -23,10 +24,12 @@ import org.apache.ibatis.cursor.Cursor;
  */
 public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 
+	@DynamicResultMapping
 	@WithLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityByIdDirect)
 	E directSelectEntityById(@Param(BindingKeys.ENTITY) E entity);
 
+	@DynamicResultMapping
 	@WithLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	E directSelectEntity(@Param(BindingKeys.WHERE) E entity
@@ -51,6 +54,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	}
 
 
+	@DynamicResultMapping
 	@WithLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	E directSelectEntityByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
@@ -75,6 +79,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	}
 
 
+	@DynamicResultMapping
 	@WithLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	E directSelectEntityByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
@@ -99,6 +104,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	}
 
 
+	@DynamicResultMapping
 	@WithLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	Map<String, Object> directSelectMap(@Param(BindingKeys.WHERE) E entity
@@ -122,6 +128,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 		return directSelectMap(entity, false);
 	}
 
+	@DynamicResultMapping
 	@WithLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	Map<String, Object> directSelectMapByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
@@ -146,6 +153,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	}
 
 
+	@DynamicResultMapping
 	@WithLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	Map<String, Object> directSelectMapByCriteria(@Param(BindingKeys.WHERE) Criteria criteria

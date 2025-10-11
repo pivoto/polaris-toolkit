@@ -10,6 +10,7 @@ import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.OrderBy;
 import io.polaris.core.jdbc.sql.statement.SelectStatement;
+import io.polaris.mybatis.annotation.DynamicResultMapping;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.EntityExistsByAnyProvider;
 import io.polaris.mybatis.provider.MapperProviders;
@@ -35,18 +36,22 @@ public interface SelectStatementMapper<R> {
 	int countBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
 
 
+	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
 	List<R> selectEntityListBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
 
 
+	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
 	List<Map<String, Object>> selectMapListBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
 
 
+	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
 	R selectEntityBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
 
 
+	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
 	Map<String, Object> selectMapBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
 

@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
+import io.polaris.core.collection.Lists;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.TableMetaKit;
@@ -33,6 +34,7 @@ import org.apache.ibatis.executor.keygen.KeyGenerator;
 import org.apache.ibatis.executor.keygen.NoKeyGenerator;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.mapping.ResultFlag;
 import org.apache.ibatis.mapping.ResultMapping;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.plugin.Interceptor;
@@ -106,8 +108,17 @@ public class DynamicResultMappingInterceptor implements Interceptor {
 							if (resultMappingMeta.column != null) {
 								builder.column(resultMappingMeta.column);
 							}
+							if (resultMappingMeta.javaType != null) {
+								builder.javaType(resultMappingMeta.javaType);
+							}
+							if (resultMappingMeta.jdbcType != null) {
+								builder.jdbcType(resultMappingMeta.jdbcType);
+							}
 							if (resultMappingMeta.columnPrefix != null) {
 								builder.columnPrefix(resultMappingMeta.columnPrefix);
+							}
+							if (resultMappingMeta.flags != null) {
+								builder.flags(resultMappingMeta.flags);
 							}
 							resultMappings.add(builder.build());
 						}
@@ -161,16 +172,16 @@ public class DynamicResultMappingInterceptor implements Interceptor {
 				List<Method> methods = Reflects.getPublicMethods(mapperClass, m ->
 					!m.isDefault() && !Modifier.isStatic(m.getModifiers())
 						&& mapperMethodName.equals(m.getName())
-						&& m.isAnnotationPresent(DynamicUseGeneratedKeys.class));
+						&& (m.isAnnotationPresent(DynamicUseGeneratedKeys.class) || m.isAnnotationPresent(DynamicResultMapping.class)));
 				if (methods.size() == 1) {
 					Method method = methods.get(0);
 					Class<?> declaredEntityClass = null;
 
 					DynamicUseGeneratedKeys dynamicUseGeneratedKeys = method.getAnnotation(DynamicUseGeneratedKeys.class);
-					String autoColumnPrefix = dynamicUseGeneratedKeys.value();
+					String autoColumnPrefix = "";
 					List<ColumnMeta> autoColumns = null;
-
-					{
+					if (dynamicUseGeneratedKeys != null) {
+						autoColumnPrefix = dynamicUseGeneratedKeys.value();
 						Class<?> entityClass = dynamicUseGeneratedKeys.entity();
 						if (entityClass == void.class) {
 							entityClass = declaredEntityClass = findDeclaredEntityClass(method, mapperClass);
@@ -192,7 +203,7 @@ public class DynamicResultMappingInterceptor implements Interceptor {
 					DynamicResultMapping dynamicResultMapping = method.getAnnotation(DynamicResultMapping.class);
 					List<ResultMappingMeta> resultMappings = null;
 					Class<?> resultJavaType = null;
-					{
+					if (dynamicResultMapping != null) {
 						resultJavaType = dynamicResultMapping.entity();
 						if (resultJavaType == void.class) {
 							if (declaredEntityClass != null) {
@@ -205,6 +216,7 @@ public class DynamicResultMappingInterceptor implements Interceptor {
 						String columnPrefix = dynamicResultMapping.columnPrefix();
 						TableMeta tableMeta = TableMetaKit.instance().get(resultJavaType);
 						resultMappings = new ArrayList<>();
+						List<ColumnMeta> idCols = new ArrayList<>();
 						for (ColumnMeta col : tableMeta.getColumns().values()) {
 							boolean match = col.hasProperties(MappingKeys.RESULT_MAPPING_KEYS_FILTER);
 							// 是否存在
@@ -227,14 +239,33 @@ public class DynamicResultMappingInterceptor implements Interceptor {
 									resultMappingMeta.column = useColumnName ? col.getColumnName() : col.getFieldName();
 									resultMappingMeta.javaType = col.getFieldType();
 									resultMappingMeta.columnPrefix = Strings.trimToNull(columnPrefix);
+									if (col.isPrimaryKey()) {
+										resultMappingMeta.flags = Lists.asList(ResultFlag.ID);
+									}
 									resultMappings.add(resultMappingMeta);
 								} catch (Exception ignored) {
 									// 忽略异常
 								}
+							} else if (col.isPrimaryKey()) {
+								idCols.add(col);
 							}
 						}
 						if (resultMappings.isEmpty()) {
 							resultMappings = null;
+						}else{
+							if (idCols.size() >0) {
+								for (ColumnMeta col : idCols) {
+									ResultMappingMeta resultMappingMeta = new ResultMappingMeta();
+									resultMappingMeta.property = col.getFieldName();
+									resultMappingMeta.column = useColumnName ? col.getColumnName() : col.getFieldName();
+									resultMappingMeta.javaType = col.getFieldType();
+									resultMappingMeta.columnPrefix = Strings.trimToNull(columnPrefix);
+									if (col.isPrimaryKey()) {
+										resultMappingMeta.flags = Lists.asList(ResultFlag.ID);
+									}
+									resultMappings.add(resultMappingMeta);
+								}
+							}
 						}
 					}
 
@@ -339,6 +370,7 @@ public class DynamicResultMappingInterceptor implements Interceptor {
 		private Class<? extends TypeHandler<?>> typeHandlerClass;
 		private TypeHandler<?> typeHandler;
 		private String columnPrefix;
+		public List<ResultFlag> flags;
 	}
 
 }

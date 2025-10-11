@@ -3,12 +3,19 @@ package io.polaris.mybatis.interceptor;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
+import io.polaris.core.collection.Lists;
 import io.polaris.core.consts.SymbolConsts;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.string.Strings;
+import io.polaris.core.tuple.Ref;
+import io.polaris.core.tuple.Tuple2;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.ResultMap;
@@ -21,6 +28,7 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
  * @author Qt
  * @since Jul 04, 2024
  */
+@Slf4j
 public class StatementBuilder extends MappedStatement.Builder {
 	public static final String RESOURCE_MARK = "|Generated";
 	private final String id;
@@ -88,18 +96,17 @@ public class StatementBuilder extends MappedStatement.Builder {
 
 
 	public StatementBuilder useResultMappings(Class<?> resultType, List<ResultMapping> resultMappings) {
-		String id = this.id + "__GeneratedResultMap";
-		List<ResultMap> resultMaps = new ArrayList<>();
 		List<ResultMap> originalResultMaps = statement.getResultMaps();
-		if (originalResultMaps != null) {
-			Set<String> propertySet = new HashSet<>();
-			for (ResultMap map : originalResultMaps) {
-				addPropertySet(map.getResultMappings(), propertySet);
-				addPropertySet(map.getIdResultMappings(), propertySet);
-				addPropertySet(map.getConstructorResultMappings(), propertySet);
-				addPropertySet(map.getPropertyResultMappings(), propertySet);
+		if (originalResultMaps != null && !originalResultMaps.isEmpty()) {
+			ResultMap originalResultMap = originalResultMaps.get(0);
+			List<ResultMapping> filteredMappings = new ArrayList<>(originalResultMap.getResultMappings());
+			if (!filteredMappings.isEmpty()) {
+				// 存在自定义映射，则忽略自动映射生成
+				return this;
 			}
-			List<ResultMapping> filteredMappings = new ArrayList<>();
+			Set<String> propertySet = new HashSet<>();
+			addPropertySet(originalResultMap.getResultMappings(), propertySet);
+
 			for (ResultMapping mapping : resultMappings) {
 				String property = mapping.getProperty();
 				if (property != null && propertySet.contains(property)) {
@@ -107,16 +114,19 @@ public class StatementBuilder extends MappedStatement.Builder {
 				}
 				filteredMappings.add(mapping);
 			}
-			ResultMap resultMap = new ResultMap.Builder(this.configuration, id, resultType, filteredMappings, null)
+
+			List<ResultMap> resultMaps = new ArrayList<>(originalResultMaps);
+			ResultMap resultMap = new ResultMap.Builder(this.configuration, originalResultMap.getId() + RESOURCE_MARK, resultType, filteredMappings, originalResultMap.getAutoMapping())
 				.build();
-			resultMaps.addAll(originalResultMaps);
-			resultMaps.add(resultMap);
+			// 替换已有的结果映射
+			resultMaps.set(0, resultMap);
+			this.resultMaps(resultMaps);
 		} else {
+			String id = this.id + "__ResultMap" + RESOURCE_MARK;
 			ResultMap resultMap = new ResultMap.Builder(this.configuration, id, resultType, resultMappings, null)
 				.build();
-			resultMaps.add(resultMap);
+			this.resultMaps(Lists.asList(resultMap));
 		}
-		this.resultMaps(resultMaps);
 		return this;
 	}
 
@@ -132,14 +142,29 @@ public class StatementBuilder extends MappedStatement.Builder {
 	}
 
 
-	/**
-	 * @see org.apache.ibatis.builder.BaseBuilder#resolveTypeHandler(Class, Class)
-	 */
 	@SuppressWarnings("all")
 	public TypeHandler<?> resolveTypeHandler(Class<?> javaType, Class<? extends TypeHandler<?>> typeHandlerType) {
 		if (typeHandlerType == null) {
 			return null;
 		}
+		// 使用自定义缓存，强制创建带构造参数的TypeHandler
+		Map<Tuple2<Class<?>, Class<? extends TypeHandler<?>>>, Ref<TypeHandler<?>>> cache = getTypeHandlerCache(configuration);
+		Ref<TypeHandler<?>> ref = cache.computeIfAbsent(Tuple2.of(javaType, typeHandlerType), k -> {
+			try {
+				// 借用typeHandlerRegistry.getInstance构建，未来考虑支持更灵活的方式
+				TypeHandler<?> handler = typeHandlerRegistry.getInstance(javaType, typeHandlerType);
+				return Ref.of(handler);
+			} catch (Exception e) {
+				log.error("", e);
+				return Ref.of(null);
+			}
+		});
+		if (ref != null) {
+			return ref.get();
+		}
+		/**
+		 * @see org.apache.ibatis.builder.BaseBuilder#resolveTypeHandler(Class, Class)
+		 */
 		// javaType ignored for injected handlers see issue #746 for full detail
 		TypeHandler<?> handler = typeHandlerRegistry.getMappingTypeHandler(typeHandlerType);
 		if (handler == null) {
@@ -147,6 +172,19 @@ public class StatementBuilder extends MappedStatement.Builder {
 			handler = typeHandlerRegistry.getInstance(javaType, typeHandlerType);
 		}
 		return handler;
+	}
+
+	private static final List<Tuple2<Configuration, Map<Tuple2<Class<?>, Class<? extends TypeHandler<?>>>, Ref<TypeHandler<?>>>>> typeHandlerCache = new CopyOnWriteArrayList<>();
+
+	private static Map<Tuple2<Class<?>, Class<? extends TypeHandler<?>>>, Ref<TypeHandler<?>>> getTypeHandlerCache(Configuration configuration) {
+		for (Tuple2<Configuration, Map<Tuple2<Class<?>, Class<? extends TypeHandler<?>>>, Ref<TypeHandler<?>>>> cache : typeHandlerCache) {
+			if (cache.getFirst() == configuration) {
+				return cache.getSecond();
+			}
+		}
+		Map<Tuple2<Class<?>, Class<? extends TypeHandler<?>>>, Ref<TypeHandler<?>>> cache = new ConcurrentHashMap<>();
+		typeHandlerCache.add(Tuple2.of(configuration, cache));
+		return cache;
 	}
 
 	public Configuration getConfiguration() {

@@ -7,6 +7,7 @@ import java.util.Set;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.OrderBy;
+import io.polaris.mybatis.annotation.DynamicResultMapping;
 import io.polaris.mybatis.annotation.WithLogicDeleted;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
@@ -19,6 +20,7 @@ import org.apache.ibatis.annotations.SelectProvider;
  */
 public interface EntitySelectListDirectMapper<E> extends EntityMapper<E> {
 
+	@DynamicResultMapping
 	@WithLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	List<E> directSelectEntityList(@Param(BindingKeys.WHERE) E entity
@@ -48,6 +50,7 @@ public interface EntitySelectListDirectMapper<E> extends EntityMapper<E> {
 	}
 
 
+	@DynamicResultMapping
 	@WithLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	List<E> directSelectEntityListByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
@@ -76,6 +79,7 @@ public interface EntitySelectListDirectMapper<E> extends EntityMapper<E> {
 		return directSelectEntityListByMap(entity, null, false);
 	}
 
+	@DynamicResultMapping
 	@WithLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	List<E> directSelectEntityListByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
@@ -105,6 +109,7 @@ public interface EntitySelectListDirectMapper<E> extends EntityMapper<E> {
 	}
 
 
+	@DynamicResultMapping
 	@WithLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	List<Map<String, Object>> directSelectMapList(@Param(BindingKeys.WHERE) E entity
@@ -134,6 +139,7 @@ public interface EntitySelectListDirectMapper<E> extends EntityMapper<E> {
 	}
 
 
+	@DynamicResultMapping
 	@WithLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	List<Map<String, Object>> directSelectMapListByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
@@ -163,6 +169,7 @@ public interface EntitySelectListDirectMapper<E> extends EntityMapper<E> {
 	}
 
 
+	@DynamicResultMapping
 	@WithLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	List<Map<String, Object>> directSelectMapListByCriteria(@Param(BindingKeys.WHERE) Criteria criteria

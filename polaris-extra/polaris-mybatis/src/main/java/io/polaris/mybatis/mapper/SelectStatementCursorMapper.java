@@ -4,6 +4,7 @@ import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.OrderBy;
 import io.polaris.core.jdbc.sql.statement.SelectStatement;
+import io.polaris.mybatis.annotation.DynamicResultMapping;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
 import org.apache.ibatis.annotations.Options;
@@ -20,11 +21,13 @@ import java.util.Map;
 public interface SelectStatementCursorMapper<R> {
 
 
+	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
 	@Options(fetchSize = 1000)
 	Cursor<R> selectEntityCursorBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
 
 
+	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
 	@Options(fetchSize = 1000)
 	Cursor<Map<String, Object>> selectMapCursorBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);

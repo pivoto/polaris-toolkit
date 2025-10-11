@@ -6,6 +6,7 @@ import java.util.Set;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.OrderBy;
+import io.polaris.mybatis.annotation.DynamicResultMapping;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
 import org.apache.ibatis.annotations.Options;
@@ -19,6 +20,7 @@ import org.apache.ibatis.cursor.Cursor;
  */
 public interface EntitySelectCursorExceptLogicDeletedMapper<E> extends EntityMapper<E> {
 
+	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeleted)
 	@Options(fetchSize = 1000)
 	Cursor<E> selectEntityCursorExceptLogicDeleted(@Param(BindingKeys.WHERE) E entity
@@ -48,6 +50,7 @@ public interface EntitySelectCursorExceptLogicDeletedMapper<E> extends EntityMap
 	}
 
 
+	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeleted)
 	@Options(fetchSize = 1000)
 	Cursor<E> selectEntityCursorExceptLogicDeletedByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
@@ -77,6 +80,7 @@ public interface EntitySelectCursorExceptLogicDeletedMapper<E> extends EntityMap
 	}
 
 
+	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeleted)
 	@Options(fetchSize = 1000)
 	Cursor<E> selectEntityCursorExceptLogicDeletedByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
@@ -105,6 +109,7 @@ public interface EntitySelectCursorExceptLogicDeletedMapper<E> extends EntityMap
 		return selectEntityCursorExceptLogicDeletedByCriteria(criteria, null, false);
 	}
 
+	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeleted)
 	@Options(fetchSize = 1000)
 	Cursor<Map<String, Object>> selectMapCursorExceptLogicDeleted(@Param(BindingKeys.WHERE) E entity
@@ -134,6 +139,7 @@ public interface EntitySelectCursorExceptLogicDeletedMapper<E> extends EntityMap
 	}
 
 
+	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeleted)
 	@Options(fetchSize = 1000)
 	Cursor<Map<String, Object>> selectMapCursorExceptLogicDeletedByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
@@ -163,6 +169,7 @@ public interface EntitySelectCursorExceptLogicDeletedMapper<E> extends EntityMap
 	}
 
 
+	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeleted)
 	@Options(fetchSize = 1000)
 	Cursor<Map<String, Object>> selectMapCursorExceptLogicDeletedByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
