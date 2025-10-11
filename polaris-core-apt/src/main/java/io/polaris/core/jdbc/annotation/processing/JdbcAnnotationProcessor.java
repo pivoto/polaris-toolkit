@@ -279,7 +279,7 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 					for (Map.Entry<String, String> entry : field.getProperties().entrySet()) {
 						args.add(entry.getKey());
 						args.add(entry.getValue());
-						format.append(".properties($S,$S)");
+						format.append(".prop($S,$S)");
 					}
 				}
 				format.append(".build())");
@@ -323,7 +323,7 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 					for (Map.Entry<String, String> entry : field.getProperties().entrySet()) {
 						args.add(entry.getKey());
 						args.add(entry.getValue());
-						format.append(".properties($S,$S)");
+						format.append(".prop($S,$S)");
 					}
 				}
 				format.append(".build())");

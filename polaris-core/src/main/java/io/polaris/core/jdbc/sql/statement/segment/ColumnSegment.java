@@ -29,7 +29,7 @@ public class ColumnSegment<O extends Segment<O>, S extends ColumnSegment<O, S>> 
 	/** 列值 */
 	private Object value;
 	/** 列值的扩展属性，为如Mybatis等占位符增加配置项 */
-	private String valueProperty;
+	private Map<String, String> props;
 	/** 表达式 */
 	private ExpressionSegment<?> expression;
 
@@ -56,19 +56,19 @@ public class ColumnSegment<O extends Segment<O>, S extends ColumnSegment<O, S>> 
 		return getThis();
 	}
 
-	public S removeProperty() {
-		this.valueProperty = null;
+	public S removeProps() {
+		this.props = null;
 		return getThis();
 	}
 
-	public S property(String valueProperty) {
-		this.valueProperty = Strings.trimToNull(valueProperty);
+	public S props(Map<String, String> props) {
+		this.props = props;
 		return getThis();
 	}
 
-	public S value(Object value, String valueProperty) {
+	public S value(Object value, Map<String, String> props) {
 		this.value = value;
-		this.valueProperty = Strings.trimToNull(valueProperty);
+		this.props = props;
 		return getThis();
 	}
 
@@ -150,8 +150,8 @@ public class ColumnSegment<O extends Segment<O>, S extends ColumnSegment<O, S>> 
 		if (columnValue == null) {
 			return SqlNodes.mixed(name(), null);
 		} else {
-			if (valueProperty != null) {
-				return SqlNodes.dynamic(name(), VarRef.of(columnValue, valueProperty));
+			if (props != null && !props.isEmpty()) {
+				return SqlNodes.dynamic(name(), VarRef.of(columnValue, props));
 			} else {
 				return SqlNodes.dynamic(name(), columnValue);
 			}

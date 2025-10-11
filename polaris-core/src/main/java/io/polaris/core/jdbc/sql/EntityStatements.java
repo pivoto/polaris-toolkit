@@ -393,14 +393,16 @@ public class EntityStatements {
 				val = tuple.getFirst();
 			}
 			val = BindingValues.getValueForInsert(meta, val);
-			String propertiesString = meta.getPropertiesString();
+			Map<String, String> props;
 			if (val instanceof VarRef) {
 				// 优先使用VarRef携带的参数属性
-				propertiesString = ((VarRef<?>) val).getProps();
+				props = ((VarRef<?>) val).getProps();
 				val = ((VarRef<?>) val).getValue();
+			} else {
+				props = meta.getProps();
 			}
 			if (enabled || val != null) {
-				st.column(field).value(val, propertiesString).end();
+				st.column(field).value(val, props).end();
 				continue;
 			}
 
@@ -510,14 +512,16 @@ public class EntityStatements {
 				val = tuple.getFirst();
 			}
 			val = BindingValues.getValueForUpdate(meta, val);
-			String propertiesString = meta.getPropertiesString();
+			Map<String, String> props;
 			if (val instanceof VarRef) {
 				// 优先使用VarRef携带的参数属性
-				propertiesString = ((VarRef<?>) val).getProps();
+				props = ((VarRef<?>) val).getProps();
 				val = ((VarRef<?>) val).getValue();
+			}else{
+				props = meta.getProps();
 			}
 			if (enabled || val != null) {
-				st.column(field).value(val, propertiesString).end();
+				st.column(field).value(val, props).end();
 			}
 		}
 

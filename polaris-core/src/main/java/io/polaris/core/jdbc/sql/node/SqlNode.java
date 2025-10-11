@@ -17,20 +17,36 @@ public interface SqlNode {
 
 	PreparedSql asPreparedSql();
 
-	BoundSql asBoundSql(VarNameGenerator generator, String openVarToken, String closeVarToken);
+	BoundSql asBoundSql(Predicate<String> varPropFilter, VarNameGenerator generator, String openVarToken, String closeVarToken);
 
+	default BoundSql asBoundSql(Predicate<String> varPropFilter) {
+		return asBoundSql(varPropFilter, VarNameGenerator.newInstance(), "#{", "}");
+	}
+
+	default BoundSql asBoundSql(Predicate<String> varPropFilter, VarNameGenerator generator) {
+		return asBoundSql(varPropFilter, generator, "#{", "}");
+	}
+
+	default BoundSql asBoundSql(Predicate<String> varPropFilter, String openVarToken, String closeVarToken) {
+		return asBoundSql(varPropFilter, VarNameGenerator.newInstance(), openVarToken, closeVarToken);
+	}
+
+	default BoundSql asBoundSql(VarNameGenerator generator, String openVarToken, String closeVarToken) {
+		return asBoundSql((Predicate<String>) null, generator, openVarToken, closeVarToken);
+	}
 
 	default BoundSql asBoundSql() {
-		return asBoundSql("#{", "}");
+		return asBoundSql((Predicate<String>) null, VarNameGenerator.newInstance(), "#{", "}");
 	}
 
 	default BoundSql asBoundSql(VarNameGenerator generator) {
-		return asBoundSql(generator, "#{", "}");
+		return asBoundSql((Predicate<String>) null, generator, "#{", "}");
 	}
 
 	default BoundSql asBoundSql(String openVarToken, String closeVarToken) {
-		return asBoundSql(VarNameGenerator.newInstance(), openVarToken, closeVarToken);
+		return asBoundSql((Predicate<String>) null, VarNameGenerator.newInstance(), openVarToken, closeVarToken);
 	}
+
 
 	default SqlNode copy() {
 		return copy(true);

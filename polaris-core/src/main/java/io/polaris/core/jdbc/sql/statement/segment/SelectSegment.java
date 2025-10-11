@@ -41,7 +41,7 @@ public class SelectSegment<O extends Segment<O>, S extends SelectSegment<O, S>> 
 	/** 固定列值 */
 	private Object value;
 	/** 固定列值的扩展属性，为如Mybatis等占位符增加配置项 */
-	private String valueProperty;
+	private Map<String, String> props;
 	/** 表达式 */
 	private ExpressionSegment<?> expression;
 
@@ -103,8 +103,8 @@ public class SelectSegment<O extends Segment<O>, S extends SelectSegment<O, S>> 
 
 		if (value != null && Strings.isNotBlank(fieldAlias)) {
 			ContainerNode containerNode = new ContainerNode();
-			if (valueProperty != null) {
-				containerNode.addNode(SqlNodes.dynamic(fieldAlias, VarRef.of(value, valueProperty)));
+			if (props != null && !props.isEmpty()) {
+				containerNode.addNode(SqlNodes.dynamic(fieldAlias, VarRef.of(value, props)));
 			} else {
 				containerNode.addNode(SqlNodes.dynamic(fieldAlias, value));
 			}
@@ -384,7 +384,7 @@ public class SelectSegment<O extends Segment<O>, S extends SelectSegment<O, S>> 
 			throw new IllegalArgumentException("别名不能为空");
 		}
 		if (value instanceof VarRef) {
-			this.valueProperty = Strings.trimToNull(((VarRef<?>) value).getProps());
+			this.props = ((VarRef<?>) value).getPropsIfNotEmpty();
 			this.value = ((VarRef<?>) value).getValue();
 		} else {
 			this.value = value;
@@ -392,16 +392,16 @@ public class SelectSegment<O extends Segment<O>, S extends SelectSegment<O, S>> 
 		return alias(alias);
 	}
 
-	public O value(Object value, String valueProperty, String alias) {
+	public O value(Object value, Map<String, String> props, String alias) {
 		if (Strings.isEmpty(alias)) {
 			throw new IllegalArgumentException("别名不能为空");
 		}
 		if (value instanceof VarRef) {
-			this.valueProperty = Strings.isNotBlank(valueProperty) ? Strings.trimToNull(valueProperty) : Strings.trimToNull(((VarRef<?>) value).getProps());
+			this.props = props != null ? props : ((VarRef<?>) value).getPropsIfNotEmpty();
 			this.value = ((VarRef<?>) value).getValue();
 		} else {
 			this.value = value;
-			this.valueProperty = Strings.trimToNull(valueProperty);
+			this.props = props;
 		}
 		return alias(alias);
 	}

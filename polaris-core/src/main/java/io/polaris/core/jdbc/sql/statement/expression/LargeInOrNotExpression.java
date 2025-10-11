@@ -36,7 +36,7 @@ class LargeInOrNotExpression extends BaseExpression {
 	private List<Object> splitVarRef(VarRef<?> origValue) {
 		List<Object> list = new ArrayList<>();
 		Object varValue = origValue.getValue();
-		String varProps = origValue.getProps();
+		Map<String, String> varProps = origValue.getProps();
 
 		if (varValue instanceof List && varValue instanceof RandomAccess) {
 			int size = ((List<?>) varValue).size();

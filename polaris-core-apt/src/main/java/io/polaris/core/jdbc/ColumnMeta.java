@@ -3,6 +3,10 @@ package io.polaris.core.jdbc;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Predicate;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import io.polaris.core.annotation.AnnotationProcessing;
 import io.polaris.core.jdbc.sql.VarRef;
@@ -46,11 +50,11 @@ public final class ColumnMeta implements Cloneable, Copyable<ColumnMeta> {
 	private final boolean logicDeleted;
 	private final boolean createTime;
 	private final boolean updateTime;
-	private final Map<String, String> properties;
+	private final Map<String, String> props;
 	/** 用于构造BoundSql 如`javaType=int,jdbcType=NUMERIC,typeHandler=MyTypeHandler` */
-	private final String propertiesString;
+	private final String propString;
 
-	private ColumnMeta(String catalog, String schema, String tableName, String fieldName, Class<?> fieldType, String columnName, String jdbcType, int jdbcTypeValue, boolean primaryKey, boolean autoIncrement, String seqName, String idSql, boolean nullable, boolean insertable, boolean updatable, String updateDefault, String insertDefault, String updateDefaultSql, String insertDefaultSql, boolean version, boolean logicDeleted, boolean createTime, boolean updateTime, Map<String, String> properties) {
+	private ColumnMeta(String catalog, String schema, String tableName, String fieldName, Class<?> fieldType, String columnName, String jdbcType, int jdbcTypeValue, boolean primaryKey, boolean autoIncrement, String seqName, String idSql, boolean nullable, boolean insertable, boolean updatable, String updateDefault, String insertDefault, String updateDefaultSql, String insertDefaultSql, boolean version, boolean logicDeleted, boolean createTime, boolean updateTime, Map<String, String> props) {
 		this.catalog = catalog;
 		this.schema = schema;
 		this.tableName = tableName;
@@ -74,32 +78,87 @@ public final class ColumnMeta implements Cloneable, Copyable<ColumnMeta> {
 		this.logicDeleted = logicDeleted;
 		this.createTime = createTime;
 		this.updateTime = updateTime;
-		this.properties = properties == null ? Collections.emptyMap() : Collections.unmodifiableMap(new LinkedHashMap<>(properties));
-		if (this.properties.isEmpty()) {
-			this.propertiesString = "";
+		this.props = props == null ? Collections.emptyMap() : Collections.unmodifiableMap(new LinkedHashMap<>(props));
+		if (this.props.isEmpty()) {
+			this.propString = "";
 		} else {
 			StringBuilder sb = new StringBuilder();
-			this.properties.forEach((k, v) -> sb.append(k).append("=").append(v).append(","));
+			this.props.forEach((k, v) -> sb.append(k).append("=").append(v).append(","));
 			if (sb.length() > 0) {
 				sb.deleteCharAt(sb.length() - 1);
 			}
-			this.propertiesString = sb.toString();
+			this.propString = sb.toString();
 		}
 	}
 
-	public String getProperty(String name) {
-		return properties.get(name);
+	public boolean hasProperties(Predicate<String> filter) {
+		return props.keySet().stream().anyMatch(filter);
+	}
+
+	public String getProp(String key) {
+		return props.get(key);
+	}
+
+	@Nullable
+	public Map<String, String> getPropsIfNotEmpty() {
+		return props.isEmpty() ? null : props;
+	}
+
+	@Nullable
+	public Map<String, String> getPropsIfNotEmpty(Predicate<String> filter) {
+		Map<String, String> props = getProps(filter);
+		return props.isEmpty() ? null : props;
+	}
+
+	@Nonnull
+	public Map<String, String> getProps() {
+		return props;
+	}
+
+	@Nonnull
+	public Map<String, String> getProps(Predicate<String> filter) {
+		if (filter == null) {
+			return props;
+		}
+		Map<String, String> rs = new LinkedHashMap<>();
+		props.forEach((k, v) -> {
+			if (filter.test(k)) {
+				rs.put(k, v);
+			}
+		});
+		return rs;
+	}
+
+	public String getPropString() {
+		return propString;
+	}
+
+
+	public String getPropString(Predicate<String> filter) {
+		if (filter == null) {
+			return propString;
+		}
+		StringBuilder sb = new StringBuilder();
+		props.forEach((k, v) -> {
+			if (filter.test(k)) {
+				sb.append(k).append("=").append(v).append(",");
+			}
+		});
+		if (sb.length() > 0) {
+			sb.deleteCharAt(sb.length() - 1);
+		}
+		return sb.toString();
 	}
 
 	@SuppressWarnings("unchecked")
 	public <V> VarRef<V> wrap(V value) {
 		if (value instanceof VarRef) {
-			String props = ((VarRef<?>) value).getProps();
-			if (props != null && !(props = props.trim()).isEmpty()) {
+			Map<String, String> props = ((VarRef<?>) value).getProps();
+			if (!props.isEmpty()) {
 				return (VarRef<V>) value;
 			}
 		}
-		return VarRef.of(value, propertiesString);
+		return VarRef.of(value, props);
 	}
 
 	@Override
@@ -147,7 +206,7 @@ public final class ColumnMeta implements Cloneable, Copyable<ColumnMeta> {
 		private boolean logicDeleted;
 		private boolean createTime;
 		private boolean updateTime;
-		private Map<String, String> properties = new LinkedHashMap<>();
+		private Map<String, String> props = new LinkedHashMap<>();
 
 		Builder() {
 		}
@@ -268,24 +327,24 @@ public final class ColumnMeta implements Cloneable, Copyable<ColumnMeta> {
 		}
 
 		public Builder updateTime(final Map<String, String> properties) {
-			this.properties = properties;
+			this.props = properties;
 			return this;
 		}
 
-		public Builder properties(final Map<String, String> properties) {
-			this.properties = properties;
+		public Builder props(final Map<String, String> properties) {
+			this.props = properties;
 			return this;
 		}
 
 
-		public Builder properties(final String key, final String value) {
-			this.properties = properties == null ? new LinkedHashMap<>() : properties;
-			this.properties.put(key, value);
+		public Builder prop(final String key, final String value) {
+			this.props = props == null ? new LinkedHashMap<>() : props;
+			this.props.put(key, value);
 			return this;
 		}
 
 		public ColumnMeta build() {
-			return new ColumnMeta(this.catalog, this.schema, this.tableName, this.fieldName, this.fieldType, this.columnName, this.jdbcType, this.jdbcTypeValue, this.primaryKey, this.autoIncrement, this.seqName, this.idSql, this.nullable, this.insertable, this.updatable, this.updateDefault, this.insertDefault, this.updateDefaultSql, this.insertDefaultSql, this.version, this.logicDeleted, this.createTime, this.updateTime, this.properties);
+			return new ColumnMeta(this.catalog, this.schema, this.tableName, this.fieldName, this.fieldType, this.columnName, this.jdbcType, this.jdbcTypeValue, this.primaryKey, this.autoIncrement, this.seqName, this.idSql, this.nullable, this.insertable, this.updatable, this.updateDefault, this.insertDefault, this.updateDefaultSql, this.insertDefaultSql, this.version, this.logicDeleted, this.createTime, this.updateTime, this.props);
 		}
 
 	}

@@ -3,6 +3,9 @@ package io.polaris.core.jdbc;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Predicate;
+
+import javax.annotation.Nullable;
 
 import io.polaris.core.annotation.AnnotationProcessing;
 import io.polaris.core.jdbc.sql.VarRef;
@@ -33,12 +36,12 @@ public final class ExpressionMeta implements Cloneable, Copyable<ExpressionMeta>
 	private final boolean selectable;
 	/** 表别名占位符，带`.`分隔符 */
 	private final String tableAliasPlaceholder;
-	private final Map<String, String> properties;
+	private final Map<String, String> props;
 	/** 用于构造BoundSql 如`javaType=int,jdbcType=NUMERIC,typeHandler=MyTypeHandler` */
-	private final String propertiesString;
+	private final String propString;
 
 
-	private ExpressionMeta(String catalog, String schema, String tableName, String fieldName, Class<?> fieldType, String expression, String jdbcType, int jdbcTypeValue, boolean selectable, String tableAliasPlaceholder, Map<String, String> properties) {
+	private ExpressionMeta(String catalog, String schema, String tableName, String fieldName, Class<?> fieldType, String expression, String jdbcType, int jdbcTypeValue, boolean selectable, String tableAliasPlaceholder, Map<String, String> props) {
 		this.catalog = catalog;
 		this.schema = schema;
 		this.tableName = tableName;
@@ -49,28 +52,85 @@ public final class ExpressionMeta implements Cloneable, Copyable<ExpressionMeta>
 		this.jdbcTypeValue = jdbcTypeValue;
 		this.selectable = selectable;
 		this.tableAliasPlaceholder = tableAliasPlaceholder;
-		this.properties = properties == null ? Collections.emptyMap() : Collections.unmodifiableMap(new LinkedHashMap<>(properties));
-		if (this.properties.isEmpty()) {
-			this.propertiesString = "";
+		this.props = props == null ? Collections.emptyMap() : Collections.unmodifiableMap(new LinkedHashMap<>(props));
+		if (this.props.isEmpty()) {
+			this.propString = "";
 		} else {
 			StringBuilder sb = new StringBuilder();
-			this.properties.forEach((k, v) -> sb.append(k).append("=").append(v).append(","));
+			this.props.forEach((k, v) -> sb.append(k).append("=").append(v).append(","));
 			if (sb.length() > 0) {
 				sb.deleteCharAt(sb.length() - 1);
 			}
-			this.propertiesString = sb.toString();
+			this.propString = sb.toString();
 		}
+	}
+
+	public boolean hasProperties(Predicate<String> filter) {
+		return props.keySet().stream().anyMatch(filter);
+	}
+
+	public String getProp(String key) {
+		return props.get(key);
+	}
+
+	@Nullable
+	public Map<String, String> getPropsIfNotEmpty() {
+		return props.isEmpty() ? null : props;
+	}
+
+	@Nullable
+	public Map<String, String> getPropsIfNotEmpty(Predicate<String> filter) {
+		Map<String, String> props = getProps(filter);
+		return props.isEmpty() ? null : props;
+	}
+
+	public Map<String, String> getProps() {
+		return props;
+	}
+
+	public Map<String, String> getProps(Predicate<String> filter) {
+		if (filter == null) {
+			return props;
+		}
+		Map<String, String> rs = new LinkedHashMap<>();
+		props.forEach((k, v) -> {
+			if (filter.test(k)) {
+				rs.put(k, v);
+			}
+		});
+		return rs;
+	}
+
+	public String getPropString() {
+		return propString;
+	}
+
+
+	public String getPropString(Predicate<String> filter) {
+		if (filter == null) {
+			return propString;
+		}
+		StringBuilder sb = new StringBuilder();
+		props.forEach((k, v) -> {
+			if (filter.test(k)) {
+				sb.append(k).append("=").append(v).append(",");
+			}
+		});
+		if (sb.length() > 0) {
+			sb.deleteCharAt(sb.length() - 1);
+		}
+		return sb.toString();
 	}
 
 	@SuppressWarnings("unchecked")
 	public <V> VarRef<V> wrap(V value) {
 		if (value instanceof VarRef) {
-			String props = ((VarRef<?>) value).getProps();
-			if (props != null && !(props = props.trim()).isEmpty()) {
+			Map<String, String> props = ((VarRef<?>) value).getProps();
+			if (!props.isEmpty()) {
 				return (VarRef<V>) value;
 			}
 		}
-		return VarRef.of(value, propertiesString);
+		return VarRef.of(value, props);
 	}
 
 	@Override
@@ -129,7 +189,7 @@ public final class ExpressionMeta implements Cloneable, Copyable<ExpressionMeta>
 		private int jdbcTypeValue;
 		private boolean selectable;
 		private String tableAliasPlaceholder;
-		private Map<String, String> properties = new LinkedHashMap<>();
+		private Map<String, String> props = new LinkedHashMap<>();
 
 		Builder() {
 		}
@@ -184,19 +244,19 @@ public final class ExpressionMeta implements Cloneable, Copyable<ExpressionMeta>
 			return this;
 		}
 
-		public Builder properties(final Map<String, String> properties) {
-			this.properties = properties;
+		public Builder props(final Map<String, String> properties) {
+			this.props = properties;
 			return this;
 		}
 
-		public Builder properties(final String key, final String value) {
-			this.properties = properties == null ? new LinkedHashMap<>() : properties;
-			this.properties.put(key, value);
+		public Builder prop(final String key, final String value) {
+			this.props = props == null ? new LinkedHashMap<>() : props;
+			this.props.put(key, value);
 			return this;
 		}
 
 		public ExpressionMeta build() {
-			return new ExpressionMeta(this.catalog, this.schema, this.tableName, this.fieldName, this.fieldType, this.expression, this.jdbcType, this.jdbcTypeValue, this.selectable, this.tableAliasPlaceholder, this.properties);
+			return new ExpressionMeta(this.catalog, this.schema, this.tableName, this.fieldName, this.fieldType, this.expression, this.jdbcType, this.jdbcTypeValue, this.selectable, this.tableAliasPlaceholder, this.props);
 		}
 
 	}

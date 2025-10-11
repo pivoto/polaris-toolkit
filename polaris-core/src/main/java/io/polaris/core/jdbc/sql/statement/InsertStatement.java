@@ -20,6 +20,7 @@ import io.polaris.core.jdbc.sql.statement.segment.TableAccessible;
 import io.polaris.core.jdbc.sql.statement.segment.TableSegment;
 import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.bean.Beans;
+import io.polaris.core.map.Maps;
 import io.polaris.core.string.Strings;
 
 /**
@@ -196,9 +197,9 @@ public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement
 				}
 				// 需要包含空值字段,或为非空值
 				if (Objs.isNotEmpty(val)) {
-					String propertiesString = meta.getPropertiesString();
-					if (Strings.isNotBlank(propertiesString)) {
-						this.column(name).value(val, propertiesString);
+					Map<String, String> props = meta.getProps();
+					if (Maps.isNotEmpty(props)) {
+						this.column(name).value(val, props);
 					} else {
 						this.column(name, val);
 					}

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import io.polaris.core.consts.SymbolConsts;
 import io.polaris.core.jdbc.sql.VarRef;
@@ -43,7 +44,7 @@ public class DynamicNode extends VarNode implements Cloneable {
 	}
 
 	@Override
-	public BoundSql asBoundSql(VarNameGenerator generator, String openVarToken, String closeVarToken) {
+	public BoundSql asBoundSql(Predicate<String> varPropFilter, VarNameGenerator generator, String openVarToken, String closeVarToken) {
 		List<Object> parameters = getVarValues();
 		if (parameters == null || parameters.isEmpty()) {
 			return new BoundSql(SqlNodes.NULL.getText(), Collections.emptyMap());
@@ -61,7 +62,7 @@ public class DynamicNode extends VarNode implements Cloneable {
 					text.append(openVarToken).append(key);
 					if (parameter instanceof VarRef) {
 						// 绑定变量附加属性，为如Mybatis等占位符增加配置项
-						String varProperty = ((VarRef<?>) parameter).getProps();
+						String varProperty = ((VarRef<?>) parameter).getPropString(varPropFilter);
 						if (Strings.isNotBlank(varProperty)){
 							text.append(SymbolConsts.COMMA).append(varProperty);
 						}

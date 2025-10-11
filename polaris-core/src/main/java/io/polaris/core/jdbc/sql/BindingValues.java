@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
@@ -49,7 +50,7 @@ public class BindingValues {
 		return Converters.convertQuietly(type, v);
 	}
 
-	public static VarRef<?> convert(Type type, Object val,String varProps) {
+	public static VarRef<?> convert(Type type, Object val,Map<String, String> varProps) {
 		Object o = convert(type, val);
 		if (o instanceof VarRef) {
 			return (VarRef<?>) o;
@@ -328,14 +329,14 @@ public class BindingValues {
 	}
 
 
-	public static String asSqlWithBindings(Map<String, Object> map, SqlNodeBuilder sqlNodeBuilder) {
+	public static String asSqlWithBindings(Predicate<String> varPropFilter, Map<String, Object> map, SqlNodeBuilder sqlNodeBuilder) {
 		SqlNode sqlNode = sqlNodeBuilder.toSqlNode();
-		return asSqlWithBindings(map, sqlNode);
+		return asSqlWithBindings(varPropFilter,map, sqlNode);
 	}
 
 
-	public static String asSqlWithBindings(Map<String, Object> map, SqlNode sqlNode) {
-		BoundSql boundSql = sqlNode.asBoundSql();
+	public static String asSqlWithBindings(Predicate<String> varPropFilter, Map<String, Object> map, SqlNode sqlNode) {
+		BoundSql boundSql = sqlNode.asBoundSql(varPropFilter);
 		Map<String, Object> bindings = boundSql.getBindings();
 		if (bindings != null && !bindings.isEmpty()) {
 			map.putAll(bindings);

@@ -9,6 +9,7 @@ import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.DynamicNode;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
+import io.polaris.core.map.Maps;
 
 /**
  * @author Qt
@@ -41,7 +42,7 @@ public class LikeExpression extends BaseExpression {
 		DynamicNode varNode = new DynamicNode(nextVarName());
 
 		StringBuilder val = new StringBuilder();
-		String varProps = null;
+		Map<String, String> varProps = null;
 		Object obj = getter.get();
 		if (obj instanceof VarRef) {
 			varProps = ((VarRef<?>) obj).getProps();
@@ -55,7 +56,7 @@ public class LikeExpression extends BaseExpression {
 		if (rightFuzzy && (val.length() == 0 || val.charAt(val.length() - 1) != '%')) {
 			val.append('%');
 		}
-		if (varProps != null) {
+		if (Maps.isNotEmpty(varProps)) {
 			varNode.bindVarValue(VarRef.of(val.toString(), varProps));
 		} else {
 			varNode.bindVarValue(val.toString());

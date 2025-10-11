@@ -33,6 +33,7 @@ import io.polaris.core.jdbc.sql.statement.SelectStatement;
 import io.polaris.core.jdbc.sql.statement.SqlNodeBuilder;
 import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.bean.Beans;
+import io.polaris.core.map.Maps;
 import io.polaris.core.reflect.GetterFunction;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.string.Strings;
@@ -176,7 +177,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 
 	private void addWhereSqlByColumnValue(String fieldName, Class<?> fieldType, VarRef<?> varRef, ColumnPredicate columnPredicate) {
 		Object val = varRef.getValue();
-		String varProps = Strings.trimToNull(varRef.getProps());
+		Map<String, String> varProps = varRef.getPropsIfNotEmpty();
 
 		if (Objs.isEmpty(val)) {
 			// 需要包含空值字段
@@ -302,7 +303,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 					if (val == null) {
 						this.column(name).isNull();
 					} else {
-						if (Strings.isNotBlank(meta.getPropertiesString())) {
+						if (Maps.isNotEmpty(meta.getProps())) {
 							this.column(name).eq(meta.wrap(val));
 						} else {
 							this.column(name).eq(val);
@@ -330,7 +331,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 					if (val == null) {
 						this.column(name).isNull();
 					} else {
-						if (Strings.isNotBlank(meta.getPropertiesString())) {
+						if (Maps.isNotEmpty(meta.getProps())) {
 							this.column(name).eq(meta.wrap(val));
 						} else {
 							this.column(name).eq(val);

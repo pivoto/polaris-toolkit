@@ -1,6 +1,7 @@
 package io.polaris.core.jdbc.sql.node;
 
 import java.util.Collections;
+import java.util.function.Predicate;
 
 import io.polaris.core.annotation.AnnotationProcessing;
 import io.polaris.core.jdbc.sql.BoundSql;
@@ -38,7 +39,7 @@ public class TextNode implements SqlNode, Cloneable {
 	}
 
 	@Override
-	public BoundSql asBoundSql(VarNameGenerator generator, String openVarToken, String closeVarToken) {
+	public BoundSql asBoundSql(Predicate<String> varPropFilter, VarNameGenerator generator, String openVarToken, String closeVarToken) {
 		if (text == null || text.isEmpty()) {
 			return BoundSql.EMPTY;
 		}

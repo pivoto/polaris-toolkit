@@ -1,16 +1,22 @@
 package io.polaris.core.jdbc.sql.node;
 
-import io.polaris.core.jdbc.sql.BoundSql;
-import io.polaris.core.jdbc.sql.PreparedSql;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.RandomAccess;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import io.polaris.core.jdbc.sql.BoundSql;
+import io.polaris.core.jdbc.sql.PreparedSql;
+
 /**
  * @author Qt
- * @since  Aug 11, 2023
+ * @since Aug 11, 2023
  */
 public class ContainerNode implements SqlNode, Cloneable {
 	public static final ContainerNode EMPTY = new ContainerNode(Collections.emptyList());
@@ -106,7 +112,7 @@ public class ContainerNode implements SqlNode, Cloneable {
 	}
 
 	@Override
-	public BoundSql asBoundSql(VarNameGenerator generator, String openVarToken, String closeVarToken) {
+	public BoundSql asBoundSql(Predicate<String> varPropFilter, VarNameGenerator generator, String openVarToken, String closeVarToken) {
 		if (isSkipped()) {
 			return BoundSql.EMPTY;
 		}
@@ -119,23 +125,23 @@ public class ContainerNode implements SqlNode, Cloneable {
 			}
 			if (first) {
 				first = false;
-				addToBoundSql(generator, openVarToken, closeVarToken, text, map, prefix);
+				addToBoundSql(varPropFilter, generator, openVarToken, closeVarToken, text, map, prefix);
 			} else {
-				addToBoundSql(generator, openVarToken, closeVarToken, text, map, delimiter);
+				addToBoundSql(varPropFilter, generator, openVarToken, closeVarToken, text, map, delimiter);
 			}
-			addToBoundSql(generator, openVarToken, closeVarToken, text, map, node);
+			addToBoundSql(varPropFilter, generator, openVarToken, closeVarToken, text, map, node);
 		}
 		if (!first) {
-			addToBoundSql(generator, openVarToken, closeVarToken, text, map, suffix);
+			addToBoundSql(varPropFilter, generator, openVarToken, closeVarToken, text, map, suffix);
 		}
 		return new BoundSql(text.toString(), map);
 	}
 
-	private static void addToBoundSql(VarNameGenerator generator, String openVarToken, String closeVarToken, StringBuilder sb, Map<String, Object> map, SqlNode node) {
+	private static void addToBoundSql(Predicate<String> varPropFilter, VarNameGenerator generator, String openVarToken, String closeVarToken, StringBuilder sb, Map<String, Object> map, SqlNode node) {
 		if (node == null) {
 			return;
 		}
-		BoundSql sql = node.asBoundSql(generator, openVarToken, closeVarToken);
+		BoundSql sql = node.asBoundSql(varPropFilter, generator, openVarToken, closeVarToken);
 		String text = sql.getText();
 		if (text != null) {
 			sb.append(text);
