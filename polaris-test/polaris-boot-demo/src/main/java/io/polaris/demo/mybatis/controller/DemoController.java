@@ -1,5 +1,6 @@
 package io.polaris.demo.mybatis.controller;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import io.polaris.demo.mybatis.entity.DemoUserEntity;
 import io.polaris.demo.mybatis.entity.DemoUserEntitySql;
 import io.polaris.demo.mybatis.service.DemoService;
 import io.polaris.demo.mybatis.service.DemoUserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,14 +24,10 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("demo")
+@RequiredArgsConstructor
 public class DemoController {
 	private final DemoService demoService;
 	private final DemoUserService demoUserService;
-
-	public DemoController(DemoService demoService, DemoUserService demoUserService) {
-		this.demoService = demoService;
-		this.demoUserService = demoUserService;
-	}
 
 
 	@PostMapping("test")
@@ -54,7 +52,8 @@ public class DemoController {
 	@PostMapping("listUser")
 	public Object list() {
 		List<DemoUserEntity> list = demoUserService.doTransaction(mapper -> {
-			return mapper.selectEntityListBySql(DemoUserEntitySql.select().selectAll());
+//			return mapper.selectEntityListBySql(DemoUserEntitySql.select().selectAll());
+			return mapper.selectEntityList(DemoUserEntity.builder().build());
 		});
 		return list;
 //		return Jacksons.toJsonString(list);
@@ -86,6 +85,8 @@ public class DemoController {
 	public Object add() {
 		DemoUserEntity entity = new DemoUserEntity();
 		entity.setName(Randoms.randomString(5));
+		entity.setCrtDt(new Date());
+		entity.setUptDt(new Date());
 		Integer i = demoUserService.doTransaction(mapper -> {
 			return mapper.insertEntity(entity);
 		});

@@ -1,28 +1,28 @@
-insert into demo_user(name)
+insert into demo_user(id, name)
 values
-	('admin');
+	(seq_demo_user.nextval,'admin');
 
-insert into demo_user(name)
+insert into demo_user(id, name)
 values
-	('user');
+	(seq_demo_user.nextval,'user');
 
 insert into demo_org(id, name,intro)
 values
-	(1, 'org1', '{}');
+	(seq_demo_org.nextval, 'org1', '{}');
 insert into demo_org(id, name)
 values
-	(2, 'org2');
+	(seq_demo_org.nextval, 'org2');
 
 insert into demo_user_org(id, user_id, org_id)
 values
-	(1, 1, 1);
+	(seq_demo_user_org.nextval, 1, 1);
 insert into demo_user_org(id, user_id, org_id)
 values
-	(2, 1, 2);
+	(seq_demo_user_org.nextval, 1, 2);
 insert into demo_user_org(id, user_id, org_id)
 values
-	(3, 2, 1);
+	(seq_demo_user_org.nextval, 2, 1);
 insert into demo_user_org(id, user_id, org_id)
 values
-	(4, 2, 2);
+	(seq_demo_user_org.nextval, 2, 2);
 

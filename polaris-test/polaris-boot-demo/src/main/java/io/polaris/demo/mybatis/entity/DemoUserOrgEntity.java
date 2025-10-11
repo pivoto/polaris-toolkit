@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class DemoUserOrgEntity {
-	@Id
+	@Id(seqName = "SEQ_DEMO_USER_ORG")
 	@Column
 	private Long id;
 	@Column(value = "user_id")

@@ -1,18 +1,17 @@
 package io.polaris.mybatis.util;
 
+import java.util.Iterator;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
 import io.polaris.core.function.Visitable;
 import io.polaris.core.io.IO;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.TableMetaKit;
-import io.polaris.core.jdbc.sql.EntityStatements;
 import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.bean.Beans;
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.type.Alias;
-
-import java.util.Iterator;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * @author Qt
