@@ -9,6 +9,7 @@ import java.util.Map;
  */
 public class LimitedLinkedHashMap<K, V> extends LinkedHashMap<K, V> {
 
+	private static final long serialVersionUID = 1L;
 	private int maxCapacity = 0;
 
 

@@ -219,4 +219,5 @@ public class Maps {
 	public static <K, V> Map<K, V> asMap(Object... args) {
 		return asMap(HashMap::new, args);
 	}
+
 }

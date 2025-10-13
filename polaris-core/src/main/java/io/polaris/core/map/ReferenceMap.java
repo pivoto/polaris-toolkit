@@ -1,18 +1,23 @@
 package io.polaris.core.map;
 
-import io.polaris.core.function.FunctionWithArgs3;
-import io.polaris.core.map.reference.ReferenceType;
-import io.polaris.core.map.reference.ValueReference;
-
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.util.AbstractMap;
+import java.util.AbstractSet;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
+import javax.annotation.Nonnull;
+
+import io.polaris.core.function.FunctionWithArgs3;
+import io.polaris.core.lang.Objs;
+import io.polaris.core.map.reference.ReferenceType;
+import io.polaris.core.map.reference.ValueReference;
 
 /**
  * @author Qt
@@ -67,16 +72,19 @@ public class ReferenceMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
 		}
 	}
 
+	@Override
 	public int size() {
 		processQueue();
 		return raw.size();
 	}
 
+	@Override
 	public boolean isEmpty() {
 		processQueue();
 		return raw.isEmpty();
 	}
 
+	@Override
 	public boolean containsKey(Object key) {
 		if (key == null) {
 			throw new NullPointerException();
@@ -85,6 +93,7 @@ public class ReferenceMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
 		return raw.containsKey(buildKeyReference((K) key));
 	}
 
+	@Override
 	public V get(Object key) {
 		if (key == null) {
 			throw new NullPointerException();
@@ -97,6 +106,7 @@ public class ReferenceMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
 		return null;
 	}
 
+	@Override
 	public V put(K key, V value) {
 		if (key == null) {
 			throw new NullPointerException();
@@ -113,6 +123,7 @@ public class ReferenceMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
 		return null;
 	}
 
+	@Override
 	public V remove(Object key) {
 		if (key == null) {
 			throw new NullPointerException();
@@ -125,38 +136,22 @@ public class ReferenceMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
 		return removed.value();
 	}
 
+	@Override
 	public void clear() {
 		processQueue();
 		raw.clear();
 	}
 
+	@Nonnull
 	@Override
 	public java.util.Set<Entry<K, V>> entrySet() {
 		if (raw.isEmpty()) {
 			return Collections.<K, V>emptyMap().entrySet();
 		}
 		processQueue();
-		if (raw.isEmpty()) {
-			return Collections.<K, V>emptyMap().entrySet();
-		}
-		Map<K, V> map = new HashMap<K, V>();
-		for (Entry<Reference<K>, ValueReference<Reference<K>, V>> entry : raw.entrySet()) {
-			ValueReference<Reference<K>, V> valueReference = entry.getValue();
-			if (valueReference == null) {
-				continue;
-			}
-			V value = valueReference.value();
-			if (value == null) {
-				continue;
-			}
-			K key = entry.getKey().get();
-			if (key == null) {
-				continue;
-			}
-			map.put(key, value);
-		}
-		return map.entrySet();
+		return new InnerEntrySet();
 	}
+
 
 	// region 代理接口默认方法
 
@@ -199,7 +194,7 @@ public class ReferenceMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
 	}
 
 	@Override
-	public V computeIfAbsent(K key, Function<? super K, ? extends V> mappingFunction) {
+	public V computeIfAbsent(K key, @Nonnull Function<? super K, ? extends V> mappingFunction) {
 		processQueue();
 		Reference<K> keyRef = buildKeyReference(key);
 		ValueReference<Reference<K>, V> ref = raw.computeIfAbsent(keyRef, (k) -> buildValueReference(k, mappingFunction.apply(k.get())));
@@ -207,7 +202,7 @@ public class ReferenceMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
 	}
 
 	@Override
-	public V computeIfPresent(K key, BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
+	public V computeIfPresent(K key, @Nonnull BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
 		processQueue();
 		Reference<K> keyRef = buildKeyReference(key);
 		ValueReference<Reference<K>, V> ref = raw.computeIfPresent(keyRef, (k, v) ->
@@ -216,7 +211,7 @@ public class ReferenceMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
 	}
 
 	@Override
-	public V compute(K key, BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
+	public V compute(K key, @Nonnull BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
 		processQueue();
 		Reference<K> keyRef = buildKeyReference(key);
 		ValueReference<Reference<K>, V> ref = raw.compute(keyRef, (k, v) ->
@@ -225,7 +220,7 @@ public class ReferenceMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
 	}
 
 	@Override
-	public V merge(K key, V value, BiFunction<? super V, ? super V, ? extends V> remappingFunction) {
+	public V merge(K key, @Nonnull V value, @Nonnull BiFunction<? super V, ? super V, ? extends V> remappingFunction) {
 		processQueue();
 		Reference<K> keyRef = buildKeyReference(key);
 		ValueReference<Reference<K>, V> ref = raw.merge(keyRef, buildValueReference(keyRef, value), (v1, v2) ->
@@ -235,4 +230,95 @@ public class ReferenceMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {
 
 	// endregion
 
+
+	final class InnerEntrySet extends AbstractSet<Entry<K, V>> {
+		@Override
+		public int size() {
+			return ReferenceMap.this.size();
+		}
+
+		@Override
+		public void clear() {
+			ReferenceMap.this.clear();
+		}
+
+		@Nonnull
+		@Override
+		public Iterator<Entry<K, V>> iterator() {
+			return new Iterator<Entry<K, V>>() {
+				private final Set<Entry<Reference<K>, ValueReference<Reference<K>, V>>> entrySet = ReferenceMap.this.raw.entrySet();
+				private final Iterator<Entry<Reference<K>, ValueReference<Reference<K>, V>>> it = entrySet.iterator();
+
+				@Override
+				public boolean hasNext() {
+					return it.hasNext();
+				}
+
+				@Override
+				public Entry<K, V> next() {
+					Entry<Reference<K>, ValueReference<Reference<K>, V>> next = it.next();
+
+					return new Entry<K, V>() {
+
+						@Override
+						public K getKey() {
+							return next.getKey().get();
+						}
+
+						@Override
+						public V getValue() {
+							return next.getValue().value();
+						}
+
+						@Override
+						public V setValue(V value) {
+							V old = next.getValue().value();
+							next.setValue(buildValueReference(next.getKey(), value));
+							return old;
+						}
+					};
+				}
+
+				@Override
+				public void remove() {
+					it.remove();
+				}
+			};
+		}
+
+		@Override
+		public boolean add(Entry<K, V> e) {
+			ReferenceMap.this.put(e.getKey(), e.getValue());
+			return true;
+		}
+
+		@Override
+		public boolean contains(Object o) {
+			if (!(o instanceof Map.Entry)) {
+				return false;
+			}
+
+			@SuppressWarnings("unchecked")
+			Map.Entry<K, V> e = (Map.Entry<K, V>) o;
+			K key = e.getKey();
+			if (!ReferenceMap.this.containsKey(key)) {
+				return false;
+			}
+			Object val = ReferenceMap.this.get(key);
+			return Objs.equals(val, e.getValue());
+		}
+
+		@Override
+		public boolean remove(Object o) {
+			if (!(o instanceof Map.Entry)) {
+				return false;
+			}
+
+			@SuppressWarnings("unchecked")
+			Map.Entry<K, V> e = (Map.Entry<K, V>) o;
+			K key = e.getKey();
+			V removed = ReferenceMap.this.remove(key);
+			return removed != null;
+		}
+	}
 }
