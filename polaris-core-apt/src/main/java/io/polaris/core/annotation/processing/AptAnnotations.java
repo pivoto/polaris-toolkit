@@ -39,11 +39,18 @@ public class AptAnnotations {
 	}
 
 	public static TypeElement getRepeatedAnnotationType(TypeElement annotationType) {
+		if (annotationType == null) {
+			return null;
+		}
 		List<? extends Element> methods = annotationType.getEnclosedElements();
 		if (methods.size() != 1) {
 			return null;
 		}
-		ExecutableElement method = (ExecutableElement) methods.get(0);
+		Element element = methods.get(0);
+		if (!(element instanceof ExecutableElement)) {
+			return null;
+		}
+		ExecutableElement method = (ExecutableElement) element;
 		String name = method.getSimpleName().toString();
 		if (!name.equals("value")) {
 			return null;
@@ -65,7 +72,11 @@ public class AptAnnotations {
 			}
 			String qualifiedName = annotationType.getQualifiedName().toString();
 			if (annotation.value().getCanonicalName().equals(qualifiedName)) {
-				return (TypeElement) declaredType.asElement();
+				Element typeElement = declaredType.asElement();
+				if (!(typeElement instanceof TypeElement)) {
+					return null;
+				}
+				return (TypeElement) typeElement;
 			}
 		}
 		return null;

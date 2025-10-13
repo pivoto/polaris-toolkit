@@ -3,6 +3,7 @@ package io.polaris.core.jdbc.annotation.processing;
 import java.lang.annotation.Annotation;
 
 import javax.annotation.Nonnull;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
@@ -52,7 +53,11 @@ class ColumnPropertyAnnotationAttributes implements ColumnProperty {
 				if (classValue == null) {
 					return "";
 				}
-				TypeElement element = (TypeElement) classValue.asElement();
+				Element classValueElement = classValue.asElement();
+				if (!(classValueElement instanceof TypeElement)) {
+					return "";
+				}
+				TypeElement element = (TypeElement) classValueElement;
 				return element.getQualifiedName().toString();
 			}
 			case INT:

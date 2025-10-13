@@ -51,7 +51,7 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 
 	private void processMerged(RoundEnvironment roundEnv) {
 		Set<? extends Element> rootElements = roundEnv.getRootElements();
-		Map<Element, TableAnnotationAttributes> targets = new LinkedHashMap<>();
+		Map<TypeElement, TableAnnotationAttributes> targets = new LinkedHashMap<>();
 		TypeElement tableType = env.getElementUtils().getTypeElement(Table.class.getCanonicalName());
 		ElementScanner8<Void, Void> scanner = new ElementScanner8<Void, Void>() {
 			@Override
@@ -62,7 +62,7 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 							AptAnnotationAttributes annotationAttributes = AptAnnotations.getMergedAnnotation(env, element, tableType);
 							if (annotationAttributes != null) {
 								TableAnnotationAttributes table = new TableAnnotationAttributes(annotationAttributes);
-								targets.put(element, table);
+								targets.put((TypeElement) element, table);
 							}
 						}
 					}
@@ -75,8 +75,7 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 		}
 
 		targets.forEach((key, table) -> {
-			TypeElement element = (TypeElement) key;
-			JdbcBeanInfo beanInfo = new JdbcBeanInfo(this.env, element, table);
+			JdbcBeanInfo beanInfo = new JdbcBeanInfo(this.env, key, table);
 			generateMetaClass(beanInfo);
 			generateSqlClass(beanInfo);
 		});
@@ -84,7 +83,7 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 
 	private void processDeeply(RoundEnvironment roundEnv) {
 		Set<? extends Element> rootElements = roundEnv.getRootElements();
-		Map<Element, Table> targets = new LinkedHashMap<>();
+		Map<TypeElement, Table> targets = new LinkedHashMap<>();
 		ElementScanner8<Void, Void> scanner = new ElementScanner8<Void, Void>() {
 			@Override
 			public Void scan(Element element, Void p) {
@@ -92,7 +91,7 @@ public class JdbcAnnotationProcessor extends BaseProcessor {
 					if (element.getKind() == ElementKind.CLASS) {
 						Table table = AnnotationProcessorUtils.getAnnotation(env.getElementUtils(), element, Table.class);
 						if (table != null) {
-							targets.put(element, table);
+							targets.put((TypeElement) element, table);
 						}
 					}
 				}

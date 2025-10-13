@@ -146,10 +146,17 @@ public class AccessBeanInfo {
 
 			// super class
 			TypeMirror typeMirror = element.getSuperclass();
-			if (typeMirror instanceof NoType) {
+			/* if (typeMirror instanceof NoType) {
+				break;
+			} */
+			if (!(typeMirror instanceof DeclaredType)) {
 				break;
 			}
-			element = (TypeElement) ((DeclaredType) typeMirror).asElement();
+			Element e = ((DeclaredType) typeMirror).asElement();
+			if (!(e instanceof TypeElement)) {
+				break;
+			}
+			element = (TypeElement) e;
 		}
 	}
 

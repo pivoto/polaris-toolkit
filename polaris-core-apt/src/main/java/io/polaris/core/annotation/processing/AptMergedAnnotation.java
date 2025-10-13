@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nullable;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
@@ -41,6 +42,7 @@ public class AptMergedAnnotation {
 	private final int level;
 	/** 注解类型 */
 	@Getter
+	@Nullable
 	private final TypeElement annotationType;
 	/** 注解实例 */
 	private final AnnotationMirror annotation;
@@ -68,8 +70,7 @@ public class AptMergedAnnotation {
 		return new AptMergedAnnotation(env, level, annotationType, annotation, aliasSource, aliasSourceMembers);
 	}
 
-	private AptMergedAnnotation(ProcessingEnvironment env, int level, TypeElement annotationType, AnnotationMirror annotation, AptMergedAnnotation aliasSourceAnnotation, Map<String, String> aliasSourceMembers) {
-
+	private AptMergedAnnotation(ProcessingEnvironment env, int level, @Nullable TypeElement annotationType, AnnotationMirror annotation, AptMergedAnnotation aliasSourceAnnotation, Map<String, String> aliasSourceMembers) {
 		this.env = env;
 		this.level = level;
 		this.annotationType = annotationType;
@@ -77,15 +78,18 @@ public class AptMergedAnnotation {
 		this.aliasSourceAnnotation = aliasSourceAnnotation;
 		this.aliasSourceMembers = aliasSourceMembers;
 		this.repeatedAnnotationType = AptAnnotations.getRepeatedAnnotationType(annotationType);
-		if (this.repeatedAnnotationType != null && annotation != null) {
-
+		if (annotationType != null && this.repeatedAnnotationType != null && annotation != null) {
 			List<? extends AnnotationValue> arrayValues = null;
 			try {
-				ExecutableElement method = (ExecutableElement) annotationType.getEnclosedElements().get(0);
-				AnnotationValue annotationValue = annotation.getElementValues().get(method);
-				Object valueObject = annotationValue.getValue();
-				if (valueObject instanceof List) {
-					arrayValues = (List<? extends AnnotationValue>) valueObject;
+				Element element = annotationType.getEnclosedElements().get(0);
+				if (element instanceof ExecutableElement) {
+					ExecutableElement method = (ExecutableElement) element;
+					AnnotationValue annotationValue = annotation.getElementValues().get(method);
+					Object valueObject = annotationValue.getValue();
+					if (valueObject instanceof List) {
+						//noinspection unchecked
+						arrayValues = (List<? extends AnnotationValue>) valueObject;
+					}
 				}
 			} catch (Throwable ignore) {
 			}
@@ -106,7 +110,11 @@ public class AptMergedAnnotation {
 		}
 	}
 
+	@Nullable
 	public AptMatchedMergedAnnotation getMatchedAnnotation(TypeElement annotationType) {
+		if (annotationType == null || this.annotationType == null) {
+			return null;
+		}
 		AptMergedAnnotation matchedAnnotation = null;
 		List<AptMergedAnnotation> aliasAnnotations = new ArrayList<>();
 
@@ -151,7 +159,11 @@ public class AptMergedAnnotation {
 		return AptMatchedMergedAnnotation.of(env, annotationType, matchedAnnotation, aliasAnnotations);
 	}
 
+	@Nullable
 	public Set<AptMatchedMergedAnnotation> getMatchedRepeatableAnnotation(TypeElement annotationType) {
+		if (annotationType == null || this.annotationType == null) {
+			return null;
+		}
 
 		Set<AptMatchedMergedAnnotation> matchedSet = newMatchedSet(annotationType);
 
@@ -177,7 +189,12 @@ public class AptMergedAnnotation {
 		return matchedSet;
 	}
 
+	@Nullable
 	public Set<AptMatchedMergedAnnotation> getTopMatchedRepeatableAnnotation(TypeElement annotationType) {
+		if (annotationType == null || this.annotationType == null) {
+			return null;
+		}
+
 		Set<AptMatchedMergedAnnotation> matchedSet = newMatchedSet(annotationType);
 
 		List<Set<AptMergedAnnotation>> hierarchyAnnotations = this.getHierarchyAnnotations();
@@ -210,17 +227,19 @@ public class AptMergedAnnotation {
 
 	private Set<AptMatchedMergedAnnotation> newMatchedSet(TypeElement annotationType) {
 		Set<AptMatchedMergedAnnotation> matchedSet = new LinkedHashSet<>();
-		if (this.isRepeatable()) {
-			for (AptMergedAnnotation repeatedAnnotation : this.repeatedAnnotations) {
-				AptMatchedMergedAnnotation matchedAnnotation = repeatedAnnotation.getMatchedAnnotation(annotationType);
-				if (matchedAnnotation != null) {
-					matchedSet.add(matchedAnnotation);
+		if(annotationType != null && this.annotationType != null) {
+			if (this.isRepeatable()) {
+				for (AptMergedAnnotation repeatedAnnotation : this.repeatedAnnotations) {
+					AptMatchedMergedAnnotation matchedAnnotation = repeatedAnnotation.getMatchedAnnotation(annotationType);
+					if (matchedAnnotation != null) {
+						matchedSet.add(matchedAnnotation);
+					}
 				}
-			}
-		} else {
-			// 可重复注解与元注解必然不相同
-			if (this.annotationType == annotationType) {
-				matchedSet.add(AptMatchedMergedAnnotation.of(env, annotationType, this));
+			} else {
+				// 可重复注解与元注解必然不相同
+				if (this.annotationType == annotationType) {
+					matchedSet.add(AptMatchedMergedAnnotation.of(env, annotationType, this));
+				}
 			}
 		}
 		return matchedSet;
@@ -308,6 +327,9 @@ public class AptMergedAnnotation {
 		Collection<AptMergedAnnotation> candidates = new LinkedHashSet<>();
 		for (AptMergedAnnotation mergedAnnotation : lastCandidates) {
 			TypeElement annotationType = mergedAnnotation.getAnnotationType();
+			if (annotationType == null) {
+				continue;
+			}
 			String packageName = env.getElementUtils().getPackageOf(annotationType).getQualifiedName().toString();
 			if (packageName.equals("java.lang.annotation")) {
 				continue;
@@ -326,32 +348,39 @@ public class AptMergedAnnotation {
 				TypeMirror defaultAnnotationType = env.getElementUtils().getTypeElement(Annotation.class.getCanonicalName()).asType();
 				for (ExecutableElement method : annotationMembers) {
 					List<? extends AnnotationMirror> annotationMirrors = method.getAnnotationMirrors();
-					if (annotationMirrors!=null) {
+					if (annotationMirrors != null) {
 						for (AnnotationMirror annotationMirror : annotationMirrors) {
-							TypeElement element = (TypeElement) annotationMirror.getAnnotationType().asElement();
+							Element e = annotationMirror.getAnnotationType().asElement();
+							if (!(e instanceof TypeElement)) {
+								continue;
+							}
+							TypeElement element = (TypeElement) e;
 							if (element.getQualifiedName().toString().equals(Alias.class.getCanonicalName())) {
 								Map<? extends ExecutableElement, ? extends AnnotationValue> elementValues = annotationMirror.getElementValues();
 								String value = null;
 								DeclaredType annotation = null;
 								for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : elementValues.entrySet()) {
 									ExecutableElement key = entry.getKey();
-									if (key.getSimpleName().toString().equals("annotation")){
+									if (key.getSimpleName().toString().equals("annotation")) {
 										Object v = entry.getValue().getValue();
 										if (v instanceof DeclaredType) {
 											annotation = (DeclaredType) v;
 										}
-									}else if (key.getSimpleName().toString().equals("value")){
+									} else if (key.getSimpleName().toString().equals("value")) {
 										Object v = entry.getValue().getValue();
 										if (v instanceof String) {
 											value = (String) v;
 										}
 									}
 								}
-								if (annotation != null && value != null){
-									if (!AptAnnotations.equals(env,annotation, annotationType.asType())
-									&& !AptAnnotations.equals(env,annotation, defaultAnnotationType)) {
-										Map<String, String> aliasMethods = aliasMap.computeIfAbsent((TypeElement)annotation.asElement(), k -> new LinkedHashMap<>());
-										aliasMethods.putIfAbsent(value, method.getSimpleName().toString());
+								if (annotation != null && value != null) {
+									if (!AptAnnotations.equals(env, annotation, annotationType.asType())
+										&& !AptAnnotations.equals(env, annotation, defaultAnnotationType)) {
+										Element annotationElement = annotation.asElement();
+										if (annotationElement instanceof TypeElement) {
+											Map<String, String> aliasMethods = aliasMap.computeIfAbsent((TypeElement) annotationElement, k -> new LinkedHashMap<>());
+											aliasMethods.putIfAbsent(value, method.getSimpleName().toString());
+										}
 									}
 								}
 							}

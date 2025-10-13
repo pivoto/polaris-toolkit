@@ -48,7 +48,7 @@ public class AccessProcessor extends BaseProcessor {
 
 	private void processDeeply(RoundEnvironment roundEnv) {
 		Set<? extends Element> rootElements = roundEnv.getRootElements();
-		Map<Element, Access> targets = new LinkedHashMap<>();
+		Map<TypeElement, Access> targets = new LinkedHashMap<>();
 		ElementScanner8<Void, Void> scanner = new ElementScanner8<Void, Void>() {
 			@Override
 			public Void scan(Element element, Void p) {
@@ -56,7 +56,7 @@ public class AccessProcessor extends BaseProcessor {
 					if (element.getKind() == ElementKind.CLASS) {
 						Access access = AnnotationProcessorUtils.getAnnotation(env.getElementUtils(), element, Access.class);
 						if (access != null) {
-							targets.put(element, access);
+							targets.put((TypeElement) element, access);
 						}
 					}
 				}
@@ -68,8 +68,7 @@ public class AccessProcessor extends BaseProcessor {
 		}
 
 		targets.forEach((key, access) -> {
-			TypeElement element = (TypeElement) key;
-			AccessBeanInfo beanInfo = new AccessBeanInfo((TypeElement) element, access);
+			AccessBeanInfo beanInfo = new AccessBeanInfo(key, access);
 			if (beanInfo.isAccessFluent()) {
 				generateFluentClass(beanInfo);
 			}

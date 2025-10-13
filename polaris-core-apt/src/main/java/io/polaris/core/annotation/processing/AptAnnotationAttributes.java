@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiPredicate;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
@@ -60,54 +62,67 @@ public class AptAnnotationAttributes implements Cloneable {
 		}
 	}
 
-	private AptAnnotationAttributes(ProcessingEnvironment env, AnnotationMirror annotation) {
+	private AptAnnotationAttributes(@Nonnull ProcessingEnvironment env, @Nonnull AnnotationMirror annotation) {
 		this.env = env;
-		this.annotationType = (TypeElement) annotation.getAnnotationType().asElement();
-		ExecutableElement[] methods = getAnnotationMembers(annotationType);
-		Map<String, String> aliasMembers = getAliasMembers(methods);
-		Map<String, Member> memberValues = new LinkedHashMap<>();
-		Map<? extends ExecutableElement, ? extends AnnotationValue> annotationValues = annotation.getElementValues();
-		for (ExecutableElement method : methods) {
-			AnnotationValue value = annotationValues.get(method);
-			String name = method.getSimpleName().toString();
-			AnnotationValue defaultValue = method.getDefaultValue();
-			memberValues.put(name, new Member(env, method, value, defaultValue));
-		}
-		aliasMembers.forEach((k, v) -> {
-			Member member = memberValues.get(k);
-			Member aliasMember = memberValues.get(v);
-			if (member != null && aliasMember != null) {
-				if (!member.isDefault()) {
-					aliasMember.setValue(member.getValue());
-				}
+		Element element = annotation.getAnnotationType().asElement();
+		if (!(element instanceof TypeElement)) {
+			this.annotationType = null;
+			this.members = Collections.emptyMap();
+			this.aliasMembers = Collections.emptyMap();
+		} else {
+			this.annotationType = (TypeElement) element;
+			ExecutableElement[] methods = getAnnotationMembers(annotationType);
+			Map<String, String> aliasMembers = getAliasMembers(methods);
+			Map<String, Member> memberValues = new LinkedHashMap<>();
+			Map<? extends ExecutableElement, ? extends AnnotationValue> annotationValues = annotation.getElementValues();
+			for (ExecutableElement method : methods) {
+				AnnotationValue value = annotationValues.get(method);
+				String name = method.getSimpleName().toString();
+				AnnotationValue defaultValue = method.getDefaultValue();
+				memberValues.put(name, new Member(env, method, value, defaultValue));
 			}
-		});
-		this.members = Collections.unmodifiableMap(memberValues);
-		this.aliasMembers = Collections.unmodifiableMap(aliasMembers);
+			aliasMembers.forEach((k, v) -> {
+				Member member = memberValues.get(k);
+				Member aliasMember = memberValues.get(v);
+				if (member != null && aliasMember != null) {
+					if (!member.isDefault()) {
+						aliasMember.setValue(member.getValue());
+					}
+				}
+			});
+			this.members = Collections.unmodifiableMap(memberValues);
+			this.aliasMembers = Collections.unmodifiableMap(aliasMembers);
+		}
 	}
 
-	private AptAnnotationAttributes(ProcessingEnvironment env, TypeElement annotationType) {
+	private AptAnnotationAttributes(@Nonnull ProcessingEnvironment env, @Nullable TypeElement annotationType) {
 		this.env = env;
-		this.annotationType = annotationType;
-		ExecutableElement[] methods = getAnnotationMembers(annotationType);
-		Map<String, String> aliasMembers = getAliasMembers(methods);
-		Map<String, Member> members = new LinkedHashMap<>();
-		for (ExecutableElement method : methods) {
-			String name = method.getSimpleName().toString();
-			AnnotationValue defaultValue = method.getDefaultValue();
-			members.put(name, new Member(env, method, defaultValue, defaultValue));
-		}
-		aliasMembers.forEach((k, v) -> {
-			Member member = members.get(k);
-			Member aliasMember = members.get(v);
-			if (member != null && aliasMember != null) {
-				if (!member.isDefault()) {
-					aliasMember.setValue(member.getValue());
-				}
+		if (annotationType == null) {
+			this.annotationType = null;
+			this.members = Collections.emptyMap();
+			this.aliasMembers = Collections.emptyMap();
+		} else {
+			this.annotationType = annotationType;
+			ExecutableElement[] methods = getAnnotationMembers(annotationType);
+			Map<String, String> aliasMembers = getAliasMembers(methods);
+			Map<String, Member> members = new LinkedHashMap<>();
+			for (ExecutableElement method : methods) {
+				String name = method.getSimpleName().toString();
+				AnnotationValue defaultValue = method.getDefaultValue();
+				members.put(name, new Member(env, method, defaultValue, defaultValue));
 			}
-		});
-		this.members = Collections.unmodifiableMap(members);
-		this.aliasMembers = Collections.unmodifiableMap(aliasMembers);
+			aliasMembers.forEach((k, v) -> {
+				Member member = members.get(k);
+				Member aliasMember = members.get(v);
+				if (member != null && aliasMember != null) {
+					if (!member.isDefault()) {
+						aliasMember.setValue(member.getValue());
+					}
+				}
+			});
+			this.members = Collections.unmodifiableMap(members);
+			this.aliasMembers = Collections.unmodifiableMap(aliasMembers);
+		}
 	}
 
 	private Map<String, String> getAliasMembers(ExecutableElement[] methods) {
@@ -157,16 +172,16 @@ public class AptAnnotationAttributes implements Cloneable {
 		return aliasMembers;
 	}
 
-	public static <A extends Annotation> AptAnnotationAttributes of(ProcessingEnvironment env, AnnotationMirror annotation) {
+	public static <A extends Annotation> AptAnnotationAttributes of(@Nonnull ProcessingEnvironment env, @Nonnull AnnotationMirror annotation) {
 		return new AptAnnotationAttributes(env, annotation);
 	}
 
 
-	public static <A extends Annotation> AptAnnotationAttributes of(ProcessingEnvironment env, TypeElement annotationType) {
+	public static <A extends Annotation> AptAnnotationAttributes of(@Nonnull ProcessingEnvironment env, @Nullable TypeElement annotationType) {
 		return new AptAnnotationAttributes(env, annotationType);
 	}
 
-	public static <A extends Annotation> ExecutableElement[] getAnnotationMembers(TypeElement annotationType) {
+	public static <A extends Annotation> ExecutableElement[] getAnnotationMembers(@Nonnull TypeElement annotationType) {
 		List<ExecutableElement> list = new ArrayList<>();
 		List<? extends Element> methods = annotationType.getEnclosedElements();
 		for (Element o : methods) {

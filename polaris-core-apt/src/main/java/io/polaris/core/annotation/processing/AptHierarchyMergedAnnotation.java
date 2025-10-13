@@ -287,14 +287,20 @@ public class AptHierarchyMergedAnnotation {
 				List<? extends TypeMirror> interfaces0 = superclass.getInterfaces();
 				for (TypeMirror o : interfaces0) {
 					if (o instanceof DeclaredType) {
-						TypeElement anInterface = (TypeElement) ((DeclaredType) o).asElement();
-						candidates.add(anInterface);
-						visitedClass.add(anInterface);
+						Element element = ((DeclaredType) o).asElement();
+						if (element instanceof TypeElement) {
+							TypeElement anInterface = (TypeElement) element;
+							candidates.add(anInterface);
+							visitedClass.add(anInterface);
+						}
 					}
 				}
 				TypeMirror typeMirror = superclass.getSuperclass();
 				if (typeMirror instanceof DeclaredType) {
-					superclass = (TypeElement) ((DeclaredType) typeMirror).asElement();
+					Element element = ((DeclaredType) typeMirror).asElement();
+					if (element instanceof TypeElement) {
+						superclass = (TypeElement) element;
+					}
 				} else {
 					superclass = null;
 				}
@@ -304,7 +310,11 @@ public class AptHierarchyMergedAnnotation {
 			if (superclass != null && !env.getTypeUtils().isSameType(objectType, superclass.asType())) {
 				for (TypeMirror o : superclass.getInterfaces()) {
 					if (o instanceof DeclaredType) {
-						TypeElement anInterface = (TypeElement) ((DeclaredType) o).asElement();
+						Element element = ((DeclaredType) o).asElement();
+						if (!(element instanceof TypeElement)) {
+							continue;
+						}
+						TypeElement anInterface = (TypeElement) element;
 						if (visitedClass.contains(anInterface)) {
 							continue;
 						}
@@ -314,7 +324,12 @@ public class AptHierarchyMergedAnnotation {
 				}
 				TypeMirror typeMirror = superclass.getSuperclass();
 				if (typeMirror instanceof DeclaredType) {
-					superclass = (TypeElement) ((DeclaredType) typeMirror).asElement();
+					Element element = ((DeclaredType) typeMirror).asElement();
+					if (!(element instanceof TypeElement)) {
+						superclass = null;
+					}else {
+						superclass = (TypeElement) element;
+					}
 				} else {
 					superclass = null;
 				}
@@ -322,7 +337,11 @@ public class AptHierarchyMergedAnnotation {
 			for (TypeElement anInterface : interfaces) {
 				for (TypeMirror o1 : anInterface.getInterfaces()) {
 					if (o1 instanceof DeclaredType) {
-						TypeElement anInterfaceInterface = (TypeElement) ((DeclaredType) o1).asElement();
+						Element element = ((DeclaredType) o1).asElement();
+						if (!(element instanceof TypeElement)) {
+							continue;
+						}
+						TypeElement anInterfaceInterface = (TypeElement) element;
 						if (visitedClass.contains(anInterfaceInterface)) {
 							continue;
 						}

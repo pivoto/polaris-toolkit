@@ -151,7 +151,11 @@ public class JdbcBeanInfo {
 			if (typeMirror instanceof NoType) {
 				break;
 			}
-			element = (TypeElement) ((DeclaredType) typeMirror).asElement();
+			Element typeElement = ((DeclaredType) typeMirror).asElement();
+			if (!(typeElement instanceof TypeElement)) {
+				break;
+			}
+			element = (TypeElement) typeElement;
 		}
 	}
 
