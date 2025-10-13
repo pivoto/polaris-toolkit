@@ -347,51 +347,23 @@ public class AptMergedAnnotation {
 
 				TypeMirror defaultAnnotationType = env.getElementUtils().getTypeElement(Annotation.class.getCanonicalName()).asType();
 				for (ExecutableElement method : annotationMembers) {
-					List<? extends AnnotationMirror> annotationMirrors = method.getAnnotationMirrors();
-					if (annotationMirrors != null) {
-						for (AnnotationMirror annotationMirror : annotationMirrors) {
-							Element e = annotationMirror.getAnnotationType().asElement();
-							if (!(e instanceof TypeElement)) {
-								continue;
-							}
-							TypeElement element = (TypeElement) e;
-							if (element.getQualifiedName().toString().equals(Alias.class.getCanonicalName())) {
-								Map<? extends ExecutableElement, ? extends AnnotationValue> elementValues = annotationMirror.getElementValues();
-								String value = null;
-								DeclaredType annotation = null;
-								for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : elementValues.entrySet()) {
-									ExecutableElement key = entry.getKey();
-									if (key.getSimpleName().toString().equals("annotation")) {
-										Object v = entry.getValue().getValue();
-										if (v instanceof DeclaredType) {
-											annotation = (DeclaredType) v;
-										}
-									} else if (key.getSimpleName().toString().equals("value")) {
-										Object v = entry.getValue().getValue();
-										if (v instanceof String) {
-											value = (String) v;
-										}
-									}
-								}
-								if (annotation != null && value != null) {
-									if (!AptAnnotations.equals(env, annotation, annotationType.asType())
-										&& !AptAnnotations.equals(env, annotation, defaultAnnotationType)) {
-										Element annotationElement = annotation.asElement();
-										if (annotationElement instanceof TypeElement) {
-											Map<String, String> aliasMethods = aliasMap.computeIfAbsent((TypeElement) annotationElement, k -> new LinkedHashMap<>());
-											aliasMethods.putIfAbsent(value, method.getSimpleName().toString());
-										}
+					Set<AptAliasAttribute> aliasAttributes = AptAnnotations.findAliasAttributes(env, method);
+					if (!aliasAttributes.isEmpty()) {
+						for (AptAliasAttribute aliasAttribute : aliasAttributes) {
+							String value = aliasAttribute.value();
+							DeclaredType annotation = aliasAttribute.annotation();
+							if (annotation != null && value != null) {
+								if (!AptAnnotations.equals(env, annotation, annotationType.asType())
+									&& !AptAnnotations.equals(env, annotation, defaultAnnotationType)) {
+									Element annotationElement = annotation.asElement();
+									if (annotationElement instanceof TypeElement) {
+										Map<String, String> aliasMethods = aliasMap.computeIfAbsent((TypeElement) annotationElement, k -> new LinkedHashMap<>());
+										aliasMethods.putIfAbsent(value, method.getSimpleName().toString());
 									}
 								}
 							}
 						}
 					}
-
-					/* Alias alias = method.getAnnotation(Alias.class);
-					if (alias != null && !alias.annotation().getCanonicalName().equals(annotationType.getQualifiedName().toString()) && alias.annotation() != Annotation.class) {
-						Map<String, String> aliasMethods = aliasMap.computeIfAbsent(env.getElementUtils().getTypeElement(alias.annotation().getCanonicalName()), k -> new LinkedHashMap<>());
-						aliasMethods.putIfAbsent(alias.value(), method.getSimpleName().toString());
-					} */
 				}
 			}
 			List<? extends AnnotationMirror> annotationMirrors = annotationType.getAnnotationMirrors();

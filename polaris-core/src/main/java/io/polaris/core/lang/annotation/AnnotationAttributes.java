@@ -114,15 +114,6 @@ public class AnnotationAttributes implements Cloneable {
 		}
 	}
 
-//	private static <T> T invokeQuietly(Object obj, Method method, Object... args) {
-//		try {
-//			method.setAccessible(true);
-//			return (T)method.invoke(Modifier.isStatic(method.getModifiers()) ? null : obj, args);
-//		} catch (ReflectiveOperationException ignore) {
-//			return null;
-//		}
-//	}
-
 
 	public static <A extends Annotation> AnnotationAttributes of(A annotation) {
 		return new AnnotationAttributes(annotation);

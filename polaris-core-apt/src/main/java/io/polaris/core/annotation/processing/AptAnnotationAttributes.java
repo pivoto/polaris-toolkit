@@ -17,6 +17,7 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
@@ -129,45 +130,21 @@ public class AptAnnotationAttributes implements Cloneable {
 		Map<String, String> aliasMembers = new HashMap<>();
 		TypeMirror defaultAnnotationType = env.getElementUtils().getTypeElement(Annotation.class.getCanonicalName()).asType();
 		for (ExecutableElement method : methods) {
-			List<? extends AnnotationMirror> annotationMirrors = method.getAnnotationMirrors();
-			if (annotationMirrors != null) {
-				for (AnnotationMirror annotationMirror : annotationMirrors) {
-					TypeElement element = (TypeElement) annotationMirror.getAnnotationType().asElement();
-					if (element.getQualifiedName().toString().equals(Alias.class.getCanonicalName())) {
-						Map<? extends ExecutableElement, ? extends AnnotationValue> elementValues = annotationMirror.getElementValues();
-						String value = null;
-						DeclaredType annotation = null;
-						for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : elementValues.entrySet()) {
-							ExecutableElement key = entry.getKey();
-							if (key.getSimpleName().toString().equals("annotation")) {
-								Object v = entry.getValue().getValue();
-								if (v instanceof DeclaredType) {
-									annotation = (DeclaredType) v;
-								}
-							} else if (key.getSimpleName().toString().equals("value")) {
-								Object v = entry.getValue().getValue();
-								if (v instanceof String) {
-									value = (String) v;
-								}
-							}
-						}
-						if (annotation != null && value != null) {
-							if (AptAnnotations.equals(env, annotation, annotationType.asType())
-								|| AptAnnotations.equals(env, annotation, defaultAnnotationType)) {
-								String aliasName = value;
-								String name = method.getSimpleName().toString();
-								aliasMembers.putIfAbsent(name, aliasName);
-							}
+			Set<AptAliasAttribute> aliasAttributes = AptAnnotations.findAliasAttributes(env, method);
+			if (!aliasAttributes.isEmpty()) {
+				for (AptAliasAttribute aliasAttribute : aliasAttributes) {
+					String value = aliasAttribute.value();
+					DeclaredType annotation = aliasAttribute.annotation();
+					if (annotation != null && value != null) {
+						if (AptAnnotations.equals(env, annotation, annotationType.asType())
+							|| AptAnnotations.equals(env, annotation, defaultAnnotationType)) {
+							String aliasName = value;
+							String name = method.getSimpleName().toString();
+							aliasMembers.putIfAbsent(name, aliasName);
 						}
 					}
 				}
 			}
-			/* Alias alias = method.getAnnotation(Alias.class);
-			if (alias != null && (alias.annotation().getCanonicalName().equals(this.annotationType.getQualifiedName().toString()) || alias.annotation() == Annotation.class)) {
-				String aliasName = alias.value();
-				String name = method.getSimpleName().toString();
-				aliasMembers.putIfAbsent(name, aliasName);
-			} */
 		}
 		return aliasMembers;
 	}
@@ -187,7 +164,8 @@ public class AptAnnotationAttributes implements Cloneable {
 		for (Element o : methods) {
 			if (o instanceof ExecutableElement) {
 				ExecutableElement method = (ExecutableElement) o;
-				if (method.getParameters().size() == 0 && method.getReturnType().getKind() != TypeKind.VOID) {
+				if (method.getParameters().size() == 0 && method.getReturnType().getKind() != TypeKind.VOID
+					&& !method.getModifiers().contains(Modifier.STATIC)) {
 					list.add(method);
 				}
 			}

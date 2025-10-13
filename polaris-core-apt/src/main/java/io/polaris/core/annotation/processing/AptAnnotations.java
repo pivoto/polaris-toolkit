@@ -1,6 +1,9 @@
 package io.polaris.core.annotation.processing;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.Repeatable;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +21,8 @@ import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+
+import io.polaris.core.lang.annotation.Alias;
 
 /**
  * @author Qt
@@ -421,4 +426,65 @@ public class AptAnnotations {
 		return true;
 	}
 
+
+	public static Set<AptAliasAttribute> findAliasAttributes(ProcessingEnvironment env, ExecutableElement element) {
+		Set<Class<? extends Annotation>> visited = new HashSet<>();
+		Set<AptAliasAttribute> attributes = new LinkedHashSet<>();
+		List<? extends AnnotationMirror> annotationMirrors = element.getAnnotationMirrors();
+		scanHierarchyAnnotation(env, attributes, annotationMirrors, visited);
+		return attributes;
+	}
+
+	private static Set<AptAliasAttribute> scanHierarchyAnnotation(ProcessingEnvironment env, Set<AptAliasAttribute> attributes, List<? extends AnnotationMirror> annotationMirrors, Set<Class<? extends Annotation>> visited) {
+		if (annotationMirrors != null && !annotationMirrors.isEmpty()) {
+			TypeMirror stringType = env.getElementUtils().getTypeElement(String.class.getCanonicalName()).asType();
+			TypeMirror classType = env.getElementUtils().getTypeElement(Class.class.getCanonicalName()).asType();
+			for (AnnotationMirror annotationMirror : annotationMirrors) {
+				Element e = annotationMirror.getAnnotationType().asElement();
+				if (!(e instanceof TypeElement)) {
+					continue;
+				}
+				TypeElement element = (TypeElement) e;
+				String simpleName = element.getSimpleName().toString();
+				String fullName = element.getQualifiedName().toString();
+				// 尽可能找具备Alias语义的注解
+				if (fullName.equals(Alias.class.getCanonicalName()) || simpleName.equals("Alias") || simpleName.equals("AliasFor")) {
+					Map<? extends ExecutableElement, ? extends AnnotationValue> elementValues = annotationMirror.getElementValues();
+					String value = null;
+					DeclaredType annotation = null;
+					for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : elementValues.entrySet()) {
+						ExecutableElement key = entry.getKey();
+						String name = key.getSimpleName().toString();
+						Object annotationValue = entry.getValue() == null ? null : entry.getValue().getValue();
+						if (annotationValue instanceof DeclaredType
+							&& (name.equals("annotation") || name.equals("annotationType") || name.equals("type"))
+						) {
+							if (annotation == null) {
+								annotation = (DeclaredType) annotationValue;
+							}
+						} else if (
+							annotationValue instanceof String
+								&& (name.equals("value") || name.equals("attribute") || name.equals("name"))
+						) {
+							if (value == null) {
+								value = (String) annotationValue;
+							}
+						}
+						if (annotation != null && value != null) {
+							break;
+						}
+					}
+					if (annotation != null && value != null) {
+						attributes.add(new AptAliasAttribute(value, annotation));
+					}
+				}
+
+				// 扫描继承的注解
+				if (!fullName.startsWith("java.lang.annotation.")) {
+					scanHierarchyAnnotation(env, attributes, element.getAnnotationMirrors(), visited);
+				}
+			}
+		}
+		return attributes;
+	}
 }
