@@ -1,9 +1,7 @@
 package io.polaris.core.reflect;
 
 import java.lang.invoke.MethodHandle;
-import java.util.Arrays;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -12,8 +10,8 @@ import javax.annotation.concurrent.ThreadSafe;
  * @author Qt
  * @since Sep 09, 2025
  */
-@SuppressWarnings("unchecked")
 @ThreadSafe
+@SuppressWarnings("unchecked")
 public class ClassHandle<T> {
 	private final Class<T> clazz;
 	private MethodHandle defaultConstructor;
@@ -98,6 +96,9 @@ public class ClassHandle<T> {
 
 
 	private Object[] asInvokeArguments(T instance, Object[] params) {
+		if (params.length == 0) {
+			return new Object[]{instance};
+		}
 		Object[] args = new Object[params.length + 1];
 		args[0] = instance;
 		System.arraycopy(params, 0, args, 1, params.length);
@@ -499,71 +500,4 @@ public class ClassHandle<T> {
 	}
 
 
-	private static class ConstructorKey {
-		private final Class<?>[] parameterTypes;
-
-		private ConstructorKey(Class<?>[] parameterTypes) {
-			this.parameterTypes = parameterTypes;
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (!(o instanceof ClassHandle.ConstructorKey)) return false;
-			ConstructorKey that = (ConstructorKey) o;
-			return Objects.deepEquals(parameterTypes, that.parameterTypes);
-		}
-
-		@Override
-		public int hashCode() {
-			return Arrays.hashCode(parameterTypes);
-		}
-	}
-
-	private static class MethodKey {
-		private final String methodName;
-		private final Class<?> returnTypes;
-		private final Class<?>[] parameterTypes;
-
-		public MethodKey(String methodName, Class<?> returnTypes, Class<?>[] parameterTypes) {
-			this.methodName = methodName;
-			this.returnTypes = returnTypes;
-			this.parameterTypes = parameterTypes;
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (!(o instanceof MethodKey)) return false;
-			MethodKey methodKey = (MethodKey) o;
-			return Objects.equals(methodName, methodKey.methodName)
-				&& Objects.equals(returnTypes, methodKey.returnTypes)
-				&& Objects.deepEquals(parameterTypes, methodKey.parameterTypes);
-		}
-
-		@Override
-		public int hashCode() {
-			return Objects.hash(methodName, returnTypes, Arrays.hashCode(parameterTypes));
-		}
-	}
-
-	private static class FieldKey {
-		private final String fieldName;
-		private final Class<?> fieldType;
-
-		private FieldKey(String fieldName, Class<?> fieldType) {
-			this.fieldName = fieldName;
-			this.fieldType = fieldType;
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (!(o instanceof FieldKey)) return false;
-			FieldKey fieldKey = (FieldKey) o;
-			return Objects.equals(fieldName, fieldKey.fieldName) && Objects.equals(fieldType, fieldKey.fieldType);
-		}
-
-		@Override
-		public int hashCode() {
-			return Objects.hash(fieldName, fieldType);
-		}
-	}
 }
