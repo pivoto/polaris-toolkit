@@ -1,5 +1,9 @@
 ## 版本变更说明
 
+### 3.5.7
+- 重构 Maps 工具类的 asMap 方法
+- 添加 CopyFunction 函数式接口
+
 ### 3.5.6
 - 强化注解处理工具对别名注解的处理逻辑
 - 优化ReferenceMap相关类，实现完整的entrySet方法
