@@ -1427,7 +1427,7 @@ public class Strings {
 	}
 
 	public static Map<String, String> asMap(String... args) {
-		return Maps.asMap(HashMap::new, args);
+		return Maps.asMap((Supplier<Map<String, String>>)HashMap::new, args);
 	}
 
 

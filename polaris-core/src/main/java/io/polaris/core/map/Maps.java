@@ -194,30 +194,40 @@ public class Maps {
 	}
 
 
-	public static <T extends Map<String, String>> T asMap(Supplier<T> supplier, String... args) {
-		T map = supplier.get();
+	public static Map<String, String> asMap(Map<String, String> map, String... args) {
 		for (int i = 0; i + 1 < args.length; i += 2) {
 			map.put(args[i], args[i + 1]);
 		}
 		return map;
 	}
 
+	public static <T extends Map<String, String>> T asMap(Supplier<T> supplier, String... args) {
+		T map = supplier.get();
+		asMap(map, args);
+		return map;
+	}
+
 	public static Map<String, String> asMap(String... args) {
-		return asMap(HashMap::new, args);
+		return asMap((Supplier<Map<String, String>>) HashMap::new, args);
 	}
 
 
 	@SuppressWarnings("unchecked")
-	public static <T extends Map<K, V>, K, V> T asMap(Supplier<T> supplier, Object... args) {
-		T map = supplier.get();
+	public static <K, V> Map<K, V> asMap(Map<K, V> map, Object... args) {
 		for (int i = 0; i + 1 < args.length; i += 2) {
 			map.put((K) args[i], (V) args[i + 1]);
 		}
 		return map;
 	}
 
+	public static <T extends Map<K, V>, K, V> T asMap(Supplier<T> supplier, Object... args) {
+		T map = supplier.get();
+		asMap(map, args);
+		return map;
+	}
+
 	public static <K, V> Map<K, V> asMap(Object... args) {
-		return asMap(HashMap::new, args);
+		return asMap((Supplier<Map<K, V>>) HashMap::new, args);
 	}
 
 }
