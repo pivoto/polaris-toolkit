@@ -43,7 +43,7 @@ public class WrappingThreadPoolExecutor extends ThreadPoolExecutor {
 
 	@Override
 	public void execute(Runnable command) {
-		if (command != null && !(command instanceof WrappingTask) && wrappedTaskFactory != null) {
+		if (command != null && wrappedTaskFactory != null && !wrappedTaskFactory.isWrapping(command)) {
 			command = wrappedTaskFactory.wrap(command);
 		}
 		super.execute(command);
@@ -51,7 +51,7 @@ public class WrappingThreadPoolExecutor extends ThreadPoolExecutor {
 
 	@Override
 	protected <T> RunnableFuture<T> newTaskFor(Runnable runnable, T value) {
-		if (runnable != null && !(runnable instanceof WrappingTask) && wrappedTaskFactory != null) {
+		if (runnable != null && wrappedTaskFactory != null && !wrappedTaskFactory.isWrapping(runnable)) {
 			runnable = wrappedTaskFactory.wrap(runnable);
 		}
 		return new FutureTask<T>(runnable, value);
@@ -59,7 +59,7 @@ public class WrappingThreadPoolExecutor extends ThreadPoolExecutor {
 
 	@Override
 	protected <T> RunnableFuture<T> newTaskFor(Callable<T> callable) {
-		if (callable != null && !(callable instanceof WrappingTask) && wrappedTaskFactory != null) {
+		if (callable != null && wrappedTaskFactory != null && !wrappedTaskFactory.isWrapping(callable)) {
 			callable = wrappedTaskFactory.wrap(callable);
 		}
 		return new FutureTask<T>(callable);

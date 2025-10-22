@@ -16,13 +16,25 @@ public class DefaultWrappingTaskFactory implements WrappingTaskFactory {
 
 
 	@Override
-	public WrappingRunnable wrap(Runnable runnable) {
+	public Runnable wrap(Runnable runnable) {
 		return WrappingTasks.wrap(listener, interceptor, runnable);
 	}
 
 	@Override
-	public <V> WrappingCallable<V> wrap(Callable<V> callable) {
+	public <V> Callable<V> wrap(Callable<V> callable) {
 		return WrappingTasks.wrap(listener, interceptor, callable);
+	}
+
+	@Override
+	@SuppressWarnings("RedundantMethodOverride")
+	public boolean isWrapping(Runnable runnable) {
+		return runnable instanceof WrappingTask;
+	}
+
+	@Override
+	@SuppressWarnings("RedundantMethodOverride")
+	public <V> boolean isWrapping(Callable<V> callable) {
+		return callable instanceof WrappingTask;
 	}
 
 	public WrappingExecutionListener getListener() {

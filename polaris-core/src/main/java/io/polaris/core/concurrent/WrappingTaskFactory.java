@@ -8,8 +8,17 @@ import java.util.concurrent.Callable;
  */
 public interface WrappingTaskFactory {
 
-	WrappingRunnable wrap(Runnable runnable);
+	Runnable wrap(Runnable runnable);
 
-	<V> WrappingCallable<V> wrap(Callable<V> callable);
+	<V> Callable<V> wrap(Callable<V> callable);
+
+
+	default boolean isWrapping(Runnable runnable) {
+		return runnable instanceof WrappingTask;
+	}
+
+	default <V> boolean isWrapping(Callable<V> callable) {
+		return callable instanceof WrappingTask;
+	}
 
 }
