@@ -1057,14 +1057,25 @@ public class Reflects {
 				type = (Class<T>) ConcurrentHashMap.class;
 			} else if (type.isAssignableFrom(NavigableMap.class)) {
 				type = (Class<T>) TreeMap.class;
-			} else if (type.isAssignableFrom(List.class)) {
+			} else if (type.isAssignableFrom(AbstractCollection.class)) {
+				// 抽象集合默认使用ArrayList
 				type = (Class<T>) ArrayList.class;
 			} else if (type.isAssignableFrom(Set.class)) {
 				type = (Class<T>) HashSet.class;
+			} else if (type.isAssignableFrom(HashSet.class)) {
+				type = (Class<T>) HashSet.class;
+			} else if (type.isAssignableFrom(LinkedHashSet.class)) {
+				type = (Class<T>) LinkedHashSet.class;
 			} else if (type.isAssignableFrom(BlockingDeque.class)) {
 				type = (Class<T>) LinkedBlockingDeque.class;
 			} else if (type.isAssignableFrom(Deque.class)) {
 				type = (Class<T>) ArrayDeque.class;
+			} else if (type.isAssignableFrom(List.class)) {
+				type = (Class<T>) ArrayList.class;
+			} else if (type.isAssignableFrom(ArrayList.class)) {
+				type = (Class<T>) ArrayList.class;
+			} else if (type.isAssignableFrom(LinkedList.class)) {
+				type = (Class<T>) LinkedList.class;
 			} else {
 				// 不可实例化
 				return null;
