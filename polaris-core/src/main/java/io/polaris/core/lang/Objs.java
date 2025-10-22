@@ -2,10 +2,14 @@ package io.polaris.core.lang;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
@@ -118,12 +122,13 @@ public class Objs {
 
 
 	/**
-	 * @see #coalesceNull(Object[]) 
+	 * @see #coalesceNull(Object[])
 	 */
 	@SafeVarargs
 	public static <T> T coalesce(T... args) {
 		return coalesceNull(args);
 	}
+
 	/**
 	 * 返回参数列表中第一个非空的值。如果所有参数均为null或参数列表为空，则返回null。
 	 *
@@ -394,25 +399,92 @@ public class Objs {
 	}
 
 	/**
-	 * 克隆对象<br>
+	 * 深度克隆对象<br>
+	 * 如果对象实现Copyable接口，调用其copy方法<br>
+	 * 如果对象是集合或Map，遍历元素进行克隆<br>
 	 * 如果对象实现Cloneable接口，调用其clone方法<br>
-	 * 如果实现Serializable接口，执行深度克隆<br>
-	 * 否则返回{@code null}
+	 * 如果实现Serializable接口，通过序列化方式克隆<br>
+	 * 如果是无处理处理的类型或过程存在异常，返回{@code null}
 	 *
 	 * @param <T> 对象类型
 	 * @param obj 被克隆对象
 	 * @return 克隆后的对象
 	 */
 	public static <T> T clone(T obj) {
-		T result = ObjectArrays.clone(obj);
-		if (null == result) {
-			if (obj instanceof Cloneable) {
-				result = Reflects.invokeQuietly(obj, Reflects.getMethodByName(obj.getClass(), "clone"));
-			} else {
-				result = cloneByStream(obj);
+		return clone(obj, new HashMap<>());
+	}
+
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	private static <T> T clone(T obj, Map<Object, Object> resolvedObjects) {
+		if (obj == null) {
+			return null;
+		}
+		if (!resolvedObjects.isEmpty()) {
+			Object v = resolvedObjects.get(obj);
+			if (v != null) {
+				return (T) v;
 			}
 		}
-		return result;
+		try {
+			if (obj instanceof Copyable) {
+				//noinspection unchecked
+				T copy = (T) ((Copyable<?>) obj).copy();
+				resolvedObjects.put(obj, copy);
+				return copy;
+			} else {
+				Class<?> type = obj.getClass();
+				if (obj instanceof Map) {
+					Map rs = (Map) Reflects.newInstanceIfPossible(type);
+					if (rs != null) {
+						resolvedObjects.put(obj, (T) rs);
+						((Map) obj).forEach((k, v) -> {
+							rs.put(clone(k, resolvedObjects), clone(v, resolvedObjects));
+						});
+						return (T) rs;
+					}
+				} else if (obj instanceof Collection) {
+					Collection rs = (Collection) Reflects.newInstanceIfPossible(type);
+					if (rs != null) {
+						resolvedObjects.put(obj, (T) rs);
+						for (Object o : ((Collection<?>) obj)) {
+							rs.add(clone(o, resolvedObjects));
+						}
+						return (T) rs;
+					}
+				} else if (type.isArray()) {
+					final Object result;
+					final Class<?> componentType = type.getComponentType();
+					int length = Array.getLength(obj);
+					result = Array.newInstance(componentType, length);
+					while (length-- > 0) {
+						Object o = clone(Array.get(obj, length), resolvedObjects);
+						Array.set(result, length, o);
+					}
+					return (T) result;
+				} else if (type.isPrimitive()
+					|| type.isEnum()
+					|| obj instanceof String
+					|| Types.isPrimitiveWrapper(type)
+					|| obj instanceof Type
+					|| obj instanceof Date
+					|| obj instanceof BigDecimal
+					|| obj instanceof BigInteger
+				) {
+					return obj;
+				}
+			}
+			T cloned;
+			if (obj instanceof Cloneable) {
+				cloned = Reflects.invokeQuietly(obj, Reflects.getMethodByName(obj.getClass(), "clone"));
+			} else {
+				cloned = cloneByStream(obj);
+			}
+			resolvedObjects.put(obj, cloned);
+			return cloned;
+		} catch (Exception e) {
+			// pass
+		}
+		return null;
 	}
 
 	/**

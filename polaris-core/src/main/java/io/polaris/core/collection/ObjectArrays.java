@@ -591,7 +591,7 @@ public class ObjectArrays extends PrimitiveArrays {
 	}
 
 	/**
-	 * 克隆数组
+	 * 克隆数组，浅拷贝
 	 *
 	 * @param <T>   数组元素类型
 	 * @param array 被克隆的数组
@@ -605,7 +605,7 @@ public class ObjectArrays extends PrimitiveArrays {
 	}
 
 	/**
-	 * 克隆数组，如果非数组返回{@code null}
+	 * 克隆数组，浅拷贝，如果非数组返回{@code null}
 	 *
 	 * @param <T> 数组元素类型
 	 * @param obj 数组对象
