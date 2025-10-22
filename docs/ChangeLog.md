@@ -1,5 +1,11 @@
 ## 版本变更说明
 
+### 3.5.8
+- 优化反射工具方法Reflects.newInstanceIfPossible中的集合类型判断逻辑
+- WrappingTaskFactory接口添加任务包装检查方法，优化包装逻辑
+- WrappingExecutors添加默认WrappingTaskFactory构建方法并优化线程池创建
+- 优化对象克隆方法以实现深度克隆功能
+
 ### 3.5.7
 - 重构 Maps 工具类的 asMap 方法
 - 添加 CopyFunction 函数式接口
