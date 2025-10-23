@@ -4,15 +4,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -431,6 +423,8 @@ public class Objs {
 				T copy = (T) ((Copyable<?>) obj).copy();
 				resolvedObjects.put(obj, copy);
 				return copy;
+			} else if (obj instanceof Optional) {
+				return (T) ((Optional<?>) obj).map(v -> clone(v, resolvedObjects));
 			} else {
 				Class<?> type = obj.getClass();
 				if (obj instanceof Map) {
