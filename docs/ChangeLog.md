@@ -1,5 +1,9 @@
 ## 版本变更说明
 
+### 3.5.9
+- 优化Objs对象克隆逻辑，添加对 Optional 类型的支持
+- 为 LazyRef 和 ValueRef 添加 Copyable 接口支持
+
 ### 3.5.8
 - 优化反射工具方法Reflects.newInstanceIfPossible中的集合类型判断逻辑
 - WrappingTaskFactory接口添加任务包装检查方法，优化包装逻辑
