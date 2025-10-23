@@ -4,11 +4,14 @@ package io.polaris.core.tuple;
 import java.io.Serializable;
 import java.util.Objects;
 
+import io.polaris.core.lang.Copyable;
+import io.polaris.core.lang.Objs;
+
 /**
  * @author Qt
  * @since 1.8
  */
-public class ValueRef<V> implements Ref<V>, Serializable {
+public class ValueRef<V> implements Ref<V>, Serializable, Copyable<ValueRef<V>> {
 	private static final long serialVersionUID = 1L;
 	private final V value;
 
@@ -16,13 +19,18 @@ public class ValueRef<V> implements Ref<V>, Serializable {
 		this.value = value;
 	}
 
+	public static <E> ValueRef<E> of(final E value) {
+		return new ValueRef<>(value);
+	}
+
+	@Override
+	public ValueRef<V> copy() {
+		return new ValueRef<>(Objs.cloneIfPossible(value));
+	}
+
 	@Override
 	public V get() {
 		return value;
-	}
-
-	public static <E> ValueRef<E> of(final E value) {
-		return new ValueRef<>(value);
 	}
 
 	@Override
@@ -46,4 +54,5 @@ public class ValueRef<V> implements Ref<V>, Serializable {
 	public int hashCode() {
 		return Objects.hash(value);
 	}
+
 }

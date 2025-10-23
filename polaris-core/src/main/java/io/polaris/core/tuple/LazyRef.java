@@ -5,21 +5,32 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import io.polaris.core.lang.Copyable;
+import io.polaris.core.lang.Objs;
 import lombok.Getter;
 
 /**
  * @author Qt
  * @since 1.8
  */
-public class LazyRef<V> implements Ref<V>, Serializable {
+public class LazyRef<V> implements Ref<V>, Serializable, Copyable<LazyRef<V>> {
 	private static final long serialVersionUID = 1L;
+	private final Supplier<V> supplier;
 	@Getter
 	private volatile boolean initialized = false;
-	private final Supplier<V> supplier;
 	private V value;
 
 	public LazyRef(Supplier<V> supplier) {
 		this.supplier = supplier;
+	}
+
+	public static <E> LazyRef<E> of(final Supplier<E> supplier) {
+		return new LazyRef<>(supplier);
+	}
+
+	@Override
+	public LazyRef<V> copy() {
+		return new LazyRef<>(supplier);
 	}
 
 	@Override
@@ -33,10 +44,6 @@ public class LazyRef<V> implements Ref<V>, Serializable {
 			}
 		}
 		return value;
-	}
-
-	public static <E> LazyRef<E> of(final Supplier<E> supplier) {
-		return new LazyRef<>(supplier);
 	}
 
 	@Override
