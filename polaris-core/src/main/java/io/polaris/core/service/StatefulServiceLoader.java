@@ -37,6 +37,7 @@ public class StatefulServiceLoader<S> implements Iterable<S> {
 		return load(service, Thread.currentThread().getContextClassLoader());
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <S> StatefulServiceLoader<S> load(Class<S> service, ClassLoader classLoader) {
 		StatefulServiceLoader<S> loader = null;
 		State<S> ref = (State<S>) store.get(service);
