@@ -30,8 +30,8 @@ import io.polaris.core.log.Loggers;
  * @since 1.8
  */
 public class ServiceLoader<S> implements Iterable<Service<S>> {
-	private static final Logger log = Loggers.of(ServiceLoader.class);
 	public static final String[] PREFIX = {"META-INF/services/"};
+	private static final Logger log = Loggers.of(ServiceLoader.class);
 	private final Class<S> type;
 	private final ClassLoader loader;
 	private final AtomicBoolean loaded = new AtomicBoolean(false);
@@ -264,6 +264,87 @@ public class ServiceLoader<S> implements Iterable<Service<S>> {
 	@Nullable
 	public S getPureSingleton(String name) {
 		return getPureSingleton(get(name));
+	}
+
+	@Nonnull
+	public List<Service<S>> getAll(String propertyName, String propertyValue) {
+		load();
+		List<Service<S>> rs = new ArrayList<>();
+		for (Service<S> service : providers) {
+			String value = service.getProperty(propertyName);
+			if (Objects.equals(propertyValue, value)) {
+				rs.add(service);
+			}
+		}
+		return rs;
+	}
+
+	@Nonnull
+	public List<S> getAllSingleton(String propertyName, String propertyValue) {
+		List<S> rs = new ArrayList<>();
+		List<Service<S>> all = getAll(propertyName, propertyValue);
+		for (Service<S> service : all) {
+			S o = getSingleton(service);
+			if (o == null) {
+				continue;
+			}
+			rs.add(o);
+		}
+		return rs;
+	}
+
+	@Nonnull
+	public List<S> getAllPureSingleton(String propertyName, String propertyValue) {
+		List<S> rs = new ArrayList<>();
+		List<Service<S>> all = getAll(propertyName, propertyValue);
+		for (Service<S> service : all) {
+			S o = getPureSingleton(service);
+			if (o == null) {
+				continue;
+			}
+			rs.add(o);
+		}
+		return rs;
+	}
+
+	@Nonnull
+	public List<Service<S>> getAll(@Nonnull Function<Service<S>, Boolean> matcher) {
+		load();
+		List<Service<S>> rs = new ArrayList<>();
+		for (Service<S> service : providers) {
+			if (matcher.apply(service)) {
+				rs.add(service);
+			}
+		}
+		return rs;
+	}
+
+	@Nonnull
+	public List<S> getAllSingleton(@Nonnull Function<Service<S>, Boolean> matcher) {
+		List<S> rs = new ArrayList<>();
+		List<Service<S>> all = getAll(matcher);
+		for (Service<S> service : all) {
+			S o = getSingleton(service);
+			if (o == null) {
+				continue;
+			}
+			rs.add(o);
+		}
+		return rs;
+	}
+
+	@Nonnull
+	public List<S> getAllPureSingleton(@Nonnull Function<Service<S>, Boolean> matcher) {
+		List<S> rs = new ArrayList<>();
+		List<Service<S>> all = getAll(matcher);
+		for (Service<S> service : all) {
+			S o = getPureSingleton(service);
+			if (o == null) {
+				continue;
+			}
+			rs.add(o);
+		}
+		return rs;
 	}
 
 	@Nullable
