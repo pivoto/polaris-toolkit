@@ -101,6 +101,7 @@ public class ServiceLoader<S> implements Iterable<Service<S>> {
 		}
 	}
 
+	@SuppressWarnings({"all"})
 	private void loadClasses() {
 		final List<Class<S>> classes = new ArrayList<>();
 		loadDirectory(classes);
@@ -206,21 +207,30 @@ public class ServiceLoader<S> implements Iterable<Service<S>> {
 			BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
 			for (String line = br.readLine(); line != null; line = br.readLine()) {
 				line = line.trim().replaceAll("#.*", "");
-				if (line.length() > 0 && !line.startsWith("#")) {
+				if (!line.isEmpty() && !line.startsWith("#")) {
 					try {
 						Class<?> clazz = Class.forName(line, true, loader);
 						if (type.isAssignableFrom(clazz)) {
+							//noinspection unchecked
 							classes.add((Class<S>) clazz);
 						} else {
-							log.warn("加载服务类失败，类型不匹配：" + line);
+							log.warn("加载服务类失败，类型不匹配：{}", line);
 						}
 					} catch (Throwable e) {
-						log.warn("加载服务类失败：" + line, e);
+						if (log.isDebugEnabled()) {
+							log.debug(e, "加载服务类失败：" + line);
+						} else {
+							log.warn("加载服务类失败：{}, 原因：{}", line, e.getMessage());
+						}
 					}
 				}
 			}
 		} catch (Throwable e) {
-			log.warn("加载服务类失败，资源读取错误：" + url, e);
+			if (log.isDebugEnabled()) {
+				log.debug(e, "加载服务类失败，资源读取错误：{}", url);
+			} else {
+				log.warn("加载服务类失败，资源读取错误：{}", url);
+			}
 		}
 	}
 
