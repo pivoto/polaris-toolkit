@@ -25,7 +25,7 @@ public class ServiceMapProvider<S> implements Iterable<Map.Entry<String, S>> {
 	}
 
 	public static <S> ServiceMapProvider<S> of(Class<S> clazz) {
-		Supplier<Map<String, S>> supplier = () -> StatefulServiceLoader.load(clazz).serviceMap();
+		Supplier<Map<String, S>> supplier = () -> StatefulServiceLoader.of(clazz).serviceMap();
 		return new ServiceMapProvider<>(supplier);
 	}
 

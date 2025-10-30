@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.polaris.core.log.Logger;
@@ -33,12 +34,12 @@ public class StatefulServiceLoader<S> implements Iterable<S> {
 		this(ServiceLoader.of(service, loader));
 	}
 
-	public static <S> StatefulServiceLoader<S> load(Class<S> service) {
-		return load(service, Thread.currentThread().getContextClassLoader());
+	public static <S> StatefulServiceLoader<S> of(Class<S> service) {
+		return of(service, Thread.currentThread().getContextClassLoader());
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <S> StatefulServiceLoader<S> load(Class<S> service, ClassLoader classLoader) {
+	public static <S> StatefulServiceLoader<S> of(Class<S> service, ClassLoader classLoader) {
 		StatefulServiceLoader<S> loader = null;
 		State<S> ref = (State<S>) store.get(service);
 		if (ref == null) {
@@ -66,6 +67,16 @@ public class StatefulServiceLoader<S> implements Iterable<S> {
 		return loader;
 	}
 
+	@Deprecated
+	public static <S> StatefulServiceLoader<S> load(Class<S> service) {
+		return of(service);
+	}
+
+	@Deprecated
+	public static <S> StatefulServiceLoader<S> load(Class<S> service, ClassLoader classLoader) {
+		return of(service, classLoader);
+	}
+
 	public static <S> void clear(Class<S> service) {
 		store.computeIfPresent(service, (k, v) -> {
 			v.map.clear();
@@ -73,6 +84,7 @@ public class StatefulServiceLoader<S> implements Iterable<S> {
 		});
 	}
 
+	@Nonnull
 	@Override
 	public Iterator<S> iterator() {
 		return new Iterator<S>() {
@@ -115,14 +127,14 @@ public class StatefulServiceLoader<S> implements Iterable<S> {
 	@Nullable
 	public S service(String propertyName, String propertyValue) {
 		return Optional.ofNullable(serviceLoader.get(propertyName, propertyValue))
-		.map(s -> {
-			try {
-				return s.getSingleton();
-			} catch (Throwable e) {
-				log.error(e.getMessage(), e);
-				return null;
-			}
-		}).orElse(null);
+			.map(s -> {
+				try {
+					return s.getSingleton();
+				} catch (Throwable e) {
+					log.error(e.getMessage(), e);
+					return null;
+				}
+			}).orElse(null);
 	}
 
 	public List<S> serviceList() {

@@ -7,6 +7,7 @@ import java.util.List;
 
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.TypeRef;
+import io.polaris.core.service.SpiLoaders;
 import io.polaris.core.service.StatefulServiceLoader;
 import lombok.extern.slf4j.Slf4j;
 
@@ -58,7 +59,7 @@ public class Fastjsons {
 	};
 
 	static {
-		for (FastjsonCustomizer customizer : StatefulServiceLoader.load(FastjsonCustomizer.class)) {
+		for (FastjsonCustomizer customizer : SpiLoaders.loadStateful(FastjsonCustomizer.class)) {
 			try {
 				customizer.customize();
 			} catch (Throwable e) {

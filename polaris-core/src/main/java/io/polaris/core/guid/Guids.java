@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nullable;
 
+import io.polaris.core.service.SpiLoaders;
 import io.polaris.core.service.StatefulServiceLoader;
 
 /**
@@ -13,7 +14,7 @@ import io.polaris.core.service.StatefulServiceLoader;
  */
 public class Guids {
 	private static final Map<String, Guid> guidCache = new ConcurrentHashMap<>();
-	private static final StatefulServiceLoader<GuidNodeStrategyProvider> guidNodeStrategyProvider = StatefulServiceLoader.load(GuidNodeStrategyProvider.class);
+	private static final StatefulServiceLoader<GuidNodeStrategyProvider> guidNodeStrategyProvider = SpiLoaders.loadStateful(GuidNodeStrategyProvider.class);
 
 	public static GuidNodeStrategy getNodeStrategy() {
 		return guidNodeStrategyProvider.optionalService()

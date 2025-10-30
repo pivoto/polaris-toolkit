@@ -1,6 +1,7 @@
 package io.polaris.core.cache;
 
 import io.polaris.core.service.ServiceLoadable;
+import io.polaris.core.service.SpiLoaders;
 import io.polaris.core.service.StatefulServiceLoader;
 
 import javax.annotation.Nullable;
@@ -17,7 +18,7 @@ public interface CacheManagerFactory extends ServiceLoadable {
 
 	@Nullable
 	static CacheManagerFactory defaultCacheManagerFactory() {
-		StatefulServiceLoader<CacheManagerFactory> loader = StatefulServiceLoader.load(CacheManagerFactory.class);
+		StatefulServiceLoader<CacheManagerFactory> loader = SpiLoaders.loadStateful(CacheManagerFactory.class);
 		return loader.service();
 	}
 

@@ -15,15 +15,15 @@ public class SpiLoaders {
 	}
 
 	public static <S> ServiceLoader<S> load(Class<S> type, ClassLoader loader) {
-		return io.polaris.core.service.ServiceLoader.of(type, loader);
+		return ServiceLoader.of(type, loader);
 	}
 
 	public static <S> StatefulServiceLoader<S> loadStateful(Class<S> service) {
-		return StatefulServiceLoader.load(service);
+		return StatefulServiceLoader.of(service);
 	}
 
 	public static <S> StatefulServiceLoader<S> loadStateful(Class<S> service, ClassLoader classLoader) {
-		return StatefulServiceLoader.load(service, classLoader);
+		return StatefulServiceLoader.of(service, classLoader);
 	}
 
 	public static <S> void clearStateful(Class<S> service) {

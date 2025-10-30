@@ -16,6 +16,7 @@ import io.polaris.core.concurrent.Schedules;
 import io.polaris.core.concurrent.Threads;
 import io.polaris.core.concurrent.async.impl.DefaultAsyncThreadPoolFactory;
 import io.polaris.core.lang.Retry;
+import io.polaris.core.service.SpiLoaders;
 import io.polaris.core.service.StatefulServiceLoader;
 
 /**
@@ -185,7 +186,7 @@ public class AsyncInvokers {
 		private final boolean canShutdown;
 
 		public AsyncExecutor() {
-			StatefulServiceLoader<AsyncThreadPoolFactory> loader = StatefulServiceLoader.load(AsyncThreadPoolFactory.class);
+			StatefulServiceLoader<AsyncThreadPoolFactory> loader = SpiLoaders.loadStateful(AsyncThreadPoolFactory.class);
 			AsyncThreadPoolFactory factory = loader.optionalService().orElseGet(DefaultAsyncThreadPoolFactory::new);
 			executor = factory.buildExecutor();
 			canShutdown = factory.canShutdownExecutor();
@@ -224,7 +225,7 @@ public class AsyncInvokers {
 		private final boolean canShutdown;
 
 		public AsyncScheduler() {
-			StatefulServiceLoader<AsyncThreadPoolFactory> loader = StatefulServiceLoader.load(AsyncThreadPoolFactory.class);
+			StatefulServiceLoader<AsyncThreadPoolFactory> loader = SpiLoaders.loadStateful(AsyncThreadPoolFactory.class);
 			AsyncThreadPoolFactory factory = loader.optionalService().orElseGet(DefaultAsyncThreadPoolFactory::new);
 			scheduler = factory.buildScheduledExecutor();
 			canShutdown = factory.canShutdownScheduledExecutor();

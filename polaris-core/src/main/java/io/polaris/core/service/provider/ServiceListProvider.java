@@ -28,7 +28,7 @@ public class ServiceListProvider<S> implements Iterable<S> {
 	}
 
 	public static <S> ServiceListProvider<S> of(Class<S> clazz) {
-		return new ServiceListProvider<>(() -> StatefulServiceLoader.load(clazz).serviceList());
+		return new ServiceListProvider<>(() -> StatefulServiceLoader.of(clazz).serviceList());
 	}
 
 	public Optional<List<S>> optional() {

@@ -16,6 +16,7 @@ import io.polaris.core.lang.Types;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.reflect.Reflects;
+import io.polaris.core.service.SpiLoaders;
 import io.polaris.core.service.StatefulServiceLoader;
 
 /**
@@ -88,7 +89,7 @@ public class CollectionConverter<T extends Collection<E>, E> extends AbstractCon
 			} else if (value instanceof CharSequence) {
 				try {
 					// 扩展json实现，
-					Optional<JsonSerializer> optional = StatefulServiceLoader.load(JsonSerializer.class).optionalService();
+					Optional<JsonSerializer> optional = SpiLoaders.loadStateful(JsonSerializer.class).optionalService();
 					if (optional.isPresent()) {
 						String json = value.toString();
 						return optional.get().deserialize(json, collectionType.getRawType());

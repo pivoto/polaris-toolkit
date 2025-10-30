@@ -8,6 +8,7 @@ import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.lang.copier.Copiers;
 import io.polaris.core.lang.copier.CopyOptions;
 import io.polaris.core.reflect.Reflects;
+import io.polaris.core.service.SpiLoaders;
 import io.polaris.core.service.StatefulServiceLoader;
 
 import java.lang.reflect.Type;
@@ -100,7 +101,7 @@ public class MapConverter<K, V> extends AbstractConverter<Map<K, V>> {
 			}));
 		} else if (value instanceof CharSequence) {
 			// 扩展json实现，
-			Optional<JsonSerializer> optional = StatefulServiceLoader.load(JsonSerializer.class).optionalService();
+			Optional<JsonSerializer> optional = SpiLoaders.loadStateful(JsonSerializer.class).optionalService();
 			if (optional.isPresent()) {
 				String json = value.toString();
 				return optional.get().deserialize(json, targetType.getRawType());

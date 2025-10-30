@@ -1,5 +1,6 @@
 package io.polaris.core.service.provider;
 
+import io.polaris.core.service.SpiLoaders;
 import io.polaris.core.service.StatefulServiceLoader;
 
 import java.util.Optional;
@@ -25,7 +26,7 @@ public class ServiceProvider<S> {
 	}
 
 	public static <S> ServiceProvider<S> of(Class<S> clazz) {
-		return new ServiceProvider<>(() -> StatefulServiceLoader.load(clazz).service());
+		return new ServiceProvider<>(() -> SpiLoaders.loadStateful(clazz).service());
 	}
 
 	public Optional<S> optional() {

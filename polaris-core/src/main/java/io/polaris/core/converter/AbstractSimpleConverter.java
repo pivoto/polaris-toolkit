@@ -10,6 +10,7 @@ import io.polaris.core.collection.Iterables;
 import io.polaris.core.jdbc.sql.VarRef;
 import io.polaris.core.json.JsonSerializer;
 import io.polaris.core.lang.JavaType;
+import io.polaris.core.service.SpiLoaders;
 import io.polaris.core.service.StatefulServiceLoader;
 import io.polaris.core.tuple.Ref;
 import io.polaris.core.tuple.Tuple1;
@@ -62,7 +63,7 @@ public abstract class AbstractSimpleConverter<T> extends AbstractConverter<T> {
 			return String.valueOf((char) value);
 		}
 		// 扩展json实现，
-		Optional<JsonSerializer> optional = StatefulServiceLoader.load(JsonSerializer.class).optionalService();
+		Optional<JsonSerializer> optional = SpiLoaders.loadStateful(JsonSerializer.class).optionalService();
 		if (optional.isPresent()) {
 			return optional.get().serialize(value);
 		}

@@ -9,6 +9,7 @@ import java.util.TimeZone;
 import java.util.function.Consumer;
 
 import io.polaris.core.lang.TypeRef;
+import io.polaris.core.service.SpiLoaders;
 import io.polaris.core.service.StatefulServiceLoader;
 import lombok.extern.slf4j.Slf4j;
 
@@ -81,7 +82,7 @@ public class Jacksons {
 		mapper.registerModule(simpleModule);
 		mapper.setHandlerInstantiator(new CustomHandlerInstantiator());
 
-		for (JacksonCustomizer customizer : StatefulServiceLoader.load(JacksonCustomizer.class)) {
+		for (JacksonCustomizer customizer : SpiLoaders.loadStateful(JacksonCustomizer.class)) {
 			try {
 				customizer.customize(mapper);
 			} catch (Throwable e) {

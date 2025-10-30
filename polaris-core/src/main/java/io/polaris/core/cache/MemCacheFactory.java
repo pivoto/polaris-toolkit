@@ -2,6 +2,7 @@ package io.polaris.core.cache;
 
 import javax.annotation.Nullable;
 
+import io.polaris.core.service.SpiLoaders;
 import io.polaris.core.service.StatefulServiceLoader;
 
 /**
@@ -18,7 +19,7 @@ public interface MemCacheFactory {
 
 	@Nullable
 	static MemCacheFactory defaultFactory() {
-		StatefulServiceLoader<MemCacheFactory> loader = StatefulServiceLoader.load(MemCacheFactory.class);
+		StatefulServiceLoader<MemCacheFactory> loader = SpiLoaders.loadStateful(MemCacheFactory.class);
 		return loader.service();
 	}
 

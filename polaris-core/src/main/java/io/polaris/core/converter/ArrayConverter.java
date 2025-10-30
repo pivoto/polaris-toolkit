@@ -7,6 +7,7 @@ import io.polaris.core.json.JsonSerializer;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
+import io.polaris.core.service.SpiLoaders;
 import io.polaris.core.service.StatefulServiceLoader;
 
 import java.io.Serializable;
@@ -131,7 +132,7 @@ public class ArrayConverter<T> extends AbstractConverter<T[]> {
 			}
 			try {
 				// 扩展json实现，
-				Optional<JsonSerializer> optional = StatefulServiceLoader.load(JsonSerializer.class).optionalService();
+				Optional<JsonSerializer> optional = SpiLoaders.loadStateful(JsonSerializer.class).optionalService();
 				if (optional.isPresent()) {
 					String json = value.toString();
 					return optional.get().deserialize(json, targetType.getRawType());
