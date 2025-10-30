@@ -86,7 +86,7 @@
 		<dependency.h2.version>2.2.220</dependency.h2.version>
 		<dependency.hsqldb.version>2.7.1</dependency.hsqldb.version>
 		<dependency.powermock.version>2.0.7</dependency.powermock.version>
-		<dependency.mockito.version>3.5.13</dependency.mockito.version>
+		<dependency.mockito.version>4.11.0</dependency.mockito.version>
 		<dependency.jmh.version>1.21</dependency.jmh.version>
 
 		<dependency.bytebuddy.version>1.12.23</dependency.bytebuddy.version>
@@ -354,6 +354,13 @@
 				<scope>import</scope>
 			</dependency>
 			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-bom</artifactId>
+				<version>${dependency.mockito.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
 				<scope>test</scope>
@@ -370,22 +377,6 @@
 				<artifactId>powermock-api-mockito2</artifactId>
 				<version>${dependency.powermock.version}</version>
 				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.mockito</groupId>
-				<artifactId>mockito-core</artifactId>
-				<scope>test</scope>
-				<version>${dependency.mockito.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.mockito</groupId>
-				<artifactId>mockito-inline</artifactId>
-				<version>${dependency.mockito.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.mockito</groupId>
-				<artifactId>mockito-junit-jupiter</artifactId>
-				<version>${dependency.mockito.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.hsqldb</groupId>
