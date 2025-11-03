@@ -1,7 +1,14 @@
 ## 版本变更说明
 
+### 3.5.11
+- 修改StatefulServiceLoader方法命名，工具库内部使用 SpiLoaders 替代 StatefulServiceLoader 的直接调用
+- SelectStatement 中新增自动添加非逻辑删除条件的方法，支持连接表和子查询的过滤
+- 新增多个SqlProvider类，支持直接执行及逻辑删除过滤功能
+- 拆分SelectStatementMapper接口，支持默认逻辑删除查询与直接查询方法
+
 ### 3.5.10
-- SPI工具类增加获取满足匹配条件的所有服务的方法，接口类添加服务加载器的静态工厂方法
+- SPI工具类增加获取满足匹配条件的所有服务的方法
+- 添加SPI服务加载器的静态工厂方法
 
 ### 3.5.9
 - 优化Objs对象克隆逻辑，添加对 Optional 类型的支持

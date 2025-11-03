@@ -19,6 +19,7 @@
   - [x] 通用Sql注解构建工具类
   - [x] 添加SQL逻辑删除的支持(注解声明与主动编码)
   - [x] 添加SQL默认排序注解支持
+  - [ ] SelectSegment 查询子句增加子查询支持
   - [ ] 支持Mybatis非Map类型的入参（转为直接sql拼接）
   - 考虑实现自定义ORM工具，或直接引用Mybatis底层API，以支持框架内部场景的SQL管理，独立生命周期
     - 借鉴mybatis的org.apache.ibatis.scripting.xmltags下的SqlNode
