@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 import io.polaris.mybatis.interceptor.DynamicResultMappingInterceptor;
 
 /**
- * 声明此注解后，表示将检测目标实体的生成列信息，动态修改MappedStatement中`useGeneratedKeys`等属性的能力。
+ * 声明此注解后，表示将自动生成列映射配置
  * <p>
  * 由于以插件形式实现，需启用插件{@link DynamicResultMappingInterceptor}
  *
