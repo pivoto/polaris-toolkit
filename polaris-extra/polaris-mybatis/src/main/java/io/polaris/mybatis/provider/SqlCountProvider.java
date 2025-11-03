@@ -22,6 +22,10 @@ public class SqlCountProvider extends BaseProviderMethodResolver {
 			if (st == null) {
 				st = (SelectStatement<?>) map.get(BindingKeys.SQL);
 			}
+			boolean withLogicDeleted = withLogicDeleted(map, ctx);
+			if (withLogicDeleted) {
+				st.exceptLogicDeleted(true,true,true);
+			}
 			String sql = BindingValues.asSqlWithBindings(MappingKeys.PARAMETER_MAPPING_KEYS_FILTER, map, st::toCountSqlNode);
 			if (log.isDebugEnabled()) {
 				log.debug("<sql>\n{}\n<bindings>\n{}", sql, map);

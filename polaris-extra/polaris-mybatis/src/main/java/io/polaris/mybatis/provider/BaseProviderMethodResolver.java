@@ -226,6 +226,7 @@ public abstract class BaseProviderMethodResolver implements ProviderMethodResolv
 					// 参数为空时，使用空MAP，不接收任何绑定
 					return Collections.emptyMap();
 				}
+				// TODO 通过配置开启，增加支持支持非Map类型的入参，转为直接sql拼接
 				throw new IllegalArgumentException("请使用Map类型参数或明确声明参数键名");
 			}
 			return toParameterBindings(parameterObject);

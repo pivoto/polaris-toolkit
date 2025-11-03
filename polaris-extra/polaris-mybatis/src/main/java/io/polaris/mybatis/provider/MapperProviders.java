@@ -26,8 +26,14 @@ public class MapperProviders {
 		map.put(MapperProviderKeys.deleteBySql, MapperProviders::deleteBySql);
 		map.put(MapperProviderKeys.updateBySql, MapperProviders::updateBySql);
 		map.put(MapperProviderKeys.selectBySql, MapperProviders::selectBySql);
+		map.put(MapperProviderKeys.selectBySqlDirect, MapperProviders::selectBySqlDirect);
+		map.put(MapperProviderKeys.selectBySqlExceptLogicDeleted, MapperProviders::selectBySqlExceptLogicDeleted);
 		map.put(MapperProviderKeys.countBySql, MapperProviders::countBySql);
+		map.put(MapperProviderKeys.countBySqlDirect, MapperProviders::countBySqlDirect);
+		map.put(MapperProviderKeys.countBySqlExceptLogicDeleted, MapperProviders::countBySqlExceptLogicDeleted);
 		map.put(MapperProviderKeys.existsBySql, MapperProviders::existsBySql);
+		map.put(MapperProviderKeys.existsBySqlDirect, MapperProviders::existsBySqlDirect);
+		map.put(MapperProviderKeys.existsBySqlExceptLogicDeleted, MapperProviders::existsBySqlExceptLogicDeleted);
 		map.put(MapperProviderKeys.mergeBySql, MapperProviders::mergeBySql);
 
 		map.put(MapperProviderKeys.insertEntity, MapperProviders::insertEntity);
@@ -103,6 +109,7 @@ public class MapperProviders {
 	public static String logicDeleteEntityById(Object parameterObject, ProviderContext context) {
 		return EntityDeleteLogicByIdProvider.provideSql(parameterObject, context);
 	}
+
 	@Published
 	public static String deleteEntityByAny(Object parameterObject, ProviderContext context) {
 		return EntityDeleteByAnyProvider.provideSql(parameterObject, context);
@@ -238,6 +245,36 @@ public class MapperProviders {
 	@Published
 	public static String existsBySql(Object parameterObject, ProviderContext context) {
 		return SqlExistsProvider.provideSql(parameterObject, context);
+	}
+
+	@Published
+	public static String selectBySqlDirect(Object parameterObject, ProviderContext context) {
+		return SqlSelectDirectProvider.provideSql(parameterObject, context);
+	}
+
+	@Published
+	public static String countBySqlDirect(Object parameterObject, ProviderContext context) {
+		return SqlCountDirectProvider.provideSql(parameterObject, context);
+	}
+
+	@Published
+	public static String existsBySqlDirect(Object parameterObject, ProviderContext context) {
+		return SqlExistsDirectProvider.provideSql(parameterObject, context);
+	}
+
+	@Published
+	public static String selectBySqlExceptLogicDeleted(Object parameterObject, ProviderContext context) {
+		return SqlSelectExceptLogicDeletedProvider.provideSql(parameterObject, context);
+	}
+
+	@Published
+	public static String countBySqlExceptLogicDeleted(Object parameterObject, ProviderContext context) {
+		return SqlCountExceptLogicDeletedProvider.provideSql(parameterObject, context);
+	}
+
+	@Published
+	public static String existsBySqlExceptLogicDeleted(Object parameterObject, ProviderContext context) {
+		return SqlExistsExceptLogicDeletedProvider.provideSql(parameterObject, context);
 	}
 
 	@Published

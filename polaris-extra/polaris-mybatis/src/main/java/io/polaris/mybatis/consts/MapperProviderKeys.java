@@ -2,7 +2,7 @@ package io.polaris.mybatis.consts;
 
 /**
  * @author Qt
- * @since  Aug 25, 2023
+ * @since Aug 25, 2023
  */
 public interface MapperProviderKeys {
 
@@ -12,8 +12,14 @@ public interface MapperProviderKeys {
 	String deleteBySql = "deleteBySql";
 	String updateBySql = "updateBySql";
 	String selectBySql = "selectBySql";
+	String selectBySqlDirect = "selectBySqlDirect";
+	String selectBySqlExceptLogicDeleted = "selectBySqlExceptLogicDeleted";
 	String countBySql = "countBySql";
+	String countBySqlDirect = "countBySqlDirect";
+	String countBySqlExceptLogicDeleted = "countBySqlExceptLogicDeleted";
 	String existsBySql = "existsBySql";
+	String existsBySqlDirect = "existsBySqlDirect";
+	String existsBySqlExceptLogicDeleted = "existsBySqlExceptLogicDeleted";
 	String mergeBySql = "mergeBySql";
 
 
@@ -46,7 +52,6 @@ public interface MapperProviderKeys {
 	String countEntity = "countEntity";
 	String countEntityDirect = "countEntityDirect";
 	String countEntityExceptLogicDeleted = "countEntityExceptLogicDeleted";
-
 
 
 }

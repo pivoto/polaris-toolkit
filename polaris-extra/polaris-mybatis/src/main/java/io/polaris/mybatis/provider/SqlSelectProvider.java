@@ -22,6 +22,10 @@ public class SqlSelectProvider extends BaseProviderMethodResolver {
 			if (st == null) {
 				st = (SelectStatement<?>) map.get(BindingKeys.SQL);
 			}
+			boolean withLogicDeleted = withLogicDeleted(map, ctx);
+			if (withLogicDeleted) {
+				st.exceptLogicDeleted(true,true,true);
+			}
 			String sql = BindingValues.asSqlWithBindings(MappingKeys.PARAMETER_MAPPING_KEYS_FILTER, map, st);
 			if (log.isDebugEnabled()) {
 				log.debug("[Sql]{}", sql);

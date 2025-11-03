@@ -1,6 +1,8 @@
 package io.polaris.mybatis.provider;
 
 import io.polaris.core.annotation.Published;
+import io.polaris.core.converter.Converters;
+import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.sql.BindingValues;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.node.SqlNode;
@@ -25,6 +27,10 @@ public class SqlExistsProvider extends BaseProviderMethodResolver {
 				SelectStatement<?> st = (SelectStatement<?>) map.get(BindingKeys.SELECT);
 				if (st == null) {
 					st = (SelectStatement<?>) map.get(BindingKeys.SQL);
+				}
+				boolean withLogicDeleted = withLogicDeleted(map, ctx);
+				if (withLogicDeleted) {
+					st.exceptLogicDeleted(true,true,true);
 				}
 				SqlNode sqlNode = st.toExistsSqlNode(queryByCount);
 				String sql = BindingValues.asSqlWithBindings(MappingKeys.PARAMETER_MAPPING_KEYS_FILTER, map, sqlNode);
