@@ -2,11 +2,13 @@ package io.polaris.core.jdbc.sql.statement;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import io.polaris.core.annotation.AnnotationProcessing;
 import io.polaris.core.consts.SymbolConsts;
+import io.polaris.core.converter.Converters;
+import io.polaris.core.jdbc.ColumnMeta;
+import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.sql.SqlTextParsers;
 import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.SqlNode;
@@ -150,7 +152,7 @@ public class SelectStatement<S extends SelectStatement<S>> extends BaseStatement
 		if (queryByCount) {
 			sql.addNode(new TextNode("SELECT COUNT(*) EXISTED FROM ("));
 			sqlSelect(sql);
-		}else{
+		} else {
 			sql.addNode(new TextNode("SELECT 1 EXISTED "));
 		}
 		sqlFrom(sql);
@@ -733,7 +735,41 @@ public class SelectStatement<S extends SelectStatement<S>> extends BaseStatement
 		return getThis();
 	}
 
+	/**
+	 * 强制添加非逻辑删除条件
+	 *
+	 * @return 返回当前查询语句对象，用于链式调用
+	 */
+	public S exceptLogicDeleted() {
+		this.where().exceptLogicDeleted();
+		return getThis();
+	}
 
+	public S exceptLogicDeleted(boolean includeSelf, boolean includeJoins, boolean includeSubSelects) {
+		if (includeJoins) {
+			for (JoinSegment<S, ?> join : joins) {
+				TableSegment<?> joinTable = join.getTable();
+				TableMeta tableMeta = joinTable.getTableMeta();
+				if (tableMeta != null) {
+					tableMeta.getColumns().values().stream()
+						.filter(ColumnMeta::isLogicDeleted)
+						.forEach(meta -> {
+							Object val = Converters.convertQuietly(meta.getFieldType(), false);
+							join.on().column(meta.getFieldName()).eq(val);
+						});
+				}
+			}
+		}
+		if (includeSubSelects) {
+			this.where().exceptLogicDeleted(includeSelf, includeJoins, includeSubSelects);
+		} else if (includeSelf) {
+			this.where().exceptLogicDeleted();
+		}
+		return getThis();
+	}
+
+
+	@Override
 	public TableAccessible getTableAccessible() {
 		return this;
 	}

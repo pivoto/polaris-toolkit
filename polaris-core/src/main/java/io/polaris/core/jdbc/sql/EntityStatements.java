@@ -624,12 +624,7 @@ public class EntityStatements {
 
 		// 强制添加非逻辑删除条件
 		if (sqlSelect.exceptLogicDeleted()) {
-			st.getTable().getTableMeta().getColumns().values().stream()
-				.filter(c -> c.isLogicDeleted())
-				.forEach(meta -> {
-					Object val = Converters.convertQuietly(meta.getFieldType(), false);
-					st.where().column(meta.getFieldName()).eq(val);
-				});
+			st.exceptLogicDeleted(true, true, true);
 		}
 
 		// where
@@ -2318,12 +2313,7 @@ public class EntityStatements {
 
 		if (exceptLogicDeleted) {
 			// 强制添加非逻辑删除条件
-			st.getTable().getTableMeta().getColumns().values().stream()
-				.filter(c -> c.isLogicDeleted())
-				.forEach(meta -> {
-					Object val = Converters.convertQuietly(meta.getFieldType(), false);
-					st.where().column(meta.getFieldName()).eq(val);
-				});
+			st.exceptLogicDeleted(true, true, true);
 		}
 
 		// 排序字段

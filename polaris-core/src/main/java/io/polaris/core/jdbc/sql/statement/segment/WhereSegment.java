@@ -14,6 +14,7 @@ import java.util.function.Predicate;
 import io.polaris.core.annotation.AnnotationProcessing;
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.collection.ObjectArrays;
+import io.polaris.core.converter.Converters;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.ExpressionMeta;
 import io.polaris.core.jdbc.TableMeta;
@@ -36,7 +37,6 @@ import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.map.Maps;
 import io.polaris.core.reflect.GetterFunction;
 import io.polaris.core.reflect.Reflects;
-import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
@@ -126,6 +126,35 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 			}
 		}
 		return containerNode;
+	}
+
+	public S exceptLogicDeleted(){
+		TableMeta tableMeta = table.getTableMeta();
+		if (tableMeta != null) {
+			tableMeta.getColumns().values().stream()
+				.filter(ColumnMeta::isLogicDeleted)
+				.forEach(meta -> {
+					Object val = Converters.convertQuietly(meta.getFieldType(), false);
+					this.column(meta.getFieldName()).eq(val);
+				});
+		}
+		return getThis();
+	}
+
+	public S exceptLogicDeleted(boolean includeSelf, boolean includeJoins, boolean includeSubSelects){
+		if (includeSubSelects) {
+			recursiveSubSelectsExceptLogicDeleted(includeSelf, includeJoins, includeSubSelects);
+		}
+		if (includeSelf) {
+			exceptLogicDeleted();
+		}
+		return getThis();
+	}
+
+	void recursiveSubSelectsExceptLogicDeleted(boolean includeSelf, boolean includeJoins, boolean includeSubSelects){
+		for (CriterionSegment<S, ?> criterion : this.criteria) {
+			criterion.recursiveSubSelectsExceptLogicDeleted(includeSelf, includeJoins, includeSubSelects);
+		}
 	}
 
 	public S byEntity(Object entity) {

@@ -95,6 +95,21 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		this.tableAccessible = tableAccessible;
 	}
 
+
+	void recursiveSubSelectsExceptLogicDeleted(boolean includeSelf, boolean includeJoins, boolean includeSubSelects){
+		if (this.or != null) {
+			this.or.recursiveSubSelectsExceptLogicDeleted(includeSelf, includeJoins, includeSubSelects);
+			return;
+		}
+		if (this.and != null) {
+			this.and.recursiveSubSelectsExceptLogicDeleted(includeSelf, includeJoins, includeSubSelects);
+			return;
+		}
+		if (this.subSelect != null && this.subSelectSymbol != null) {
+			this.subSelect.exceptLogicDeleted(includeSelf, includeJoins, includeSubSelects);
+		}
+	}
+
 	@Override
 	public TableAccessible getTableAccessible() {
 		return tableAccessible;
