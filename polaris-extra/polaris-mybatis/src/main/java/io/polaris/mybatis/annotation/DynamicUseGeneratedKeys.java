@@ -30,8 +30,4 @@ public @interface DynamicUseGeneratedKeys {
 	 * @return 实体在执行参数对象中的Key值，为空表示整个参数对象
 	 */
 	String value() default "";
-
-
-	String[] columnPropertyKeys() default {ColumnJdbcType.KEY, ColumnTypeHandler.KEY};
-
 }
