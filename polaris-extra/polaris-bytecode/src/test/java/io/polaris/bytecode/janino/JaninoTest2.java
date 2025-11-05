@@ -1,4 +1,4 @@
-package io.polaris.janino;
+package io.polaris.bytecode.janino;
 
 import org.codehaus.commons.compiler.CompileException;
 import org.codehaus.commons.compiler.ICompiler;

@@ -1,4 +1,4 @@
-package io.polaris.janino;
+package io.polaris.bytecode.janino;
 
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;

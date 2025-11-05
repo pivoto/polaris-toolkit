@@ -1,4 +1,4 @@
-package io.polaris.janino;
+package io.polaris.bytecode.janino;
 
 import java.util.Base64;
 import java.util.HashMap;
