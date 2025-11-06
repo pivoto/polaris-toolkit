@@ -1,5 +1,8 @@
 ## 版本变更说明
 
+### 3.5.12
+- 新增注解Legacy，用于标识遗留代码
+
 ### 3.5.11
 - 修改StatefulServiceLoader方法命名，工具库内部使用 SpiLoaders 替代 StatefulServiceLoader 的直接调用
 - SelectStatement 中新增自动添加非逻辑删除条件的方法，支持连接表和子查询的过滤
