@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import io.polaris.core.err.MultipleException;
+import io.polaris.core.function.Condition;
 import io.polaris.core.function.Executable;
 import io.polaris.core.lang.Other;
 import io.polaris.core.string.Strings;
@@ -29,7 +30,7 @@ public class Assertions {
 		throw new AssertionException(message, t);
 	}
 
-	public static void expect(Supplier<Boolean> condition, String message) throws IllegalArgumentException {
+	public static void expect(Condition condition, String message) throws IllegalArgumentException {
 		if (!condition.get()) {
 			throw new AssertionException(message);
 		}
