@@ -1,5 +1,9 @@
 ## 版本变更说明
 
+### 3.5.13
+- 引入新函数式接口Condition替代Supplier<Boolean>，用于参数校验方法
+- 新增 ValidationChecker 验证构建器，在 Validations 工具类中新增对应的静态工厂方法和检查入口
+
 ### 3.5.12
 - 新增注解Legacy，用于标识遗留代码
 
