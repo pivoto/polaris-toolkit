@@ -29,6 +29,7 @@ import javax.validation.metadata.ValidateUnwrappedValue;
 
 import io.polaris.core.annotation.Experimental;
 import io.polaris.core.err.ValidationException;
+import io.polaris.core.function.Condition;
 import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.Types;
 import io.polaris.core.reflect.Reflects;
@@ -308,6 +309,40 @@ public class Validations {
 		return sb.toString();
 	}
 
+
+	public static ValidationChecker buildChecker(String code, String message) {
+		return new ValidationChecker(code, message);
+	}
+
+	public static ValidationChecker buildChecker(String message) {
+		return new ValidationChecker(null, message);
+	}
+
+	public static void check(String message, Consumer<ValidationChecker> consumer) throws ValidationException {
+		check(null, message, consumer);
+	}
+
+	public static void check(String code, String message, Consumer<ValidationChecker> consumer) throws ValidationException {
+		ValidationChecker checker = buildChecker(code, message);
+		consumer.accept(checker);
+		checker.check();
+	}
+
+	public static void checkAll(String message, Consumer<ValidationChecker> consumer) throws ValidationException {
+		checkAll(null, message, consumer);
+	}
+
+	public static void checkAll(String code, String message, Consumer<ValidationChecker> consumer) throws ValidationException {
+		ValidationChecker checker = buildChecker(code, message);
+		consumer.accept(checker);
+		checker.checkAll();
+	}
+
+	public static void expect(Condition condition, String message) throws ValidationException {
+		if (!condition.get()) {
+			throw new ValidationException(message);
+		}
+	}
 
 	public static void isTrue(boolean condition, String message) throws ValidationException {
 		if (!condition) {
