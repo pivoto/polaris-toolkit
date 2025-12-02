@@ -196,6 +196,22 @@ public final class Ulid implements Serializable, Comparable<Ulid> {
 		this.lsb = long1;
 	}
 
+	public static Ulid get() {
+		return UlidCreator.getUlid();
+	}
+
+	public static Ulid get(long time) {
+		return UlidCreator.getUlid(time);
+	}
+
+	public static Ulid getMonotonic() {
+		return UlidCreator.getMonotonicUlid();
+	}
+
+	public static Ulid getMonotonic(long time) {
+		return UlidCreator.getMonotonicUlid(time);
+	}
+
 	/**
 	 * Returns a fast new ULID.
 	 * <p>
