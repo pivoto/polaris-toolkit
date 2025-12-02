@@ -140,7 +140,7 @@ public class IO {
 	}
 
 	@Deprecated
-	@Compatible("使用 getInputStream(file) 替代")
+	@Compatible("使用 toInputStream(file) 替代")
 	public static BufferedInputStream getInputStream(File file) throws IOException {
 		return IO.toInputStream(file);
 	}
