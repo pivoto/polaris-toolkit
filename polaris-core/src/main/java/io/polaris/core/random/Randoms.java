@@ -1,17 +1,28 @@
 package io.polaris.core.random;
 
 import java.awt.*;
+import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
+import io.polaris.core.asm.reflect.BeanAccess;
 import io.polaris.core.collection.Iterables;
+import io.polaris.core.converter.Converters;
+import io.polaris.core.lang.Types;
+import io.polaris.core.reflect.Reflects;
 import io.polaris.core.string.Strings;
 
 /**
@@ -196,6 +207,7 @@ public class Randoms {
 	public static String randomStringLowerCase(int length) {
 		return randomString(BASE_CHAR_NUMBER_LOWER, length);
 	}
+
 	public static String randomChineseString(int length) {
 		StringBuilder sb = new StringBuilder(length);
 		for (int i = 0; i < length; i++) {
@@ -226,5 +238,84 @@ public class Randoms {
 		long time = baseDate.getTime();
 		time = time + randomInt(min, max);
 		return new Date(time);
+	}
+
+
+	/**
+	 * 生成指定数量的随机实体对象列表
+	 *
+	 * @param entityClass 实体类的Class对象，用于创建该类型的随机实例
+	 * @param count       要生成的随机实体对象数量
+	 * @return 包含指定数量随机实体对象的列表
+	 */
+	public static <E> List<E> randomEntityList(Class<E> entityClass, int count) {
+		List<E> list = new ArrayList<>();
+		for (int i = 0; i < count; i++) {
+			list.add(randomEntity(entityClass));
+		}
+		return list;
+	}
+
+	/**
+	 * 生成随机实体对象
+	 * <p>
+	 * 根据给定的实体类创建一个实例，并为其所有可写属性随机填充值。
+	 * 支持基本类型、包装类型、日期时间类型、BigDecimal、BigInteger等常用类型。
+	 * 对于Map类型的实体类，返回空实例。
+	 * </p>
+	 *
+	 * @param <E>         实体类型
+	 * @param entityClass 实体类的Class对象
+	 * @return 填充了随机数据的实体实例
+	 */
+	public static <E> E randomEntity(Class<E> entityClass) {
+		E entity = Reflects.newInstanceIfPossible(entityClass);
+		if (Map.class.isAssignableFrom(entityClass)) {
+			return entity;
+		}
+		BeanAccess<E> beanAccess = BeanAccess.get(entityClass);
+		Set<String> setters = beanAccess.setterPropertyNames();
+		for (String setter : setters) {
+			try {
+				Type type = beanAccess.propertyType(setter);
+				Class<?> clazz = Types.getClass(type);
+				if (clazz == String.class) {
+					beanAccess.setPropertyOrField(entity, setter, Randoms.randomString(6));
+				} else if (clazz == Long.class || clazz == long.class) {
+					beanAccess.setPropertyOrField(entity, setter, Randoms.randomInt(0, 1000000));
+				} else if (clazz == Integer.class || clazz == int.class) {
+					beanAccess.setPropertyOrField(entity, setter, Randoms.randomInt(0, 1000000));
+				} else if (clazz == Double.class || clazz == double.class) {
+					beanAccess.setPropertyOrField(entity, setter, Randoms.randomDouble(0, 1000000));
+				} else if (clazz == Short.class || clazz == short.class) {
+					beanAccess.setPropertyOrField(entity, setter, (short) Randoms.randomInt(0, 1000000));
+				} else if (clazz == Byte.class || clazz == byte.class) {
+					beanAccess.setPropertyOrField(entity, setter, (byte) Randoms.randomInt(0, 1000000));
+				} else if (clazz == Float.class || clazz == float.class) {
+					beanAccess.setPropertyOrField(entity, setter, (float) Randoms.randomDouble(0, 1000000));
+				} else if (clazz == Boolean.class || clazz == boolean.class) {
+					beanAccess.setPropertyOrField(entity, setter, Randoms.randomBoolean());
+				} else if (clazz == Character.class || clazz == char.class) {
+					beanAccess.setPropertyOrField(entity, setter, Randoms.randomChar());
+				} else if (clazz == BigDecimal.class) {
+					beanAccess.setPropertyOrField(entity, setter, new BigDecimal(Randoms.randomNumberString(6)));
+				} else if (clazz == BigInteger.class) {
+					beanAccess.setPropertyOrField(entity, setter, new BigInteger(Randoms.randomNumberString(6)));
+				} else if (clazz == Date.class) {
+					beanAccess.setPropertyOrField(entity, setter, new Date());
+				} else if (clazz == Timestamp.class) {
+					beanAccess.setPropertyOrField(entity, setter, new Timestamp(System.currentTimeMillis()));
+				} else if (clazz == java.sql.Date.class) {
+					beanAccess.setPropertyOrField(entity, setter, new java.sql.Date(System.currentTimeMillis()));
+				} else if (clazz == java.sql.Time.class) {
+					beanAccess.setPropertyOrField(entity, setter, new java.sql.Time(System.currentTimeMillis()));
+				} else if (TemporalAccessor.class.isAssignableFrom(clazz)) {
+					beanAccess.setPropertyOrField(entity, setter, Converters.convertQuietly(type, Instant.now()));
+				}
+			} catch (Exception ignored) {
+			}
+		}
+
+		return entity;
 	}
 }
