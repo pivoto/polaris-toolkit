@@ -1,5 +1,11 @@
 ## 版本变更说明
 
+### 3.5.14
+- 优化线程任务包装接口及实现
+- Ulid添加静态工厂方法简化生成
+- 更新IO废弃方法提示信息
+- Randoms添加随机实体生成方法
+
 ### 3.5.13
 - 引入新函数式接口Condition替代Supplier<Boolean>，用于参数校验方法
 - 新增 ValidationChecker 验证构建器，在 Validations 工具类中新增对应的静态工厂方法和检查入口
