@@ -57,11 +57,16 @@ public class WrappingTasks {
 
 
 	public static class RunnableWrappingTask extends BaseWrappingTask implements WrappingRunnable, WrappingCallable<Object> {
+		private final Runnable originRunnable;
 		private final Runnable runnable;
 		private final Callable<Object> callable;
 
 		public RunnableWrappingTask(WrappingExecutionListener listener, WrappingInterceptor interceptor, @Nonnull Runnable runnable) {
 			super(listener);
+			if (runnable instanceof WrappingRunnable) {
+				runnable = ((WrappingRunnable) runnable).getOriginRunnable();
+			}
+			this.originRunnable = runnable;
 			this.runnable = withInterceptor(interceptor, runnable);
 			if (runnable instanceof Callable) {
 				//noinspection unchecked
@@ -69,6 +74,25 @@ public class WrappingTasks {
 			} else {
 				callable = null;
 			}
+		}
+
+		@Override
+		@Nonnull
+		public Runnable getOriginRunnable() {
+			return originRunnable;
+		}
+
+		@Nonnull
+		@Override
+		public Callable<Object> getOriginCallable() {
+			if (originRunnable instanceof Callable) {
+				//noinspection unchecked
+				return (Callable<Object>) originRunnable;
+			}
+			return () -> {
+				originRunnable.run();
+				return null;
+			};
 		}
 
 		@Override
@@ -84,21 +108,50 @@ public class WrappingTasks {
 			runnable.run();
 			return null;
 		}
+
 	}
 
 
 	public static class CallableWrappingTask<V> extends BaseWrappingTask implements WrappingCallable<V>, WrappingRunnable {
+		private final Callable<V> originCallable;
 		private final Runnable runnable;
 		private final Callable<V> callable;
 
 		public CallableWrappingTask(WrappingExecutionListener listener, WrappingInterceptor interceptor, @Nonnull Callable<V> callable) {
 			super(listener);
+			if (callable instanceof WrappingCallable) {
+				callable = ((WrappingCallable<V>) callable).getOriginCallable();
+			}
+			this.originCallable = callable;
 			this.callable = withInterceptor(interceptor, callable);
 			if (callable instanceof Runnable) {
 				runnable = withInterceptor(interceptor, (Runnable) callable);
 			} else {
 				runnable = null;
 			}
+		}
+
+		@Nonnull
+		@Override
+		public Callable<V> getOriginCallable() {
+			return originCallable;
+		}
+
+		@Nonnull
+		@Override
+		public Runnable getOriginRunnable() {
+			if (originCallable instanceof Runnable) {
+				return (Runnable) originCallable;
+			}
+			return () -> {
+				try {
+					originCallable.call();
+				} catch (RuntimeException e) {
+					throw e;
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			};
 		}
 
 		@Override
@@ -120,6 +173,7 @@ public class WrappingTasks {
 				throw new RuntimeException(e);
 			}
 		}
+
 	}
 
 	protected static class BaseWrappingTask implements WrappingTask, WrappingExecutionListener {
