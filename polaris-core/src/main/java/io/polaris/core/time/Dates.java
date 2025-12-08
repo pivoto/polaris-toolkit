@@ -11,6 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nonnull;
 
+import io.polaris.core.lang.Numbers;
+
 /**
  * @author Qt
  * @since 1.8
@@ -214,10 +216,20 @@ public class Dates implements DateConsts {
 			} else if (valueStr.length() == Dates.PATTERN_HH_MM_SS_SSS.length()) {
 				accessor = Dates.HH_MM_SS_SSS.parse(valueStr);
 			}
-		} catch (Exception e) {
+		} catch (Exception ignored) {
 		}
 		if (accessor == null) {
-			accessor = DateTimeFormatter.ISO_DATE_TIME.parse(valueStr);
+			try {
+				accessor = DateTimeFormatter.ISO_DATE_TIME.parse(valueStr);
+			} catch (Exception ignored) {
+			}
+		}
+		if (accessor == null) {
+			try {
+				long time = Numbers.parseLong(valueStr);
+				accessor = Instant.ofEpochMilli(time);
+			} catch (Exception ignored) {
+			}
 		}
 		return accessor;
 	}

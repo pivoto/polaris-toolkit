@@ -8,6 +8,12 @@ import org.junit.jupiter.api.Test;
 
 class DatesTest {
 
+	@Test
+	void test_parse() {
+		Consoles.log(Dates.parseDate("2020-03-15 11:30:00.000"));
+		Consoles.log(Dates.parseDate("12345678"));
+	}
+
 
 	@Test
 	void test_formatDefault() {
