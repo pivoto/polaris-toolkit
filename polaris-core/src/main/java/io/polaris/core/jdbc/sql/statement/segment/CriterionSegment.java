@@ -32,7 +32,7 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since  Aug 20, 2023
+ * @since Aug 20, 2023
  */
 @AnnotationProcessing
 public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O, S>> extends BaseSegment<S> implements SqlNodeBuilder, TableAccessibleHolder {
@@ -96,7 +96,7 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 	}
 
 
-	void recursiveSubSelectsExceptLogicDeleted(boolean includeSelf, boolean includeJoins, boolean includeSubSelects){
+	void recursiveSubSelectsExceptLogicDeleted(boolean includeSelf, boolean includeJoins, boolean includeSubSelects) {
 		if (this.or != null) {
 			this.or.recursiveSubSelectsExceptLogicDeleted(includeSelf, includeJoins, includeSubSelects);
 			return;
@@ -131,7 +131,7 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 			if (subSelectWithColumn) {
 				if (this.expression != null) {
 					sql.addNode(this.expression.toSqlNode(column()));
-				}else{
+				} else {
 					sql.addNode(SqlNodes.text(column()));
 				}
 			}
@@ -189,84 +189,141 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		return end();
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(String functionPattern, TableField[] extFields, Map<String, Object> bindings) {
 		return apply(Expressions.pattern(functionPattern), extFields, bindings);
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(String functionPattern, TableField[] extFields, Object... bindings) {
 		return apply(Expressions.pattern(functionPattern), extFields, bindings);
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(String functionPattern, TableField... extFields) {
 		return apply(Expressions.pattern(functionPattern), extFields);
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(String functionPattern) {
 		return apply(Expressions.pattern(functionPattern), StdConsts.EMPTY_ARRAY);
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(String functionPattern, Object[] bindings) {
 		return apply(Expressions.pattern(functionPattern), bindings);
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(Expression function, TableField[] extFields, Map<String, Object> bindings) {
 		this.expression = new ExpressionSegment<>(this.expression, tableAccessible, extFields, function, bindings);
 		return getThis();
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(Expression function, TableField[] extFields, Object... bindings) {
 		this.expression = new ExpressionSegment<>(this.expression, tableAccessible, extFields, function, bindings);
 		return getThis();
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(Expression function, TableField... extFields) {
 		return apply(function, extFields, StdConsts.EMPTY_ARRAY);
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(Expression function) {
 		this.expression = new ExpressionSegment<>(this.expression, function, StdConsts.EMPTY_ARRAY);
 		return getThis();
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(Expression function, Object[] bindings) {
 		this.expression = new ExpressionSegment<>(this.expression, function, bindings);
 		return getThis();
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(Expression function, Map<String, Object> bindings) {
 		this.expression = new ExpressionSegment<>(this.expression, function, bindings);
 		return getThis();
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(String functionPattern, int tableIndex, String field) {
 		return apply(functionPattern, TableField.of(tableIndex, field));
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(Expression function, int tableIndex, String field) {
 		return apply(function, TableField.of(tableIndex, field));
 	}
 
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(String functionPattern, String tableAlias, String field) {
 		return apply(functionPattern, TableField.of(tableAlias, field));
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(Expression function, String tableAlias, String field) {
 		return apply(function, TableField.of(tableAlias, field));
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public <T, R> S apply(String functionPattern, int tableIndex, GetterFunction<T, R> field) {
 		return apply(functionPattern, TableField.of(tableIndex, field));
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public <T, R> S apply(Expression function, int tableIndex, GetterFunction<T, R> field) {
 		return apply(function, TableField.of(tableIndex, field));
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public <T, R> S apply(String functionPattern, String tableAlias, GetterFunction<T, R> field) {
 		return apply(functionPattern, TableField.of(tableAlias, field));
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public <T, R> S apply(Expression function, String tableAlias, GetterFunction<T, R> field) {
 		return apply(function, TableField.of(tableAlias, field));
 	}
@@ -587,7 +644,7 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 	}
 
 	public <E> O in(Collection<E> value, int limitSize) {
-		Assertions.assertTrue(limitSize > 0,"集合元素数量上限必须大于0");
+		Assertions.assertTrue(limitSize > 0, "集合元素数量上限必须大于0");
 		if (value.size() < limitSize) {
 			this.expression = new ExpressionSegment<>(this.expression, LogicalExpression.IN.getExpression(), value);
 		} else {
@@ -595,6 +652,7 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		}
 		return end();
 	}
+
 	public <E> O in(Collection<E> value) {
 		if (value.size() < 1000) {
 			this.expression = new ExpressionSegment<>(this.expression, LogicalExpression.IN.getExpression(), value);

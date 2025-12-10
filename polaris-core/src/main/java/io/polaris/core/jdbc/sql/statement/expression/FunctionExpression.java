@@ -6,11 +6,16 @@ import io.polaris.core.jdbc.sql.node.SqlNode;
 
 /**
  * @author Qt
- * @since  Aug 23, 2023
+ * @since Aug 23, 2023
  */
 public enum FunctionExpression implements Expression {
 
-	COALESCE(Expressions.pattern("COALESCE(${ref1},${ref})")),
+	COALESCE_FIELD1(Expressions.pattern("COALESCE(${ref},${ref1})")),
+	COALESCE_FIELD2(Expressions.pattern("COALESCE(${ref},${ref1},${ref2})")),
+	COALESCE_FIELD3(Expressions.pattern("COALESCE(${ref},${ref1},${ref2},${ref3})")),
+	COALESCE_VALUE1(Expressions.pattern("COALESCE(${ref},${0})")),
+	COALESCE_VALUE2(Expressions.pattern("COALESCE(${ref},${0},${1})")),
+	COALESCE_VALUE3(Expressions.pattern("COALESCE(${ref},${0},${1},${2})")),
 	;
 
 

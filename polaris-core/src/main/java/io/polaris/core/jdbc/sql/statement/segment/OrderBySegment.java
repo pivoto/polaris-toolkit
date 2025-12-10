@@ -123,71 +123,119 @@ public class OrderBySegment<O extends Segment<O>, S extends OrderBySegment<O, S>
 		return end();
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(String functionPattern, TableField[] extFields, Map<String, Object> bindings) {
 		return apply(Expressions.pattern(functionPattern), extFields, bindings);
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(String functionPattern, TableField[] extFields, Object... bindings) {
 		return apply(Expressions.pattern(functionPattern), extFields, bindings);
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(String functionPattern, TableField... extFields) {
 		return apply(Expressions.pattern(functionPattern), extFields);
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(String functionPattern) {
 		return apply(Expressions.pattern(functionPattern), StdConsts.EMPTY_ARRAY);
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(String functionPattern, Map<String, Object> bindings) {
 		return apply(Expressions.pattern(functionPattern), bindings);
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(String functionPattern, Object[] bindings) {
 		return apply(Expressions.pattern(functionPattern), bindings);
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(Expression function) {
 		this.expression = new ExpressionSegment<>(this.expression, function, StdConsts.EMPTY_ARRAY);
 		return getThis();
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(Expression function, Map<String, Object> bindings) {
 		this.expression = new ExpressionSegment<>(this.expression, function, bindings);
 		return getThis();
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(Expression function, Object[] bindings) {
 		this.expression = new ExpressionSegment<>(this.expression, function, bindings);
 		return getThis();
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(Expression function, TableField... extFields) {
 		return apply(function, extFields, StdConsts.EMPTY_ARRAY);
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(Expression function, TableField[] extFields, Map<String, Object> bindings) {
 		this.expression = new ExpressionSegment<>(this.expression, tableAccessible, extFields, function, bindings);
 		return getThis();
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(Expression function, TableField[] extFields, Object... bindings) {
 		this.expression = new ExpressionSegment<>(this.expression, tableAccessible, extFields, function, bindings);
 		return getThis();
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(String functionPattern, int tableIndex, String field) {
 		return apply(functionPattern, TableField.of(tableIndex, field));
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(Expression function, int tableIndex, String field) {
 		return apply(function, TableField.of(tableIndex, field));
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(String functionPattern, String tableAlias, String field) {
 		return apply(functionPattern, TableField.of(tableAlias, field));
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(Expression function, String tableAlias, String field) {
 		return apply(function, TableField.of(tableAlias, field));
 	}

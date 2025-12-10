@@ -11,6 +11,7 @@ import io.polaris.core.jdbc.sql.consts.Operator;
 import io.polaris.core.jdbc.sql.consts.Relation;
 import io.polaris.core.jdbc.sql.statement.any.AnySelectStatement;
 import io.polaris.core.jdbc.sql.statement.expression.Expressions;
+import io.polaris.core.jdbc.sql.statement.expression.FunctionExpression;
 import io.polaris.core.jdbc.sql.statement.segment.TableField;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -122,6 +123,9 @@ public class SelectStatementTest {
 		void test01() {
 			SelectStatement<?> sql = new SelectStatement<>(DemoEntity.class, "t1");
 			sql.select().column(DemoEntity.Fields.name).aliasPrefix("prefix_").aliasSuffix("_suffix");
+			sql.select().column(DemoEntity.Fields.name).apply(FunctionExpression.COALESCE_FIELD1, Expressions.fields(TableField.of(0, DemoEntity.Fields.fieldStr1))).end();
+			sql.select().column(DemoEntity.Fields.name).apply("coalesce(${ref1}, ${ref}, ${0})", Expressions.fields(TableField.of(0, DemoEntity.Fields.fieldStr1)), Expressions.bindings(1,2,3)).end();
+			sql.select().column(DemoEntity.Fields.name).apply("coalesce(${ref1}, ${ref}, ${0})", Expressions.fields(TableField.of(0, DemoEntity.Fields.fieldStr1)), Expressions.bindings(map->map.put("0",1))).end();
 
 			SelectStatement<?> sub = new SelectStatement<>(Demo2Entity.class, "t2");
 			sub.select().column(Demo2Entity.Fields.name);
@@ -129,7 +133,7 @@ public class SelectStatementTest {
 			sub.where().column(Demo2Entity.Fields.name).eq(TableField.of("t1", Demo2Entity.Fields.name));
 
 			BoundSql subSql = sub.toSqlNode().asBoundSql();
-			sql.where().column("").apply(Expressions.pattern("\nexists ( " + subSql.getText() + " )\n"), subSql.getBindings());
+			sql.where().column("").apply(Expressions.pattern("exists ( " + subSql.getText() + " )"), subSql.getBindings());
 
 			sql.where().exists(sub);
 			sql.where().exists(Demo2EntitySql.select("t3"), x->{

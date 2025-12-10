@@ -82,26 +82,44 @@ public class ColumnSegment<O extends Segment<O>, S extends ColumnSegment<O, S>> 
 		return getThis();
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(String functionPattern, String[] extFieldNames, Map<String, Object> bindings) {
 		return apply(Expressions.pattern(functionPattern), extFieldNames, bindings);
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(String functionPattern, String[] extFieldNames, Object... bindings) {
 		return apply(Expressions.pattern(functionPattern), extFieldNames, bindings);
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(String functionPattern) {
 		return apply(Expressions.pattern(functionPattern));
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(String functionPattern, Object[] bindings) {
 		return apply(Expressions.pattern(functionPattern), bindings);
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(String functionPattern, Map<String, Object> bindings) {
 		return apply(Expressions.pattern(functionPattern), bindings);
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(Expression function, String[] extFieldNames, Map<String, Object> bindings) {
 		TableField[] extFields = extFieldNames == null ? new TableField[0] : new TableField[extFieldNames.length];
 		for (int i = 0; i < extFields.length; i++) {
@@ -111,6 +129,9 @@ public class ColumnSegment<O extends Segment<O>, S extends ColumnSegment<O, S>> 
 		return getThis();
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(Expression function, String[] extFieldNames, Object... bindings) {
 		TableField[] extFields = extFieldNames == null ? new TableField[0] : new TableField[extFieldNames.length];
 		for (int i = 0; i < extFields.length; i++) {
@@ -120,16 +141,25 @@ public class ColumnSegment<O extends Segment<O>, S extends ColumnSegment<O, S>> 
 		return getThis();
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(Expression function) {
 		this.expression = new ExpressionSegment<>(this.expression, function, StdConsts.EMPTY_ARRAY);
 		return getThis();
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(Expression function, Object[] bindings) {
 		this.expression = new ExpressionSegment<>(this.expression, function, bindings);
 		return getThis();
 	}
 
+	/**
+	 * @see Expressions#pattern(String)
+	 */
 	public S apply(Expression function, Map<String, Object> bindings) {
 		this.expression = new ExpressionSegment<>(this.expression, function, bindings);
 		return getThis();

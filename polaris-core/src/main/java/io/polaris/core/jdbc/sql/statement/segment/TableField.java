@@ -8,7 +8,7 @@ import lombok.ToString;
 
 /**
  * @author Qt
- * @since  Aug 23, 2023
+ * @since Aug 23, 2023
  */
 @EqualsAndHashCode
 @ToString
@@ -28,6 +28,10 @@ public class TableField {
 		this.fieldName = fieldName;
 		this.tableIndex = null;
 		this.tableAlias = tableAlias;
+	}
+
+	public static TableField[] of(TableField... fields) {
+		return fields;
 	}
 
 	public static TableField of(Integer tableIndex, String fieldName) {
