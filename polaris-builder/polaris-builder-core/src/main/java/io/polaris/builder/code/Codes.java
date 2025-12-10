@@ -39,42 +39,72 @@ public class Codes {
 		generate(metadata, targets);
 	}
 
+	public static void generate(Class<?> clazz, int concurrent, String... targets) throws IOException {
+		Metadata metadata = parse(clazz);
+		generate(metadata, concurrent, targets);
+	}
+
 	public static void generate(Class<?> clazz, int concurrent) throws IOException {
 		Metadata metadata = parse(clazz);
 		generate(metadata, concurrent);
 	}
 
-	private static void generate(Metadata metadata, int concurrent) throws IOException {
+	private static void generate(Metadata metadata, int concurrent, String... targets) throws IOException {
 		if (concurrent <= 1) {
-			generate(metadata);
+			generate(metadata, targets);
 		} else {
-			CodeConfiguration code = metadata.codeConfiguration;
 			ThreadPoolExecutor pool = Executors.create(concurrent, "CodeGenerator");
 			CountDownLatch latch = new CountDownLatch(concurrent);
 			try {
 				final List<IOException> errors = Collections.synchronizedList(new ArrayList<>());
-				List<Table>[] tables = new List[concurrent];
-				{
-					int n = 0;
-					for (Table table : code.tables()) {
-						int idx = (n++) % concurrent;
-						(tables[idx] == null ? tables[idx] = new ArrayList<>() : tables[idx]).add(table);
+				if (targets != null && targets.length > 0) {
+					List<String>[] tables = new List[concurrent];
+					{
+						for (int i = 0; i < targets.length; i++) {
+							int idx = i % concurrent;
+							(tables[idx] == null ? tables[idx] = new ArrayList<>() : tables[idx]).add(targets[i]);
+						}
+					}
+					for (List<String> list : tables) {
+						if (list != null && !list.isEmpty()) {
+							String[] array = list.toArray(new String[0]);
+							pool.execute(() -> {
+								try {
+									generate(metadata, array);
+								} catch (IOException e) {
+									errors.add(e);
+								} finally {
+									latch.countDown();
+								}
+							});
+						}
+					}
+				} else {
+					CodeConfiguration code = metadata.codeConfiguration;
+					List<Table>[] tables = new List[concurrent];
+					{
+						int n = 0;
+						for (Table table : code.tables()) {
+							int idx = (n++) % concurrent;
+							(tables[idx] == null ? tables[idx] = new ArrayList<>() : tables[idx]).add(table);
+						}
+					}
+					for (List<Table> list : tables) {
+						if (list != null && !list.isEmpty()) {
+							Table[] array = list.toArray(new Table[list.size()]);
+							pool.execute(() -> {
+								try {
+									generate(metadata, array);
+								} catch (IOException e) {
+									errors.add(e);
+								} finally {
+									latch.countDown();
+								}
+							});
+						}
 					}
 				}
-				for (List<Table> list : tables) {
-					if (list != null && !list.isEmpty()) {
-						Table[] array = list.toArray(new Table[list.size()]);
-						pool.execute(() -> {
-							try {
-								generate(metadata, array);
-							} catch (IOException e) {
-								errors.add(e);
-							} finally {
-								latch.countDown();
-							}
-						});
-					}
-				}
+				// await
 				for (; ; ) {
 					try {
 						latch.await();

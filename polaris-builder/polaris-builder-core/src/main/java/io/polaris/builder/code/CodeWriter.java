@@ -6,32 +6,47 @@ import io.polaris.builder.code.config.CodeTable;
 import io.polaris.builder.code.config.CodeTemplate;
 import io.polaris.builder.code.dto.TableDto;
 import io.polaris.builder.velocity.VelocityTemplate;
+import io.polaris.core.concurrent.Executors;
+import io.polaris.core.tuple.Tuple2;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.context.Context;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author Qt
  * @since 1.8
  */
 public class CodeWriter {
+	public static final String VM_PREFIX = "#parse(\"/vm/include.vm\")" ;
 	private final CodeEnv codeEnv;
 	private final Map<CodeTable, TableDto> tables;
-	public static final String VM_PREFIX = "#parse(\"/vm/include.vm\")";
+	private final int concurrent;
 
-	public CodeWriter(CodeEnv codeEnv, Map<CodeTable, TableDto> tables) {
+	public CodeWriter(CodeEnv codeEnv, Map<CodeTable, TableDto> tables, int concurrent) {
 		this.codeEnv = codeEnv;
 		this.tables = tables;
+		this.concurrent = Integer.max(concurrent, 1);
 	}
 
+	public CodeWriter(CodeEnv codeEnv, Map<CodeTable, TableDto> tables) {
+		this(codeEnv, tables, 1);
+	}
 
 	public void write() {
+		if (concurrent > 1) {
+			writeConcurrent();
+			return;
+		}
 		try {
 			List<CodeGroup> groups = codeEnv.getGroups();
 			if (groups == null) {
@@ -53,6 +68,65 @@ public class CodeWriter {
 		} catch (IOException e) {
 			CodeLogger.error("", e);
 			throw new RuntimeException(e);
+		}
+	}
+
+	private void writeConcurrent() {
+		ThreadPoolExecutor pool = Executors.create(concurrent, "CodeWriter");
+		try {
+			CountDownLatch latch = new CountDownLatch(concurrent);
+			final List<IOException> errors = Collections.synchronizedList(new ArrayList<>());
+			@SuppressWarnings("unchecked")
+			Tuple2<CodeGroup, TableDto>[] tasks = new Tuple2[concurrent];
+			List<CodeGroup> groups = codeEnv.getGroups();
+			if (groups == null) {
+				return;
+			}
+			int pos = 0;
+			for (CodeGroup group : groups) {
+				List<CodeTable> tableList = group.getTables();
+				if (tableList == null) {
+					continue;
+				}
+				for (CodeTable codeTable : tableList) {
+					final TableDto table = tables.get(codeTable);
+					if (table == null) {
+						continue;
+					}
+					tasks[(pos++) % concurrent] = Tuple2.of(group, table);
+				}
+			}
+			for (Tuple2<CodeGroup, TableDto> task : tasks) {
+				pool.execute(() -> {
+					try {
+						write(task.getFirst(), task.getSecond());
+					} catch (IOException e) {
+						errors.add(e);
+					} finally {
+						latch.countDown();
+					}
+				});
+			}
+
+			// await
+			for (; ; ) {
+				try {
+					latch.await();
+					break;
+				} catch (InterruptedException ignored) {
+				}
+			}
+			int errCount = errors.size();
+			if (errCount > 0) {
+				RuntimeException e = new RuntimeException(errors.get(0));
+				for (int idx = 1; idx < errCount; idx++) {
+					e.addSuppressed(errors.get(idx));
+				}
+				CodeLogger.error("", e);
+				throw e;
+			}
+		} finally {
+			Executors.shutdown(pool);
 		}
 	}
 

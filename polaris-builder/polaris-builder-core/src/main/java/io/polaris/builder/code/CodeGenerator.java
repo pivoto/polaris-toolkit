@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -69,6 +70,11 @@ public class CodeGenerator {
 	public void generate() throws IOException {
 		readConfig();
 		new CodeWriter(codeEnv, tables).write();
+	}
+
+	public void generate(int concurrent) throws IOException {
+		readConfig();
+		new CodeWriter(codeEnv, tables, concurrent).write();
 	}
 
 

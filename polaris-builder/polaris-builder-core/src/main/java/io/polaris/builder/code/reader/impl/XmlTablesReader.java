@@ -39,7 +39,7 @@ public class XmlTablesReader implements TablesReader {
 		return xs;
 	}
 
-	protected Tables unmarshal(File xmlDataFile) {
+	protected synchronized Tables unmarshal(File xmlDataFile) {
 		Tables tables = new Tables();
 		try (InputStream in = new FileInputStream(xmlDataFile)) {
 			buildXStream().fromXML(in, tables);
@@ -48,7 +48,7 @@ public class XmlTablesReader implements TablesReader {
 		return tables;
 	}
 
-	protected void marshal(Tables tables, File xmlDataFile) {
+	protected synchronized void marshal(Tables tables, File xmlDataFile) {
 		try (Writer writer = new PrintWriter(xmlDataFile);) {
 			buildXStream().toXML(tables, writer);
 		} catch (Exception e) {
