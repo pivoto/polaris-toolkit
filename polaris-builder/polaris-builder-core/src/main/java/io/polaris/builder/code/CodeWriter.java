@@ -230,7 +230,9 @@ public class CodeWriter {
 	private void mkdirs(File dir) {
 		if (!dir.exists()) {
 			if (!dir.mkdirs()) {
-				throw new RuntimeException("Can't mkdir: " + dir.getAbsolutePath());
+				if (!dir.exists()) {
+					throw new RuntimeException("Can't mkdir: " + dir.getAbsolutePath());
+				}
 			}
 		}
 	}
