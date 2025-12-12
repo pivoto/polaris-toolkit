@@ -8,7 +8,7 @@ import java.util.List;
  * @author Qt
  * @since 1.8
  */
-public class ResultSingleListExtractor extends ResultSingleCollectionExtractor<List<Object>> {
+public class ResultSingleListExtractor<T> extends ResultSingleCollectionExtractor<List<T>, T> {
 
 	public ResultSingleListExtractor() {
 		super(ArrayList::new);

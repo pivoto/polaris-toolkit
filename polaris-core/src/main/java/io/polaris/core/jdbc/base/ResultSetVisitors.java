@@ -2,7 +2,7 @@ package io.polaris.core.jdbc.base;
 
 /**
  * @author Qt
- * @since  Feb 06, 2024
+ * @since Feb 06, 2024
  */
 public class ResultSetVisitors {
 	public static <T> ResultSetVisitor ofRows(ResultRowMapper<T> mapper, ResultVisitor<T> visitor) {
@@ -20,6 +20,24 @@ public class ResultSetVisitors {
 			if (rs.next()) {
 				String[] columns = ResultRowMappers.getColumns(rs);
 				T t = mapper.map(rs, columns);
+				visitor.visit(t);
+			}
+		};
+	}
+
+	public static <T> ResultSetVisitor ofRows(ResultRowSimpleMapper<T> mapper, ResultVisitor<T> visitor) {
+		return rs -> {
+			while (rs.next()) {
+				T t = mapper.map(rs);
+				visitor.visit(t);
+			}
+		};
+	}
+
+	public static <T> ResultSetVisitor ofRow(ResultRowSimpleMapper<T> mapper, ResultVisitor<T> visitor) {
+		return rs -> {
+			if (rs.next()) {
+				T t = mapper.map(rs);
 				visitor.visit(t);
 			}
 		};

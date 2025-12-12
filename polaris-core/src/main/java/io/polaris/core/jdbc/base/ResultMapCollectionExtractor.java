@@ -1,12 +1,12 @@
 package io.polaris.core.jdbc.base;
 
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import io.polaris.core.jdbc.sql.query.Pageable;
 import io.polaris.core.reflect.Reflects;
 
 /**
@@ -39,17 +39,15 @@ public class ResultMapCollectionExtractor<C extends Collection<T>, T extends Map
 	@Override
 	public C extract(ResultSet rs) throws SQLException {
 		C list = collectionBuilder.get();
-
-		ResultSetMetaData meta = rs.getMetaData();
-		int cnt = meta.getColumnCount();
-		String[] keys = new String[cnt];
-		for (int i = 1; i <= cnt; i++) {
-			keys[i - 1] = meta.getColumnLabel(i);
-		}
-		while (rs.next()) {
-			T map = mapper.map(rs, keys);
-			list.add(map);
-		}
+		ResultExtractors.extract(rs, mapper, list);
 		return list;
 	}
+
+	@Override
+	public C extract(ResultSet rs, Pageable pageable) throws SQLException {
+		C list = collectionBuilder.get();
+		ResultExtractors.extract(rs, mapper, list, pageable);
+		return list;
+	}
+
 }

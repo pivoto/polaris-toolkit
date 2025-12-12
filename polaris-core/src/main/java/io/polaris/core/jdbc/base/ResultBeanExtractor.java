@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import io.polaris.core.jdbc.sql.query.Pageable;
 import io.polaris.core.lang.bean.CaseModeOption;
 
 /**
@@ -29,13 +30,13 @@ public class ResultBeanExtractor<T> implements ResultExtractor<T> {
 		this.mapper = ResultRowMappers.ofBean(beanType, caseMode);
 	}
 
-
 	@Override
 	public T extract(ResultSet rs) throws SQLException {
-		if (rs.next()) {
-			String[] keys = ResultRowMappers.getColumns(rs);
-			return this.mapper.map(rs, keys);
-		}
-		return null;
+		return ResultExtractors.extract(rs, mapper);
+	}
+
+	@Override
+	public T extract(ResultSet rs, Pageable pageable) throws SQLException {
+		return extract(rs);
 	}
 }

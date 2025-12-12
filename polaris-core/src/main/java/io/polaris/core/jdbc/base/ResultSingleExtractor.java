@@ -4,6 +4,8 @@ import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import io.polaris.core.jdbc.sql.query.Pageable;
+
 /**
  * @author Qt
  * @since 1.8
@@ -26,9 +28,11 @@ public class ResultSingleExtractor<T> implements ResultExtractor<T> {
 
 	@Override
 	public T extract(ResultSet rs) throws SQLException {
-		if (rs.next()) {
-			return  mapper.map(rs, null);
-		}
-		return null;
+		return ResultExtractors.extract(rs, mapper, (String[]) null);
+	}
+
+	@Override
+	public T extract(ResultSet rs, Pageable pageable) throws SQLException {
+		return extract(rs);
 	}
 }

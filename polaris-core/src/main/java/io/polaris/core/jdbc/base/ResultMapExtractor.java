@@ -1,9 +1,10 @@
 package io.polaris.core.jdbc.base;
 
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Map;
+
+import io.polaris.core.jdbc.sql.query.Pageable;
 
 /**
  * @author Qt
@@ -17,6 +18,7 @@ public class ResultMapExtractor<T extends Map<String, Object>> implements Result
 	public ResultMapExtractor() {
 		this.mapper = (ResultRowMapper<T>) ResultRowMappers.ofMap();
 	}
+
 	public ResultMapExtractor(ResultRowMapper<T> mapper) {
 		this.mapper = mapper;
 	}
@@ -27,15 +29,11 @@ public class ResultMapExtractor<T extends Map<String, Object>> implements Result
 
 	@Override
 	public T extract(ResultSet rs) throws SQLException {
-		if (rs.next()) {
-			ResultSetMetaData meta = rs.getMetaData();
-			int cnt = meta.getColumnCount();
-			String[] keys = new String[cnt];
-			for (int i = 1; i <= cnt; i++) {
-				keys[i - 1] = meta.getColumnLabel(i);
-			}
-			return mapper.map(rs, keys);
-		}
-		return null;
+		return ResultExtractors.extract(rs, mapper);
+	}
+
+	@Override
+	public T extract(ResultSet rs, Pageable pageable) throws SQLException {
+		return extract(rs);
 	}
 }

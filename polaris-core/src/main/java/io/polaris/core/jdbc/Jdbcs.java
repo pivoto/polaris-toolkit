@@ -34,6 +34,7 @@ import io.polaris.core.jdbc.executor.JdbcBatch;
 import io.polaris.core.jdbc.executor.JdbcExecutors;
 import io.polaris.core.jdbc.sql.PreparedSql;
 import io.polaris.core.jdbc.sql.node.SqlNode;
+import io.polaris.core.jdbc.sql.query.Pageable;
 import io.polaris.core.lang.bean.MetaObject;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
@@ -401,10 +402,17 @@ public class Jdbcs {
 	/**
 	 * @see ResultExtractors
 	 */
-	public static <T> T query(Connection conn, SqlNode sqlNode
-		, ResultExtractor<T> extractor) throws SQLException {
+	public static <T> T query(Connection conn, SqlNode sqlNode, ResultExtractor<T> extractor) throws SQLException {
 		PreparedSql sql = sqlNode.asPreparedSql();
 		return query(conn, sql.getText(), preparerOfParameters(sql.getBindings()), extractor);
+	}
+
+	/**
+	 * @see ResultExtractors
+	 */
+	public static <T> T query(Connection conn, SqlNode sqlNode, ResultExtractor<T> extractor, Pageable pageable) throws SQLException {
+		PreparedSql sql = sqlNode.asPreparedSql();
+		return query(conn, sql.getText(), preparerOfParameters(sql.getBindings()), extractor, pageable);
 	}
 
 	/**
@@ -418,17 +426,23 @@ public class Jdbcs {
 	/**
 	 * @see ResultExtractors
 	 */
-	public static <T> T query(Connection conn, SqlNode sqlNode, @Nonnull JdbcOptions options
-		, ResultExtractor<T> extractor) throws SQLException {
+	public static <T> T query(Connection conn, SqlNode sqlNode, @Nonnull JdbcOptions options, ResultExtractor<T> extractor) throws SQLException {
 		PreparedSql sql = sqlNode.asPreparedSql();
 		return query(conn, sql.getText(), options, preparerOfParameters(sql.getBindings()), extractor);
 	}
 
 	/**
+	 * @see ResultExtractors
+	 */
+	public static <T> T query(Connection conn, SqlNode sqlNode, @Nonnull JdbcOptions options, ResultExtractor<T> extractor, Pageable pageable) throws SQLException {
+		PreparedSql sql = sqlNode.asPreparedSql();
+		return query(conn, sql.getText(), options, preparerOfParameters(sql.getBindings()), extractor, pageable);
+	}
+
+	/**
 	 * @see ResultSetVisitors
 	 */
-	public static void query(Connection conn, SqlNode sqlNode, @Nonnull JdbcOptions options
-		, ResultSetVisitor visitor) throws SQLException {
+	public static void query(Connection conn, SqlNode sqlNode, @Nonnull JdbcOptions options, ResultSetVisitor visitor) throws SQLException {
 		PreparedSql sql = sqlNode.asPreparedSql();
 		query(conn, sql.getText(), options, preparerOfParameters(sql.getBindings()), visitor);
 	}
@@ -436,32 +450,42 @@ public class Jdbcs {
 	/**
 	 * @see ResultExtractors
 	 */
-	public static <T> T query(Connection conn, String sql, Iterable<?> parameters
-		, ResultExtractor<T> extractor) throws SQLException {
+	public static <T> T query(Connection conn, String sql, Iterable<?> parameters, ResultExtractor<T> extractor) throws SQLException {
 		return query(conn, sql, preparerOfParameters(parameters), extractor);
+	}
+
+	/**
+	 * @see ResultExtractors
+	 */
+	public static <T> T query(Connection conn, String sql, Iterable<?> parameters, ResultExtractor<T> extractor, Pageable pageable) throws SQLException {
+		return query(conn, sql, preparerOfParameters(parameters), extractor, pageable);
 	}
 
 	/**
 	 * @see ResultSetVisitors
 	 */
-	public static void query(Connection conn, String sql, Iterable<?> parameters
-		, ResultSetVisitor visitor) throws SQLException {
+	public static void query(Connection conn, String sql, Iterable<?> parameters, ResultSetVisitor visitor) throws SQLException {
 		query(conn, sql, preparerOfParameters(parameters), visitor);
 	}
 
 	/**
 	 * @see ResultExtractors
 	 */
-	public static <T> T query(Connection conn, String sql, Object[] parameters
-		, ResultExtractor<T> extractor) throws SQLException {
+	public static <T> T query(Connection conn, String sql, Object[] parameters, ResultExtractor<T> extractor) throws SQLException {
 		return query(conn, sql, preparerOfParameters(parameters), extractor);
+	}
+
+	/**
+	 * @see ResultExtractors
+	 */
+	public static <T> T query(Connection conn, String sql, Object[] parameters, ResultExtractor<T> extractor, Pageable pageable) throws SQLException {
+		return query(conn, sql, preparerOfParameters(parameters), extractor, pageable);
 	}
 
 	/**
 	 * @see ResultSetVisitors
 	 */
-	public static void query(Connection conn, String sql, Object[] parameters
-		, ResultSetVisitor visitor) throws SQLException {
+	public static void query(Connection conn, String sql, Object[] parameters, ResultSetVisitor visitor) throws SQLException {
 		query(conn, sql, preparerOfParameters(parameters), visitor);
 	}
 
@@ -473,6 +497,13 @@ public class Jdbcs {
 	}
 
 	/**
+	 * @see ResultExtractors
+	 */
+	public static <T> T query(Connection conn, String sql, ResultExtractor<T> extractor, Pageable pageable) throws SQLException {
+		return query(conn, sql, (StatementPreparer) null, extractor, pageable);
+	}
+
+	/**
 	 * @see ResultSetVisitors
 	 */
 	public static void query(Connection conn, String sql, ResultSetVisitor visitor) throws SQLException {
@@ -480,21 +511,15 @@ public class Jdbcs {
 	}
 
 	public static <T> List<T> query(Connection conn, String sql, ResultRowSimpleMapper<T> mapper) throws SQLException {
-		return query(conn, sql, (StatementPreparer) null, rs -> {
-			List<T> list = new ArrayList<>();
-			while (rs.next()) {
-				list.add(mapper.map(rs));
-			}
-			return list;
-		});
+		return query(conn, sql, (StatementPreparer) null, ResultExtractors.ofMapperList(mapper));
+	}
+
+	public static <T> List<T> query(Connection conn, String sql, ResultRowSimpleMapper<T> mapper, Pageable pageable) throws SQLException {
+		return query(conn, sql, (StatementPreparer) null, ResultExtractors.ofMapperList(mapper), pageable);
 	}
 
 	public static <T> void query(Connection conn, String sql, ResultRowSimpleMapper<T> mapper, ResultVisitor<T> visitor) throws SQLException {
-		query(conn, sql, (StatementPreparer) null, (rs -> {
-			while (rs.next()) {
-				visitor.visit(mapper.map(rs));
-			}
-		}));
+		query(conn, sql, (StatementPreparer) null, ResultSetVisitors.ofRows(mapper, visitor));
 	}
 
 
@@ -514,12 +539,24 @@ public class Jdbcs {
 		return query(conn, sql, (StatementPreparer) null, ResultExtractors.ofMapList());
 	}
 
+	public static List<Map<String, Object>> queryForMapList(Connection conn, String sql, Pageable pageable) throws SQLException {
+		return query(conn, sql, (StatementPreparer) null, ResultExtractors.ofMapList(), pageable);
+	}
+
 	public static List<Map<String, Object>> queryForMapList(Connection conn, String sql, Iterable<?> parameters) throws SQLException {
 		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofMapList());
 	}
 
+	public static List<Map<String, Object>> queryForMapList(Connection conn, String sql, Iterable<?> parameters, Pageable pageable) throws SQLException {
+		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofMapList(), pageable);
+	}
+
 	public static List<Map<String, Object>> queryForMapList(Connection conn, String sql, Object[] parameters) throws SQLException {
 		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofMapList());
+	}
+
+	public static List<Map<String, Object>> queryForMapList(Connection conn, String sql, Object[] parameters, Pageable pageable) throws SQLException {
+		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofMapList(), pageable);
 	}
 
 	public static <T> void queryForList(Connection conn, String sql, Class<T> beanType, ResultVisitor<T> visitor) throws SQLException {
@@ -551,24 +588,48 @@ public class Jdbcs {
 		return query(conn, sql, (StatementPreparer) null, ResultExtractors.ofBeanList(beanType));
 	}
 
+	public static <T> List<T> queryForList(Connection conn, String sql, Class<T> beanType, Pageable pageable) throws SQLException {
+		return query(conn, sql, (StatementPreparer) null, ResultExtractors.ofBeanList(beanType), pageable);
+	}
+
 	public static <T> List<T> queryForList(Connection conn, String sql, Iterable<?> parameters, Class<T> beanType) throws SQLException {
 		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofBeanList(beanType));
+	}
+
+	public static <T> List<T> queryForList(Connection conn, String sql, Iterable<?> parameters, Class<T> beanType, Pageable pageable) throws SQLException {
+		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofBeanList(beanType), pageable);
 	}
 
 	public static <T> List<T> queryForList(Connection conn, String sql, Object[] parameters, Class<T> beanType) throws SQLException {
 		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofBeanList(beanType));
 	}
 
+	public static <T> List<T> queryForList(Connection conn, String sql, Object[] parameters, Class<T> beanType, Pageable pageable) throws SQLException {
+		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofBeanList(beanType), pageable);
+	}
+
 	public static <T> List<T> queryForList(Connection conn, String sql, BeanMapping<T> mapping) throws SQLException {
 		return query(conn, sql, (StatementPreparer) null, ResultExtractors.ofMappingList(mapping));
+	}
+
+	public static <T> List<T> queryForList(Connection conn, String sql, BeanMapping<T> mapping, Pageable pageable) throws SQLException {
+		return query(conn, sql, (StatementPreparer) null, ResultExtractors.ofMappingList(mapping), pageable);
 	}
 
 	public static <T> List<T> queryForList(Connection conn, String sql, Iterable<?> parameters, BeanMapping<T> mapping) throws SQLException {
 		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofMappingList(mapping));
 	}
 
+	public static <T> List<T> queryForList(Connection conn, String sql, Iterable<?> parameters, BeanMapping<T> mapping, Pageable pageable) throws SQLException {
+		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofMappingList(mapping), pageable);
+	}
+
 	public static <T> List<T> queryForList(Connection conn, String sql, Object[] parameters, BeanMapping<T> mapping) throws SQLException {
 		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofMappingList(mapping));
+	}
+
+	public static <T> List<T> queryForList(Connection conn, String sql, Object[] parameters, BeanMapping<T> mapping, Pageable pageable) throws SQLException {
+		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofMappingList(mapping), pageable);
 	}
 
 	public static void queryForMap(Connection conn, String sql, ResultVisitor<Map<String, Object>> visitor) throws SQLException {
@@ -724,10 +785,6 @@ public class Jdbcs {
 		return query(conn, sql, DEFAULT_OPTIONS, preparer, extractor);
 	}
 
-	public static void query(Connection conn, String sql, StatementPreparer preparer, ResultSetVisitor visitor) throws SQLException {
-		query(conn, sql, DEFAULT_OPTIONS, preparer, visitor);
-	}
-
 	public static <T> T query(@Nonnull Connection conn, @Nonnull String sql, @Nonnull JdbcOptions options,
 		StatementPreparer preparer, ResultExtractor<T> extractor) throws SQLException {
 		PreparedStatement st = null;
@@ -752,8 +809,40 @@ public class Jdbcs {
 		}
 	}
 
-	public static void query(@Nonnull Connection conn, @Nonnull String sql, @Nonnull JdbcOptions options,
-		StatementPreparer preparer, ResultSetVisitor visitor) throws SQLException {
+	public static <T> T query(Connection conn, String sql, StatementPreparer preparer, ResultExtractor<T> extractor, Pageable pageable) throws SQLException {
+		return query(conn, sql, DEFAULT_OPTIONS, preparer, extractor, pageable);
+	}
+
+	public static <T> T query(@Nonnull Connection conn, @Nonnull String sql, @Nonnull JdbcOptions options,
+		StatementPreparer preparer, ResultExtractor<T> extractor, Pageable pageable) throws SQLException {
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		try {
+			log.debug("执行查询SQL：{}", sql);
+			st = prepareStatement(conn, sql, options);
+			if (preparer != null) {
+				preparer.setParameters(st, DefaultParameterPreparer.orDefault(options.getParameterPreparer()));
+			}
+			rs = st.executeQuery();
+			if (extractor != null) {
+				return extractor.extract(rs, pageable);
+			}
+			return null;
+		} catch (SQLException e) {
+			log.debug(e, "查询方法执行异常，语句：{}", sql);
+			throw e;
+		} finally {
+			Jdbcs.close(rs);
+			Jdbcs.close(st);
+		}
+	}
+
+
+	public static void query(Connection conn, String sql, StatementPreparer preparer, ResultSetVisitor visitor) throws SQLException {
+		query(conn, sql, DEFAULT_OPTIONS, preparer, visitor);
+	}
+
+	public static void query(@Nonnull Connection conn, @Nonnull String sql, @Nonnull JdbcOptions options, StatementPreparer preparer, ResultSetVisitor visitor) throws SQLException {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
