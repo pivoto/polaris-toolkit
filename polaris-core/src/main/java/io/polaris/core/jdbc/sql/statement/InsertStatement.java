@@ -8,6 +8,8 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import io.polaris.core.annotation.AnnotationProcessing;
+import io.polaris.core.collection.Iterables;
+import io.polaris.core.collection.Lists;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.sql.BindingValues;
@@ -35,6 +37,8 @@ public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement
 	private final List<ColumnSegment<S, ?>> columns = new ArrayList<>();
 	private boolean enableUpdateByDuplicateKey = false;
 	private boolean enableReplace = false;
+	private List<String> subSelectFields;
+	private SelectStatement<?> subSelectStatement;
 
 	@AnnotationProcessing
 	public InsertStatement(Class<?> entityClass) {
@@ -58,10 +62,38 @@ public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement
 	public SqlNode toSqlNode() {
 		ContainerNode sql = new ContainerNode();
 		sqlInsert(sql);
-		sqlColumn(sql);
-		sqlValue(sql);
-		sqlUpdateByDuplicateKey(sql);
+		if (Iterables.isNotEmpty(this.subSelectFields) && this.subSelectStatement != null) {
+			sqlSubSelect(sql);
+
+		} else {
+			sqlColumn(sql);
+			sqlValue(sql);
+			sqlUpdateByDuplicateKey(sql);
+		}
 		return sql;
+	}
+
+	private void sqlSubSelect(ContainerNode sql) {
+		boolean first = true;
+		for (String field : this.subSelectFields) {
+			if (first) {
+				if (!sql.isEmpty()) {
+					sql.addNode(SqlNodes.LF);
+				}
+				sql.addNode(SqlNodes.LEFT_PARENTHESIS);
+				first = false;
+			} else {
+				sql.addNode(SqlNodes.COMMA);
+			}
+			sql.addNode(new TextNode(this.table.getColumnName(field)));
+		}
+		if (!first) {
+			sql.addNode(SqlNodes.RIGHT_PARENTHESIS);
+		}
+		if (!sql.isEmpty()) {
+			sql.addNode(SqlNodes.LF);
+		}
+		sql.addNode(this.subSelectStatement.toSqlNode());
 	}
 
 
@@ -144,6 +176,18 @@ public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement
 			sql.addNode(new TextNode(columnName + " = "));
 			sql.addNode(column.toValueSqlNode());
 		}
+	}
+
+	public S withSelect(SelectStatement<?> select, Iterable<String> columns) {
+		this.subSelectStatement = select;
+		this.subSelectFields = Lists.asList(columns);
+		return getThis();
+	}
+
+	public S withSelect(SelectStatement<?> select, String... columns) {
+		this.subSelectStatement = select;
+		this.subSelectFields = Lists.asList(columns);
+		return getThis();
 	}
 
 	public S enableReplace(boolean enabled) {
