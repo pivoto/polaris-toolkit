@@ -96,6 +96,10 @@ public class CodeWriter {
 				}
 			}
 			for (Tuple2<CodeGroup, TableDto> task : tasks) {
+				if (task == null) {
+					latch.countDown();
+					continue;
+				}
 				pool.execute(() -> {
 					try {
 						write(task.getFirst(), task.getSecond());

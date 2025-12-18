@@ -76,6 +76,8 @@ public class Codes {
 									latch.countDown();
 								}
 							});
+						} else {
+							latch.countDown();
 						}
 					}
 				} else {
@@ -100,6 +102,8 @@ public class Codes {
 									latch.countDown();
 								}
 							});
+						} else {
+							latch.countDown();
 						}
 					}
 				}
