@@ -5,7 +5,6 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @SuppressWarnings("rawtypes")
 public abstract class AbstractCacheManager implements CacheManager {

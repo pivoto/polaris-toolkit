@@ -8,7 +8,6 @@ import io.polaris.core.lang.JavaType;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class VarRefConverter<T> extends AbstractSimpleConverter<VarRef<T>> {
 	private final JavaType<VarRef<T>> targetType = JavaType.of((Type) VarRef.class);

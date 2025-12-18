@@ -7,7 +7,6 @@ import javax.validation.ConstraintValidatorContext;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class LengthMinValidator implements ConstraintValidator<LengthMin, String> {
 

@@ -5,7 +5,6 @@ import java.util.List;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class ResultBeanMappingListExtractor<T> extends ResultBeanMappingCollectionExtractor<List<T>,T> {
 

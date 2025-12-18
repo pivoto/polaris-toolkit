@@ -7,7 +7,6 @@ import java.util.UUID;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class UUIDConverter extends AbstractSimpleConverter<UUID> {
 	private final JavaType<UUID> targetType = JavaType.of(UUID.class);

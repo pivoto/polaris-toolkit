@@ -10,7 +10,6 @@ import java.security.MessageDigest;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Digest {
 	private final MessageDigest messageDigest;

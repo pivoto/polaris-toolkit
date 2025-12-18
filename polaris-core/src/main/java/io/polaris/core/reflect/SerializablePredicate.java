@@ -6,7 +6,6 @@ import java.util.function.Supplier;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @FunctionalInterface
 public interface SerializablePredicate<T> extends Predicate<T>, Serializable, MethodReferenceReflection {

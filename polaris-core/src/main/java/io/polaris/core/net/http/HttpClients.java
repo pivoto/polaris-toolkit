@@ -16,7 +16,6 @@ import java.security.cert.X509Certificate;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class HttpClients {
 

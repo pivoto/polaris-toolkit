@@ -32,7 +32,6 @@ import io.polaris.core.javapoet.*;
 /**
  * @author Qt
  * @see CodeBlock 代码块生成语句的占位符说明
- * @since 1.8
  */
 @SupportedAnnotationTypes(value = {"io.polaris.core.annotation.Access"})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)

@@ -7,7 +7,6 @@ import java.util.ResourceBundle;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @SuppressWarnings("All")
 public class MemoryResourceBundle extends ResourceBundle {

@@ -5,7 +5,6 @@ import java.util.function.BiFunction;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @FunctionalInterface
 public interface SerializableBiFunction<T, U, R> extends BiFunction<T, U, R>, Serializable, MethodReferenceReflection {

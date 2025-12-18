@@ -9,7 +9,6 @@ import io.polaris.core.string.StringCases;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class CasePascalMap<K, V> extends TransformMap<K, V> {

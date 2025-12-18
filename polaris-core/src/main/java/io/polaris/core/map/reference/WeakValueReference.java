@@ -6,7 +6,6 @@ import java.util.Objects;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class WeakValueReference<K, V> extends WeakReference<V> implements ValueReference<K, V> {
 	private final K key;

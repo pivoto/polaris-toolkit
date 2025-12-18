@@ -6,7 +6,6 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class CharacterConverter extends AbstractSimpleConverter<Character> {
 	private final JavaType<Character> targetType = JavaType.of(Character.class);

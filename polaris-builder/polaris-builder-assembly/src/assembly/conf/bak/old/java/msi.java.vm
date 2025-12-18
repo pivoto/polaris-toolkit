@@ -29,7 +29,7 @@ import ${pkgPrefix}${componentPackage}.${table.javaClassName}${componentSuffix};
  * 对外服务接口
  *
  * @author $!{author}
- * @version ${current.date}
+ * @since${current.date}
  */
 @ModuleService(
 	serviceId="${table.javaClassName}${msiSuffix}",

@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @FunctionalInterface
 public interface SerializableFunctionWithArgs4<A, B, C, D, R> extends Serializable, MethodReferenceReflection {

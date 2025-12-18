@@ -5,7 +5,6 @@ import lombok.Setter;
 import lombok.ToString;
 /**
  * @author Qt
- * @since 1.8
  */
 @Getter
 @Setter

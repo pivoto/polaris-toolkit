@@ -9,7 +9,6 @@ import org.junit.jupiter.api.function.Executable;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class ThreadTest {
 

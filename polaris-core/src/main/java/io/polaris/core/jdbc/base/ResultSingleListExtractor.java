@@ -6,7 +6,6 @@ import java.util.List;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class ResultSingleListExtractor<T> extends ResultSingleCollectionExtractor<List<T>, T> {
 

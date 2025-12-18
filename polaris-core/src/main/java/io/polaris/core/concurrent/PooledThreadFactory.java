@@ -5,7 +5,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class PooledThreadFactory implements ThreadFactory {
 	private static final AtomicInteger poolNumber = new AtomicInteger(0);

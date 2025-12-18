@@ -7,7 +7,6 @@ import java.util.Map;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class WeakKeyHashMap<K, V> extends KeyReferenceMap<K, V> {
 

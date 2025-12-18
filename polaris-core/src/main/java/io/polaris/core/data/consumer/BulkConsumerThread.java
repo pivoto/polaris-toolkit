@@ -9,7 +9,6 @@ import java.util.List;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class BulkConsumerThread<T> extends Thread {
 	private volatile boolean running = true;

@@ -21,7 +21,6 @@ import java.util.PropertyPermission;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class JaninoTest2 {
 

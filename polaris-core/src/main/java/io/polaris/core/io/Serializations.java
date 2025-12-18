@@ -10,7 +10,6 @@ import io.polaris.core.collection.Iterables;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Serializations {
 

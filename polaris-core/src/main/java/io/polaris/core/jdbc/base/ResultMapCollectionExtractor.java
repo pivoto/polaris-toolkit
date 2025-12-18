@@ -11,7 +11,6 @@ import io.polaris.core.reflect.Reflects;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class ResultMapCollectionExtractor<C extends Collection<T>, T extends Map<String, Object>> implements ResultExtractor<C> {
 

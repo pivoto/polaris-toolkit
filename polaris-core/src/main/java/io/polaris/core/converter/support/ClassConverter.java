@@ -9,7 +9,6 @@ import java.lang.reflect.Type;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class ClassConverter extends AbstractSimpleConverter<Class<?>> {
 	private final JavaType<Class<?>> targetType = JavaType.of((Type) Class.class);

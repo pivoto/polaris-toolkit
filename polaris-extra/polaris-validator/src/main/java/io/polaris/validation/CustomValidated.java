@@ -58,7 +58,6 @@ import static java.lang.annotation.ElementType.TYPE_USE;
  * </ul>
  *
  * @author Qt
- * @since 1.8
  */
 @Documented
 @Target({ElementType.TYPE, METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})

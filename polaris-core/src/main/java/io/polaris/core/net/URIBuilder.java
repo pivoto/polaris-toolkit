@@ -11,7 +11,6 @@ import java.util.*;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class URIBuilder {
 	private String scheme;

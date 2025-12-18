@@ -8,7 +8,6 @@ import java.io.Serializable;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)

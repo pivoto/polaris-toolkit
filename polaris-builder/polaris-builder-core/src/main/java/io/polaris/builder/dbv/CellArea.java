@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @Data
 @NoArgsConstructor

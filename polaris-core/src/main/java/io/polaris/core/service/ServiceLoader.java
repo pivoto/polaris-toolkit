@@ -27,7 +27,6 @@ import io.polaris.core.log.Loggers;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class ServiceLoader<S> implements Iterable<Service<S>> {
 	public static final String[] PREFIX = {"META-INF/services/"};

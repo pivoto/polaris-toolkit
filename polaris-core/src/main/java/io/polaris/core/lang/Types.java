@@ -21,7 +21,6 @@ import javax.annotation.Nullable;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @SuppressWarnings("rawtypes")
 public class Types {

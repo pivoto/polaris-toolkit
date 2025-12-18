@@ -6,7 +6,6 @@ import io.polaris.core.ulid.Ulid;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class UlidConverter extends AbstractSimpleConverter<Ulid> {
 	private final JavaType<Ulid> targetType = JavaType.of(Ulid.class);

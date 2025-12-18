@@ -27,7 +27,6 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @SuppressWarnings({"all"})
 public class Randoms {

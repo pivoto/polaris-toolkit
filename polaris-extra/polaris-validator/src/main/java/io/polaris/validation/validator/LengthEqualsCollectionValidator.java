@@ -9,7 +9,6 @@ import io.polaris.validation.LengthEquals;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class LengthEqualsCollectionValidator implements ConstraintValidator<LengthEquals, Collection<String>> {
 

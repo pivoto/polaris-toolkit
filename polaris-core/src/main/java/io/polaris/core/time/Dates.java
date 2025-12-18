@@ -15,7 +15,6 @@ import io.polaris.core.lang.Numbers;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @SuppressWarnings("SpellCheckingInspection")
 public class Dates implements DateConsts {

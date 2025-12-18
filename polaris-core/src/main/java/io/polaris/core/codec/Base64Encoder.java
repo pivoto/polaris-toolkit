@@ -5,7 +5,6 @@ import java.io.OutputStream;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Base64Encoder implements Encoder {
 	protected final byte[] encodingTable =

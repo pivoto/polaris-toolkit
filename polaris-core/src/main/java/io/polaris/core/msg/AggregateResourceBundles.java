@@ -10,7 +10,6 @@ import java.util.*;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class AggregateResourceBundles {
 	public static final ResourceBundle.Control CONTROL = new AggregateControl();

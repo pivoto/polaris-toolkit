@@ -5,7 +5,6 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class AtomicRangeInteger extends Number implements Serializable {
 	private static final int VALUE_LENGTH = 31;

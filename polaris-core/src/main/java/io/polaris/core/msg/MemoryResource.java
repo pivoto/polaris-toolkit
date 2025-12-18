@@ -10,7 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class MemoryResource extends ResourceBundle {
 	private static final Map<String, MemoryResource> cache = new ConcurrentHashMap<>();

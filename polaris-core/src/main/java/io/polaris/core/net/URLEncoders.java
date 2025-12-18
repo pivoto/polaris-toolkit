@@ -10,7 +10,6 @@ import java.util.*;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class URLEncoders {
 	private static final char QP_SEP_A = '&';

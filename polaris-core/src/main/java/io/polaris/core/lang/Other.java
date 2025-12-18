@@ -5,7 +5,6 @@ import java.util.Objects;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Other implements Serializable {
 	private static final long serialVersionUID = 1L;

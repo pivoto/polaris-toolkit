@@ -10,7 +10,6 @@ import java.util.Set;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @Data
 public class ChangerDto {

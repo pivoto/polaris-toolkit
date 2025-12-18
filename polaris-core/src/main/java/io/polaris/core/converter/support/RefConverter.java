@@ -13,7 +13,6 @@ import io.polaris.core.tuple.ValueRef;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @SuppressWarnings("rawtypes")
 public class RefConverter<T extends Ref> extends AbstractSimpleConverter<T> {

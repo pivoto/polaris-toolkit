@@ -17,7 +17,6 @@ import java.security.NoSuchAlgorithmException;
  * </ol>
  *
  * @author Qt
- * @since 1.8
  */
 public class SM3 extends Digest {
 	public SM3() throws NoSuchAlgorithmException {

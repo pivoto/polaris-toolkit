@@ -7,7 +7,6 @@ import java.io.InputStream;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Fonts {
 

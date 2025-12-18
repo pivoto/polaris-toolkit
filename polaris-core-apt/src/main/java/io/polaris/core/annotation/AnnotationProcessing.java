@@ -6,7 +6,6 @@ import java.lang.annotation.*;
  * 标记为注解处理器依赖，变更时需同步变更注解处理器实现
  *
  * @author Qt
- * @since 1.8
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

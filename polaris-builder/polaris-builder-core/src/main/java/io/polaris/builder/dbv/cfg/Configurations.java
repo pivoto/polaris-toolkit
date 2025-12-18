@@ -17,7 +17,6 @@ import java.util.Properties;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @Slf4j
 public class Configurations {

@@ -8,7 +8,6 @@ import java.util.Locale;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class LocaleConverter extends AbstractSimpleConverter<Locale> {
 

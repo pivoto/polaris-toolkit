@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class IntrospectorTest {
 

@@ -13,7 +13,7 @@ import java.util.List;
  * library.
  *
  * @author Enrico M. Crisostomo
- * @version 1.1.4
+ * @since1.1.4
  * @see GoogleAuthenticator
  * @see <a href="https://github.com/wstrange/GoogleAuth">GoogleAuth</a>
  */

@@ -9,7 +9,6 @@ import io.polaris.validation.LessThan;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class LessThanCollectionValidator implements ConstraintValidator<LessThan, Collection<Number>> {
 

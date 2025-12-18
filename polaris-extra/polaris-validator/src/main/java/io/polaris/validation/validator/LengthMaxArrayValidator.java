@@ -7,7 +7,6 @@ import io.polaris.validation.LengthMax;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class LengthMaxArrayValidator implements ConstraintValidator<LengthMax, String[]> {
 

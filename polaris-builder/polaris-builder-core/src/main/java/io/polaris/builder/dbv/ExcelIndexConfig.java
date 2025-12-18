@@ -4,7 +4,6 @@ import lombok.Data;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @Data
 public class ExcelIndexConfig {

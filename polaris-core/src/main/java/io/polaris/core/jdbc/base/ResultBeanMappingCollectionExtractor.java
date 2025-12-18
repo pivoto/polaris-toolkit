@@ -9,7 +9,6 @@ import io.polaris.core.jdbc.sql.query.Pageable;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class ResultBeanMappingCollectionExtractor<C extends Collection<T>, T> implements ResultExtractor<C> {
 

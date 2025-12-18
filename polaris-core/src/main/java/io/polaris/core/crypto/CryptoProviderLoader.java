@@ -10,7 +10,6 @@ import java.security.Security;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public interface CryptoProviderLoader extends ServiceLoadable {
 

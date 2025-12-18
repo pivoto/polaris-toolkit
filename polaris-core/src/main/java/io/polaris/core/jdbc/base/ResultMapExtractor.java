@@ -8,7 +8,6 @@ import io.polaris.core.jdbc.sql.query.Pageable;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class ResultMapExtractor<T extends Map<String, Object>> implements ResultExtractor<T> {
 

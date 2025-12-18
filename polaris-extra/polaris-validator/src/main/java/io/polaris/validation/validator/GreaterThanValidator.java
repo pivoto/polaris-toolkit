@@ -8,7 +8,6 @@ import javax.validation.ConstraintValidatorContext;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class GreaterThanValidator implements ConstraintValidator<GreaterThan, Number> {
 

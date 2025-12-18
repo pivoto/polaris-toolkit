@@ -11,7 +11,6 @@ import static io.polaris.builder.code.annotation.Template.*;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

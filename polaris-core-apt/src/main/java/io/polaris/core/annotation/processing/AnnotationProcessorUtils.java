@@ -20,7 +20,6 @@ import io.polaris.core.javapoet.WildcardTypeName;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @Internal
 public class AnnotationProcessorUtils {

@@ -6,7 +6,6 @@ import io.polaris.core.crypto.Ciphers;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class DESede {
 	public static byte[] paddingKey(byte[] key) {

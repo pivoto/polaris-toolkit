@@ -25,7 +25,6 @@ import static java.lang.annotation.ElementType.TYPE_USE;
  *
  * @author Qt
  * @see Min
- * @since 1.8
  */
 @Documented
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})

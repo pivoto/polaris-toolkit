@@ -7,7 +7,6 @@ import io.polaris.validation.LengthRange;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class LengthRangeArrayValidator implements ConstraintValidator<LengthRange, String[]> {
 

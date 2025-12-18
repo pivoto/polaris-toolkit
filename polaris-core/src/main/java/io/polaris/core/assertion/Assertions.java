@@ -16,7 +16,6 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Assertions {
 	private static final String EXPECTED_TRUE = "expected: <true> but was: <false>";

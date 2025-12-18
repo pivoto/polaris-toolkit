@@ -16,7 +16,6 @@ import java.util.zip.InflaterOutputStream;
  * Deflate是同时使用了LZ77算法与哈夫曼编码（Huffman Coding）的一个无损数据压缩算法。
  *
  * @author Qt
- * @since 1.8
  */
 public class Deflate implements Closeable {
 

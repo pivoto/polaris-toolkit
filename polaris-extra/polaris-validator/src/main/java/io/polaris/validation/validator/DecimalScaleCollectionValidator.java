@@ -11,7 +11,6 @@ import io.polaris.validation.DecimalScale;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class DecimalScaleCollectionValidator implements ConstraintValidator<DecimalScale, Collection<BigDecimal>> {
 

@@ -33,7 +33,6 @@ import io.polaris.core.string.StringCases;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Beans {
 	private static final Logger log = Loggers.of(Beans.class);

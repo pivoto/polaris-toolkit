@@ -5,7 +5,6 @@ import java.util.function.Consumer;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @FunctionalInterface
 public interface SerializableConsumer<T> extends Consumer<T>, Serializable, MethodReferenceReflection {

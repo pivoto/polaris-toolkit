@@ -6,7 +6,6 @@ import java.time.Instant;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @SuppressWarnings("ALL")
 public class TimeBasedOneTimePasswordGenerator {

@@ -9,7 +9,6 @@ import java.lang.annotation.*;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @Documented
 @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER})

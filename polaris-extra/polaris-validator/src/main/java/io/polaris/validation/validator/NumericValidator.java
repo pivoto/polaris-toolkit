@@ -7,7 +7,6 @@ import io.polaris.validation.Numeric;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class NumericValidator implements ConstraintValidator<Numeric, String> {
 

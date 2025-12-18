@@ -8,7 +8,6 @@ import javax.annotation.Nonnull;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public abstract class AbstractConverter<T> implements Converter<T> {
 

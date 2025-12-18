@@ -28,7 +28,7 @@ import ${pkgPrefix}${env.entityPackage}.${table.javaClassName};
  * 单表数据的相关操作
  *
  * @author $!{author}
- * @version ${current.date}
+ * @since${current.date}
  */
 @Slf4j
 public class ${table.javaClassName}${componentSuffix} extends CMISComponent{

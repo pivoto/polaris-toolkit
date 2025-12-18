@@ -18,7 +18,6 @@ import java.util.regex.Pattern;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @Slf4j
 public class ChangerRunner {

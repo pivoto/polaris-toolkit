@@ -8,7 +8,6 @@ import java.nio.charset.Charset;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class CharsetConverter extends AbstractSimpleConverter<Charset> {
 	private final JavaType<Charset> targetType = JavaType.of(Charset.class);

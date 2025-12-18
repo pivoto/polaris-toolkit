@@ -26,7 +26,6 @@ import static java.lang.annotation.ElementType.TYPE_USE;
  * 电话号码校验
  *
  * @author Qt
- * @since 1.8
  */
 @Documented
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})

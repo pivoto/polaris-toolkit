@@ -6,7 +6,6 @@ import java.util.Objects;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class SoftKeyReference<K> extends SoftReference<K> {
 	private final int hashCode;

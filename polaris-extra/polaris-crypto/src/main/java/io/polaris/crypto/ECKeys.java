@@ -28,7 +28,6 @@ import java.util.Base64;
  * EC密钥参数相关工具类封装
  *
  * @author Qt
- * @since 1.8
  */
 public class ECKeys {
 

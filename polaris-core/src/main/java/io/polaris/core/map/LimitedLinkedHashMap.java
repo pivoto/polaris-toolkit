@@ -5,7 +5,6 @@ import java.util.Map;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class LimitedLinkedHashMap<K, V> extends LinkedHashMap<K, V> {
 

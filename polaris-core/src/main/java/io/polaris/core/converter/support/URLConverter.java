@@ -9,7 +9,6 @@ import java.net.URL;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class URLConverter extends AbstractSimpleConverter<URL> {
 	private final JavaType<URL> targetType = JavaType.of(URL.class);

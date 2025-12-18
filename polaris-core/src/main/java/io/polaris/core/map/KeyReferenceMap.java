@@ -20,7 +20,6 @@ import io.polaris.core.map.reference.ReferenceType;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class KeyReferenceMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {

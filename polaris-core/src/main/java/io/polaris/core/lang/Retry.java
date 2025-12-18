@@ -19,7 +19,6 @@ import io.polaris.core.log.Loggers;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Retry {
 	private static final Logger log = Loggers.of(Retry.class);

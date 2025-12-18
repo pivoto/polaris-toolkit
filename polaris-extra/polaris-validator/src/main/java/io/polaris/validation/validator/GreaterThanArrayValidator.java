@@ -8,7 +8,6 @@ import io.polaris.validation.GreaterThan;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class GreaterThanArrayValidator implements ConstraintValidator<GreaterThan, Number[]> {
 

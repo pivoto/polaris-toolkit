@@ -24,7 +24,6 @@ import static java.lang.annotation.ElementType.TYPE_USE;
  * 校验字符串长度必须在范围内
  *
  * @author Qt
- * @since 1.8
  */
 @Documented
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})

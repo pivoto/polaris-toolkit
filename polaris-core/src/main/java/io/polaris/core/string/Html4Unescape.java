@@ -2,7 +2,6 @@ package io.polaris.core.string;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Html4Unescape extends XmlEscape {
 	public Html4Unescape() {

@@ -6,7 +6,6 @@ import io.polaris.core.service.ServiceLoadable;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public interface Evaluator extends ServiceLoadable {
 	String INPUT = "input";

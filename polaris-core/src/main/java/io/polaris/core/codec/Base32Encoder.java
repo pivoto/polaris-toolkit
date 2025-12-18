@@ -5,7 +5,6 @@ import java.io.OutputStream;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Base32Encoder implements Encoder {
 	private static final byte[] DEFAULT_ENCODING_TABLE =

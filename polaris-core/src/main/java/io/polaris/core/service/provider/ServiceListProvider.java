@@ -10,8 +10,7 @@ import java.util.function.Supplier;
 
 /**
  * @author Qt
- * @version Jan 14, 2022
- * @since 1.8
+ * @sinceJan 14, 2022
  */
 public class ServiceListProvider<S> implements Iterable<S> {
 

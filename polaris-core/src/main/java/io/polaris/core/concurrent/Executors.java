@@ -17,7 +17,6 @@ import io.polaris.core.concurrent.queue.MemorySafeLinkedBlockingQueue;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Executors {
 

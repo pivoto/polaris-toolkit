@@ -7,7 +7,6 @@ import io.polaris.core.function.ExecutableWithArgs3;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @FunctionalInterface
 public interface SerializableExecutableWithArgs3<A, B, C> extends ExecutableWithArgs3<A, B, C>, Serializable, MethodReferenceReflection {

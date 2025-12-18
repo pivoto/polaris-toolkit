@@ -7,7 +7,6 @@ import java.util.Currency;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class CurrencyConverter extends AbstractSimpleConverter<Currency> {
 	private final JavaType<Currency> targetType = JavaType.of(Currency.class);

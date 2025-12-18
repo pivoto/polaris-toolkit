@@ -4,7 +4,6 @@ import io.polaris.core.crypto.Algorithm;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public enum SignAlgorithm implements Algorithm {
 	// The RSA signature algorithm

@@ -22,7 +22,6 @@ import javax.annotation.Nonnull;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @SuppressWarnings({"unchecked"})
 public class ValueReferenceMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {

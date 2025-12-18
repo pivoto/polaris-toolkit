@@ -7,7 +7,6 @@ import java.util.Map;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class WeakHashMap<K, V> extends ReferenceMap<K, V> {
 

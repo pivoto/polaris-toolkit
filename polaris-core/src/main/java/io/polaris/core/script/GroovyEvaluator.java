@@ -5,7 +5,6 @@ import io.polaris.core.service.ServiceOrder;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @ServiceOrder(200)
 @ServiceName(GroovyEvaluator.ENGINE_NAME)

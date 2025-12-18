@@ -10,7 +10,6 @@ import java.net.URI;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class MemoryJavaFileObject extends SimpleJavaFileObject {
 

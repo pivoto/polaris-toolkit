@@ -18,7 +18,6 @@ import javax.annotation.Nonnull;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class BeanConverter<T> extends AbstractConverter<T> {
 	private final JavaType<T> targetType;

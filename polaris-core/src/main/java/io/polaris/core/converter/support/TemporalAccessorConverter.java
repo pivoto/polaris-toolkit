@@ -15,7 +15,6 @@ import java.util.Date;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class TemporalAccessorConverter<T extends TemporalAccessor> extends AbstractSimpleConverter<T> {
 	private final JavaType<T> targetType;

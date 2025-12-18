@@ -38,7 +38,6 @@ import static org.objectweb.asm.Opcodes.V1_8;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class TypeRefs {
 	private static final Logger log = Loggers.of(TypeRefs.class);

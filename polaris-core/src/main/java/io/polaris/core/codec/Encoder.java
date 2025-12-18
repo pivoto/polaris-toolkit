@@ -5,7 +5,6 @@ import java.io.OutputStream;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public interface Encoder {
 	int getEncodedLength(int inputLength);

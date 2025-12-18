@@ -2,7 +2,6 @@ package io.polaris.core.err;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public interface ErrorCoded {
 

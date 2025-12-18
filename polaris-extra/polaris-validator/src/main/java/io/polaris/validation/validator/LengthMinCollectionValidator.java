@@ -9,7 +9,6 @@ import io.polaris.validation.LengthMin;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class LengthMinCollectionValidator implements ConstraintValidator<LengthMin, Collection<String>> {
 

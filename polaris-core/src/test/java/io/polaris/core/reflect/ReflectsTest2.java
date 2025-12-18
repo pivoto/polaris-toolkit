@@ -7,7 +7,6 @@ import java.util.Arrays;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class ReflectsTest2 {
 

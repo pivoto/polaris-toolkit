@@ -34,8 +34,7 @@ import io.polaris.core.io.IO;
 
 /**
  * @author Qt
- * @version Oct 29, 2021
- * @since 1.8
+ * @sinceOct 29, 2021
  */
 @SuppressWarnings("ALL")
 public class RSA {

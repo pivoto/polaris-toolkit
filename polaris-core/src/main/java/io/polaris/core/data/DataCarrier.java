@@ -11,7 +11,6 @@ import io.polaris.core.data.partition.SimpleRollingPartitioner;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class DataCarrier<T> {
 	private BufferChannel<T> channel;

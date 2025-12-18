@@ -18,7 +18,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Shells {
 	private static final Logger log = Loggers.of(Shells.class);

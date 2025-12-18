@@ -14,7 +14,6 @@ import java.nio.charset.StandardCharsets;
  * JAXB（Java Architecture for XML Binding），根据XML Schema 实现xml和Bean互转。
  *
  * @author Qt
- * @since 1.8
  */
 public class Jaxb {
 

@@ -8,7 +8,6 @@ import io.polaris.core.lang.bean.CaseModeOption;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class ResultBeanListExtractor<T> extends ResultBeanCollectionExtractor<List<T>, T> {
 

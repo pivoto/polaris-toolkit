@@ -6,7 +6,6 @@ import java.io.Serializable;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @FunctionalInterface
 public interface SerializableExecutable extends Executable, Serializable, MethodReferenceReflection {

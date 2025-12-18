@@ -6,7 +6,6 @@ import java.io.OutputStream;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Base16 {
 	private static final Base16Encoder encoder = new Base16Encoder();

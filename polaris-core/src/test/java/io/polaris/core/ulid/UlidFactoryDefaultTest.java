@@ -16,7 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class UlidFactoryDefaultTest extends UlidFactoryTest {
 

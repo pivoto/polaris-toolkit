@@ -7,7 +7,6 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class MessageCheckedException extends CheckedException implements ErrorCoded {
 	private static final long serialVersionUID = 1L;

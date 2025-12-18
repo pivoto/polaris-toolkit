@@ -5,7 +5,6 @@ import java.io.Serializable;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Null implements Serializable {
 

@@ -6,7 +6,6 @@ import lombok.*;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @Data
 @XStreamAlias("mapping")

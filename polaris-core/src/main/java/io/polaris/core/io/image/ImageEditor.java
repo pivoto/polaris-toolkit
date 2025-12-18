@@ -24,7 +24,6 @@ import java.nio.file.Path;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class ImageEditor implements Serializable {
 	private static final long serialVersionUID = 1L;

@@ -3,7 +3,6 @@ package io.polaris.core.clock;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class TimeIdClock implements IdClock {
 	private static volatile TimeIdClock DEFAULT;

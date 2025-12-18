@@ -6,7 +6,6 @@ import java.util.function.Predicate;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @FunctionalInterface
 public interface SerializableBiPredicate<T,U> extends BiPredicate<T,U>, Serializable, MethodReferenceReflection {

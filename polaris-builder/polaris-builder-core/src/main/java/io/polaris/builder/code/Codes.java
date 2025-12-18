@@ -30,7 +30,6 @@ import org.springframework.core.annotation.AnnotatedElementUtils;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Codes {
 

@@ -23,7 +23,6 @@ import javax.annotation.Nonnull;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class ArrayConverter<T> extends AbstractConverter<T[]> {
 	private static final Logger log = Loggers.of(ArrayConverter.class);

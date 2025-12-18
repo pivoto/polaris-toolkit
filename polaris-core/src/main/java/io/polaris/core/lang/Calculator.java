@@ -9,7 +9,6 @@ import java.util.Stack;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @Experimental
 class Calculator {

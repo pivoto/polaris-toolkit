@@ -4,7 +4,6 @@ import java.lang.reflect.Type;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @FunctionalInterface
 public interface Converter<T> {

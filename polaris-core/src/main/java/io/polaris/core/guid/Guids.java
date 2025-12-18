@@ -10,7 +10,6 @@ import io.polaris.core.service.StatefulServiceLoader;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Guids {
 	private static final Map<String, Guid> guidCache = new ConcurrentHashMap<>();

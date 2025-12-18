@@ -22,7 +22,6 @@ import java.util.concurrent.atomic.LongAdder;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class NumberConverter<T extends Number> extends AbstractSimpleConverter<T> {
 	protected final JavaType<T> targetType;

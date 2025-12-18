@@ -14,7 +14,6 @@ import com.thoughtworks.xstream.annotations.XStreamConverter;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @Data
 @XStreamAlias("column")

@@ -7,7 +7,6 @@ import java.util.Comparator;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class IndexedComparator<T> implements Comparator<T> {
 	/** 如果不在列表中是否排在后边 */

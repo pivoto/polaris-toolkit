@@ -16,7 +16,6 @@ import io.polaris.core.string.StringCases;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class BeanToBeanCopier<S, T> implements Copier<T> {
 	private static final Logger log = Loggers.of(BeanToBeanCopier.class);

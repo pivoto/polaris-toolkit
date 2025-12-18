@@ -7,7 +7,6 @@ import java.util.function.Supplier;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class CaseInsensitiveMap<K, V> extends TransformMap<K, V> {

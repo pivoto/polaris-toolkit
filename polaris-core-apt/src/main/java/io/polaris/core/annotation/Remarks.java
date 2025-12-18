@@ -6,7 +6,6 @@ import java.lang.annotation.*;
  * 备注信息
  *
  * @author Qt
- * @since 1.8
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

@@ -6,7 +6,6 @@ import java.awt.*;
  * 图片缩略算法类型
  *
  * @author Qt
- * @since 1.8
  */
 public enum ScaleType {
 

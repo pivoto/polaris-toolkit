@@ -9,7 +9,6 @@ import lombok.Setter;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class ValidationException extends MessageException {
 	private static final long serialVersionUID = 1L;

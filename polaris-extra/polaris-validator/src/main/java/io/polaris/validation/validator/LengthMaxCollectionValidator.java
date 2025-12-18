@@ -9,7 +9,6 @@ import io.polaris.validation.LengthMax;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class LengthMaxCollectionValidator implements ConstraintValidator<LengthMax, Collection<String>> {
 

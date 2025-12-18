@@ -12,7 +12,6 @@ import java.util.*;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class HttpServletRequestCacheWrapper extends HttpServletRequestWrapper implements HttpServletRequest {
 	private static final String FORM_CONTENT_TYPE = "application/x-www-form-urlencoded";

@@ -8,7 +8,6 @@ import io.polaris.core.lang.JavaType;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class OptionalConverter<T> extends AbstractSimpleConverter<Optional<T>> {
 	private final JavaType<Optional<T>> targetType = JavaType.of((Type) Optional.class);

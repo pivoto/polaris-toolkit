@@ -15,7 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class GroovyCompiler {
 	private String defaultClassNamePrefix = "DefGvy_";

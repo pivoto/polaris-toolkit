@@ -17,7 +17,7 @@ import java.util.Properties;
 
 /**
  * @author Qt
- * @version Jun 04, 2019
+ * @sinceJun 04, 2019
  */
 public class VelocityTemplate {
 	private static final Logger log = LoggerFactory.getLogger("code.template");

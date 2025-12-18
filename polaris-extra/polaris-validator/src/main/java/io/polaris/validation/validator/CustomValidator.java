@@ -10,7 +10,6 @@ import java.lang.reflect.Constructor;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class CustomValidator implements ConstraintValidator<CustomValidated, Object> {
 

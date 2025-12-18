@@ -10,7 +10,6 @@ import javax.crypto.IllegalBlockSizeException;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Ciphers {
 

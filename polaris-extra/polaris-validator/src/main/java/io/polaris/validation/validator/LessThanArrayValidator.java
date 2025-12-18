@@ -7,7 +7,6 @@ import io.polaris.validation.LessThan;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class LessThanArrayValidator implements ConstraintValidator<LessThan, Number[]> {
 

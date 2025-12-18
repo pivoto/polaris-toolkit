@@ -4,7 +4,6 @@ import io.polaris.core.tuple.ValueRef;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class AssertionException extends IllegalArgumentException {
 	private static final long serialVersionUID = 1L;

@@ -7,7 +7,6 @@ import java.util.Objects;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class AnsiColorWrapper {
 

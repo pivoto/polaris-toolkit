@@ -10,7 +10,6 @@ import java.lang.annotation.Target;
  * 标识该类或方法从哪个版本开始可用
  *
  * @author Qt
- * @since 1.8
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

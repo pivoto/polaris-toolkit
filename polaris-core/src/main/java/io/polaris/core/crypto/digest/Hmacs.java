@@ -14,7 +14,6 @@ import io.polaris.core.crypto.CryptoRuntimeException;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @SuppressWarnings("ALL")
 public class Hmacs {

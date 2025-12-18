@@ -17,7 +17,6 @@ import java.lang.reflect.InvocationTargetException;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class JaninoTest {
 

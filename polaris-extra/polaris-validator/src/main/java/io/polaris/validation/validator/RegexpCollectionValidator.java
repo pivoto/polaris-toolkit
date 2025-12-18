@@ -12,7 +12,6 @@ import io.polaris.validation.Regexp;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class RegexpCollectionValidator implements ConstraintValidator<Regexp, Collection<String>> {
 

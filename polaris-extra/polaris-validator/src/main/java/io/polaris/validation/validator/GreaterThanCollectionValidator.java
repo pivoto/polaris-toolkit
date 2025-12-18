@@ -10,7 +10,6 @@ import io.polaris.validation.GreaterThan;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class GreaterThanCollectionValidator implements ConstraintValidator<GreaterThan, Collection<Number>> {
 

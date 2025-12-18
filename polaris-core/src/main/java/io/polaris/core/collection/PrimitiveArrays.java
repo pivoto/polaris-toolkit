@@ -15,7 +15,6 @@ import io.polaris.core.random.Randoms;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class PrimitiveArrays {
 

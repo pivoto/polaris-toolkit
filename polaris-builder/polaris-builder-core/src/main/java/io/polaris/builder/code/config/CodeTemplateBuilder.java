@@ -7,7 +7,6 @@ import java.util.function.Supplier;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class CodeTemplateBuilder {
 	private final CodeTemplate target;

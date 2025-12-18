@@ -9,7 +9,6 @@ import io.polaris.core.crypto.CryptoKeys;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class DSA {
 

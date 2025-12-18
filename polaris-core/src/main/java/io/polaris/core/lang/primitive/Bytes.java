@@ -37,7 +37,6 @@ import io.polaris.core.string.Hex;
  * </ul>
  *
  * @author Qt
- * @since 1.8
  */
 public class Bytes {
 	public static final ByteOrder DEFAULT_ORDER = ByteOrder.BIG_ENDIAN;

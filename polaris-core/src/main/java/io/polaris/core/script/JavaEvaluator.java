@@ -21,7 +21,6 @@ import io.polaris.core.service.ServiceName;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @ServiceDefault(Integer.MAX_VALUE)
 @ServiceName(JavaEvaluator.ENGINE_NAME)

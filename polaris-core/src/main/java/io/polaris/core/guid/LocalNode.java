@@ -10,7 +10,6 @@ import java.nio.channels.FileLock;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class LocalNode {
 

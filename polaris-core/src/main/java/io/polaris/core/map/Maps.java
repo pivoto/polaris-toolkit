@@ -15,7 +15,6 @@ import io.polaris.core.reflect.Reflects;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Maps {
 

@@ -9,7 +9,6 @@ import java.security.NoSuchAlgorithmException;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Hmac {
 	private final Mac mac;

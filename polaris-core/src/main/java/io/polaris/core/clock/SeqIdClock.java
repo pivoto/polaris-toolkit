@@ -5,7 +5,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class SeqIdClock implements IdClock {
 	private static volatile SeqIdClock DEFAULT;

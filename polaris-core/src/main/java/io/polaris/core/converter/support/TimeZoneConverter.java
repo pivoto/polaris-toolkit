@@ -7,7 +7,6 @@ import java.util.TimeZone;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class TimeZoneConverter extends AbstractSimpleConverter<TimeZone> {
 	private final JavaType<TimeZone> targetType = JavaType.of(TimeZone.class);

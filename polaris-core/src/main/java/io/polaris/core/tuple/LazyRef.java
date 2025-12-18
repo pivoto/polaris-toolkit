@@ -11,7 +11,6 @@ import lombok.Getter;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class LazyRef<V> implements Ref<V>, Serializable, Copyable<LazyRef<V>> {
 	private static final long serialVersionUID = 1L;

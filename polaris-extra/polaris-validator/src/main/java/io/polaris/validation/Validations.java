@@ -47,7 +47,6 @@ import org.hibernate.validator.spi.resourceloading.ResourceBundleLocator;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @SuppressWarnings("rawtypes")
 public class Validations {

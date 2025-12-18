@@ -4,7 +4,6 @@ import javax.annotation.Nullable;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public interface CacheManager {
 

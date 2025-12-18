@@ -15,7 +15,6 @@ import io.polaris.core.tuple.Tuple2;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Patterns {
 

@@ -23,7 +23,6 @@ import javax.validation.ConstraintValidatorContext;
  * </pre>
  *
  * @author Qt
- * @since 1.8
  */
 public interface CustomValidation {
 	/**

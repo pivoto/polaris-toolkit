@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicLongArray;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class AtomicLongArrayConverter extends AbstractSimpleConverter<AtomicLongArray> {
 	private final JavaType<AtomicLongArray> targetType = JavaType.of(AtomicLongArray.class);

@@ -9,8 +9,7 @@ import java.io.IOException;
 
 /**
  * @author Qt
- * @version Jun 12, 2019
- * @since 1.8
+ * @sinceJun 12, 2019
  */
 public class Main {
 	public static void main(String[] args) throws IOException {

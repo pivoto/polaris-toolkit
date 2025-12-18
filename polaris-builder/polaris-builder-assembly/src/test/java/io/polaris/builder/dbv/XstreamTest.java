@@ -12,7 +12,6 @@ import java.io.FileNotFoundException;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class XstreamTest {
 

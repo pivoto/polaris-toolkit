@@ -24,7 +24,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class CodeWriter {
 	public static final String VM_PREFIX = "#parse(\"/vm/include.vm\")" ;

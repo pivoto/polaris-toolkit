@@ -40,7 +40,6 @@ import io.polaris.core.function.Executable;
  * </pre>
  *
  * @author Qt
- * @since 1.8
  */
 public class Exceptions {
 

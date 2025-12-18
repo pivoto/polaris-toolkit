@@ -18,7 +18,6 @@ import io.polaris.core.crypto.symmetric.SymmetricAlgorithm;
  * </ol>
  *
  * @author Qt
- * @since 1.8
  */
 public class SM4 extends Symmetric {
 	public SM4(Key key) {

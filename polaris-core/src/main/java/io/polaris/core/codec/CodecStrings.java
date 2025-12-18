@@ -2,7 +2,6 @@ package io.polaris.core.codec;
 
 /**
  * @author Qt
- * @since 1.8
  */
 class CodecStrings {
 

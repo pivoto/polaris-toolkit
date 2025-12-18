@@ -8,7 +8,6 @@ import io.polaris.core.service.ServiceProperty;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @ServiceDefault(-100)
 @ServiceProperty(name = "key", value = "test8")

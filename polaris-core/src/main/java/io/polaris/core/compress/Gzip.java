@@ -14,7 +14,6 @@ import java.util.zip.GZIPOutputStream;
  * gzip的基础是DEFLATE
  *
  * @author Qt
- * @since 1.8
  */
 public class Gzip implements Closeable {
 

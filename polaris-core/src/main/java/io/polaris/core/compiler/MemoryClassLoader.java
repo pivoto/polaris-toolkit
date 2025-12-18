@@ -22,7 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class MemoryClassLoader extends URLClassLoader {
 	private static final Logger log = Loggers.of(MemoryClassLoader.class);

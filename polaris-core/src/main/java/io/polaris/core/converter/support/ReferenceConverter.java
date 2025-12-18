@@ -13,7 +13,6 @@ import io.polaris.core.lang.Types;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @SuppressWarnings("rawtypes")
 public class ReferenceConverter<T extends Reference> extends AbstractSimpleConverter<T> {

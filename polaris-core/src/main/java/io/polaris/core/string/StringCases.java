@@ -4,7 +4,6 @@ import java.beans.Introspector;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class StringCases {
 	/**

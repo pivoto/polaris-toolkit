@@ -7,7 +7,6 @@ import io.polaris.core.service.ServiceProperty;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @ServiceProperty(name = "key", value = "test3")
 public class Test3Service implements SpiTestService {

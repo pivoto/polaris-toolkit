@@ -10,7 +10,6 @@ import java.util.function.Supplier;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class CodeGroupBuilder {
 

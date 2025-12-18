@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public interface ValidationMessageFormatter {
 

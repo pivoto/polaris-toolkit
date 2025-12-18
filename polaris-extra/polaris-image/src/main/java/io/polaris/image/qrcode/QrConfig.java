@@ -15,7 +15,6 @@ import java.util.HashMap;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class QrConfig {
 

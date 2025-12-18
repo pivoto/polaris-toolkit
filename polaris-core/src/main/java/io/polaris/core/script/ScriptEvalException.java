@@ -4,7 +4,6 @@ import io.polaris.core.err.UncheckedException;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class ScriptEvalException extends UncheckedException {
 

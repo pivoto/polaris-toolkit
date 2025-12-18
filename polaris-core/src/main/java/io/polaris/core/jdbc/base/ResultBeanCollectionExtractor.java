@@ -11,7 +11,6 @@ import io.polaris.core.lang.bean.CaseModeOption;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class ResultBeanCollectionExtractor<C extends Collection<T>, T> implements ResultExtractor<C> {
 	private final ResultRowMapper<T> mapper;

@@ -5,7 +5,6 @@ import java.lang.ref.ReferenceQueue;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public enum ReferenceType {
 	/** 软引用，在GC报告内存不足时会被GC回收 */

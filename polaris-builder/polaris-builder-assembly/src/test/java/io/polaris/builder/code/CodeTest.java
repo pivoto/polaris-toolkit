@@ -17,7 +17,6 @@ import static io.polaris.builder.code.annotation.Template.*;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class CodeTest {
 	private String targetDir;

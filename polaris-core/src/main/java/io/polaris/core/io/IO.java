@@ -16,7 +16,6 @@ import lombok.NoArgsConstructor;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @SuppressWarnings("All")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

@@ -6,7 +6,6 @@ import java.io.Serializable;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @Getter
 @Setter

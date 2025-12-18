@@ -2,7 +2,6 @@ package io.polaris.core.time;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Times {
 

@@ -2,7 +2,6 @@ package io.polaris.core.compiler;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public interface Compiler {
 

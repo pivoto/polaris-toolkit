@@ -7,7 +7,6 @@ import java.util.concurrent.Callable;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @FunctionalInterface
 public interface SerializableCallable<V> extends Callable<V>, Serializable, MethodReferenceReflection {

@@ -10,7 +10,6 @@ import java.nio.charset.Charset;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class HttpServletResponseCacheWrapper extends HttpServletResponseWrapper {
 

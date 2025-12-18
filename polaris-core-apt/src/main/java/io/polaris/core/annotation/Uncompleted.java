@@ -6,7 +6,6 @@ import java.lang.annotation.*;
  * 尚未完成但因构建依赖或部分投产等原因而提交的功能
  *
  * @author Qt
- * @since 1.8
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

@@ -36,7 +36,7 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author Qt
- * @version Jun 09, 2019
+ * @sinceJun 09, 2019
  */
 public class CodeGenerator {
 	private CodeEnvBuilder codeEnvBuilder;

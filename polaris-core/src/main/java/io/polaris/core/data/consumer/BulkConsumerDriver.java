@@ -4,7 +4,6 @@ import io.polaris.core.data.buffer.BufferChannel;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public interface BulkConsumerDriver<T> extends ConsumerDriver<T> {
 

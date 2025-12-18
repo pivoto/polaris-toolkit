@@ -27,7 +27,6 @@ import java.util.Base64;
 /**
  * Bouncy Castle相关工具类封装
  * @author Qt
- * @since 1.8
  */
 public class BCKeys {
 

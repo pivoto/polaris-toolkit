@@ -6,7 +6,6 @@ import java.lang.annotation.*;
  * 标记为已公开应用而不可轻易变更的类或方法，发生变更时须慎重
  *
  * @author Qt
- * @since 1.8
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

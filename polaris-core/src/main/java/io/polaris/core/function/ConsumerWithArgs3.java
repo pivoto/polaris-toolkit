@@ -4,7 +4,6 @@ import java.util.Objects;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @FunctionalInterface
 public interface ConsumerWithArgs3<A, B, C> {

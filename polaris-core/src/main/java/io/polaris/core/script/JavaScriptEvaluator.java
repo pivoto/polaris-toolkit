@@ -5,7 +5,6 @@ import io.polaris.core.service.ServiceOrder;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @ServiceOrder(100)
 @ServiceName(JavaScriptEvaluator.ENGINE_NAME)

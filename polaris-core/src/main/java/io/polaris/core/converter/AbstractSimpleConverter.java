@@ -17,7 +17,6 @@ import io.polaris.core.tuple.Tuple1;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public abstract class AbstractSimpleConverter<T> extends AbstractConverter<T> {
 

@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class AtomicReferenceConverter extends AbstractSimpleConverter<AtomicReference> {
 	private final JavaType<AtomicReference> targetType = JavaType.of(AtomicReference.class);

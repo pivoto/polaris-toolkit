@@ -45,7 +45,7 @@ import java.security.SecureRandom;
  * 10, and the valid range is 4 to 30.
  *
  * @author Damien Miller
- * @version 0.4
+ * @since0.4
  * @see https://raw.githubusercontent.com/jeremyh/jBCrypt/master/src/main/java/org/mindrot/BCrypt.java
  */
 @SuppressWarnings("all")

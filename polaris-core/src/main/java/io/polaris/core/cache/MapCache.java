@@ -13,7 +13,6 @@ import io.polaris.core.tuple.Ref;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class MapCache<K, V> implements MemCache<K, V>, Cache<K, V> {
 

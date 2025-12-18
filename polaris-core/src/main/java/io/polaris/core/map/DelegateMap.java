@@ -9,7 +9,6 @@ import java.util.function.Function;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class DelegateMap<K, V> implements Map<K, V> {
 	protected final Map<K, V> raw;

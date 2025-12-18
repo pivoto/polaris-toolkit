@@ -11,7 +11,6 @@ import io.polaris.core.log.Loggers;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @SuppressWarnings("rawtypes")
 public class BeanToMapCopier<T> implements Copier<Map> {

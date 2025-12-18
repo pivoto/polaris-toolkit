@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class AtomicBooleanConverter extends AbstractSimpleConverter<AtomicBoolean> {
 	private final JavaType<AtomicBoolean> targetType = JavaType.of(AtomicBoolean.class);

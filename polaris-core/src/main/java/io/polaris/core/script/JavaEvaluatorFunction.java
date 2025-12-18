@@ -7,7 +7,6 @@ import java.util.Map;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public abstract class JavaEvaluatorFunction {
 	protected static final Logger log = LoggerFactory.getLogger(JavaEvaluatorFunction.class);

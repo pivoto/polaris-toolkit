@@ -6,7 +6,6 @@ import java.io.OutputStream;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Base64 {
 	private static final Encoder encoder = new Base64Encoder();

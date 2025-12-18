@@ -11,7 +11,6 @@ import io.polaris.core.crypto.Encryptor;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Asymmetric {
 	private final String provider;

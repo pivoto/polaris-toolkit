@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class LocalNodeStrategy implements GuidNodeStrategy {
 	private static final Map<String, LocalNodeStrategy> cache = new ConcurrentHashMap<>();

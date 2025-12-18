@@ -14,7 +14,6 @@ import java.util.Random;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Colors {
 

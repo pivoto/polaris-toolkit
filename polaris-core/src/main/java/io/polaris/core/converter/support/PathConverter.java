@@ -11,7 +11,6 @@ import java.nio.file.Paths;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class PathConverter extends AbstractSimpleConverter<Path> {
 	private final JavaType<Path> targetType = JavaType.of(Path.class);

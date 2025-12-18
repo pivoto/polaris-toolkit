@@ -17,7 +17,6 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class ScriptEvaluators {
 	private static final Logger log = Loggers.of(ScriptEvaluators.class);

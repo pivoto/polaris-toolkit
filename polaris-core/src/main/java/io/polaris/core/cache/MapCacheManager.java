@@ -6,7 +6,6 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class MapCacheManager extends AbstractCacheManager {
 	public static final int DEFAULT_MAX_CAPACITY = 10240;

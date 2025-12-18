@@ -8,7 +8,6 @@ import java.util.Objects;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public interface MethodReferenceReflection extends Serializable {
 	default SerializedLambda serialized() {

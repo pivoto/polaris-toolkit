@@ -21,7 +21,6 @@ import io.polaris.core.map.reference.ValueReference;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ReferenceMap<K, V> extends AbstractMap<K, V> implements Map<K, V> {

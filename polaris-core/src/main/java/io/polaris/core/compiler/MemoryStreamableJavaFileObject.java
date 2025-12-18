@@ -8,7 +8,6 @@ import java.net.URI;
 
 /**
  * @author Qt
- * @since 1.8
  */
 class MemoryStreamableJavaFileObject extends MemoryJavaFileObject {
 

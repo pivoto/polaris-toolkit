@@ -7,7 +7,6 @@ import io.polaris.core.concurrent.Schedules;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class TimeMillisClock {
 	private volatile long currentTimeMillis;

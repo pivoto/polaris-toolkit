@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class DecimalScaleValidator implements ConstraintValidator<DecimalScale, BigDecimal> {
 

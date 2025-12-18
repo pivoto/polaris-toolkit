@@ -18,8 +18,7 @@ import lombok.Getter;
 
 /**
  * @author Qt
- * @version Jan 13, 2022
- * @since 1.8
+ * @sinceJan 13, 2022
  */
 public class StatefulServiceLoader<S> implements Iterable<S> {
 	private static final Logger log = Loggers.of(StatefulServiceLoader.class);

@@ -8,7 +8,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Guid {
 	private static final String ZERO_PADDING_64 = "0000000000000000000000000000000000000000000000000000000000000000";

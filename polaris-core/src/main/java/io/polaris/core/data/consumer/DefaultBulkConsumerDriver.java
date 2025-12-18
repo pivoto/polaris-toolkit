@@ -7,7 +7,6 @@ import java.util.List;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class DefaultBulkConsumerDriver<T> implements BulkConsumerDriver<T> {
 	private final List<BulkConsumerThread<T>> threads;

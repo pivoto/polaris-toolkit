@@ -19,7 +19,6 @@ import java.util.Set;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class TestValidations2 {
 

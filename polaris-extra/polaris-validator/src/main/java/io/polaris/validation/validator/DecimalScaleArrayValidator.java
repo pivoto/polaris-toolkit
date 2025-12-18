@@ -10,7 +10,6 @@ import io.polaris.validation.DecimalScale;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class DecimalScaleArrayValidator implements ConstraintValidator<DecimalScale, BigDecimal[]> {
 

@@ -10,7 +10,6 @@ import java.util.function.Function;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Service<S> {
 	@SuppressWarnings("rawtypes")

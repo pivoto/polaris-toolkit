@@ -6,7 +6,6 @@ import java.util.ResourceBundle;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class MemoryResourceBundles {
 	public static final ResourceBundle.Control CONTROL = new MemoryControl();

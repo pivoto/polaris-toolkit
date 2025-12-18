@@ -21,7 +21,6 @@ import io.polaris.core.service.StatefulServiceLoader;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class CollectionConverter<T extends Collection<E>, E> extends AbstractConverter<T> {
 	private static final Logger log = Loggers.of(CollectionConverter.class);

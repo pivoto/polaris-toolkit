@@ -6,7 +6,6 @@ import java.nio.charset.Charset;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public enum ContentType {
 

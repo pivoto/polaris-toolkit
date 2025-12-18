@@ -25,7 +25,6 @@ import io.polaris.core.ulid.UlidCreator;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Strings {
 

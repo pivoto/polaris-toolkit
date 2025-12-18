@@ -2,7 +2,6 @@ package io.polaris.core.string;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Escapes {
 	private static final XmlEscape XML_ESCAPE = new XmlEscape();

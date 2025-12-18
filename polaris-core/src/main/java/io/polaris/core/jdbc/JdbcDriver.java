@@ -4,7 +4,6 @@ import lombok.Getter;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public enum JdbcDriver {
 

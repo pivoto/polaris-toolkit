@@ -6,7 +6,6 @@ import java.util.StringJoiner;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Slf4jLoggers {
 	private static String FQCN = Slf4jLoggers.class.getName();

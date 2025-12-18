@@ -19,7 +19,6 @@ import io.polaris.core.log.Loggers;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public abstract class AbstractStandardEvaluator implements Evaluator {
 	private static final Logger log = Loggers.of(AbstractStandardEvaluator.class);

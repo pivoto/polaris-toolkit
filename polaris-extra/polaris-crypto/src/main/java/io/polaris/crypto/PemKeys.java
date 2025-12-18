@@ -24,7 +24,6 @@ import java.security.PublicKey;
  * 这种格式可以保存证书和私钥，有时我们也把PEM格式的私钥的后缀改为 .key 以区别证书与私钥。
  *
  * @author Qt
- * @since 1.8
  */
 public class PemKeys {
 

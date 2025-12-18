@@ -21,7 +21,6 @@ import com.alibaba.fastjson2.filter.Filter;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @SuppressWarnings("SpellCheckingInspection")
 @Slf4j

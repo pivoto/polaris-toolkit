@@ -7,7 +7,6 @@ import java.util.Locale;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class ChineseComparator implements Comparator<String>, Serializable {
 	private static final long serialVersionUID = 1L;

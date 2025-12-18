@@ -2,7 +2,6 @@ package io.polaris.core.string;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Html4Escape extends XmlEscape {
 	public static final String[][] ISO8859_1_ESCAPE = { //

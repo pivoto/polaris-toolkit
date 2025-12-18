@@ -11,7 +11,6 @@ import io.polaris.core.crypto.CryptoRuntimeException;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Sign {
 	private final String provider;

@@ -23,7 +23,6 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Dbv {
 	private static final Logger log = Loggers.of(Dbv.class);

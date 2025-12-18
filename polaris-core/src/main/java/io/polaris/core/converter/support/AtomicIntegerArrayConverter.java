@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class AtomicIntegerArrayConverter extends AbstractSimpleConverter<AtomicIntegerArray> {
 	private final JavaType<AtomicIntegerArray> targetType = JavaType.of(AtomicIntegerArray.class);

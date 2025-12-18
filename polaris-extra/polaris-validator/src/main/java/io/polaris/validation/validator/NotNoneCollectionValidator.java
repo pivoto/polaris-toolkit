@@ -10,7 +10,6 @@ import io.polaris.validation.NotNone;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class NotNoneCollectionValidator implements ConstraintValidator<NotNone, Collection<String>> {
 

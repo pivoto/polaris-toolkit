@@ -4,7 +4,6 @@ import io.polaris.core.service.ServiceDefault;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @ServiceDefault(Integer.MAX_VALUE)
 public class MapCacheManagerFactory implements CacheManagerFactory {

@@ -10,7 +10,7 @@ import java.io.InputStream;
 
 /**
  * @author Qt
- * @version Jun 04, 2019
+ * @sinceJun 04, 2019
  */
 public class TablesReaders {
 

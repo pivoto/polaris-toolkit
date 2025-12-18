@@ -6,7 +6,6 @@ import java.util.Objects;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class SoftValueReference<K, V> extends SoftReference<V> implements ValueReference<K, V> {
 	private final K key;

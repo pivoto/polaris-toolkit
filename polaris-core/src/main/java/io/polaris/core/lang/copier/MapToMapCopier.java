@@ -10,7 +10,6 @@ import io.polaris.core.log.Loggers;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @SuppressWarnings("rawtypes")
 public class MapToMapCopier implements Copier<Map> {

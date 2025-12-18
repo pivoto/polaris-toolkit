@@ -12,7 +12,6 @@ import io.polaris.validation.Identifier;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class IdentifierCollectionValidator implements ConstraintValidator<Identifier, Collection<String>> {
 

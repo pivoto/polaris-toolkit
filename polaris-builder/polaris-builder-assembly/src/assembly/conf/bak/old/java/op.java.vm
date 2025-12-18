@@ -35,7 +35,7 @@ import ${pkgPrefix}${msiPackage}.${msiClass};
  * 控制层增删改查操作类
  *
  * @author $!{author}
- * @version ${current.date}
+ * @since${current.date}
  */
 @Slf4j
 public class ${table.javaClassName}${opSuffix} extends CMISOperation{

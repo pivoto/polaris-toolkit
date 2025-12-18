@@ -4,7 +4,6 @@ import io.polaris.core.data.partition.DataPartitioner;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class BufferChannel<T> {
 	private final QueueBuffer<T>[] buffers;

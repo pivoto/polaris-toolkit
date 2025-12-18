@@ -9,7 +9,6 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class MessageResource {
 	private final String baseName;

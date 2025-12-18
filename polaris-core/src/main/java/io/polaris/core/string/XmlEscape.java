@@ -2,7 +2,6 @@ package io.polaris.core.string;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class XmlEscape extends StringReplacerChain {
 	public static final String[][] BASIC_ESCAPE = { //

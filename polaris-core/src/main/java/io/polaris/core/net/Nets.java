@@ -16,7 +16,6 @@ import javax.annotation.Nonnull;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Nets {
 	/** 默认最小端口，1024 */

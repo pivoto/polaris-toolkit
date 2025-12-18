@@ -6,7 +6,6 @@ import java.util.Comparator;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class NaturalComparator implements Comparator<Comparable<?>>, Serializable {
 	private static final long serialVersionUID = 1L;

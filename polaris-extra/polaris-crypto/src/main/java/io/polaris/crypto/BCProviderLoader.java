@@ -6,7 +6,6 @@ import java.security.Provider;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class BCProviderLoader implements CryptoProviderLoader {
 

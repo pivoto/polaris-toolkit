@@ -12,7 +12,6 @@ import javax.annotation.Nonnull;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class JavaType<T> implements Type {
 	private static class CacheHolder {

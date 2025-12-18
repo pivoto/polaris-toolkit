@@ -9,7 +9,6 @@ import io.polaris.validation.Numeric;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class NumericCollectionValidator implements ConstraintValidator<Numeric, Collection<String>> {
 

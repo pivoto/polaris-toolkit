@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Changer {
 	private static final Logger log = LoggerFactory.getLogger("code.changer");

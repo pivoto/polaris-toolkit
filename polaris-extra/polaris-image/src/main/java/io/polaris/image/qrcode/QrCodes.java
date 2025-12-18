@@ -31,7 +31,6 @@ import java.util.Map;
  * </ul>
  *
  * @author Qt
- * @since 1.8
  */
 public class QrCodes {
 

@@ -15,7 +15,6 @@ import java.awt.color.ColorSpace;
  *
  * @author Tom Xin
  * @author Qt
- * @since 1.8
  */
 public class LabColor {
 

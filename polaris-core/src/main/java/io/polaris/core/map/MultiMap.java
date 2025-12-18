@@ -5,7 +5,6 @@ import java.util.Map;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public interface MultiMap<K, V, E extends Collection<V>> extends Map<K, E> {
 

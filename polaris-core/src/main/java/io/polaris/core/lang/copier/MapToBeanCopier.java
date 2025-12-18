@@ -18,7 +18,6 @@ import io.polaris.core.string.StringCases;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @SuppressWarnings("rawtypes")
 public class MapToBeanCopier<T> implements Copier<T> {

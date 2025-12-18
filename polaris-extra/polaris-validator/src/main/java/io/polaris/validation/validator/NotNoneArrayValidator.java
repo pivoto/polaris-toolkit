@@ -8,7 +8,6 @@ import io.polaris.validation.NotNone;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class NotNoneArrayValidator implements ConstraintValidator<NotNone, String[]> {
 

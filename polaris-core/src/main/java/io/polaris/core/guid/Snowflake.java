@@ -11,7 +11,6 @@ import java.util.concurrent.atomic.AtomicLong;
  * https://github.com/downgoon/snowflake
  *
  * @author Qt
- * @since 1.8
  */
 public class Snowflake {
 

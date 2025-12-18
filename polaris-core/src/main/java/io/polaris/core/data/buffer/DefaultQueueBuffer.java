@@ -4,7 +4,6 @@ import java.util.List;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class DefaultQueueBuffer<T> implements QueueBuffer<T> {
 	private final Object[] buffer;

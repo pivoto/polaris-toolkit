@@ -43,7 +43,6 @@ import io.polaris.core.tuple.Returnee;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @SuppressWarnings({"unused"})
 public class Jdbcs {

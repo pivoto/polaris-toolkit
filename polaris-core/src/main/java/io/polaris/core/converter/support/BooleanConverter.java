@@ -6,7 +6,6 @@ import io.polaris.core.lang.primitive.Booleans;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class BooleanConverter extends AbstractSimpleConverter<Boolean> {
 	private final JavaType<Boolean> targetType = JavaType.of(Boolean.class);

@@ -15,7 +15,6 @@ import javax.tools.StandardLocation;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public abstract class BaseProcessor extends AbstractProcessor {
 

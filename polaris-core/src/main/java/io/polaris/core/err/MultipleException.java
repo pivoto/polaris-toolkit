@@ -10,7 +10,6 @@ import io.polaris.core.consts.StdConsts;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class MultipleException extends IllegalArgumentException {
 	private static final long serialVersionUID = 1L;

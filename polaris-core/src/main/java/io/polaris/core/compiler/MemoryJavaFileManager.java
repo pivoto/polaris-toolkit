@@ -7,7 +7,6 @@ import java.util.*;
 
 /**
  * @author Qt
- * @since 1.8
  */
 class MemoryJavaFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 

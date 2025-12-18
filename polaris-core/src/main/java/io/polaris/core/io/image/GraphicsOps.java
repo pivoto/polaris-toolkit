@@ -7,7 +7,6 @@ import java.awt.image.BufferedImage;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class GraphicsOps {
 

@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class GroupThreadFactory implements ThreadFactory {
 	private static final Map<String, AtomicInteger> poolNumbers = new ConcurrentHashMap<>();

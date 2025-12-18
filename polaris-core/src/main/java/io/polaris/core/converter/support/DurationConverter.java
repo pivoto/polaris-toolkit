@@ -8,7 +8,6 @@ import java.time.temporal.TemporalAmount;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class DurationConverter extends AbstractSimpleConverter<Duration> {
 	private final JavaType<Duration> targetType = JavaType.of(Duration.class);

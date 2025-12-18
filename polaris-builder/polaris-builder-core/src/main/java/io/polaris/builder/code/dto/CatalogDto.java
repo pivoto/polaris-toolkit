@@ -12,7 +12,7 @@ import java.util.Map;
 
 /**
  * @author Qt
- * @version Jun 04, 2019
+ * @sinceJun 04, 2019
  */
 @SuppressWarnings("Duplicates")
 @Data

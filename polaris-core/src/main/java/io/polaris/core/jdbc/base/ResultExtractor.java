@@ -7,7 +7,6 @@ import io.polaris.core.jdbc.sql.query.Pageable;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @FunctionalInterface
 public interface ResultExtractor<T> {

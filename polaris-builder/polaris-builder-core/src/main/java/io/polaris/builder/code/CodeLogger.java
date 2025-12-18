@@ -6,7 +6,6 @@ import io.polaris.core.log.support.StdoutLogger;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class CodeLogger {
 	private static final Logger stdLog;

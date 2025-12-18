@@ -21,7 +21,6 @@ import javax.annotation.Nonnull;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class MapConverter<K, V> extends AbstractConverter<Map<K, V>> {
 	/** Map类型 */

@@ -18,7 +18,7 @@ import java.util.Map;
 
 /**
  * @author Qt
- * @version Jun 10, 2019
+ * @sinceJun 10, 2019
  */
 public class ConfigParser {
 

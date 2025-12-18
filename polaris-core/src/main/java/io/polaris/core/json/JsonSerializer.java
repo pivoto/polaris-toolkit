@@ -7,7 +7,6 @@ import java.lang.reflect.Type;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public interface JsonSerializer extends ServiceLoadable {
 

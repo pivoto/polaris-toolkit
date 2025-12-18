@@ -6,7 +6,6 @@ import java.io.OutputStream;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Base32 {
 	private static final Encoder encoder = new Base32Encoder();

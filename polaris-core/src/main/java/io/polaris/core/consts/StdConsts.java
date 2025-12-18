@@ -2,7 +2,6 @@ package io.polaris.core.consts;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public interface StdConsts {
 	Object[] EMPTY_ARRAY = new Object[0];

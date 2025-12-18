@@ -8,7 +8,6 @@ import java.util.function.Supplier;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public abstract class BaseFastjsonObjectReader<T> implements ObjectReader<T> {
 	protected Class<T> typeClass;

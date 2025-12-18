@@ -8,7 +8,6 @@ import java.time.temporal.TemporalAmount;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class PeriodConverter extends AbstractSimpleConverter<Period> {
 	private final JavaType<Period> targetType = JavaType.of(Period.class);

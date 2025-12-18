@@ -9,7 +9,6 @@ import io.polaris.core.lang.Objs;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class ValueRef<V> implements Ref<V>, Serializable, Copyable<ValueRef<V>> {
 	private static final long serialVersionUID = 1L;

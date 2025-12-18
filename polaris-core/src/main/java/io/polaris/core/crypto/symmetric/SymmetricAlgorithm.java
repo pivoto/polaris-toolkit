@@ -4,7 +4,6 @@ import io.polaris.core.crypto.Algorithm;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public enum SymmetricAlgorithm implements Algorithm {
 	/** 国密SM4对称加密算法S */

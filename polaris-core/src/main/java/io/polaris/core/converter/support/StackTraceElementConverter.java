@@ -8,7 +8,6 @@ import java.util.Map;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class StackTraceElementConverter extends AbstractSimpleConverter<StackTraceElement> {
 	private final JavaType<StackTraceElement> targetType = JavaType.of(StackTraceElement.class);

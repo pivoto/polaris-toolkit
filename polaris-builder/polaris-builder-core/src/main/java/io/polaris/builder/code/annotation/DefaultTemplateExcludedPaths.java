@@ -9,7 +9,6 @@ import java.lang.annotation.Target;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @Target(ElementType.ANNOTATION_TYPE)
 @Retention(RetentionPolicy.RUNTIME)

@@ -7,7 +7,6 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class PrimitiveConverter extends AbstractSimpleConverter<Object> {
 	private final JavaType<Object> targetType;

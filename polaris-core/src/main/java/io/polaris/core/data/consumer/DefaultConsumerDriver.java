@@ -6,7 +6,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class DefaultConsumerDriver<T> implements ConsumerDriver<T> {
 	private volatile boolean running;

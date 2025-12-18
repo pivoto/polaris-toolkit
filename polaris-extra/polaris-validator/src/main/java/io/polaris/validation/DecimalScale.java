@@ -23,7 +23,6 @@ import static java.lang.annotation.ElementType.TYPE_USE;
  * BigDecimal精度校验
  *
  * @author Qt
- * @since 1.8
  */
 @Documented
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})

@@ -6,7 +6,6 @@ import java.util.concurrent.ThreadFactory;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Schedules {
 

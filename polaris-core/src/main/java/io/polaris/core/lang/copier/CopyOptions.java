@@ -29,7 +29,6 @@ import lombok.ToString;
  * </ul>
  *
  * @author Qt
- * @since 1.8
  */
 @ToString
 @EqualsAndHashCode

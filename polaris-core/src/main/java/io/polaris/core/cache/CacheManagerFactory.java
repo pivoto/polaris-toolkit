@@ -9,7 +9,6 @@ import java.util.Optional;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public interface CacheManagerFactory extends ServiceLoadable {
 

@@ -5,7 +5,6 @@ import java.io.OutputStream;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class Base16Encoder implements Encoder {
 	protected final byte[] encodingTable =

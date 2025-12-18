@@ -25,7 +25,6 @@ import io.polaris.core.tuple.Tuples;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @SuppressWarnings({"unchecked", "unused", "rawtypes"})
 public class Reflects {

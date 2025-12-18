@@ -36,7 +36,7 @@ import ${pkgPrefix}${msiPackage}.${msiClass};
  * 对外服务接口实现类
  *
  * @author $!{author}
- * @version ${current.date}
+ * @since${current.date}
  */
 @Slf4j
 public class ${table.javaClassName}${msiImplSuffix} extends CMISModuleService implements ${msiClass}{

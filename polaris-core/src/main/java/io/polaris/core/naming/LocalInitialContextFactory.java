@@ -10,7 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * System.setProperty(Context.INITIAL_CONTEXT_FACTORY, LocalInitialContextFactory.class.getName());
  *
  * @author Qt
- * @since 1.8
  */
 public class LocalInitialContextFactory implements InitialContextFactory {
 

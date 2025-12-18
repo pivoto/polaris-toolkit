@@ -18,7 +18,6 @@ import io.polaris.core.time.Dates;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @ServiceDefault
 public class DefaultJsonSerializer implements JsonSerializer {

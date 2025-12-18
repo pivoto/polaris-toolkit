@@ -6,7 +6,6 @@ import java.lang.reflect.Type;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class AnyObjectFastjsonObjectReader extends BaseFastjsonObjectReader<Object> {
 

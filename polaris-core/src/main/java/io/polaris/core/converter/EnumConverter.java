@@ -9,7 +9,6 @@ import io.polaris.core.reflect.Reflects;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class EnumConverter<T extends Enum<T>> extends AbstractSimpleConverter<T> {
 	private static final Logger log = Loggers.of(EnumConverter.class);

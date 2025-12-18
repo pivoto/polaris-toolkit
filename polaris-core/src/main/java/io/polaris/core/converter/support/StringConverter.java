@@ -15,7 +15,6 @@ import java.util.TimeZone;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class StringConverter extends AbstractSimpleConverter<String> {
 

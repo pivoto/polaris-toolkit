@@ -27,7 +27,6 @@ import static java.lang.annotation.ElementType.TYPE_USE;
  * 校验字符串必须满足常规标识符书写格式
  *
  * @author Qt
- * @since 1.8
  */
 @Documented
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})

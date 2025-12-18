@@ -33,7 +33,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * </ol>
  *
  * @author Qt
- * @since 1.8
  */
 public class SM2 {
 

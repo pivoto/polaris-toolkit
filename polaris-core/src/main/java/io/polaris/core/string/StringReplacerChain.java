@@ -6,7 +6,6 @@ import java.util.List;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class StringReplacerChain implements StringReplacer, Iterable<StringReplacer> {
 	private final List<StringReplacer> replacers = new LinkedList<>();

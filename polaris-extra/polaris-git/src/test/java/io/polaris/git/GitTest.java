@@ -15,7 +15,6 @@ import java.io.IOException;
 
 /**
  * @author Qt
- * @since 1.8
  */
 @TestClassOrder(ClassOrderer.DisplayName.class)
 public class GitTest {

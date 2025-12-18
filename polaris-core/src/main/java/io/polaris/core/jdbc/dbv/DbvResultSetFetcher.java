@@ -22,7 +22,6 @@ import io.polaris.core.reflect.Reflects;
 
 /**
  * @author Qt
- * @since 1.8
  */
 public class DbvResultSetFetcher {
 	private static final Logger log = Loggers.of(DbvResultSetFetcher.class);
