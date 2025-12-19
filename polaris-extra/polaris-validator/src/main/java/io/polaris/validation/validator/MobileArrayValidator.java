@@ -21,9 +21,6 @@ public class MobileArrayValidator implements ConstraintValidator<Mobile, String[
 		if (value == null) {
 			return true;
 		}
-		if (value.length == 0) {
-			return true;
-		}
 		for (String s : value) {
 			if (!MobileValidator.isValid(s)) {
 				return false;

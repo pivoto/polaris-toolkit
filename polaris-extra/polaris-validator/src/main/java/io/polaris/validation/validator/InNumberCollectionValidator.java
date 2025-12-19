@@ -34,7 +34,7 @@ public class InNumberCollectionValidator implements ConstraintValidator<InNumber
 		if (value == null) {
 			return true;
 		}
-		if (value.isEmpty() && values.isEmpty()) {
+		if (value.isEmpty()) {
 			return true;
 		}
 		// 校验通过

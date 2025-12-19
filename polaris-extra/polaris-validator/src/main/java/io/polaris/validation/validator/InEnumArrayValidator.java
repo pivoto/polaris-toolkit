@@ -36,15 +36,14 @@ public class InEnumArrayValidator implements ConstraintValidator<InEnum, String[
 		if (value == null) {
 			return true;
 		}
+		if (value.length == 0) {
+			return true;
+		}
 		boolean valid = true;
-		if (value.length == 0 && !values.isEmpty()) {
-			valid = false;
-		} else {
-			for (String s : value) {
-				if (!values.contains(s)) {
-					valid = false;
-					break;
-				}
+		for (String s : value) {
+			if (!values.contains(s)) {
+				valid = false;
+				break;
 			}
 		}
 		// 校验通过
@@ -54,7 +53,7 @@ public class InEnumArrayValidator implements ConstraintValidator<InEnum, String[
 		// 校验不通过，自定义提示语句（因为，注解上的 value 是枚举类，无法获得枚举类的实际值）
 		context.disableDefaultConstraintViolation(); // 禁用默认的 message 的值
 		Map<String, Object> map = Maps.newHashMap();
-		map.put("value", values.toString());
+		map.put("value" , values.toString());
 		String message = Validations.formatValidationMessage(context.getDefaultConstraintMessageTemplate(), map);
 		context.buildConstraintViolationWithTemplate(message).addConstraintViolation(); // 重新添加错误提示语句
 		return false;

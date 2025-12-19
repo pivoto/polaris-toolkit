@@ -32,15 +32,14 @@ public class InStringArrayValidator implements ConstraintValidator<InString, Str
 		if (value == null) {
 			return true;
 		}
+		if (value.length == 0) {
+			return true;
+		}
 		boolean valid = true;
-		if (value.length == 0 && !values.isEmpty()) {
-			valid = false;
-		} else {
-			for (String s : value) {
-				if (!values.contains(s)) {
-					valid = false;
-					break;
-				}
+		for (String s : value) {
+			if (!values.contains(s)) {
+				valid = false;
+				break;
 			}
 		}
 		// 校验通过

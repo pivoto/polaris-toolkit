@@ -33,7 +33,7 @@ public class InStringCollectionValidator implements ConstraintValidator<InString
 		if (value == null) {
 			return true;
 		}
-		if (value.isEmpty() && values.isEmpty()) {
+		if (value.isEmpty()) {
 			return true;
 		}
 		// 校验通过

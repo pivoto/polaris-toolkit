@@ -33,7 +33,7 @@ public class InNumberArrayValidator implements ConstraintValidator<InNumber, Num
 		if (value == null) {
 			return true;
 		}
-		if (value.length == 0 && values.isEmpty()) {
+		if (value.length == 0) {
 			return true;
 		}
 		// 校验通过
