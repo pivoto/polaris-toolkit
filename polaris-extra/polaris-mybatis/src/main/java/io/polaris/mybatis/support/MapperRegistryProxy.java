@@ -8,7 +8,7 @@ import java.util.Collection;
 
 /**
  * @author Qt
- * @since  Sep 11, 2023
+ * @since Sep 11, 2023
  */
 public class MapperRegistryProxy extends MapperRegistry {
 

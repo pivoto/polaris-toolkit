@@ -12,7 +12,7 @@ import com.alibaba.fastjson2.JSON;
 
 /**
  * @author Qt
- * @since  May 06, 2024
+ * @since May 06, 2024
  */
 public class DefaultJsonSerializerTest {
 

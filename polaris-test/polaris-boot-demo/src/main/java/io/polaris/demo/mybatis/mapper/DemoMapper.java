@@ -39,7 +39,7 @@ import org.apache.ibatis.annotations.*;
 
 /**
  * @author Qt
- * @since  Jan 30, 2024
+ * @since Jan 30, 2024
  */
 @Mapper
 public interface DemoMapper {

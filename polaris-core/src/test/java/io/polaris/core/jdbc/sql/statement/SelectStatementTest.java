@@ -21,7 +21,7 @@ import java.util.Arrays;
 
 /**
  * @author Qt
- * @since  Oct 28, 2023
+ * @since Oct 28, 2023
  */
 public class SelectStatementTest {
 

@@ -21,7 +21,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 /**
  * @author Qt
- * @since  Apr 10, 2024
+ * @since Apr 10, 2024
  */
 @Fork(1)
 @Threads(4)

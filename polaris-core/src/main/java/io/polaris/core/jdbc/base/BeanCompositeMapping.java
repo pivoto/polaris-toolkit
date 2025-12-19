@@ -5,7 +5,7 @@ import lombok.Getter;
 
 /**
  * @author Qt
- * @since  Dec 28, 2023
+ * @since Dec 28, 2023
  */
 @Getter
 public class BeanCompositeMapping<T> {

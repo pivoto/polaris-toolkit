@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Qt
- * @since  Feb 04, 2024
+ * @since Feb 04, 2024
  */
 public interface JacksonCustomizer {
 

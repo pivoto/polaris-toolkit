@@ -13,7 +13,7 @@ import java.io.PrintWriter;
 
 /**
  * @author Qt
- * @since  Aug 03, 2023
+ * @since Aug 03, 2023
  */
 public class AsmPrint {
 

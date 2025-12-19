@@ -9,7 +9,7 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since  Jan 31, 2024
+ * @since Jan 31, 2024
  */
 public interface Arguments {
 

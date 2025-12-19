@@ -14,7 +14,7 @@ import io.polaris.core.log.Loggers;
 
 /**
  * @author Qt
- * @since  Apr 23, 2024
+ * @since Apr 23, 2024
  */
 public class WorkerPoolExecutor extends ThreadPoolExecutor {
 	private static final Logger log = Loggers.of(WorkerPoolExecutor.class);

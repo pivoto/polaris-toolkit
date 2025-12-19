@@ -2,7 +2,7 @@ package io.polaris.core.jdbc.sql.node;
 
 /**
  * @author Qt
- * @since  Aug 22, 2023
+ * @since Aug 22, 2023
  */
 public class SqlNodeOps {
 

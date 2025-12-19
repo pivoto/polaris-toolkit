@@ -15,7 +15,7 @@ import lombok.experimental.FieldNameConstants;
 
 /**
  * @author Qt
- * @since  Apr 10, 2024
+ * @since Apr 10, 2024
  */
 @Data
 @FieldNameConstants

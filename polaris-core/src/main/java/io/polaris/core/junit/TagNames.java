@@ -2,7 +2,7 @@ package io.polaris.core.junit;
 
 /**
  * @author Qt
- * @since  Aug 31, 2023
+ * @since Aug 31, 2023
  */
 public interface TagNames {
 

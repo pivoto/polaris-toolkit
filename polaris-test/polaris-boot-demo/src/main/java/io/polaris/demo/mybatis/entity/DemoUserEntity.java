@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * @author Qt
- * @since  Aug 25, 2023
+ * @since Aug 25, 2023
  */
 @Data
 @Table(value = "demo_user")

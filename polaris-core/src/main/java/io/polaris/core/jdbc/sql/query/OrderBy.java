@@ -12,7 +12,7 @@ import java.util.Set;
 
 /**
  * @author Qt
- * @since  Aug 29, 2023
+ * @since Aug 29, 2023
  */
 @EqualsAndHashCode
 @ToString

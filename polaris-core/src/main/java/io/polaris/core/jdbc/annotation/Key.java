@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 /**
  * @author Qt
- * @since  Feb 05, 2024
+ * @since Feb 05, 2024
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

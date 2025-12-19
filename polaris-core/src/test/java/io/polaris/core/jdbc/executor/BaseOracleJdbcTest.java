@@ -17,7 +17,7 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since  Feb 08, 2024
+ * @since Feb 08, 2024
  */
 public class BaseOracleJdbcTest {
 	private static final Logger log = Loggers.of(BaseOracleJdbcTest.class);

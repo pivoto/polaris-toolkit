@@ -22,7 +22,7 @@ import org.codehaus.commons.compiler.IExpressionEvaluator;
 
 /**
  * @author Qt
- * @since  Feb 06, 2024
+ * @since Feb 06, 2024
  */
 public class JaninoEvaluator implements Evaluator {
 	private static final Logger log = Loggers.of(JaninoEvaluator.class);

@@ -25,7 +25,7 @@ import static org.objectweb.asm.Opcodes.*;
 
 /**
  * @author Qt
- * @since  Apr 11, 2024
+ * @since Apr 11, 2024
  */
 public abstract class BeanAccess<T> {
 	private static Logger log = Loggers.of(BeanAccess.class);

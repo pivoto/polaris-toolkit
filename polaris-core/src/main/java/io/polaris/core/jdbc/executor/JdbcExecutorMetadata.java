@@ -50,7 +50,7 @@ import io.polaris.core.tuple.Tuple2;
 
 /**
  * @author Qt
- * @since  Feb 07, 2024
+ * @since Feb 07, 2024
  */
 public class JdbcExecutorMetadata<T> {
 	private static final Map<Class<?>, JdbcExecutorMetadata<?>> metabaseCache = Maps.newSoftMap(new ConcurrentHashMap<>());

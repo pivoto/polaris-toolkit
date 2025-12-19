@@ -2,7 +2,7 @@ package io.polaris.core.log.support;
 
 /**
  * @author Qt
- * @since  Aug 04, 2023
+ * @since Aug 04, 2023
  */
 interface Stack {
 	void put(String key, String val);

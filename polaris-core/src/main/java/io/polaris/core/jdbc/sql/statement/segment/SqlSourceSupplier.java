@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 
 /**
  * @author Qt
- * @since  Aug 23, 2023
+ * @since Aug 23, 2023
  */
 @FunctionalInterface
 public interface SqlSourceSupplier extends Supplier<SqlNode[]> {

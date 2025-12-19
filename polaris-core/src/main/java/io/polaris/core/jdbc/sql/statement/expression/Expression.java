@@ -10,7 +10,7 @@ import io.polaris.core.jdbc.sql.node.TextNode;
 
 /**
  * @author Qt
- * @since  Aug 23, 2023
+ * @since Aug 23, 2023
  */
 @FunctionalInterface
 public interface Expression {

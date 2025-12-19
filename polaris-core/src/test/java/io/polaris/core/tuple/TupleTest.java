@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  * @author Qt
- * @since  Sep 27, 2023
+ * @since Sep 27, 2023
  */
 public class TupleTest {
 

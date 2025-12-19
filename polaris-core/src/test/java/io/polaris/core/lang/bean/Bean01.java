@@ -14,7 +14,7 @@ import java.util.*;
 
 /**
  * @author Qt
- * @since  Aug 05, 2023
+ * @since Aug 05, 2023
  */
 @Data
 @FieldNameConstants

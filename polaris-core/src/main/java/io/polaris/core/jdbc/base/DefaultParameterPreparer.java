@@ -19,7 +19,7 @@ import io.polaris.core.time.Dates;
 
 /**
  * @author Qt
- * @since  Apr 25, 2024
+ * @since Apr 25, 2024
  */
 public class DefaultParameterPreparer implements ParameterPreparer {
 

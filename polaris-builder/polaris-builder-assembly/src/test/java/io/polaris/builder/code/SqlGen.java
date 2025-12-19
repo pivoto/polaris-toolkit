@@ -11,7 +11,7 @@ import java.util.Set;
 
 /**
  * @author Qt
- * @since  Oct 23, 2023
+ * @since Oct 23, 2023
  */
 public class SqlGen {
 

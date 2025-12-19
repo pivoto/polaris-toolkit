@@ -3,7 +3,7 @@ package io.polaris.core.log.support;
 
 /**
  * @author Qt
- * @since  Aug 04, 2023
+ * @since Aug 04, 2023
  */
 class NoopStack implements Stack {
 

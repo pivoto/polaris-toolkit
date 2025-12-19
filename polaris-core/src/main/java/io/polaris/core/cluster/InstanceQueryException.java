@@ -4,7 +4,7 @@ import io.polaris.core.err.UncheckedException;
 
 /**
  * @author Qt
- * @since  Apr 17, 2024
+ * @since Apr 17, 2024
  */
 public class InstanceQueryException extends UncheckedException {
 

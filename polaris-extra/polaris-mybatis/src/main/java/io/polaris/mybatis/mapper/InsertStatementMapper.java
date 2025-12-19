@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.*;
 
 /**
  * @author Qt
- * @since  Aug 25, 2023
+ * @since Aug 25, 2023
  */
 public interface InsertStatementMapper {
 

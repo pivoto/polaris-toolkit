@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * @author Qt
- * @since  Aug 11, 2023
+ * @since Aug 11, 2023
  */
 @Getter
 @Setter

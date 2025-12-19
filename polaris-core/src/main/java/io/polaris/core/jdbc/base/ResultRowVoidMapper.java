@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 /**
  * @author Qt
- * @since  Feb 06, 2024
+ * @since Feb 06, 2024
  */
 public class ResultRowVoidMapper extends BaseResultRowMapper<Void> {
 

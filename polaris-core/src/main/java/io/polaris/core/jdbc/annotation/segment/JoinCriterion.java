@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 
 /**
  * @author Qt
- * @since  Jan 28, 2024
+ * @since Jan 28, 2024
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})

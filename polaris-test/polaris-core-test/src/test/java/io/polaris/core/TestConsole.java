@@ -9,7 +9,7 @@ import io.polaris.core.time.Dates;
 
 /**
  * @author Qt
- * @since  Feb 18, 2024
+ * @since Feb 18, 2024
  */
 public class TestConsole {
 	private static boolean printable = Converters.convertQuietly(boolean.class, System.getProperty("test.console.printable", "true"), true);

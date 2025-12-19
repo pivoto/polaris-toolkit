@@ -24,7 +24,7 @@ import com.lmax.disruptor.dsl.ProducerType;
 
 /**
  * @author Qt
- * @since  Apr 23, 2024
+ * @since Apr 23, 2024
  */
 public class DisruptorPooledExecutor<E> implements RunnableStatisticsHolder {
 	private static final Logger log = Loggers.of(DisruptorPooledExecutor.class);

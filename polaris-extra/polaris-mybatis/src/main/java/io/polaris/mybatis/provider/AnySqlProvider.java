@@ -11,7 +11,7 @@ import org.apache.ibatis.builder.annotation.ProviderContext;
 
 /**
  * @author Qt
- * @since  Sep 11, 2023
+ * @since Sep 11, 2023
  */
 @Slf4j
 public class AnySqlProvider extends BaseProviderMethodResolver {

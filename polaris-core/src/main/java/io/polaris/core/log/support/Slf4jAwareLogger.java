@@ -5,7 +5,7 @@ import org.slf4j.spi.LocationAwareLogger;
 
 /**
  * @author Qt
- * @since  Aug 04, 2023
+ * @since Aug 04, 2023
  */
 public class Slf4jAwareLogger implements Logger {
 	private static final String FQCN = Slf4jAwareLogger.class.getName();

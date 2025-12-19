@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * @author Qt
- * @since  Oct 28, 2023
+ * @since Oct 28, 2023
  */
 public class UpdateStatementTest {
 

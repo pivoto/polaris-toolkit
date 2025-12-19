@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * @author Qt
- * @since  Aug 12, 2023
+ * @since Aug 12, 2023
  */
 @EqualsAndHashCode
 @Getter

@@ -2,7 +2,7 @@ package io.polaris.core.jdbc.base;
 
 /**
  * @author Qt
- * @since  Feb 07, 2024
+ * @since Feb 07, 2024
  */
 @FunctionalInterface
 public interface ResultVisitor<T> {

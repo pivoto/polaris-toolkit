@@ -9,7 +9,7 @@ import io.polaris.core.jdbc.sql.PreparedSql;
 
 /**
  * @author Qt
- * @since  Aug 11, 2023
+ * @since Aug 11, 2023
  */
 @AnnotationProcessing
 public class TextNode implements SqlNode, Cloneable {

@@ -41,7 +41,7 @@ import static org.objectweb.asm.Opcodes.*;
 
 /**
  * @author Qt
- * @since  Aug 03, 2023
+ * @since Aug 03, 2023
  */
 class BeanMetadataV1Builder {
 	private static final AtomicLong seq = new AtomicLong(0);

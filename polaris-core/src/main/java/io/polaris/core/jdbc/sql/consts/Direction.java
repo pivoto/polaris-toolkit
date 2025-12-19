@@ -6,7 +6,7 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since  Aug 29, 2023
+ * @since Aug 29, 2023
  */
 @SuppressWarnings("all")
 public enum Direction {

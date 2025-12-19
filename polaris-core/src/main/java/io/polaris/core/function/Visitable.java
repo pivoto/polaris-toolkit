@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 
 /**
  * @author Qt
- * @since  Sep 06, 2023
+ * @since Sep 06, 2023
  */
 @FunctionalInterface
 public interface Visitable<T> {

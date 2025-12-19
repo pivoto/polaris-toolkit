@@ -17,7 +17,7 @@ import org.apache.ibatis.cursor.Cursor;
 
 /**
  * @author Qt
- * @since  Aug 25, 2023
+ * @since Aug 25, 2023
  */
 public interface SelectStatementCursorDefaultMapper<R> {
 

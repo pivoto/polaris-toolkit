@@ -4,7 +4,7 @@ import java.util.Map;
 
 /**
  * @author Qt
- * @since  Aug 07, 2023
+ * @since Aug 07, 2023
  */
 public interface BeanMapSpec<T> extends Map<String, Object> {
 

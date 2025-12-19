@@ -13,7 +13,7 @@ import java.util.function.Predicate;
 
 /**
  * @author Qt
- * @since  Aug 11, 2023
+ * @since Aug 11, 2023
  */
 public class MixedNode extends VarNode implements Cloneable {
 

@@ -7,7 +7,7 @@ import io.polaris.core.jdbc.sql.statement.segment.TableSegment;
 
 /**
  * @author Qt
- * @since  Aug 23, 2023
+ * @since Aug 23, 2023
  */
 public class DemoEntityAndSegment<O extends Segment<O>> extends AndSegment<O, DemoEntityAndSegment<O>> {
 

@@ -10,7 +10,7 @@ import io.polaris.core.reflect.Reflects;
 
 /**
  * @author Qt
- * @since  Feb 06, 2024
+ * @since Feb 06, 2024
  */
 public class ResultRowMapMapper<T extends Map<String, Object>> extends BaseResultRowMapper<T> {
 

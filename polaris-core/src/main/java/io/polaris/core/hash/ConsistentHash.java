@@ -11,7 +11,7 @@ import java.util.TreeMap;
  *
  * @author xiaoleilu
  * @author Qt
- * @since  Aug 01, 2023
+ * @since Aug 01, 2023
  */
 public class ConsistentHash<T> {
 

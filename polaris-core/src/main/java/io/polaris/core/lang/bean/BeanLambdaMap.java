@@ -19,7 +19,7 @@ import io.polaris.core.log.Loggers;
 
 /**
  * @author Qt
- * @since  Apr 12, 2024
+ * @since Apr 12, 2024
  */
 class BeanLambdaMap<T> extends BeanMap<T> {
 	private static final Logger log = Loggers.of(BeanLambdaMap.class);

@@ -26,7 +26,7 @@ import static org.objectweb.asm.Opcodes.*;
 
 /**
  * @author Qt
- * @since  Apr 11, 2024
+ * @since Apr 11, 2024
  */
 public abstract class BeanLambdaAccess<T> {
 	private static final AccessClassPool<Class, BeanLambdaAccess> pool = new AccessClassPool<>();

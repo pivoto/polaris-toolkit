@@ -12,7 +12,7 @@ import static io.polaris.builder.code.annotation.Template.*;
 
 /**
  * @author Qt
- * @since  Sep 05, 2023
+ * @since Sep 05, 2023
  */
 public class JtcRmCode {
 

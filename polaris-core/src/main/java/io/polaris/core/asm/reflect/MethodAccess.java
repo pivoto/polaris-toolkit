@@ -37,7 +37,7 @@ import static org.objectweb.asm.Opcodes.V1_8;
 /**
  * @author Qt
  * @see <a href="https://github.com/EsotericSoftware/reflectasm">https://github.com/EsotericSoftware/reflectasm</a>
- * @since  Aug 04, 2023
+ * @since Aug 04, 2023
  */
 public abstract class MethodAccess {
 	private static final AccessClassPool<Class, MethodAccess> pool = new AccessClassPool<>();

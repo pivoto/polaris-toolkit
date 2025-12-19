@@ -6,7 +6,7 @@ import lombok.Data;
 
 /**
  * @author Qt
- * @since  Aug 20, 2023
+ * @since Aug 20, 2023
  */
 @Data
 @Table(value = "t_demo")

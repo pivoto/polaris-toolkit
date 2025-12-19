@@ -6,7 +6,7 @@ import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
- * @since  Aug 04, 2023
+ * @since Aug 04, 2023
  */
 public class Slf4jLogger implements Logger {
 

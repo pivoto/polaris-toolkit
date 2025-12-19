@@ -4,7 +4,7 @@ import org.slf4j.MDC;
 
 /**
  * @author Qt
- * @since  Aug 04, 2023
+ * @since Aug 04, 2023
  */
 class Slf4jStack implements Stack {
 	public static final String DELIMITER = "|";

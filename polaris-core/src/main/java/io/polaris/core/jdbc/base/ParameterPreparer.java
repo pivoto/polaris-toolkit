@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 /**
  * @author Qt
- * @since  Apr 25, 2024
+ * @since Apr 25, 2024
  */
 public interface ParameterPreparer {
 

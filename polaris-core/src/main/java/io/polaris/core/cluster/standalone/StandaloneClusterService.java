@@ -9,7 +9,7 @@ import io.polaris.core.service.ServiceName;
 
 /**
  * @author Qt
- * @since  Apr 17, 2024
+ * @since Apr 17, 2024
  */
 @SuppressWarnings("ALL")
 @ServiceName("standalone")

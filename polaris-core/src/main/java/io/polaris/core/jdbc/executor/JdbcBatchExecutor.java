@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * @author Qt
- * @since  Feb 07, 2024
+ * @since Feb 07, 2024
  */
 public interface JdbcBatchExecutor {
 

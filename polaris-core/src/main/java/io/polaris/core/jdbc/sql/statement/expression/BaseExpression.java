@@ -10,7 +10,7 @@ import io.polaris.core.string.Hex;
 
 /**
  * @author Qt
- * @since  Aug 21, 2023
+ * @since Aug 21, 2023
  */
 public abstract class BaseExpression implements Expression {
 	private static final AtomicLong seq = new AtomicLong();

@@ -4,7 +4,7 @@ import io.polaris.core.err.UncheckedException;
 
 /**
  * @author Qt
- * @since  Jan 19, 2024
+ * @since Jan 19, 2024
  */
 public class CryptoRuntimeException extends UncheckedException {
 

@@ -4,7 +4,7 @@ import io.polaris.core.io.Consoles;
 
 /**
  * @author Qt
- * @since  Apr 23, 2024
+ * @since Apr 23, 2024
  */
 public class StdEnvCustomizer02 implements StdEnvCustomizer {
 	@Override

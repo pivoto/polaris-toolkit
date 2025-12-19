@@ -12,7 +12,7 @@ import lombok.experimental.FieldNameConstants;
 
 /**
  * @author Qt
- * @since  Aug 23, 2023
+ * @since Aug 23, 2023
  */
 @Table(value = "t_demo")
 @Data

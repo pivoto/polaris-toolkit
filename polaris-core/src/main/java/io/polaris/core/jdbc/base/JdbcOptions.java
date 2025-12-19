@@ -10,7 +10,7 @@ import lombok.Data;
 
 /**
  * @author Qt
- * @since  Feb 06, 2024
+ * @since Feb 06, 2024
  */
 @Data
 public class JdbcOptions {

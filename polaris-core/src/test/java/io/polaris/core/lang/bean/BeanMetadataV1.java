@@ -7,7 +7,7 @@ import java.util.function.Function;
 
 /**
  * @author Qt
- * @since  Aug 03, 2023
+ * @since Aug 03, 2023
  */
 public interface BeanMetadataV1 {
 

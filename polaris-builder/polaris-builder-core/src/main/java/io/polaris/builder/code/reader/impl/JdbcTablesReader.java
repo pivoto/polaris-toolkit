@@ -24,7 +24,7 @@ import java.util.Set;
 
 /**
  * @author Qt
- * @sinceJul 11, 2021
+ * @since Jul 11, 2021
  */
 public class JdbcTablesReader implements TablesReader {
 	private final DatabaseCfg cfg;

@@ -2,7 +2,7 @@ package io.polaris.core.jdbc.sql.consts;
 
 /**
  * @author Qt
- * @since  Jan 28, 2024
+ * @since Jan 28, 2024
  */
 public interface BindingKeys {
 

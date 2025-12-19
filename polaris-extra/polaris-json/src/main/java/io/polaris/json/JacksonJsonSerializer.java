@@ -9,7 +9,7 @@ import io.polaris.core.service.ServiceOrder;
 
 /**
  * @author Qt
- * @since  Feb 04, 2024
+ * @since Feb 04, 2024
  */
 @ServiceName("jackson")
 @ServiceOrder(0)

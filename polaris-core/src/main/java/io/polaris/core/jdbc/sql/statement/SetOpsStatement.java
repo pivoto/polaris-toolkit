@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * @author Qt
- * @since  Dec 30, 2023
+ * @since Dec 30, 2023
  */
 public class SetOpsStatement<S extends SetOpsStatement<S>> extends BaseStatement<S> {
 

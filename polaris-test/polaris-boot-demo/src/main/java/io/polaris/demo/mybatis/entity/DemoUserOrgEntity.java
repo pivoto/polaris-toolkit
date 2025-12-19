@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * @author Qt
- * @since  Jan 30, 2024
+ * @since Jan 30, 2024
  */
 @Data
 @Table(value = "demo_user_org")

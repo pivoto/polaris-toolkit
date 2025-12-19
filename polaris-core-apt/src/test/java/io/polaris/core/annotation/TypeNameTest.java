@@ -14,7 +14,7 @@ import java.util.Map;
 
 /**
  * @author Qt
- * @since  Aug 24, 2023
+ * @since Aug 24, 2023
  */
 public class TypeNameTest {
 	@Test

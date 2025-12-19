@@ -12,7 +12,7 @@ import java.util.function.Function;
  * 数据权限控制上下文
  *
  * @author Qt
- * @since  Aug 28, 2023
+ * @since Aug 28, 2023
  */
 public class DataAuthSqlCtx {
 
