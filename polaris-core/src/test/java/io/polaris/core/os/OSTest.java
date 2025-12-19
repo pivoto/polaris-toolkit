@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 class OSTest {
 
 	static {
-		System.setProperty(StdKeys.IP_REGEX,"192\\.,172\\.");
+		System.setProperty(StdKeys.OS_IP_REGEX,"192\\.,172\\.");
 	}
 
 	@Test

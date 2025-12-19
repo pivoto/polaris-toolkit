@@ -44,7 +44,7 @@ public class MemoryClassLoader extends URLClassLoader {
 		}
 	}
 	static{
-		String tmpdir = System.getProperty(StdKeys.JAVA_CLASS_BYTES_TMPDIR);
+		String tmpdir = System.getProperty(StdKeys.BYTECODE_GENERATOR_TMPDIR);
 		if (Strings.isNotBlank(tmpdir)){
 			File dir = new File(tmpdir.trim());
 			if (!dir.exists()){

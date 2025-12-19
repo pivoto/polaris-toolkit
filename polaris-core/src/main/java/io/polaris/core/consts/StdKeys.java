@@ -5,6 +5,10 @@ package io.polaris.core.consts;
  * @since May 10, 2024
  */
 public interface StdKeys {
+
+	// ========================================================================
+	// 以下为虚拟机内置属性
+
 	String OS_NAME = "os.name";
 	String USER_DIR = "user.dir";
 	String LINE_SEPARATOR = "line.separator";
@@ -12,15 +16,25 @@ public interface StdKeys {
 	String JAVA_IO_TMPDIR = "java.io.tmpdir";
 	String SUN_CPU_ENDIAN = "sun.cpu.endian";
 
-	String LOGGER_LEVEL = "logger.level";
-	String JDBC_SQL_SPACE_AS_LF = "jdbc.sql.space-as-lf";
-	String JDBC_SQL_PARAM_INCLUDE_EMPTY_STRING = "jdbc.sql.param.include-empty-string";
-	String JDBC_SQL_PARAM_INCLUDE_EMPTY_COLLECTION = "jdbc.sql.param.include-empty-collection";
-	String JAVA_CLASS_BYTES_TMPDIR = "java.class.bytes.tmpdir";
-	String JAVA_CLASS_GENERATOR_CACHE = "java.class.generator.cache";
+	// ========================================================================
+	// 以下为工具库配置属性
 
-	String IP_REGEX = "ip.regex";
-	String ASYNC_POOL_CORE = "async.pool.core";
-	String ASYNC_POOL_MAX = "async.pool.max";
-	String ASYNC_POOL_SCHEDULER = "async.pool.scheduler";
+	String POLARIS = "polaris";
+	String POLARIS_DOT = POLARIS + ".";
+
+	String LOGGER_LEVEL = POLARIS_DOT + "logger.level";
+
+	String JDBC_SQL_SPACE_AS_LF = POLARIS_DOT + "jdbc.sql.space-as-lf";
+	String JDBC_SQL_PARAM_INCLUDE_EMPTY_STRING = POLARIS_DOT + "jdbc.sql.param.include-empty-string";
+	String JDBC_SQL_PARAM_INCLUDE_EMPTY_COLLECTION = POLARIS_DOT + "jdbc.sql.param.include-empty-collection";
+
+	String BYTECODE_GENERATOR_TMPDIR = POLARIS_DOT + "bytecode.generator.tmpdir";
+	String BYTECODE_GENERATOR_CACHE = POLARIS_DOT + "bytecode.generator.cache";
+
+	String OS_IP_REGEX = POLARIS_DOT + "os.ip-regex";
+	String ASYNC_POOL_CORE = POLARIS_DOT + "async.pool.core";
+	String ASYNC_POOL_MAX = POLARIS_DOT + "async.pool.max";
+	String ASYNC_POOL_SCHEDULER = POLARIS_DOT + "async.pool.scheduler";
+
+	// ========================================================================
 }

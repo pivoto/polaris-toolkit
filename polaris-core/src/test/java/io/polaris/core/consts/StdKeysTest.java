@@ -11,7 +11,7 @@ class StdKeysTest {
 	void test01() {
 		Consoles.log("[{}]", Converters.convertQuietly(boolean.class, GlobalStdEnv.get(Consoles.class.getName() + ".log.enabled", "true"), true));
 		Consoles.log("[{}]", GlobalStdEnv.get(StdKeys.JDBC_SQL_SPACE_AS_LF, " "));
-		Consoles.log("[{}]", GlobalStdEnv.getBoolean(StdKeys.JAVA_CLASS_GENERATOR_CACHE, true));
+		Consoles.log("[{}]", GlobalStdEnv.getBoolean(StdKeys.BYTECODE_GENERATOR_CACHE, true));
 	}
 
 }

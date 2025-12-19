@@ -89,7 +89,7 @@ public class OS {
 		if (null != CACHE_IP) {
 			return CACHE_IP;
 		}
-		String ipRegex = GlobalStdEnv.get(StdKeys.IP_REGEX);
+		String ipRegex = GlobalStdEnv.get(StdKeys.OS_IP_REGEX);
 		if (Strings.isNotBlank(ipRegex)) {
 			// 从系统属性中取优先IP范式，存在则使用
 			String[] arr = Strings.delimitedToArray(ipRegex, ",");

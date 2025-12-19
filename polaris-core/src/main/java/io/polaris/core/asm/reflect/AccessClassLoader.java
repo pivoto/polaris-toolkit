@@ -45,7 +45,7 @@ public class AccessClassLoader extends ClassLoader {
 			, PublicConstructorAccess.class
 			, FieldAccess.class
 		);
-		String tmpdir = GlobalStdEnv.get(StdKeys.JAVA_CLASS_BYTES_TMPDIR);
+		String tmpdir = GlobalStdEnv.get(StdKeys.BYTECODE_GENERATOR_TMPDIR);
 		if (Strings.isNotBlank(tmpdir)) {
 			File dir = new File(tmpdir.trim());
 			if (!dir.exists()) {
