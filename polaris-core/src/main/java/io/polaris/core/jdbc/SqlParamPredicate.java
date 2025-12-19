@@ -96,41 +96,41 @@ public class SqlParamPredicate {
 			return true;
 		}
 		if (obj instanceof CharSequence) {
-			Boolean localVal = includeEmptyStringLocal.get();
-			boolean include = localVal != null ? localVal : this.includeEmptyString;
-			if (include) {
-				return false;
+			if (((CharSequence) obj).length() == 0) {
+				Boolean localVal = includeEmptyStringLocal.get();
+				boolean include = localVal != null ? localVal : this.includeEmptyString;
+				return !include;
 			}
-			return Strings.isEmpty((CharSequence) obj);
+			return false;
 		}
 		if (obj instanceof Map) {
-			Boolean localVal = includeEmptyCollectionLocal.get();
-			boolean include = localVal != null ? localVal : this.includeEmptyCollection;
-			if (include) {
-				return false;
+			if (((Map<?, ?>) obj).isEmpty()) {
+				Boolean localVal = includeEmptyCollectionLocal.get();
+				boolean include = localVal != null ? localVal : this.includeEmptyCollection;
+				return !include;
 			}
-			return ((Map<?, ?>) obj).isEmpty();
+			return false;
 		} else if (obj instanceof Iterable) {
-			Boolean localVal = includeEmptyCollectionLocal.get();
-			boolean include = localVal != null ? localVal : this.includeEmptyCollection;
-			if (include) {
-				return false;
+			if (!((Iterable<?>) obj).iterator().hasNext()) {
+				Boolean localVal = includeEmptyCollectionLocal.get();
+				boolean include = localVal != null ? localVal : this.includeEmptyCollection;
+				return !include;
 			}
-			return !((Iterable<?>) obj).iterator().hasNext();
+			return false;
 		} else if (obj instanceof Iterator) {
-			Boolean localVal = includeEmptyCollectionLocal.get();
-			boolean include = localVal != null ? localVal : this.includeEmptyCollection;
-			if (include) {
-				return false;
+			if (!((Iterator<?>) obj).hasNext()) {
+				Boolean localVal = includeEmptyCollectionLocal.get();
+				boolean include = localVal != null ? localVal : this.includeEmptyCollection;
+				return !include;
 			}
-			return !((Iterator<?>) obj).hasNext();
+			return false;
 		} else if (ObjectArrays.isArray(obj)) {
-			Boolean localVal = includeEmptyCollectionLocal.get();
-			boolean include = localVal != null ? localVal : this.includeEmptyCollection;
-			if (include) {
-				return false;
+			if (ObjectArrays.isEmpty(obj)) {
+				Boolean localVal = includeEmptyCollectionLocal.get();
+				boolean include = localVal != null ? localVal : this.includeEmptyCollection;
+				return !include;
 			}
-			return ObjectArrays.isEmpty(obj);
+			return false;
 		}
 		return false;
 	}
@@ -140,41 +140,36 @@ public class SqlParamPredicate {
 			return false;
 		}
 		if (obj instanceof CharSequence) {
-			Boolean localVal = includeEmptyStringLocal.get();
-			boolean include = localVal != null ? localVal : this.includeEmptyString;
-			if (include) {
-				return true;
+			if (((CharSequence) obj).length() == 0) {
+				Boolean localVal = includeEmptyStringLocal.get();
+				return localVal != null ? localVal : this.includeEmptyString;
 			}
-			return !Strings.isEmpty((CharSequence) obj);
+			return true;
 		}
 		if (obj instanceof Map) {
-			Boolean localVal = includeEmptyCollectionLocal.get();
-			boolean include = localVal != null ? localVal : this.includeEmptyCollection;
-			if (include) {
-				return true;
+			if (((Map<?, ?>) obj).isEmpty()) {
+				Boolean localVal = includeEmptyCollectionLocal.get();
+				return localVal != null ? localVal : this.includeEmptyCollection;
 			}
-			return !((Map<?, ?>) obj).isEmpty();
+			return true;
 		} else if (obj instanceof Iterable) {
-			Boolean localVal = includeEmptyCollectionLocal.get();
-			boolean include = localVal != null ? localVal : this.includeEmptyCollection;
-			if (include) {
-				return true;
+			if (!((Iterable<?>) obj).iterator().hasNext()) {
+				Boolean localVal = includeEmptyCollectionLocal.get();
+				return localVal != null ? localVal : this.includeEmptyCollection;
 			}
-			return ((Iterable<?>) obj).iterator().hasNext();
+			return true;
 		} else if (obj instanceof Iterator) {
-			Boolean localVal = includeEmptyCollectionLocal.get();
-			boolean include = localVal != null ? localVal : this.includeEmptyCollection;
-			if (include) {
-				return true;
+			if (!((Iterator<?>) obj).hasNext()) {
+				Boolean localVal = includeEmptyCollectionLocal.get();
+				return localVal != null ? localVal : this.includeEmptyCollection;
 			}
-			return ((Iterator<?>) obj).hasNext();
+			return true;
 		} else if (ObjectArrays.isArray(obj)) {
-			Boolean localVal = includeEmptyCollectionLocal.get();
-			boolean include = localVal != null ? localVal : this.includeEmptyCollection;
-			if (include) {
-				return true;
+			if (ObjectArrays.isEmpty(obj)) {
+				Boolean localVal = includeEmptyCollectionLocal.get();
+				return localVal != null ? localVal : this.includeEmptyCollection;
 			}
-			return !ObjectArrays.isEmpty(obj);
+			return true;
 		}
 		return true;
 	}
