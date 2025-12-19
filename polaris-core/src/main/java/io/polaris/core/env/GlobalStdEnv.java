@@ -11,12 +11,20 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.function.Function;
 
+import javax.annotation.Nullable;
+
+import io.polaris.core.converter.Converters;
+import io.polaris.core.lang.Types;
+import io.polaris.core.lang.bean.Beans;
+import io.polaris.core.lang.bean.PropertyAccessor;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
+import io.polaris.core.reflect.Reflects;
+import io.polaris.core.string.StringCases;
 
 /**
  * @author Qt
- * @since  Apr 23, 2024
+ * @since Apr 23, 2024
  */
 public class GlobalStdEnv {
 	private static final Logger log = Loggers.of(GlobalStdEnv.class);
@@ -31,6 +39,44 @@ public class GlobalStdEnv {
 				log.error(e.getMessage(), e);
 			}
 		}
+	}
+
+	@Nullable
+	public static <T> T bind(String prefix, Class<T> clazz) {
+		return bind(GlobalStdEnv.env(), prefix, clazz);
+	}
+
+	@Nullable
+	public static <T> T bind(Env env, String prefix, Class<T> clazz) {
+		T t = Reflects.newInstanceIfPossible(clazz);
+		if (t == null) {
+			return t;
+		}
+		Map<String, PropertyAccessor> map = Beans.getIndexedPropertyAccessors(clazz);
+		for (Map.Entry<String, PropertyAccessor> entry : map.entrySet()) {
+			try {
+				String key = entry.getKey();
+				PropertyAccessor accessor = entry.getValue();
+				if (accessor.hasSetter()) {
+					Class<?> c = Types.getClass(accessor.type());
+					String k = prefix + "." + StringCases.camelToKebabCase(key);
+					Object val = null;
+					if (Beans.isBeanClass(c)) {
+						val = bind(env, k, c);
+					} else {
+						val = env.get(k);
+					}
+					if (val != null) {
+						val = Converters.convertQuietly(accessor.type(), val);
+						if (val != null) {
+							accessor.set(t, val);
+						}
+					}
+				}
+			} catch (Exception ignored) {
+			}
+		}
+		return t;
 	}
 
 	public static StdEnv env() {
