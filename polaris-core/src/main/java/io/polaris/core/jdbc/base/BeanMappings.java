@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.time.temporal.TemporalAccessor;
 import java.util.Map;
 
+import io.polaris.core.converter.Converters;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.Types;
 import io.polaris.core.lang.bean.CaseModeOption;
@@ -107,113 +108,128 @@ public class BeanMappings {
 		if (type == null) {
 			return rs.getObject(col);
 		}
-		Class<?> clazz = Types.getClass(type);
-		if (clazz.equals(Object.class)) {
-			return rs.getObject(col);
-		}
-		if (clazz.equals(String.class)
-			|| clazz.isEnum()
-			|| CharSequence.class.isAssignableFrom(clazz)
-		) {
-			return rs.getString(col);
-		}
-		if (clazz.equals(int.class)) {
-			return rs.getInt(col);
-		}
-		if (clazz.equals(Integer.class)) {
-			BigDecimal val = rs.getBigDecimal(col);
-			if (val == null) {
-				return null;
+		Class<?> clazz = null;
+		try {
+			clazz = Types.getClass(type);
+			if (clazz.equals(Object.class)) {
+				return rs.getObject(col);
 			}
-			return val.intValue();
-		}
-		if (clazz.equals(long.class)) {
-			return rs.getLong(col);
-		}
-		if (clazz.equals(Long.class)) {
-			BigDecimal val = rs.getBigDecimal(col);
-			if (val == null) {
-				return null;
+			if (clazz.equals(String.class)
+				|| clazz.isEnum()
+				|| CharSequence.class.isAssignableFrom(clazz)
+			) {
+				return rs.getString(col);
 			}
-			return val.longValue();
-		}
-		if (clazz.equals(boolean.class)) {
-			return rs.getBoolean(col);
-		}
-		if (clazz.equals(Boolean.class)) {
-			String val = rs.getString(col);
-			if (val == null) {
-				return null;
+			if (clazz.equals(int.class)) {
+				return rs.getInt(col);
 			}
-			return rs.getBoolean(col);
-		}
+			if (clazz.equals(Integer.class)) {
+				BigDecimal val = rs.getBigDecimal(col);
+				if (val == null) {
+					return null;
+				}
+				return val.intValue();
+			}
+			if (clazz.equals(long.class)) {
+				return rs.getLong(col);
+			}
+			if (clazz.equals(Long.class)) {
+				BigDecimal val = rs.getBigDecimal(col);
+				if (val == null) {
+					return null;
+				}
+				return val.longValue();
+			}
+			if (clazz.equals(boolean.class)) {
+				return rs.getBoolean(col);
+			}
+			if (clazz.equals(Boolean.class)) {
+				String val = rs.getString(col);
+				if (val == null) {
+					return null;
+				}
+				return rs.getBoolean(col);
+			}
 
-		if (clazz.equals(double.class)) {
-			return rs.getDouble(col);
-		}
-		if (clazz.equals(Double.class)) {
-			BigDecimal val = rs.getBigDecimal(col);
-			if (val == null) {
-				return null;
+			if (clazz.equals(double.class)) {
+				return rs.getDouble(col);
 			}
-			return val.doubleValue();
-		}
-		if (clazz.equals(float.class)) {
-			return rs.getFloat(col);
-		}
-		if (clazz.equals(Float.class)) {
-			BigDecimal val = rs.getBigDecimal(col);
-			if (val == null) {
-				return null;
+			if (clazz.equals(Double.class)) {
+				BigDecimal val = rs.getBigDecimal(col);
+				if (val == null) {
+					return null;
+				}
+				return val.doubleValue();
 			}
-			return val.floatValue();
-		}
-		if (clazz.equals(byte.class)) {
-			return rs.getByte(col);
-		}
-		if (clazz.equals(Byte.class)) {
-			BigDecimal val = rs.getBigDecimal(col);
-			if (val == null) {
-				return null;
+			if (clazz.equals(float.class)) {
+				return rs.getFloat(col);
 			}
-			return val.byteValue();
-		}
-		if (clazz.equals(short.class)) {
-			return rs.getShort(col);
-		}
-		if (clazz.equals(Short.class)) {
-			BigDecimal val = rs.getBigDecimal(col);
-			if (val == null) {
-				return null;
+			if (clazz.equals(Float.class)) {
+				BigDecimal val = rs.getBigDecimal(col);
+				if (val == null) {
+					return null;
+				}
+				return val.floatValue();
 			}
-			return val.shortValue();
-		}
-		if (clazz.equals(char.class)) {
-			String val = rs.getString(col);
-			return val == null || val.isEmpty() ? '\0' : val.charAt(0);
-		}
-		if (clazz.equals(Character.class)) {
-			String val = rs.getString(col);
-			return val == null || val.isEmpty() ? null : val.charAt(0);
-		}
+			if (clazz.equals(byte.class)) {
+				return rs.getByte(col);
+			}
+			if (clazz.equals(Byte.class)) {
+				BigDecimal val = rs.getBigDecimal(col);
+				if (val == null) {
+					return null;
+				}
+				return val.byteValue();
+			}
+			if (clazz.equals(short.class)) {
+				return rs.getShort(col);
+			}
+			if (clazz.equals(Short.class)) {
+				BigDecimal val = rs.getBigDecimal(col);
+				if (val == null) {
+					return null;
+				}
+				return val.shortValue();
+			}
+			if (clazz.equals(char.class)) {
+				String val = rs.getString(col);
+				return val == null || val.isEmpty() ? '\0' : val.charAt(0);
+			}
+			if (clazz.equals(Character.class)) {
+				String val = rs.getString(col);
+				return val == null || val.isEmpty() ? null : val.charAt(0);
+			}
 
-		if (Number.class.isAssignableFrom(clazz)) {
-			return rs.getBigDecimal(col);
-		}
-		if (byte[].class.isAssignableFrom(clazz)) {
-			return rs.getBytes(col);
-		}
-		if (java.sql.Timestamp.class.isAssignableFrom(clazz)) {
-			return rs.getTimestamp(col);
-		}
-		if (java.sql.Time.class.isAssignableFrom(clazz)) {
-			return rs.getTime(col);
-		}
-		if (java.util.Date.class.isAssignableFrom(clazz)) {
-			return rs.getDate(col);
-		}
-		if (TemporalAccessor.class.isAssignableFrom(clazz)) {
-			return rs.getTimestamp(col);
+			if (Number.class.isAssignableFrom(clazz)) {
+				return rs.getBigDecimal(col);
+			}
+			if (byte[].class.isAssignableFrom(clazz)) {
+				return rs.getBytes(col);
+			}
+			if (java.sql.Timestamp.class.isAssignableFrom(clazz)) {
+				return rs.getTimestamp(col);
+			}
+			if (java.sql.Time.class.isAssignableFrom(clazz)) {
+				return rs.getTime(col);
+			}
+			if (java.util.Date.class.isAssignableFrom(clazz)) {
+				return rs.getDate(col);
+			}
+			if (TemporalAccessor.class.isAssignableFrom(clazz)) {
+				return rs.getTimestamp(col);
+			}
+		} catch (SQLException e) {
+			// 可能类型不匹配，无法直接获取到结果，尝试取值后再转换
+			Object val = null;
+			try {
+				val = rs.getObject(col, clazz);
+			} catch (Throwable e1) {
+				val = rs.getObject(col);
+			}
+			if (val == null || clazz.isAssignableFrom(val.getClass())) {
+				return val;
+			}
+			return Converters.convertQuietly(type, val);
 		}
 		try {
 			return rs.getObject(col, clazz);
