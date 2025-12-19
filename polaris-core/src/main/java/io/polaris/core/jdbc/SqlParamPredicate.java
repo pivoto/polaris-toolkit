@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import io.polaris.core.collection.ObjectArrays;
 import io.polaris.core.consts.StdKeys;
 import io.polaris.core.env.GlobalStdEnv;
+import io.polaris.core.env.GlobalStdEnvObservable;
 import io.polaris.core.string.Strings;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,6 +34,7 @@ public class SqlParamPredicate {
 	private SqlParamPredicate() {
 		this.includeEmptyString = GlobalStdEnv.getBoolean(StdKeys.JDBC_SQL_PARAM_INCLUDE_EMPTY_STRING, false);
 		this.includeEmptyCollection = GlobalStdEnv.getBoolean(StdKeys.JDBC_SQL_PARAM_INCLUDE_EMPTY_COLLECTION, false);
+		GlobalStdEnvObservable.addListener(this::updateEnvironment);
 	}
 
 	public static SqlParamPredicate instance() {
