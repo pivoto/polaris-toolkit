@@ -14,7 +14,7 @@ import io.polaris.core.jdbc.sql.PreparedSql;
 @AnnotationProcessing
 public class TextNode implements SqlNode, Cloneable {
 	/** SQL语句块 */
-	private String text;
+	protected String text;
 
 	public TextNode(String text) {
 		this.text = text;

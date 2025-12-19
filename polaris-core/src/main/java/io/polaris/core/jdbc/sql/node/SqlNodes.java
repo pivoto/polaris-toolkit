@@ -13,7 +13,7 @@ public interface SqlNodes {
 
 	TextNode NULL = new TextNode("NULL");
 	TextNode BLANK = new TextNode(" ");
-	TextNode LF = new TextNode(GlobalStdEnv.get(StdKeys.JDBC_SQL_LINE_SEPARATOR, " "));
+	TextNode LF = LfTextNode.INSTANCE;
 	TextNode SELECT = new TextNode("SELECT ");
 	TextNode DELETE = new TextNode("DELETE ");
 	TextNode UPDATE = new TextNode("UPDATE ");
