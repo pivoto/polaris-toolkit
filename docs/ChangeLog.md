@@ -1,5 +1,16 @@
 ## 版本变更说明
 
+### 3.6.0
+- InsertStatement支持使用子查询插入数据
+- 修复代码生成器并发处理中的计数器未递减问题
+- 优化InEnum和InString数组和集合校验逻辑以处理空值情况
+- 优化BeanMappings数据库类型映射和异常处理逻辑，在类型不匹配时尝试先获取对象再转换
+- 在Jdbc语句处理逻辑中使用 SqlParamPredicate 替换 Objs 判断逻辑以支持空字符串和空集合参数的控制开关
+- 新增GlobalStdEnvObservable全局环境属性变更的监听器管理类
+- 使用 LfTextNode 替代 SqlNodes 中的换行符文本节点，根据全局配置动态切换空格或换行符
+- 重构StdKeys中全局配置属性名常量，修改为更易理解与绑定属性值的名称
+- 新增基于属性前缀进行环境属性值绑定工具方法
+
 ### 3.5.16
 - 优化CodeWriter.mkdirs方法中的异常抛出逻辑
 - 新增支持内存分页的ResultSet抽取器接口及查询工具方法
