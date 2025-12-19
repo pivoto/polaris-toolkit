@@ -11,6 +11,7 @@ import io.polaris.core.annotation.AnnotationProcessing;
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.collection.Lists;
 import io.polaris.core.jdbc.ColumnMeta;
+import io.polaris.core.jdbc.SqlParamPredicate;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.sql.BindingValues;
 import io.polaris.core.jdbc.sql.node.ContainerNode;
@@ -240,7 +241,7 @@ public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement
 					val = val == null ? 1L : ((Number) val).longValue();
 				}
 				// 需要包含空值字段,或为非空值
-				if (Objs.isNotEmpty(val)) {
+				if (SqlParamPredicate.instance().exists(val)) {
 					Map<String, String> props = meta.getProps();
 					if (Maps.isNotEmpty(props)) {
 						this.column(name).value(val, props);

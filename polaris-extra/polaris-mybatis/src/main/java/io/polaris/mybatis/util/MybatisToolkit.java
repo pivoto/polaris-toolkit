@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 
 import io.polaris.core.function.Visitable;
 import io.polaris.core.io.IO;
+import io.polaris.core.jdbc.SqlParamPredicate;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.TableMetaKit;
 import io.polaris.core.lang.Objs;
@@ -15,15 +16,28 @@ import org.apache.ibatis.type.Alias;
 
 /**
  * @author Qt
- * @since  Aug 28, 2023
+ * @since Aug 28, 2023
  */
 @Alias("mkit")
 public class MybatisToolkit {
 	public static int CURSOR_MAX_SIZE = 65533;
 
+	public static boolean exists(Object val) {
+		return SqlParamPredicate.instance().exists(val);
+	}
+
+	public static boolean notExists(Object val) {
+		return SqlParamPredicate.instance().notExists(val);
+	}
+
+	public static boolean isEmpty(Object val) {
+		return Objs.isEmpty(val);
+	}
+
 	public static boolean isNotEmpty(Object val) {
 		return Objs.isNotEmpty(val);
 	}
+
 
 	public static boolean isLikeString(Object val) {
 		if (val instanceof String) {

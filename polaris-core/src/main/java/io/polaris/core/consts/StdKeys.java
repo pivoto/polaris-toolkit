@@ -14,6 +14,8 @@ public interface StdKeys {
 
 	String LOGGER_LEVEL = "logger.level";
 	String JDBC_SQL_LINE_SEPARATOR = "jdbc.sql.line.separator";
+	String JDBC_SQL_PARAM_INCLUDE_EMPTY_STRING = "jdbc.sql.param.include-empty-string";
+	String JDBC_SQL_PARAM_INCLUDE_EMPTY_COLLECTION = "jdbc.sql.param.include-empty-collection";
 	String JAVA_CLASS_BYTES_TMPDIR = "java.class.bytes.tmpdir";
 	String JAVA_CLASS_GENERATOR_CACHE = "java.class.generator.cache";
 

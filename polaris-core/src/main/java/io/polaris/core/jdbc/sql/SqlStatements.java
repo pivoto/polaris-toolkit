@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 import io.polaris.core.converter.Converters;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.ExpressionMeta;
+import io.polaris.core.jdbc.SqlParamPredicate;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.TableMetaKit;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
@@ -22,7 +23,6 @@ import io.polaris.core.jdbc.sql.query.Queries;
 import io.polaris.core.jdbc.sql.query.ValueRange;
 import io.polaris.core.jdbc.sql.statement.ColumnPredicate;
 import io.polaris.core.jdbc.sql.statement.ConfigurableColumnPredicate;
-import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
@@ -117,7 +117,7 @@ public class SqlStatements {
 			if (meta.isVersion()) {
 				val = val == null ? 1L : ((Number) val).longValue();
 			}
-			if (Objs.isNotEmpty(val)) {
+			if (SqlParamPredicate.instance().exists(val)) {
 				String keyName = valueKeyGen.generate();
 				if (Strings.isNotBlank(propString)) {
 					sql.columnAndValue(columnName, "#{" + keyName + "," + propString + "}");
@@ -220,7 +220,7 @@ public class SqlStatements {
 					val = ((VarRef<?>) val).getValue();
 				}
 
-				if (Objs.isEmpty(val)) {
+				if (SqlParamPredicate.instance().notExists(val)) {
 					sql.where(columnName + " IS NULL");
 				} else {
 					String keyName = whereKeyGen.generate();
@@ -255,7 +255,7 @@ public class SqlStatements {
 				}
 				val = val == null ? 1L : ((Number) val).longValue() + 1;
 			}
-			if (Objs.isNotEmpty(val)) {
+			if (SqlParamPredicate.instance().exists(val)) {
 				String keyName = valueKeyGen.generate();
 				if (Strings.isNotBlank(propString)) {
 					sql.set(columnName + " = #{" + keyName + "," + propString + "}");
@@ -328,7 +328,7 @@ public class SqlStatements {
 				} else {
 					propString = meta.getPropString(varPropFilter);
 				}
-				if (Objs.isNotEmpty(val)) {
+				if (SqlParamPredicate.instance().exists(val)) {
 					String key = whereKeyGen.generate();
 					appendSqlWhereWithVal(bindings, sql, columnName, meta.getFieldType(), val, key, propString);
 				} else {
@@ -461,7 +461,7 @@ public class SqlStatements {
 				}
 				val = val == null ? 1L : ((Number) val).longValue() + 1;
 			}
-			if (Objs.isNotEmpty(val)) {
+			if (SqlParamPredicate.instance().exists(val)) {
 				String keyName = valueKeyGen.generate();
 				if (Strings.isNotBlank(propString)) {
 					sql.set(columnName + " = #{" + keyName + "," + propString + "}");
@@ -646,7 +646,7 @@ public class SqlStatements {
 				propString = meta.getPropString(varPropFilter);
 			}
 			if (primaryKey || version) {
-				if (Objs.isEmpty(val)) {
+				if (SqlParamPredicate.instance().notExists(val)) {
 					sql.where(columnName + " IS NULL");
 				} else {
 					String keyName = whereKeyGen.generate();
@@ -673,7 +673,7 @@ public class SqlStatements {
 				// 不更新主键值
 				continue;
 			}
-			if (Objs.isNotEmpty(entityVal)) {
+			if (SqlParamPredicate.instance().exists(entityVal)) {
 				String keyName = valueKeyGen.generate();
 				if (Strings.isNotBlank(propString)) {
 					sql.set(columnName + " = #{" + keyName + "," + propString + "}");
@@ -791,7 +791,7 @@ public class SqlStatements {
 			if (version) {
 				entityVal = entityVal == null ? 1L : ((Number) entityVal).longValue() + 1;
 			}
-			if (Objs.isNotEmpty(entityVal)) {
+			if (SqlParamPredicate.instance().exists(entityVal)) {
 				String keyName = valueKeyGen.generate();
 				if (Strings.isNotBlank(propString)) {
 					sql.set(columnName + " = #{" + keyName + "," + propString + "}");
@@ -1532,7 +1532,7 @@ public class SqlStatements {
 				val = ((VarRef<?>) val).getValue();
 			}
 
-			if (Objs.isNotEmpty(val)) {
+			if (SqlParamPredicate.instance().exists(val)) {
 				String key = whereKeyGen.generate();
 				appendSqlWhereWithVal(bindings, sql, columnName, meta.getFieldType(), val, key, propString);
 				columnVisitor.accept(name);
@@ -1564,7 +1564,7 @@ public class SqlStatements {
 				propString = ((VarRef<?>) val).getPropString(varPropFilter);
 				val = ((VarRef<?>) val).getValue();
 			}
-			if (Objs.isNotEmpty(val)) {
+			if (SqlParamPredicate.instance().exists(val)) {
 				String key = whereKeyGen.generate();
 				appendSqlWhereWithVal(bindings, sql, columnName, meta.getFieldType(), val, key, propString);
 			} else {
@@ -1617,7 +1617,7 @@ public class SqlStatements {
 				val = ((VarRef<?>) val).getValue();
 			}
 
-			if (Objs.isNotEmpty(val)) {
+			if (SqlParamPredicate.instance().exists(val)) {
 				String key = whereKeyGen.generate();
 				appendSqlWhereWithVal(bindings, sql, columnName, meta.getFieldType(), val, key, propString);
 			} else {
@@ -1647,7 +1647,7 @@ public class SqlStatements {
 				val = ((VarRef<?>) val).getValue();
 			}
 
-			if (Objs.isNotEmpty(val)) {
+			if (SqlParamPredicate.instance().exists(val)) {
 				String key = whereKeyGen.generate();
 				appendSqlWhereWithVal(bindings, sql, columnName, meta.getFieldType(), val, key, propString);
 			} else {
@@ -1714,11 +1714,11 @@ public class SqlStatements {
 			ValueRange<?> range = (ValueRange<?>) val;
 			Object start = range.getStart();
 			Object end = range.getEnd();
-			if (Objs.isNotEmpty(start)) {
+			if (SqlParamPredicate.instance().exists(start)) {
 				sql.where(columnName + " >= #{" + key + "0" + varSuffix + "} ");
 				bindings.put(key + "0", start);
 			}
-			if (Objs.isNotEmpty(end)) {
+			if (SqlParamPredicate.instance().exists(end)) {
 				sql.where(columnName + " <= #{" + key + "1" + varSuffix + "} ");
 				bindings.put(key + "1", end);
 			}

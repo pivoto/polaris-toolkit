@@ -10,6 +10,7 @@ import io.polaris.core.collection.Iterables;
 import io.polaris.core.consts.SymbolConsts;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.ExpressionMeta;
+import io.polaris.core.jdbc.SqlParamPredicate;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.TableMetaKit;
 import io.polaris.core.jdbc.sql.consts.Direction;
@@ -20,7 +21,6 @@ import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
 import io.polaris.core.jdbc.sql.node.TextNode;
 import io.polaris.core.jdbc.sql.statement.segment.TableSegment;
-import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.string.Strings;
 
@@ -179,7 +179,7 @@ public class Queries {
 			String name = entry.getKey();
 			ColumnMeta meta = entry.getValue();
 			Object val = entityMap.get(name);
-			if (Objs.isNotEmpty(val)) {
+			if (SqlParamPredicate.instance().exists(val)) {
 				if (val instanceof Iterable || val instanceof Iterator) {
 					criteria.addSubset(Criteria.newCriteria().field(name)
 						.criterion(Criterion.newCriterion().operator(Operator.IN).value(val)));
@@ -204,7 +204,7 @@ public class Queries {
 			String name = entry.getKey();
 			ExpressionMeta meta = entry.getValue();
 			Object val = entityMap.get(name);
-			if (Objs.isNotEmpty(val)) {
+			if (SqlParamPredicate.instance().exists(val)) {
 				if (val instanceof Iterable || val instanceof Iterator) {
 					criteria.addSubset(Criteria.newCriteria().field(name)
 						.criterion(Criterion.newCriterion().operator(Operator.IN).value(val)));

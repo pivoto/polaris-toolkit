@@ -9,9 +9,9 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import io.polaris.core.annotation.AnnotationProcessing;
-import io.polaris.core.collection.Iterables;
 import io.polaris.core.converter.Converters;
 import io.polaris.core.jdbc.ColumnMeta;
+import io.polaris.core.jdbc.SqlParamPredicate;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.sql.VarRef;
 import io.polaris.core.jdbc.sql.BindingValues;
@@ -219,7 +219,7 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 				}
 
 				// 需要包含空值字段或非空值
-				boolean include = columnPredicate.isIncludedEmptyColumn(name) || Objs.isNotEmpty(val);
+				boolean include = columnPredicate.isIncludedEmptyColumn(name) || SqlParamPredicate.instance().exists(val);
 				if (include) {
 					if (Maps.isNotEmpty(props)) {
 						this.column(name).value(val, props);

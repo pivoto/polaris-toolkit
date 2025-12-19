@@ -17,6 +17,7 @@ import io.polaris.core.collection.ObjectArrays;
 import io.polaris.core.converter.Converters;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.ExpressionMeta;
+import io.polaris.core.jdbc.SqlParamPredicate;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.sql.BindingValues;
 import io.polaris.core.jdbc.sql.SqlTextParsers;
@@ -32,7 +33,6 @@ import io.polaris.core.jdbc.sql.statement.ConfigurableColumnPredicate;
 import io.polaris.core.jdbc.sql.statement.Segment;
 import io.polaris.core.jdbc.sql.statement.SelectStatement;
 import io.polaris.core.jdbc.sql.statement.SqlNodeBuilder;
-import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.map.Maps;
 import io.polaris.core.reflect.GetterFunction;
@@ -208,7 +208,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 		Object val = varRef.getValue();
 		Map<String, String> varProps = varRef.getPropsIfNotEmpty();
 
-		if (Objs.isEmpty(val)) {
+		if (SqlParamPredicate.instance().notExists(val)) {
 			// 需要包含空值字段
 			if (columnPredicate.isIncludedEmptyColumn(fieldName)) {
 				this.column(fieldName).isNull();
@@ -254,14 +254,14 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 			ValueRange<?> range = (ValueRange<?>) val;
 			Object start = range.getStart();
 			Object end = range.getEnd();
-			if (Objs.isNotEmpty(start)) {
+			if (SqlParamPredicate.instance().exists(start)) {
 				if (varProps != null) {
 					this.column(fieldName).ge(VarRef.of(start, varProps));
 				} else {
 					this.column(fieldName).ge((start));
 				}
 			}
-			if (Objs.isNotEmpty(end)) {
+			if (SqlParamPredicate.instance().exists(end)) {
 				if (varProps != null) {
 					this.column(fieldName).le(VarRef.of(end, varProps));
 				} else {

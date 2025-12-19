@@ -9,6 +9,7 @@ import java.util.function.Predicate;
 
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.jdbc.ColumnMeta;
+import io.polaris.core.jdbc.SqlParamPredicate;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.sql.BindingValues;
 import io.polaris.core.jdbc.sql.node.ContainerNode;
@@ -312,7 +313,7 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 						val = val == null ? 1L : ((Number) val).longValue() + 1;
 					}
 					// 需要包含空值字段 或为非空值
-					boolean include = columnPredicate.isIncludedEmptyColumn(name) || Objs.isNotEmpty(val);
+					boolean include = columnPredicate.isIncludedEmptyColumn(name) || SqlParamPredicate.instance().exists(val);
 					if (include) {
 						this.update(name, val);
 					}
@@ -337,7 +338,7 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 						val = val == null ? 1L : ((Number) val).longValue();
 					}
 					// 需要包含空值字段 或为非空值
-					boolean include = columnPredicate.isIncludedEmptyColumn(name) || Objs.isNotEmpty(val);
+					boolean include = columnPredicate.isIncludedEmptyColumn(name) || SqlParamPredicate.instance().exists(val);
 					if (include) {
 						this.insert(name, val);
 					}
