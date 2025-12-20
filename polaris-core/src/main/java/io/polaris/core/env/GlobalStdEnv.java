@@ -1,19 +1,23 @@
 package io.polaris.core.env;
 
+import java.lang.reflect.Type;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
 import io.polaris.core.converter.Converters;
+import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.Types;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.lang.bean.PropertyAccessor;
@@ -42,15 +46,31 @@ public class GlobalStdEnv {
 	}
 
 	@Nullable
+	public static <T> T bind(String prefix, T target) {
+		return bind(GlobalStdEnv.env(), prefix, target);
+	}
+
+	@Nullable
 	public static <T> T bind(String prefix, Class<T> clazz) {
 		return bind(GlobalStdEnv.env(), prefix, clazz);
 	}
 
 	@Nullable
 	public static <T> T bind(Env env, String prefix, Class<T> clazz) {
-		T t = Reflects.newInstanceIfPossible(clazz);
-		if (t == null) {
-			return t;
+		return bind(env, prefix, Reflects.newInstanceIfPossible(clazz), clazz);
+	}
+
+	@Nullable
+	@SuppressWarnings("all")
+	public static <T> T bind(Env env, String prefix, T target) {
+		return bind(env, prefix, target, (Class<T>) target.getClass());
+	}
+
+	@Nullable
+	@SuppressWarnings("all")
+	private static <T> T bind(Env env, String prefix, T target, Class<T> clazz) {
+		if (target == null) {
+			return target;
 		}
 		Map<String, PropertyAccessor> map = Beans.getIndexedPropertyAccessors(clazz);
 		for (Map.Entry<String, PropertyAccessor> entry : map.entrySet()) {
@@ -58,25 +78,111 @@ public class GlobalStdEnv {
 				String key = entry.getKey();
 				PropertyAccessor accessor = entry.getValue();
 				if (accessor.hasSetter()) {
-					Class<?> c = Types.getClass(accessor.type());
-					String k = prefix + "." + StringCases.camelToKebabCase(key);
+					Class c = Types.getClass(accessor.type());
+					String kebabCase = StringCases.camelToKebabCase(key);
+					String k = prefix.endsWith(".") ? (prefix + kebabCase) : (prefix + "." + kebabCase);
 					Object val = null;
 					if (Beans.isBeanClass(c)) {
-						val = bind(env, k, c);
+						if (accessor.hasSetter()) {
+							val = accessor.get(target);
+						}
+						if (val == null) {
+							val = Reflects.newInstanceIfPossible(c);
+						}
+						val = bind(env, k, val, c);
+					} else if (Map.class.isAssignableFrom(c) || Collection.class.isAssignableFrom(c)) {
+						if (accessor.hasSetter()) {
+							val = accessor.get(target);
+						}
+						if (val == null) {
+							val = Reflects.newInstanceIfPossible(c);
+						}
+						if (val != null) {
+							TreeMap<String, Object> treeMap = new TreeMap<>((k1, k2) -> {
+								int ret = k1.length() - k2.length();
+								if (ret != 0) {
+									return ret;
+								}
+								return k1.compareTo(k2);
+							});
+							if (Map.class.isAssignableFrom(c)) {
+								Type valueType = JavaType.of(accessor.type()).getActualType(Map.class, 1);
+								env.keys().forEach((subKey) -> {
+									if (subKey.startsWith(k + ".")) {
+										Class valueClass = Types.getClass(valueType);
+										int idx = subKey.indexOf('.', k.length() + 1);
+										if (idx > k.length() + 1) {
+											Object value = Reflects.newInstanceIfPossible(valueClass);
+											if (value != null) {
+												value = bind(env, subKey.substring(0, idx), value, valueClass);
+												treeMap.put(subKey.substring(k.length() + 1, idx), value);
+											}
+										} else {
+											Object v = bindSimpleValue(env, subKey, valueClass, valueType);
+											treeMap.put(subKey.substring(k.length() + 1), v);
+										}
+									}
+								});
+								((Map) val).putAll(treeMap);
+							} else {
+								Type valueType = JavaType.of(accessor.type()).getActualType(Collection.class, 0);
+								env.keys().forEach((subKey) -> {
+									if (subKey.startsWith(k + ".")) {
+										Class valueClass = Types.getClass(valueType);
+										int idx = subKey.indexOf('.', k.length() + 1);
+										if (idx > k.length() + 1) {
+											Object value = Reflects.newInstanceIfPossible(valueClass);
+											if (value != null) {
+												value = bind(env, subKey.substring(0, idx), value, valueClass);
+												treeMap.put(subKey.substring(k.length() + 1), value);
+											}
+										} else {
+											Object v = bindSimpleValue(env, subKey, valueClass, valueType);
+											treeMap.put(subKey.substring(k.length() + 1), v);
+										}
+									}
+								});
+								((Collection) val).addAll(treeMap.values());
+
+							}
+						}
 					} else {
-						val = env.get(k);
+						val = bindSimpleValue(env, k, c, accessor.type());
 					}
 					if (val != null) {
-						val = Converters.convertQuietly(accessor.type(), val);
-						if (val != null) {
-							accessor.set(t, val);
-						}
+						accessor.set(target, val);
 					}
 				}
-			} catch (Exception ignored) {
+			} catch (Exception e) {
+				//e.printStackTrace();
 			}
 		}
-		return t;
+		return target;
+	}
+
+	@Nullable
+	@SuppressWarnings("rawtypes")
+	private static Object bindSimpleValue(Env env, String k, Class c, Type type) {
+		Object val = null;
+		if (c.isEnum()) {
+			String s = env.get(k);
+			for (Object o : c.getEnumConstants()) {
+				if (((Enum<?>) o).name().equals(s)) {
+					val = o;
+				}
+			}
+			if (val == null) {
+				for (Object o : c.getEnumConstants()) {
+					if (((Enum<?>) o).name().equalsIgnoreCase(s)) {
+						val = o;
+					}
+				}
+			}
+		} else {
+			val = env.get(k);
+			val = Converters.convertQuietly(type, val);
+		}
+		return val;
 	}
 
 	public static StdEnv env() {

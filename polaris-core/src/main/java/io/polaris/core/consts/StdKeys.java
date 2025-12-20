@@ -24,10 +24,6 @@ public interface StdKeys {
 
 	String LOGGER_LEVEL = POLARIS_DOT + "logger.level";
 
-	String JDBC_SQL_SPACE_AS_LF = POLARIS_DOT + "jdbc.sql.space-as-lf";
-	String JDBC_SQL_PARAM_INCLUDE_EMPTY_STRING = POLARIS_DOT + "jdbc.sql.param.include-empty-string";
-	String JDBC_SQL_PARAM_INCLUDE_EMPTY_COLLECTION = POLARIS_DOT + "jdbc.sql.param.include-empty-collection";
-
 	String BYTECODE_GENERATOR_TMPDIR = POLARIS_DOT + "bytecode.generator.tmpdir";
 	String BYTECODE_GENERATOR_CACHE = POLARIS_DOT + "bytecode.generator.cache";
 
@@ -35,6 +31,10 @@ public interface StdKeys {
 	String ASYNC_POOL_CORE = POLARIS_DOT + "async.pool.core";
 	String ASYNC_POOL_MAX = POLARIS_DOT + "async.pool.max";
 	String ASYNC_POOL_SCHEDULER = POLARIS_DOT + "async.pool.scheduler";
+
+	String JDBC_SQL_SPACE_AS_LF = POLARIS_DOT + "jdbc.sql.space-as-lf";
+	String JDBC_SQL_PARAM_EMPTY_AS_NULL = POLARIS_DOT + "jdbc.sql.param.empty-as-null";
+	String JDBC_SQL_PARAM_INCLUDE_EMPTY = POLARIS_DOT + "jdbc.sql.param.include-empty";
 
 	// ========================================================================
 }
