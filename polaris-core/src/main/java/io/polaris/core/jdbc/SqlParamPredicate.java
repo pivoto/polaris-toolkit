@@ -8,7 +8,6 @@ import io.polaris.core.collection.ObjectArrays;
 import io.polaris.core.consts.StdKeys;
 import io.polaris.core.env.GlobalStdEnv;
 import io.polaris.core.env.GlobalStdEnvObservable;
-import io.polaris.core.string.Strings;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,160 +16,118 @@ import lombok.Setter;
  * @since Dec 19, 2025
  */
 public class SqlParamPredicate {
+	public static enum Result {
+		NULL,
+		EMPTY,
+		NONEMPTY,
+	}
 
 	private static volatile SqlParamPredicate instance;
-	private static final ThreadLocal<Boolean> includeEmptyStringLocal = new ThreadLocal<>();
-	private static final ThreadLocal<Boolean> includeEmptyCollectionLocal = new ThreadLocal<>();
+	private static final ThreadLocal<SqlParamPredicate> LOCAL = new ThreadLocal<>();
 
-	/** 全局控制允许空字符串作为有效参数，而不是视为NULL值处理 */
+	/** 全局控制是否空字符串参数在SQL语句中作为NULL值处理，而不是直接使用，可遵循具体数据库的处理方式 */
 	@Setter
 	@Getter
-	private volatile boolean includeEmptyString;
-	/** 全局控制允许空集合或数组作为有效参数，而不是视为NULL值处理 */
+	private volatile boolean emptyAsNull;
+	/** 全局控制是否空字符串作为有效参数，而不是尽可能忽略 */
 	@Setter
 	@Getter
-	private volatile boolean includeEmptyCollection;
+	private volatile boolean includeEmpty;
 
-	private SqlParamPredicate() {
-		this.includeEmptyString = GlobalStdEnv.getBoolean(StdKeys.JDBC_SQL_PARAM_INCLUDE_EMPTY_STRING, false);
-		this.includeEmptyCollection = GlobalStdEnv.getBoolean(StdKeys.JDBC_SQL_PARAM_INCLUDE_EMPTY_COLLECTION, false);
-		GlobalStdEnvObservable.addListener(this::updateEnvironment);
+	private SqlParamPredicate(boolean listen) {
+		updateEnv();
+		if (listen) {
+			GlobalStdEnvObservable.addListener(this::updateEnv);
+		}
+	}
+
+	public SqlParamPredicate() {
+		this(false);
+	}
+
+	public void updateEnv() {
+		this.emptyAsNull = GlobalStdEnv.getBoolean(StdKeys.JDBC_SQL_PARAM_EMPTY_AS_NULL, true);
+		this.includeEmpty = GlobalStdEnv.getBoolean(StdKeys.JDBC_SQL_PARAM_INCLUDE_EMPTY, false);
 	}
 
 	public static SqlParamPredicate instance() {
 		if (instance == null) {
 			synchronized (SqlParamPredicate.class) {
 				if (instance == null) {
-					instance = new SqlParamPredicate();
+					instance = new SqlParamPredicate(true);
 				}
 			}
 		}
 		return instance;
 	}
 
-	public static void includeEmptyString(boolean includeEmptyString, Runnable runnable) {
-		includeEmptyStringLocal.set(includeEmptyString);
-		try {
-			runnable.run();
-		} finally {
-			includeEmptyStringLocal.remove();
+	public static boolean emptyAsNull() {
+		SqlParamPredicate predicate = LOCAL.get();
+		if (predicate != null) {
+			return predicate.emptyAsNull;
 		}
+		return instance().emptyAsNull;
 	}
-
-	public static <V> V includeEmptyString(boolean includeEmptyString, Supplier<V> supplier) {
-		includeEmptyStringLocal.set(includeEmptyString);
-		try {
-			return supplier.get();
-		} finally {
-			includeEmptyStringLocal.remove();
+	public static boolean includeEmpty() {
+		SqlParamPredicate predicate = LOCAL.get();
+		if (predicate != null) {
+			return predicate.includeEmpty;
 		}
+		return instance().includeEmpty;
 	}
 
-
-	public static void includeEmptyCollection(boolean includeEmptyCollection, Runnable runnable) {
-		includeEmptyCollectionLocal.set(includeEmptyCollection);
-		try {
-			runnable.run();
-		} finally {
-			includeEmptyCollectionLocal.remove();
-		}
-	}
-
-	public static <V> V includeEmptyCollection(boolean includeEmptyCollection, Supplier<V> supplier) {
-		includeEmptyCollectionLocal.set(includeEmptyCollection);
-		try {
-			return supplier.get();
-		} finally {
-			includeEmptyCollectionLocal.remove();
-		}
-	}
-
-	public void updateEnvironment() {
-		this.includeEmptyString = GlobalStdEnv.getBoolean(StdKeys.JDBC_SQL_PARAM_INCLUDE_EMPTY_STRING, false);
-		this.includeEmptyCollection = GlobalStdEnv.getBoolean(StdKeys.JDBC_SQL_PARAM_INCLUDE_EMPTY_COLLECTION, false);
-	}
-
-
-	public boolean notExists(Object obj) {
+	public static Result check(Object obj) {
 		if (obj == null) {
-			return true;
+			return Result.NULL;
 		}
 		if (obj instanceof CharSequence) {
 			if (((CharSequence) obj).length() == 0) {
-				Boolean localVal = includeEmptyStringLocal.get();
-				boolean include = localVal != null ? localVal : this.includeEmptyString;
-				return !include;
+				return Result.EMPTY;
 			}
-			return false;
+			return Result.NONEMPTY;
 		}
 		if (obj instanceof Map) {
 			if (((Map<?, ?>) obj).isEmpty()) {
-				Boolean localVal = includeEmptyCollectionLocal.get();
-				boolean include = localVal != null ? localVal : this.includeEmptyCollection;
-				return !include;
+				return Result.EMPTY;
 			}
-			return false;
+			return Result.NONEMPTY;
 		} else if (obj instanceof Iterable) {
 			if (!((Iterable<?>) obj).iterator().hasNext()) {
-				Boolean localVal = includeEmptyCollectionLocal.get();
-				boolean include = localVal != null ? localVal : this.includeEmptyCollection;
-				return !include;
+				return Result.EMPTY;
 			}
-			return false;
+			return Result.NONEMPTY;
 		} else if (obj instanceof Iterator) {
 			if (!((Iterator<?>) obj).hasNext()) {
-				Boolean localVal = includeEmptyCollectionLocal.get();
-				boolean include = localVal != null ? localVal : this.includeEmptyCollection;
-				return !include;
+				return Result.EMPTY;
 			}
-			return false;
+			return Result.NONEMPTY;
 		} else if (ObjectArrays.isArray(obj)) {
 			if (ObjectArrays.isEmpty(obj)) {
-				Boolean localVal = includeEmptyCollectionLocal.get();
-				boolean include = localVal != null ? localVal : this.includeEmptyCollection;
-				return !include;
+				return Result.EMPTY;
 			}
-			return false;
+			return Result.NONEMPTY;
 		}
-		return false;
+		return Result.NONEMPTY;
 	}
 
-	public boolean exists(Object obj) {
-		if (obj == null) {
-			return false;
+
+	public static void with(SqlParamPredicate predicate, Runnable runnable) {
+		LOCAL.set(predicate);
+		try {
+			runnable.run();
+		} finally {
+			LOCAL.remove();
 		}
-		if (obj instanceof CharSequence) {
-			if (((CharSequence) obj).length() == 0) {
-				Boolean localVal = includeEmptyStringLocal.get();
-				return localVal != null ? localVal : this.includeEmptyString;
-			}
-			return true;
-		}
-		if (obj instanceof Map) {
-			if (((Map<?, ?>) obj).isEmpty()) {
-				Boolean localVal = includeEmptyCollectionLocal.get();
-				return localVal != null ? localVal : this.includeEmptyCollection;
-			}
-			return true;
-		} else if (obj instanceof Iterable) {
-			if (!((Iterable<?>) obj).iterator().hasNext()) {
-				Boolean localVal = includeEmptyCollectionLocal.get();
-				return localVal != null ? localVal : this.includeEmptyCollection;
-			}
-			return true;
-		} else if (obj instanceof Iterator) {
-			if (!((Iterator<?>) obj).hasNext()) {
-				Boolean localVal = includeEmptyCollectionLocal.get();
-				return localVal != null ? localVal : this.includeEmptyCollection;
-			}
-			return true;
-		} else if (ObjectArrays.isArray(obj)) {
-			if (ObjectArrays.isEmpty(obj)) {
-				Boolean localVal = includeEmptyCollectionLocal.get();
-				return localVal != null ? localVal : this.includeEmptyCollection;
-			}
-			return true;
-		}
-		return true;
 	}
+
+	public static <V> V with(SqlParamPredicate predicate, Supplier<V> supplier) {
+		LOCAL.set(predicate);
+		try {
+			return supplier.get();
+		} finally {
+			LOCAL.remove();
+		}
+	}
+
+
 }
