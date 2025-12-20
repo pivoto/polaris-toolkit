@@ -18,7 +18,7 @@ public interface ColumnPredicate {
 	boolean isIncludedColumn(String name);
 
 	/**
-	 * 判断字段是否被包含在空值处理序列
+	 * 判断字段是否被包含在空值处理序列，包括NULL与空串
 	 *
 	 * @param name 字段名
 	 * @return 是否被包含
