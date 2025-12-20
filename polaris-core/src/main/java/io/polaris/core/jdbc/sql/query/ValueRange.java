@@ -16,14 +16,20 @@ import lombok.ToString;
  */
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode
 @ToString
 public class ValueRange<E> implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private E start;
 	private E end;
+
+	public ValueRange() {
+	}
+
+	public ValueRange(E start, E end) {
+		this.start = start;
+		this.end = end;
+	}
 
 	public static <E> ValueRange<E> of(E start, E end) {
 		return new ValueRange<>(start, end);
