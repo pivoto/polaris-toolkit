@@ -35,6 +35,7 @@ public interface SqlNodes {
 	TextNode EXISTS = new TextNode(" EXISTS ");
 	TextNode NOT_EXISTS = new TextNode(" NOT EXISTS ");
 	TextNode LIKE = new TextNode(" LIKE ");
+	TextNode ESCAPE = new TextNode(" ESCAPE ");
 	TextNode IN = new TextNode(" IN ");
 	TextNode NOT_IN = new TextNode(" NOT IN ");
 	TextNode GROUP_BY = new TextNode("GROUP BY ");
