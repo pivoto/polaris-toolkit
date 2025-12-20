@@ -2,6 +2,7 @@ package io.polaris.core.converter;
 
 import io.polaris.core.converter.support.*;
 import io.polaris.core.jdbc.sql.VarRef;
+import io.polaris.core.jdbc.sql.query.StringValue;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.TypeRef;
 import io.polaris.core.lang.bean.Beans;
@@ -135,6 +136,7 @@ public class ConverterRegistry {
 		standardConverters.put(ValueRef.class, new RefConverter(ValueRef.class));
 		standardConverters.put(LazyRef.class, new RefConverter(LazyRef.class));
 		standardConverters.put(VarRef.class, new VarRefConverter());
+		standardConverters.put(StringValue.class, new StringValueConverter());
 	}
 
 	private static void loadServices() {
