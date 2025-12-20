@@ -6,7 +6,6 @@ import java.util.function.Supplier;
 
 import io.polaris.core.function.Visitable;
 import io.polaris.core.io.IO;
-import io.polaris.core.jdbc.SqlParamPredicate;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.TableMetaKit;
 import io.polaris.core.lang.Objs;
@@ -21,14 +20,6 @@ import org.apache.ibatis.type.Alias;
 @Alias("mkit")
 public class MybatisToolkit {
 	public static int CURSOR_MAX_SIZE = 65533;
-
-	public static boolean exists(Object val) {
-		return SqlParamPredicate.instance().exists(val);
-	}
-
-	public static boolean notExists(Object val) {
-		return SqlParamPredicate.instance().notExists(val);
-	}
 
 	public static boolean isEmpty(Object val) {
 		return Objs.isEmpty(val);
@@ -93,10 +84,15 @@ public class MybatisToolkit {
 	}
 
 	public static <E> Visitable<E> buildVisitable(Cursor<E> cursor) {
+		int maxSize = CURSOR_MAX_SIZE;
+		return buildVisitable(cursor, maxSize);
+	}
+
+	public static <E> Visitable<E> buildVisitable(Cursor<E> cursor, int maxSize) {
 		return (c) -> {
 			try {
 				Iterator<E> iter = cursor.iterator();
-				for (int i = 0; iter.hasNext() && i < CURSOR_MAX_SIZE; i++) {
+				for (int i = 0; iter.hasNext() && i < maxSize; i++) {
 					E o = iter.next();
 					c.accept(o);
 				}
@@ -107,10 +103,15 @@ public class MybatisToolkit {
 	}
 
 	public static <E, V> Visitable<V> buildVisitable(Cursor<E> cursor, Function<E, V> converter) {
+		int maxSize = CURSOR_MAX_SIZE;
+		return buildVisitable(cursor, maxSize, converter);
+	}
+
+	public static <E, V> Visitable<V> buildVisitable(Cursor<E> cursor, int maxSize, Function<E, V> converter) {
 		return (c) -> {
 			try {
 				Iterator<E> iter = cursor.iterator();
-				for (int i = 0; iter.hasNext() && i < CURSOR_MAX_SIZE; i++) {
+				for (int i = 0; iter.hasNext() && i < maxSize; i++) {
 					E o = iter.next();
 					V v = converter.apply(o);
 					c.accept(v);
