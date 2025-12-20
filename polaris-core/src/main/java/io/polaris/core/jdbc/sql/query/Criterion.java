@@ -26,6 +26,7 @@ public class Criterion {
 	private Operator operator = Operator.EQ;
 	private Object value;
 	private String reference;
+	private Character escape;
 
 	public static Criterion newCriterion() {
 		return new Criterion();
@@ -43,6 +44,11 @@ public class Criterion {
 
 	public Criterion operator(Operator operator) {
 		this.operator = operator;
+		return this;
+	}
+
+	public Criterion escape(Character escape) {
+		this.escape = escape;
 		return this;
 	}
 

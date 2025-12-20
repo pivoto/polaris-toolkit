@@ -18,8 +18,8 @@ public enum Operator {
 	EQ("="), NE("<>"),
 	LT("<"), GT(">"),
 	LE("<="), GE(">="),
-	LIKE("like"),
-	NOT_LIKE("not like"),
+	LIKE("like", true, true),
+	NOT_LIKE("not like", true, true),
 	IN("in", "(", ")"),
 	NOT_IN("not in", "(", ")"),
 	NULL("is null", false),
@@ -27,6 +27,7 @@ public enum Operator {
 
 	private String sqlText;
 	private boolean hasValue = true;
+	private boolean hasEscape = false;
 	private String openToken = SymbolConsts.EMPTY;
 	private String closeToken = SymbolConsts.EMPTY;
 
@@ -39,6 +40,12 @@ public enum Operator {
 		this.hasValue = hasValue;
 	}
 
+	Operator(String sqlText, boolean hasValue, boolean hasEscape) {
+		this.sqlText = sqlText;
+		this.hasValue = hasValue;
+		this.hasEscape = hasEscape;
+	}
+
 	Operator(String sqlText, String openToken, String closeToken) {
 		this.sqlText = sqlText;
 		this.openToken = openToken;
@@ -46,6 +53,10 @@ public enum Operator {
 	}
 
 	public ContainerNode toSqlNode(String column, String varName, Object varValue, String varReplacement) {
+		return toSqlNode(column, varName, varValue, varReplacement, null);
+	}
+
+	public ContainerNode toSqlNode(String column, String varName, Object varValue, String varReplacement, Character escape) {
 		ContainerNode sql = new ContainerNode();
 		sql.addNode(new TextNode(column + " " + sqlText + " "));
 		if (hasValue) {
@@ -63,6 +74,9 @@ public enum Operator {
 			}
 			if (Strings.isNotBlank(closeToken)) {
 				sql.addNode(new TextNode(closeToken));
+			}
+			if (hasEscape && escape != null) {
+				sql.addNode(new TextNode(" escape '" + escape + "'"));
 			}
 		}
 

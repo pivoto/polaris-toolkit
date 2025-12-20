@@ -23,6 +23,7 @@ import io.polaris.core.jdbc.sql.node.TextNode;
 import io.polaris.core.jdbc.sql.statement.segment.TableSegment;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.string.Strings;
+import io.polaris.core.tuple.Ref;
 
 /**
  * @author Qt
@@ -178,54 +179,97 @@ public class Queries {
 		for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
 			String name = entry.getKey();
 			ColumnMeta meta = entry.getValue();
-			Object val = entityMap.get(name);
-			if (SqlParamPredicate.instance().exists(val)) {
-				if (val instanceof Iterable || val instanceof Iterator) {
-					criteria.addSubset(Criteria.newCriteria().field(name)
-						.criterion(Criterion.newCriterion().operator(Operator.IN).value(val)));
-				} else if (val.getClass().isArray()) {
-					criteria.addSubset(Criteria.newCriteria().field(name)
-						.criterion(Criterion.newCriterion().operator(Operator.IN).value(val)));
-				} else if (String.class == meta.getFieldType() && val instanceof String) {
-					if (((String) val).startsWith("%") || ((String) val).endsWith("%")) {
-						criteria.addSubset(Criteria.newCriteria().field(name)
-							.criterion(Criterion.newCriterion().operator(Operator.LIKE).value(val)));
-					} else {
-						criteria.addSubset(Criteria.newCriteria().field(name)
-							.criterion(Criterion.newCriterion().operator(Operator.EQ).value(val)));
-					}
-				} else {
-					criteria.addSubset(Criteria.newCriteria().field(name)
-						.criterion(Criterion.newCriterion().operator(Operator.EQ).value(val)));
-				}
-			}
+			Class<?> fieldType = meta.getFieldType();
+			appendCriteria(criteria, entityMap, name, fieldType);
 		}
 		for (Map.Entry<String, ExpressionMeta> entry : tableMeta.getExpressions().entrySet()) {
 			String name = entry.getKey();
 			ExpressionMeta meta = entry.getValue();
-			Object val = entityMap.get(name);
-			if (SqlParamPredicate.instance().exists(val)) {
-				if (val instanceof Iterable || val instanceof Iterator) {
-					criteria.addSubset(Criteria.newCriteria().field(name)
-						.criterion(Criterion.newCriterion().operator(Operator.IN).value(val)));
-				} else if (val.getClass().isArray()) {
-					criteria.addSubset(Criteria.newCriteria().field(name)
-						.criterion(Criterion.newCriterion().operator(Operator.IN).value(val)));
-				} else if (String.class == meta.getFieldType() && val instanceof String) {
-					if (((String) val).startsWith("%") || ((String) val).endsWith("%")) {
-						criteria.addSubset(Criteria.newCriteria().field(name)
-							.criterion(Criterion.newCriterion().operator(Operator.LIKE).value(val)));
-					} else {
-						criteria.addSubset(Criteria.newCriteria().field(name)
-							.criterion(Criterion.newCriterion().operator(Operator.EQ).value(val)));
-					}
-				} else {
-					criteria.addSubset(Criteria.newCriteria().field(name)
-						.criterion(Criterion.newCriterion().operator(Operator.EQ).value(val)));
-				}
-			}
+			Class<?> fieldType = meta.getFieldType();
+			appendCriteria(criteria, entityMap, name, fieldType);
 		}
 		return criteria;
+	}
+
+	private static void appendCriteria(Criteria criteria, Map<String, Object> entityMap, String name, Class<?> fieldType) {
+		Object val = entityMap.get(name);
+		// 解构包装对象
+		boolean include = false;
+		if (val instanceof Ref) {
+			include = true;
+			val = ((Ref<?>) val).get();
+		}
+
+		SqlParamPredicate.Result result = SqlParamPredicate.check(val);
+		// 判断是否需要处理参数：包装值、非空、空串且包含
+		if (include || result == SqlParamPredicate.Result.NONEMPTY
+			|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.includeEmpty())) {
+
+			if (val instanceof Iterable || val instanceof Iterator) {
+				// 集合类参数，只支持非空的条件
+				if (result == SqlParamPredicate.Result.NONEMPTY) {
+					criteria.addSubset(Criteria.newCriteria().field(name)
+						.criterion(Criterion.newCriterion().operator(Operator.IN).value(val)));
+				}
+				return;
+			}
+			if (val.getClass().isArray()) {
+				// 集合类参数，只支持非空的条件
+				if (result == SqlParamPredicate.Result.NONEMPTY) {
+					criteria.addSubset(Criteria.newCriteria().field(name)
+						.criterion(Criterion.newCriterion().operator(Operator.IN).value(val)));
+				}
+				return;
+			}
+			if (String.class == fieldType) {
+				// 字符串型字段，根据参数类型拼装条件
+				if (val instanceof StringValue) {
+					boolean like = ((StringValue) val).isLike();
+					char escape = ((StringValue) val).getEscape();
+					String str = ((StringValue) val).getValue();
+					if (str == null || (str.isEmpty() && SqlParamPredicate.emptyAsNull())) {
+						// NULL值
+						criteria.addSubset(Criteria.newCriteria().field(name)
+							.criterion(Criterion.newCriterion().operator(Operator.NULL).value(val)));
+					} else {
+						// like条件
+						if (like) {
+							// 判断escape是否是可见ascii字符
+							if (escape > 0 && escape < 128) {
+								criteria.addSubset(Criteria.newCriteria().field(name)
+									.criterion(Criterion.newCriterion().operator(Operator.LIKE).value(val).escape(escape)));
+							} else {
+								criteria.addSubset(Criteria.newCriteria().field(name)
+									.criterion(Criterion.newCriterion().operator(Operator.LIKE).value(val)));
+							}
+						} else {
+							criteria.addSubset(Criteria.newCriteria().field(name)
+								.criterion(Criterion.newCriterion().operator(Operator.EQ).value(val)));
+						}
+					}
+					return;
+				}
+				if (val instanceof String
+					&& (((String) val).startsWith("%") || ((String) val).endsWith("%"))) {
+					// like条件
+					criteria.addSubset(Criteria.newCriteria().field(name)
+						.criterion(Criterion.newCriterion().operator(Operator.LIKE).value(val)));
+					return;
+				}
+			}
+
+			// 非空，或空串且不转为NULL
+			if (result == SqlParamPredicate.Result.NONEMPTY
+				|| (result == SqlParamPredicate.Result.EMPTY && !SqlParamPredicate.emptyAsNull())) {
+				criteria.addSubset(Criteria.newCriteria().field(name)
+					.criterion(Criterion.newCriterion().operator(Operator.EQ).value(val)));
+			} else {
+				// NULL值处理
+				criteria.addSubset(Criteria.newCriteria().field(name)
+					.criterion(Criterion.newCriterion().operator(Operator.NULL).value(val)));
+			}
+
+		}
 	}
 
 	public static OrderBy newOrderBy(String orderBySql) {
@@ -378,7 +422,8 @@ public class Queries {
 		} else if (criterion.getOperator() != null) {
 			Operator symbol = criterion.getOperator();
 			ContainerNode sqlNode = symbol.toSqlNode(column, "", criterion.getValue(),
-				supportReplacement ? criterion.getReference() : null);
+				supportReplacement ? criterion.getReference() : null,
+				criterion.getEscape());
 			sqlNode.skipIfMissingVarValue();
 			if (!sqlNode.isSkipped()) {
 				sql.addNodes(sqlNode.subset());
