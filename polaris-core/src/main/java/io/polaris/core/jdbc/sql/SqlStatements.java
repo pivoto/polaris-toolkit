@@ -20,6 +20,7 @@ import io.polaris.core.jdbc.sql.node.VarNameGenerator;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.OrderBy;
 import io.polaris.core.jdbc.sql.query.Queries;
+import io.polaris.core.jdbc.sql.query.StringValue;
 import io.polaris.core.jdbc.sql.query.ValueRange;
 import io.polaris.core.jdbc.sql.statement.ColumnPredicate;
 import io.polaris.core.jdbc.sql.statement.ConfigurableColumnPredicate;
@@ -27,6 +28,7 @@ import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.string.Strings;
+import io.polaris.core.tuple.Ref;
 
 /**
  * 用于Mybatis扩展生成Sql
@@ -112,12 +114,21 @@ public class SqlStatements {
 			} else {
 				propString = meta.getPropString(varPropFilter);
 			}
+			// 解构包装对象
+			boolean include = false;
+			if (val instanceof Ref) {
+				include = true;
+				val = ((Ref<?>) val).get();
+			}
+			val = Converters.convertQuietly(meta.getFieldType(), val);
 			val = BindingValues.getValueForInsert(meta, val);
 
 			if (meta.isVersion()) {
 				val = val == null ? 1L : ((Number) val).longValue();
 			}
-			if (SqlParamPredicate.instance().exists(val)) {
+
+			SqlParamPredicate.Result result = SqlParamPredicate.check(val);
+			if (result == SqlParamPredicate.Result.NONEMPTY) {
 				String keyName = valueKeyGen.generate();
 				if (Strings.isNotBlank(propString)) {
 					sql.columnAndValue(columnName, "#{" + keyName + "," + propString + "}");
@@ -125,6 +136,7 @@ public class SqlStatements {
 					sql.columnAndValue(columnName, "#{" + keyName + "}");
 				}
 				bindings.put(keyName, val);
+				continue;
 			} else {
 				if (meta.isPrimaryKey()) {
 					if (Strings.isNotBlank(meta.getIdSql())) {
@@ -147,8 +159,21 @@ public class SqlStatements {
 					continue;
 				}
 				// 其他情况，判断是否需要包含空值字段
-				if (columnPredicate.isIncludedEmptyColumn(name)) {
-					sql.columnAndValue(columnName, "NULL");
+				if (include || columnPredicate.isIncludedEmptyColumn(name)
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.includeEmpty())) {
+					// NULL值，或空字符串需要转换为NULL值
+					if (result == SqlParamPredicate.Result.NULL || SqlParamPredicate.emptyAsNull()) {
+						sql.columnAndValue(columnName, "NULL");
+						continue;
+					}
+					String keyName = valueKeyGen.generate();
+					if (Strings.isNotBlank(propString)) {
+						sql.columnAndValue(columnName, "#{" + keyName + "," + propString + "}");
+					} else {
+						sql.columnAndValue(columnName, "#{" + keyName + "}");
+					}
+					bindings.put(keyName, val);
+					continue;
 				}
 			}
 		}
@@ -220,7 +245,15 @@ public class SqlStatements {
 					val = ((VarRef<?>) val).getValue();
 				}
 
-				if (SqlParamPredicate.instance().notExists(val)) {
+				// 解构包装对象
+				if (val instanceof Ref) {
+					val = ((Ref<?>) val).get();
+				}
+				val = Converters.convertQuietly(meta.getFieldType(), val);
+				SqlParamPredicate.Result result = SqlParamPredicate.check(val);
+				// NULL值，或空字符串需要转换为NULL值
+				if (result == SqlParamPredicate.Result.NULL
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.emptyAsNull())) {
 					sql.where(columnName + " IS NULL");
 				} else {
 					String keyName = whereKeyGen.generate();
@@ -243,8 +276,14 @@ public class SqlStatements {
 					propString = ((VarRef<?>) val).getPropString(varPropFilter);
 					val = ((VarRef<?>) val).getValue();
 				}
+				// 解构包装对象
+				if (val instanceof Ref) {
+					val = ((Ref<?>) val).get();
+				}
 				if (val == null) {
 					val = Converters.convertQuietly(meta.getFieldType(), new Date());
+				} else {
+					val = Converters.convertQuietly(meta.getFieldType(), val);
 				}
 			} else if (version) {
 				val = entityMap.get(name);
@@ -253,9 +292,14 @@ public class SqlStatements {
 					propString = ((VarRef<?>) val).getPropString(varPropFilter);
 					val = ((VarRef<?>) val).getValue();
 				}
-				val = val == null ? 1L : ((Number) val).longValue() + 1;
+				// 解构包装对象
+				if (val instanceof Ref) {
+					val = ((Ref<?>) val).get();
+				}
+				val = val == null ? 1L : ((Number) Converters.convertQuietly(Number.class, val)).longValue() + 1;
 			}
-			if (SqlParamPredicate.instance().exists(val)) {
+			// 只更新逻辑删除、更新时间、版本等字段，不需要再次判空
+			if (val != null) {
 				String keyName = valueKeyGen.generate();
 				if (Strings.isNotBlank(propString)) {
 					sql.set(columnName + " = #{" + keyName + "," + propString + "}");
@@ -328,11 +372,18 @@ public class SqlStatements {
 				} else {
 					propString = meta.getPropString(varPropFilter);
 				}
-				if (SqlParamPredicate.instance().exists(val)) {
+				// 解构包装对象
+				if (val instanceof Ref) {
+					val = ((Ref<?>) val).get();
+				}
+				SqlParamPredicate.Result result = SqlParamPredicate.check(val);
+				// NULL值，或空字符串需要转换为NULL值
+				if (result == SqlParamPredicate.Result.NULL
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.emptyAsNull())) {
+					sql.where(columnName + " IS NULL");
+				} else {
 					String key = whereKeyGen.generate();
 					appendSqlWhereWithVal(bindings, sql, columnName, meta.getFieldType(), val, key, propString);
-				} else {
-					sql.where(columnName + " IS NULL");
 				}
 			}
 		}
@@ -448,8 +499,14 @@ public class SqlStatements {
 				} else {
 					propString = meta.getPropString(varPropFilter);
 				}
+				// 解构包装对象
+				if (val instanceof Ref) {
+					val = ((Ref<?>) val).get();
+				}
 				if (val == null) {
 					val = Converters.convertQuietly(meta.getFieldType(), new Date());
+				} else {
+					val = Converters.convertQuietly(meta.getFieldType(), val);
 				}
 			} else if (version) {
 				val = entityMap.get(name);
@@ -459,9 +516,15 @@ public class SqlStatements {
 				} else {
 					propString = meta.getPropString(varPropFilter);
 				}
+				// 解构包装对象
+				if (val instanceof Ref) {
+					val = ((Ref<?>) val).get();
+				}
+				val = Converters.convertQuietly(meta.getFieldType(), val);
 				val = val == null ? 1L : ((Number) val).longValue() + 1;
 			}
-			if (SqlParamPredicate.instance().exists(val)) {
+			// 只更新逻辑删除、更新时间、版本等字段，不需要再次判空
+			if (val != null) {
 				String keyName = valueKeyGen.generate();
 				if (Strings.isNotBlank(propString)) {
 					sql.set(columnName + " = #{" + keyName + "," + propString + "}");
@@ -645,8 +708,19 @@ public class SqlStatements {
 			} else {
 				propString = meta.getPropString(varPropFilter);
 			}
+			// 解构包装对象
+			boolean include = false;
+			if (val instanceof Ref) {
+				include = true;
+				val = ((Ref<?>) val).get();
+			}
+			val = Converters.convertQuietly(meta.getFieldType(), val);
+
 			if (primaryKey || version) {
-				if (SqlParamPredicate.instance().notExists(val)) {
+				SqlParamPredicate.Result result = SqlParamPredicate.check(val);
+				// NULL值，或空字符串需要转换为NULL值
+				if (result == SqlParamPredicate.Result.NULL
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.emptyAsNull())) {
 					sql.where(columnName + " IS NULL");
 				} else {
 					String keyName = whereKeyGen.generate();
@@ -666,33 +740,56 @@ public class SqlStatements {
 				continue;
 			}
 
-			Object entityVal = BindingValues.getValueForUpdate(meta, val);
+			val = BindingValues.getValueForUpdate(meta, val);
 			if (version) {
-				entityVal = entityVal == null ? 1L : ((Number) entityVal).longValue() + 1;
-			} else if (primaryKey) {
-				// 不更新主键值
-				continue;
-			}
-			if (SqlParamPredicate.instance().exists(entityVal)) {
+				val = val == null ? 1L : ((Number) val).longValue() + 1;
 				String keyName = valueKeyGen.generate();
 				if (Strings.isNotBlank(propString)) {
 					sql.set(columnName + " = #{" + keyName + "," + propString + "}");
 				} else {
 					sql.set(columnName + " = #{" + keyName + "}");
 				}
-				bindings.put(keyName, entityVal);
-			} else {
-				// 默认值SQL存在则使用
-				String updateDefaultSql = meta.getUpdateDefaultSql();
-				if (Strings.isNotBlank(updateDefaultSql)) {
-					sql.set(columnName + " = " + updateDefaultSql);
-					continue;
+				bindings.put(keyName, val);
+				continue;
+			} else if (primaryKey) {
+				// 不更新主键值
+				continue;
+			}
+
+			SqlParamPredicate.Result result = SqlParamPredicate.check(val);
+			if (result == SqlParamPredicate.Result.NONEMPTY) {
+				String keyName = valueKeyGen.generate();
+				if (Strings.isNotBlank(propString)) {
+					sql.set(columnName + " = #{" + keyName + "," + propString + "}");
+				} else {
+					sql.set(columnName + " = #{" + keyName + "}");
 				}
+				bindings.put(keyName, val);
+			} else {
 
 				// 需要包含空值字段
-				boolean include = columnPredicate.isIncludedEmptyColumn(name);
-				if (include) {
-					sql.set(columnName + " = NULL");
+				if (include || columnPredicate.isIncludedEmptyColumn(name)
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.includeEmpty())) {
+
+					// NULL值，或空字符串需要转换为NULL值
+					if (result == SqlParamPredicate.Result.NULL || SqlParamPredicate.emptyAsNull()) {
+						// 默认值SQL存在则使用
+						String updateDefaultSql = meta.getUpdateDefaultSql();
+						if (Strings.isNotBlank(updateDefaultSql)) {
+							sql.set(columnName + " = " + updateDefaultSql);
+							continue;
+						}
+						sql.set(columnName + " = NULL");
+						continue;
+					}
+
+					String keyName = valueKeyGen.generate();
+					if (Strings.isNotBlank(propString)) {
+						sql.set(columnName + " = #{" + keyName + "," + propString + "}");
+					} else {
+						sql.set(columnName + " = #{" + keyName + "}");
+					}
+					bindings.put(keyName, val);
 				}
 			}
 		}
@@ -787,30 +884,62 @@ public class SqlStatements {
 			} else {
 				propString = meta.getPropString();
 			}
-			Object entityVal = BindingValues.getValueForUpdate(meta, val);
-			if (version) {
-				entityVal = entityVal == null ? 1L : ((Number) entityVal).longValue() + 1;
+			// 解构包装对象
+			boolean include = false;
+			if (val instanceof Ref) {
+				include = true;
+				val = ((Ref<?>) val).get();
 			}
-			if (SqlParamPredicate.instance().exists(entityVal)) {
+			val = Converters.convertQuietly(meta.getFieldType(), val);
+
+			val = BindingValues.getValueForUpdate(meta, val);
+			if (version) {
+				val = val == null ? 1L : ((Number) val).longValue() + 1;
 				String keyName = valueKeyGen.generate();
 				if (Strings.isNotBlank(propString)) {
 					sql.set(columnName + " = #{" + keyName + "," + propString + "}");
 				} else {
 					sql.set(columnName + " = #{" + keyName + "}");
 				}
-				bindings.put(keyName, entityVal);
-			} else {
-				// 默认值SQL存在则使用
-				String updateDefaultSql = meta.getUpdateDefaultSql();
-				if (Strings.isNotBlank(updateDefaultSql)) {
-					sql.set(columnName + " = " + updateDefaultSql);
-					continue;
+				bindings.put(keyName, val);
+				continue;
+			}
+
+			SqlParamPredicate.Result result = SqlParamPredicate.check(val);
+
+			if (result == SqlParamPredicate.Result.NONEMPTY) {
+				String keyName = valueKeyGen.generate();
+				if (Strings.isNotBlank(propString)) {
+					sql.set(columnName + " = #{" + keyName + "," + propString + "}");
+				} else {
+					sql.set(columnName + " = #{" + keyName + "}");
 				}
+				bindings.put(keyName, val);
+			} else {
 
 				// 需要包含空值字段
-				boolean include = columnPredicate.isIncludedEmptyColumn(name);
-				if (include) {
-					sql.set(columnName + " = NULL");
+				if (include || columnPredicate.isIncludedEmptyColumn(name)
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.includeEmpty())) {
+
+					// NULL值，或空字符串需要转换为NULL值
+					if (result == SqlParamPredicate.Result.NULL || SqlParamPredicate.emptyAsNull()) {
+						// 默认值SQL存在则使用
+						String updateDefaultSql = meta.getUpdateDefaultSql();
+						if (Strings.isNotBlank(updateDefaultSql)) {
+							sql.set(columnName + " = " + updateDefaultSql);
+							continue;
+						}
+						sql.set(columnName + " = NULL");
+						continue;
+					}
+
+					String keyName = valueKeyGen.generate();
+					if (Strings.isNotBlank(propString)) {
+						sql.set(columnName + " = #{" + keyName + "," + propString + "}");
+					} else {
+						sql.set(columnName + " = #{" + keyName + "}");
+					}
+					bindings.put(keyName, val);
 				}
 			}
 		}
@@ -1025,8 +1154,16 @@ public class SqlStatements {
 			} else {
 				propString = meta.getPropString(varPropFilter);
 			}
+			// 解构包装对象
+			if (val instanceof Ref) {
+				val = ((Ref<?>) val).get();
+			}
+			val = Converters.convertQuietly(meta.getFieldType(), val);
+
 			if (primaryKey) {
-				if (val == null) {
+				SqlParamPredicate.Result result = SqlParamPredicate.check(val);
+				if (result == SqlParamPredicate.Result.NULL
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.emptyAsNull())) {
 					sql.where(columnName + " IS NULL");
 				} else {
 					String keyName = whereKeyGen.generate();
@@ -1040,8 +1177,6 @@ public class SqlStatements {
 			} else if (withLogicDeleted && meta.isLogicDeleted()) {
 				// 强制添加非逻辑删除条件
 				String keyName = whereKeyGen.generate();
-				val = Converters.convertQuietly(meta.getFieldType(), false);
-
 				if (Strings.isNotBlank(propString)) {
 					sql.where(columnName + " = #{" + keyName + "," + propString + "}");
 				} else {
@@ -1266,8 +1401,15 @@ public class SqlStatements {
 			} else {
 				propString = meta.getPropString(varPropFilter);
 			}
+			// 解构包装对象
+			if (val instanceof Ref) {
+				val = ((Ref<?>) val).get();
+			}
 			if (primaryKey) {
-				if (val == null) {
+				val = Converters.convertQuietly(meta.getFieldType(), val);
+				SqlParamPredicate.Result result = SqlParamPredicate.check(val);
+				if (result == SqlParamPredicate.Result.NULL
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.emptyAsNull())) {
 					sql.where(columnName + " IS NULL");
 				} else {
 					String keyName = whereKeyGen.generate();
@@ -1531,17 +1673,31 @@ public class SqlStatements {
 				propString = ((VarRef<?>) val).getPropString(varPropFilter);
 				val = ((VarRef<?>) val).getValue();
 			}
+			// 解构包装对象
+			boolean include = false;
+			if (val instanceof Ref) {
+				include = true;
+				val = ((Ref<?>) val).get();
+			}
+			SqlParamPredicate.Result result = SqlParamPredicate.check(val);
 
-			if (SqlParamPredicate.instance().exists(val)) {
+			if (result == SqlParamPredicate.Result.NONEMPTY) {
 				String key = whereKeyGen.generate();
 				appendSqlWhereWithVal(bindings, sql, columnName, meta.getFieldType(), val, key, propString);
 				columnVisitor.accept(name);
 			} else {
 				// 需要包含空值字段
-				boolean include = columnPredicate.isIncludedEmptyColumn(name);
-				if (include) {
-					sql.where(columnName + " IS NULL");
-					columnVisitor.accept(name);
+				if (include || columnPredicate.isIncludedEmptyColumn(name)
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.includeEmpty())) {
+					// NULL值，或空字符串需要转换为NULL值
+					if (result == SqlParamPredicate.Result.NULL || SqlParamPredicate.emptyAsNull()) {
+						sql.where(columnName + " IS NULL");
+						columnVisitor.accept(name);
+					} else {
+						String key = whereKeyGen.generate();
+						appendSqlWhereWithVal(bindings, sql, columnName, meta.getFieldType(), val, key, propString);
+						columnVisitor.accept(name);
+					}
 				}
 			}
 		}
@@ -1564,14 +1720,27 @@ public class SqlStatements {
 				propString = ((VarRef<?>) val).getPropString(varPropFilter);
 				val = ((VarRef<?>) val).getValue();
 			}
-			if (SqlParamPredicate.instance().exists(val)) {
+			// 解构包装对象
+			boolean include = false;
+			if (val instanceof Ref) {
+				include = true;
+				val = ((Ref<?>) val).get();
+			}
+			SqlParamPredicate.Result result = SqlParamPredicate.check(val);
+			if (result == SqlParamPredicate.Result.NONEMPTY) {
 				String key = whereKeyGen.generate();
 				appendSqlWhereWithVal(bindings, sql, columnName, meta.getFieldType(), val, key, propString);
 			} else {
 				// 需要包含空值字段
-				boolean include = columnPredicate.isIncludedEmptyColumn(name);
-				if (include) {
-					sql.where(columnName + " IS NULL");
+				if (include || columnPredicate.isIncludedEmptyColumn(name)
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.includeEmpty())) {
+					// NULL值，或空字符串需要转换为NULL值
+					if (result == SqlParamPredicate.Result.NULL || SqlParamPredicate.emptyAsNull()) {
+						sql.where(columnName + " IS NULL");
+					} else {
+						String key = whereKeyGen.generate();
+						appendSqlWhereWithVal(bindings, sql, columnName, meta.getFieldType(), val, key, propString);
+					}
 				}
 			}
 		}
@@ -1617,14 +1786,27 @@ public class SqlStatements {
 				val = ((VarRef<?>) val).getValue();
 			}
 
-			if (SqlParamPredicate.instance().exists(val)) {
+			// 解构包装对象
+			boolean include = false;
+			if (val instanceof Ref) {
+				include = true;
+				val = ((Ref<?>) val).get();
+			}
+			SqlParamPredicate.Result result = SqlParamPredicate.check(val);
+			if (result == SqlParamPredicate.Result.NONEMPTY) {
 				String key = whereKeyGen.generate();
 				appendSqlWhereWithVal(bindings, sql, columnName, meta.getFieldType(), val, key, propString);
 			} else {
 				// 需要包含空值字段
-				boolean include = columnPredicate.isIncludedEmptyColumn(name);
-				if (include) {
-					sql.where(columnName + " IS NULL");
+				if (include || columnPredicate.isIncludedEmptyColumn(name)
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.includeEmpty())) {
+					// NULL值，或空字符串需要转换为NULL值
+					if (result == SqlParamPredicate.Result.NULL || SqlParamPredicate.emptyAsNull()) {
+						sql.where(columnName + " IS NULL");
+					} else {
+						String key = whereKeyGen.generate();
+						appendSqlWhereWithVal(bindings, sql, columnName, meta.getFieldType(), val, key, propString);
+					}
 				}
 			}
 		}
@@ -1647,14 +1829,27 @@ public class SqlStatements {
 				val = ((VarRef<?>) val).getValue();
 			}
 
-			if (SqlParamPredicate.instance().exists(val)) {
+			// 解构包装对象
+			boolean include = false;
+			if (val instanceof Ref) {
+				include = true;
+				val = ((Ref<?>) val).get();
+			}
+			SqlParamPredicate.Result result = SqlParamPredicate.check(val);
+			if (result == SqlParamPredicate.Result.NONEMPTY) {
 				String key = whereKeyGen.generate();
 				appendSqlWhereWithVal(bindings, sql, columnName, meta.getFieldType(), val, key, propString);
 			} else {
 				// 需要包含空值字段
-				boolean include = columnPredicate.isIncludedEmptyColumn(name);
-				if (include) {
-					sql.where(columnName + " IS NULL");
+				if (include || columnPredicate.isIncludedEmptyColumn(name)
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.includeEmpty())) {
+					// NULL值，或空字符串需要转换为NULL值
+					if (result == SqlParamPredicate.Result.NULL || SqlParamPredicate.emptyAsNull()) {
+						sql.where(columnName + " IS NULL");
+					} else {
+						String key = whereKeyGen.generate();
+						appendSqlWhereWithVal(bindings, sql, columnName, meta.getFieldType(), val, key, propString);
+					}
 				}
 			}
 		}
@@ -1678,7 +1873,7 @@ public class SqlStatements {
 	 * 添加查询条件， 支持处理集合与数组类型
 	 */
 	private static void appendSqlWhereWithVal(@Nonnull Map<String, Object> bindings, @Nonnull SqlStatement sql, @Nonnull String columnName, @Nonnull Class<?> fieldType, @Nonnull Object val, @Nonnull String key, String varProps) {
-		// 注意： val 变量类型不可能为VarRef， 已在外部处理
+		// 注意： val 变量类型不可能为VarRef或Ref， 已在外部处理
 		String varSuffix = Strings.isNotBlank(varProps) ? "," + varProps : "";
 		// 日期字段
 		if (Date.class.isAssignableFrom(fieldType)) {
@@ -1701,7 +1896,32 @@ public class SqlStatements {
 		}
 
 		// 文本字段
-		if (String.class.isAssignableFrom(fieldType)) {
+		if (String.class == fieldType) {
+			if (val instanceof StringValue) {
+				boolean like = ((StringValue) val).isLike();
+				char escape = ((StringValue) val).getEscape();
+				String str = ((StringValue) val).getValue();
+				if (str == null) {
+					sql.where(columnName + " IS NULL ");
+				} else if (str.isEmpty() && SqlParamPredicate.emptyAsNull()) {
+					sql.where(columnName + " IS NULL ");
+				} else {
+					if (like) {
+						// 判断escape是否是可见ascii字符
+						if (escape > 0 && escape < 128) {
+							sql.where(columnName + " like #{" + key + varSuffix + "} escape '" + escape + "' ");
+						} else {
+							sql.where(columnName + " like #{" + key + varSuffix + "} ");
+						}
+					} else {
+						sql.where(columnName + " = #{" + key + varSuffix + "} ");
+					}
+					bindings.put(key, str);
+				}
+				// 完成条件绑定
+				return;
+			}
+
 			if (val instanceof String && (((String) val).startsWith("%") || ((String) val).endsWith("%"))) {
 				bindings.put(key, val);
 				sql.where(columnName + " like #{" + key + varSuffix + "} ");
@@ -1712,15 +1932,29 @@ public class SqlStatements {
 
 		if (val instanceof ValueRange) {
 			ValueRange<?> range = (ValueRange<?>) val;
-			Object start = range.getStart();
-			Object end = range.getEnd();
-			if (SqlParamPredicate.instance().exists(start)) {
-				sql.where(columnName + " >= #{" + key + "0" + varSuffix + "} ");
-				bindings.put(key + "0", start);
+			{
+				Object start = range.getStart();
+				SqlParamPredicate.Result result = SqlParamPredicate.check(start);
+				if (result == SqlParamPredicate.Result.NONEMPTY
+					|| (result == SqlParamPredicate.Result.EMPTY && !SqlParamPredicate.emptyAsNull())) {
+					start = Converters.convertQuietly(fieldType, start);
+					if (start != null) {
+						sql.where(columnName + " >= #{" + key + "0" + varSuffix + "} ");
+						bindings.put(key + "0", start);
+					}
+				}
 			}
-			if (SqlParamPredicate.instance().exists(end)) {
-				sql.where(columnName + " <= #{" + key + "1" + varSuffix + "} ");
-				bindings.put(key + "1", end);
+			{
+				Object end = range.getEnd();
+				SqlParamPredicate.Result result = SqlParamPredicate.check(end);
+				if (result == SqlParamPredicate.Result.NONEMPTY
+					|| (result == SqlParamPredicate.Result.EMPTY && !SqlParamPredicate.emptyAsNull())) {
+					end = Converters.convertQuietly(fieldType, end);
+					if (end != null) {
+						sql.where(columnName + " <= #{" + key + "1" + varSuffix + "} ");
+						bindings.put(key + "1", end);
+					}
+				}
 			}
 		} else if (val instanceof Iterable) {
 			StringBuilder where = new StringBuilder();
@@ -1767,8 +2001,16 @@ public class SqlStatements {
 			where.append(" ) ");
 			sql.where(where.toString());
 		} else {
-			sql.where(columnName + " = #{" + key + varSuffix + "} ");
-			bindings.put(key, Converters.convertQuietly(fieldType, val));
+			val = Converters.convertQuietly(fieldType, val);
+			if (val == null) {
+				sql.where(columnName + " IS NULL ");
+			} else if (val instanceof String && ((String) val).isEmpty() && SqlParamPredicate.emptyAsNull()) {
+				// 如果为空字符串，则按配置规则转换成NULL
+				sql.where(columnName + " IS NULL ");
+			} else {
+				sql.where(columnName + " = #{" + key + varSuffix + "} ");
+				bindings.put(key, val);
+			}
 		}
 	}
 
