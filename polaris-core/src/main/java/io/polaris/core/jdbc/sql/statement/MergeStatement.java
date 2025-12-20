@@ -8,10 +8,12 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import io.polaris.core.collection.Iterables;
+import io.polaris.core.converter.Converters;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.SqlParamPredicate;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.sql.BindingValues;
+import io.polaris.core.jdbc.sql.VarRef;
 import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
@@ -24,7 +26,9 @@ import io.polaris.core.jdbc.sql.statement.segment.TableSegment;
 import io.polaris.core.jdbc.table.DualEntity;
 import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.bean.Beans;
+import io.polaris.core.map.Maps;
 import io.polaris.core.string.Strings;
+import io.polaris.core.tuple.Ref;
 
 /**
  * Oracle Merge Into
@@ -32,7 +36,7 @@ import io.polaris.core.string.Strings;
  * @author Qt
  * @since Aug 30, 2023
  */
-@SuppressWarnings({"unused", "UnusedReturnValue"})
+@SuppressWarnings({"all"})
 public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S> implements TableAccessible {
 	/** 合并操作的目标表 */
 	private final TableSegment<?> table;
@@ -258,7 +262,6 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 				}
 			}
 
-			@SuppressWarnings("unchecked")
 			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
 				(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
 					? Beans.newBeanMap(entity, tableMeta.getEntityClass())
@@ -269,8 +272,8 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 				String name = entry.getKey();
 				ColumnMeta meta = entry.getValue();
 				if (meta.isPrimaryKey()) {
-					Object val1 = entityMap.get(meta.getFieldName());
-					Object val = BindingValues.getValueForInsert(meta, val1);
+					Object val = entityMap.get(meta.getFieldName());
+					val = BindingValues.getValueForInsert(meta, val);
 					using.select().column(DualEntity.Fields.dummy).value(val, name);
 				}
 			}
@@ -307,15 +310,44 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 					if (!columnPredicate.isIncludedColumn(name)) {
 						continue;
 					}
-					Object val1 = entityMap.get(meta.getFieldName());
-					Object val = BindingValues.getValueForUpdate(meta, val1);
+					Object val = entityMap.get(meta.getFieldName());
+					Map<String, String> props = null;
+					if (val instanceof VarRef) {
+						// 优先使用VarRef携带的参数属性
+						props = ((VarRef<?>) val).getProps();
+						val = ((VarRef<?>) val).getValue();
+					} else {
+						props = meta.getProps();
+					}
+					// 解构包装对象
+					boolean include = false;
+					if (val instanceof Ref) {
+						include = true;
+						val = ((Ref<?>) val).get();
+					}
+					val = BindingValues.getValueForUpdate(meta, val);
 					if (meta.isVersion()) {
 						val = val == null ? 1L : ((Number) val).longValue() + 1;
 					}
-					// 需要包含空值字段 或为非空值
-					boolean include = columnPredicate.isIncludedEmptyColumn(name) || SqlParamPredicate.instance().exists(val);
-					if (include) {
-						this.update(name, val);
+					val = Converters.convertQuietly(meta.getFieldType(), val);
+					SqlParamPredicate.Result result = SqlParamPredicate.check(val);
+					// 非空值
+					if (result == SqlParamPredicate.Result.NONEMPTY) {
+						if (Maps.isNotEmpty(props)) {
+							this.update(name, VarRef.of(val, props));
+						}else{
+							this.update(name, val);
+						}
+						continue;
+					}
+					// 需要包含空值字段
+					if (include || columnPredicate.isIncludedEmptyColumn(name)
+						|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.includeEmpty())) {
+						if (Maps.isNotEmpty(props)) {
+							this.update(name, VarRef.of(val, props));
+						}else{
+							this.update(name, val);
+						}
 					}
 				}
 			}
@@ -332,15 +364,45 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 					if (!columnPredicate.isIncludedColumn(name)) {
 						continue;
 					}
-					Object val1 = entityMap.get(meta.getFieldName());
-					Object val = BindingValues.getValueForInsert(meta, val1);
+					Object val = entityMap.get(meta.getFieldName());
+					Map<String, String> props = null;
+					if (val instanceof VarRef) {
+						// 优先使用VarRef携带的参数属性
+						props = ((VarRef<?>) val).getProps();
+						val = ((VarRef<?>) val).getValue();
+					} else {
+						props = meta.getProps();
+					}
+
+					// 解构包装对象
+					boolean include = false;
+					if (val instanceof Ref) {
+						include = true;
+						val = ((Ref<?>) val).get();
+					}
+					val = Converters.convertQuietly(meta.getFieldType(), val);
+					val = BindingValues.getValueForInsert(meta, val);
 					if (meta.isVersion()) {
 						val = val == null ? 1L : ((Number) val).longValue();
 					}
-					// 需要包含空值字段 或为非空值
-					boolean include = columnPredicate.isIncludedEmptyColumn(name) || SqlParamPredicate.instance().exists(val);
-					if (include) {
-						this.insert(name, val);
+					SqlParamPredicate.Result result = SqlParamPredicate.check(val);
+					// 非空值
+					if (result == SqlParamPredicate.Result.NONEMPTY) {
+						if (Maps.isNotEmpty(props)) {
+							this.insert(name, VarRef.of(val, props));
+						}else{
+							this.insert(name, val);
+						}
+						continue;
+					}
+					// 需要包含空值字段
+					if (include || columnPredicate.isIncludedEmptyColumn(name)
+						|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.includeEmpty())) {
+						if (Maps.isNotEmpty(props)) {
+							this.insert(name, VarRef.of(val, props));
+						}else{
+							this.insert(name, val);
+						}
 					}
 				}
 			}

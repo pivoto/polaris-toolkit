@@ -17,6 +17,7 @@ import java.util.function.Function;
  * @author Qt
  * @since Aug 20, 2023
  */
+@SuppressWarnings("all")
 @AnnotationProcessing
 public class DeleteStatement<S extends DeleteStatement<S>> extends BaseStatement<S> implements TableAccessible{
 

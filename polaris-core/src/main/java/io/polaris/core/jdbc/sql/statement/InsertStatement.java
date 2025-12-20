@@ -10,10 +10,12 @@ import java.util.function.Supplier;
 import io.polaris.core.annotation.AnnotationProcessing;
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.collection.Lists;
+import io.polaris.core.converter.Converters;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.SqlParamPredicate;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.sql.BindingValues;
+import io.polaris.core.jdbc.sql.VarRef;
 import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
@@ -25,6 +27,7 @@ import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.map.Maps;
 import io.polaris.core.string.Strings;
+import io.polaris.core.tuple.Ref;
 
 /**
  * @author Qt
@@ -235,14 +238,30 @@ public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement
 					continue;
 				}
 
-				Object val1 = entityMap.get(meta.getFieldName());
-				Object val = BindingValues.getValueForInsert(meta, val1);
+				Object val = entityMap.get(meta.getFieldName());
+				Map<String, String> props = null;
+				if (val instanceof VarRef) {
+					// 优先使用VarRef携带的参数属性
+					props = ((VarRef<?>) val).getProps();
+					val = ((VarRef<?>) val).getValue();
+				} else {
+					props = meta.getProps();
+				}
+
+				// 解构包装对象
+				boolean include = false;
+				if (val instanceof Ref) {
+					include = true;
+					val = ((Ref<?>) val).get();
+				}
+				val = Converters.convertQuietly(meta.getFieldType(), val);
+				val = BindingValues.getValueForInsert(meta, val);
 				if (meta.isVersion()) {
 					val = val == null ? 1L : ((Number) val).longValue();
 				}
-				// 需要包含空值字段,或为非空值
-				if (SqlParamPredicate.instance().exists(val)) {
-					Map<String, String> props = meta.getProps();
+				SqlParamPredicate.Result result = SqlParamPredicate.check(val);
+				// 非空值
+				if (result == SqlParamPredicate.Result.NONEMPTY) {
 					if (Maps.isNotEmpty(props)) {
 						this.column(name).value(val, props);
 					} else {
@@ -269,8 +288,14 @@ public class InsertStatement<S extends InsertStatement<S>> extends BaseStatement
 						continue;
 					}
 
-					if (columnPredicate.isIncludedEmptyColumn(name)) {
-						this.column(name, val);
+					// 其他情况，判断是否需要包含空值字段
+					if (include || columnPredicate.isIncludedEmptyColumn(name)
+						|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.includeEmpty())) {
+						if (Maps.isNotEmpty(props)) {
+							this.column(name).value(val, props);
+						} else {
+							this.column(name, val);
+						}
 					}
 				}
 			}

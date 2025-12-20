@@ -29,12 +29,13 @@ import io.polaris.core.lang.Objs;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.map.Maps;
 import io.polaris.core.string.Strings;
+import io.polaris.core.tuple.Ref;
 
 /**
  * @author Qt
  * @since Aug 20, 2023
  */
-@SuppressWarnings("unused")
+@SuppressWarnings("all")
 @AnnotationProcessing
 public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement<S> implements TableAccessible {
 
@@ -180,7 +181,6 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 	public S withEntity(Object entity, ColumnPredicate columnPredicate) {
 		TableMeta tableMeta = this.table.getTableMeta();
 		if (tableMeta != null) {
-			@SuppressWarnings("unchecked")
 			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
 				(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
 					? Beans.newBeanMap(entity, tableMeta.getEntityClass())
@@ -201,32 +201,55 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 				if (!columnPredicate.isIncludedColumn(name)) {
 					continue;
 				}
-				Object val = BindingValues.getValueForUpdate(meta, entityMap.get(meta.getFieldName()));
-				Map<String, String> props = meta.getProps();
+
+				Object val = entityMap.get(meta.getFieldName());
+				Map<String, String> props = null;
 				if (val instanceof VarRef) {
 					// 优先使用VarRef携带的参数属性
 					props = ((VarRef<?>) val).getProps();
 					val = ((VarRef<?>) val).getValue();
+				} else {
+					props = meta.getProps();
 				}
+
+				// 解构包装对象
+				boolean include = false;
+				if (val instanceof Ref) {
+					include = true;
+					val = ((Ref<?>) val).get();
+				}
+				val = Converters.convertQuietly(meta.getFieldType(), val);
+				val = BindingValues.getValueForUpdate(meta, val);
 				if (meta.isVersion()) {
 					val = val == null ? 1L : ((Number) val).longValue() + 1;
 				}
-				// 默认值SQL存在则使用
-				String updateDefaultSql = meta.getUpdateDefaultSql();
-				if (Strings.isNotBlank(updateDefaultSql)) {
-					this.column(name).rawValue(updateDefaultSql);
-					continue;
-				}
-
-				// 需要包含空值字段或非空值
-				boolean include = columnPredicate.isIncludedEmptyColumn(name) || SqlParamPredicate.instance().exists(val);
-				if (include) {
+				SqlParamPredicate.Result result = SqlParamPredicate.check(val);
+				// 非空值
+				if (result == SqlParamPredicate.Result.NONEMPTY) {
 					if (Maps.isNotEmpty(props)) {
 						this.column(name).value(val, props);
 					} else {
 						this.column(name, val);
 					}
+				} else {
+					// 默认值SQL存在则使用
+					String updateDefaultSql = meta.getUpdateDefaultSql();
+					if (Strings.isNotBlank(updateDefaultSql)) {
+						this.column(name).rawValue(updateDefaultSql);
+						continue;
+					}
+
+					// 其他情况，判断是否需要包含空值字段
+					if (include || columnPredicate.isIncludedEmptyColumn(name)
+						|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.includeEmpty())) {
+						if (Maps.isNotEmpty(props)) {
+							this.column(name).value(val, props);
+						} else {
+							this.column(name, val);
+						}
+					}
 				}
+
 			}
 		}
 		return getThis();
@@ -235,7 +258,6 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 	public S updateLogicDeletedWithEntity(Object entity) {
 		TableMeta tableMeta = this.table.getTableMeta();
 		if (tableMeta != null) {
-			@SuppressWarnings("unchecked")
 			Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
 				(tableMeta.getEntityClass().isAssignableFrom(entity.getClass())
 					? Beans.newBeanMap(entity, tableMeta.getEntityClass())
@@ -249,12 +271,14 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 				if (meta.isLogicDeleted()) {
 					val = Converters.convertQuietly(meta.getFieldType(), true);
 				} else if (meta.isUpdateTime() || meta.isVersion()) {
-					val = BindingValues.getValueForUpdate(meta, entityMap.get(meta.getFieldName()));
+					val = entityMap.get(meta.getFieldName());
 					if (val instanceof VarRef) {
 						// 优先使用VarRef携带的参数属性
 						props = ((VarRef<?>) val).getProps();
 						val = ((VarRef<?>) val).getValue();
 					}
+					val = Converters.convertQuietly(meta.getFieldType(), val);
+					val = BindingValues.getValueForUpdate(meta, val);
 					if (meta.isVersion()) {
 						val = val == null ? 1L : ((Number) val).longValue() + 1;
 					}
@@ -285,15 +309,9 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 				} else if (meta.isUpdateTime()) {
 					val = BindingValues.getValueForUpdate(meta, null);
 				}
-				Map<String, String> props = meta.getProps();
-				if (val instanceof VarRef) {
-					// 优先使用VarRef携带的参数属性
-					props = ((VarRef<?>) val).getProps();
-					val = ((VarRef<?>) val).getValue();
-				}
 				if (val != null) {
-					if (Maps.isNotEmpty(props)) {
-						this.column(name).value(val, props);
+					if (Maps.isNotEmpty(meta.getProps())) {
+						this.column(name).value(val, meta.getProps());
 					} else {
 						this.column(name, val);
 					}
