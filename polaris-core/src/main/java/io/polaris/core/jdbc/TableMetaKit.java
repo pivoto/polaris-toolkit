@@ -203,7 +203,7 @@ public class TableMetaKit {
 		return get(entityClass).getColumn(fieldName);
 	}
 
-	public <V> VarRef<V> getColumn(Class<?> entityClass, String fieldName, V value) {
+	public Object wrapColumn(Class<?> entityClass, String fieldName, Object value) {
 		return get(entityClass).wrapColumn(fieldName, value);
 	}
 
@@ -215,7 +215,7 @@ public class TableMetaKit {
 		return get(entityClass).getExpression(fieldName);
 	}
 
-	public <V> VarRef<V> getExpression(Class<?> entityClass, String fieldName, V value) {
+	public Object wrapExpression(Class<?> entityClass, String fieldName, Object value) {
 		return get(entityClass).wrapExpression(fieldName, value);
 	}
 

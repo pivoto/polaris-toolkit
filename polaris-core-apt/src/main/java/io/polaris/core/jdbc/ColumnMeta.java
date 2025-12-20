@@ -201,6 +201,20 @@ public final class ColumnMeta implements Cloneable, Copyable<ColumnMeta> {
 		return VarRef.of(value, props);
 	}
 
+	@SuppressWarnings("unchecked")
+	public <V> VarRef<V> wrap(V value, Map<String, String> varProps) {
+		if (value instanceof VarRef) {
+			Map<String, String> props = ((VarRef<?>) value).getProps();
+			if (!props.isEmpty()) {
+				return (VarRef<V>) value;
+			}
+		}
+		if (!varProps.isEmpty()) {
+			return VarRef.of(value, varProps);
+		}
+		return VarRef.of(value, props);
+	}
+
 	@Override
 	public ColumnMeta clone() {
 		try {

@@ -152,6 +152,20 @@ public final class ExpressionMeta implements Cloneable, Copyable<ExpressionMeta>
 		return VarRef.of(value, props);
 	}
 
+	@SuppressWarnings("unchecked")
+	public <V> VarRef<V> wrap(V value, Map<String, String> varProps) {
+		if (value instanceof VarRef) {
+			Map<String, String> props = ((VarRef<?>) value).getProps();
+			if (!props.isEmpty()) {
+				return (VarRef<V>) value;
+			}
+		}
+		if (!varProps.isEmpty()) {
+			return VarRef.of(value, varProps);
+		}
+		return VarRef.of(value, props);
+	}
+
 	@Override
 	public ExpressionMeta clone() {
 		try {
