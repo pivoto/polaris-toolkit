@@ -785,6 +785,9 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		return end();
 	}
 
+	/**
+	 * like 'value'
+	 */
 	public O like(String value, Predicate<String> predicate) {
 		if (predicate.test(value)) {
 			like(value);
@@ -792,9 +795,40 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		return end();
 	}
 
+	/**
+	 * like 'value'
+	 */
 	public O like(String value, boolean predicate) {
 		if (predicate) {
 			like(value);
+		}
+		return end();
+	}
+
+	/**
+	 * like 'value' escape 'x'
+	 */
+	public O like(String value, char escape) {
+		this.expression = new ExpressionSegment<>(this.expression, LogicalExpression.LIKE.getExpression(), value, escape);
+		return end();
+	}
+
+	/**
+	 * like 'value' escape 'x'
+	 */
+	public O like(String value, char escape, Predicate<String> predicate) {
+		if (predicate.test(value)) {
+			like(value, escape);
+		}
+		return end();
+	}
+
+	/**
+	 * like 'value' escape 'x'
+	 */
+	public O like(String value, char escape, boolean predicate) {
+		if (predicate) {
+			like(value, escape);
 		}
 		return end();
 	}
@@ -807,6 +841,9 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		return end();
 	}
 
+	/**
+	 * like '%value%'
+	 */
 	public O contains(String value, Predicate<String> predicate) {
 		if (predicate.test(value)) {
 			contains(value);
@@ -814,9 +851,40 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		return end();
 	}
 
+	/**
+	 * like '%value%'
+	 */
 	public O contains(String value, boolean predicate) {
 		if (predicate) {
 			contains(value);
+		}
+		return end();
+	}
+
+	/**
+	 * like '%value%' escape 'x'
+	 */
+	public O contains(String value, char escape) {
+		this.expression = new ExpressionSegment<>(this.expression, LogicalExpression.CONTAINS.getExpression(), value, escape);
+		return end();
+	}
+
+	/**
+	 * like '%value%' escape 'x'
+	 */
+	public O contains(String value, char escape, Predicate<String> predicate) {
+		if (predicate.test(value)) {
+			contains(value, escape);
+		}
+		return end();
+	}
+
+	/**
+	 * like '%value%' escape 'x'
+	 */
+	public O contains(String value, char escape, boolean predicate) {
+		if (predicate) {
+			contains(value, escape);
 		}
 		return end();
 	}
@@ -829,6 +897,9 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		return end();
 	}
 
+	/**
+	 * like 'value%'
+	 */
 	public O startsWith(String value, Predicate<String> predicate) {
 		if (predicate.test(value)) {
 			startsWith(value);
@@ -836,9 +907,40 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		return end();
 	}
 
+	/**
+	 * like 'value%'
+	 */
 	public O startsWith(String value, boolean predicate) {
 		if (predicate) {
 			startsWith(value);
+		}
+		return end();
+	}
+
+	/**
+	 * like 'value%' escape 'x'
+	 */
+	public O startsWith(String value, char escape) {
+		this.expression = new ExpressionSegment<>(this.expression, LogicalExpression.STARTS_WITH.getExpression(), value, escape);
+		return end();
+	}
+
+	/**
+	 * like 'value%' escape 'x'
+	 */
+	public O startsWith(String value, char escape, Predicate<String> predicate) {
+		if (predicate.test(value)) {
+			startsWith(value, escape);
+		}
+		return end();
+	}
+
+	/**
+	 * like 'value%' escape 'x'
+	 */
+	public O startsWith(String value, char escape, boolean predicate) {
+		if (predicate) {
+			startsWith(value, escape);
 		}
 		return end();
 	}
@@ -852,6 +954,9 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		return end();
 	}
 
+	/**
+	 * like 'value%'
+	 */
 	public O endsWith(String value, Predicate<String> predicate) {
 		if (predicate.test(value)) {
 			endsWith(value);
@@ -859,9 +964,40 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		return end();
 	}
 
+	/**
+	 * like 'value%'
+	 */
 	public O endsWith(String value, boolean predicate) {
 		if (predicate) {
 			endsWith(value);
+		}
+		return end();
+	}
+
+	/**
+	 * like 'value%' escape 'x'
+	 */
+	public O endsWith(String value, char escape) {
+		this.expression = new ExpressionSegment<>(this.expression, LogicalExpression.ENDS_WITH.getExpression(), value, escape);
+		return end();
+	}
+
+	/**
+	 * like 'value%' escape 'x'
+	 */
+	public O endsWith(String value, char escape, Predicate<String> predicate) {
+		if (predicate.test(value)) {
+			endsWith(value, escape);
+		}
+		return end();
+	}
+
+	/**
+	 * like 'value%' escape 'x'
+	 */
+	public O endsWith(String value, char escape, boolean predicate) {
+		if (predicate) {
+			endsWith(value, escape);
 		}
 		return end();
 	}
@@ -886,6 +1022,25 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		return end();
 	}
 
+	public O notLike(String value, char escape) {
+		this.expression = new ExpressionSegment<>(this.expression, LogicalExpression.NOT_LIKE.getExpression(), value, escape);
+		return end();
+	}
+
+	public O notLike(String value, char escape, Predicate<String> predicate) {
+		if (predicate.test(value)) {
+			notLike(value, escape);
+		}
+		return end();
+	}
+
+	public O notLike(String value, char escape, boolean predicate) {
+		if (predicate) {
+			notLike(value, escape);
+		}
+		return end();
+	}
+
 	public O notContains(String value) {
 		this.expression = new ExpressionSegment<>(this.expression, LogicalExpression.NOT_CONTAINS.getExpression(), value);
 		return end();
@@ -901,6 +1056,25 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 	public O notContains(String value, boolean predicate) {
 		if (predicate) {
 			notContains(value);
+		}
+		return end();
+	}
+
+	public O notContains(String value, char escape) {
+		this.expression = new ExpressionSegment<>(this.expression, LogicalExpression.NOT_CONTAINS.getExpression(), value, escape);
+		return end();
+	}
+
+	public O notContains(String value, char escape, Predicate<String> predicate) {
+		if (predicate.test(value)) {
+			notContains(value, escape);
+		}
+		return end();
+	}
+
+	public O notContains(String value, char escape, boolean predicate) {
+		if (predicate) {
+			notContains(value, escape);
 		}
 		return end();
 	}
@@ -924,6 +1098,25 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 		return end();
 	}
 
+	public O notStartsWith(String value, char escape) {
+		this.expression = new ExpressionSegment<>(this.expression, LogicalExpression.NOT_STARTS_WITH.getExpression(), value, escape);
+		return end();
+	}
+
+	public O notStartsWith(String value, char escape, Predicate<String> predicate) {
+		if (predicate.test(value)) {
+			notStartsWith(value, escape);
+		}
+		return end();
+	}
+
+	public O notStartsWith(String value, char escape, boolean predicate) {
+		if (predicate) {
+			notStartsWith(value, escape);
+		}
+		return end();
+	}
+
 	public O notEndsWith(String value) {
 		this.expression = new ExpressionSegment<>(this.expression, LogicalExpression.NOT_ENDS_WITH.getExpression(), value);
 		return end();
@@ -939,6 +1132,25 @@ public class CriterionSegment<O extends Segment<O>, S extends CriterionSegment<O
 	public O notEndsWith(String value, boolean predicate) {
 		if (predicate) {
 			notEndsWith(value);
+		}
+		return end();
+	}
+
+	public O notEndsWith(String value, char escape) {
+		this.expression = new ExpressionSegment<>(this.expression, LogicalExpression.NOT_ENDS_WITH.getExpression(), value, escape);
+		return end();
+	}
+
+	public O notEndsWith(String value, char escape, Predicate<String> predicate) {
+		if (predicate.test(value)) {
+			notEndsWith(value, escape);
+		}
+		return end();
+	}
+
+	public O notEndsWith(String value, char escape, boolean predicate) {
+		if (predicate) {
+			notEndsWith(value, escape);
 		}
 		return end();
 	}
