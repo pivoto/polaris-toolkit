@@ -16,6 +16,8 @@ import io.polaris.core.map.Maps;
  * @since Aug 22, 2023
  */
 public class LikeExpression extends BaseExpression {
+	public static final LikeExpression LIKE = new LikeExpression(false, false, false);
+	public static final LikeExpression NOT_LIKE = new LikeExpression(false, false, true);
 	public static final LikeExpression CONTAINS = new LikeExpression(true, true, false);
 	public static final LikeExpression STARTS_WITH = new LikeExpression(true, false, false);
 	public static final LikeExpression ENDS_WITH = new LikeExpression(false, true, false);
@@ -32,48 +34,101 @@ public class LikeExpression extends BaseExpression {
 		this.not = not;
 	}
 
-	private ContainerNode bind(SqlNode baseSource, SqlNode[] extSources, Supplier<Object> getter) {
+	private ContainerNode bind(SqlNode baseSource, SqlNode[] extSources, Supplier<Binding> getter) {
 		ContainerNode container = new ContainerNode();
 		container.addNode(baseSource);
 		if (not) {
 			container.addNode(SqlNodes.NOT);
 		}
 		container.addNode(SqlNodes.LIKE);
+
 		DynamicNode varNode = new DynamicNode(nextVarName());
 
-		StringBuilder val = new StringBuilder();
+		StringBuilder varStr = new StringBuilder();
+		Binding bindings = getter.get();
+		Character escape = bindings.escape;
+
 		Map<String, String> varProps = null;
-		Object obj = getter.get();
+		Object obj = bindings.value;
 		if (obj instanceof VarRef) {
 			varProps = ((VarRef<?>) obj).getProps();
-			val.append(((VarRef<?>) obj).getValue());
+			varStr.append(((VarRef<?>) obj).getValue());
 		} else {
-			val.append(obj);
+			varStr.append(obj);
 		}
-		if (leftFuzzy && (val.length() == 0 || val.charAt(0) != '%')) {
-			val.insert(0, '%');
+		if (leftFuzzy && (varStr.length() == 0 || varStr.charAt(0) != '%')) {
+			varStr.insert(0, '%');
 		}
-		if (rightFuzzy && (val.length() == 0 || val.charAt(val.length() - 1) != '%')) {
-			val.append('%');
+		if (rightFuzzy && (varStr.length() == 0 || varStr.charAt(varStr.length() - 1) != '%')) {
+			varStr.append('%');
 		}
 		if (Maps.isNotEmpty(varProps)) {
-			varNode.bindVarValue(VarRef.of(val.toString(), varProps));
+			varNode.bindVarValue(VarRef.of(varStr.toString(), varProps));
 		} else {
-			varNode.bindVarValue(val.toString());
+			varNode.bindVarValue(varStr.toString());
 		}
 		container.addNode(varNode);
+		if (escape != null) {
+			container.addNode(SqlNodes.ESCAPE);
+			container.addNode(SqlNodes.text("'" + escape + "'"));
+		}
 		return container;
 	}
 
 	@Override
 	protected FunctionWithArgs3<SqlNode, SqlNode[], Object[], ContainerNode> buildArrayFunction() {
 		return (baseSource, extSources, bindings) -> bind(baseSource, extSources,
-			() -> (CharSequence) (bindings == null || bindings.length == 0 ? null : bindings[0]));
+			() -> {
+				Binding target = new Binding();
+				if (bindings != null) {
+					if (bindings.length >= 1) {
+						target.value = bindings[0];
+					}
+					if (bindings.length >= 2) {
+						if (bindings[1] instanceof Character) {
+							target.escape = (Character) bindings[1];
+						}
+					}
+				}
+				return target;
+			});
 	}
 
 	@Override
 	protected FunctionWithArgs3<SqlNode, SqlNode[], Map<String, Object>, ContainerNode> buildMapFunction() {
 		return (baseSource, extSources, bindings) -> bind(baseSource, extSources,
-			() -> (CharSequence) (bindings == null || bindings.isEmpty() ? null : bindings.values().iterator().next()));
+			() -> {
+				Binding target = new Binding();
+				if (bindings != null) {
+					int size = bindings.size();
+					if (size == 1) {
+						target.value = bindings.values().iterator().next();
+					} else {
+						int i = 0;
+						for (Object o : bindings.values()) {
+							if (i >= 2) {
+								break;
+							}
+							if (o instanceof Character) {
+								if (target.escape == null) {
+									target.escape = (Character) o;
+									i++;
+								}
+							} else {
+								if (target.value == null) {
+									target.value = o;
+									i++;
+								}
+							}
+						}
+					}
+				}
+				return target;
+			});
+	}
+
+	private static class Binding {
+		private Object value;
+		private Character escape;
 	}
 }

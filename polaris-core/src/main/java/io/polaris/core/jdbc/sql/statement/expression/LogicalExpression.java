@@ -34,15 +34,8 @@ public enum LogicalExpression implements Expression {
 	NOT_STARTS_WITH(LikeExpression.NOT_STARTS_WITH),
 	NOT_ENDS_WITH(LikeExpression.NOT_ENDS_WITH),
 
-//	CONTAINS(Expressions.pattern("${ref} LIKE '%${0}%'")),
-//	STARTS_WITH(Expressions.pattern("${ref} LIKE '${0}%'")),
-//	ENDS_WITH(Expressions.pattern("${ref} LIKE '%${0}'")),
-//	NOT_CONTAINS(Expressions.pattern("${ref} NOT LIKE '%${0}%'")),
-//	NOT_STARTS_WITH(Expressions.pattern("${ref} NOT LIKE '${0}%'")),
-//	NOT_ENDS_WITH(Expressions.pattern("${ref} NOT LIKE '%${0}'")),
-
-	LIKE(Expressions.pattern("${ref} LIKE #{0}")),
-	NOT_LIKE(Expressions.pattern("${ref} NOT LIKE #{0}")),
+	LIKE(LikeExpression.LIKE),
+	NOT_LIKE(LikeExpression.NOT_LIKE),
 
 
 	EXISTS(Expressions.pattern("EXISTS ( ${0} )")),
