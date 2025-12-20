@@ -24,6 +24,10 @@ public abstract class AbstractSimpleConverter<T> extends AbstractConverter<T> {
 	protected final <S> T doConvert(@Nonnull S value, JavaType<T> targetType, JavaType<S> sourceType) {
 		Object obj = value;
 		while (true) {
+			if (targetType.getRawType() instanceof Class && targetType.isInstance(obj)) {
+				// 无泛型且类型匹配
+				return targetType.cast(obj);
+			}
 			if (obj instanceof Optional) {
 				obj = ((Optional<?>) obj).orElse(null);
 				continue;

@@ -43,7 +43,7 @@ public abstract class AbstractConverter<T> implements Converter<T> {
 
 
 	@SuppressWarnings("unchecked")
-	public final <S> T convert(JavaType<S> valueType, S value) {
+	protected final <S> T convert(JavaType<S> valueType, S value) {
 		if (value == null) {
 			Class<S> rawClass = valueType.getRawClass();
 			if (rawClass.isPrimitive()) {
