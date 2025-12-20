@@ -113,12 +113,11 @@ public class BindingValues {
 	/**
 	 * 提取日期范围的查询条件，值对象必须是两个元素的数组或集合，且不能都是空元素。
 	 * 存在则返回两元素数组，否则返回Null
+	 *
+	 * 注意：参数值不为VarRef或Ref包装类型，需要在外部解构处理
 	 */
 	@Nullable
 	public static Date[] getDateRangeOrNull(Object val) {
-		if (val instanceof VarRef) {
-			val = ((VarRef<?>) val).getValue();
-		}
 		Date[] range = new Date[2];
 		// 两个元素的日期类字段特殊处理，认为是日期范围条件
 		Object[] couple = new Object[2];
