@@ -26,6 +26,7 @@ import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
 import io.polaris.core.jdbc.sql.node.TextNode;
+import io.polaris.core.jdbc.sql.query.StringValue;
 import io.polaris.core.jdbc.sql.query.ValueRange;
 import io.polaris.core.jdbc.sql.statement.BaseSegment;
 import io.polaris.core.jdbc.sql.statement.ColumnPredicate;
@@ -37,6 +38,7 @@ import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.map.Maps;
 import io.polaris.core.reflect.GetterFunction;
 import io.polaris.core.reflect.Reflects;
+import io.polaris.core.tuple.Ref;
 
 /**
  * @author Qt
@@ -128,7 +130,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 		return containerNode;
 	}
 
-	public S exceptLogicDeleted(){
+	public S exceptLogicDeleted() {
 		TableMeta tableMeta = table.getTableMeta();
 		if (tableMeta != null) {
 			tableMeta.getColumns().values().stream()
@@ -141,7 +143,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 		return getThis();
 	}
 
-	public S exceptLogicDeleted(boolean includeSelf, boolean includeJoins, boolean includeSubSelects){
+	public S exceptLogicDeleted(boolean includeSelf, boolean includeJoins, boolean includeSubSelects) {
 		if (includeSubSelects) {
 			recursiveSubSelectsExceptLogicDeleted(includeSelf, includeJoins, includeSubSelects);
 		}
@@ -151,7 +153,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 		return getThis();
 	}
 
-	void recursiveSubSelectsExceptLogicDeleted(boolean includeSelf, boolean includeJoins, boolean includeSubSelects){
+	void recursiveSubSelectsExceptLogicDeleted(boolean includeSelf, boolean includeJoins, boolean includeSubSelects) {
 		for (CriterionSegment<S, ?> criterion : this.criteria) {
 			criterion.recursiveSubSelectsExceptLogicDeleted(includeSelf, includeJoins, includeSubSelects);
 		}
@@ -206,31 +208,55 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 
 	private void addWhereSqlByColumnValue(String fieldName, Class<?> fieldType, VarRef<?> varRef, ColumnPredicate columnPredicate) {
 		Object val = varRef.getValue();
-		Map<String, String> varProps = varRef.getPropsIfNotEmpty();
+		Map<String, String> props = varRef.getPropsIfNotEmpty();
 
-		if (SqlParamPredicate.instance().notExists(val)) {
-			// 需要包含空值字段
-			if (columnPredicate.isIncludedEmptyColumn(fieldName)) {
-				this.column(fieldName).isNull();
+		// 先进行空值判定，处理空值情况
+		{
+			// 解构包装对象
+			boolean include = false;
+			if (val instanceof Ref) {
+				include = true;
+				val = ((Ref<?>) val).get();
 			}
-			// 完成条件绑定
-			return;
+			SqlParamPredicate.Result result = SqlParamPredicate.check(val);
+			// 处理空值情况
+			if (result != SqlParamPredicate.Result.NONEMPTY) {
+				// 需要包含空值字段
+				if (include || columnPredicate.isIncludedEmptyColumn(fieldName)
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.includeEmpty())) {
+					if (result == SqlParamPredicate.Result.EMPTY && !SqlParamPredicate.emptyAsNull()) {
+						if (props != null) {
+							this.column(fieldName).eq(BindingValues.convert(fieldType, val, props));
+						} else {
+							this.column(fieldName).eq(BindingValues.convert(fieldType, val));
+						}
+					} else {
+						this.column(fieldName).isNull();
+					}
+				}
+				// 完成条件绑定
+				return;
+			}
 		}
+
+		// 以下为非空值情况
+		assert val != null;
 
 		// 日期字段
 		if (Date.class.isAssignableFrom(fieldType)) {
 			Date[] range = BindingValues.getDateRangeOrNull(val);
 			if (range != null) {
+				// 两个元素的日期类字段特殊处理，认为是日期范围条件
 				if (range[0] != null) {
-					if (varProps != null) {
-						this.column(fieldName).ge(VarRef.of(range[0], varProps));
+					if (props != null) {
+						this.column(fieldName).ge(VarRef.of(range[0], props));
 					} else {
 						this.column(fieldName).ge(range[0]);
 					}
 				}
 				if (range[1] != null) {
-					if (varProps != null) {
-						this.column(fieldName).ge(VarRef.of(range[1], varProps));
+					if (props != null) {
+						this.column(fieldName).le(VarRef.of(range[1], props));
 					} else {
 						this.column(fieldName).le(range[1]);
 					}
@@ -240,7 +266,36 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 			}
 		}
 		// 文本字段
-		else if (String.class.isAssignableFrom(fieldType)) {
+		else if (String.class == fieldType) {
+			if (val instanceof StringValue) {
+				boolean like = ((StringValue) val).isLike();
+				char escape = ((StringValue) val).getEscape();
+				String str = ((StringValue) val).getValue();
+				if (str == null) {
+					this.column(fieldName).isNull();
+				} else if (str.isEmpty() && SqlParamPredicate.emptyAsNull()) {
+					this.column(fieldName).isNull();
+				} else {
+					if (like) {
+						// 判断escape是否是可见ascii字符
+						if (escape > 0 && escape < 128) {
+							// like 不需要VarRef附加属性
+							this.column(fieldName).like(str, escape);
+						} else {
+							// like 不需要VarRef附加属性
+							this.column(fieldName).like(str);
+						}
+					} else {
+						if (props != null) {
+							this.column(fieldName).eq(VarRef.of(str, props));
+						} else {
+							this.column(fieldName).eq(str);
+						}
+					}
+				}
+				// 完成条件绑定
+				return;
+			}
 			if (val instanceof String && (((String) val).startsWith("%") || ((String) val).endsWith("%"))) {
 				// like 不需要VarRef附加属性
 				this.column(fieldName).like((String) val);
@@ -252,55 +307,69 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 		// 尚未绑定条件，考虑其他情况
 		if (val instanceof ValueRange) {
 			ValueRange<?> range = (ValueRange<?>) val;
-			Object start = range.getStart();
-			Object end = range.getEnd();
-			if (SqlParamPredicate.instance().exists(start)) {
-				if (varProps != null) {
-					this.column(fieldName).ge(VarRef.of(start, varProps));
-				} else {
-					this.column(fieldName).ge((start));
+			{
+				Object start = range.getStart();
+				SqlParamPredicate.Result result = SqlParamPredicate.check(start);
+				if (result == SqlParamPredicate.Result.NONEMPTY
+					|| (result == SqlParamPredicate.Result.EMPTY && !SqlParamPredicate.emptyAsNull())) {
+					start = Converters.convertQuietly(fieldType, start);
+					if (start != null) {
+						if (props != null) {
+							this.column(fieldName).ge(VarRef.of(start, props));
+						} else {
+							this.column(fieldName).ge((start));
+						}
+					}
 				}
 			}
-			if (SqlParamPredicate.instance().exists(end)) {
-				if (varProps != null) {
-					this.column(fieldName).le(VarRef.of(end, varProps));
-				} else {
-					this.column(fieldName).le(end);
+			{
+				Object end = range.getEnd();
+				SqlParamPredicate.Result result = SqlParamPredicate.check(end);
+				if (result == SqlParamPredicate.Result.NONEMPTY
+					|| (result == SqlParamPredicate.Result.EMPTY && !SqlParamPredicate.emptyAsNull())) {
+					end = Converters.convertQuietly(fieldType, end);
+					if (end != null) {
+						if (props != null) {
+							this.column(fieldName).le(VarRef.of(end, props));
+						} else {
+							this.column(fieldName).le(end);
+						}
+					}
 				}
 			}
 		} else if (val instanceof Collection) {
 			List<Object> list = new ArrayList<>((Collection<?>) val);
-			if (varProps != null) {
-				this.column(fieldName).in(convertListElements(list, o -> BindingValues.convert(fieldType, o, varProps)));
+			if (props != null) {
+				this.column(fieldName).in(convertListElements(list, o -> BindingValues.convert(fieldType, o, props)));
 			} else {
 				this.column(fieldName).in(convertListElements(list, o -> BindingValues.convert(fieldType, o)));
 			}
 		} else if (val instanceof Iterable) {
 			@SuppressWarnings("unchecked")
 			List<Object> list = Iterables.asCollection(ArrayList::new, (Iterable<Object>) val);
-			if (varProps != null) {
-				this.column(fieldName).in(convertListElements(list, o -> BindingValues.convert(fieldType, o, varProps)));
+			if (props != null) {
+				this.column(fieldName).in(convertListElements(list, o -> BindingValues.convert(fieldType, o, props)));
 			} else {
 				this.column(fieldName).in(convertListElements(list, o -> BindingValues.convert(fieldType, o)));
 			}
 		} else if (val instanceof Iterator) {
 			@SuppressWarnings("unchecked")
 			List<Object> list = Iterables.asCollection(ArrayList::new, (Iterator<Object>) val);
-			if (varProps != null) {
-				this.column(fieldName).in(convertListElements(list, o -> BindingValues.convert(fieldType, o, varProps)));
+			if (props != null) {
+				this.column(fieldName).in(convertListElements(list, o -> BindingValues.convert(fieldType, o, props)));
 			} else {
 				this.column(fieldName).in(convertListElements(list, o -> BindingValues.convert(fieldType, o)));
 			}
 		} else if (val.getClass().isArray()) {
 			List<Object> list = ObjectArrays.toList(val);
-			if (varProps != null) {
-				this.column(fieldName).in(convertListElements(list, o -> BindingValues.convert(fieldType, o, varProps)));
+			if (props != null) {
+				this.column(fieldName).in(convertListElements(list, o -> BindingValues.convert(fieldType, o, props)));
 			} else {
 				this.column(fieldName).in(convertListElements(list, o -> BindingValues.convert(fieldType, o)));
 			}
 		} else {
-			if (varProps != null) {
-				this.column(fieldName).eq(BindingValues.convert(fieldType, val, varProps));
+			if (props != null) {
+				this.column(fieldName).eq(BindingValues.convert(fieldType, val, props));
 			} else {
 				this.column(fieldName).eq(BindingValues.convert(fieldType, val));
 			}
@@ -329,10 +398,18 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 				ColumnMeta meta = entry.getValue();
 				if (meta.isPrimaryKey()) {
 					Object val = entityMap.get(name);
+					Map<String, String> props = null;
+					if (val instanceof VarRef) {
+						props = ((VarRef<?>) val).getProps();
+						val = ((VarRef<?>) val).getValue();
+					}
+					val = Converters.convertQuietly(meta.getFieldType(), val);
 					if (val == null) {
 						this.column(name).isNull();
 					} else {
-						if (Maps.isNotEmpty(meta.getProps())) {
+						if (Maps.isNotEmpty(props)) {
+							this.column(name).eq(VarRef.of(val, props));
+						} else if (Maps.isNotEmpty(meta.getProps())) {
 							this.column(name).eq(meta.wrap(val));
 						} else {
 							this.column(name).eq(val);
@@ -357,10 +434,18 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 				ColumnMeta meta = entry.getValue();
 				if (meta.isPrimaryKey() || meta.isVersion()) {
 					Object val = entityMap.get(name);
+					Map<String, String> props = null;
+					if (val instanceof VarRef) {
+						props = ((VarRef<?>) val).getProps();
+						val = ((VarRef<?>) val).getValue();
+					}
+					val = Converters.convertQuietly(meta.getFieldType(), val);
 					if (val == null) {
 						this.column(name).isNull();
 					} else {
-						if (Maps.isNotEmpty(meta.getProps())) {
+						if (Maps.isNotEmpty(props)) {
+							this.column(name).eq(VarRef.of(val, props));
+						} else if (Maps.isNotEmpty(meta.getProps())) {
 							this.column(name).eq(meta.wrap(val));
 						} else {
 							this.column(name).eq(val);
