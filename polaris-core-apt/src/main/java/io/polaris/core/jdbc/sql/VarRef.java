@@ -31,6 +31,7 @@ public class VarRef<T> implements Copyable<VarRef<T>> {
 	@SuppressWarnings("unchecked")
 	public static <T> VarRef<T> of(T value) {
 		if (value instanceof VarRef) {
+			// 递归处理，解析VarRef
 			T v = (T) (((VarRef<?>) value).value);
 			Map<String, String> props = ((VarRef<?>) value).props;
 			return of(v, props);
@@ -41,6 +42,7 @@ public class VarRef<T> implements Copyable<VarRef<T>> {
 	@SuppressWarnings("unchecked")
 	public static <T> VarRef<T> of(T value, Map<String, String> props) {
 		if (value instanceof VarRef) {
+			// 递归处理，解析VarRef
 			value = (T) (((VarRef<?>) value).getValue());
 			return of(value, props);
 		}
