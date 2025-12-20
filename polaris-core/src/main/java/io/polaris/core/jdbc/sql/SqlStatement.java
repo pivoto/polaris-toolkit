@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import io.polaris.core.consts.SymbolConsts;
+import io.polaris.core.jdbc.sql.node.SqlNodes;
 import io.polaris.core.string.Strings;
 
 /**
@@ -246,7 +247,7 @@ public class SqlStatement {
 	private void sqlInsert(StringBuilder builder) {
 		if (!tables.isEmpty()) {
 			if (builder.length() > 0) {
-				builder.append("\n");
+				builder.append(SqlNodes.LF.getText());
 			}
 			builder.append("INSERT INTO ");
 			for (int i = 0; i < tables.size(); i++) {
@@ -259,7 +260,7 @@ public class SqlStatement {
 	private void sqlColumns(StringBuilder builder) {
 		if (!columns.isEmpty()) {
 			if (builder.length() > 0) {
-				builder.append("\n");
+				builder.append(SqlNodes.LF.getText());
 			}
 			builder.append("(");
 			for (int i = 0; i < columns.size(); i++) {
@@ -276,7 +277,7 @@ public class SqlStatement {
 	private void sqlValues(StringBuilder builder) {
 		if (!values.isEmpty()) {
 			if (builder.length() > 0) {
-				builder.append("\n");
+				builder.append(SqlNodes.LF.getText());
 			}
 			builder.append("VALUES (");
 			for (int i = 0; i < values.size(); i++) {
@@ -293,7 +294,7 @@ public class SqlStatement {
 	private void sqlDelete(StringBuilder builder) {
 		if (!tables.isEmpty()) {
 			if (builder.length() > 0) {
-				builder.append("\n");
+				builder.append(SqlNodes.LF.getText());
 			}
 			builder.append("DELETE FROM ");
 			for (int i = 0; i < tables.size(); i++) {
@@ -306,7 +307,7 @@ public class SqlStatement {
 	private void sqlUpdate(StringBuilder builder) {
 		if (!tables.isEmpty()) {
 			if (builder.length() > 0) {
-				builder.append("\n");
+				builder.append(SqlNodes.LF.getText());
 			}
 			builder.append("UPDATE ");
 			for (int i = 0; i < tables.size(); i++) {
@@ -319,7 +320,7 @@ public class SqlStatement {
 	private void sqlSet(StringBuilder builder) {
 		if (!sets.isEmpty()) {
 			if (builder.length() > 0) {
-				builder.append("\n");
+				builder.append(SqlNodes.LF.getText());
 			}
 			builder.append("SET");
 			for (int i = 0; i < sets.size(); i++) {
@@ -335,7 +336,7 @@ public class SqlStatement {
 	private void sqlSelect(StringBuilder builder) {
 		if (!select.isEmpty()) {
 			if (builder.length() > 0) {
-				builder.append("\n");
+				builder.append(SqlNodes.LF.getText());
 			}
 			builder.append("SELECT");
 			if (distinct) {
@@ -354,7 +355,7 @@ public class SqlStatement {
 	private void sqlFrom(StringBuilder builder) {
 		if (!tables.isEmpty()) {
 			if (builder.length() > 0) {
-				builder.append("\n");
+				builder.append(SqlNodes.LF.getText());
 			}
 			builder.append("FROM");
 			for (int i = 0; i < tables.size(); i++) {
@@ -371,7 +372,7 @@ public class SqlStatement {
 		if (!joins.isEmpty()) {
 			for (Join join : joins) {
 				if (builder.length() > 0) {
-					builder.append("\n");
+					builder.append(SqlNodes.LF.getText());
 				}
 				builder.append(join.toSqlString());
 			}
@@ -381,9 +382,9 @@ public class SqlStatement {
 
 	private void sqlWhere(StringBuilder builder) {
 		String whereString = where.toSqlString();
-		if (whereString.length() > 0) {
+		if (!whereString.isEmpty()) {
 			if (builder.length() > 0) {
-				builder.append("\n");
+				builder.append(SqlNodes.LF.getText());
 			}
 			builder.append("WHERE ").append(whereString);
 		}
@@ -392,7 +393,7 @@ public class SqlStatement {
 	private void sqlGroupBy(StringBuilder builder) {
 		if (!groupBy.isEmpty()) {
 			if (builder.length() > 0) {
-				builder.append("\n");
+				builder.append(SqlNodes.LF.getText());
 			}
 			builder.append("GROUP BY");
 			for (int i = 0; i < groupBy.size(); i++) {
@@ -407,9 +408,9 @@ public class SqlStatement {
 
 	private void sqlHaving(StringBuilder builder) {
 		String whereString = having.toSqlString();
-		if (whereString.length() > 0) {
+		if (!whereString.isEmpty()) {
 			if (builder.length() > 0) {
-				builder.append("\n");
+				builder.append(SqlNodes.LF.getText());
 			}
 			builder.append("HAVING ").append(whereString);
 		}
@@ -418,7 +419,7 @@ public class SqlStatement {
 	private void sqlOrderBy(StringBuilder builder) {
 		if (!orderBy.isEmpty()) {
 			if (builder.length() > 0) {
-				builder.append("\n");
+				builder.append(SqlNodes.LF.getText());
 			}
 			builder.append("ORDER BY");
 			for (int i = 0; i < orderBy.size(); i++) {
@@ -464,7 +465,7 @@ public class SqlStatement {
 			StringBuilder sb = new StringBuilder();
 			sb.append(conjunction).append(" ").append(table);
 			String onSqlString = on.toSqlString();
-			if (onSqlString.length() > 0) {
+			if (!onSqlString.isEmpty()) {
 				sb.append(" ON ").append(onSqlString);
 			}
 			return sb.toString();
