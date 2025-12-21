@@ -1,5 +1,20 @@
 ## 版本变更说明
 
+### 3.6.1
+- 优化 SqlParamPredicate 中空值判断逻辑
+- 优化全局环境属性配置绑定逻辑并新增标准配置类
+- 新增StringValue类，支持字符串值封装及转义和模糊匹配属性，添加转换器支持
+- 优化Queries工具类操作符和条件查询构建逻辑，支持Ref包装类型参数解构，根据参数类型和内容优化字符串条件的拼装，增强对空字符串和NULL值条件的处理逻辑，支持LIKE条件的转义字符处理
+- 优化类型转换器基础方法的访问权限和类型匹配逻辑
+- 优化SQL元数据列和表达式包装方法的实现
+- 为 BindingKeys 类中绑定参数常量定义增加注释说明
+- 优化LikeExpression支持转义字符参数， LogicalExpression中改为引用LikeExpression的静态实例替代字符串模板
+- CriterionSegment 增加带转义字符和条件判断的 like 相关方法
+- 优化 WhereSegment 条件绑定处理逻辑，统一处理空值判定，支持 Ref 包装对象的解构，StringValue 类型的 like 和转义支持
+- 优化InsertStatement、UpdateStatement、MergeStatement 的参数处理逻辑，统一处理空值判定，支持Ref包装解构
+- 优化SqlStatements中参数解构逻辑与判空机制
+- 优化 MybatisToolkit 游标迭代访问方法，支持最大迭代行数参数
+
 ### 3.6.0
 - InsertStatement支持使用子查询插入数据
 - 修复代码生成器并发处理中的计数器未递减问题
