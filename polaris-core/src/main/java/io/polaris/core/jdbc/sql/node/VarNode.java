@@ -10,6 +10,7 @@ import java.util.RandomAccess;
 
 import io.polaris.core.consts.SymbolConsts;
 import io.polaris.core.jdbc.sql.VarRef;
+import io.polaris.core.tuple.Ref;
 
 /**
  * @author Qt
@@ -77,6 +78,11 @@ public abstract class VarNode implements SqlNode {
 	private void addVarValuesToList(Object varValue, List<Object> list, VarRef<?> origVar) {
 		if (varValue == null) {
 			list.add(null);
+			return;
+		}
+		// 解构Ref
+		if (varValue instanceof Ref){
+			addVarValuesToList(((Ref<?>) varValue).get(), list, origVar);
 			return;
 		}
 		if (varValue instanceof List && varValue instanceof RandomAccess) {
