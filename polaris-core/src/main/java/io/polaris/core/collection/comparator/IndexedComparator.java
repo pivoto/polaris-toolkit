@@ -13,10 +13,12 @@ public class IndexedComparator<T> implements Comparator<T> {
 	private final boolean atEndIfMiss;
 	private final T[] array;
 
+	@SafeVarargs
 	public IndexedComparator(T... objs) {
 		this(false, objs);
 	}
 
+	@SafeVarargs
 	public IndexedComparator(boolean atEndIfMiss, T... objs) {
 		Assertions.assertNotNull(objs, "'objs' array must not be null");
 		this.atEndIfMiss = atEndIfMiss;

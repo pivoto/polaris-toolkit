@@ -1,5 +1,6 @@
 package io.polaris.core.collection.comparator;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.function.Function;
@@ -14,9 +15,88 @@ public class Comparators {
 	 *
 	 * @return 默认排序器
 	 */
-	@SuppressWarnings("unchecked")
-	public static Comparator<?> naturalComparator() {
-		return NaturalComparator.INSTANCE;
+	public static <T extends Comparable<? super T>> Comparator<T> natural() {
+		return Comparator.naturalOrder();
+	}
+
+	/**
+	 * 返回指定比较器的逆序比较器
+	 *
+	 * @param <T> 被比较对象类型
+	 * @param cmp 原始比较器
+	 * @return 逆序比较器
+	 */
+	public static <T> Comparator<T> reverse(Comparator<T> cmp) {
+		return Collections.reverseOrder(cmp);
+	}
+
+	/**
+	 * 返回一个将null值排在前面的比较器
+	 *
+	 * @param <T>        被比较对象类型
+	 * @param comparator 原始比较器
+	 * @return 将null值排在前面的比较器
+	 */
+	public static <T> Comparator<T> nullsFirst(Comparator<? super T> comparator) {
+		return Comparator.nullsFirst(comparator);
+	}
+
+	/**
+	 * 返回一个将null值排在后面的比较器
+	 *
+	 * @param <T>        被比较对象类型
+	 * @param comparator 原始比较器
+	 * @return 将null值排在后面的比较器
+	 */
+	public static <T> Comparator<T> nullsLast(Comparator<? super T> comparator) {
+		return Comparator.nullsLast(comparator);
+	}
+
+	/**
+	 * 获取字符串比较器，null值排在前面且短字符串排在前面
+	 *
+	 * @return 字符串比较器
+	 */
+	public static Comparator<String> nullsFirstShortFirst() {
+		return StringComparator.nullsFirstShortFirst();
+	}
+
+	/**
+	 * 获取字符串比较器，null值排在前面且短字符串排在后面
+	 *
+	 * @return 字符串比较器
+	 */
+	public static Comparator<String> nullsFirstShortLast() {
+		return StringComparator.nullsFirstShortLast();
+	}
+
+	/**
+	 * 获取字符串比较器，null值排在后面且短字符串排在前面
+	 *
+	 * @return 字符串比较器
+	 */
+	public static Comparator<String> nullsLastShortFirst() {
+		return StringComparator.nullsLastShortFirst();
+	}
+
+	/**
+	 * 获取字符串比较器，null值排在后面且短字符串排在后面
+	 *
+	 * @return 字符串比较器
+	 */
+	public static Comparator<String> nullsLastShortLast() {
+		return StringComparator.nullsLastShortLast();
+	}
+
+	/**
+	 * 根据参数获取字符串比较器
+	 *
+	 * @param nullsFirst  null值是否排在前面
+	 * @param shortFirst  短字符串是否排在前面
+	 * @return 字符串比较器
+	 */
+	public static Comparator<String> stringComparator(boolean nullsFirst, boolean shortFirst) {
+		return new StringComparator(nullsFirst, shortFirst);
 	}
 
 	/**
