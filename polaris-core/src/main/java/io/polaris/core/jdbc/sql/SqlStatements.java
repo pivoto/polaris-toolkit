@@ -296,7 +296,8 @@ public class SqlStatements {
 				if (val instanceof Ref) {
 					val = ((Ref<?>) val).get();
 				}
-				val = val == null ? 1L : ((Number) Converters.convertQuietly(Number.class, val)).longValue() + 1;
+				val = Converters.convertQuietly(meta.getFieldType(), val);
+				val = val == null ? 1L : ((Number) val).longValue() + 1;
 			}
 			// 只更新逻辑删除、更新时间、版本等字段，不需要再次判空
 			if (val != null) {
