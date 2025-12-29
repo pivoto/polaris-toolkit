@@ -1,7 +1,6 @@
 package io.polaris.core.reflect;
 
 import java.io.Serializable;
-import java.util.concurrent.Callable;
 
 import io.polaris.core.function.CallableWithArgs1;
 
@@ -9,5 +8,5 @@ import io.polaris.core.function.CallableWithArgs1;
  * @author Qt
  */
 @FunctionalInterface
-public interface SerializableCallableWithArgs1<V, T> extends CallableWithArgs1<V, T>, Serializable, MethodReferenceReflection {
+public interface SerializableCallableWithArgs1<T, V> extends CallableWithArgs1<T, V>, Serializable, MethodReferenceReflection {
 }

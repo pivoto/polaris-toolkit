@@ -2,12 +2,11 @@ package io.polaris.core.reflect;
 
 import java.io.Serializable;
 
-import io.polaris.core.function.CallableWithArgs3;
 import io.polaris.core.function.CallableWithArgs4;
 
 /**
  * @author Qt
  */
 @FunctionalInterface
-public interface SerializableCallableWithArgs4<V, A, B, C, D> extends CallableWithArgs4<V, A, B, C, D>, Serializable, MethodReferenceReflection {
+public interface SerializableCallableWithArgs4<A, B, C, D, V> extends CallableWithArgs4<A, B, C, D, V>, Serializable, MethodReferenceReflection {
 }
