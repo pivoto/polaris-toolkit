@@ -214,6 +214,10 @@ public class ConverterRegistry {
 			return (T) value;
 		}
 
+		if (value instanceof Convertable){
+			return ((Convertable) value).to(type);
+		}
+
 		Converter<T> converter = getConverter(type);
 		if (converter != null) {
 			return converter.convertOrDefault(valueType, value, defaultValue);
