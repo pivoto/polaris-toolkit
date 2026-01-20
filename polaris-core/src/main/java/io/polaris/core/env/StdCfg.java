@@ -3,6 +3,7 @@ package io.polaris.core.env;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.polaris.core.annotation.Remarks;
 import io.polaris.core.consts.StdKeys;
 import io.polaris.core.log.Level;
 import lombok.Data;
@@ -13,6 +14,7 @@ import org.apache.tools.ant.taskdefs.condition.Os;
  * @since Dec 20, 2025
  */
 @Data
+@Remarks("工具库标准属性配置类，绑定 polaris.* 配置项")
 public class StdCfg {
 	private static volatile StdCfg instance;
 
