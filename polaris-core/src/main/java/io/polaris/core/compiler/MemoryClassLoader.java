@@ -2,6 +2,7 @@ package io.polaris.core.compiler;
 
 
 import io.polaris.core.consts.StdKeys;
+import io.polaris.core.env.GlobalStdEnv;
 import io.polaris.core.io.IO;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
@@ -44,7 +45,7 @@ public class MemoryClassLoader extends URLClassLoader {
 		}
 	}
 	static{
-		String tmpdir = System.getProperty(StdKeys.BYTECODE_GENERATOR_TMPDIR);
+		String tmpdir = GlobalStdEnv.get(StdKeys.BYTECODE_GENERATOR_TMPDIR);
 		if (Strings.isNotBlank(tmpdir)){
 			File dir = new File(tmpdir.trim());
 			if (!dir.exists()){
