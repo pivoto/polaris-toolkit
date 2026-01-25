@@ -1,6 +1,5 @@
 package io.polaris.mybatis.interceptor;
 
-import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
 /**
