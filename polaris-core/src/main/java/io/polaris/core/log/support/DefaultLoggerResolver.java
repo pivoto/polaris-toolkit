@@ -14,7 +14,13 @@ public class DefaultLoggerResolver implements LogResolver {
 
 	@Override
 	public Logger getLogger(String name) {
-		return CACHE.computeIfAbsent(name, k -> newLogger(name));
+		Logger log = CACHE.get(name);
+		if (log != null) {
+			return log;
+		}
+		// 避免死锁，将 newLogger 操作放在 CACHE.computeIfAbsent 外部
+		Logger logger = newLogger(name);
+		return CACHE.computeIfAbsent(name, k -> logger);
 	}
 
 
