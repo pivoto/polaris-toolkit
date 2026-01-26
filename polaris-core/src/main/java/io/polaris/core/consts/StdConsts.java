@@ -13,4 +13,6 @@ public interface StdConsts {
 	String UNKNOWN = "unknown";
 	String ERROR = "error";
 	String VALUE = "value";
+	String META_INF = "META-INF";
+	String MANIFEST_NAME = "META-INF/MANIFEST.MF";
 }

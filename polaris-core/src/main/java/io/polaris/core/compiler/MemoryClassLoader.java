@@ -9,18 +9,14 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nullable;
 import javax.tools.JavaFileObject;
 
+import io.polaris.core.classpath.ClassPaths;
+import io.polaris.core.consts.StdConsts;
 import io.polaris.core.consts.StdKeys;
 import io.polaris.core.consts.SystemProperty;
 import io.polaris.core.env.GlobalStdEnv;
@@ -52,16 +48,17 @@ public class MemoryClassLoader extends URLClassLoader {
 			);
 		}
 	}
-	static{
+
+	static {
 		String tmpdir = GlobalStdEnv.get(StdKeys.BYTECODE_GENERATOR_TMPDIR);
-		if (Strings.isNotBlank(tmpdir)){
+		if (Strings.isNotBlank(tmpdir)) {
 			File dir = new File(tmpdir.trim());
-			if (!dir.exists()){
+			if (!dir.exists()) {
 				dir.mkdirs();
 			}
 			classBytesCacheDir = dir.getAbsolutePath();
 			classBytesCacheEnabled = dir.exists();
-		}else{
+		} else {
 			classBytesCacheDir = null;
 			classBytesCacheEnabled = false;
 		}
@@ -90,7 +87,7 @@ public class MemoryClassLoader extends URLClassLoader {
 	}
 
 	static void writeMemoryClassBytesCacheFile(String className, byte[] bytes) {
-		if (classBytesCacheEnabled){
+		if (classBytesCacheEnabled) {
 			try {
 				File file = new File(classBytesCacheDir + "/" + className.replace(".", "/") + ".class");
 				log.debug("缓存动态生成类的字节码：{}", file.getAbsolutePath());
@@ -178,25 +175,39 @@ public class MemoryClassLoader extends URLClassLoader {
 	private String parseClassPath() {
 		StringBuilder classpath = new StringBuilder();
 		Set<String> classPaths = this.classPaths;
-		ClassLoader parent = getParent();
-		if (parent != null && parent instanceof URLClassLoader
-			&& (!ClassLoader.getSystemClassLoader().equals(parent))) {
-			for (URL url : ((URLClassLoader) parent).getURLs()) {
-				String path = url.getFile();
-				classPaths.add(path); // path
+		{
+			ClassLoader parent = getParent();
+			Deque<ClassLoader> loaders = new ArrayDeque<>();
+			{
+				ClassLoader loader = parent;
+				while (loader != null) {
+					loaders.addFirst(loader);
+					loader = loader.getParent();
+				}
+			}
+			for (ClassLoader loader : loaders) {
+				if (loader instanceof URLClassLoader && !ClassLoader.getSystemClassLoader().equals(loader)) {
+					for (URL url : ((URLClassLoader) loader).getURLs()) {
+						String path = url.getFile();
+						classPaths.add(path); // path
+					}
+				}
 			}
 		}
 
-		Package[] packages = getPackages();
-		if (packages != null) {
+		{
 			Set<String> resourcePrefix = new HashSet<>();
-			for (Package aPackage : packages) {
-				String name = aPackage.getName();
-				int i = name.indexOf(".");
-				if (i > 0) {
-					name = name.substring(0, i);
+			resourcePrefix.add(StdConsts.META_INF);
+			Package[] packages = getPackages();
+			if (packages != null) {
+				for (Package aPackage : packages) {
+					String name = aPackage.getName();
+					int i = name.indexOf(".");
+					if (i > 0) {
+						name = name.substring(0, i);
+					}
+					resourcePrefix.add(name);
 				}
-				resourcePrefix.add(name);
 			}
 
 			for (String prefix : resourcePrefix) {
@@ -204,36 +215,10 @@ public class MemoryClassLoader extends URLClassLoader {
 					Enumeration<URL> resources = getResources(prefix);
 					while (resources.hasMoreElements()) {
 						URL url = resources.nextElement();
-						String file = url.toString();
-						while (true) {
-							boolean match = false;
-							file = file.replaceFirst("/+$", "");
-							if (file.startsWith("zip:")) {
-								file = file.substring("zip:".length());
-								match = true;
-							}
-							if (file.startsWith("jar:")) {
-								file = file.substring("jar:".length());
-								match = true;
-							}
-							if (file.startsWith("file:")) {
-								file = file.substring("file:".length());
-								match = true;
-							}
-							if (file.endsWith("!/" + prefix)) {
-								file = file.substring(0, file.length() - prefix.length() - 2);
-								match = true;
-							} else if (file.endsWith("/" + prefix)) {
-								file = file.substring(0, file.length() - prefix.length() - 1);
-								match = true;
-							}
-							if (!match) {
-								break;
-							}
-						}
+						String file = ClassPaths.cleanPath(url, prefix);
 						classPaths.add(file); // path
 					}
-				} catch (IOException e) {
+				} catch (IOException ignored) {
 				}
 			}
 		}
