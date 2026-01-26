@@ -60,17 +60,17 @@ public class ClassLoadersTest {
 
 	@Test
 	void test02() throws ClassNotFoundException {
-		ClassLoader classLoader = ClassLoaders.INSTANCE.newTargetSideClassLoader(log4jClassLoader);
+		ClassLoader classLoader = ClassLoaders.newTargetSideClassLoader(log4jClassLoader);
 		Class<?> c = classLoader.loadClass("org/slf4j/LoggerFactory".replace("/", "."));
 		Consoles.log("", c, c.getClassLoader());
 	}
 
 	@Test
 	void test01() throws Exception {
-		ClassLoaders.INSTANCE.prependClassLoader(log4jClassLoader);
-//		ClassLoaders.INSTANCE.prependClassLoader(ClassLoaders.INSTANCE.newTargetSideClassLoader(log4jClassLoader));
+		ClassLoaders.prependClassLoader(log4jClassLoader);
+//		ClassLoaders.prependClassLoader(ClassLoaders.newTargetSideClassLoader(log4jClassLoader));
 		{
-			Class<?> c = ClassLoaders.INSTANCE.loadClass("org/slf4j/LoggerFactory".replace("/", "."));
+			Class<?> c = ClassLoaders.loadClass("org/slf4j/LoggerFactory".replace("/", "."));
 			Consoles.log("", c, c.getClassLoader());
 		}
 
@@ -82,10 +82,10 @@ public class ClassLoadersTest {
 		logger.error("xxxx");
 
 
-//		ClassLoaders.INSTANCE.prependClassLoader(log4jClassLoader);
-		ClassLoaders.INSTANCE.prependClassLoader(newLog4jClassLoader());
+//		ClassLoaders.prependClassLoader(log4jClassLoader);
+		ClassLoaders.prependClassLoader(newLog4jClassLoader());
 		{
-			Class<?> c = ClassLoaders.INSTANCE.loadClass("org/slf4j/LoggerFactory".replace("/", "."));
+			Class<?> c = ClassLoaders.loadClass("org/slf4j/LoggerFactory".replace("/", "."));
 			Consoles.log("", c, c.getClassLoader());
 		}
 

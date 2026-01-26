@@ -13,69 +13,33 @@ import java.util.function.Predicate;
  * @author Qt
  * @since Oct 01, 2024
  */
-public enum ClassLoaders {
+public class ClassLoaders {
 
-	INSTANCE;
-
-	private final AtomicLong prependIndex = new AtomicLong(0);
-	private final AtomicLong appendIndex = new AtomicLong(0);
-	// 使用WeakHashMap,如果类加载器被回收释放时,则自动移除
-	private final Map<ClassLoader, Long> loaders = new WeakHashMap<>();
-	private volatile long changeId = 0L;
-
-	ClassLoaders() {
-		appendClassLoader(Thread.currentThread().getContextClassLoader());
-		appendClassLoader(ClassLoaders.class.getClassLoader());
+	public static void appendClassLoader(ClassLoader loader) {
+		Holder.INSTANCE.appendClassLoader(loader);
 	}
 
-	public void appendClassLoader(ClassLoader loader) {
-		loaders.putIfAbsent(loader, appendIndex.getAndIncrement());
-		synchronized (this) {
-			changeId++;
-		}
+	public static void prependClassLoader(ClassLoader loader) {
+		Holder.INSTANCE.prependClassLoader(loader);
 	}
 
-	public void prependClassLoader(ClassLoader loader) {
-		loaders.putIfAbsent(loader, prependIndex.decrementAndGet());
-		synchronized (this) {
-			changeId++;
-		}
+	public static long changeId() {
+		return Holder.INSTANCE.changeId;
 	}
 
-	public long changeId() {
-		return changeId;
+	public static Class<?> loadClass(String name) throws ClassNotFoundException {
+		return Holder.INSTANCE.loadClass(name);
 	}
 
-	public Class<?> loadClass(String name) throws ClassNotFoundException {
-		Collection<ClassLoader> classLoaders = getClassLoaders(null);
-		return loadClass(classLoaders, name);
+	public static Class<?> loadClass(Collection<ClassLoader> classLoaders, String name) throws ClassNotFoundException {
+		return Holder.INSTANCE.loadClass(classLoaders, name);
 	}
 
-	public Class<?> loadClass(Collection<ClassLoader> classLoaders, String name) throws ClassNotFoundException {
-		for (ClassLoader classLoader : classLoaders) {
-			try {
-				Class<?> c = classLoader.loadClass(name);
-				return c;
-			} catch (Throwable ignored) {
-			}
-		}
-		throw new ClassNotFoundException(name);
+	public static Collection<ClassLoader> getClassLoaders(Predicate<ClassLoader> predicate) {
+		return Holder.INSTANCE.getClassLoaders(predicate);
 	}
 
-	public Collection<ClassLoader> getClassLoaders(Predicate<ClassLoader> predicate) {
-		TreeMap<Long, ClassLoader> map = new TreeMap<>();
-		// 按装入的顺序排序,越早装入的优先级越高
-		for (Map.Entry<ClassLoader, Long> entry : loaders.entrySet()) {
-			if (predicate != null && !predicate.test(entry.getKey())) {
-				continue;
-			}
-			map.put(entry.getValue(), entry.getKey());
-		}
-		return map.values();
-	}
-
-
-	public ClassLoader newTargetSideClassLoader(ClassLoader targetClassLoader) {
+	public static ClassLoader newTargetSideClassLoader(ClassLoader targetClassLoader) {
 		return new TargetSideClassLoader(targetClassLoader);
 	}
 
@@ -131,9 +95,9 @@ public enum ClassLoaders {
 				}
 			}
 			try {
-				Collection<ClassLoader> classLoaders = ClassLoaders.INSTANCE.getClassLoaders(cl ->
+				Collection<ClassLoader> classLoaders = ClassLoaders.getClassLoaders(cl ->
 					cl != targetClassLoader && cl != TargetSideClassLoader.this);
-				Class<?> c = ClassLoaders.INSTANCE.loadClass(classLoaders, name);
+				Class<?> c = ClassLoaders.loadClass(classLoaders, name);
 				return c;
 			} catch (ClassNotFoundException ignored) {
 			}
@@ -141,4 +105,68 @@ public enum ClassLoaders {
 		}
 
 	}
+
+
+	static enum Holder {
+		INSTANCE;
+
+		private final AtomicLong prependIndex = new AtomicLong(0);
+		private final AtomicLong appendIndex = new AtomicLong(0);
+		// 使用WeakHashMap,如果类加载器被回收释放时,则自动移除
+		private final Map<ClassLoader, Long> loaders = new WeakHashMap<>();
+		private volatile long changeId = 0L;
+
+		Holder() {
+			appendClassLoader(Thread.currentThread().getContextClassLoader());
+			appendClassLoader(ClassLoaders.class.getClassLoader());
+		}
+
+
+		public void appendClassLoader(ClassLoader loader) {
+			loaders.putIfAbsent(loader, appendIndex.getAndIncrement());
+			synchronized (this) {
+				changeId++;
+			}
+		}
+
+		public void prependClassLoader(ClassLoader loader) {
+			loaders.putIfAbsent(loader, prependIndex.decrementAndGet());
+			synchronized (this) {
+				changeId++;
+			}
+		}
+
+		public long changeId() {
+			return changeId;
+		}
+
+		public Class<?> loadClass(String name) throws ClassNotFoundException {
+			Collection<ClassLoader> classLoaders = getClassLoaders(null);
+			return loadClass(classLoaders, name);
+		}
+
+		public Class<?> loadClass(Collection<ClassLoader> classLoaders, String name) throws ClassNotFoundException {
+			for (ClassLoader classLoader : classLoaders) {
+				try {
+					Class<?> c = classLoader.loadClass(name);
+					return c;
+				} catch (Throwable ignored) {
+				}
+			}
+			throw new ClassNotFoundException(name);
+		}
+
+		public Collection<ClassLoader> getClassLoaders(Predicate<ClassLoader> predicate) {
+			TreeMap<Long, ClassLoader> map = new TreeMap<>();
+			// 按装入的顺序排序,越早装入的优先级越高
+			for (Map.Entry<ClassLoader, Long> entry : loaders.entrySet()) {
+				if (predicate != null && !predicate.test(entry.getKey())) {
+					continue;
+				}
+				map.put(entry.getValue(), entry.getKey());
+			}
+			return map.values();
+		}
+	}
+
 }

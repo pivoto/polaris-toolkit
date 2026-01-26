@@ -17,7 +17,7 @@ import io.polaris.core.log.Logger;
 public class DynamicLoggerResolver implements LogResolver {
 	public static final String PREFER_DYNAMIC_SLF4J = DynamicLoggerResolver.class.getName() + ".prefer-dynamic-slf4j";
 	private final Map<String, Logger> CACHE = new ConcurrentHashMap<>();
-	private volatile long lastLoaderChangeId = ClassLoaders.INSTANCE.changeId();
+	private volatile long lastLoaderChangeId = ClassLoaders.changeId();
 	private final boolean preferDynamicSlf4j;
 
 	public DynamicLoggerResolver() {
@@ -26,8 +26,8 @@ public class DynamicLoggerResolver implements LogResolver {
 
 	@Override
 	public Logger getLogger(String name) {
-		if (ClassLoaders.INSTANCE.changeId() != lastLoaderChangeId) {
-			lastLoaderChangeId = ClassLoaders.INSTANCE.changeId();
+		if (ClassLoaders.changeId() != lastLoaderChangeId) {
+			lastLoaderChangeId = ClassLoaders.changeId();
 			CACHE.clear();
 		}
 		return CACHE.computeIfAbsent(name, k -> newLogger(name));
@@ -57,10 +57,10 @@ public class DynamicLoggerResolver implements LogResolver {
 
 	private static Logger getDynamicSlf4jLogger(String name) {
 		try {
-			Class<?> classLoggerFactory = ClassLoaders.INSTANCE.loadClass("org.slf4j.LoggerFactory");
-			Class<?> classLogger = ClassLoaders.INSTANCE.loadClass("org.slf4j.Logger");
-			Class<?> classLocationAwareLogger = ClassLoaders.INSTANCE.loadClass("org.slf4j.spi.LocationAwareLogger");
-			Class<?> classMarker = ClassLoaders.INSTANCE.loadClass("org.slf4j.Marker");
+			Class<?> classLoggerFactory = ClassLoaders.loadClass("org.slf4j.LoggerFactory");
+			Class<?> classLogger = ClassLoaders.loadClass("org.slf4j.Logger");
+			Class<?> classLocationAwareLogger = ClassLoaders.loadClass("org.slf4j.spi.LocationAwareLogger");
+			Class<?> classMarker = ClassLoaders.loadClass("org.slf4j.Marker");
 			MethodHandles.Lookup lookup = MethodHandles.lookup();
 			MethodType methodType = MethodType.methodType(classLogger, new Class[]{String.class});
 			MethodHandle handle = lookup.findStatic(classLoggerFactory, "getLogger", methodType);

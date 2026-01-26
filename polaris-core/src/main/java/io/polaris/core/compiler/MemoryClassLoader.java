@@ -180,7 +180,7 @@ public class MemoryClassLoader extends URLClassLoader {
 		Set<String> classPaths = this.classPaths;
 		ClassLoader parent = getParent();
 		if (parent != null && parent instanceof URLClassLoader
-			&& (!"sun.misc.Launcher$AppClassLoader".equals(parent.getClass().getName()))) {
+			&& (!ClassLoader.getSystemClassLoader().equals(parent))) {
 			for (URL url : ((URLClassLoader) parent).getURLs()) {
 				String path = url.getFile();
 				classPaths.add(path); // path
