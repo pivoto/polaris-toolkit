@@ -11,6 +11,9 @@ public class WrappingSchedules extends Schedules {
 	private static WrappingTaskFactory defaultWrappingTaskFactory;
 
 	public static WrappingTaskFactory getDefaultWrappingTaskFactory() {
+		if (defaultWrappingTaskFactory == null) {
+			return WrappingExecutors.getDefaultWrappingTaskFactory();
+		}
 		return defaultWrappingTaskFactory;
 	}
 
@@ -19,23 +22,23 @@ public class WrappingSchedules extends Schedules {
 	}
 
 	public static ScheduledExecutorService single() {
-		return single(defaultWrappingTaskFactory);
+		return single(getDefaultWrappingTaskFactory());
 	}
 
 	public static ScheduledExecutorService create(int core) {
-		return create(defaultWrappingTaskFactory, core);
+		return create(getDefaultWrappingTaskFactory(), core);
 	}
 
 	public static ScheduledExecutorService create(int core, final String threadNamePrefix) {
-		return create(defaultWrappingTaskFactory, core, threadNamePrefix, true);
+		return create(getDefaultWrappingTaskFactory(), core, threadNamePrefix, true);
 	}
 
 	public static ScheduledExecutorService create(int core, final String threadNamePrefix, final boolean isDaemon) {
-		return create(defaultWrappingTaskFactory, core, new PooledThreadFactory().withPrefix(threadNamePrefix).withDaemon(isDaemon));
+		return create(getDefaultWrappingTaskFactory(), core, new PooledThreadFactory().withPrefix(threadNamePrefix).withDaemon(isDaemon));
 	}
 
 	public static ScheduledExecutorService create(int core, ThreadFactory threadFactory) {
-		return create(defaultWrappingTaskFactory, core, threadFactory);
+		return create(getDefaultWrappingTaskFactory(), core, threadFactory);
 	}
 
 }

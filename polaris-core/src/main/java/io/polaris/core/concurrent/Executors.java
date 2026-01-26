@@ -1,19 +1,12 @@
 package io.polaris.core.concurrent;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 
 import io.polaris.core.concurrent.queue.MemorySafeLinkedBlockingQueue;
+import io.polaris.core.concurrent.queue.ThreadPriorityQueue;
 
 /**
  * @author Qt
@@ -179,10 +172,17 @@ public class Executors {
 	public static ThreadPoolExecutor create(WrappingTaskFactory wrappingTaskFactory, int core, int max, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> blockingQueue, ThreadFactory threadFactory) {
 		if (wrappingTaskFactory != null) {
 			WrappingThreadPoolExecutor executor = new WrappingThreadPoolExecutor(core, max, keepAliveTime, unit, blockingQueue, threadFactory, defaultRejectedPolicy);
+			if (blockingQueue instanceof ThreadPriorityQueue) {
+				((ThreadPriorityQueue<?>) blockingQueue).bindThreadPoolExecutor(executor);
+			}
 			executor.setWrappedTaskFactory(wrappingTaskFactory);
 			return executor;
 		}
-		return new ThreadPoolExecutor(core, max, keepAliveTime, unit, blockingQueue, threadFactory, defaultRejectedPolicy);
+		ThreadPoolExecutor executor = new ThreadPoolExecutor(core, max, keepAliveTime, unit, blockingQueue, threadFactory, defaultRejectedPolicy);
+		if (blockingQueue instanceof ThreadPriorityQueue) {
+			((ThreadPriorityQueue<?>) blockingQueue).bindThreadPoolExecutor(executor);
+		}
+		return executor;
 	}
 
 	@Nonnull
