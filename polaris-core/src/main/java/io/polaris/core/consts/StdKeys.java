@@ -6,19 +6,6 @@ package io.polaris.core.consts;
  */
 public interface StdKeys {
 
-	// ========================================================================
-	// 以下为虚拟机内置属性
-
-	String OS_NAME = "os.name";
-	String USER_DIR = "user.dir";
-	String LINE_SEPARATOR = "line.separator";
-	String JAVA_CLASS_PATH = "java.class.path";
-	String JAVA_IO_TMPDIR = "java.io.tmpdir";
-	String SUN_CPU_ENDIAN = "sun.cpu.endian";
-
-	// ========================================================================
-	// 以下为工具库配置属性
-
 	String POLARIS = "polaris";
 	String POLARIS_DOT = POLARIS + ".";
 
@@ -46,5 +33,4 @@ public interface StdKeys {
 	/** 动态SQL语句中是否允许空字符串作为有效参数，而不是忽略 */
 	String JDBC_SQL_PARAM_INCLUDE_EMPTY = POLARIS_DOT + "jdbc.sql.param.include-empty";
 
-	// ========================================================================
 }

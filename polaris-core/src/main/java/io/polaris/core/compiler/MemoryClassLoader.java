@@ -1,15 +1,6 @@
 package io.polaris.core.compiler;
 
 
-import io.polaris.core.consts.StdKeys;
-import io.polaris.core.env.GlobalStdEnv;
-import io.polaris.core.io.IO;
-import io.polaris.core.log.Logger;
-import io.polaris.core.log.Loggers;
-import io.polaris.core.string.Strings;
-
-import javax.annotation.Nullable;
-import javax.tools.JavaFileObject;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -18,8 +9,25 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.Nullable;
+import javax.tools.JavaFileObject;
+
+import io.polaris.core.consts.StdKeys;
+import io.polaris.core.consts.SystemProperty;
+import io.polaris.core.env.GlobalStdEnv;
+import io.polaris.core.io.IO;
+import io.polaris.core.log.Logger;
+import io.polaris.core.log.Loggers;
+import io.polaris.core.string.Strings;
 
 /**
  * @author Qt
@@ -230,7 +238,7 @@ public class MemoryClassLoader extends URLClassLoader {
 			}
 		}
 
-		String sysPath = System.getProperty(StdKeys.JAVA_CLASS_PATH);
+		String sysPath = SystemProperty.JAVA_CLASS_PATH.value();
 		if (sysPath != null) {
 			String[] arr = sysPath.split(File.pathSeparator);
 			for (String path : arr) {

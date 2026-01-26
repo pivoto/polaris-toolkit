@@ -19,6 +19,7 @@ import javax.annotation.Nullable;
 
 import io.polaris.core.consts.StdConsts;
 import io.polaris.core.consts.StdKeys;
+import io.polaris.core.consts.SystemProperty;
 import io.polaris.core.env.GlobalStdEnv;
 import io.polaris.core.regex.Patterns;
 import io.polaris.core.string.Strings;
@@ -40,7 +41,7 @@ public class OS {
 
 	public static String getOsName() {
 		if (OS_NAME == null) {
-			OS_NAME = System.getProperty(StdKeys.OS_NAME);
+			OS_NAME = SystemProperty.OS_NAME.value();
 		}
 		return OS_NAME;
 	}

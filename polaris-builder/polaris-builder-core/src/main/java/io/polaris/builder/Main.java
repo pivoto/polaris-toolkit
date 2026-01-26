@@ -1,11 +1,11 @@
 package io.polaris.builder;
 
+import java.io.IOException;
+
 import io.polaris.builder.code.Codes;
-import io.polaris.core.consts.StdKeys;
+import io.polaris.core.consts.SystemProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import java.io.IOException;
 
 /**
  * @author Qt
@@ -13,7 +13,7 @@ import java.io.IOException;
  */
 public class Main {
 	public static void main(String[] args) throws IOException {
-		String userDir = System.getProperty(StdKeys.USER_DIR);
+		String userDir = SystemProperty.USER_DIR.value();
 		System.out.println("当前运行目录: " + userDir);
 		Arguments arguments = new Arguments();
 		for (int i = 0; i < args.length; i++) {
