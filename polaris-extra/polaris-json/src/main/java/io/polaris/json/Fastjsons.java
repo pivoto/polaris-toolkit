@@ -26,36 +26,24 @@ import com.alibaba.fastjson2.filter.Filter;
 @Slf4j
 public class Fastjsons {
 
-	private static final JSONReader.Feature[] readerFeatures = {
+	private static final JSONReader.Feature[] DEFAULT_READER_FEATURES = {
 		JSONReader.Feature.SupportSmartMatch,
 		JSONReader.Feature.AllowUnQuotedFieldNames,
 		JSONReader.Feature.NonZeroNumberCastToBooleanAsTrue,
 	};
-
-	private static final JSONWriter.Feature[] writerFeatures = {
+	private static final JSONWriter.Feature[] DEFAULT_WRITER_FEATURES = {
 		JSONWriter.Feature.WriteMapNullValue,
 		JSONWriter.Feature.IgnoreErrorGetter,
 		JSONWriter.Feature.WriteLongAsString,
 		JSONWriter.Feature.WriteBigDecimalAsPlain,
 		JSONWriter.Feature.WriteEnumsUsingName,
 	};
-	private static final JSONWriter.Feature[] writerClassNameFeatures = {
-		JSONWriter.Feature.WriteMapNullValue,
-		JSONWriter.Feature.IgnoreErrorGetter,
-		JSONWriter.Feature.WriteLongAsString,
-		JSONWriter.Feature.WriteBigDecimalAsPlain,
-		JSONWriter.Feature.WriteEnumsUsingName,
+	private static JSONReader.Feature[] readerFeatures = DEFAULT_READER_FEATURES;
+	private static JSONWriter.Feature[] writerFeatures = DEFAULT_WRITER_FEATURES;
+	private static JSONWriter.Feature[] writerClassNameFeatures = merge(writerFeatures,
 		// https://alibaba.github.io/fastjson2/autotype_cn.html
-		JSONWriter.Feature.WriteClassName,
-	};
-	private static final JSONWriter.Feature[] writerPrettyFeatures = {
-		JSONWriter.Feature.WriteMapNullValue,
-		JSONWriter.Feature.IgnoreErrorGetter,
-		JSONWriter.Feature.WriteLongAsString,
-		JSONWriter.Feature.WriteBigDecimalAsPlain,
-		JSONWriter.Feature.WriteEnumsUsingName,
-		JSONWriter.Feature.PrettyFormat
-	};
+		JSONWriter.Feature.WriteClassName);
+	private static JSONWriter.Feature[] writerPrettyFeatures = merge(writerFeatures, JSONWriter.Feature.PrettyFormat);
 
 	static {
 		for (FastjsonCustomizer customizer : SpiLoaders.loadStateful(FastjsonCustomizer.class)) {
@@ -67,7 +55,45 @@ public class Fastjsons {
 		}
 	}
 
-	public static JSONWriter.Feature[] merge(JSONWriter.Feature[] standard, final JSONWriter.Feature[] features) {
+	public static void enableWriteMapNullValue() {
+		addDefaultWriterFeatures(JSONWriter.Feature.WriteMapNullValue);
+	}
+
+	public static JSONReader.Feature[] getDefaultReaderFeatures() {
+		return readerFeatures;
+	}
+
+	public static JSONWriter.Feature[] getDefaultWriterFeatures() {
+		return writerFeatures;
+	}
+
+	public static void setDefaultReaderFeatures(JSONReader.Feature... features) {
+		readerFeatures = features;
+	}
+
+	public static void setDefaultWriterFeatures(JSONWriter.Feature... features) {
+		writerFeatures = features;
+		writerClassNameFeatures = merge(writerFeatures, JSONWriter.Feature.WriteClassName);
+		writerPrettyFeatures = merge(writerFeatures, JSONWriter.Feature.PrettyFormat);
+	}
+
+	public static void addDefaultReaderFeatures(JSONReader.Feature... features) {
+		setDefaultReaderFeatures(merge(readerFeatures, features));
+	}
+
+	public static void addDefaultWriterFeatures(JSONWriter.Feature... features) {
+		setDefaultWriterFeatures(merge(writerFeatures, features));
+	}
+
+	public static void resetDefaultReaderFeatures() {
+		setDefaultReaderFeatures(DEFAULT_READER_FEATURES);
+	}
+
+	public static void resetDefaultWriterFeatures() {
+		setDefaultWriterFeatures(DEFAULT_WRITER_FEATURES);
+	}
+
+	public static JSONWriter.Feature[] merge(JSONWriter.Feature[] standard, final JSONWriter.Feature... features) {
 		if (features.length > 0) {
 			EnumSet<JSONWriter.Feature> set = EnumSet.noneOf(JSONWriter.Feature.class);
 			Collections.addAll(set, features);
@@ -77,7 +103,7 @@ public class Fastjsons {
 		return standard;
 	}
 
-	public static JSONReader.Feature[] merge(JSONReader.Feature[] standard, final JSONReader.Feature[] features) {
+	public static JSONReader.Feature[] merge(JSONReader.Feature[] standard, final JSONReader.Feature... features) {
 		if (features.length > 0) {
 			EnumSet<JSONReader.Feature> set = EnumSet.noneOf(JSONReader.Feature.class);
 			Collections.addAll(set, features);
@@ -85,14 +111,6 @@ public class Fastjsons {
 			return set.toArray(new JSONReader.Feature[0]);
 		}
 		return standard;
-	}
-
-	public static JSONReader.Feature[] getDefaultReaderFeatures() {
-		return readerFeatures;
-	}
-
-	public static JSONWriter.Feature[] getDefaultWriterFeatures() {
-		return writerFeatures;
 	}
 
 

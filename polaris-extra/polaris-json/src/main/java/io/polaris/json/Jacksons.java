@@ -13,6 +13,7 @@ import io.polaris.core.service.SpiLoaders;
 import io.polaris.core.service.StatefulServiceLoader;
 import lombok.extern.slf4j.Slf4j;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -71,7 +72,8 @@ public class Jacksons {
 		mapper.setLocale(Locale.getDefault());
 
 		// JsonInclude
-		//mapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
+		mapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
+		//mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
 		SimpleModule simpleModule = new SimpleModule();
 		// number -> String
