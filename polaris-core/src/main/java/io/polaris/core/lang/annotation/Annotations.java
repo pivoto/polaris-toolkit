@@ -64,6 +64,14 @@ public class Annotations {
 		return (Annotation[]) Reflects.invokeQuietly(annotation, annotationType.getDeclaredMethods()[0]);
 	}
 
+	/**
+	 * 获取可重复注解的目标元素类型
+	 * <p>
+	 * 通过检查注解类型是否是某个可重复注解的容器来确定其对应的可重复注解类型
+	 *
+	 * @param annotationType 注解类型
+	 * @return 如果是可重复注解的容器类型，则返回对应的可重复注解类型；否则返回null
+	 */
 	@SuppressWarnings("unchecked")
 	public static Class<? extends Annotation> getRepeatedAnnotationType(Class<? extends Annotation> annotationType) {
 		Method[] methods = annotationType.getDeclaredMethods();

@@ -149,6 +149,10 @@ public class AnnotationAttributes implements Cloneable {
 		return map;
 	}
 
+	public Class<? extends Annotation> getAnnotationType() {
+		return annotationType;
+	}
+
 	public Set<String> getMemberNames() {
 		return members.keySet();
 	}

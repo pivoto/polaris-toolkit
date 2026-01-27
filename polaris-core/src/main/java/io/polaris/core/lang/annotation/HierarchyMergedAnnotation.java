@@ -112,7 +112,7 @@ class HierarchyMergedAnnotation {
 	}
 
 	/**
-	 * 获取合并后的可重复注解集合
+	 * 获取最近层级的合并后的可重复注解集合
 	 *
 	 * @param <A>            注解类型
 	 * @param annotationType 要获取的注解类型
@@ -176,6 +176,7 @@ class HierarchyMergedAnnotation {
 				for (int i = 0; i < parameters.length; i++) {
 					if (parameters[i] == element) {
 						scanHierarchyParameter(level + 1, ((Parameter) element), (Method) executable, i);
+						break;
 					}
 				}
 			}

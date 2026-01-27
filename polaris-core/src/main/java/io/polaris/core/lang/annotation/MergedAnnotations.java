@@ -90,18 +90,18 @@ public class MergedAnnotations {
 			}
 			visited.add(annotationType);
 
-			Map<Class<? extends Annotation>, Map<String, String>> aliasMap = null;
+			Map<Class<? extends Annotation>, Map<String, String>> aliasMethodMap = null;
 			if (!mergedAnnotation.isRepeatable()) {
 				// alias
 				Method[] annotationMembers = AnnotationAttributes.getAnnotationMembers(annotationType);
-				aliasMap = new LinkedHashMap<>();
+				aliasMethodMap = new LinkedHashMap<>();
 
 				for (Method method : annotationMembers) {
 					Set<AliasAttribute> aliasAttributes = AliasFinders.findAliasAttributes(method);
 					if (aliasAttributes != null) {
 						for (AliasAttribute alias : aliasAttributes) {
 							if (alias != null && alias.annotation() != annotationType && alias.annotation() != Annotation.class) {
-								Map<String, String> aliasMethods = aliasMap.computeIfAbsent(alias.annotation(), k -> new LinkedHashMap<>());
+								Map<String, String> aliasMethods = aliasMethodMap.computeIfAbsent(alias.annotation(), k -> new LinkedHashMap<>());
 								aliasMethods.putIfAbsent(alias.value(), method.getName());
 							}
 						}
@@ -111,7 +111,7 @@ public class MergedAnnotations {
 
 			for (Annotation annotation : annotationType.getAnnotations()) {
 				// 合并元注解与别名注解方法
-				Map<String, String> aliasMethods = aliasMap == null || aliasMap.isEmpty() ? null : aliasMap.remove(annotation.annotationType());
+				Map<String, String> aliasMethods = aliasMethodMap == null || aliasMethodMap.isEmpty() ? null : aliasMethodMap.remove(annotation.annotationType());
 				if (aliasMethods != null) {
 					MergedAnnotation aliasMergeAnnotation = MergedAnnotation.of(mergedAnnotation.getLevel() + 1, annotationType, annotation.annotationType(), annotation, mergedAnnotation, aliasMethods);
 					addHierarchyAnnotation(hierarchyAnnotations, aliasMergeAnnotation);
@@ -123,8 +123,8 @@ public class MergedAnnotations {
 				}
 			}
 			// 处理无元注解的别名注解方法
-			if (aliasMap != null && !aliasMap.isEmpty()) {
-				for (Map.Entry<Class<? extends Annotation>, Map<String, String>> entry : aliasMap.entrySet()) {
+			if (aliasMethodMap != null && !aliasMethodMap.isEmpty()) {
+				for (Map.Entry<Class<? extends Annotation>, Map<String, String>> entry : aliasMethodMap.entrySet()) {
 					Class<? extends Annotation> aliasAnnotationType = entry.getKey();
 					Map<String, String> aliasMethods = entry.getValue();
 

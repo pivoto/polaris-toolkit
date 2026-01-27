@@ -427,16 +427,29 @@ public class AptAnnotations {
 	}
 
 
+	/**
+	 * 查找指定可执行元素上的所有别名属性
+	 * 此方法会遍历元素的所有注解及其层级结构，查找所有符合别名规则的属性
+	 *
+	 * @param env 处理环境，用于访问编译工具和API
+	 * @param element 需要查找别名属性的可执行元素（如方法或构造函数）
+	 * @return 包含所有找到的别名属性的集合，如果没有找到则返回空集合
+	 */
 	public static Set<AptAliasAttribute> findAliasAttributes(ProcessingEnvironment env, ExecutableElement element) {
+		// 创建已访问注解类型的集合，用于防止循环遍历
 		Set<Class<? extends Annotation>> visited = new HashSet<>();
+		// 创建存储别名属性的有序集合
 		Set<AptAliasAttribute> attributes = new LinkedHashSet<>();
+		// 获取元素的所有注解镜像
 		List<? extends AnnotationMirror> annotationMirrors = element.getAnnotationMirrors();
+		// 扫描注解层级结构以查找别名属性
 		scanHierarchyAnnotation(env, attributes, annotationMirrors, visited);
 		return attributes;
 	}
 
 	private static Set<AptAliasAttribute> scanHierarchyAnnotation(ProcessingEnvironment env, Set<AptAliasAttribute> attributes, List<? extends AnnotationMirror> annotationMirrors, Set<Class<? extends Annotation>> visited) {
 		if (annotationMirrors != null && !annotationMirrors.isEmpty()) {
+			// 获取String和Class类型镜像，用于后续类型比较
 			TypeMirror stringType = env.getElementUtils().getTypeElement(String.class.getCanonicalName()).asType();
 			TypeMirror classType = env.getElementUtils().getTypeElement(Class.class.getCanonicalName()).asType();
 			for (AnnotationMirror annotationMirror : annotationMirrors) {
@@ -479,7 +492,7 @@ public class AptAnnotations {
 					}
 				}
 
-				// 扫描继承的注解
+				// 扫描继承的注解，跳过java.lang.annotation包下的注解
 				if (!fullName.startsWith("java.lang.annotation.")) {
 					scanHierarchyAnnotation(env, attributes, element.getAnnotationMirrors(), visited);
 				}

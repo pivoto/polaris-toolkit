@@ -31,19 +31,26 @@ public class MergedAnnotation {
 	private final int level;
 	/** 注解源元素 */
 	@Getter
+	@Nonnull
 	private final AnnotatedElement annotatedElement;
 	/** 注解类型 */
 	@Getter
+	@Nonnull
 	private final Class<? extends Annotation> annotationType;
 	/** 注解实例 */
+	@Nullable
 	private final Annotation annotation;
 	/** 别名的源注解实例 */
+	@Nullable
 	private final MergedAnnotation aliasSourceAnnotation;
 	/** 别名的源注解属性映射 */
+	@Nullable
 	private final Map<String, String> aliasSourceMembers;
 	/** 关联的可重复配置的目标注解 */
+	@Nullable
 	private final Class<? extends Annotation> repeatedAnnotationType;
 	/** 关联的可重复配置的目标注解实例 */
+	@Nullable
 	private final MergedAnnotation[] repeatedAnnotations;
 	/** 注解属性值 */
 	@EqualsAndHashCode.Exclude
@@ -57,11 +64,21 @@ public class MergedAnnotation {
 		return new MergedAnnotation(level, annotatedElement, annotation.annotationType(), annotation, null, null);
 	}
 
-	static MergedAnnotation of(int level, AnnotatedElement annotatedElement, @Nonnull Class<? extends Annotation> annotationType, @Nullable Annotation annotation, @Nonnull MergedAnnotation aliasSource, @Nonnull Map<String, String> aliasSourceMembers) {
-		return new MergedAnnotation(level, annotatedElement, annotationType, annotation, aliasSource, aliasSourceMembers);
+	static MergedAnnotation of(int level, @Nonnull AnnotatedElement annotatedElement, @Nonnull Class<? extends Annotation> annotationType, @Nullable Annotation annotation, @Nonnull MergedAnnotation aliasSourceAnnotation, @Nonnull Map<String, String> aliasSourceMembers) {
+		return new MergedAnnotation(level, annotatedElement, annotationType, annotation, aliasSourceAnnotation, aliasSourceMembers);
 	}
 
 
+	/**
+	 * 构造函数
+	 *
+	 * @param level                 注解层级
+	 * @param annotatedElement      注解所在的元素
+	 * @param annotationType        注解类型
+	 * @param annotation            注解实例
+	 * @param aliasSourceAnnotation 别名源注解
+	 * @param aliasSourceMembers    别名成员映射
+	 */
 	private MergedAnnotation(int level, @Nonnull AnnotatedElement annotatedElement, @Nonnull Class<? extends Annotation> annotationType, @Nullable Annotation annotation, @Nullable MergedAnnotation aliasSourceAnnotation, @Nullable Map<String, String> aliasSourceMembers) {
 		this.level = level;
 		this.annotatedElement = annotatedElement;
@@ -70,8 +87,10 @@ public class MergedAnnotation {
 		this.aliasSourceAnnotation = aliasSourceAnnotation;
 		this.aliasSourceMembers = aliasSourceMembers;
 
+		// 初始化可重复注解相关字段
 		this.repeatedAnnotationType = Annotations.getRepeatedAnnotationType(annotationType);
 		if (this.repeatedAnnotationType != null && annotation != null) {
+			// 获取可重复注解数组
 			Annotation[] annotations = Reflects.invokeQuietly(annotation, annotationType.getDeclaredMethods()[0]);
 			if (annotations != null) {
 				MergedAnnotation[] repeatedAnnotations = new MergedAnnotation[annotations.length];
@@ -87,15 +106,23 @@ public class MergedAnnotation {
 			this.repeatedAnnotations = null;
 		}
 
+		// 延迟初始化层级注解列表
 		this.hierarchyAnnotations = LazyRef.of(() -> Collections.unmodifiableList(MergedAnnotations.scanHierarchyAnnotations(this)));
+
+		// 延迟初始化注解属性
 		this.annotationAttributes = LazyRef.of(() -> {
+			// 根据是否存在注解实例获取基本属性
 			AnnotationAttributes annotationAttributes = annotation != null ? AnnotationAttributes.of(annotation) : AnnotationAttributes.of(annotationType);
+
+			// 如果存在别名源注解，则合并别名属性值
 			if (aliasSourceAnnotation != null && aliasSourceMembers != null) {
 				AnnotationAttributes aliasAnnotationAttributes = aliasSourceAnnotation.getAnnotationAttributes();
 				for (Map.Entry<String, String> entry : aliasSourceMembers.entrySet()) {
+					// 检查目标注解是否包含别名映射的成员
 					if (annotationAttributes.hasMember(entry.getKey())) {
 						Object val = aliasAnnotationAttributes.get(entry.getValue());
 						if (val != null) {
+							// 设置非默认值
 							annotationAttributes.setIfNotDefault(entry.getKey(), val);
 						}
 					}
@@ -106,11 +133,20 @@ public class MergedAnnotation {
 	}
 
 
+	/**
+	 * 获取匹配的注解实例
+	 * 遍历当前注解及所有层级的注解，寻找与指定类型匹配的注解
+	 *
+	 * @param <A>            注解类型
+	 * @param annotationType 要匹配的注解类型
+	 * @return 匹配的注解包装对象，如果未找到匹配的注解则返回null
+	 */
+	@Nullable
 	public <A extends Annotation> MatchedMergedAnnotation<A> getMatchedAnnotation(Class<A> annotationType) {
 		MergedAnnotation matchedAnnotation = null;
 		List<MergedAnnotation> aliasAnnotations = new ArrayList<>();
 
-		// 遍历所有层级的注解，第一个匹配的注解作为基础匹配注解，其他的匹配的注解作为别名注解
+		// 检查当前注解是否匹配
 		if (this.annotationType == annotationType) {
 			if (this.isAliasOnly()) {
 				aliasAnnotations.add(this);
@@ -119,14 +155,16 @@ public class MergedAnnotation {
 			}
 		}
 
+		// 遍历层级注解查找匹配项
 		List<Set<MergedAnnotation>> hierarchyAnnotations = this.getHierarchyAnnotations();
 		for (Set<MergedAnnotation> set : hierarchyAnnotations) {
 			for (MergedAnnotation mergedAnnotation : set) {
 				if (mergedAnnotation.annotationType == annotationType) {
-					// match
 					if (mergedAnnotation.isAliasOnly()) {
+						// 如果是仅别名注解，添加到别名列表
 						aliasAnnotations.add(mergedAnnotation);
 					} else {
+						// 如果已有主匹配注解，则当前注解作为别名注解；否则设为主匹配注解
 						if (matchedAnnotation != null) {
 							aliasAnnotations.add(mergedAnnotation);
 						} else {
@@ -137,20 +175,32 @@ public class MergedAnnotation {
 			}
 		}
 
+		// 如果在当前注解和层级中未找到匹配，在可重复注解中查找
 		if (matchedAnnotation == null && aliasAnnotations.isEmpty()) {
-			if (isRepeatable()) {
+			if (this.repeatedAnnotationType != null && this.repeatedAnnotations != null) {
 				if (this.repeatedAnnotations.length > 0) {
 					return this.repeatedAnnotations[0].getMatchedAnnotation(annotationType);
 				}
 			}
 		}
+
+		// 如果没有找到任何匹配的注解，返回null
 		if (matchedAnnotation == null && aliasAnnotations.isEmpty()) {
-			// not match
 			return null;
 		}
+
 		return MatchedMergedAnnotation.of(annotationType, matchedAnnotation, aliasAnnotations);
 	}
 
+	/**
+	 * 获取匹配的可重复注解集合
+	 * 遍历当前注解及所有层级的注解，收集所有与指定类型匹配的注解
+	 *
+	 * @param <A>            注解类型
+	 * @param annotationType 要匹配的注解类型
+	 * @return 匹配的注解包装对象集合，如果没有找到任何匹配的注解则返回null
+	 */
+	@Nullable
 	public <A extends Annotation> Set<MatchedMergedAnnotation<A>> getMatchedRepeatableAnnotation(Class<A> annotationType) {
 
 		Set<MatchedMergedAnnotation<A>> matchedSet = newMatchedSet(annotationType);
@@ -177,6 +227,15 @@ public class MergedAnnotation {
 		return matchedSet;
 	}
 
+	/**
+	 * 获取匹配的最近层级的可重复注解集合
+	 * 遍历当前注解及层级注解，只查询最近的一层的可重复注解信息
+	 *
+	 * @param <A>            注解类型
+	 * @param annotationType 要匹配的注解类型
+	 * @return 匹配的注解包装对象集合，如果没有找到任何匹配的注解则返回null
+	 */
+	@Nullable
 	public <A extends Annotation> Set<MatchedMergedAnnotation<A>> getTopMatchedRepeatableAnnotation(Class<A> annotationType) {
 		Set<MatchedMergedAnnotation<A>> matchedSet = newMatchedSet(annotationType);
 
@@ -208,10 +267,18 @@ public class MergedAnnotation {
 		return matchedSet;
 	}
 
+	/**
+	 * 创建一个新的匹配注解集合
+	 * 根据当前注解是否为可重复注解，初始化包含相关注解的集合
+	 *
+	 * @param <A>            注解类型
+	 * @param annotationType 要匹配的注解类型
+	 * @return 新的匹配注解集合
+	 */
 	@Nonnull
 	private <A extends Annotation> Set<MatchedMergedAnnotation<A>> newMatchedSet(Class<A> annotationType) {
 		Set<MatchedMergedAnnotation<A>> matchedSet = new LinkedHashSet<>();
-		if (this.isRepeatable()) {
+		if (this.repeatedAnnotationType != null && this.repeatedAnnotations != null) {
 			for (MergedAnnotation repeatedAnnotation : this.repeatedAnnotations) {
 				MatchedMergedAnnotation<A> matchedAnnotation = repeatedAnnotation.getMatchedAnnotation(annotationType);
 				if (matchedAnnotation != null) {
@@ -228,18 +295,38 @@ public class MergedAnnotation {
 	}
 
 
+	/**
+	 * 获取注解的属性
+	 *
+	 * @return 注解属性
+	 */
 	public AnnotationAttributes getAnnotationAttributes() {
 		return annotationAttributes.get();
 	}
 
+	/**
+	 * 获取层级注解列表
+	 *
+	 * @return 层级注解列表
+	 */
 	public List<Set<MergedAnnotation>> getHierarchyAnnotations() {
 		return this.hierarchyAnnotations.get();
 	}
 
+	/**
+	 * 将当前合并注解转换为普通注解实例
+	 *
+	 * @return 注解实例
+	 */
 	public Annotation asAnnotation() {
 		return getAnnotationAttributes().asAnnotation();
 	}
 
+	/**
+	 * 判断是否为可重复注解
+	 *
+	 * @return 如果是可重复注解返回true，否则返回false
+	 */
 	public boolean isRepeatable() {
 		return this.repeatedAnnotationType != null && this.repeatedAnnotations != null;
 	}
