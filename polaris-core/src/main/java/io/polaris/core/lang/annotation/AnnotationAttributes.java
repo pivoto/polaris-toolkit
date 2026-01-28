@@ -272,6 +272,10 @@ public class AnnotationAttributes implements Cloneable {
 		return Converters.convert(Enum.class, get(name));
 	}
 
+	public Enum[] getEnumArray(String name) {
+		return Converters.convert(Enum[].class, get(name));
+	}
+
 	public Class getClass(String name) {
 		return Converters.convert(Class.class, get(name));
 	}

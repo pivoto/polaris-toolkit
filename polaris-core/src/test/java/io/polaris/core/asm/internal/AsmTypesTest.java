@@ -53,7 +53,7 @@ class AsmTypesTest {
 		};
 		for (Class<?> clazz : array) {
 			try {
-				Consoles.log(Strings.repeat('=', 72));
+				Consoles.log(Strings.repeat('=', 80));
 				Consoles.log("Class: {}\n" +
 						"Descriptor: {}\n" +
 						"ClassName: {}\n" +

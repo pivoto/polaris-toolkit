@@ -9,17 +9,17 @@ class NumbersTest {
 	@Test
 	void test01() {
 		Consoles.println(10 / -3);
-		Consoles.println(Strings.repeat('=', 72));
+		Consoles.println(Strings.repeat('=', 80));
 		Consoles.println(Math.floorDiv(10, 3));
 		Consoles.println(Math.floorDiv(10, -3));
 		Consoles.println(Math.floorDiv(-10, -3));
 		Consoles.println(Math.floorDiv(-10, 3));
-		Consoles.println(Strings.repeat('=', 72));
+		Consoles.println(Strings.repeat('=', 80));
 		Consoles.println(Numbers.ceilDiv(10, 3));
 		Consoles.println(Numbers.ceilDiv(10, -3));
 		Consoles.println(Numbers.ceilDiv(-10, -3));
 		Consoles.println(Numbers.ceilDiv(-10, 3));
-		Consoles.println(Strings.repeat('=', 72));
+		Consoles.println(Strings.repeat('=', 80));
 		Consoles.println(Math.ceil((double) 10 / 3));
 		Consoles.println(Math.ceil((double) 10 / -3));
 		Consoles.println(Math.ceil((double) -10 / -3));
