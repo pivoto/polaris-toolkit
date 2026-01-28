@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import io.polaris.core.annotation.AgentPoint;
 import io.polaris.core.reflect.Reflects;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.Type;
@@ -35,15 +34,18 @@ public class AsmReflects {
 	private AsmReflects() {
 	}
 
-	private static final Map primitives = new HashMap(8);
-	private static final Map transforms = new HashMap(8);
+	/** classname -> class */
+	private static final Map<String, Class<?>> primitives = new HashMap<>(8);
+	/** classname -> internal name */
+	private static final Map<String, String> transforms = new HashMap<>(8);
 	private static final ClassLoader defaultLoader = AsmReflects.class.getClassLoader();
-	private static Method DEFINE_CLASS, DEFINE_CLASS_UNSAFE;
+	private static final Method DEFINE_CLASS;
+	private static final Method DEFINE_CLASS_UNSAFE;
 	private static final ProtectionDomain PROTECTION_DOMAIN;
 	private static final Object UNSAFE;
 	private static final Throwable THROWABLE;
 
-	private static final List<Method> OBJECT_METHODS = new ArrayList<Method>();
+	private static final List<Method> OBJECT_METHODS = new ArrayList<>();
 
 	static {
 		ProtectionDomain protectionDomain;
@@ -53,14 +55,14 @@ public class AsmReflects {
 		try {
 			protectionDomain = getProtectionDomain(AsmReflects.class);
 			try {
-				defineClass = (Method) AccessController.doPrivileged((PrivilegedExceptionAction) () -> {
-					Class loader = Class.forName("java.lang.ClassLoader"); // JVM crash w/o this
+				defineClass = AccessController.doPrivileged((PrivilegedExceptionAction<Method>) () -> {
+					Class<?> loader = Class.forName("java.lang.ClassLoader"); // JVM crash w/o this
 					Method defineClass1 = loader.getDeclaredMethod("defineClass",
-						new Class[]{String.class,
-							byte[].class,
-							Integer.TYPE,
-							Integer.TYPE,
-							ProtectionDomain.class});
+						String.class,
+						byte[].class,
+						Integer.TYPE,
+						Integer.TYPE,
+						ProtectionDomain.class);
 					defineClass1.setAccessible(true);
 					return defineClass1;
 				});
@@ -70,22 +72,22 @@ public class AsmReflects {
 				// Fallback on Jigsaw where this method is not available.
 				throwable = t;
 				defineClass = null;
-				unsafe = AccessController.doPrivileged((PrivilegedExceptionAction) () -> {
-					Class u = Class.forName("sun.misc.Unsafe");
+				unsafe = AccessController.doPrivileged((PrivilegedExceptionAction<?>) () -> {
+					Class<?> u = Class.forName("sun.misc.Unsafe");
 					Field theUnsafe = u.getDeclaredField("theUnsafe");
 					theUnsafe.setAccessible(true);
 					return theUnsafe.get(null);
 				});
-				Class u = Class.forName("sun.misc.Unsafe");
+				Class<?> u = Class.forName("sun.misc.Unsafe");
 				defineClassUnsafe = u.getMethod("defineClass",
-					new Class[]{String.class,
-						byte[].class,
-						Integer.TYPE,
-						Integer.TYPE,
-						ClassLoader.class,
-						ProtectionDomain.class});
+					String.class,
+					byte[].class,
+					Integer.TYPE,
+					Integer.TYPE,
+					ClassLoader.class,
+					ProtectionDomain.class);
 			}
-			AccessController.doPrivileged((PrivilegedExceptionAction) () -> {
+			AccessController.doPrivileged((PrivilegedExceptionAction<?>) () -> {
 				Method[] methods = Object.class.getDeclaredMethods();
 				for (Method method : methods) {
 					if ("finalize".equals(method.getName())
@@ -137,20 +139,18 @@ public class AsmReflects {
 	}
 
 
-	@SuppressWarnings("rawtypes")
-	public static Class defineClass(String className, byte[] b, ClassLoader loader) throws Exception {
+	public static Class<?> defineClass(String className, byte[] b, ClassLoader loader) throws Exception {
 		return defineClass(className, b, loader, PROTECTION_DOMAIN);
 	}
 
-	@SuppressWarnings("rawtypes")
-	public static Class defineClass(String className, byte[] b, ClassLoader loader, ProtectionDomain protectionDomain) throws Exception {
-		Class c;
+	public static Class<?> defineClass(String className, byte[] b, ClassLoader loader, ProtectionDomain protectionDomain) throws Exception {
+		Class<?> c;
 		if (DEFINE_CLASS != null) {
 			Object[] args = new Object[]{className, b, 0, b.length, protectionDomain};
-			c = (Class) DEFINE_CLASS.invoke(loader, args);
+			c = (Class<?>) DEFINE_CLASS.invoke(loader, args);
 		} else if (DEFINE_CLASS_UNSAFE != null) {
 			Object[] args = new Object[]{className, b, 0, b.length, loader, protectionDomain};
-			c = (Class) DEFINE_CLASS_UNSAFE.invoke(UNSAFE, args);
+			c = (Class<?>) DEFINE_CLASS_UNSAFE.invoke(UNSAFE, args);
 		} else {
 			throw new RuntimeException(THROWABLE);
 		}
@@ -159,12 +159,11 @@ public class AsmReflects {
 		return c;
 	}
 
-	@SuppressWarnings("rawtypes")
-	public static Map<String, Method> getAllAccessibleMethods(Class type) {
+	public static Map<String, Method> getAllAccessibleMethods(Class<?> type) {
 		Map<String, Method> allMethods = new LinkedHashMap<>();
 		boolean isInterface = type.isInterface();
 		if (!isInterface) {
-			Class nextClass = type;
+			Class<?> nextClass = type;
 			while (nextClass != null) { // 也包含Object类的方法
 				recursiveAddMethodsToMap(nextClass, allMethods);
 				nextClass = nextClass.getSuperclass();
@@ -175,7 +174,8 @@ public class AsmReflects {
 		return allMethods;
 	}
 
-	private static void recursiveAddMethodsToMap(Class interfaceType, Map<String, Method> methods) {
+	@SuppressWarnings("all")
+	private static void recursiveAddMethodsToMap(Class<?> interfaceType, Map<String, Method> methods) {
 		Method[] declaredMethods = interfaceType.getDeclaredMethods();
 		for (int i = 0, n = declaredMethods.length; i < n; i++) {
 			Method method = declaredMethods[i];
@@ -195,25 +195,24 @@ public class AsmReflects {
 			}
 			methods.putIfAbsent(method.getName() + Type.getMethodDescriptor(method), method);
 		}
-		for (Class nextInterface : interfaceType.getInterfaces()) {
+		for (Class<?> nextInterface : interfaceType.getInterfaces()) {
 			recursiveAddMethodsToMap(nextInterface, methods);
 		}
 	}
 
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
-	public static ProtectionDomain getProtectionDomain(final Class source) {
+	public static ProtectionDomain getProtectionDomain(final Class<?> source) {
 		if (source == null) {
 			return null;
 		}
-		return (ProtectionDomain) AccessController.doPrivileged((PrivilegedAction) source::getProtectionDomain);
+		return AccessController.doPrivileged((PrivilegedAction<ProtectionDomain>) source::getProtectionDomain);
 	}
 
 	public static Type[] getExceptionTypes(Member member) {
 		if (member instanceof Method) {
 			return AsmTypes.getTypes(((Method) member).getExceptionTypes());
 		} else if (member instanceof Constructor) {
-			return AsmTypes.getTypes(((Constructor) member).getExceptionTypes());
+			return AsmTypes.getTypes(((Constructor<?>) member).getExceptionTypes());
 		} else {
 			throw new IllegalArgumentException("Cannot get exception types of a field");
 		}
@@ -223,7 +222,7 @@ public class AsmReflects {
 		if (member instanceof Method) {
 			return new Signature(member.getName(), Type.getMethodDescriptor((Method) member));
 		} else if (member instanceof Constructor) {
-			Type[] types = AsmTypes.getTypes(((Constructor) member).getParameterTypes());
+			Type[] types = AsmTypes.getTypes(((Constructor<?>) member).getParameterTypes());
 			return new Signature(AsmConsts.CONSTRUCTOR_NAME,
 				Type.getMethodDescriptor(Type.VOID_TYPE, types));
 		} else {
@@ -231,11 +230,11 @@ public class AsmReflects {
 		}
 	}
 
-	public static Constructor findConstructor(String desc) {
+	public static Constructor<?> findConstructor(String desc) {
 		return findConstructor(desc, defaultLoader);
 	}
 
-	public static Constructor findConstructor(String desc, ClassLoader loader) {
+	public static Constructor<?> findConstructor(String desc, ClassLoader loader) {
 		try {
 			int lparen = desc.indexOf('(');
 			String className = desc.substring(0, lparen).trim();
@@ -261,10 +260,10 @@ public class AsmReflects {
 		}
 	}
 
-	private static Class[] parseTypes(String desc, ClassLoader loader) throws ClassNotFoundException {
+	private static Class<?>[] parseTypes(String desc, ClassLoader loader) throws ClassNotFoundException {
 		int lparen = desc.indexOf('(');
 		int rparen = desc.indexOf(')', lparen);
-		List params = new ArrayList();
+		List<String> params = new ArrayList<>();
 		int start = lparen + 1;
 		for (; ; ) {
 			int comma = desc.indexOf(',', start);
@@ -277,25 +276,33 @@ public class AsmReflects {
 		if (start < rparen) {
 			params.add(desc.substring(start, rparen).trim());
 		}
-		Class[] types = new Class[params.size()];
+		Class<?>[] types = new Class[params.size()];
 		for (int i = 0; i < types.length; i++) {
-			types[i] = getClass((String) params.get(i), loader);
+			types[i] = getClass(params.get(i), loader);
 		}
 		return types;
 	}
 
-	private static Class getClass(String className, ClassLoader loader) throws ClassNotFoundException {
+	public static Class<?> getClass(String className) throws ClassNotFoundException {
+		return getClass(className, Thread.currentThread().getContextClassLoader(), DEFAULT_PACKAGES);
+	}
+
+	public static Class<?> getClass(String className, ClassLoader loader) throws ClassNotFoundException {
 		return getClass(className, loader, DEFAULT_PACKAGES);
 	}
 
-	private static Class getClass(String className, ClassLoader loader, String[] packages) throws ClassNotFoundException {
+	public static Class<?> getClass(String className, String[] packages) throws ClassNotFoundException {
+		return getClass(className, Thread.currentThread().getContextClassLoader(), packages);
+	}
+
+	public static Class<?> getClass(String className, ClassLoader loader, String[] packages) throws ClassNotFoundException {
 		String save = className;
 		int dimensions = 0;
 		int index = 0;
 		while ((index = className.indexOf("[]", index) + 1) > 0) {
 			dimensions++;
 		}
-		StringBuffer brackets = new StringBuffer(className.length() - dimensions);
+		StringBuilder brackets = new StringBuilder(className.length() - dimensions);
 		for (int i = 0; i < dimensions; i++) {
 			brackets.append('[');
 		}
@@ -312,12 +319,12 @@ public class AsmReflects {
 			} catch (ClassNotFoundException ignore) {}
 		}
 		if (dimensions == 0) {
-			Class c = (Class) primitives.get(className);
+			Class<?> c = primitives.get(className);
 			if (c != null) {
 				return c;
 			}
 		} else {
-			String transform = (String) transforms.get(className);
+			String transform = transforms.get(className);
 			if (transform != null) {
 				try {
 					return Class.forName(brackets + transform, false, loader);
@@ -328,27 +335,26 @@ public class AsmReflects {
 	}
 
 
-	public static Object newInstance(Class type) {
+	public static Object newInstance(Class<?> type) {
 		return newInstance(type, AsmConsts.EMPTY_CLASS_ARRAY, null);
 	}
 
-	public static Object newInstance(Class type, Class[] parameterTypes, Object[] args) {
+	public static Object newInstance(Class<?> type, Class<?>[] parameterTypes, Object[] args) {
 		return newInstance(getConstructor(type, parameterTypes), args);
 	}
 
-	public static Object newInstance(final Constructor cstruct, final Object[] args) {
+	public static Object newInstance(final Constructor<?> cstruct, final Object[] args) {
 		boolean flag = cstruct.isAccessible();
 		try {
 			if (!flag) {
 				cstruct.setAccessible(true);
 			}
-			Object result = cstruct.newInstance(args);
-			return result;
+			return cstruct.newInstance(args);
 		} catch (ReflectiveOperationException e) {
 			throw new IllegalArgumentException(e);
 		} finally {
 			if (!flag) {
-				cstruct.setAccessible(flag);
+				cstruct.setAccessible(false);
 			}
 		}
 	}
@@ -363,7 +369,7 @@ public class AsmReflects {
 		}
 	}
 
-	public static String[] getNames(Class[] classes) {
+	public static String[] getNames(Class<?>[] classes) {
 		if (classes == null)
 			return null;
 		String[] names = new String[classes.length];
@@ -373,15 +379,15 @@ public class AsmReflects {
 		return names;
 	}
 
-	public static Class[] getClasses(Object[] objects) {
-		Class[] classes = new Class[objects.length];
+	public static Class<?>[] getClasses(Object[] objects) {
+		Class<?>[] classes = new Class[objects.length];
 		for (int i = 0; i < objects.length; i++) {
 			classes[i] = objects[i].getClass();
 		}
 		return classes;
 	}
 
-	public static Method findNewInstance(Class iface) {
+	public static Method findNewInstance(Class<?> iface) {
 		Method m = findInterfaceMethod(iface);
 		if (!m.getName().equals("newInstance")) {
 			throw new IllegalArgumentException(iface + " missing newInstance method");
@@ -390,7 +396,7 @@ public class AsmReflects {
 	}
 
 	public static Method[] getPropertyMethods(PropertyDescriptor[] properties, boolean read, boolean write) {
-		Set methods = new HashSet();
+		Set<Method> methods = new HashSet<>();
 		for (int i = 0; i < properties.length; i++) {
 			PropertyDescriptor pd = properties[i];
 			if (read) {
@@ -401,29 +407,29 @@ public class AsmReflects {
 			}
 		}
 		methods.remove(null);
-		return (Method[]) methods.toArray(new Method[methods.size()]);
+		return methods.toArray(new Method[0]);
 	}
 
-	public static PropertyDescriptor[] getBeanProperties(Class type) {
+	public static PropertyDescriptor[] getBeanProperties(Class<?> type) {
 		return getPropertiesHelper(type, true, true);
 	}
 
-	public static PropertyDescriptor[] getBeanGetters(Class type) {
+	public static PropertyDescriptor[] getBeanGetters(Class<?> type) {
 		return getPropertiesHelper(type, true, false);
 	}
 
-	public static PropertyDescriptor[] getBeanSetters(Class type) {
+	public static PropertyDescriptor[] getBeanSetters(Class<?> type) {
 		return getPropertiesHelper(type, false, true);
 	}
 
-	private static PropertyDescriptor[] getPropertiesHelper(Class type, boolean read, boolean write) {
+	private static PropertyDescriptor[] getPropertiesHelper(Class<?> type, boolean read, boolean write) {
 		try {
 			BeanInfo info = Introspector.getBeanInfo(type, Object.class);
 			PropertyDescriptor[] all = info.getPropertyDescriptors();
 			if (read && write) {
 				return all;
 			}
-			List properties = new ArrayList(all.length);
+			List<PropertyDescriptor> properties = new ArrayList<>(all.length);
 			for (int i = 0; i < all.length; i++) {
 				PropertyDescriptor pd = all[i];
 				if ((read && pd.getReadMethod() != null) ||
@@ -431,18 +437,18 @@ public class AsmReflects {
 					properties.add(pd);
 				}
 			}
-			return (PropertyDescriptor[]) properties.toArray(new PropertyDescriptor[properties.size()]);
+			return properties.toArray(new PropertyDescriptor[0]);
 		} catch (IntrospectionException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 
-	public static Method findDeclaredMethod(final Class type,
-		final String methodName, final Class[] parameterTypes)
+	public static Method findDeclaredMethod(final Class<?> type,
+		final String methodName, final Class<?>[] parameterTypes)
 		throws NoSuchMethodException {
 
-		Class cl = type;
+		Class<?> cl = type;
 		while (cl != null) {
 			try {
 				return cl.getDeclaredMethod(methodName, parameterTypes);
@@ -454,25 +460,25 @@ public class AsmReflects {
 
 	}
 
-	public static List addAllMethods(final Class type, final List list) {
+	public static List<Method> addAllMethods(final Class<?> type, final List<Method> list) {
 		if (type == Object.class) {
 			list.addAll(OBJECT_METHODS);
 		} else
 			list.addAll(java.util.Arrays.asList(type.getDeclaredMethods()));
 
-		Class superclass = type.getSuperclass();
+		Class<?> superclass = type.getSuperclass();
 		if (superclass != null) {
 			addAllMethods(superclass, list);
 		}
-		Class[] interfaces = type.getInterfaces();
+		Class<?>[] interfaces = type.getInterfaces();
 		for (int i = 0; i < interfaces.length; i++) {
 			addAllMethods(interfaces[i], list);
 		}
 		return list;
 	}
 
-	public static List addAllInterfaces(Class type, List list) {
-		Class superclass = type.getSuperclass();
+	public static List<Class<?>> addAllInterfaces(Class<?> type, List<Class<?>> list) {
+		Class<?> superclass = type.getSuperclass();
 		if (superclass != null) {
 			list.addAll(Arrays.asList(type.getInterfaces()));
 			addAllInterfaces(superclass, list);
@@ -481,7 +487,7 @@ public class AsmReflects {
 	}
 
 
-	public static Method findInterfaceMethod(Class iface) {
+	public static Method findInterfaceMethod(Class<?> iface) {
 		if (!iface.isInterface()) {
 			throw new IllegalArgumentException(iface + " is not an interface");
 		}
@@ -492,7 +498,7 @@ public class AsmReflects {
 		return methods[0];
 	}
 
-	public static int findPackageProtected(Class[] classes) {
+	public static int findPackageProtected(Class<?>[] classes) {
 		for (int i = 0; i < classes.length; i++) {
 			if (!Modifier.isPublic(classes[i].getModifiers())) {
 				return i;
@@ -506,20 +512,24 @@ public class AsmReflects {
 		return new MethodInfo() {
 			private ClassInfo ci;
 
+			@Override
 			public ClassInfo getClassInfo() {
 				if (ci == null)
 					ci = AsmReflects.getClassInfo(member.getDeclaringClass());
 				return ci;
 			}
 
+			@Override
 			public int getModifiers() {
 				return modifiers;
 			}
 
+			@Override
 			public Signature getSignature() {
 				return sig;
 			}
 
+			@Override
 			public Type[] getExceptionTypes() {
 				return AsmReflects.getExceptionTypes(member);
 			}
@@ -534,22 +544,26 @@ public class AsmReflects {
 		return getMethodInfo(member, member.getModifiers());
 	}
 
-	public static ClassInfo getClassInfo(final Class clazz) {
+	public static ClassInfo getClassInfo(final Class<?> clazz) {
 		final Type type = Type.getType(clazz);
 		final Type sc = (clazz.getSuperclass() == null) ? null : Type.getType(clazz.getSuperclass());
 		return new ClassInfo() {
+			@Override
 			public Type getType() {
 				return type;
 			}
 
+			@Override
 			public Type getSuperType() {
 				return sc;
 			}
 
+			@Override
 			public Type[] getInterfaces() {
 				return AsmTypes.getTypes(clazz.getInterfaces());
 			}
 
+			@Override
 			public int getModifiers() {
 				return clazz.getModifiers();
 			}

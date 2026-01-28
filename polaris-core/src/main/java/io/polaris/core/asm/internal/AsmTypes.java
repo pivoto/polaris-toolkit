@@ -109,11 +109,11 @@ public class AsmTypes {
 			return sb.toString();
 		} else if (typeName instanceof WildcardTypeName) {
 			List<TypeName> lowerBounds = ((WildcardTypeName) typeName).lowerBounds;
-			if (lowerBounds != null && lowerBounds.size() > 0) {
+			if (lowerBounds != null && !lowerBounds.isEmpty()) {
 				return "-" + toTypeSignature(lowerBounds.get(0));
 			}
 			List<TypeName> upperBounds = ((WildcardTypeName) typeName).upperBounds;
-			if (upperBounds != null && upperBounds.size() > 0) {
+			if (upperBounds != null && !upperBounds.isEmpty()) {
 				return "+" + toTypeSignature(upperBounds.get(0));
 			}
 			return Type.getDescriptor(Object.class);
@@ -128,7 +128,7 @@ public class AsmTypes {
 	}
 
 	public static Type getType(String className) {
-		return Type.getType("L" + className.replace('.', '/') + ";");
+		return Type.getType(map(className));
 	}
 
 	public static boolean isFinal(int access) {
@@ -186,11 +186,43 @@ public class AsmTypes {
 
 	public static String getClassName(Type type) {
 		if (isPrimitive(type)) {
-			return (String) rtransforms.get(type.getDescriptor());
+			return rtransforms.get(type.getDescriptor());
 		} else if (isArray(type)) {
 			return getClassName(getComponentType(type)) + "[]";
 		} else {
 			return type.getClassName();
+		}
+	}
+
+	public static Class<?> getClass(Type type) throws ClassNotFoundException {
+		return getClass(type, Thread.currentThread().getContextClassLoader());
+	}
+
+	public static Class<?> getClass(Type type, ClassLoader classLoader) throws ClassNotFoundException {
+		switch (type.getSort()) {
+			case Type.VOID:
+				return Void.TYPE;
+			case Type.BOOLEAN:
+				return Boolean.TYPE;
+			case Type.CHAR:
+				return Character.TYPE;
+			case Type.BYTE:
+				return Byte.TYPE;
+			case Type.SHORT:
+				return Short.TYPE;
+			case Type.INT:
+				return Integer.TYPE;
+			case Type.FLOAT:
+				return Float.TYPE;
+			case Type.LONG:
+				return Long.TYPE;
+			case Type.DOUBLE:
+				return Double.TYPE;
+			case Type.ARRAY:
+				return Class.forName(type.getDescriptor().replace('/', '.'), true, classLoader);
+			case Type.OBJECT:
+			default:
+				return Class.forName(type.getClassName(), true, classLoader);
 		}
 	}
 
@@ -256,9 +288,9 @@ public class AsmTypes {
 		int rparen = s.indexOf(')', lparen);
 		String returnType = s.substring(0, space);
 		String methodName = s.substring(space + 1, lparen);
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append('(');
-		for (Iterator it = parseTypes(s, lparen + 1, rparen).iterator(); it.hasNext(); ) {
+		for (Iterator<String> it = parseTypes(s, lparen + 1, rparen).iterator(); it.hasNext(); ) {
 			sb.append(it.next());
 		}
 		sb.append(')');
@@ -271,16 +303,16 @@ public class AsmTypes {
 	}
 
 	public static Type[] parseTypes(String s) {
-		List names = parseTypes(s, 0, s.length());
+		List<String> names = parseTypes(s, 0, s.length());
 		Type[] types = new Type[names.size()];
 		for (int i = 0; i < types.length; i++) {
-			types[i] = Type.getType((String) names.get(i));
+			types[i] = Type.getType(names.get(i));
 		}
 		return types;
 	}
 
 	public static Signature parseConstructor(Type[] types) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("(");
 		for (int i = 0; i < types.length; i++) {
 			sb.append(types[i].getDescriptor());
@@ -294,8 +326,8 @@ public class AsmTypes {
 		return parseSignature("void <init>(" + sig + ")");
 	}
 
-	private static List parseTypes(String s, int mark, int end) {
-		List types = new ArrayList(5);
+	private static List<String> parseTypes(String s, int mark, int end) {
+		List<String> types = new ArrayList<>(5);
 		for (; ; ) {
 			int next = s.indexOf(',', mark);
 			if (next < 0) {
@@ -309,16 +341,16 @@ public class AsmTypes {
 	}
 
 	private static String map(String type) {
-		if (type.equals("")) {
+		if (type.isEmpty()) {
 			return type;
 		}
-		String t = (String) transforms.get(type);
+		String t = transforms.get(type);
 		if (t != null) {
 			return t;
 		} else if (type.indexOf('.') < 0) {
 			return map("java.lang." + type);
 		} else {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			int index = 0;
 			while ((index = type.indexOf("[]", index) + 1) > 0) {
 				sb.append('[');
@@ -407,7 +439,7 @@ public class AsmTypes {
 		return method.getSignature().getName().equals(AsmConsts.CONSTRUCTOR_NAME);
 	}
 
-	public static Type[] getTypes(Class[] classes) {
+	public static Type[] getTypes(Class<?>[] classes) {
 		if (classes == null) {
 			return null;
 		}
@@ -495,7 +527,7 @@ public class AsmTypes {
 	}
 
 	public static String escapeType(String s) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (int i = 0, len = s.length(); i < len; i++) {
 			char c = s.charAt(i);
 			switch (c) {
