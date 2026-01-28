@@ -20,15 +20,24 @@ import io.polaris.core.tuple.Tuple2;
  * @author Qt
  * @since Oct 07, 2025
  */
-class HierarchyMergedAnnotation {
-	private final List<Set<MergedAnnotation>> sortedAnnotations = new ArrayList<>();
+public class HierarchyMergedAnnotation {
+	private final List<Set<MergedAnnotation>> hierarchyAnnotations;
 
 
 	HierarchyMergedAnnotation(AnnotatedElement element) {
+		this.hierarchyAnnotations = new ArrayList<>();
 		scanAnnotations(0, element);
 	}
 
-	static HierarchyMergedAnnotation of(AnnotatedElement element) {
+	HierarchyMergedAnnotation(List<Set<MergedAnnotation>> hierarchyAnnotations) {
+		this.hierarchyAnnotations = hierarchyAnnotations;
+	}
+
+	public static HierarchyMergedAnnotation of(List<Set<MergedAnnotation>> hierarchyAnnotations) {
+		return new HierarchyMergedAnnotation(hierarchyAnnotations);
+	}
+
+	public static HierarchyMergedAnnotation of(AnnotatedElement element) {
 		return new HierarchyMergedAnnotation(element);
 	}
 
@@ -37,8 +46,8 @@ class HierarchyMergedAnnotation {
 	 *
 	 * @return 按距离排序的注解映射的不可变视图
 	 */
-	public List<Set<MergedAnnotation>> getSortedAnnotations() {
-		return Collections.unmodifiableList(sortedAnnotations);
+	public List<Set<MergedAnnotation>> getHierarchyAnnotations() {
+		return Collections.unmodifiableList(hierarchyAnnotations);
 	}
 
 
@@ -55,12 +64,12 @@ class HierarchyMergedAnnotation {
 		List<MergedAnnotation> aliasAnnotations = new ArrayList<>();
 
 		// 遍历所有层级，尽可能合并所有别名属性
-		for (Set<MergedAnnotation> set : sortedAnnotations) {
+		for (Set<MergedAnnotation> set : hierarchyAnnotations) {
 			for (MergedAnnotation annotation : set) {
 				MatchedMergedAnnotation<A> target = annotation.getMatchedAnnotation(annotationType);
 				if (target != null) {
 					// match
-					MergedAnnotation matched = target.getMatchedAnnotation();
+					MergedAnnotation matched = target.matchedAnnotation();
 					if (matched != null) {
 						if (matchedAnnotation == null) {
 							matchedAnnotation = matched;
@@ -68,7 +77,7 @@ class HierarchyMergedAnnotation {
 							aliasAnnotations.add(matched);
 						}
 					}
-					aliasAnnotations.addAll(target.getAliasAnnotations());
+					aliasAnnotations.addAll(target.aliasAnnotations());
 				}
 			}
 		}
@@ -95,7 +104,7 @@ class HierarchyMergedAnnotation {
 	public <A extends Annotation> Set<A> getMergedRepeatableAnnotation(Class<A> annotationType) {
 		Set<MatchedMergedAnnotation<A>> result = new LinkedHashSet<>();
 		// 遍历所有层级，尽可能找到所有匹配的注解
-		for (Set<MergedAnnotation> set : sortedAnnotations) {
+		for (Set<MergedAnnotation> set : hierarchyAnnotations) {
 			for (MergedAnnotation annotation : set) {
 				Set<MatchedMergedAnnotation<A>> matchedSet = annotation.getMatchedRepeatableAnnotation(annotationType);
 				if (matchedSet != null) {
@@ -122,7 +131,7 @@ class HierarchyMergedAnnotation {
 	public <A extends Annotation> Set<A> getTopMergedRepeatableAnnotation(Class<A> annotationType) {
 		Set<MatchedMergedAnnotation<A>> result = new LinkedHashSet<>();
 		// 遍历所有层级，找到存在匹配的注解的层级后跳出
-		for (Set<MergedAnnotation> set : sortedAnnotations) {
+		for (Set<MergedAnnotation> set : hierarchyAnnotations) {
 			boolean found = false;
 			for (MergedAnnotation annotation : set) {
 				Set<MatchedMergedAnnotation<A>> matchedSet = annotation.getTopMatchedRepeatableAnnotation(annotationType);
@@ -144,11 +153,11 @@ class HierarchyMergedAnnotation {
 	}
 
 	private void addMergedAnnotation(MergedAnnotation annotation) {
-		int level = annotation.getLevel();
-		while (sortedAnnotations.size() <= level) {
-			sortedAnnotations.add(new LinkedHashSet<>());
+		int level = annotation.level();
+		while (hierarchyAnnotations.size() <= level) {
+			hierarchyAnnotations.add(new LinkedHashSet<>());
 		}
-		sortedAnnotations.get(level).add(annotation);
+		hierarchyAnnotations.get(level).add(annotation);
 	}
 
 	/**
@@ -161,7 +170,7 @@ class HierarchyMergedAnnotation {
 
 		Annotation[] annotations = element.getAnnotations();
 		for (Annotation annotation : annotations) {
-			MergedAnnotation mergedAnnotation = MergedAnnotation.of(level, element, annotation);
+			MergedAnnotation mergedAnnotation = MergedAnnotation.of(level, annotation);
 			addMergedAnnotation(mergedAnnotation);
 		}
 

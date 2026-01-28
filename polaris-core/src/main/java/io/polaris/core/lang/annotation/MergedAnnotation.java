@@ -1,7 +1,6 @@
 package io.polaris.core.lang.annotation;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -27,14 +26,8 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class MergedAnnotation {
 	/** 注解层级 */
-	@Getter
 	private final int level;
-	/** 注解源元素 */
-	@Getter
-	@Nonnull
-	private final AnnotatedElement annotatedElement;
 	/** 注解类型 */
-	@Getter
 	@Nonnull
 	private final Class<? extends Annotation> annotationType;
 	/** 注解实例 */
@@ -60,12 +53,39 @@ public class MergedAnnotation {
 	@ToString.Exclude
 	private final Ref<List<Set<MergedAnnotation>>> hierarchyAnnotations;
 
-	static MergedAnnotation of(int level, @Nonnull AnnotatedElement annotatedElement, @Nonnull Annotation annotation) {
-		return new MergedAnnotation(level, annotatedElement, annotation.annotationType(), annotation, null, null);
+	public static MergedAnnotation of(@Nonnull Annotation annotation) {
+		return of(0, annotation);
 	}
 
-	static MergedAnnotation of(int level, @Nonnull AnnotatedElement annotatedElement, @Nonnull Class<? extends Annotation> annotationType, @Nullable Annotation annotation, @Nonnull MergedAnnotation aliasSourceAnnotation, @Nonnull Map<String, String> aliasSourceMembers) {
-		return new MergedAnnotation(level, annotatedElement, annotationType, annotation, aliasSourceAnnotation, aliasSourceMembers);
+	public static MergedAnnotation of(int level, @Nonnull Annotation annotation) {
+		return new MergedAnnotation(level, annotation.annotationType(), annotation, null, null);
+	}
+
+	/**
+	 * 创建一个合并注解实例
+	 *
+	 * @param annotationType        注解类型
+	 * @param annotation            注解实例
+	 * @param aliasSourceAnnotation 别名源注解
+	 * @param aliasSourceMembers    别名成员映射, alias-attribute -> source-member
+	 * @return 合并注解实例
+	 */
+	public static MergedAnnotation of(@Nonnull Class<? extends Annotation> annotationType, @Nullable Annotation annotation, @Nonnull MergedAnnotation aliasSourceAnnotation, @Nonnull Map<String, String> aliasSourceMembers) {
+		return of(0, annotationType, annotation, aliasSourceAnnotation, aliasSourceMembers);
+	}
+
+	/**
+	 * 创建一个合并注解实例
+	 *
+	 * @param level                 注解层级
+	 * @param annotationType        注解类型
+	 * @param annotation            注解实例
+	 * @param aliasSourceAnnotation 别名源注解
+	 * @param aliasSourceMembers    别名成员映射, alias-attribute -> source-member
+	 * @return 合并注解实例
+	 */
+	public static MergedAnnotation of(int level, @Nonnull Class<? extends Annotation> annotationType, @Nullable Annotation annotation, @Nonnull MergedAnnotation aliasSourceAnnotation, @Nonnull Map<String, String> aliasSourceMembers) {
+		return new MergedAnnotation(level, annotationType, annotation, aliasSourceAnnotation, aliasSourceMembers);
 	}
 
 
@@ -73,15 +93,13 @@ public class MergedAnnotation {
 	 * 构造函数
 	 *
 	 * @param level                 注解层级
-	 * @param annotatedElement      注解所在的元素
 	 * @param annotationType        注解类型
 	 * @param annotation            注解实例
 	 * @param aliasSourceAnnotation 别名源注解
 	 * @param aliasSourceMembers    别名成员映射
 	 */
-	private MergedAnnotation(int level, @Nonnull AnnotatedElement annotatedElement, @Nonnull Class<? extends Annotation> annotationType, @Nullable Annotation annotation, @Nullable MergedAnnotation aliasSourceAnnotation, @Nullable Map<String, String> aliasSourceMembers) {
+	private MergedAnnotation(int level, @Nonnull Class<? extends Annotation> annotationType, @Nullable Annotation annotation, @Nullable MergedAnnotation aliasSourceAnnotation, @Nullable Map<String, String> aliasSourceMembers) {
 		this.level = level;
-		this.annotatedElement = annotatedElement;
 		this.annotationType = annotationType;
 		this.annotation = annotation;
 		this.aliasSourceAnnotation = aliasSourceAnnotation;
@@ -96,7 +114,7 @@ public class MergedAnnotation {
 				MergedAnnotation[] repeatedAnnotations = new MergedAnnotation[annotations.length];
 				for (int i = 0; i < annotations.length; i++) {
 					Annotation repeatedAnnotation = annotations[i];
-					repeatedAnnotations[i] = MergedAnnotation.of(this.level + 1, annotatedElement, repeatedAnnotation);
+					repeatedAnnotations[i] = of(this.level + 1, repeatedAnnotation);
 				}
 				this.repeatedAnnotations = repeatedAnnotations;
 			} else {
@@ -132,6 +150,14 @@ public class MergedAnnotation {
 		});
 	}
 
+	public int level() {
+		return level;
+	}
+
+	@Nonnull
+	public Class<? extends Annotation> annotationType() {
+		return this.annotationType;
+	}
 
 	/**
 	 * 获取匹配的注解实例

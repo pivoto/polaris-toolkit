@@ -117,17 +117,17 @@ public class AptMatchedMergedAnnotation {
 	}
 
 
-	public TypeElement getAnnotationType() {
+	public TypeElement annotationType() {
 		return annotationType;
 	}
 
 
-	public AptMergedAnnotation getMatchedAnnotation() {
+	public AptMergedAnnotation matchedAnnotation() {
 		return matchedAnnotation;
 	}
 
 
-	public List<AptMergedAnnotation> getAliasAnnotations() {
+	public List<AptMergedAnnotation> aliasAnnotations() {
 		return aliasAnnotations;
 	}
 }

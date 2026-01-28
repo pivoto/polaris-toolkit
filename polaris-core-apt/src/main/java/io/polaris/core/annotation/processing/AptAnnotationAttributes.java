@@ -24,7 +24,6 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
-import io.polaris.core.lang.annotation.Alias;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -133,8 +132,8 @@ public class AptAnnotationAttributes implements Cloneable {
 			Set<AptAliasAttribute> aliasAttributes = AptAnnotations.findAliasAttributes(env, method);
 			if (!aliasAttributes.isEmpty()) {
 				for (AptAliasAttribute aliasAttribute : aliasAttributes) {
-					String value = aliasAttribute.value();
-					DeclaredType annotation = aliasAttribute.annotation();
+					String value = aliasAttribute.attribute();
+					DeclaredType annotation = aliasAttribute.annotationType();
 					if (annotation != null && value != null) {
 						if (AptAnnotations.equals(env, annotation, annotationType.asType())
 							|| AptAnnotations.equals(env, annotation, defaultAnnotationType)) {

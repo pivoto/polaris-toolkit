@@ -62,7 +62,7 @@ public class AptHierarchyMergedAnnotation {
 				AptMatchedMergedAnnotation target = annotation.getMatchedAnnotation(annotationType);
 				if (target != null) {
 					// match
-					AptMergedAnnotation matched = target.getMatchedAnnotation();
+					AptMergedAnnotation matched = target.matchedAnnotation();
 					if (matched != null) {
 						if (matchedAnnotation == null) {
 							matchedAnnotation = matched;
@@ -70,7 +70,7 @@ public class AptHierarchyMergedAnnotation {
 							aliasAnnotations.add(matched);
 						}
 					}
-					aliasAnnotations.addAll(target.getAliasAnnotations());
+					aliasAnnotations.addAll(target.aliasAnnotations());
 				}
 			}
 		}
@@ -142,7 +142,7 @@ public class AptHierarchyMergedAnnotation {
 	}
 
 	private void addMergedAnnotation(AptMergedAnnotation annotation) {
-		int level = annotation.getLevel();
+		int level = annotation.level();
 		while (sortedAnnotations.size() <= level) {
 			sortedAnnotations.add(new LinkedHashSet<>());
 		}

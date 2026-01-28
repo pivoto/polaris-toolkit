@@ -21,7 +21,6 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 
-import io.polaris.core.lang.annotation.Alias;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -38,10 +37,8 @@ public class AptMergedAnnotation {
 	@EqualsAndHashCode.Exclude
 	private final ProcessingEnvironment env;
 	/** 注解层级 */
-	@Getter
 	private final int level;
 	/** 注解类型 */
-	@Getter
 	@Nullable
 	private final TypeElement annotationType;
 	/** 注解实例 */
@@ -108,6 +105,15 @@ public class AptMergedAnnotation {
 		} else {
 			this.repeatedAnnotations = null;
 		}
+	}
+
+	public int level() {
+		return level;
+	}
+
+	@Nullable
+	public TypeElement annotationType() {
+		return annotationType;
 	}
 
 	@Nullable
@@ -307,7 +313,7 @@ public class AptMergedAnnotation {
 	 * @param mergedAnnotation     合并后的注解
 	 */
 	private void addHierarchyAnnotation(List<Set<AptMergedAnnotation>> hierarchyAnnotations, AptMergedAnnotation mergedAnnotation) {
-		int level = mergedAnnotation.getLevel();
+		int level = mergedAnnotation.level();
 		while (hierarchyAnnotations.size() <= level) {
 			hierarchyAnnotations.add(new LinkedHashSet<>());
 		}
@@ -326,7 +332,7 @@ public class AptMergedAnnotation {
 	private Collection<AptMergedAnnotation> scanHierarchyAnnotation(List<Set<AptMergedAnnotation>> hierarchyAnnotations, Collection<AptMergedAnnotation> lastCandidates, Set<TypeElement> visited) {
 		Collection<AptMergedAnnotation> candidates = new LinkedHashSet<>();
 		for (AptMergedAnnotation mergedAnnotation : lastCandidates) {
-			TypeElement annotationType = mergedAnnotation.getAnnotationType();
+			TypeElement annotationType = mergedAnnotation.annotationType();
 			if (annotationType == null) {
 				continue;
 			}
@@ -350,8 +356,8 @@ public class AptMergedAnnotation {
 					Set<AptAliasAttribute> aliasAttributes = AptAnnotations.findAliasAttributes(env, method);
 					if (!aliasAttributes.isEmpty()) {
 						for (AptAliasAttribute aliasAttribute : aliasAttributes) {
-							String value = aliasAttribute.value();
-							DeclaredType annotation = aliasAttribute.annotation();
+							String value = aliasAttribute.attribute();
+							DeclaredType annotation = aliasAttribute.annotationType();
 							if (annotation != null && value != null) {
 								if (!AptAnnotations.equals(env, annotation, annotationType.asType())
 									&& !AptAnnotations.equals(env, annotation, defaultAnnotationType)) {
@@ -375,11 +381,11 @@ public class AptMergedAnnotation {
 						aliasMethods = aliasMap.remove((TypeElement) (annotation.getAnnotationType().asElement()));
 					}
 					if (aliasMethods != null) {
-						AptMergedAnnotation aliasMergeAnnotation = AptMergedAnnotation.of(mergedAnnotation.getEnv(), mergedAnnotation.getLevel() + 1, (TypeElement) (annotation.getAnnotationType().asElement()), annotation, mergedAnnotation, aliasMethods);
+						AptMergedAnnotation aliasMergeAnnotation = AptMergedAnnotation.of(mergedAnnotation.getEnv(), mergedAnnotation.level() + 1, (TypeElement) (annotation.getAnnotationType().asElement()), annotation, mergedAnnotation, aliasMethods);
 						addHierarchyAnnotation(hierarchyAnnotations, aliasMergeAnnotation);
 						candidates.add(aliasMergeAnnotation);
 					} else {
-						AptMergedAnnotation relation = AptMergedAnnotation.of(mergedAnnotation.getEnv(), mergedAnnotation.getLevel() + 1, annotation);
+						AptMergedAnnotation relation = AptMergedAnnotation.of(mergedAnnotation.getEnv(), mergedAnnotation.level() + 1, annotation);
 						addHierarchyAnnotation(hierarchyAnnotations, relation);
 						candidates.add(relation);
 					}
@@ -391,7 +397,7 @@ public class AptMergedAnnotation {
 					TypeElement aliasAnnotationType = entry.getKey();
 					Map<String, String> aliasMethods = entry.getValue();
 
-					AptMergedAnnotation aliasMergeAnnotation = AptMergedAnnotation.of(mergedAnnotation.getEnv(), mergedAnnotation.getLevel() + 1, aliasAnnotationType, null, mergedAnnotation, aliasMethods);
+					AptMergedAnnotation aliasMergeAnnotation = AptMergedAnnotation.of(mergedAnnotation.getEnv(), mergedAnnotation.level() + 1, aliasAnnotationType, null, mergedAnnotation, aliasMethods);
 					addHierarchyAnnotation(hierarchyAnnotations, aliasMergeAnnotation);
 					candidates.add(aliasMergeAnnotation);
 				}

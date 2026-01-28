@@ -110,7 +110,7 @@ public class Annotations {
 			Set<AliasAttribute> aliasAttributes = AliasFinders.findAliasAttributes(method);
 			if (aliasAttributes != null) {
 				for (AliasAttribute alias : aliasAttributes) {
-					if (alias != null && (alias.annotation() == annotationType || alias.annotation() == Annotation.class)) {
+					if (alias != null && (alias.annotationType() == annotationType || alias.annotationType() == Annotation.class)) {
 						return true;
 					}
 				}
@@ -125,7 +125,7 @@ public class Annotations {
 			Set<AliasAttribute> aliasAttributes = AliasFinders.findAliasAttributes(aliasFinder, method);
 			if (aliasAttributes != null) {
 				for (AliasAttribute alias : aliasAttributes) {
-					if (alias != null && (alias.annotation() == annotationType || alias.annotation() == Annotation.class)) {
+					if (alias != null && (alias.annotationType() == annotationType || alias.annotationType() == Annotation.class)) {
 						return true;
 					}
 				}

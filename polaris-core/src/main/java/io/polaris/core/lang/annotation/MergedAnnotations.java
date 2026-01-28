@@ -21,23 +21,20 @@ import javax.annotation.Nullable;
  * @since Jan 06, 2024
  */
 public class MergedAnnotations {
-	static HierarchyMergedAnnotation of(AnnotatedElement element) {
-		return new HierarchyMergedAnnotation(element);
-	}
 
 	@Nullable
 	public static <A extends Annotation> A getMergedAnnotation(AnnotatedElement element, Class<A> annotationType) {
-		return MergedAnnotations.of(element).getMergedAnnotation(annotationType);
+		return HierarchyMergedAnnotation.of(element).getMergedAnnotation(annotationType);
 	}
 
 	@Nonnull
 	public static <A extends Annotation> Set<A> getMergedRepeatableAnnotation(AnnotatedElement element, Class<A> annotationType) {
-		return MergedAnnotations.of(element).getMergedRepeatableAnnotation(annotationType);
+		return HierarchyMergedAnnotation.of(element).getMergedRepeatableAnnotation(annotationType);
 	}
 
 	@Nonnull
 	public static <A extends Annotation> Set<A> getTopMergedRepeatableAnnotation(AnnotatedElement element, Class<A> annotationType) {
-		return MergedAnnotations.of(element).getTopMergedRepeatableAnnotation(annotationType);
+		return HierarchyMergedAnnotation.of(element).getTopMergedRepeatableAnnotation(annotationType);
 	}
 
 	/**
@@ -63,7 +60,7 @@ public class MergedAnnotations {
 	 * @param mergedAnnotation     合并后的注解
 	 */
 	private static void addHierarchyAnnotation(List<Set<MergedAnnotation>> hierarchyAnnotations, MergedAnnotation mergedAnnotation) {
-		int level = mergedAnnotation.getLevel();
+		int level = mergedAnnotation.level();
 		while (hierarchyAnnotations.size() <= level) {
 			hierarchyAnnotations.add(new LinkedHashSet<>());
 		}
@@ -81,7 +78,7 @@ public class MergedAnnotations {
 	private static Collection<MergedAnnotation> scanHierarchyAnnotation(List<Set<MergedAnnotation>> hierarchyAnnotations, Collection<MergedAnnotation> lastCandidates, Set<Class<? extends Annotation>> visited) {
 		Collection<MergedAnnotation> candidates = new LinkedHashSet<>();
 		for (MergedAnnotation mergedAnnotation : lastCandidates) {
-			Class<? extends Annotation> annotationType = mergedAnnotation.getAnnotationType();
+			Class<? extends Annotation> annotationType = mergedAnnotation.annotationType();
 			if (annotationType.getPackage().getName().equals("java.lang.annotation")) {
 				continue;
 			}
@@ -90,19 +87,20 @@ public class MergedAnnotations {
 			}
 			visited.add(annotationType);
 
-			Map<Class<? extends Annotation>, Map<String, String>> aliasMethodMap = null;
+			// alias-attribute -> source-member
+			Map<Class<? extends Annotation>, Map<String, String>> aliasSourceMembersMap = null;
 			if (!mergedAnnotation.isRepeatable()) {
-				// alias
+				// 除可重复注解外，扫描别名属性
 				Method[] annotationMembers = AnnotationAttributes.getAnnotationMembers(annotationType);
-				aliasMethodMap = new LinkedHashMap<>();
+				aliasSourceMembersMap = new LinkedHashMap<>();
 
 				for (Method method : annotationMembers) {
 					Set<AliasAttribute> aliasAttributes = AliasFinders.findAliasAttributes(method);
 					if (aliasAttributes != null) {
 						for (AliasAttribute alias : aliasAttributes) {
-							if (alias != null && alias.annotation() != annotationType && alias.annotation() != Annotation.class) {
-								Map<String, String> aliasMethods = aliasMethodMap.computeIfAbsent(alias.annotation(), k -> new LinkedHashMap<>());
-								aliasMethods.putIfAbsent(alias.value(), method.getName());
+							if (alias != null && alias.annotationType() != annotationType && alias.annotationType() != Annotation.class) {
+								Map<String, String> aliasSourceMembers = aliasSourceMembersMap.computeIfAbsent(alias.annotationType(), k -> new LinkedHashMap<>());
+								aliasSourceMembers.putIfAbsent(alias.attribute(), method.getName());
 							}
 						}
 					}
@@ -111,24 +109,25 @@ public class MergedAnnotations {
 
 			for (Annotation annotation : annotationType.getAnnotations()) {
 				// 合并元注解与别名注解方法
-				Map<String, String> aliasMethods = aliasMethodMap == null || aliasMethodMap.isEmpty() ? null : aliasMethodMap.remove(annotation.annotationType());
-				if (aliasMethods != null) {
-					MergedAnnotation aliasMergeAnnotation = MergedAnnotation.of(mergedAnnotation.getLevel() + 1, annotationType, annotation.annotationType(), annotation, mergedAnnotation, aliasMethods);
+				Map<String, String> aliasSourceMembers = aliasSourceMembersMap == null || aliasSourceMembersMap.isEmpty() ? null : aliasSourceMembersMap.remove(annotation.annotationType());
+				if (aliasSourceMembers != null) {
+					Class<? extends Annotation> annotationType1 = annotation.annotationType();
+					MergedAnnotation aliasMergeAnnotation = MergedAnnotation.of(mergedAnnotation.level() + 1, annotationType1, annotation, mergedAnnotation, aliasSourceMembers);
 					addHierarchyAnnotation(hierarchyAnnotations, aliasMergeAnnotation);
 					candidates.add(aliasMergeAnnotation);
 				} else {
-					MergedAnnotation relation = MergedAnnotation.of(mergedAnnotation.getLevel() + 1, annotationType, annotation);
+					MergedAnnotation relation = MergedAnnotation.of(mergedAnnotation.level() + 1, annotation);
 					addHierarchyAnnotation(hierarchyAnnotations, relation);
 					candidates.add(relation);
 				}
 			}
 			// 处理无元注解的别名注解方法
-			if (aliasMethodMap != null && !aliasMethodMap.isEmpty()) {
-				for (Map.Entry<Class<? extends Annotation>, Map<String, String>> entry : aliasMethodMap.entrySet()) {
+			if (aliasSourceMembersMap != null && !aliasSourceMembersMap.isEmpty()) {
+				for (Map.Entry<Class<? extends Annotation>, Map<String, String>> entry : aliasSourceMembersMap.entrySet()) {
 					Class<? extends Annotation> aliasAnnotationType = entry.getKey();
 					Map<String, String> aliasMethods = entry.getValue();
 
-					MergedAnnotation aliasMergeAnnotation = MergedAnnotation.of(mergedAnnotation.getLevel() + 1, annotationType, aliasAnnotationType, null, mergedAnnotation, aliasMethods);
+					MergedAnnotation aliasMergeAnnotation = MergedAnnotation.of(mergedAnnotation.level() + 1, aliasAnnotationType, null, mergedAnnotation, aliasMethods);
 					addHierarchyAnnotation(hierarchyAnnotations, aliasMergeAnnotation);
 					candidates.add(aliasMergeAnnotation);
 				}

@@ -1,7 +1,5 @@
 package io.polaris.core.lang.annotation;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 import io.polaris.core.io.Consoles;
@@ -21,17 +19,17 @@ public class AnnotationsMergedTest {
 	@Test
 	@DisplayName("类注解测试")
 	void testClassAlias01() {
-		Anno1 anno_C1 = MergedAnnotations.of(C1.class).getMergedAnnotation(Anno1.class);
+		Anno1 anno_C1 = HierarchyMergedAnnotation.of(C1.class).getMergedAnnotation(Anno1.class);
 		Consoles.println(anno_C1);
-		Anno1 anno_C1_1 = MergedAnnotations.of(C1_1.class).getMergedAnnotation(Anno1.class);
+		Anno1 anno_C1_1 = HierarchyMergedAnnotation.of(C1_1.class).getMergedAnnotation(Anno1.class);
 		Consoles.println(anno_C1_1);
-		Anno1 anno_C1_1x = MergedAnnotations.of(C1_1x.class).getMergedAnnotation(Anno1.class);
+		Anno1 anno_C1_1x = HierarchyMergedAnnotation.of(C1_1x.class).getMergedAnnotation(Anno1.class);
 		Consoles.println(anno_C1_1x);
-		Anno1 anno_C1_2 = MergedAnnotations.of(C1_2.class).getMergedAnnotation(Anno1.class);
+		Anno1 anno_C1_2 = HierarchyMergedAnnotation.of(C1_2.class).getMergedAnnotation(Anno1.class);
 		Consoles.println(anno_C1_2);
-		Anno1 anno_C1_2x = MergedAnnotations.of(C1_2x.class).getMergedAnnotation(Anno1.class);
+		Anno1 anno_C1_2x = HierarchyMergedAnnotation.of(C1_2x.class).getMergedAnnotation(Anno1.class);
 		Consoles.println(anno_C1_2x);
-		Anno1 anno_C1_2_1 = MergedAnnotations.of(C1_2_1.class).getMergedAnnotation(Anno1.class);
+		Anno1 anno_C1_2_1 = HierarchyMergedAnnotation.of(C1_2_1.class).getMergedAnnotation(Anno1.class);
 		Consoles.println(anno_C1_2_1);
 
 		Assertions.assertNotNull(anno_C1);
@@ -57,17 +55,17 @@ public class AnnotationsMergedTest {
 	@Test
 	@DisplayName("方法注解测试")
 	void testClassAlias02() {
-		Anno1 anno_C1 = MergedAnnotations.of(Reflects.getMethod(C1.class, "m1")).getMergedAnnotation(Anno1.class);
+		Anno1 anno_C1 = HierarchyMergedAnnotation.of(Reflects.getMethod(C1.class, "m1")).getMergedAnnotation(Anno1.class);
 		Consoles.println(anno_C1);
-		Anno1 anno_C1_1 = MergedAnnotations.of(Reflects.getMethod(C1_1.class, "m1")).getMergedAnnotation(Anno1.class);
+		Anno1 anno_C1_1 = HierarchyMergedAnnotation.of(Reflects.getMethod(C1_1.class, "m1")).getMergedAnnotation(Anno1.class);
 		Consoles.println(anno_C1_1);
-		Anno1 anno_C1_1x = MergedAnnotations.of(Reflects.getMethod(C1_1x.class, "m1")).getMergedAnnotation(Anno1.class);
+		Anno1 anno_C1_1x = HierarchyMergedAnnotation.of(Reflects.getMethod(C1_1x.class, "m1")).getMergedAnnotation(Anno1.class);
 		Consoles.println(anno_C1_1x);
-		Anno1 anno_C1_2 = MergedAnnotations.of(Reflects.getMethod(C1_2.class, "m1")).getMergedAnnotation(Anno1.class);
+		Anno1 anno_C1_2 = HierarchyMergedAnnotation.of(Reflects.getMethod(C1_2.class, "m1")).getMergedAnnotation(Anno1.class);
 		Consoles.println(anno_C1_2);
-		Anno1 anno_C1_2x = MergedAnnotations.of(Reflects.getMethod(C1_2x.class, "m1")).getMergedAnnotation(Anno1.class);
+		Anno1 anno_C1_2x = HierarchyMergedAnnotation.of(Reflects.getMethod(C1_2x.class, "m1")).getMergedAnnotation(Anno1.class);
 		Consoles.println(anno_C1_2x);
-		Anno1 anno_C1_2_1 = MergedAnnotations.of(Reflects.getMethod(C1_2_1.class, "m1")).getMergedAnnotation(Anno1.class);
+		Anno1 anno_C1_2_1 = HierarchyMergedAnnotation.of(Reflects.getMethod(C1_2_1.class, "m1")).getMergedAnnotation(Anno1.class);
 		Consoles.println(anno_C1_2_1);
 
 
@@ -94,34 +92,34 @@ public class AnnotationsMergedTest {
 	@Test
 	@DisplayName("可重复类注解测试")
 	void testClassAliasRepeatable01() {
-		Set<RepeatableAnno1> annoSet_C1 = MergedAnnotations.of(C1.class).getMergedRepeatableAnnotation(RepeatableAnno1.class);
+		Set<RepeatableAnno1> annoSet_C1 = HierarchyMergedAnnotation.of(C1.class).getMergedRepeatableAnnotation(RepeatableAnno1.class);
 		Consoles.println(annoSet_C1);
-		Set<RepeatableAnno1> annoSet_C1_1 = MergedAnnotations.of(C1_1.class).getMergedRepeatableAnnotation(RepeatableAnno1.class);
+		Set<RepeatableAnno1> annoSet_C1_1 = HierarchyMergedAnnotation.of(C1_1.class).getMergedRepeatableAnnotation(RepeatableAnno1.class);
 		Consoles.println(annoSet_C1_1);
-		Set<RepeatableAnno1> annoSet_C1_1x = MergedAnnotations.of(C1_1x.class).getMergedRepeatableAnnotation(RepeatableAnno1.class);
+		Set<RepeatableAnno1> annoSet_C1_1x = HierarchyMergedAnnotation.of(C1_1x.class).getMergedRepeatableAnnotation(RepeatableAnno1.class);
 		Consoles.println(annoSet_C1_1x);
-		Set<RepeatableAnno1> annoSet_C1_2 = MergedAnnotations.of(C1_2.class).getMergedRepeatableAnnotation(RepeatableAnno1.class);
+		Set<RepeatableAnno1> annoSet_C1_2 = HierarchyMergedAnnotation.of(C1_2.class).getMergedRepeatableAnnotation(RepeatableAnno1.class);
 		Consoles.println(annoSet_C1_2);
-		Set<RepeatableAnno1> annoSet_C1_2x = MergedAnnotations.of(C1_2x.class).getMergedRepeatableAnnotation(RepeatableAnno1.class);
+		Set<RepeatableAnno1> annoSet_C1_2x = HierarchyMergedAnnotation.of(C1_2x.class).getMergedRepeatableAnnotation(RepeatableAnno1.class);
 		Consoles.println(annoSet_C1_2x);
-		Set<RepeatableAnno1> annoSet_C1_2_1 = MergedAnnotations.of(C1_2_1.class).getMergedRepeatableAnnotation(RepeatableAnno1.class);
+		Set<RepeatableAnno1> annoSet_C1_2_1 = HierarchyMergedAnnotation.of(C1_2_1.class).getMergedRepeatableAnnotation(RepeatableAnno1.class);
 		Consoles.println(annoSet_C1_2_1);
 	}
 
 	@Test
 	@DisplayName("可重复方法注解测试")
 	void testClassAliasRepeatable02() {
-		Set<RepeatableAnno1> annoSet_C1 = MergedAnnotations.of(Reflects.getMethod(C1.class, "m1")).getMergedRepeatableAnnotation(RepeatableAnno1.class);
+		Set<RepeatableAnno1> annoSet_C1 = HierarchyMergedAnnotation.of(Reflects.getMethod(C1.class, "m1")).getMergedRepeatableAnnotation(RepeatableAnno1.class);
 		Consoles.println(annoSet_C1);
-		Set<RepeatableAnno1> annoSet_C1_1 = MergedAnnotations.of(Reflects.getMethod(C1_1.class, "m1")).getMergedRepeatableAnnotation(RepeatableAnno1.class);
+		Set<RepeatableAnno1> annoSet_C1_1 = HierarchyMergedAnnotation.of(Reflects.getMethod(C1_1.class, "m1")).getMergedRepeatableAnnotation(RepeatableAnno1.class);
 		Consoles.println(annoSet_C1_1);
-		Set<RepeatableAnno1> annoSet_C1_1x = MergedAnnotations.of(Reflects.getMethod(C1_1x.class, "m1")).getMergedRepeatableAnnotation(RepeatableAnno1.class);
+		Set<RepeatableAnno1> annoSet_C1_1x = HierarchyMergedAnnotation.of(Reflects.getMethod(C1_1x.class, "m1")).getMergedRepeatableAnnotation(RepeatableAnno1.class);
 		Consoles.println(annoSet_C1_1x);
-		Set<RepeatableAnno1> annoSet_C1_2 = MergedAnnotations.of(Reflects.getMethod(C1_2.class, "m1")).getMergedRepeatableAnnotation(RepeatableAnno1.class);
+		Set<RepeatableAnno1> annoSet_C1_2 = HierarchyMergedAnnotation.of(Reflects.getMethod(C1_2.class, "m1")).getMergedRepeatableAnnotation(RepeatableAnno1.class);
 		Consoles.println(annoSet_C1_2);
-		Set<RepeatableAnno1> annoSet_C1_2x = MergedAnnotations.of(Reflects.getMethod(C1_2x.class, "m1")).getMergedRepeatableAnnotation(RepeatableAnno1.class);
+		Set<RepeatableAnno1> annoSet_C1_2x = HierarchyMergedAnnotation.of(Reflects.getMethod(C1_2x.class, "m1")).getMergedRepeatableAnnotation(RepeatableAnno1.class);
 		Consoles.println(annoSet_C1_2x);
-		Set<RepeatableAnno1> annoSet_C1_2_1 = MergedAnnotations.of(Reflects.getMethod(C1_2_1.class, "m1")).getMergedRepeatableAnnotation(RepeatableAnno1.class);
+		Set<RepeatableAnno1> annoSet_C1_2_1 = HierarchyMergedAnnotation.of(Reflects.getMethod(C1_2_1.class, "m1")).getMergedRepeatableAnnotation(RepeatableAnno1.class);
 		Consoles.println(annoSet_C1_2_1);
 	}
 

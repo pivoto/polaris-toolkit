@@ -33,6 +33,24 @@ public class AnnotationAttributes implements Cloneable {
 	private final Class<? extends Annotation> annotationType;
 	private final Map<String, String> aliasMembers;
 
+	private AnnotationAttributes(Map<String, Member> members, Class<? extends Annotation> annotationType, Map<String, String> aliasMembers) {
+		this.annotationType = annotationType;
+		if (members == null || members.isEmpty()) {
+			this.members = Collections.unmodifiableMap(new LinkedHashMap<>());
+		} else {
+			Map<String, Member> map = new LinkedHashMap<>();
+			members.forEach((k, v) -> {
+				map.put(k, v.clone());
+			});
+			this.members = Collections.unmodifiableMap(map);
+		}
+		if (aliasMembers == null || aliasMembers.isEmpty()) {
+			this.aliasMembers = Collections.unmodifiableMap(new HashMap<>());
+		} else {
+			this.aliasMembers = Collections.unmodifiableMap(new HashMap<String, String>(aliasMembers));
+		}
+	}
+
 	private AnnotationAttributes(Annotation annotation) {
 		this.annotationType = annotation.annotationType();
 		Method[] methods = getAnnotationMembers(annotationType);
@@ -85,8 +103,8 @@ public class AnnotationAttributes implements Cloneable {
 			Set<AliasAttribute> aliasAttributes = AliasFinders.findAliasAttributes(method);
 			if (aliasAttributes != null) {
 				for (AliasAttribute alias : aliasAttributes) {
-					if (alias != null && (alias.annotation() == this.annotationType || alias.annotation() == Annotation.class)) {
-						String aliasName = alias.value();
+					if (alias != null && (alias.annotationType() == this.annotationType || alias.annotationType() == Annotation.class)) {
+						String aliasName = alias.attribute();
 						String name = method.getName();
 						aliasMembers.putIfAbsent(name, aliasName);
 					}
@@ -94,24 +112,6 @@ public class AnnotationAttributes implements Cloneable {
 			}
 		}
 		return aliasMembers;
-	}
-
-	private AnnotationAttributes(Map<String, Member> members, Class<? extends Annotation> annotationType, Map<String, String> aliasMembers) {
-		this.annotationType = annotationType;
-		if (members == null || members.isEmpty()) {
-			this.members = Collections.unmodifiableMap(new LinkedHashMap<>());
-		} else {
-			Map<String, Member> map = new LinkedHashMap<>();
-			members.forEach((k, v) -> {
-				map.put(k, v.clone());
-			});
-			this.members = Collections.unmodifiableMap(map);
-		}
-		if (aliasMembers == null || aliasMembers.isEmpty()) {
-			this.aliasMembers = Collections.unmodifiableMap(new HashMap<>());
-		} else {
-			this.aliasMembers = Collections.unmodifiableMap(new HashMap<String, String>(aliasMembers));
-		}
 	}
 
 

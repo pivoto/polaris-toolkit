@@ -197,7 +197,7 @@ public class MatchedMergedAnnotation<A extends Annotation> {
 	 * @return 注解类型
 	 */
 	@Nonnull
-	public Class<A> getAnnotationType() {
+	public Class<A> annotationType() {
 		return annotationType;
 	}
 
@@ -207,7 +207,7 @@ public class MatchedMergedAnnotation<A extends Annotation> {
 	 * @return 匹配的注解
 	 */
 	@Nullable
-	public MergedAnnotation getMatchedAnnotation() {
+	public MergedAnnotation matchedAnnotation() {
 		return matchedAnnotation;
 	}
 
@@ -217,7 +217,7 @@ public class MatchedMergedAnnotation<A extends Annotation> {
 	 * @return 别名注解列表
 	 */
 	@Nonnull
-	public List<MergedAnnotation> getAliasAnnotations() {
+	public List<MergedAnnotation> aliasAnnotations() {
 		return aliasAnnotations;
 	}
 }

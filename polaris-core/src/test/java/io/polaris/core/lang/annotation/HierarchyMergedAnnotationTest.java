@@ -36,7 +36,7 @@ class HierarchyMergedAnnotationTest {
 
 		HierarchyMergedAnnotation mergedAnnotations = new HierarchyMergedAnnotation(B.class);
 		Consoles.println(mergedAnnotations);
-		List<Set<MergedAnnotation>> sortedAnnotations = mergedAnnotations.getSortedAnnotations();
+		List<Set<MergedAnnotation>> sortedAnnotations = mergedAnnotations.getHierarchyAnnotations();
 		for (int k = 0; k < sortedAnnotations.size(); k++) {
 			Set<MergedAnnotation> v = sortedAnnotations.get(k);
 			Consoles.println(">>" + k + ">>");
@@ -51,7 +51,7 @@ class HierarchyMergedAnnotationTest {
 
 
 	static void display(HierarchyMergedAnnotation mergedAnnotations, PrintWriter pw) {
-		List<Set<MergedAnnotation>> sortedAnnotations = mergedAnnotations.getSortedAnnotations();
+		List<Set<MergedAnnotation>> sortedAnnotations = mergedAnnotations.getHierarchyAnnotations();
 		for (int key = 0; key < sortedAnnotations.size(); key++) {
 			Set<MergedAnnotation> set = sortedAnnotations.get(key);
 			for (int i = 0; i < key; i++) {
