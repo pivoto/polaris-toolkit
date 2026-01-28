@@ -75,6 +75,7 @@ public class MethodInfo {
 		char[] tab = new char[level];
 		Arrays.fill(tab, '\t');
 		StringBuilder sb = new StringBuilder();
+		sb.append(tab);
 		sb.append("method: ");
 		sb.append(classInfo.getName()).append(".").append(name).append(descriptor);
 		sb.append(" access(").append(Integer.toHexString(access)).append(")");

@@ -66,7 +66,7 @@ public class EntryMethodVisitor extends MethodVisitor {
 				ClassInfo classInfo = classVisitor.getClassInfo();
 				String owner = methodCall.getClassName();
 				String name = methodCall.getMethodName();
-				String desc = methodCall.getMethodDesc();
+				String descriptor = methodCall.getMethodDesc();
 
 				// 对本类、父类、父接口或匹配包名的类的方法，继续扫描
 				boolean matched =
@@ -77,7 +77,7 @@ public class EntryMethodVisitor extends MethodVisitor {
 						|| ctx.filterPackage(owner);
 				if (matched) {
 					try {
-						List<MethodInfo> methodInfoList = ctx.doAnalyze(this.classVisitor.getEntryClass(), owner, name, desc);
+						List<MethodInfo> methodInfoList = ctx.doAnalyze(this.classVisitor.getEntryClass(), owner, name, descriptor);
 						if (methodInfoList != null) {
 							for (MethodInfo methodInfo : methodInfoList) {
 								this.methodInfo.addTraces(methodInfo);
@@ -107,10 +107,10 @@ public class EntryMethodVisitor extends MethodVisitor {
 	}
 
 	@Override
-	public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-		log.debug("visitAnnotation desc:{}, visible:{}", desc, visible);
+	public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
+		log.debug("visitAnnotation descriptor:{}, visible:{}", descriptor, visible);
 
-		AnnotationInfo methodAnnotationInfo = new AnnotationInfo(desc, visible);
+		AnnotationInfo methodAnnotationInfo = new AnnotationInfo(descriptor, visible);
 		this.methodInfo.addMethodAnnotation(methodAnnotationInfo);
 
 		BiConsumer<String, AnnotationInfo.Value> consumer = (name, value) -> {
@@ -121,12 +121,12 @@ public class EntryMethodVisitor extends MethodVisitor {
 	}
 
 	@Override
-	public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
-		log.debug("visitTypeAnnotation typeRef:{}, typePath:{}, desc:{}, visible:{}", typeRef, typePath, desc, visible);
+	public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String descriptor, boolean visible) {
+		log.debug("visitTypeAnnotation typeRef:{}, typePath:{}, descriptor:{}, visible:{}", typeRef, typePath, descriptor, visible);
 
 		TypeReference typeReference = new TypeReference(typeRef);
 		if (typeReference.getSort() == TypeReference.METHOD_RETURN) {
-			AnnotationInfo annotationInfo = new AnnotationInfo(desc, visible);
+			AnnotationInfo annotationInfo = new AnnotationInfo(descriptor, visible);
 			methodInfo.addReturnAnnotation(annotationInfo);
 			BiConsumer<String, AnnotationInfo.Value> consumer = (name, value) -> {
 				annotationInfo.getValues().put(name, value);
@@ -135,7 +135,7 @@ public class EntryMethodVisitor extends MethodVisitor {
 			return new EntryAnnotationVisitor(super.api, consumer);
 		} else if (typeReference.getSort() == TypeReference.METHOD_FORMAL_PARAMETER) {
 			int formalParameterIndex = typeReference.getFormalParameterIndex();
-			AnnotationInfo annotationInfo = new AnnotationInfo(desc, visible);
+			AnnotationInfo annotationInfo = new AnnotationInfo(descriptor, visible);
 			this.methodInfo.addFormalParameterAnnotation(formalParameterIndex, annotationInfo);
 			BiConsumer<String, AnnotationInfo.Value> consumer = (name, value) -> {
 				annotationInfo.getValues().put(name, value);
@@ -144,14 +144,14 @@ public class EntryMethodVisitor extends MethodVisitor {
 			return new EntryAnnotationVisitor(super.api, consumer);
 		}
 		// 忽略
-		return super.visitTypeAnnotation(typeRef, typePath, desc, visible);
+		return super.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
 	}
 
 	@Override
 	public AnnotationVisitor visitParameterAnnotation(int parameter,
-		String desc, boolean visible) {
-		log.debug("visitParameterAnnotation parameter:{}, desc:{}, visible:{}", parameter, desc, visible);
-		AnnotationInfo annotationInfo = new AnnotationInfo(desc, visible);
+		String descriptor, boolean visible) {
+		log.debug("visitParameterAnnotation parameter:{}, descriptor:{}, visible:{}", parameter, descriptor, visible);
+		AnnotationInfo annotationInfo = new AnnotationInfo(descriptor, visible);
 		this.methodInfo.addParameterAnnotation(parameter, annotationInfo);
 		BiConsumer<String, AnnotationInfo.Value> consumer = (name, value) -> {
 			annotationInfo.getValues().put(name, value);
@@ -222,24 +222,24 @@ public class EntryMethodVisitor extends MethodVisitor {
 	}
 
 	@Override
-	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-		log.debug("visitFieldInsn opcode:{}, owner:{}, name:{}, desc:{}", EntryAnalyzer.asOpcodeString(opcode), owner, name, desc);
-		this.analyzer.visitFieldInsn(opcode, owner, name, desc);
-		super.visitFieldInsn(opcode, owner, name, desc);
+	public void visitFieldInsn(int opcode, String owner, String name, String descriptor) {
+		log.debug("visitFieldInsn opcode:{}, owner:{}, name:{}, descriptor:{}", EntryAnalyzer.asOpcodeString(opcode), owner, name, descriptor);
+		this.analyzer.visitFieldInsn(opcode, owner, name, descriptor);
+		super.visitFieldInsn(opcode, owner, name, descriptor);
 	}
 
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name,
-		String desc, boolean isInterface) {
-		log.debug("visitMethodInsn opcode:{}, owner:{}, name:{}, desc:{}, isInterface:{}", EntryAnalyzer.asOpcodeString(opcode), owner, name, desc, isInterface);
-		this.analyzer.visitMethodInsn(opcode, owner, name, desc, isInterface);
-		super.visitMethodInsn(opcode, owner, name, desc, isInterface);
+		String descriptor, boolean isInterface) {
+		log.debug("visitMethodInsn opcode:{}, owner:{}, name:{}, descriptor:{}, isInterface:{}", EntryAnalyzer.asOpcodeString(opcode), owner, name, descriptor, isInterface);
+		this.analyzer.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+		super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
 	}
 
 	@Override
-	public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
+	public void visitInvokeDynamicInsn(String name, String descriptor, Handle bsm, Object... bsmArgs) {
 		if (log.isDebugEnabled()) {
-			log.debug("visitInvokeDynamicInsn name:{}, desc:{}, bsm:(owner:{},name:{},desc:{},tag:{},itf:{}), bsmArgs:{}", name, desc,
+			log.debug("visitInvokeDynamicInsn name:{}, descriptor:{}, bsm:(owner:{},name:{},descriptor:{},tag:{},itf:{}), bsmArgs:{}", name, descriptor,
 				bsm.getOwner(),
 				bsm.getName(),
 				bsm.getDesc(),
@@ -247,7 +247,7 @@ public class EntryMethodVisitor extends MethodVisitor {
 				bsm.isInterface(),
 				Objs.toString(bsmArgs));
 		}
-		this.analyzer.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
+		this.analyzer.visitInvokeDynamicInsn(name, descriptor, bsm, bsmArgs);
 
 		if (Strings.equals("java/lang/invoke/LambdaMetafactory", bsm.getOwner())
 			&& Strings.equals("metafactory", bsm.getName())
@@ -282,7 +282,7 @@ public class EntryMethodVisitor extends MethodVisitor {
 				}
 			}
 		}
-		super.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
+		super.visitInvokeDynamicInsn(name, descriptor, bsm, bsmArgs);
 	}
 
 	@Override
@@ -330,17 +330,17 @@ public class EntryMethodVisitor extends MethodVisitor {
 	}
 
 	@Override
-	public void visitMultiANewArrayInsn(String desc, int dims) {
-		log.debug("visitMultiANewArrayInsn desc:{}, dims:{}", desc, dims);
-		this.analyzer.visitMultiANewArrayInsn(desc, dims);
-		super.visitMultiANewArrayInsn(desc, dims);
+	public void visitMultiANewArrayInsn(String descriptor, int dims) {
+		log.debug("visitMultiANewArrayInsn descriptor:{}, dims:{}", descriptor, dims);
+		this.analyzer.visitMultiANewArrayInsn(descriptor, dims);
+		super.visitMultiANewArrayInsn(descriptor, dims);
 	}
 
 
 	@Override
-	public AnnotationVisitor visitInsnAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
-		log.debug("visitInsnAnnotation typeRef:{}, typePath:{}, desc:{}, visible:{}", typeRef, typePath, desc, visible);
-		return super.visitInsnAnnotation(typeRef, typePath, desc, visible);
+	public AnnotationVisitor visitInsnAnnotation(int typeRef, TypePath typePath, String descriptor, boolean visible) {
+		log.debug("visitInsnAnnotation typeRef:{}, typePath:{}, descriptor:{}, visible:{}", typeRef, typePath, descriptor, visible);
+		return super.visitInsnAnnotation(typeRef, typePath, descriptor, visible);
 	}
 
 	@Override
@@ -353,28 +353,28 @@ public class EntryMethodVisitor extends MethodVisitor {
 
 	@Override
 	public AnnotationVisitor visitTryCatchAnnotation(int typeRef,
-		TypePath typePath, String desc, boolean visible) {
-		log.debug("visitTryCatchAnnotation typeRef:{}, typePath:{}, desc:{}, visible:{}", typeRef, typePath, desc, visible);
+		TypePath typePath, String descriptor, boolean visible) {
+		log.debug("visitTryCatchAnnotation typeRef:{}, typePath:{}, descriptor:{}, visible:{}", typeRef, typePath, descriptor, visible);
 		// 忽略异常的注解
-		return super.visitTryCatchAnnotation(typeRef, typePath, desc, visible);
+		return super.visitTryCatchAnnotation(typeRef, typePath, descriptor, visible);
 	}
 
 	@Override
-	public void visitLocalVariable(String name, String desc, String signature,
+	public void visitLocalVariable(String name, String descriptor, String signature,
 		Label start, Label end, int index) {
-		log.debug("visitLocalVariable name:{}, desc:{}, signature:{}, start:{}, end:{}, index:{}", name, desc, signature, start, end, index);
-		this.analyzer.visitLocalVariable(name, desc, signature, start, end, index);
-		super.visitLocalVariable(name, desc, signature, start, end, index);
+		log.debug("visitLocalVariable name:{}, descriptor:{}, signature:{}, start:{}, end:{}, index:{}", name, descriptor, signature, start, end, index);
+		this.analyzer.visitLocalVariable(name, descriptor, signature, start, end, index);
+		super.visitLocalVariable(name, descriptor, signature, start, end, index);
 	}
 
 	@Override
 	public AnnotationVisitor visitLocalVariableAnnotation(int typeRef,
 		TypePath typePath, Label[] start, Label[] end, int[] index,
-		String desc, boolean visible) {
-		log.debug("visitLocalVariableAnnotation typeRef:{}, typePath:{}, start:{}, end:{}, index:{}, desc:{}, visible:{}", typeRef, typePath, start, end, index, desc, visible);
+		String descriptor, boolean visible) {
+		log.debug("visitLocalVariableAnnotation typeRef:{}, typePath:{}, start:{}, end:{}, index:{}, descriptor:{}, visible:{}", typeRef, typePath, start, end, index, descriptor, visible);
 		// 忽略局部变量的注解
 		return super.visitLocalVariableAnnotation(typeRef, typePath, start, end, index,
-			desc, visible);
+			descriptor, visible);
 	}
 
 	@Override

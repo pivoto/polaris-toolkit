@@ -84,14 +84,14 @@ public class EntryClassVisitor extends ClassVisitor {
 	}
 
 	@Override
-	public void visitOuterClass(String owner, String name, String desc) {
-		log.debug("visitOuterClass owner:{}, name:{}, desc:{}", owner, name, desc);
+	public void visitOuterClass(String owner, String name, String descriptor) {
+		log.debug("visitOuterClass owner:{}, name:{}, descriptor:{}", owner, name, descriptor);
 	}
 
 	@Override
-	public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-		log.debug("visitAnnotation desc:{}, visible:{}", desc, visible);
-		AnnotationInfo annotationInfo = new AnnotationInfo(desc, visible);
+	public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
+		log.debug("visitAnnotation descriptor:{}, visible:{}", descriptor, visible);
+		AnnotationInfo annotationInfo = new AnnotationInfo(descriptor, visible);
 		classInfo.addAnnotation(annotationInfo);
 		BiConsumer<String, AnnotationInfo.Value> consumer = (name, value) -> {
 			annotationInfo.getValues().put(name, value);
@@ -111,9 +111,9 @@ public class EntryClassVisitor extends ClassVisitor {
 	}
 
 	@Override
-	public FieldVisitor visitField(int access, String name, String desc,
+	public FieldVisitor visitField(int access, String name, String descriptor,
 		String signature, Object value) {
-		log.debug("visitField access:{}, name:{}, desc:{}, signature:{}, value:{}", access, name, desc, signature, value);
+		log.debug("visitField access:{}, name:{}, descriptor:{}, signature:{}, value:{}", access, name, descriptor, signature, value);
 		return null;
 	}
 
