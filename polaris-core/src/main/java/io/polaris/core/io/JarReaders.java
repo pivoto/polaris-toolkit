@@ -341,7 +341,7 @@ public class JarReaders {
 	}
 
 
-	private static File createTempFile(InputStream input, String fileSuffix) {
+	public static File createTempFile(InputStream input, String fileSuffix) {
 		File tmpFile = new File(SystemProperty.JAVA_IO_TMPDIR.value(), Ulid.fast().toString() + fileSuffix);
 		try {
 			tmpFile.getParentFile().mkdirs();

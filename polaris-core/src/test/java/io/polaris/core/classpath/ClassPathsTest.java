@@ -11,4 +11,8 @@ class ClassPathsTest {
 	void test01() {
 		Consoles.println(ClassPaths.getClassLoaderUrls(ClassPaths.class.getClassLoader()));
 	}
+	@Test
+	void test02() {
+		Consoles.println(ClassPaths.getClassLoaderFiles(ClassPaths.class.getClassLoader()));
+	}
 }

@@ -184,7 +184,7 @@ public class ClassPaths {
 
 
 	@Nullable
-	public static File toFile(URL url) {
+	private static File toFile(URL url) {
 		if (url.getProtocol().equals("file")) {
 			try {
 				Path path = Paths.get(url.toURI());
