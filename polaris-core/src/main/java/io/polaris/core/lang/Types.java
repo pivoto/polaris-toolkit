@@ -24,32 +24,74 @@ import javax.annotation.Nullable;
  */
 @SuppressWarnings("rawtypes")
 public class Types {
-	private static final Map<Class, Class> primitiveWrapperTypes = new HashMap<>();
-	private static final Map<Class, Class> wrapperPrimitiveTypes = new HashMap<>();
-	private static final Map<String, Class> primitiveNameTypes = new HashMap<>();
 
-	static {
-		primitiveWrapperTypes.put(Integer.TYPE, Integer.class);
-		primitiveWrapperTypes.put(Byte.TYPE, Byte.class);
-		primitiveWrapperTypes.put(Short.TYPE, Short.class);
-		primitiveWrapperTypes.put(Long.TYPE, Long.class);
-		primitiveWrapperTypes.put(Character.TYPE, Character.class);
-		primitiveWrapperTypes.put(Boolean.TYPE, Boolean.class);
-		primitiveWrapperTypes.put(Float.TYPE, Float.class);
-		primitiveWrapperTypes.put(Double.TYPE, Double.class);
-		// reverse
-		primitiveWrapperTypes.forEach((k, v) -> {
-			wrapperPrimitiveTypes.put(v, k);
-			primitiveNameTypes.put(k.getName(), k);
-		});
+	@Nullable
+	public static Class getPrimitiveClassByName(@Nonnull String type) {
+		switch (type) {
+			case "void":
+			case "V":
+				return Void.TYPE;
+			case "boolean":
+			case "Z":
+				return Boolean.TYPE;
+			case "char":
+			case "C":
+				return Character.TYPE;
+			case "byte":
+			case "B":
+				return Byte.TYPE;
+			case "short":
+			case "S":
+				return Short.TYPE;
+			case "int":
+			case "I":
+				return Integer.TYPE;
+			case "float":
+			case "F":
+				return Float.TYPE;
+			case "long":
+			case "J":
+				return Long.TYPE;
+			case "double":
+			case "D":
+				return Double.TYPE;
+		}
+		return null;
 	}
 
-	public static Class getPrimitiveClassByName(String type) {
-		return primitiveNameTypes.get(type);
-	}
-
-	public static Class getPrimitiveClassByWrapper(Class type) {
-		return type.isPrimitive() ? type : wrapperPrimitiveTypes.get(type);
+	@Nullable
+	public static Class getPrimitiveClassByWrapper(@Nonnull Class type) {
+		if (type.isPrimitive()) {
+			return type;
+		}
+		if (type.equals(Void.class)) {
+			return Void.TYPE;
+		}
+		if (type.equals(Boolean.class)) {
+			return Boolean.TYPE;
+		}
+		if (type.equals(Character.class)) {
+			return Character.TYPE;
+		}
+		if (type.equals(Byte.class)) {
+			return Byte.TYPE;
+		}
+		if (type.equals(Short.class)) {
+			return Short.TYPE;
+		}
+		if (type.equals(Integer.class)) {
+			return Integer.TYPE;
+		}
+		if (type.equals(Float.class)) {
+			return Float.TYPE;
+		}
+		if (type.equals(Long.class)) {
+			return Long.TYPE;
+		}
+		if (type.equals(Double.class)) {
+			return Double.TYPE;
+		}
+		return null;
 	}
 
 	public static boolean isPrimitive(Class<?> clazz) {
@@ -63,7 +105,15 @@ public class Types {
 		if (clazz == null) {
 			return false;
 		}
-		return wrapperPrimitiveTypes.containsKey(clazz);
+		return clazz.equals(Void.class)
+			|| clazz.equals(Boolean.class)
+			|| clazz.equals(Character.class)
+			|| clazz.equals(Byte.class)
+			|| clazz.equals(Short.class)
+			|| clazz.equals(Integer.class)
+			|| clazz.equals(Float.class)
+			|| clazz.equals(Long.class)
+			|| clazz.equals(Double.class);
 	}
 
 	/**
@@ -73,7 +123,34 @@ public class Types {
 		if (!type.isPrimitive()) {
 			return type;
 		}
-		return primitiveWrapperTypes.getOrDefault(type, type);
+		if (type.equals(Void.TYPE)) {
+			return Void.class;
+		}
+		if (type.equals(Boolean.TYPE)) {
+			return Boolean.class;
+		}
+		if (type.equals(Character.TYPE)) {
+			return Character.class;
+		}
+		if (type.equals(Byte.TYPE)) {
+			return Byte.class;
+		}
+		if (type.equals(Short.TYPE)) {
+			return Short.class;
+		}
+		if (type.equals(Integer.TYPE)) {
+			return Integer.class;
+		}
+		if (type.equals(Float.TYPE)) {
+			return Float.class;
+		}
+		if (type.equals(Long.TYPE)) {
+			return Long.class;
+		}
+		if (type.equals(Double.TYPE)) {
+			return Double.class;
+		}
+		return type;
 	}
 
 	public Type getArrayComponentType(Type type) {

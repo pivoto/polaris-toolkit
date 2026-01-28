@@ -1177,13 +1177,13 @@ public class Reflects {
 		return false;
 	}
 
-
-	public static Class<?> loadClass(String name) throws ClassNotFoundException {
+	@Nonnull
+	public static Class<?> loadClass(@Nonnull String name) throws ClassNotFoundException {
 		return loadClass(name, null);
 	}
 
-
-	public static Class<?> loadClass(String name, ClassLoader classLoader) throws ClassNotFoundException {
+	@Nonnull
+	public static Class<?> loadClass(@Nonnull String name, @Nullable ClassLoader classLoader) throws ClassNotFoundException {
 		name = name.replace(CharConsts.SLASH, CharConsts.DOT);
 		if (classLoader == null) {
 			classLoader = Thread.currentThread().getContextClassLoader();
