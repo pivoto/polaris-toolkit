@@ -6,16 +6,8 @@ import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-
-import io.polaris.core.lang.JavaType;
-import io.polaris.core.lang.Types;
-import io.polaris.core.map.Maps;
-import io.polaris.core.string.StringCases;
-import org.objectweb.asm.Type;
 
 import io.polaris.core.javapoet.ArrayTypeName;
 import io.polaris.core.javapoet.ClassName;
@@ -23,28 +15,16 @@ import io.polaris.core.javapoet.ParameterizedTypeName;
 import io.polaris.core.javapoet.TypeName;
 import io.polaris.core.javapoet.TypeVariableName;
 import io.polaris.core.javapoet.WildcardTypeName;
+import io.polaris.core.lang.JavaType;
+import io.polaris.core.lang.Types;
+import io.polaris.core.string.StringCases;
+import org.objectweb.asm.Type;
 
 /**
  * @author Qt
  * @since Aug 05, 2023
  */
 public class AsmTypes {
-	private static final Map<String, String> transforms = new HashMap<>();
-	private static final Map<String, String> rtransforms = new HashMap<>();
-
-	static {
-		transforms.put("void", "V");
-		transforms.put("byte", "B");
-		transforms.put("char", "C");
-		transforms.put("double", "D");
-		transforms.put("float", "F");
-		transforms.put("int", "I");
-		transforms.put("long", "J");
-		transforms.put("short", "S");
-		transforms.put("boolean", "Z");
-		Maps.reverse(transforms, rtransforms);
-	}
-
 
 	public static String toTypeSignature(java.lang.reflect.Type type) {
 		if (type instanceof JavaType) {
@@ -128,7 +108,7 @@ public class AsmTypes {
 	}
 
 	public static Type getType(String className) {
-		return Type.getType(map(className));
+		return Type.getType(toInternalDescriptor(className));
 	}
 
 	public static boolean isFinal(int access) {
@@ -185,11 +165,38 @@ public class AsmTypes {
 	}
 
 	public static String getClassName(Type type) {
-		if (isPrimitive(type)) {
-			return rtransforms.get(type.getDescriptor());
-		} else if (isArray(type)) {
-			return getClassName(getComponentType(type)) + "[]";
+		switch (type.getSort()) {
+			case Type.VOID:
+				return "void";
+			case Type.BOOLEAN:
+				return "boolean";
+			case Type.CHAR:
+				return "char";
+			case Type.BYTE:
+				return "byte";
+			case Type.SHORT:
+				return "short";
+			case Type.INT:
+				return "int";
+			case Type.FLOAT:
+				return "float";
+			case Type.LONG:
+				return "long";
+			case Type.DOUBLE:
+				return "double";
+			case Type.ARRAY:
+				return getClassName(getComponentType(type)) + "[]";
+			case Type.OBJECT:
+			default:
+				return type.getClassName();
+		}
+	}
+
+	public static String getClassLoadedName(Type type) {
+		if (isArray(type)) {
+			return type.getDescriptor().replace('/', '.');
 		} else {
+			// 这里不考虑基本类型，Class.forName() 不支持基本类型
 			return type.getClassName();
 		}
 	}
@@ -294,12 +301,12 @@ public class AsmTypes {
 			sb.append(it.next());
 		}
 		sb.append(')');
-		sb.append(map(returnType));
+		sb.append(toInternalDescriptor(returnType));
 		return new Signature(methodName, sb.toString());
 	}
 
 	public static Type parseType(String s) {
-		return Type.getType(map(s));
+		return Type.getType(toInternalDescriptor(s));
 	}
 
 	public static Type[] parseTypes(String s) {
@@ -333,31 +340,47 @@ public class AsmTypes {
 			if (next < 0) {
 				break;
 			}
-			types.add(map(s.substring(mark, next).trim()));
+			types.add(toInternalDescriptor(s.substring(mark, next).trim()));
 			mark = next + 1;
 		}
-		types.add(map(s.substring(mark, end).trim()));
+		types.add(toInternalDescriptor(s.substring(mark, end).trim()));
 		return types;
 	}
 
-	private static String map(String type) {
-		if (type.isEmpty()) {
-			return type;
-		}
-		String t = transforms.get(type);
-		if (t != null) {
-			return t;
-		} else if (type.indexOf('.') < 0) {
-			return map("java.lang." + type);
-		} else {
-			StringBuilder sb = new StringBuilder();
-			int index = 0;
-			while ((index = type.indexOf("[]", index) + 1) > 0) {
-				sb.append('[');
-			}
-			type = type.substring(0, type.length() - sb.length() * 2);
-			sb.append('L').append(type.replace('.', '/')).append(';');
-			return sb.toString();
+	private static String toInternalDescriptor(String type) {
+		switch (type) {
+			case "":
+				return type;
+			case "void":
+				return "V";
+			case "boolean":
+				return "Z";
+			case "char":
+				return "C";
+			case "byte":
+				return "B";
+			case "short":
+				return "S";
+			case "int":
+				return "I";
+			case "float":
+				return "F";
+			case "double":
+				return "D";
+			case "long":
+				return "J";
+			default:
+				StringBuilder sb = new StringBuilder();
+				int index = 0;
+				while ((index = type.indexOf("[]", index) + 1) > 0) {
+					sb.append('[');
+				}
+				type = type.substring(0, type.length() - sb.length() * 2);
+				if (type.indexOf('.') < 0) {
+					type = "java.lang." + type;
+				}
+				sb.append('L').append(type.replace('.', '/')).append(';');
+				return sb.toString();
 		}
 	}
 
@@ -431,7 +454,9 @@ public class AsmTypes {
 		if (isArray(type)) {
 			return type.getDescriptor().replace('/', '.');
 		} else {
-			return getClassName(type);
+			//return getClassName(type);
+			// 这里不考虑基本类型
+			return type.getClassName();
 		}
 	}
 

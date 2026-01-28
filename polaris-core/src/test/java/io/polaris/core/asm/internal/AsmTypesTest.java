@@ -4,6 +4,7 @@ import java.util.Map;
 
 import io.polaris.core.io.Consoles;
 import io.polaris.core.lang.JavaType;
+import io.polaris.core.string.Strings;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.Type;
@@ -29,6 +30,7 @@ class AsmTypesTest {
 		Consoles.log("", result);
 		Assertions.assertEquals(Type.getType(String.class), result);
 	}
+
 	@Test
 	void test_getClassName() throws ClassNotFoundException {
 		String msg2 = AsmTypes.getClassName(Type.getType(String.class));
@@ -39,5 +41,37 @@ class AsmTypesTest {
 		Consoles.log(msg);
 	}
 
+
+	@Test
+	void test_getClass() throws ClassNotFoundException {
+		Class<?>[] array = new Class[]{
+			int.class,
+			int[].class,
+			String[][].class,
+			String[].class,
+			String.class,
+		};
+		for (Class<?> clazz : array) {
+			try {
+				Consoles.log(Strings.repeat('=', 72));
+				Consoles.log("Class: {}\n" +
+						"Descriptor: {}\n" +
+						"ClassName: {}\n" +
+						"emulateClassGetName: {}\n" +
+						"getClassLoadedName: {}\n" +
+						"getClass: {}\n",
+					clazz.getName(),
+					Type.getType(clazz).getDescriptor(),
+					Type.getType(clazz).getClassName(),
+					AsmTypes.emulateClassGetName(Type.getType(clazz)),
+					AsmTypes.getClassLoadedName(Type.getType(clazz)),
+					AsmTypes.getClass(Type.getType(clazz))
+				);
+			} catch (ClassNotFoundException e) {
+				Consoles.log(e);
+			}
+		}
+
+	}
 }
 

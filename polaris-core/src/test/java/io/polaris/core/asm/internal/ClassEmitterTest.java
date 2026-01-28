@@ -40,7 +40,7 @@ class ClassEmitterTest extends BaseAsmTest {
 		}
 
 		byte[] bytes = cw.toByteArray();
-		Class clazz = AsmReflects.defineClass(ClassNameReader.getClassName(new ClassReader(bytes)), bytes, classLoader);
+		Class<?> clazz = AsmReflects.defineClass(ClassNameReader.getClassName(new ClassReader(bytes)), bytes, classLoader);
 		Consoles.log("class: {}", clazz);
 		Object o = clazz.newInstance();
 		return o;

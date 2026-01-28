@@ -15,7 +15,6 @@ import java.security.PrivilegedExceptionAction;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,10 +33,6 @@ public class AsmReflects {
 	private AsmReflects() {
 	}
 
-	/** classname -> class */
-	private static final Map<String, Class<?>> primitives = new HashMap<>(8);
-	/** classname -> internal name */
-	private static final Map<String, String> transforms = new HashMap<>(8);
 	private static final ClassLoader defaultLoader = AsmReflects.class.getClassLoader();
 	private static final Method DEFINE_CLASS;
 	private static final Method DEFINE_CLASS_UNSAFE;
@@ -118,24 +113,52 @@ public class AsmReflects {
 		"java.lang",
 	};
 
-	static {
-		primitives.put("byte", Byte.TYPE);
-		primitives.put("char", Character.TYPE);
-		primitives.put("double", Double.TYPE);
-		primitives.put("float", Float.TYPE);
-		primitives.put("int", Integer.TYPE);
-		primitives.put("long", Long.TYPE);
-		primitives.put("short", Short.TYPE);
-		primitives.put("boolean", Boolean.TYPE);
+	private static Class<?> getPrimitiveClassByName(String name) {
+		switch (name) {
+			case "void":
+				return Void.TYPE;
+			case "boolean":
+				return Boolean.TYPE;
+			case "char":
+				return Character.TYPE;
+			case "byte":
+				return Byte.TYPE;
+			case "short":
+				return Short.TYPE;
+			case "int":
+				return Integer.TYPE;
+			case "float":
+				return Float.TYPE;
+			case "long":
+				return Long.TYPE;
+			case "double":
+				return Double.TYPE;
+		}
+		return null;
+	}
 
-		transforms.put("byte", "B");
-		transforms.put("char", "C");
-		transforms.put("double", "D");
-		transforms.put("float", "F");
-		transforms.put("int", "I");
-		transforms.put("long", "J");
-		transforms.put("short", "S");
-		transforms.put("boolean", "Z");
+	private static String getPrimitiveDescriptorByName(String name) {
+		switch (name) {
+			case "void":
+				return "V";
+			case "boolean":
+				return "Z";
+			case "char":
+				return "C";
+			case "byte":
+				return "B";
+			case "short":
+				return "S";
+			case "int":
+				return "I";
+			case "float":
+				return "F";
+			case "long":
+				return "J";
+			case "double":
+				return "D";
+		}
+		return null;
 	}
 
 
@@ -319,12 +342,12 @@ public class AsmReflects {
 			} catch (ClassNotFoundException ignore) {}
 		}
 		if (dimensions == 0) {
-			Class<?> c = primitives.get(className);
+			Class<?> c = getPrimitiveClassByName(className);
 			if (c != null) {
 				return c;
 			}
 		} else {
-			String transform = transforms.get(className);
+			String transform = getPrimitiveDescriptorByName(className);
 			if (transform != null) {
 				try {
 					return Class.forName(brackets + transform, false, loader);
