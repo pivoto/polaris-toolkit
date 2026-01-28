@@ -46,7 +46,7 @@ public class HierarchyMergedAnnotation {
 	 *
 	 * @return 按距离排序的注解映射的不可变视图
 	 */
-	public List<Set<MergedAnnotation>> getHierarchyAnnotations() {
+	public List<Set<MergedAnnotation>> hierarchyAnnotations() {
 		return Collections.unmodifiableList(hierarchyAnnotations);
 	}
 

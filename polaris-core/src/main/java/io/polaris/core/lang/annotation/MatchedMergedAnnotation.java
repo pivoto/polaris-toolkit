@@ -94,7 +94,7 @@ public class MatchedMergedAnnotation<A extends Annotation> {
 	 * @return 注解属性
 	 */
 	@Nullable
-	public AnnotationAttributes getAnnotationAttributes() {
+	public AnnotationAttributes annotationAttributes() {
 		if (this.annotationAttributes == null) {
 			this.annotationAttributes = Ref.of(newAnnotationAttributes());
 		}
@@ -114,7 +114,7 @@ public class MatchedMergedAnnotation<A extends Annotation> {
 		// 如果没有别名注解，则直接返回匹配注解的属性或null
 		if (aliasAnnotations.isEmpty()) {
 			if (matchedAnnotation != null) {
-				return matchedAnnotation.getAnnotationAttributes().clone();
+				return matchedAnnotation.annotationAttributes().clone();
 			} else {
 				// 没有匹配到注解
 				return null;
@@ -126,7 +126,7 @@ public class MatchedMergedAnnotation<A extends Annotation> {
 		Set<String> pending;
 		if (matchedAnnotation != null) {
 			// 如果存在匹配的注解，使用其属性作为基础
-			annotationAttributes = matchedAnnotation.getAnnotationAttributes().clone();
+			annotationAttributes = matchedAnnotation.annotationAttributes().clone();
 			Set<String> memberNames = annotationAttributes.getMemberNames();
 			if (!memberNames.isEmpty()) {
 				pending = new HashSet<>(memberNames);
@@ -157,7 +157,7 @@ public class MatchedMergedAnnotation<A extends Annotation> {
 		if (!pending.isEmpty()) {
 			for (Iterator<MergedAnnotation> iter = aliasAnnotations.iterator(); !pending.isEmpty() && iter.hasNext(); ) {
 				MergedAnnotation mergedAnnotation = iter.next();
-				Map<String, Object> aliasValues = mergedAnnotation.getAnnotationAttributes().asMap();
+				Map<String, Object> aliasValues = mergedAnnotation.annotationAttributes().asMap();
 
 				for (Map.Entry<String, Object> entry : aliasValues.entrySet()) {
 					String aliasName = entry.getKey();
@@ -184,7 +184,7 @@ public class MatchedMergedAnnotation<A extends Annotation> {
 	@SuppressWarnings("unchecked")
 	@Nullable
 	public A asAnnotation() {
-		AnnotationAttributes annotationAttributes = getAnnotationAttributes();
+		AnnotationAttributes annotationAttributes = annotationAttributes();
 		if (annotationAttributes == null) {
 			return null;
 		}

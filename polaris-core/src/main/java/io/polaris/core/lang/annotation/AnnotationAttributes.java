@@ -149,7 +149,7 @@ public class AnnotationAttributes implements Cloneable {
 		return map;
 	}
 
-	public Class<? extends Annotation> getAnnotationType() {
+	public Class<? extends Annotation> annotationType() {
 		return annotationType;
 	}
 

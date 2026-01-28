@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.Repeatable;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -133,4 +134,25 @@ public class Annotations {
 		}
 		return false;
 	}
+
+	public static AnnotationAttributes asAnnotationAttributes(Annotation annotation) {
+		return AnnotationAttributes.of(annotation);
+	}
+
+	public static AnnotationAttributes asAnnotationAttributes(Class<? extends Annotation> annotationType) {
+		return AnnotationAttributes.of(annotationType);
+	}
+
+	public static MergedAnnotation asMergedAnnotation(Annotation annotation) {
+		return MergedAnnotation.of(annotation);
+	}
+
+	public static HierarchyMergedAnnotation asHierarchyMergedAnnotation(List<Set<MergedAnnotation>> hierarchyAnnotations) {
+		return HierarchyMergedAnnotation.of(hierarchyAnnotations);
+	}
+
+	public static HierarchyMergedAnnotation asHierarchyMergedAnnotation(AnnotatedElement element) {
+		return HierarchyMergedAnnotation.of(element);
+	}
+
 }

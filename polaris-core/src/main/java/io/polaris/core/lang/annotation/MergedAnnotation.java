@@ -15,7 +15,6 @@ import io.polaris.core.reflect.Reflects;
 import io.polaris.core.tuple.LazyRef;
 import io.polaris.core.tuple.Ref;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.ToString;
 
 /**
@@ -134,7 +133,7 @@ public class MergedAnnotation {
 
 			// 如果存在别名源注解，则合并别名属性值
 			if (aliasSourceAnnotation != null && aliasSourceMembers != null) {
-				AnnotationAttributes aliasAnnotationAttributes = aliasSourceAnnotation.getAnnotationAttributes();
+				AnnotationAttributes aliasAnnotationAttributes = aliasSourceAnnotation.annotationAttributes();
 				for (Map.Entry<String, String> entry : aliasSourceMembers.entrySet()) {
 					// 检查目标注解是否包含别名映射的成员
 					if (annotationAttributes.hasMember(entry.getKey())) {
@@ -182,7 +181,7 @@ public class MergedAnnotation {
 		}
 
 		// 遍历层级注解查找匹配项
-		List<Set<MergedAnnotation>> hierarchyAnnotations = this.getHierarchyAnnotations();
+		List<Set<MergedAnnotation>> hierarchyAnnotations = this.hierarchyAnnotations();
 		for (Set<MergedAnnotation> set : hierarchyAnnotations) {
 			for (MergedAnnotation mergedAnnotation : set) {
 				if (mergedAnnotation.annotationType == annotationType) {
@@ -231,7 +230,7 @@ public class MergedAnnotation {
 
 		Set<MatchedMergedAnnotation<A>> matchedSet = newMatchedSet(annotationType);
 
-		List<Set<MergedAnnotation>> hierarchyAnnotations = this.getHierarchyAnnotations();
+		List<Set<MergedAnnotation>> hierarchyAnnotations = this.hierarchyAnnotations();
 		for (Set<MergedAnnotation> set : hierarchyAnnotations) {
 			for (MergedAnnotation mergedAnnotation : set) {
 				if (mergedAnnotation.isRepeatable()) {
@@ -265,7 +264,7 @@ public class MergedAnnotation {
 	public <A extends Annotation> Set<MatchedMergedAnnotation<A>> getTopMatchedRepeatableAnnotation(Class<A> annotationType) {
 		Set<MatchedMergedAnnotation<A>> matchedSet = newMatchedSet(annotationType);
 
-		List<Set<MergedAnnotation>> hierarchyAnnotations = this.getHierarchyAnnotations();
+		List<Set<MergedAnnotation>> hierarchyAnnotations = this.hierarchyAnnotations();
 		for (Set<MergedAnnotation> set : hierarchyAnnotations) {
 			boolean found = false;
 			for (MergedAnnotation mergedAnnotation : set) {
@@ -326,7 +325,7 @@ public class MergedAnnotation {
 	 *
 	 * @return 注解属性
 	 */
-	public AnnotationAttributes getAnnotationAttributes() {
+	public AnnotationAttributes annotationAttributes() {
 		return annotationAttributes.get();
 	}
 
@@ -335,7 +334,7 @@ public class MergedAnnotation {
 	 *
 	 * @return 层级注解列表
 	 */
-	public List<Set<MergedAnnotation>> getHierarchyAnnotations() {
+	public List<Set<MergedAnnotation>> hierarchyAnnotations() {
 		return this.hierarchyAnnotations.get();
 	}
 
@@ -345,7 +344,7 @@ public class MergedAnnotation {
 	 * @return 注解实例
 	 */
 	public Annotation asAnnotation() {
-		return getAnnotationAttributes().asAnnotation();
+		return annotationAttributes().asAnnotation();
 	}
 
 	/**

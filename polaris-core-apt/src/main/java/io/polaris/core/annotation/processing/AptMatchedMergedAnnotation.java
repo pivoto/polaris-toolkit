@@ -51,7 +51,7 @@ public class AptMatchedMergedAnnotation {
 	}
 
 
-	public AptAnnotationAttributes getAnnotationAttributes() {
+	public AptAnnotationAttributes annotationAttributes() {
 		if (this.annotationAttributes == null) {
 			this.annotationAttributes = newAnnotationAttributes();
 		}
@@ -65,7 +65,7 @@ public class AptMatchedMergedAnnotation {
 
 		if (aliasAnnotations.isEmpty()) {
 			if (matchedAnnotation != null) {
-				return matchedAnnotation.getAnnotationAttributes().clone();
+				return matchedAnnotation.annotationAttributes().clone();
 			} else {
 				// no match
 				return null;
@@ -75,7 +75,7 @@ public class AptMatchedMergedAnnotation {
 		AptAnnotationAttributes annotationAttributes;
 		Set<String> pending;
 		if (matchedAnnotation != null) {
-			annotationAttributes = matchedAnnotation.getAnnotationAttributes().clone();
+			annotationAttributes = matchedAnnotation.annotationAttributes().clone();
 			Set<String> memberNames = annotationAttributes.getMemberNames();
 			if (!memberNames.isEmpty()) {
 				pending = new HashSet<>(memberNames);
@@ -101,7 +101,7 @@ public class AptMatchedMergedAnnotation {
 		if (!pending.isEmpty()) {
 			for (Iterator<AptMergedAnnotation> iter = aliasAnnotations.iterator(); !pending.isEmpty() && iter.hasNext(); ) {
 				AptMergedAnnotation mergedAnnotation = iter.next();
-				Map<String, AnnotationValue> aliasValues = mergedAnnotation.getAnnotationAttributes().asMap();
+				Map<String, AnnotationValue> aliasValues = mergedAnnotation.annotationAttributes().asMap();
 				for (Map.Entry<String, AnnotationValue> entry : aliasValues.entrySet()) {
 					String aliasName = entry.getKey();
 					AnnotationValue aliasValue = entry.getValue();

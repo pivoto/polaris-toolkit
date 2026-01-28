@@ -76,12 +76,12 @@ public class AptHierarchyMergedAnnotation {
 		}
 		// 如果存在匹配的注解，则合并本级别名属性并返回
 		if (matchedAnnotation != null) {
-			return AptMatchedMergedAnnotation.of(env, annotationType, matchedAnnotation, aliasAnnotations).getAnnotationAttributes();
+			return AptMatchedMergedAnnotation.of(env, annotationType, matchedAnnotation, aliasAnnotations).annotationAttributes();
 		}
 
 		// 如果只存在纯别名配置，则汇总所有别名属性并合并成一个注解实例
 		if (!aliasAnnotations.isEmpty()) {
-			return AptMatchedMergedAnnotation.of(env, annotationType, null, aliasAnnotations).getAnnotationAttributes();
+			return AptMatchedMergedAnnotation.of(env, annotationType, null, aliasAnnotations).annotationAttributes();
 		}
 		return null;
 	}
@@ -106,7 +106,7 @@ public class AptHierarchyMergedAnnotation {
 		}
 		Set<AptAnnotationAttributes> annotationSet = new LinkedHashSet<>();
 		for (AptMatchedMergedAnnotation matchedMergedAnnotation : result) {
-			annotationSet.add(matchedMergedAnnotation.getAnnotationAttributes());
+			annotationSet.add(matchedMergedAnnotation.annotationAttributes());
 		}
 		return annotationSet;
 	}
@@ -136,7 +136,7 @@ public class AptHierarchyMergedAnnotation {
 		}
 		Set<AptAnnotationAttributes> annotationSet = new LinkedHashSet<>();
 		for (AptMatchedMergedAnnotation matchedMergedAnnotation : result) {
-			annotationSet.add(matchedMergedAnnotation.getAnnotationAttributes());
+			annotationSet.add(matchedMergedAnnotation.annotationAttributes());
 		}
 		return annotationSet;
 	}

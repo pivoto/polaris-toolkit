@@ -133,7 +133,7 @@ public class AptMergedAnnotation {
 			}
 		}
 
-		List<Set<AptMergedAnnotation>> hierarchyAnnotations = this.getHierarchyAnnotations();
+		List<Set<AptMergedAnnotation>> hierarchyAnnotations = this.hierarchyAnnotations();
 		for (Set<AptMergedAnnotation> set : hierarchyAnnotations) {
 			for (AptMergedAnnotation mergedAnnotation : set) {
 				if (env.getTypeUtils().isSameType(mergedAnnotation.annotationType.asType(), annotationType.asType())) {
@@ -173,7 +173,7 @@ public class AptMergedAnnotation {
 
 		Set<AptMatchedMergedAnnotation> matchedSet = newMatchedSet(annotationType);
 
-		List<Set<AptMergedAnnotation>> hierarchyAnnotations = this.getHierarchyAnnotations();
+		List<Set<AptMergedAnnotation>> hierarchyAnnotations = this.hierarchyAnnotations();
 		for (Set<AptMergedAnnotation> set : hierarchyAnnotations) {
 			for (AptMergedAnnotation mergedAnnotation : set) {
 				if (mergedAnnotation.isRepeatable()) {
@@ -203,7 +203,7 @@ public class AptMergedAnnotation {
 
 		Set<AptMatchedMergedAnnotation> matchedSet = newMatchedSet(annotationType);
 
-		List<Set<AptMergedAnnotation>> hierarchyAnnotations = this.getHierarchyAnnotations();
+		List<Set<AptMergedAnnotation>> hierarchyAnnotations = this.hierarchyAnnotations();
 		for (Set<AptMergedAnnotation> set : hierarchyAnnotations) {
 			boolean found = false;
 			for (AptMergedAnnotation mergedAnnotation : set) {
@@ -251,11 +251,11 @@ public class AptMergedAnnotation {
 		return matchedSet;
 	}
 
-	public AptAnnotationAttributes getAnnotationAttributes() {
+	public AptAnnotationAttributes annotationAttributes() {
 		if (this.annotationAttributes == null) {
 			AptAnnotationAttributes annotationAttributes = annotation != null ? AptAnnotationAttributes.of(env, annotation) : AptAnnotationAttributes.of(env, annotationType);
 			if (aliasSourceAnnotation != null && aliasSourceMembers != null) {
-				AptAnnotationAttributes aliasAnnotationAttributes = aliasSourceAnnotation.getAnnotationAttributes();
+				AptAnnotationAttributes aliasAnnotationAttributes = aliasSourceAnnotation.annotationAttributes();
 				for (Map.Entry<String, String> entry : aliasSourceMembers.entrySet()) {
 					if (annotationAttributes.hasMember(entry.getKey())) {
 						AnnotationValue val = aliasAnnotationAttributes.get(entry.getValue());
@@ -270,7 +270,7 @@ public class AptMergedAnnotation {
 		return this.annotationAttributes;
 	}
 
-	public List<Set<AptMergedAnnotation>> getHierarchyAnnotations() {
+	public List<Set<AptMergedAnnotation>> hierarchyAnnotations() {
 		if (this.hierarchyAnnotations == null) {
 			this.hierarchyAnnotations = scanHierarchyAnnotations(this);
 		}
