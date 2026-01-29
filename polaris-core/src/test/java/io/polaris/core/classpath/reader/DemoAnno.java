@@ -13,11 +13,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD, ElementType.CONSTRUCTOR, ElementType.PACKAGE, ElementType.LOCAL_VARIABLE, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE, ElementType.TYPE_PARAMETER, ElementType.TYPE_USE})
 @Documented
-@DemoAnno1()
+@DemoAnno1(anno2 = @DemoAnno2())
 public @interface DemoAnno {
 
 
-	DemoAnno1 anno1() default @DemoAnno1();
+	DemoAnno1 anno1() default @DemoAnno1(anno2 = @DemoAnno2());
 
 	DemoAnno2 anno2();
 
