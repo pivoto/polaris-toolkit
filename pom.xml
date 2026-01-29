@@ -728,6 +728,11 @@
 						<failOnWarning>${maven.compiler.failOnWarning}</failOnWarning>
 						<failOnError>${maven.compiler.failOnError}</failOnError>
 						<useIncrementalCompilation>${maven.compiler.useIncrementalCompilation}</useIncrementalCompilation>
+						<compilerArgs>
+							<!-- 尽可能显示所有错误，防止注解生成代码掩盖掉真正的源码错误 -->
+							<arg>-Xmaxerrs</arg>
+							<arg>999999</arg>
+						</compilerArgs>
 					</configuration>
 				</plugin>
 
