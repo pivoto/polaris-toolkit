@@ -25,8 +25,26 @@ public class Iterators {
 		};
 	}
 
+	public static <S, T> Iterator<T> iterator(Enumeration<S> enumeration, Function<S, T> converter) {
+		return new Iterator<T>() {
+			@Override
+			public boolean hasNext() {
+				return enumeration.hasMoreElements();
+			}
+
+			@Override
+			public T next() {
+				return converter.apply(enumeration.nextElement());
+			}
+		};
+	}
+
 	public static <E> Enumeration<E> enumeration(Iterable<E> iterable) {
 		return enumeration(iterable.iterator());
+	}
+
+	public static <S, T> Enumeration<T> enumeration(Iterable<S> iterable, Function<S, T> converter) {
+		return enumeration(iterable.iterator(), converter);
 	}
 
 	public static <E> Enumeration<E> enumeration(Iterator<E> iterator) {
@@ -39,6 +57,20 @@ public class Iterators {
 			@Override
 			public E nextElement() {
 				return iterator.next();
+			}
+		};
+	}
+
+	public static <S, T> Enumeration<T> enumeration(Iterator<S> iterator, Function<S, T> converter) {
+		return new Enumeration<T>() {
+			@Override
+			public boolean hasMoreElements() {
+				return iterator.hasNext();
+			}
+
+			@Override
+			public T nextElement() {
+				return converter.apply(iterator.next());
 			}
 		};
 	}
@@ -58,6 +90,20 @@ public class Iterators {
 			@Override
 			public void remove() {
 				iterator.next();
+			}
+		};
+	}
+
+	public static <S, T> Enumeration<T> convert(Enumeration<S> enumeration, Function<S, T> converter) {
+		return new Enumeration<T>() {
+			@Override
+			public boolean hasMoreElements() {
+				return enumeration.hasMoreElements();
+			}
+
+			@Override
+			public T nextElement() {
+				return converter.apply(enumeration.nextElement());
 			}
 		};
 	}
