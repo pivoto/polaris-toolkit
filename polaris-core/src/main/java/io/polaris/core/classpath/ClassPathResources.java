@@ -24,35 +24,38 @@ public class ClassPathResources {
 
 	private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
 
-	public static ClassPathResourceResolver newResolver(ClassLoader classLoader, PathMatcher pathMatcher) {
-		ClassPathResourceResolver resource = new ClassPathResourceResolver();
-		resource.setPathMatcher(pathMatcher);
-		resource.setClassLoader(classLoader);
+	public static ClassPathResourceReader newReader(ClassLoader classLoader, PathMatcher pathMatcher) {
+		ClassPathResourceReader resource = new ClassPathResourceReader();
+		if (pathMatcher != null) {
+			resource.setPathMatcher(pathMatcher);
+		}
+		if (classLoader != null) {
+			resource.setClassLoader(classLoader);
+		}
 		return resource;
 	}
 
 	@Nonnull
-	public static List<URL> getResources(String locationPattern) throws IOException {
+	public static ClassPathResource[] getResources(String locationPattern) throws IOException {
 		return getResources(Thread.currentThread().getContextClassLoader(), locationPattern, PATH_MATCHER);
 	}
 
 	@Nonnull
-	public static List<URL> getResources(ClassLoader classLoader, String locationPattern) throws IOException {
+	public static ClassPathResource[] getResources(ClassLoader classLoader, String locationPattern) throws IOException {
 		return getResources(classLoader, locationPattern, PATH_MATCHER);
 	}
 
 	@Nonnull
-	public static List<URL> getResources(ClassLoader classLoader, String locationPattern, PathMatcher pathMatcher) throws IOException {
+	public static ClassPathResource[] getResources(ClassLoader classLoader, String locationPattern, PathMatcher pathMatcher) throws IOException {
 		List<URL> rs = new ArrayList<>();
 		Set<String> resourceNames = getResourceNames(classLoader, locationPattern, pathMatcher);
+		resourceNames.size();
+		ClassPathResource[] resources = new ClassPathResource[resourceNames.size()];
+		int i = 0;
 		for (String resourceName : resourceNames) {
-			Enumeration<URL> urls = classLoader.getResources(resourceName);
-			while (urls.hasMoreElements()) {
-				URL url = urls.nextElement();
-				rs.add(url);
-			}
+			resources[i++] = new ClassPathResource(classLoader, resourceName);
 		}
-		return rs;
+		return resources;
 	}
 
 	@Nonnull
@@ -78,9 +81,9 @@ public class ClassPathResources {
 
 		if (Strings.isBlank(subPattern) && Strings.isNotBlank(rootDirPath)) {
 			resourceNames.add(rootDirPath);
-		} else if (Strings.isNotBlank(rootDirPath)) {
+		} else if (Strings.isNotBlank(rootDirPath) || classLoader == null) {
 			Set<String> scanPaths = new LinkedHashSet<>();
-			Enumeration<URL> urls = classLoader.getResources(rootDirPath);
+			Enumeration<URL> urls = classLoader == null ? ClassLoader.getSystemResources(rootDirPath) : classLoader.getResources(rootDirPath);
 			while (urls.hasMoreElements()) {
 				URL url = urls.nextElement();
 				String path = ClassPaths.cleanPath(url, rootDirPath);

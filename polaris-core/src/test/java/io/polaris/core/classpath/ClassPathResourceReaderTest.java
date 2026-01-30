@@ -4,26 +4,20 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 import io.polaris.core.io.Consoles;
 import io.polaris.core.io.IO;
-import io.polaris.core.string.AntPathMatcher;
-import io.polaris.core.string.PathMatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class ClassPathResourceResolverTest {
+class ClassPathResourceReaderTest {
 
-	private ClassPathResourceResolver resolver;
+	private ClassPathResourceReader resolver;
 
 	@BeforeEach
 	void setUp() {
-		resolver = new ClassPathResourceResolver();
+		resolver = new ClassPathResourceReader();
 	}
 
 
