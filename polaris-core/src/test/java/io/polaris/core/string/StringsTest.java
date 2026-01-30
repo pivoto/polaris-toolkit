@@ -77,12 +77,9 @@ class StringsTest {
 
 	@Test
 	void test05() {
-		String msg2 = Arrays.toString(Strings.tokenizeToArray("aaa|bbb||ccc", "|"));
-		Consoles.println(msg2);
-		String msg1 = Arrays.toString(Strings.tokenizeToArray("aaa,|bbb||ccc", ",|"));
-		Consoles.println(msg1);
-		String msg = Arrays.toString(Strings.delimitedToArray("aaa,|bbb||ccc", ",|"));
-		Consoles.println(msg);
+		Consoles.println(Arrays.toString(Strings.tokenizeToArray("aaa|bbb||ccc", "|")));
+		Consoles.println(Arrays.toString(Strings.tokenizeToArray("aaa,|bbb||ccc", ",|")));
+		Consoles.println(Arrays.toString(Strings.delimitedToArray("aaa,|bbb||ccc", ",|")));
 		Assertions.assertEquals(3, Strings.tokenizeToArray("aaa|bbb||ccc", "|").length);
 		Assertions.assertEquals(3, Strings.tokenizeToArray("aaa,|bbb||ccc", ",|").length);
 		Assertions.assertEquals(2, Strings.delimitedToArray("aaa,|bbb||ccc", ",|").length);

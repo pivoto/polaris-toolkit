@@ -6,10 +6,10 @@ import io.polaris.core.consts.SymbolConsts;
 import io.polaris.core.string.Strings;
 
 import java.io.File;
+import java.util.ArrayDeque;
+import java.util.Iterator;
+import java.util.StringTokenizer;
 import java.util.regex.Pattern;
-
-import static io.polaris.core.consts.CharConsts.BACKSLASH;
-import static io.polaris.core.consts.CharConsts.SLASH;
 
 /**
  * @author Qt
@@ -32,11 +32,11 @@ public class Filenames {
 	/**
 	 * 类Unix路径分隔符
 	 */
-	public static final char UNIX_SEPARATOR = SLASH;
+	public static final char UNIX_SEPARATOR = CharConsts.SLASH;
 	/**
 	 * Windows路径分隔符
 	 */
-	public static final char WINDOWS_SEPARATOR = BACKSLASH;
+	public static final char WINDOWS_SEPARATOR = CharConsts.BACKSLASH;
 
 	/**
 	 * Windows下文件名中的无效字符
@@ -50,7 +50,132 @@ public class Filenames {
 
 
 	public static boolean isFileSeparator(char c) {
-		return SLASH == c || BACKSLASH == c;
+		return CharConsts.SLASH == c || CharConsts.BACKSLASH == c;
+	}
+
+
+	/**
+	 * 根据当前路径和相对路径计算完整路径
+	 *
+	 * @param currentPath  当前路径
+	 * @param relativePath 相对路径
+	 * @return 完整路径
+	 */
+	public static String relativePath(String currentPath, String relativePath) {
+		int idx = currentPath.lastIndexOf('/');
+		if (idx != -1) {
+			String dir = currentPath.substring(0, idx);
+			if (!relativePath.isEmpty() && relativePath.charAt(0) != '/') {
+				dir += '/';
+			}
+			return dir + relativePath;
+		} else {
+			return relativePath;
+		}
+	}
+
+	/**
+	 * 规范化路径，移除多余的分隔符和处理相对路径部分（如 .. 和 .）
+	 *
+	 * @param path 原始路径
+	 * @return 规范化后的路径
+	 */
+	public static String normalizePath(String path) {
+		if (Strings.isBlank(path)) {
+			return path;
+		}
+		// 如果路径中不包含点、斜杠或反斜杠，则直接返回原路径
+		if (path.indexOf(CharConsts.DOT) == -1
+			&& path.indexOf(CharConsts.SLASH) == -1
+			&& path.indexOf(CharConsts.BACKSLASH) == -1) {
+			return path;
+		}
+
+		ArrayDeque<String> queue = new ArrayDeque<>();
+		boolean hasRoot = false;
+
+		// 使用 StringTokenizer 按照斜杠和反斜杠分割路径
+		StringTokenizer tokenizer = new StringTokenizer(path, "/\\", true);
+		if (tokenizer.hasMoreTokens()) {
+			String token = tokenizer.nextToken();
+			// 判断是否为根目录
+			if (token.equals("/") || token.equals("\\")) {
+				hasRoot = true;
+			} else {
+				queue.addLast(token);
+			}
+
+			// 处理后续的路径片段
+			while (tokenizer.hasMoreTokens()) {
+				token = tokenizer.nextToken();
+				if (token.isEmpty()) {
+					continue;
+				}
+				// 忽略单个分隔符或点号
+				if (token.length() == 1 && (
+					token.charAt(0) == CharConsts.SLASH
+						|| token.charAt(0) == CharConsts.BACKSLASH
+						|| token.charAt(0) == CharConsts.DOT
+				)) {
+					continue;
+				}
+				// 处理父目录引用（..）
+				if (token.equals("..")) {
+					queue.pollLast();
+				} else {
+					queue.addLast(token);
+				}
+			}
+		}
+
+		// 构建最终的规范化路径
+		StringBuilder result = new StringBuilder();
+		if (hasRoot) {
+			result.append("/");
+		}
+		Iterator<String> iterator = queue.iterator();
+		if (iterator.hasNext()) {
+			result.append(iterator.next());
+			while (iterator.hasNext()) {
+				result.append('/').append(iterator.next());
+			}
+		}
+
+		return result.toString();
+	}
+
+	/**
+	 * 比较两个路径是否相等，忽略大小写并规范化路径后进行比较
+	 *
+	 * @param path1 第一个路径
+	 * @param path2 第二个路径
+	 * @return 如果两个路径规范化后相等则返回true，否则返回false
+	 */
+	public static boolean pathEqualsIgnoreCase(String path1, String path2) {
+		if (path1 == null && path2 == null) {
+			return true;
+		}
+		if (path1 == null || path2 == null) {
+			return false;
+		}
+		return normalizePath(path1).equalsIgnoreCase(normalizePath(path2));
+	}
+
+	/**
+	 * 比较两个路径是否相等，规范化路径后进行比较
+	 *
+	 * @param path1 第一个路径
+	 * @param path2 第二个路径
+	 * @return 如果两个路径规范化后相等则返回true，否则返回false
+	 */
+	public static boolean pathEquals(String path1, String path2) {
+		if (path1 == null && path2 == null) {
+			return true;
+		}
+		if (path1 == null || path2 == null) {
+			return false;
+		}
+		return normalizePath(path1).equals(normalizePath(path2));
 	}
 
 	/**
