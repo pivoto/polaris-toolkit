@@ -12,6 +12,10 @@ import org.apache.ibatis.annotations.DeleteProvider;
 import org.apache.ibatis.annotations.Param;
 
 /**
+ * 实体删除映射器接口，提供基于任意条件的删除功能
+ * 支持实体对象、Map参数和Criteria条件对象三种方式构建删除条件
+ *
+ * @param <E> 实体类型
  * @author Qt
  * @since Aug 25, 2023
  */
@@ -21,17 +25,17 @@ public interface EntityDeleteDefaultByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体条件删除记录
 	 *
-	 * @param entity 实体对象，用于构建删除条件
-	 * @param includeEmpty 是否包含空值字段
+	 * @param entity             实体对象，用于构建删除条件
+	 * @param includeAllEmpty    是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields 需要排除的字段集合
-	 * @param withLogicDeleted 是否使用逻辑删除，null表示使用默认策略
+	 * @param excludeFields      需要排除的字段集合
+	 * @param withLogicDeleted   是否使用逻辑删除，null表示使用默认策略
 	 * @return 删除的记录数量
 	 */
 	@WithLogicDeleted(true)
 	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.deleteEntityByAny)
 	int deleteEntityByAny(@Param(BindingKeys.WHERE) E entity
-		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
+		, @Param(BindingKeys.WHERE_INCLUDE_ALL_EMPTY) boolean includeAllEmpty
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields
 		, @Param(BindingKeys.WHERE_EXCLUDE_COLUMNS) Set<String> excludeFields
 		, @Param(BindingKeys.WITH_LOGIC_DELETED) Boolean withLogicDeleted);
@@ -39,22 +43,22 @@ public interface EntityDeleteDefaultByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体条件删除记录
 	 *
-	 * @param entity 实体对象，用于构建删除条件
-	 * @param includeEmpty 是否包含空值字段
+	 * @param entity             实体对象，用于构建删除条件
+	 * @param includeAllEmpty    是否包含空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields 需要排除的字段集合
+	 * @param excludeFields      需要排除的字段集合
 	 * @return 删除的记录数量
 	 */
-	default int deleteEntityByAny(E entity, boolean includeEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
-		return deleteEntityByAny(entity, includeEmpty, includeEmptyFields, excludeFields, null);
+	default int deleteEntityByAny(E entity, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
+		return deleteEntityByAny(entity, includeAllEmpty, includeEmptyFields, excludeFields, null);
 	}
 
 	/**
 	 * 根据实体条件删除记录
 	 *
-	 * @param entity 实体对象，用于构建删除条件
+	 * @param entity             实体对象，用于构建删除条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields 需要排除的字段集合
+	 * @param excludeFields      需要排除的字段集合
 	 * @return 删除的记录数量
 	 */
 	default int deleteEntityByAny(E entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -64,7 +68,7 @@ public interface EntityDeleteDefaultByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体条件删除记录
 	 *
-	 * @param entity 实体对象，用于构建删除条件
+	 * @param entity             实体对象，用于构建删除条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 删除的记录数量
 	 */
@@ -75,12 +79,12 @@ public interface EntityDeleteDefaultByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体条件删除记录
 	 *
-	 * @param entity 实体对象，用于构建删除条件
-	 * @param includeEmpty 是否包含空值字段
+	 * @param entity          实体对象，用于构建删除条件
+	 * @param includeAllEmpty 是否包含空值字段
 	 * @return 删除的记录数量
 	 */
-	default int deleteEntityByAny(E entity, boolean includeEmpty) {
-		return deleteEntityByAny(entity, includeEmpty, (Set<String>) null, (Set<String>) null);
+	default int deleteEntityByAny(E entity, boolean includeAllEmpty) {
+		return deleteEntityByAny(entity, includeAllEmpty, (Set<String>) null, (Set<String>) null);
 	}
 
 	/**
@@ -97,17 +101,17 @@ public interface EntityDeleteDefaultByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map参数删除记录
 	 *
-	 * @param entity 包含删除条件的Map对象
-	 * @param includeEmpty 是否包含空值字段
+	 * @param entity             包含删除条件的Map对象
+	 * @param includeAllEmpty    是否包含空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields 需要排除的字段集合
-	 * @param withLogicDeleted 是否使用逻辑删除，null表示使用默认策略
+	 * @param excludeFields      需要排除的字段集合
+	 * @param withLogicDeleted   是否使用逻辑删除，null表示使用默认策略
 	 * @return 删除的记录数量
 	 */
 	@WithLogicDeleted(true)
 	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.deleteEntityByAny)
 	int deleteEntityByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
-		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
+		, @Param(BindingKeys.WHERE_INCLUDE_ALL_EMPTY) boolean includeAllEmpty
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields
 		, @Param(BindingKeys.WHERE_EXCLUDE_COLUMNS) Set<String> excludeFields
 		, @Param(BindingKeys.WITH_LOGIC_DELETED) Boolean withLogicDeleted);
@@ -115,22 +119,22 @@ public interface EntityDeleteDefaultByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map参数删除记录
 	 *
-	 * @param entity 包含删除条件的Map对象
-	 * @param includeEmpty 是否包含空值字段
+	 * @param entity             包含删除条件的Map对象
+	 * @param includeAllEmpty    是否包含空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields 需要排除的字段集合
+	 * @param excludeFields      需要排除的字段集合
 	 * @return 删除的记录数量
 	 */
-	default int deleteEntityByMap(Map<String, Object> entity, boolean includeEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
-		return deleteEntityByMap(entity, includeEmpty, includeEmptyFields, excludeFields, null);
+	default int deleteEntityByMap(Map<String, Object> entity, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
+		return deleteEntityByMap(entity, includeAllEmpty, includeEmptyFields, excludeFields, null);
 	}
 
 	/**
 	 * 根据Map参数删除记录
 	 *
-	 * @param entity 包含删除条件的Map对象
+	 * @param entity             包含删除条件的Map对象
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields 需要排除的字段集合
+	 * @param excludeFields      需要排除的字段集合
 	 * @return 删除的记录数量
 	 */
 	default int deleteEntityByMap(Map<String, Object> entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -140,7 +144,7 @@ public interface EntityDeleteDefaultByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map参数删除记录
 	 *
-	 * @param entity 包含删除条件的Map对象
+	 * @param entity             包含删除条件的Map对象
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 删除的记录数量
 	 */
@@ -151,12 +155,12 @@ public interface EntityDeleteDefaultByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map参数删除记录
 	 *
-	 * @param entity 包含删除条件的Map对象
-	 * @param includeEmpty 是否包含空值字段
+	 * @param entity          包含删除条件的Map对象
+	 * @param includeAllEmpty 是否包含空值字段
 	 * @return 删除的记录数量
 	 */
-	default int deleteEntityByMap(Map<String, Object> entity, boolean includeEmpty) {
-		return deleteEntityByMap(entity, includeEmpty, (Set<String>) null, (Set<String>) null);
+	default int deleteEntityByMap(Map<String, Object> entity, boolean includeAllEmpty) {
+		return deleteEntityByMap(entity, includeAllEmpty, (Set<String>) null, (Set<String>) null);
 	}
 
 	/**
@@ -172,17 +176,17 @@ public interface EntityDeleteDefaultByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据条件对象删除记录
 	 *
-	 * @param criteria 条件对象，用于构建删除条件
-	 * @param includeEmpty 是否包含空值字段
+	 * @param criteria           条件对象，用于构建删除条件
+	 * @param includeAllEmpty    是否包含空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields 需要排除的字段集合
-	 * @param withLogicDeleted 是否使用逻辑删除，null表示使用默认策略
+	 * @param excludeFields      需要排除的字段集合
+	 * @param withLogicDeleted   是否使用逻辑删除，null表示使用默认策略
 	 * @return 删除的记录数量
 	 */
 	@WithLogicDeleted(true)
 	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.deleteEntityByAny)
 	int deleteEntityByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
-		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY) boolean includeEmpty
+		, @Param(BindingKeys.WHERE_INCLUDE_ALL_EMPTY) boolean includeAllEmpty
 		, @Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields
 		, @Param(BindingKeys.WHERE_EXCLUDE_COLUMNS) Set<String> excludeFields
 		, @Param(BindingKeys.WITH_LOGIC_DELETED) Boolean withLogicDeleted);
@@ -191,22 +195,22 @@ public interface EntityDeleteDefaultByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据条件对象删除记录
 	 *
-	 * @param criteria 条件对象，用于构建删除条件
-	 * @param includeEmpty 是否包含空值字段
+	 * @param criteria           条件对象，用于构建删除条件
+	 * @param includeAllEmpty    是否包含空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields 需要排除的字段集合
+	 * @param excludeFields      需要排除的字段集合
 	 * @return 删除的记录数量
 	 */
-	default int deleteEntityByCriteria(Criteria criteria, boolean includeEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
-		return deleteEntityByCriteria(criteria, includeEmpty, includeEmptyFields, excludeFields, null);
+	default int deleteEntityByCriteria(Criteria criteria, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
+		return deleteEntityByCriteria(criteria, includeAllEmpty, includeEmptyFields, excludeFields, null);
 	}
 
 	/**
 	 * 根据条件对象删除记录
 	 *
-	 * @param criteria 条件对象，用于构建删除条件
+	 * @param criteria           条件对象，用于构建删除条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields 需要排除的字段集合
+	 * @param excludeFields      需要排除的字段集合
 	 * @return 删除的记录数量
 	 */
 	default int deleteEntityByCriteria(Criteria criteria, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -216,7 +220,7 @@ public interface EntityDeleteDefaultByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据条件对象删除记录
 	 *
-	 * @param criteria 条件对象，用于构建删除条件
+	 * @param criteria           条件对象，用于构建删除条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 删除的记录数量
 	 */
@@ -227,12 +231,12 @@ public interface EntityDeleteDefaultByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据条件对象删除记录
 	 *
-	 * @param criteria 条件对象，用于构建删除条件
-	 * @param includeEmpty 是否包含空值字段
+	 * @param criteria        条件对象，用于构建删除条件
+	 * @param includeAllEmpty 是否包含空值字段
 	 * @return 删除的记录数量
 	 */
-	default int deleteEntityByCriteria(Criteria criteria, boolean includeEmpty) {
-		return deleteEntityByCriteria(criteria, includeEmpty, (Set<String>) null, (Set<String>) null);
+	default int deleteEntityByCriteria(Criteria criteria, boolean includeAllEmpty) {
+		return deleteEntityByCriteria(criteria, includeAllEmpty, (Set<String>) null, (Set<String>) null);
 	}
 
 	/**
@@ -244,6 +248,5 @@ public interface EntityDeleteDefaultByAnyMapper<E> extends EntityMapper<E> {
 	default int deleteEntityByCriteria(Criteria criteria) {
 		return deleteEntityByCriteria(criteria, false, (Set<String>) null, (Set<String>) null);
 	}
-
 
 }

@@ -49,14 +49,14 @@ public @interface EntityUpdate {
 		includeColumnsKey = BindingKeys.INCLUDE_COLUMNS,
 		excludeColumnsKey = BindingKeys.EXCLUDE_COLUMNS,
 		includeEmptyColumnsKey = BindingKeys.INCLUDE_EMPTY_COLUMNS,
-		includeAllEmptyKey = BindingKeys.INCLUDE_EMPTY
+		includeAllEmptyKey = BindingKeys.INCLUDE_ALL_EMPTY
 	);
 
 	ColumnPredicate whereColumnPredicate() default @ColumnPredicate(
 		includeColumnsKey = BindingKeys.WHERE_INCLUDE_COLUMNS,
 		excludeColumnsKey = BindingKeys.WHERE_EXCLUDE_COLUMNS,
 		includeEmptyColumnsKey = BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS,
-		includeAllEmptyKey = BindingKeys.WHERE_INCLUDE_EMPTY
+		includeAllEmptyKey = BindingKeys.WHERE_INCLUDE_ALL_EMPTY
 	);
 
 }

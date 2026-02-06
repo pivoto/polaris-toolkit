@@ -63,7 +63,7 @@ public class SqlStatements {
 		String includeColumnsKey = BindingKeys.INCLUDE_COLUMNS;
 		String excludeColumnsKey = BindingKeys.EXCLUDE_COLUMNS;
 		String includeEmptyColumnsKey = BindingKeys.INCLUDE_EMPTY_COLUMNS;
-		String includeAllEmptyKey = BindingKeys.INCLUDE_EMPTY;
+		String includeAllEmptyKey = BindingKeys.INCLUDE_ALL_EMPTY;
 
 		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings,
 			null, includeColumnsKey, null, excludeColumnsKey,
@@ -435,7 +435,7 @@ public class SqlStatements {
 		String[] includeColumnsKey = {BindingKeys.WHERE_INCLUDE_COLUMNS, BindingKeys.INCLUDE_COLUMNS};
 		String[] excludeColumnsKey = {BindingKeys.WHERE_EXCLUDE_COLUMNS, BindingKeys.EXCLUDE_COLUMNS};
 		String[] includeEmptyColumnsKey = {BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS, BindingKeys.INCLUDE_EMPTY_COLUMNS};
-		String[] includeAllEmptyKey = {BindingKeys.WHERE_INCLUDE_EMPTY, BindingKeys.INCLUDE_EMPTY};
+		String[] includeAllEmptyKey = {BindingKeys.WHERE_INCLUDE_ALL_EMPTY, BindingKeys.INCLUDE_ALL_EMPTY};
 		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings,
 			null, includeColumnsKey, null, excludeColumnsKey,
 			null, includeEmptyColumnsKey, false, includeAllEmptyKey);
@@ -562,7 +562,7 @@ public class SqlStatements {
 		String[] includeColumnsKey = {BindingKeys.WHERE_INCLUDE_COLUMNS, BindingKeys.INCLUDE_COLUMNS};
 		String[] excludeColumnsKey = {BindingKeys.WHERE_EXCLUDE_COLUMNS, BindingKeys.EXCLUDE_COLUMNS};
 		String[] includeEmptyColumnsKey = {BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS, BindingKeys.INCLUDE_EMPTY_COLUMNS};
-		String[] includeAllEmptyKey = {BindingKeys.WHERE_INCLUDE_EMPTY, BindingKeys.INCLUDE_EMPTY};
+		String[] includeAllEmptyKey = {BindingKeys.WHERE_INCLUDE_ALL_EMPTY, BindingKeys.INCLUDE_ALL_EMPTY};
 		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings,
 			null, includeColumnsKey, null, excludeColumnsKey,
 			null, includeEmptyColumnsKey, false, includeAllEmptyKey);
@@ -623,7 +623,7 @@ public class SqlStatements {
 		String[] includeColumnsKey = {BindingKeys.WHERE_INCLUDE_COLUMNS, BindingKeys.INCLUDE_COLUMNS};
 		String[] excludeColumnsKey = {BindingKeys.WHERE_EXCLUDE_COLUMNS, BindingKeys.EXCLUDE_COLUMNS};
 		String[] includeEmptyColumnsKey = {BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS, BindingKeys.INCLUDE_EMPTY_COLUMNS};
-		String[] includeAllEmptyKey = {BindingKeys.WHERE_INCLUDE_EMPTY, BindingKeys.INCLUDE_EMPTY};
+		String[] includeAllEmptyKey = {BindingKeys.WHERE_INCLUDE_ALL_EMPTY, BindingKeys.INCLUDE_ALL_EMPTY};
 		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings,
 			null, includeColumnsKey, null, excludeColumnsKey,
 			null, includeEmptyColumnsKey, false, includeAllEmptyKey);
@@ -658,7 +658,7 @@ public class SqlStatements {
 		String includeColumnsKey = BindingKeys.INCLUDE_COLUMNS;
 		String excludeColumnsKey = BindingKeys.EXCLUDE_COLUMNS;
 		String includeEmptyColumnsKey = BindingKeys.INCLUDE_EMPTY_COLUMNS;
-		String includeAllEmptyKey = BindingKeys.INCLUDE_EMPTY;
+		String includeAllEmptyKey = BindingKeys.INCLUDE_ALL_EMPTY;
 
 		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings,
 			null, includeColumnsKey, null, excludeColumnsKey,
@@ -814,11 +814,11 @@ public class SqlStatements {
 		String includeColumnsKey = BindingKeys.INCLUDE_COLUMNS;
 		String excludeColumnsKey = BindingKeys.EXCLUDE_COLUMNS;
 		String includeEmptyColumnsKey = BindingKeys.INCLUDE_EMPTY_COLUMNS;
-		String includeAllEmptyKey = BindingKeys.INCLUDE_EMPTY;
+		String includeAllEmptyKey = BindingKeys.INCLUDE_ALL_EMPTY;
 		String whereIncludeColumnsKey = BindingKeys.WHERE_INCLUDE_COLUMNS;
 		String whereExcludeColumnsKey = BindingKeys.WHERE_EXCLUDE_COLUMNS;
 		String whereIncludeEmptyColumnsKey = BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS;
-		String whereIncludeAllEmptyKey = BindingKeys.WHERE_INCLUDE_EMPTY;
+		String whereIncludeAllEmptyKey = BindingKeys.WHERE_INCLUDE_ALL_EMPTY;
 
 		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings,
 			null, includeColumnsKey, null, excludeColumnsKey,
@@ -983,7 +983,7 @@ public class SqlStatements {
 		String[] includeColumnsKey = {BindingKeys.WHERE_INCLUDE_COLUMNS, BindingKeys.INCLUDE_COLUMNS};
 		String[] excludeColumnsKey = {BindingKeys.WHERE_EXCLUDE_COLUMNS, BindingKeys.EXCLUDE_COLUMNS};
 		String[] includeEmptyColumnsKey = {BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS, BindingKeys.INCLUDE_EMPTY_COLUMNS};
-		String[] includeAllEmptyKey = {BindingKeys.WHERE_INCLUDE_EMPTY, BindingKeys.INCLUDE_EMPTY};
+		String[] includeAllEmptyKey = {BindingKeys.WHERE_INCLUDE_ALL_EMPTY, BindingKeys.INCLUDE_ALL_EMPTY};
 
 		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings,
 			null, includeColumnsKey,
@@ -1220,7 +1220,7 @@ public class SqlStatements {
 		String[] includeColumnsKey = {BindingKeys.WHERE_INCLUDE_COLUMNS, BindingKeys.INCLUDE_COLUMNS};
 		String[] excludeColumnsKey = {BindingKeys.WHERE_EXCLUDE_COLUMNS, BindingKeys.EXCLUDE_COLUMNS};
 		String[] includeEmptyColumnsKey = {BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS, BindingKeys.INCLUDE_EMPTY_COLUMNS};
-		String[] includeAllEmptyKey = {BindingKeys.WHERE_INCLUDE_EMPTY, BindingKeys.INCLUDE_EMPTY};
+		String[] includeAllEmptyKey = {BindingKeys.WHERE_INCLUDE_ALL_EMPTY, BindingKeys.INCLUDE_ALL_EMPTY};
 
 		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings,
 			null, includeColumnsKey, null, excludeColumnsKey,
@@ -1467,7 +1467,7 @@ public class SqlStatements {
 		String[] includeColumnsKey = {BindingKeys.WHERE_INCLUDE_COLUMNS, BindingKeys.INCLUDE_COLUMNS};
 		String[] excludeColumnsKey = {BindingKeys.WHERE_EXCLUDE_COLUMNS, BindingKeys.EXCLUDE_COLUMNS};
 		String[] includeEmptyColumnsKey = {BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS, BindingKeys.INCLUDE_EMPTY_COLUMNS};
-		String[] includeAllEmptyKey = {BindingKeys.WHERE_INCLUDE_EMPTY, BindingKeys.INCLUDE_EMPTY};
+		String[] includeAllEmptyKey = {BindingKeys.WHERE_INCLUDE_ALL_EMPTY, BindingKeys.INCLUDE_ALL_EMPTY};
 
 		ColumnPredicate columnPredicate = ConfigurableColumnPredicate.of(bindings,
 			null, includeColumnsKey, null, excludeColumnsKey,

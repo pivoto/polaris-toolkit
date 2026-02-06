@@ -49,6 +49,6 @@ public @interface EntityInsert {
 		includeColumnsKey = BindingKeys.INCLUDE_COLUMNS,
 		excludeColumnsKey = BindingKeys.EXCLUDE_COLUMNS,
 		includeEmptyColumnsKey = BindingKeys.INCLUDE_EMPTY_COLUMNS,
-		includeAllEmptyKey = BindingKeys.INCLUDE_EMPTY
+		includeAllEmptyKey = BindingKeys.INCLUDE_ALL_EMPTY
 	);
 }
