@@ -2,6 +2,7 @@ package io.polaris.core.err;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -47,9 +48,9 @@ public class Exceptions {
 	/**
 	 * 从Throwable中查找指定类型的异常，如果找不到则使用Function构建器创建新的异常实例
 	 *
-	 * @param <T> 异常类型
-	 * @param t 要查找的Throwable对象，可以为null
-	 * @param type 要查找的异常类型
+	 * @param <T>     异常类型
+	 * @param t       要查找的Throwable对象，可以为null
+	 * @param type    要查找的异常类型
 	 * @param builder 当找不到指定类型异常时用于创建新异常的函数
 	 * @return 找到的指定类型异常或新创建的异常实例
 	 */
@@ -73,9 +74,9 @@ public class Exceptions {
 	/**
 	 * 从Throwable中查找指定类型的异常，如果找不到则使用Supplier构建器创建新的异常实例
 	 *
-	 * @param <T> 异常类型
-	 * @param t 要查找的Throwable对象，可以为null
-	 * @param type 要查找的异常类型
+	 * @param <T>     异常类型
+	 * @param t       要查找的Throwable对象，可以为null
+	 * @param type    要查找的异常类型
 	 * @param builder 当找不到指定类型异常时用于创建新异常的供应器
 	 * @return 找到的指定类型异常或新创建的异常实例
 	 */
@@ -97,9 +98,43 @@ public class Exceptions {
 	}
 
 	/**
+	 * 从包装异常对象中提取源异常对象
+	 *
+	 * @param t 输入的异常对象
+	 * @return 最原始的异常对象
+	 */
+	public static Throwable getOriginalThrowable(Throwable t) {
+		while (true) {
+			// 从InvocationTargetException中获取源执行异常
+			if (t instanceof InvocationTargetException) {
+				Throwable x = ((InvocationTargetException) t).getTargetException();
+				if (x == null) {
+					// 限制不能赋空
+					break;
+				}
+				t = x;
+				continue;
+			}
+			// 从UncheckedPassException中获取源执行异常
+			if (t instanceof UncheckedPassException) {
+				Throwable x = ((UncheckedPassException) t).getTargetException();
+				if (x == null) {
+					// 限制不能赋空
+					break;
+				}
+				t = x;
+				continue;
+			}
+			// 其他情况，直接使用此异常
+			break;
+		}
+		return t;
+	}
+
+	/**
 	 * 获取Throwable的根因异常，直到满足指定条件为止
 	 *
-	 * @param t Throwable对象
+	 * @param t         Throwable对象
 	 * @param predicate 判断条件
 	 * @return 满足条件的Throwable对象或最后一个根因异常
 	 */
@@ -116,7 +151,7 @@ public class Exceptions {
 	/**
 	 * 安全地获取Throwable的根因异常，直到满足指定条件为止，防止循环引用
 	 *
-	 * @param t Throwable对象
+	 * @param t         Throwable对象
 	 * @param predicate 判断条件
 	 * @return 满足条件的Throwable对象或最后一个根因异常
 	 */
@@ -178,7 +213,7 @@ public class Exceptions {
 	/**
 	 * 检查Throwable或其因果链中是否存在满足条件的异常
 	 *
-	 * @param t Throwable对象
+	 * @param t         Throwable对象
 	 * @param predicate 判断条件
 	 * @return 满足条件的Throwable对象，如果不存在则返回null
 	 */
@@ -195,7 +230,7 @@ public class Exceptions {
 	/**
 	 * 检查Throwable或其因果链中是否存在指定类型的异常
 	 *
-	 * @param t Throwable对象
+	 * @param t    Throwable对象
 	 * @param type 要检查的异常类型
 	 * @return 找到的指定类型异常，如果不存在则返回null
 	 */
@@ -241,7 +276,7 @@ public class Exceptions {
 	 * 静默关闭AutoCloseable资源，将可能发生的异常添加为指定Throwable的抑制异常
 	 *
 	 * @param closeable 可关闭的资源
-	 * @param t 用于添加抑制异常的Throwable
+	 * @param t         用于添加抑制异常的Throwable
 	 */
 	public static void quietlyClose(AutoCloseable closeable, Throwable t) {
 		if (closeable != null) {
@@ -288,7 +323,7 @@ public class Exceptions {
 	 * 静默执行Runnable，将可能发生的异常添加为指定Throwable的抑制异常
 	 *
 	 * @param runnable 要执行的Runnable
-	 * @param t 用于添加抑制异常的Throwable
+	 * @param t        用于添加抑制异常的Throwable
 	 */
 	public static void runQuietly(Runnable runnable, Throwable t) {
 		if (runnable != null) {
@@ -303,7 +338,7 @@ public class Exceptions {
 	/**
 	 * 静默获取Supplier的值，忽略可能发生的异常
 	 *
-	 * @param <T> 返回值类型
+	 * @param <T>      返回值类型
 	 * @param supplier 提供值的Supplier
 	 * @return Supplier提供的值，如果发生异常则返回null
 	 */
@@ -321,7 +356,7 @@ public class Exceptions {
 	/**
 	 * 静默获取Supplier的值，使用指定的消费者处理可能发生的异常
 	 *
-	 * @param <T> 返回值类型
+	 * @param <T>      返回值类型
 	 * @param supplier 提供值的Supplier
 	 * @param consumer 用于处理异常的消费者
 	 * @return Supplier提供的值，如果发生异常则返回null
@@ -340,9 +375,9 @@ public class Exceptions {
 	/**
 	 * 静默获取Supplier的值，将可能发生的异常添加为指定Throwable的抑制异常
 	 *
-	 * @param <T> 返回值类型
+	 * @param <T>      返回值类型
 	 * @param supplier 提供值的Supplier
-	 * @param t 用于添加抑制异常的Throwable
+	 * @param t        用于添加抑制异常的Throwable
 	 * @return Supplier提供的值，如果发生异常则返回null
 	 */
 	public static <T> T getQuietly(Supplier<T> supplier, Throwable t) {
@@ -375,7 +410,7 @@ public class Exceptions {
 	 * 静默执行Executable，使用指定的消费者处理可能发生的异常
 	 *
 	 * @param executable 要执行的Executable
-	 * @param consumer 用于处理异常的消费者
+	 * @param consumer   用于处理异常的消费者
 	 */
 	public static void executeQuietly(Executable executable, Consumer<Throwable> consumer) {
 		if (executable != null) {
@@ -391,7 +426,7 @@ public class Exceptions {
 	 * 静默执行Executable，将可能发生的异常添加为指定Throwable的抑制异常
 	 *
 	 * @param executable 要执行的Executable
-	 * @param t 用于添加抑制异常的Throwable
+	 * @param t          用于添加抑制异常的Throwable
 	 */
 	public static void executeQuietly(Executable executable, Throwable t) {
 		if (executable != null) {
@@ -407,7 +442,7 @@ public class Exceptions {
 	/**
 	 * 静默执行Callable，忽略可能发生的异常
 	 *
-	 * @param <T> 返回值类型
+	 * @param <T>      返回值类型
 	 * @param callable 要执行的Callable
 	 * @return Callable的执行结果，如果发生异常则返回null
 	 */
@@ -425,7 +460,7 @@ public class Exceptions {
 	/**
 	 * 静默执行Callable，使用指定的消费者处理可能发生的异常
 	 *
-	 * @param <T> 返回值类型
+	 * @param <T>      返回值类型
 	 * @param callable 要执行的Callable
 	 * @param consumer 用于处理异常的消费者
 	 * @return Callable的执行结果，如果发生异常则返回null
@@ -444,9 +479,9 @@ public class Exceptions {
 	/**
 	 * 静默执行Callable，将可能发生的异常添加为指定Throwable的抑制异常
 	 *
-	 * @param <T> 返回值类型
+	 * @param <T>      返回值类型
 	 * @param callable 要执行的Callable
-	 * @param t 用于添加抑制异常的Throwable
+	 * @param t        用于添加抑制异常的Throwable
 	 * @return Callable的执行结果，如果发生异常则返回null
 	 */
 	public static <T> T callQuietly(Callable<T> callable, Throwable t) {
