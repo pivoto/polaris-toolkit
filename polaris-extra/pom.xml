@@ -14,18 +14,19 @@
 	<name>polaris-extra</name>
 
 	<modules>
-		<module>polaris-validator</module>
-		<module>polaris-bytecode</module>
-		<module>polaris-json</module>
-		<module>polaris-web</module>
-		<module>polaris-crypto</module>
-		<module>polaris-image</module>
-		<module>polaris-mybatis</module>
-		<module>polaris-git</module>
-		<module>polaris-zookeeper</module>
-		<module>polaris-nacos</module>
-		<module>polaris-concurrent</module>
 		<module>polaris-apm-agent</module>
+		<module>polaris-bytecode</module>
+		<module>polaris-commons</module>
+		<module>polaris-concurrent</module>
+		<module>polaris-crypto</module>
+		<module>polaris-git</module>
+		<module>polaris-image</module>
+		<module>polaris-json</module>
+		<module>polaris-mybatis</module>
+		<module>polaris-nacos</module>
+		<module>polaris-validator</module>
+		<module>polaris-web</module>
+		<module>polaris-zookeeper</module>
 	</modules>
 	<properties>
 		<dependency.bytebuddy.version>1.12.23</dependency.bytebuddy.version>
