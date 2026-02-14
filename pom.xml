@@ -192,6 +192,7 @@
 				<type>pom</type>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
+			<!-- logging -->
 			<dependency>
 				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-logging</artifactId>
@@ -204,6 +205,7 @@
 				<type>pom</type>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
+			<!-- core -->
 			<dependency>
 				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-core-apt</artifactId>
@@ -214,6 +216,7 @@
 				<artifactId>polaris-core</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
+			<!-- builder -->
 			<dependency>
 				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-builder-core</artifactId>
@@ -224,9 +227,10 @@
 				<artifactId>polaris-builder-resource</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
+			<!-- extra -->
 			<dependency>
 				<groupId>cn.fossc.polaris.toolkit</groupId>
-				<artifactId>polaris-validator</artifactId>
+				<artifactId>polaris-apm-agent</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
@@ -236,12 +240,12 @@
 			</dependency>
 			<dependency>
 				<groupId>cn.fossc.polaris.toolkit</groupId>
-				<artifactId>polaris-json</artifactId>
+				<artifactId>polaris-commons</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.fossc.polaris.toolkit</groupId>
-				<artifactId>polaris-web</artifactId>
+				<artifactId>polaris-concurrent</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
@@ -251,7 +255,17 @@
 			</dependency>
 			<dependency>
 				<groupId>cn.fossc.polaris.toolkit</groupId>
+				<artifactId>polaris-git</artifactId>
+				<version>${project.polaris-toolkit.revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-image</artifactId>
+				<version>${project.polaris-toolkit.revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.fossc.polaris.toolkit</groupId>
+				<artifactId>polaris-json</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
@@ -261,17 +275,22 @@
 			</dependency>
 			<dependency>
 				<groupId>cn.fossc.polaris.toolkit</groupId>
-				<artifactId>polaris-git</artifactId>
+				<artifactId>polaris-nacos</artifactId>
+				<version>${project.polaris-toolkit.revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.fossc.polaris.toolkit</groupId>
+				<artifactId>polaris-validator</artifactId>
+				<version>${project.polaris-toolkit.revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.fossc.polaris.toolkit</groupId>
+				<artifactId>polaris-web</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-zookeeper</artifactId>
-				<version>${project.polaris-toolkit.revision}</version>
-			</dependency>
-			<dependency>
-				<groupId>cn.fossc.polaris.toolkit</groupId>
-				<artifactId>polaris-concurrent</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<!-- endregion -->
