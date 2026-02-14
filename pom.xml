@@ -240,6 +240,11 @@
 			</dependency>
 			<dependency>
 				<groupId>cn.fossc.polaris.toolkit</groupId>
+				<artifactId>polaris-cluster</artifactId>
+				<version>${project.polaris-toolkit.revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-commons</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
@@ -275,22 +280,12 @@
 			</dependency>
 			<dependency>
 				<groupId>cn.fossc.polaris.toolkit</groupId>
-				<artifactId>polaris-nacos</artifactId>
-				<version>${project.polaris-toolkit.revision}</version>
-			</dependency>
-			<dependency>
-				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-validator</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
 				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-web</artifactId>
-				<version>${project.polaris-toolkit.revision}</version>
-			</dependency>
-			<dependency>
-				<groupId>cn.fossc.polaris.toolkit</groupId>
-				<artifactId>polaris-zookeeper</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<!-- endregion -->

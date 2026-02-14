@@ -39,7 +39,15 @@
 		</dependency>
 		<dependency>
 			<groupId>cn.fossc.polaris.toolkit</groupId>
+			<artifactId>polaris-cluster</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>cn.fossc.polaris.toolkit</groupId>
 			<artifactId>polaris-commons</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>cn.fossc.polaris.toolkit</groupId>
+			<artifactId>polaris-concurrent</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>cn.fossc.polaris.toolkit</groupId>
