@@ -25,6 +25,7 @@
 		<module>polaris-zookeeper</module>
 		<module>polaris-nacos</module>
 		<module>polaris-concurrent</module>
+		<module>polaris-apm-agent</module>
 	</modules>
 	<properties>
 		<dependency.bytebuddy.version>1.12.23</dependency.bytebuddy.version>
