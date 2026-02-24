@@ -24,8 +24,6 @@ public interface MethodMetadata extends AnnotatedElementMetadata {
 
 	/**
 	 * Return the fully-qualified name of this method's declared return type.
-	 *
-	 * @since 4.2
 	 */
 	String getReturnTypeName();
 
@@ -33,8 +31,6 @@ public interface MethodMetadata extends AnnotatedElementMetadata {
 	 * Return whether the underlying method is effectively abstract:
 	 * i.e. marked as abstract on a class or declared as a regular,
 	 * non-default method in an interface.
-	 *
-	 * @since 4.2
 	 */
 	boolean isAbstract();
 
