@@ -1,5 +1,10 @@
 ## 版本变更说明
 
+### 3.6.6
+- 新增PreparedSqlBuilder接口
+- 修改Jdbcs类中的查询和更新方法中SqlNode参数类型为PreparedSqlBuilder
+- SqlStatement类新增SQL绑定参数支持功能，并实现PreparedSqlBuilder接口
+
 ### 3.6.5
 - 新增apm-agent模块，定义追踪接口规范
 - 扩展异常处理工具方法，添加 Exceptions.getOriginalThrowable 方法用于提取包装异常中的源异常
