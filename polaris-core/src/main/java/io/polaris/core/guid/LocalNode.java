@@ -1,13 +1,11 @@
 package io.polaris.core.guid;
 
-import io.polaris.core.consts.StdKeys;
-import io.polaris.core.consts.SystemProperty;
-import io.polaris.core.env.GlobalStdEnv;
-import io.polaris.core.os.OS;
-
 import java.io.RandomAccessFile;
 import java.net.InetAddress;
 import java.nio.channels.FileLock;
+
+import io.polaris.core.consts.SystemProperty;
+import io.polaris.core.os.OS;
 
 /**
  * @author Qt

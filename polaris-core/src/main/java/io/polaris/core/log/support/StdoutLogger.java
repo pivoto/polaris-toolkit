@@ -3,10 +3,10 @@ package io.polaris.core.log.support;
 import java.time.Instant;
 
 import io.polaris.core.collection.ObjectArrays;
-import io.polaris.core.consts.StdKeys;
+import io.polaris.core.env.Config;
 import io.polaris.core.function.ConsumerWithArgs4;
-import io.polaris.core.log.Logger;
 import io.polaris.core.log.Level;
+import io.polaris.core.log.Logger;
 import io.polaris.core.string.Strings;
 import io.polaris.core.time.Dates;
 
@@ -21,14 +21,7 @@ public class StdoutLogger implements Logger {
 
 	public StdoutLogger(String name) {
 		this.name = name;
-		Level level;
-		try {
-			String levelStr = System.getProperty(StdKeys.LOGGER_LEVEL + "." + name);
-			level = Level.valueOf(Strings.coalesce(levelStr, Level.DEBUG.name()).toLowerCase());
-		} catch (Throwable e) {
-			level = Level.DEBUG;
-		}
-		this.level = level;
+		this.level = Config.INSTANCE.logger().level(name);
 	}
 
 	public StdoutLogger(String name, Level level, ConsumerWithArgs4<Level, String, Object[], Throwable> printer) {

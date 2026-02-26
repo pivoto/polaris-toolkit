@@ -5,8 +5,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import io.polaris.core.collection.ObjectArrays;
-import io.polaris.core.consts.StdKeys;
-import io.polaris.core.env.GlobalStdEnv;
+import io.polaris.core.env.Config;
 import io.polaris.core.env.GlobalStdEnvObservable;
 import lombok.Getter;
 import lombok.Setter;
@@ -46,8 +45,8 @@ public class SqlParamPredicate {
 	}
 
 	public void updateEnv() {
-		this.emptyAsNull = GlobalStdEnv.getBoolean(StdKeys.JDBC_SQL_PARAM_EMPTY_AS_NULL, true);
-		this.includeEmpty = GlobalStdEnv.getBoolean(StdKeys.JDBC_SQL_PARAM_INCLUDE_EMPTY, false);
+		this.emptyAsNull = Config.INSTANCE.jdbc().sql().param().emptyAsNull();
+		this.includeEmpty = Config.INSTANCE.jdbc().sql().param().includeEmpty();
 	}
 
 	public static SqlParamPredicate instance() {
@@ -68,6 +67,7 @@ public class SqlParamPredicate {
 		}
 		return instance().emptyAsNull;
 	}
+
 	public static boolean includeEmpty() {
 		SqlParamPredicate predicate = LOCAL.get();
 		if (predicate != null) {

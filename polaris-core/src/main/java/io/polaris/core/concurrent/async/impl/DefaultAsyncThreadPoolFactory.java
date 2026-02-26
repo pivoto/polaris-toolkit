@@ -5,14 +5,16 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.Nonnull;
-
-import io.polaris.core.concurrent.*;
+import io.polaris.core.concurrent.GroupThreadFactory;
+import io.polaris.core.concurrent.PooledThreadFactory;
+import io.polaris.core.concurrent.RejectedPolicies;
+import io.polaris.core.concurrent.WrappingExecutors;
+import io.polaris.core.concurrent.WrappingScheduledThreadPoolExecutor;
+import io.polaris.core.concurrent.WrappingTaskFactory;
+import io.polaris.core.concurrent.WrappingThreadPoolExecutor;
 import io.polaris.core.concurrent.async.AsyncThreadPoolFactory;
-import io.polaris.core.consts.StdKeys;
-import io.polaris.core.env.GlobalStdEnv;
+import io.polaris.core.env.Config;
 import io.polaris.core.service.ServiceDefault;
-import io.polaris.core.service.ServiceLoader;
 
 /**
  * @author Qt
@@ -23,11 +25,11 @@ public class DefaultAsyncThreadPoolFactory implements AsyncThreadPoolFactory {
 
 	@Override
 	public ExecutorService buildExecutor() {
-		int maxPoolSize = GlobalStdEnv.getInt(StdKeys.ASYNC_POOL_MAX);
+		int maxPoolSize = Config.INSTANCE.async().pool().max();
 		if (maxPoolSize < 1) {
 			maxPoolSize = Integer.max(8, Runtime.getRuntime().availableProcessors() * 4);
 		}
-		int corePoolSize = GlobalStdEnv.getInt(StdKeys.ASYNC_POOL_CORE);
+		int corePoolSize = Config.INSTANCE.async().pool().core();
 		if (corePoolSize < 1) {
 			corePoolSize = Integer.min(maxPoolSize, Runtime.getRuntime().availableProcessors());
 		}
@@ -46,9 +48,9 @@ public class DefaultAsyncThreadPoolFactory implements AsyncThreadPoolFactory {
 
 	@Override
 	public ScheduledExecutorService buildScheduledExecutor() {
-		int poolSize = GlobalStdEnv.getInt(StdKeys.ASYNC_POOL_SCHEDULER);
+		int poolSize = Config.INSTANCE.async().pool().scheduler();
 		if (poolSize < 1) {
-			poolSize = GlobalStdEnv.getInt(StdKeys.ASYNC_POOL_CORE);
+			poolSize = Config.INSTANCE.async().pool().core();
 		}
 		if (poolSize < 1) {
 			poolSize = Runtime.getRuntime().availableProcessors();

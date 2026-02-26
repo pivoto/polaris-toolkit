@@ -3,8 +3,7 @@ package io.polaris.core.asm.generator;
 import java.io.File;
 
 import io.polaris.core.asm.internal.AsmConsts;
-import io.polaris.core.consts.StdKeys;
-import io.polaris.core.env.GlobalStdEnv;
+import io.polaris.core.env.Config;
 import io.polaris.core.io.IO;
 import io.polaris.core.string.Strings;
 import org.objectweb.asm.ClassVisitor;
@@ -22,7 +21,7 @@ public class DebuggingClassWriter extends ClassVisitor {
 	private String superName;
 
 	static {
-		String tmpdir = GlobalStdEnv.get(StdKeys.BYTECODE_GENERATOR_TMPDIR);
+		String tmpdir = Config.INSTANCE.bytecode().generator().tmpdir();
 		if (Strings.isNotBlank(tmpdir)) {
 			File dir = new File(tmpdir.trim());
 			if (!dir.exists()) {

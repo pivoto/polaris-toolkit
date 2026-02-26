@@ -1,7 +1,6 @@
 package io.polaris.core.jdbc.sql.node;
 
-import io.polaris.core.consts.StdKeys;
-import io.polaris.core.env.GlobalStdEnv;
+import io.polaris.core.env.Config;
 import io.polaris.core.env.GlobalStdEnvObservable;
 
 /**
@@ -12,9 +11,9 @@ class LfTextNode extends TextNode {
 	static final LfTextNode INSTANCE = new LfTextNode();
 
 	private LfTextNode() {
-		super(GlobalStdEnv.getBoolean(StdKeys.JDBC_SQL_SPACE_AS_LF, true) ? " " : "\n");
+		super(Config.INSTANCE.jdbc().sql().spaceAsLf() ? " " : "\n");
 		GlobalStdEnvObservable.addListener(() -> {
-			this.text = GlobalStdEnv.getBoolean(StdKeys.JDBC_SQL_SPACE_AS_LF, true) ? " " : "\n";
+			this.text = Config.INSTANCE.jdbc().sql().spaceAsLf() ? " " : "\n";
 		});
 	}
 

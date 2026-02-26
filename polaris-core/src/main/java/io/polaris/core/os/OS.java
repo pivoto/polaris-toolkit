@@ -18,9 +18,8 @@ import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 
 import io.polaris.core.consts.StdConsts;
-import io.polaris.core.consts.StdKeys;
 import io.polaris.core.consts.SystemProperty;
-import io.polaris.core.env.GlobalStdEnv;
+import io.polaris.core.env.Config;
 import io.polaris.core.regex.Patterns;
 import io.polaris.core.string.Strings;
 
@@ -90,7 +89,7 @@ public class OS {
 		if (null != CACHE_IP) {
 			return CACHE_IP;
 		}
-		String ipRegex = GlobalStdEnv.get(StdKeys.OS_IP_REGEX);
+		String ipRegex = Config.INSTANCE.os().ipRegex();
 		if (Strings.isNotBlank(ipRegex)) {
 			// 从系统属性中取优先IP范式，存在则使用
 			String[] arr = Strings.delimitedToArray(ipRegex, ",");

@@ -9,8 +9,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-import io.polaris.core.consts.StdKeys;
-import io.polaris.core.env.GlobalStdEnv;
+import io.polaris.core.env.Config;
 import io.polaris.core.io.IO;
 import io.polaris.core.map.Maps;
 import io.polaris.core.string.Strings;
@@ -45,7 +44,7 @@ public class AccessClassLoader extends ClassLoader {
 			, PublicConstructorAccess.class
 			, FieldAccess.class
 		);
-		String tmpdir = GlobalStdEnv.get(StdKeys.BYTECODE_GENERATOR_TMPDIR);
+		String tmpdir = Config.INSTANCE.bytecode().generator().tmpdir();
 		if (Strings.isNotBlank(tmpdir)) {
 			File dir = new File(tmpdir.trim());
 			if (!dir.exists()) {

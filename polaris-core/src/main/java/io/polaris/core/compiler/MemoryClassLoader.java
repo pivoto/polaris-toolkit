@@ -9,7 +9,15 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nullable;
@@ -17,9 +25,8 @@ import javax.tools.JavaFileObject;
 
 import io.polaris.core.classpath.ClassPaths;
 import io.polaris.core.consts.StdConsts;
-import io.polaris.core.consts.StdKeys;
 import io.polaris.core.consts.SystemProperty;
-import io.polaris.core.env.GlobalStdEnv;
+import io.polaris.core.env.Config;
 import io.polaris.core.io.IO;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
@@ -50,7 +57,7 @@ public class MemoryClassLoader extends URLClassLoader {
 	}
 
 	static {
-		String tmpdir = GlobalStdEnv.get(StdKeys.BYTECODE_GENERATOR_TMPDIR);
+		String tmpdir = Config.INSTANCE.bytecode().generator().tmpdir();
 		if (Strings.isNotBlank(tmpdir)) {
 			File dir = new File(tmpdir.trim());
 			if (!dir.exists()) {

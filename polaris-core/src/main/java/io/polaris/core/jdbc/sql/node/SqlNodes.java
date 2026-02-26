@@ -1,8 +1,5 @@
 package io.polaris.core.jdbc.sql.node;
 
-import io.polaris.core.consts.StdKeys;
-import io.polaris.core.env.GlobalStdEnv;
-
 /**
  * @author Qt
  * @since Aug 24, 2023
