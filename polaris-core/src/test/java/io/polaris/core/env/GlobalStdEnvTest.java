@@ -1,13 +1,10 @@
 package io.polaris.core.env;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import io.polaris.core.consts.StdKeys;
 import io.polaris.core.io.Consoles;
 import io.polaris.core.json.Jsons;
-import io.polaris.core.log.Level;
 import lombok.Data;
 import org.junit.jupiter.api.Test;
 
@@ -19,8 +16,8 @@ class GlobalStdEnvTest {
 		GlobalStdEnv.set(StdKeys.LOGGER_LEVEL + ".aaa", "info");
 		GlobalStdEnv.set(StdKeys.LOGGER_LEVEL + ".bbb", "error");
 		GlobalStdEnv.set(StdKeys.JDBC_SQL_SPACE_AS_LF, "false");
+		GlobalStdEnv.set(StdKeys.JDBC_SQL_PARAM_EMPTY_AS_NULL, "false");
 		GlobalStdEnv.set(StdKeys.JDBC_SQL_PARAM_INCLUDE_EMPTY, "true");
-		GlobalStdEnv.set(StdKeys.JDBC_SQL_PARAM_INCLUDE_EMPTY, "false");
 		GlobalStdEnv.set(StdKeys.BYTECODE_GENERATOR_CACHE, "false");
 		GlobalStdEnv.set(StdKeys.BYTECODE_GENERATOR_TMPDIR, "/tmp/bytecode");
 		GlobalStdEnv.set(StdKeys.ASYNC_POOL_CORE, "8");
@@ -33,9 +30,14 @@ class GlobalStdEnvTest {
 		GlobalStdEnv.set("polaris.strings.0", "0");
 		GlobalStdEnv.set("polaris.strings.2", "2");
 		GlobalStdEnv.set("polaris.strings.x", "x");
+
+		// 触发监听器
+		GlobalStdEnvObservable.notifyListeners();
+
 		TestProps o = GlobalStdEnv.bind("polaris", TestProps.class);
 		Consoles.println(Jsons.serialize(o));
 	}
+
 
 	@Data
 	public static class TestProps extends StdCfg {
