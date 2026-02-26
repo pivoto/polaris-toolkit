@@ -3,9 +3,12 @@ package io.polaris.core.jdbc.sql;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.polaris.core.consts.SymbolConsts;
+import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
 import io.polaris.core.string.Strings;
 
@@ -26,6 +29,7 @@ public class SqlStatement implements PreparedSqlBuilder {
 	private final And<SqlStatement> having = new And<>(this);
 	private StatementType statementType;
 	private boolean distinct;
+	private Map<String, Object> bindings;
 
 	public static SqlStatement of() {
 		return new SqlStatement();
@@ -33,8 +37,51 @@ public class SqlStatement implements PreparedSqlBuilder {
 
 	@Override
 	public PreparedSql asPreparedSql() {
-		return new PreparedSql(toSqlString(), Collections.emptyList());
+		String sqlString = toSqlString();
+		if (bindings == null || bindings.isEmpty()) {
+			return new PreparedSql(sqlString, Collections.emptyList());
+		}
+		ContainerNode node = SqlTextParsers.parse(sqlString);
+		node.bindSubsetVarValues(bindings, false);
+		return node.asPreparedSql();
 	}
+
+
+	public SqlStatement bindings(Map<String, Object> map) {
+		this.bindings = map;
+		return this;
+	}
+
+	public SqlStatement bindAll(Map<String, Object> map) {
+		if (this.bindings == null) {
+			this.bindings = new HashMap<>();
+		}
+		this.bindings.putAll(map);
+		return this;
+	}
+
+	public SqlStatement bind(String key, Object value) {
+		if (this.bindings == null) {
+			this.bindings = new HashMap<>();
+		}
+		this.bindings.put(key, value);
+		return this;
+	}
+
+	public SqlStatement unbind(String key) {
+		if (this.bindings != null) {
+			this.bindings.remove(key);
+		}
+		return this;
+	}
+
+	public SqlStatement clearBindings() {
+		if (this.bindings != null) {
+			this.bindings.clear();
+		}
+		return this;
+	}
+
 
 	public SqlStatement update(String table) {
 		this.statementType = SqlStatement.StatementType.UPDATE;
