@@ -4,6 +4,8 @@
 - 新增PreparedSqlBuilder接口
 - 修改Jdbcs类中的查询和更新方法中SqlNode参数类型为PreparedSqlBuilder
 - SqlStatement类新增SQL绑定参数支持功能，并实现PreparedSqlBuilder接口
+- 新增基础配置类Config，用于统一处理工具库内部的环境变量与属性获取
+- 将工具库内部对环境变量及属性的获取，统一从GlobalStdEnv方法替换为新的Config实例
 
 ### 3.6.5
 - 新增apm-agent模块，定义追踪接口规范
