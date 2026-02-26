@@ -8,7 +8,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +32,7 @@ import io.polaris.core.jdbc.executor.BatchResult;
 import io.polaris.core.jdbc.executor.JdbcBatch;
 import io.polaris.core.jdbc.executor.JdbcExecutors;
 import io.polaris.core.jdbc.sql.PreparedSql;
-import io.polaris.core.jdbc.sql.node.SqlNode;
+import io.polaris.core.jdbc.sql.PreparedSqlBuilder;
 import io.polaris.core.jdbc.sql.query.Pageable;
 import io.polaris.core.lang.bean.MetaObject;
 import io.polaris.core.log.Logger;
@@ -401,48 +400,48 @@ public class Jdbcs {
 	/**
 	 * @see ResultExtractors
 	 */
-	public static <T> T query(Connection conn, SqlNode sqlNode, ResultExtractor<T> extractor) throws SQLException {
-		PreparedSql sql = sqlNode.asPreparedSql();
+	public static <T> T query(Connection conn, PreparedSqlBuilder sqlBuilder, ResultExtractor<T> extractor) throws SQLException {
+		PreparedSql sql = sqlBuilder.asPreparedSql();
 		return query(conn, sql.getText(), preparerOfParameters(sql.getBindings()), extractor);
 	}
 
 	/**
 	 * @see ResultExtractors
 	 */
-	public static <T> T query(Connection conn, SqlNode sqlNode, ResultExtractor<T> extractor, Pageable pageable) throws SQLException {
-		PreparedSql sql = sqlNode.asPreparedSql();
+	public static <T> T query(Connection conn, PreparedSqlBuilder sqlBuilder, ResultExtractor<T> extractor, Pageable pageable) throws SQLException {
+		PreparedSql sql = sqlBuilder.asPreparedSql();
 		return query(conn, sql.getText(), preparerOfParameters(sql.getBindings()), extractor, pageable);
 	}
 
 	/**
 	 * @see ResultSetVisitors
 	 */
-	public static void query(Connection conn, SqlNode sqlNode, ResultSetVisitor visitor) throws SQLException {
-		PreparedSql sql = sqlNode.asPreparedSql();
+	public static void query(Connection conn, PreparedSqlBuilder sqlBuilder, ResultSetVisitor visitor) throws SQLException {
+		PreparedSql sql = sqlBuilder.asPreparedSql();
 		query(conn, sql.getText(), preparerOfParameters(sql.getBindings()), visitor);
 	}
 
 	/**
 	 * @see ResultExtractors
 	 */
-	public static <T> T query(Connection conn, SqlNode sqlNode, @Nonnull JdbcOptions options, ResultExtractor<T> extractor) throws SQLException {
-		PreparedSql sql = sqlNode.asPreparedSql();
+	public static <T> T query(Connection conn, PreparedSqlBuilder sqlBuilder, @Nonnull JdbcOptions options, ResultExtractor<T> extractor) throws SQLException {
+		PreparedSql sql = sqlBuilder.asPreparedSql();
 		return query(conn, sql.getText(), options, preparerOfParameters(sql.getBindings()), extractor);
 	}
 
 	/**
 	 * @see ResultExtractors
 	 */
-	public static <T> T query(Connection conn, SqlNode sqlNode, @Nonnull JdbcOptions options, ResultExtractor<T> extractor, Pageable pageable) throws SQLException {
-		PreparedSql sql = sqlNode.asPreparedSql();
+	public static <T> T query(Connection conn, PreparedSqlBuilder sqlBuilder, @Nonnull JdbcOptions options, ResultExtractor<T> extractor, Pageable pageable) throws SQLException {
+		PreparedSql sql = sqlBuilder.asPreparedSql();
 		return query(conn, sql.getText(), options, preparerOfParameters(sql.getBindings()), extractor, pageable);
 	}
 
 	/**
 	 * @see ResultSetVisitors
 	 */
-	public static void query(Connection conn, SqlNode sqlNode, @Nonnull JdbcOptions options, ResultSetVisitor visitor) throws SQLException {
-		PreparedSql sql = sqlNode.asPreparedSql();
+	public static void query(Connection conn, PreparedSqlBuilder sqlBuilder, @Nonnull JdbcOptions options, ResultSetVisitor visitor) throws SQLException {
+		PreparedSql sql = sqlBuilder.asPreparedSql();
 		query(conn, sql.getText(), options, preparerOfParameters(sql.getBindings()), visitor);
 	}
 
@@ -752,17 +751,17 @@ public class Jdbcs {
 		return query(conn, sql, preparerOfParameters(parameters), ResultExtractors.ofSingle(type));
 	}
 
-	public static int update(Connection conn, SqlNode sql) throws SQLException {
+	public static int update(Connection conn, PreparedSqlBuilder sql) throws SQLException {
 		PreparedSql preparedSql = sql.asPreparedSql();
 		return update(conn, preparedSql.getText(), preparerOfParameters(preparedSql.getBindings()));
 	}
 
-	public static int update(Connection conn, SqlNode sql, @Nonnull JdbcOptions options) throws SQLException {
+	public static int update(Connection conn, PreparedSqlBuilder sql, @Nonnull JdbcOptions options) throws SQLException {
 		PreparedSql preparedSql = sql.asPreparedSql();
 		return update(conn, preparedSql.getText(), options, preparerOfParameters(preparedSql.getBindings()), null);
 	}
 
-	public static int update(Connection conn, SqlNode sql, @Nonnull JdbcOptions options, Object generatedKeyBinding) throws SQLException {
+	public static int update(Connection conn, PreparedSqlBuilder sql, @Nonnull JdbcOptions options, Object generatedKeyBinding) throws SQLException {
 		PreparedSql preparedSql = sql.asPreparedSql();
 		return update(conn, preparedSql.getText(), options, preparerOfParameters(preparedSql.getBindings()), generatedKeyBinding);
 	}
@@ -1059,18 +1058,18 @@ public class Jdbcs {
 		return preparerOfParameters(Arrays.asList(parameters));
 	}
 
-	public static JdbcBatch updateBatch(Connection conn, SqlNode sql) throws SQLException {
+	public static JdbcBatch updateBatch(Connection conn, PreparedSqlBuilder sql) throws SQLException {
 		PreparedSql preparedSql = sql.asPreparedSql();
 		return updateBatch(conn, preparedSql.getText(), preparerOfParameters(preparedSql.getBindings()));
 	}
 
 
-	public static JdbcBatch updateBatch(Connection conn, SqlNode sql, @Nonnull JdbcOptions options) throws SQLException {
+	public static JdbcBatch updateBatch(Connection conn, PreparedSqlBuilder sql, @Nonnull JdbcOptions options) throws SQLException {
 		PreparedSql preparedSql = sql.asPreparedSql();
 		return updateBatch(conn, preparedSql.getText(), options, preparerOfParameters(preparedSql.getBindings()), null);
 	}
 
-	public static JdbcBatch updateBatch(Connection conn, SqlNode sql, @Nonnull JdbcOptions options, Object generatedKeyBinding) throws SQLException {
+	public static JdbcBatch updateBatch(Connection conn, PreparedSqlBuilder sql, @Nonnull JdbcOptions options, Object generatedKeyBinding) throws SQLException {
 		PreparedSql preparedSql = sql.asPreparedSql();
 		return updateBatch(conn, preparedSql.getText(), options, preparerOfParameters(preparedSql.getBindings()), generatedKeyBinding);
 	}

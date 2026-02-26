@@ -16,7 +16,7 @@ import java.util.List;
 @EqualsAndHashCode
 @Getter
 @Setter
-public class PreparedSql {
+public class PreparedSql implements PreparedSqlBuilder {
 	public static final PreparedSql EMPTY = new PreparedSql(SymbolConsts.EMPTY, Collections.emptyList());
 	private String text;
 	private List<Object> bindings;
@@ -32,5 +32,10 @@ public class PreparedSql {
 	@Override
 	public String toString() {
 		return text + "\n" + bindings;
+	}
+
+	@Override
+	public PreparedSql asPreparedSql() {
+		return this;
 	}
 }

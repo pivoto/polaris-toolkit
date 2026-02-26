@@ -2,6 +2,7 @@ package io.polaris.core.jdbc.sql;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import io.polaris.core.consts.SymbolConsts;
@@ -12,7 +13,7 @@ import io.polaris.core.string.Strings;
  * @author Qt
  * @since Aug 12, 2023
  */
-public class SqlStatement {
+public class SqlStatement implements PreparedSqlBuilder {
 	private final List<String> tables = new ArrayList<>();
 	private final List<String> columns = new ArrayList<>();
 	private final List<String> values = new ArrayList<>();
@@ -28,6 +29,11 @@ public class SqlStatement {
 
 	public static SqlStatement of() {
 		return new SqlStatement();
+	}
+
+	@Override
+	public PreparedSql asPreparedSql() {
+		return new PreparedSql(toSqlString(), Collections.emptyList());
 	}
 
 	public SqlStatement update(String table) {

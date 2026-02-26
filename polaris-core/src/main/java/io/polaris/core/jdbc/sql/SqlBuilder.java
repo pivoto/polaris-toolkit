@@ -3,6 +3,7 @@ package io.polaris.core.jdbc.sql;
 import io.polaris.core.string.Strings;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -11,7 +12,7 @@ import java.util.function.Function;
  * @author Qt
  * @since Aug 11, 2023
  */
-public class SqlBuilder {
+public class SqlBuilder implements PreparedSqlBuilder {
 	private final StringBuilder builder = new StringBuilder();
 	private List<Object> bindings;
 
@@ -112,4 +113,8 @@ public class SqlBuilder {
 		return toSqlString();
 	}
 
+	@Override
+	public PreparedSql asPreparedSql() {
+		return new PreparedSql(builder.toString(), bindings == null ? Collections.emptyList() : Collections.unmodifiableList(new ArrayList<>(bindings)));
+	}
 }

@@ -8,13 +8,15 @@ import java.util.function.Supplier;
 
 import io.polaris.core.jdbc.sql.BoundSql;
 import io.polaris.core.jdbc.sql.PreparedSql;
+import io.polaris.core.jdbc.sql.PreparedSqlBuilder;
 
 /**
  * @author Qt
  * @since Aug 11, 2023
  */
-public interface SqlNode {
+public interface SqlNode extends PreparedSqlBuilder {
 
+	@Override
 	PreparedSql asPreparedSql();
 
 	BoundSql asBoundSql(Predicate<String> varPropFilter, VarNameGenerator generator, String openVarToken, String closeVarToken);
