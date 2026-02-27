@@ -21,7 +21,7 @@ public class SqlTextParsers {
 	private static final char[] TABLE_REF_MIXED_SYMBOLS = new char[0];
 
 	/**
-	 * 解析实体表与字段的引用表达式，支持格式（以下`%`或替换为`&`）：
+	 * 解析实体表与字段的引用表达式，支持格式（以下`%`可替换为`&`）：
 	 * <ul>
 	 *   <li>`%{tableAlias}`
 	 *   </li>
@@ -97,7 +97,7 @@ public class SqlTextParsers {
 
 
 	/**
-	 * 解析实体表与字段的引用表达式，支持格式（以下`%`或替换为`&`）：
+	 * 解析实体表与字段的引用表达式，支持格式（以下`%`可替换为`&`）：
 	 * <ul>
 	 *   <li>`%{tableAlias(entityClassName)}`
 	 *   </li>
