@@ -8,10 +8,13 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import io.polaris.core.annotation.Internal;
+import io.polaris.core.jdbc.sql.SqlTextParsers;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
+import io.polaris.core.jdbc.sql.node.ContainerNode;
+import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.Types;
 import io.polaris.core.lang.bean.BeanMap;
@@ -20,9 +23,9 @@ import io.polaris.core.tuple.Ref;
 import io.polaris.core.tuple.Tuple2;
 import io.polaris.mybatis.annotation.MapperEntity;
 import io.polaris.mybatis.annotation.WithLogicDeleted;
+import io.polaris.mybatis.interceptor.InterceptorHelper;
 import io.polaris.mybatis.mapper.EntityMapper;
 import org.apache.ibatis.annotations.Lang;
-import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.apache.ibatis.builder.annotation.ProviderMethodResolver;
 import org.apache.ibatis.mapping.BoundSql;
@@ -53,14 +56,15 @@ public abstract class BaseProviderMethodResolver implements ProviderMethodResolv
 		QUERY_EXISTS_BY_COUNT.remove();
 	}
 
-	static void bindAdditionalParameters(Object parameterObject, Map<String, Object> additionalParameters) {
+	private static void bindAdditionalParameters(Object parameterObject, Map<String, Object> additionalParameters) {
 		ADDITIONAL_PARAMETERS.set(Tuple2.of(parameterObject, additionalParameters));
 	}
 
-	static void clearAdditionalParameters() {
+	private static void clearAdditionalParameters() {
 		ADDITIONAL_PARAMETERS.remove();
 	}
 
+	@Internal
 	static BoundSql getBoundSql(SqlSource sqlSource, Object parameterObject) {
 		try {
 			BoundSql boundSql = sqlSource.getBoundSql(parameterObject);
@@ -217,7 +221,7 @@ public abstract class BaseProviderMethodResolver implements ProviderMethodResolv
 	}
 
 	@SuppressWarnings("unchecked")
-	protected static Map<String, Object> toParameterBindings(Method mapperMethod, Object parameterObject) {
+	private static Map<String, Object> toParameterBindings(Method mapperMethod, Object parameterObject) {
 		if (parameterObject instanceof Map) {
 			return (Map<String, Object>) parameterObject;
 		} else {
@@ -226,7 +230,7 @@ public abstract class BaseProviderMethodResolver implements ProviderMethodResolv
 					// 参数为空时，使用空MAP，不接收任何绑定
 					return Collections.emptyMap();
 				}
-				// TODO 通过配置开启，增加支持非Map类型的入参，转为直接sql拼接
+				// TODO 考虑增加支持非Map类型的入参，转为直接sql拼接，通过配置开启，但需要处理非字符串参数转换问题
 				throw new IllegalArgumentException("请使用Map类型参数或明确声明参数键名");
 			}
 			return toParameterBindings(parameterObject);

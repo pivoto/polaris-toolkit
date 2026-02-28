@@ -44,15 +44,15 @@ public class DataAuthInterceptor implements Interceptor {
 			StatementHandler target = null;
 			if (invocation.getTarget() instanceof RoutingStatementHandler) {
 				RoutingStatementHandler statementHandler = (RoutingStatementHandler) invocation.getTarget();
-				target = getDelegate(statementHandler);
+				target = InterceptorHelper.instance().getDelegate(statementHandler);
 			} else if (invocation.getTarget() instanceof BaseStatementHandler) {
 				target = (BaseStatementHandler) invocation.getTarget();
 			} else if (invocation.getTarget() instanceof StatementHandler) {
 				target = (StatementHandler) invocation.getTarget();
 			}
 
-			if (target != null) {
-				MappedStatement mappedStatement = getMappedStatement(target);
+			if (target != null && target instanceof BaseStatementHandler) {
+				MappedStatement mappedStatement = InterceptorHelper.instance().getMappedStatement((BaseStatementHandler) target);
 				if (mappedStatement != null && mappedStatement.getSqlCommandType() == SqlCommandType.SELECT) {
 					BoundSql boundSql = target.getBoundSql();
 					// 解析sql
@@ -87,19 +87,5 @@ public class DataAuthInterceptor implements Interceptor {
 	@Override
 	public void setProperties(Properties properties) {
 	}
-
-
-	private StatementHandler getDelegate(RoutingStatementHandler statementHandler) throws IllegalAccessException {
-		Field field = Reflects.getField(RoutingStatementHandler.class, "delegate");
-		Reflects.setAccessible(field);
-		return (StatementHandler) field.get(statementHandler);
-	}
-
-	private MappedStatement getMappedStatement(StatementHandler delegate) throws IllegalAccessException {
-		Field field = Reflects.getField(BaseStatementHandler.class, "mappedStatement");
-		Reflects.setAccessible(field);
-		return (MappedStatement) field.get(delegate);
-	}
-
 
 }
