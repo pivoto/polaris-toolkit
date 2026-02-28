@@ -71,6 +71,7 @@ hs_err_pid*
 ~*.*
 .tmp/
 tmp.*
+.tmp.*
 *.tmp
 *.bak
 *.swp
