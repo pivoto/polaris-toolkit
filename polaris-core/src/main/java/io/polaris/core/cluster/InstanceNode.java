@@ -47,7 +47,7 @@ public class InstanceNode implements Comparable<InstanceNode> {
 	}
 
 	public void setDefault() {
-		this.host = OS.getFirstIp();
+		this.host = OS.getPriorOrFirstIp();
 		this.hostName = OS.getHostName();
 		this.osName = OS.getOsName();
 		this.pid = OS.getPid();

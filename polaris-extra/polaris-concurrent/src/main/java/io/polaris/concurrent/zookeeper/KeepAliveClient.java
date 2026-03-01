@@ -56,7 +56,7 @@ public class KeepAliveClient {
 			String[] regex = hostPatterns.toArray(new String[0]);
 			vmProcessUid = OS.getPriorOrFirstIp(regex) + "#" + OS.getPid();
 		} else {
-			vmProcessUid = OS.getFirstIp() + "#" + OS.getPid();
+			vmProcessUid = OS.getPriorOrFirstIp() + "#" + OS.getPid();
 		}
 		vmStartTime = OS.getVmStartTime();
 	}

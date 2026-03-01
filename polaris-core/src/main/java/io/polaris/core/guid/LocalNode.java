@@ -48,7 +48,7 @@ public class LocalNode {
 
 		int addr = 0;
 		try {
-			String firstIp = OS.getFirstIp();
+			String firstIp = OS.getPriorOrFirstIp();
 			if (firstIp == null){
 				byte[] address = InetAddress.getLocalHost().getAddress();
 				addr = address[address.length - 1];

@@ -142,11 +142,20 @@ public class OS {
 
 	public static String getPriorIp(String... regex) {
 		List<String> ips = getAllIps();
-		for (String re : regex) {
-			Pattern pattern = Patterns.getPattern(re);
-			for (String ip : ips) {
-				if (pattern.matcher(ip).find()) {
-					return ip;
+		if (regex == null || regex.length == 0) {
+			String ipRegex = Config.INSTANCE.os().ipRegex();
+			if (Strings.isNotBlank(ipRegex)) {
+				// 从系统属性中取优先IP范式，存在则使用
+				regex = Strings.delimitedToArray(ipRegex, ",");
+			}
+		}
+		if (regex != null && regex.length > 0) {
+			for (String re : regex) {
+				Pattern pattern = Patterns.getPattern(re);
+				for (String ip : ips) {
+					if (pattern.matcher(ip).find()) {
+						return ip;
+					}
 				}
 			}
 		}
@@ -155,11 +164,20 @@ public class OS {
 
 	public static String getPriorOrFirstIp(String... regex) {
 		List<String> ips = getAllIps();
-		for (String re : regex) {
-			Pattern pattern = Patterns.getPattern(re);
-			for (String ip : ips) {
-				if (pattern.matcher(ip).find()) {
-					return ip;
+		if (regex == null || regex.length == 0) {
+			String ipRegex = Config.INSTANCE.os().ipRegex();
+			if (Strings.isNotBlank(ipRegex)) {
+				// 从系统属性中取优先IP范式，存在则使用
+				regex = Strings.delimitedToArray(ipRegex, ",");
+			}
+		}
+		if (regex != null && regex.length > 0) {
+			for (String re : regex) {
+				Pattern pattern = Patterns.getPattern(re);
+				for (String ip : ips) {
+					if (pattern.matcher(ip).find()) {
+						return ip;
+					}
 				}
 			}
 		}
