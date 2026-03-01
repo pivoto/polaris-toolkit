@@ -3,6 +3,18 @@ Content-Type: application/json
 
 {}
 
+### test1
+POST http://localhost:6666/demo/test1
+Content-Type: application/json
+
+{}
+
+### test2
+POST http://localhost:6666/demo/test2
+Content-Type: application/json
+
+{}
+
 ### listUser
 POST http://localhost:6666/demo/listUser
 Content-Type: application/json

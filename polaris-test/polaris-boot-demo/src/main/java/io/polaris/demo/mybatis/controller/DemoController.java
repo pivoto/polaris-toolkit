@@ -10,6 +10,7 @@ import io.polaris.core.tuple.Tuples;
 import io.polaris.demo.mybatis.entity.DemoOrgEntity;
 import io.polaris.demo.mybatis.entity.DemoUserEntity;
 import io.polaris.demo.mybatis.entity.DemoUserEntitySql;
+import io.polaris.demo.mybatis.model.DemoParam;
 import io.polaris.demo.mybatis.service.DemoService;
 import io.polaris.demo.mybatis.service.DemoUserService;
 import lombok.RequiredArgsConstructor;
@@ -37,13 +38,39 @@ public class DemoController {
 			map.put("selectOrgById", mapper.selectOrgById(DemoOrgEntity.builder().id(1L).build()));
 			map.put("selectOrgList", mapper.selectOrgList(DemoOrgEntity.builder().name("org%").build()));
 			map.put("selectOrgListByAny", mapper.selectOrgListByAny(1L, "org"));
-			map.put("getOrgListByIds", mapper.getOrgListByIds(new Long[]{1L, 2L}));
-			map.put("getOrgListByIds2", mapper.getOrgListByIds2(new Long[]{1L, 2L}));
-			map.put("getOrgListByIds3", mapper.getOrgListByIds3(new Long[]{1L, 2L}));
-			Map<String, Object> param = new HashMap<>();
-			param.put("id", 1L);
-			param.put("name", "org%");
-			map.put("selectOrgListByAny2", mapper.selectOrgListByAny2(param));
+			map.put("getOrgListByIdsInProviderSqlSourceDriver", mapper.getOrgListByIdsInProviderSqlSourceDriver(new Long[]{1L, 2L}));
+			map.put("getOrgListByIdsInXml", mapper.getOrgListByIdsInXml(new Long[]{1L, 2L}));
+			map.put("getOrgListByIdsInTableRefResolvableDriver", mapper.getOrgListByIdsInTableRefResolvableDriver(new Long[]{1L, 2L}));
+			{
+				Map<String, Object> param = new HashMap<>();
+				param.put("id", 1L);
+				param.put("name", "org%");
+				map.put("selectOrgListByAny2", mapper.selectOrgListByAny2(param));
+			}
+			return map;
+		});
+	}
+
+	@PostMapping("test1")
+	public Object test1() {
+		return demoService.doTransaction(mapper -> {
+			Map<String, Object> map = new HashMap<>();
+			{
+				map.put("selectOrgById", mapper.selectOrgById(DemoOrgEntity.builder().id(1L).build()));
+			}
+			return map;
+		});
+	}
+
+	@PostMapping("test2")
+	public Object test2() {
+		return demoService.doTransaction(mapper -> {
+			Map<String, Object> map = new HashMap<>();
+			{
+				DemoParam param = new DemoParam();
+				param.setIds(new Long[]{1L, 2L});
+				map.put("getOrgListByIdsWithoutMap", mapper.getOrgListByIdsWithoutMap(param));
+			}
 			return map;
 		});
 	}

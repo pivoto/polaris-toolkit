@@ -30,11 +30,10 @@ import io.polaris.demo.mybatis.entity.DemoOrgEntity;
 import io.polaris.demo.mybatis.entity.DemoOrgEntityMeta;
 import io.polaris.demo.mybatis.entity.DemoUserOrgEntity;
 import io.polaris.demo.mybatis.entity.DemoUserOrgEntityMeta;
+import io.polaris.demo.mybatis.model.DemoParam;
 import io.polaris.mybatis.provider.AnyEntityProvider;
 import io.polaris.mybatis.provider.ProviderSqlSourceDriver;
 import io.polaris.mybatis.scripting.TableRefResolvableDriver;
-import io.polaris.mybatis.type.ArrayTypeHandler;
-import io.polaris.mybatis.type.StringArrayTypeHandler;
 import org.apache.ibatis.annotations.*;
 
 /**
@@ -123,6 +122,16 @@ public interface DemoMapper {
 	)
 	List<DemoUserOrgEntity> selectOrgListByAny2(Map<String, Object> param);
 
+	@SelectProvider(AnyEntityProvider.class)
+	@SqlEntity(table = {DemoOrgEntity.class}, alias = {"x"})
+	@SqlRaw({
+		@SqlRawItem("select %{x.*} from %{x} where 1=1"),
+		@SqlRawItem(forEachKey = "ids", itemKey = "id", separator = ",", open = " and %{x.id} in (", close = ") ",
+			value = "#{id}"
+		),
+		@SqlRawItem(""),
+	})
+	List<DemoOrgEntity> getOrgListByIdsWithoutMap(DemoParam param);
 
 	@Lang(ProviderSqlSourceDriver.class)
 	@SelectProvider(AnyEntityProvider.class)
@@ -134,9 +143,9 @@ public interface DemoMapper {
 		),
 		@SqlRawItem(""),
 	})
-	List<DemoOrgEntity> getOrgListByIds(@Key("ids") Long[] ids);
+	List<DemoOrgEntity> getOrgListByIdsInProviderSqlSourceDriver(@Key("ids") Long[] ids);
 
-	List<DemoOrgEntity> getOrgListByIds2(@Key("ids") Long[] ids);
+	List<DemoOrgEntity> getOrgListByIdsInXml(@Key("ids") Long[] ids);
 
 	@Lang(TableRefResolvableDriver.class)
 	@Select({
@@ -151,6 +160,6 @@ public interface DemoMapper {
 			"</if>",
 		"</script>"
 	})
-	List<DemoOrgEntity> getOrgListByIds3(@Key("ids") Long[] ids);
+	List<DemoOrgEntity> getOrgListByIdsInTableRefResolvableDriver(@Key("ids") Long[] ids);
 
 }
