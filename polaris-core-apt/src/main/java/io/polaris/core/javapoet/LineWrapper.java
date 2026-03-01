@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2016 Square, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package io.polaris.core.javapoet;
 
 import java.io.IOException;
@@ -20,8 +5,9 @@ import java.io.IOException;
 import static io.polaris.core.javapoet.Util.checkNotNull;
 
 /**
- * Implements soft line wrapping on an appendable. To use, append characters using {@link #append}
- * or soft-wrapping spaces using {@link #wrappingSpace}.
+ * 在可追加对象上实现软换行。
+ * 请使用 {@link #append} 追加字符，
+ * 或使用 {@link #wrappingSpace} 追加软换行空格。
  */
 final class LineWrapper {
 	private final RecordingAppendable out;
@@ -29,19 +15,19 @@ final class LineWrapper {
 	private final int columnLimit;
 	private boolean closed;
 
-	/** Characters written since the last wrapping space that haven't yet been flushed. */
+	/** 自上次换行空格以来写入但尚未刷新的字符。 */
 	private final StringBuilder buffer = new StringBuilder();
 
-	/** The number of characters since the most recent newline. Includes both out and the buffer. */
+	/** 自最近一次换行以来的字符数。包括输出和缓冲区。 */
 	private int column = 0;
 
 	/**
-	 * -1 if we have no buffering; otherwise the number of {@code indent}s to write after wrapping.
+	 * 如果没有缓冲则为 -1；否则为换行后要写入的 {@code indent} 数量。
 	 */
 	private int indentLevel = -1;
 
 	/**
-	 * Null if we have no buffering; otherwise the type to pass to the next call to {@link #flush}.
+	 * 如果没有缓冲则为 null；否则为传递给下一次 {@link #flush} 调用的类型。
 	 */
 	private FlushType nextFlush;
 
@@ -52,27 +38,26 @@ final class LineWrapper {
 		this.columnLimit = columnLimit;
 	}
 
-	/** @return the last emitted char or {@link Character#MIN_VALUE} if nothing emitted yet. */
+	/** @return 最后发出的字符，如果尚未发出任何字符则返回 {@link Character#MIN_VALUE}。 */
 	char lastChar() {
 		return out.lastChar;
 	}
 
-	/** Emit {@code s}. This may be buffered to permit line wraps to be inserted. */
+	/** 发出 {@code s}。这可能会被缓冲以允许插入换行。 */
 	void append(String s) throws IOException {
 		if (closed) throw new IllegalStateException("closed");
 
 		if (nextFlush != null) {
 			int nextNewline = s.indexOf('\n');
 
-			// If s doesn't cause the current line to cross the limit, buffer it and return. We'll decide
-			// whether or not we have to wrap it later.
+			// 如果 s 不会导致当前行超出限制，则将其缓冲并返回。我们稍后决定是否需要换行。
 			if (nextNewline == -1 && column + s.length() <= columnLimit) {
 				buffer.append(s);
 				column += s.length();
 				return;
 			}
 
-			// Wrap if appending s would overflow the current line.
+			// 如果追加 s 会使当前行溢出，则换行。
 			boolean wrap = nextNewline == -1 || column + nextNewline > columnLimit;
 			flush(wrap ? FlushType.WRAP : nextFlush);
 		}
@@ -84,17 +69,17 @@ final class LineWrapper {
 			: column + s.length();
 	}
 
-	/** Emit either a space or a newline character. */
+	/** 发出空格或换行符。 */
 	void wrappingSpace(int indentLevel) throws IOException {
 		if (closed) throw new IllegalStateException("closed");
 
 		if (this.nextFlush != null) flush(nextFlush);
-		column++; // Increment the column even though the space is deferred to next call to flush().
+		column++; // 即使空格推迟到下次调用 flush()，也要增加列数。
 		this.nextFlush = FlushType.SPACE;
 		this.indentLevel = indentLevel;
 	}
 
-	/** Emit a newline character if the line will exceed it's limit, otherwise do nothing. */
+	/** 如果行将超出其限制则发出换行符，否则不执行任何操作。 */
 	void zeroWidthSpace(int indentLevel) throws IOException {
 		if (closed) throw new IllegalStateException("closed");
 
@@ -104,13 +89,13 @@ final class LineWrapper {
 		this.indentLevel = indentLevel;
 	}
 
-	/** Flush any outstanding text and forbid future writes to this line wrapper. */
+	/** 刷新所有未完成的文本并禁止将来对此行包装器的写入。 */
 	void close() throws IOException {
 		if (nextFlush != null) flush(nextFlush);
 		closed = true;
 	}
 
-	/** Write the space followed by any buffered text that follows it. */
+	/** 写入空格，然后写入其后的任何缓冲文本。 */
 	private void flush(FlushType flushType) throws IOException {
 		switch (flushType) {
 			case WRAP:
@@ -140,7 +125,7 @@ final class LineWrapper {
 		WRAP, SPACE, EMPTY;
 	}
 
-	/** A delegating {@link Appendable} that records info about the chars passing through it. */
+	/** 记录通过它的字符信息的委托 {@link Appendable}。 */
 	static final class RecordingAppendable implements Appendable {
 		private final Appendable delegate;
 

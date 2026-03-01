@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2015 Square, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package io.polaris.core.javapoet;
 
 import java.io.IOException;
@@ -40,31 +25,29 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.SimpleTypeVisitor8;
 
 /**
- * Any type in Java's type system, plus {@code void}. This class is an identifier for primitive
- * types like {@code int} and raw reference types like {@code String} and {@code List}. It also
- * identifies composite types like {@code char[]} and {@code Set<Long>}.
+ * Java 类型系统中的任何类型，包括 {@code void}。此类是原始类型的标识符，
+ * 如 {@code int}，以及原始引用类型如 {@code String} 和 {@code List}。
+ * 它还标识复合类型如 {@code char[]} 和 {@code Set<Long>}。
  *
- * <p>Type names are dumb identifiers only and do not model the values they name. For example, the
- * type name for {@code java.util.List} doesn't know about the {@code size()} method, the fact that
- * lists are collections, or even that it accepts a single type parameter.
+ * <p>类型名称仅仅是标识符，不模拟它们所命名的值。例如，
+ * {@code java.util.List} 的类型名称不知道 {@code size()} 方法、
+ * 列表是集合的事实，甚至不知道它接受单个类型参数。
  *
- * <p>Instances of this class are immutable value objects that implement {@code equals()} and {@code
- * hashCode()} properly.
+ * <p>此类的实例是不可变的值对象，正确实现了 {@code equals()} 和 {@code hashCode()}。
  *
- * <h3>Referencing existing types</h3>
+ * <h3>引用现有类型</h3>
  *
- * <p>Primitives and void are constants that you can reference directly: see {@link #INT}, {@link
- * #DOUBLE}, and {@link #VOID}.
+ * <p>原始类型和 void 是可以直接引用的常量：参见 {@link #INT}、{@link #DOUBLE} 和 {@link #VOID}。
  *
- * <p>In an annotation processor you can get a type name instance for a type mirror by calling
- * {@link #get(TypeMirror)}. In reflection code, you can use {@link #get(Type)}.
+ * <p>在注解处理器中，可以通过调用 {@link #get(TypeMirror)} 获取类型镜像的类型名称实例。
+ * 在反射代码中，可以使用 {@link #get(Type)}。
  *
- * <h3>Defining new types</h3>
+ * <h3>定义新类型</h3>
  *
- * <p>Create new reference types like {@code com.example.HelloWorld} with {@link
- * ClassName#get(String, String, String...)}. To build composite types like {@code char[]} and
- * {@code Set<Long>}, use the factory methods on {@link ArrayTypeName}, {@link
- * ParameterizedTypeName}, {@link TypeVariableName}, and {@link WildcardTypeName}.
+ * <p>使用 {@link ClassName#get(String, String, String...)} 创建新的引用类型，
+ * 如 {@code com.example.HelloWorld}。要构建复合类型如 {@code char[]} 和 {@code Set<Long>}，
+ * 请使用 {@link ArrayTypeName}、{@link ParameterizedTypeName}、
+ * {@link TypeVariableName} 和 {@link WildcardTypeName} 上的工厂方法。
  */
 public class TypeName {
 	public static final TypeName VOID = new TypeName("void");
@@ -88,11 +71,11 @@ public class TypeName {
 	private static final ClassName BOXED_FLOAT = ClassName.get("java.lang", "Float");
 	private static final ClassName BOXED_DOUBLE = ClassName.get("java.lang", "Double");
 
-	/** The name of this type if it is a keyword, or null. */
+	/** 如果此类型是关键字，则为其名称，否则为 null。 */
 	private final String keyword;
 	public final List<AnnotationSpec> annotations;
 
-	/** Lazily-initialized toString of this type name. */
+	/** 此类型名称的延迟初始化 toString。 */
 	private String cachedString;
 
 	private TypeName(String keyword) {
@@ -104,7 +87,7 @@ public class TypeName {
 		this.annotations = Util.immutableList(annotations);
 	}
 
-	// Package-private constructor to prevent third-party subclasses.
+	// 包私有构造函数，防止第三方子类化。
 	TypeName(List<AnnotationSpec> annotations) {
 		this(null, annotations);
 	}
@@ -136,16 +119,16 @@ public class TypeName {
 	}
 
 	/**
-	 * Returns true if this is a primitive type like {@code int}. Returns false for all other types
-	 * types including boxed primitives and {@code void}.
+	 * 如果这是原始类型如 {@code int}，则返回 true。对于所有其他类型，
+	 * 包括装箱原始类型和 {@code void}，返回 false。
 	 */
 	public boolean isPrimitive() {
 		return keyword != null && this != VOID;
 	}
 
 	/**
-	 * Returns true if this is a boxed primitive type like {@code Integer}. Returns false for all
-	 * other types types including unboxed primitives and {@code java.lang.Void}.
+	 * 如果这是装箱原始类型如 {@code Integer}，则返回 true。对于所有其他类型，
+	 * 包括未装箱原始类型和 {@code java.lang.Void}，返回 false。
 	 */
 	public boolean isBoxedPrimitive() {
 		TypeName thisWithoutAnnotations = withoutAnnotations();
@@ -160,8 +143,8 @@ public class TypeName {
 	}
 
 	/**
-	 * Returns a boxed type if this is a primitive type (like {@code Integer} for {@code int}) or
-	 * {@code void}. Returns this type if boxing doesn't apply.
+	 * 如果这是原始类型（如 {@code int} 对应 {@code Integer}）或 {@code void}，
+	 * 则返回装箱类型。如果不适用装箱，则返回此类型。
 	 */
 	public TypeName box() {
 		if (keyword == null) return this; // Doesn't need boxing.
@@ -180,10 +163,10 @@ public class TypeName {
 	}
 
 	/**
-	 * Returns an unboxed type if this is a boxed primitive type (like {@code int} for {@code
-	 * Integer}) or {@code Void}. Returns this type if it is already unboxed.
+	 * 如果这是装箱原始类型（如 {@code Integer} 对应 {@code int}）或 {@code Void}，
+	 * 则返回未装箱类型。如果已未装箱，则返回此类型。
 	 *
-	 * @throws UnsupportedOperationException if this type isn't eligible for unboxing.
+	 * @throws UnsupportedOperationException 如果此类型不符合拆箱条件。
 	 */
 	public TypeName unbox() {
 		if (keyword != null) return this; // Already unboxed.
@@ -251,7 +234,7 @@ public class TypeName {
 	}
 
 
-	/** Returns a type name equivalent to {@code mirror}. */
+	/** 返回等效于 {@code mirror} 的类型名称。 */
 	public static TypeName get(TypeMirror mirror) {
 		return get(mirror, new LinkedHashMap<>());
 	}
@@ -339,7 +322,7 @@ public class TypeName {
 		}, null);
 	}
 
-	/** Returns a type name equivalent to {@code type}. */
+	/** 返回等效于 {@code type} 的类型名称。 */
 	public static TypeName get(Type type) {
 		return get(type, new LinkedHashMap<>());
 	}
@@ -376,7 +359,7 @@ public class TypeName {
 		}
 	}
 
-	/** Converts an array of types to a list of type names. */
+	/** 将类型数组转换为类型名称列表。 */
 	static List<TypeName> list(Type[] types) {
 		return list(types, new LinkedHashMap<>());
 	}
@@ -389,14 +372,14 @@ public class TypeName {
 		return result;
 	}
 
-	/** Returns the array component of {@code type}, or null if {@code type} is not an array. */
+	/** 返回 {@code type} 的数组组件，如果 {@code type} 不是数组则返回 null。 */
 	static TypeName arrayComponent(TypeName type) {
 		return type instanceof ArrayTypeName
 			? ((ArrayTypeName) type).componentType
 			: null;
 	}
 
-	/** Returns {@code type} as an array, or null if {@code type} is not an array. */
+	/** 返回 {@code type} 作为数组，如果 {@code type} 不是数组则返回 null。 */
 	static ArrayTypeName asArray(TypeName type) {
 		return type instanceof ArrayTypeName
 			? ((ArrayTypeName) type)

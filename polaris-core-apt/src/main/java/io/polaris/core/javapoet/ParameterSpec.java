@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2015 Square, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package io.polaris.core.javapoet;
 
 import java.io.IOException;
@@ -31,7 +16,7 @@ import javax.lang.model.element.VariableElement;
 import static io.polaris.core.javapoet.Util.checkArgument;
 import static io.polaris.core.javapoet.Util.checkNotNull;
 
-/** A generated parameter declaration. */
+/** 生成的参数声明。 */
 public final class ParameterSpec {
 	public final String name;
 	public final List<AnnotationSpec> annotations;
@@ -92,8 +77,8 @@ public final class ParameterSpec {
 
 		TypeName type = TypeName.get(element.asType());
 		String name = element.getSimpleName().toString();
-		// Copying parameter annotations can be incorrect so we're deliberately not including them.
-		// See https://github.com/square/javapoet/issues/482.
+		// 复制参数注解可能是不正确的，因此我们故意不包含它们。
+		// 参见 https://github.com/square/javapoet/issues/482。
 		return ParameterSpec.builder(type, name)
 			.addModifiers(element.getModifiers())
 			.build();
@@ -108,8 +93,8 @@ public final class ParameterSpec {
 	}
 
 	private static boolean isValidParameterName(String name) {
-		// Allow "this" for explicit receiver parameters
-		// See https://docs.oracle.com/javase/specs/jls/se8/html/jls-8.html#jls-8.4.1.
+		// 允许 "this" 作为显式接收器参数
+		// 参见 https://docs.oracle.com/javase/specs/jls/se8/html/jls-8.html#jls-8.4.1。
 		if (name.endsWith(".this")) {
 			return SourceVersion.isIdentifier(name.substring(0, name.length() - ".this".length()));
 		}

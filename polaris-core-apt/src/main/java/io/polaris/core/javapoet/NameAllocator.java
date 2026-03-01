@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2015 Square, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package io.polaris.core.javapoet;
 
 import java.util.LinkedHashMap;
@@ -26,9 +11,8 @@ import javax.lang.model.SourceVersion;
 import static io.polaris.core.javapoet.Util.checkNotNull;
 
 /**
- * Assigns Java identifier names to avoid collisions, keywords, and invalid characters. To use,
- * first create an instance and allocate all of the names that you need. Typically this is a
- * mix of user-supplied names and constants: <pre>   {@code
+ * 分配Java标识符名称以避免冲突、关键字和无效字符。使用方法是，
+ * 首先创建一个实例并分配所有需要的名称。通常这是用户提供的名称和常量的混合：<pre>   {@code
  *
  *   NameAllocator nameAllocator = new NameAllocator();
  *   for (MyProperty property : properties) {
@@ -37,12 +21,11 @@ import static io.polaris.core.javapoet.Util.checkNotNull;
  *   nameAllocator.newName("sb", "string builder");
  * }</pre>
  * <p>
- * Pass a unique tag object to each allocation. The tag scopes the name, and can be used to look up
- * the allocated name later. Typically the tag is the object that is being named. In the above
- * example we use {@code property} for the user-supplied property names, and {@code "string
- * builder"} for our constant string builder.
+ * 为每次分配传递一个唯一的标记对象。标记作用域名称，并且可以在稍后通过传递{@code tag}到
+ * {@link #get(Object)}来查询已分配的名称。通常标记是要命名的对象。在上面的例子中，
+ * 我们使用{@code property}作为用户提供的属性名称，使用{@code "string builder"}作为我们的常量字符串构建器。
  *
- * <p>Once we've allocated names we can use them when generating code: <pre>   {@code
+ * <p>一旦我们分配了名称，就可以在生成代码时使用它们：<pre>   {@code
  *
  *   MethodSpec.Builder builder = MethodSpec.methodBuilder("toString")
  *       .addAnnotation(Override.class)
@@ -59,8 +42,8 @@ import static io.polaris.core.javapoet.Util.checkNotNull;
  *   return builder.build();
  * }</pre>
  * <p>
- * The above code generates unique names if presented with conflicts. Given user-supplied properties
- * with names {@code ab} and {@code sb} this generates the following:  <pre>   {@code
+ * 如果遇到冲突，上述代码会生成唯一名称。给定用户提供的属性名称{@code ab}和{@code sb}，
+ * 这将生成以下内容：<pre>   {@code
  *
  *   &#64;Override
  *   public String toString() {
@@ -71,13 +54,10 @@ import static io.polaris.core.javapoet.Util.checkNotNull;
  *   }
  * }</pre>
  * <p>
- * The underscore is appended to {@code sb} to avoid conflicting with the user-supplied {@code sb}
- * property. Underscores are also prefixed for names that start with a digit, and used to replace
- * name-unsafe characters like space or dash.
+ * 下划线被附加到{@code sb}以避免与用户提供的{@code sb}属性冲突。
+ * 对于以数字开头的名称也会添加前缀下划线，并用于替换不安全的字符如空格或破折号。
  *
- * <p>When dealing with multiple independent inner scopes, use a {@link #clone()} of the
- * NameAllocator used for the outer scope to further refine name allocation for a specific inner
- * scope.
+ * <p>在处理多个独立的内部作用域时，使用外部作用域的NameAllocator的{@link #clone()}来进一步细化特定内部作用域的名称分配。
  */
 public final class NameAllocator implements Cloneable {
 	private final Set<String> allocatedNames;
@@ -94,17 +74,15 @@ public final class NameAllocator implements Cloneable {
 	}
 
 	/**
-	 * Return a new name using {@code suggestion} that will not be a Java identifier or clash with
-	 * other names.
+	 * 返回一个新的名称，使用{@code suggestion}，该名称不是Java标识符或与其他名称冲突。
 	 */
 	public String newName(String suggestion) {
 		return newName(suggestion, UUID.randomUUID().toString());
 	}
 
 	/**
-	 * Return a new name using {@code suggestion} that will not be a Java identifier or clash with
-	 * other names. The returned value can be queried multiple times by passing {@code tag} to
-	 * {@link #get(Object)}.
+	 * 返回一个新的名称，使用{@code suggestion}，该名称不会是Java标识符或与其他名称冲突。
+	 * 通过传递{@code tag}到{@link #get(Object)}可以多次查询返回的值。
 	 */
 	public String newName(String suggestion, Object tag) {
 		checkNotNull(suggestion, "suggestion");
@@ -143,7 +121,7 @@ public final class NameAllocator implements Cloneable {
 		return result.toString();
 	}
 
-	/** Retrieve a name created with {@link #newName(String, Object)}. */
+	/** 检索使用{@link #newName(String, Object)}创建的名称。 */
 	public String get(Object tag) {
 		String result = tagToName.get(tag);
 		if (result == null) {
@@ -153,11 +131,10 @@ public final class NameAllocator implements Cloneable {
 	}
 
 	/**
-	 * Create a deep copy of this NameAllocator. Useful to create multiple independent refinements
-	 * of a NameAllocator to be used in the respective definition of multiples, independently-scoped,
-	 * inner code blocks.
+	 * 创建此NameAllocator的深拷贝。对于创建多个独立的细化非常有用，
+	 * 这些细化将用于各自定义多个独立作用域的内部代码块。
 	 *
-	 * @return A deep copy of this NameAllocator.
+	 * @return 此NameAllocator的深拷贝。
 	 */
 	@Override
 	public NameAllocator clone() {

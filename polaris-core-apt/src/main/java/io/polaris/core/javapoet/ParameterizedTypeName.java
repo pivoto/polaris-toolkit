@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2015 Square, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package io.polaris.core.javapoet;
 
 import java.io.IOException;
@@ -92,8 +77,7 @@ public final class ParameterizedTypeName extends TypeName {
 	}
 
 	/**
-	 * Returns a new {@link ParameterizedTypeName} instance for the specified {@code name} as nested
-	 * inside this class.
+	 * 返回一个新的 {@link ParameterizedTypeName} 实例，指定的 {@code name} 作为嵌套类。
 	 */
 	public ParameterizedTypeName nestedClass(String name) {
 		checkNotNull(name, "name == null");
@@ -102,8 +86,8 @@ public final class ParameterizedTypeName extends TypeName {
 	}
 
 	/**
-	 * Returns a new {@link ParameterizedTypeName} instance for the specified {@code name} as nested
-	 * inside this class, with the specified {@code typeArguments}.
+	 * 返回一个新的 {@link ParameterizedTypeName} 实例，指定的 {@code name} 作为嵌套类，
+	 * 并带有指定的 {@code typeArguments}。
 	 */
 	public ParameterizedTypeName nestedClass(String name, List<TypeName> typeArguments) {
 		checkNotNull(name, "name == null");
@@ -111,22 +95,22 @@ public final class ParameterizedTypeName extends TypeName {
 			new ArrayList<>());
 	}
 
-	/** Returns a parameterized type, applying {@code typeArguments} to {@code rawType}. */
+	/** 返回一个参数化类型，将 {@code typeArguments} 应用于 {@code rawType}。 */
 	public static ParameterizedTypeName get(ClassName rawType, TypeName... typeArguments) {
 		return new ParameterizedTypeName(null, rawType, Arrays.asList(typeArguments));
 	}
 
-	/** Returns a parameterized type, applying {@code typeArguments} to {@code rawType}. */
+	/** 返回一个参数化类型，将 {@code typeArguments} 应用于 {@code rawType}。 */
 	public static ParameterizedTypeName get(Class<?> rawType, Type... typeArguments) {
 		return new ParameterizedTypeName(null, ClassName.get(rawType), list(typeArguments));
 	}
 
-	/** Returns a parameterized type equivalent to {@code type}. */
+	/** 返回与 {@code type} 等效的参数化类型。 */
 	public static ParameterizedTypeName get(ParameterizedType type) {
 		return get(type, new LinkedHashMap<>());
 	}
 
-	/** Returns a parameterized type equivalent to {@code type}. */
+	/** 返回与 {@code type} 等效的参数化类型。 */
 	static ParameterizedTypeName get(ParameterizedType type, Map<Type, TypeVariableName> map) {
 		ClassName rawType = ClassName.get((Class<?>) type.getRawType());
 		ParameterizedType ownerType = (type.getOwnerType() instanceof ParameterizedType)

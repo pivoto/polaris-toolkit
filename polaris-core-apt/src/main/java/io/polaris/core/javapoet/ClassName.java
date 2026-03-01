@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2014 Google, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package io.polaris.core.javapoet;
 
 import java.io.IOException;
@@ -34,21 +19,21 @@ import static io.polaris.core.javapoet.Util.checkNotNull;
 public final class ClassName extends TypeName implements Comparable<ClassName> {
 	public static final ClassName OBJECT = ClassName.get(Object.class);
 
-	/** The name representing the default Java package. */
+	/** 表示默认Java包的名称。 */
 	private static final String NO_PACKAGE = "";
 
-	/** The package name of this class, or "" if this is in the default package. */
+	/** 此类的包名，如果在默认包中则为""。 */
 	final String packageName;
 
-	/** The enclosing class, or null if this is not enclosed in another class. */
+	/** 封装类，如果此类未封装在其他类中则为null。 */
 	final ClassName enclosingClassName;
 
-	/** This class name, like "Entry" for java.util.Map.Entry. */
+	/** 此类的简单名称，例如java.util.Map.Entry的"Entry"。 */
 	final String simpleName;
 
 	private List<String> simpleNames;
 
-	/** The full class name like "java.util.Map.Entry". */
+	/** 完整的类名，例如"java.util.Map.Entry"。 */
 	final String canonicalName;
 
 	private ClassName(String packageName, ClassName enclosingClassName, String simpleName) {
@@ -87,30 +72,27 @@ public final class ClassName extends TypeName implements Comparable<ClassName> {
 	}
 
 	/**
-	 * Returns the package name, like {@code "java.util"} for {@code Map.Entry}. Returns the empty
-	 * string for the default package.
+	 * 返回包名，例如{@code Map.Entry}的{@code "java.util"}。对于默认包返回空字符串。
 	 */
 	public String packageName() {
 		return packageName;
 	}
 
 	/**
-	 * Returns the enclosing class, like {@link Map} for {@code Map.Entry}. Returns null if this class
-	 * is not nested in another class.
+	 * 返回封装类，例如{@code Map.Entry}的{@link Map}。如果此类未嵌套在其他类中则返回null。
 	 */
 	public ClassName enclosingClassName() {
 		return enclosingClassName;
 	}
 
 	/**
-	 * Returns the top class in this nesting group. Equivalent to chained calls to {@link
-	 * #enclosingClassName()} until the result's enclosing class is null.
+	 * 返回此嵌套组中的顶级类。等效于链接调用{@link #enclosingClassName()}直到结果的封装类为null。
 	 */
 	public ClassName topLevelClassName() {
 		return enclosingClassName != null ? enclosingClassName.topLevelClassName() : this;
 	}
 
-	/** Return the binary name of a class. */
+	/** 返回类的二进制名称。 */
 	public String reflectionName() {
 		return enclosingClassName != null
 			? (enclosingClassName.reflectionName() + '$' + simpleName)
@@ -134,30 +116,28 @@ public final class ClassName extends TypeName implements Comparable<ClassName> {
 	}
 
 	/**
-	 * Returns a class that shares the same enclosing package or class. If this class is enclosed by
-	 * another class, this is equivalent to {@code enclosingClassName().nestedClass(name)}. Otherwise
-	 * it is equivalent to {@code get(packageName(), name)}.
+	 * 返回与此类共享相同封装包或类的类。如果此类由另一个类封装，则等效于{@code enclosingClassName().nestedClass(name)}。
+	 * 否则等效于{@code get(packageName(), name)}。
 	 */
 	public ClassName peerClass(String name) {
 		return new ClassName(packageName, enclosingClassName, name);
 	}
 
 	/**
-	 * Returns a new {@link ClassName} instance for the specified {@code name} as nested inside this
-	 * class.
+	 * 返回指定{@code name}作为此类内部嵌套的新{@link ClassName}实例。
 	 */
 	public ClassName nestedClass(String name) {
 		return new ClassName(packageName, this, name);
 	}
 
-	/** Returns the simple name of this class, like {@code "Entry"} for {@link java.util.Map.Entry}. */
+	/** 返回此类的简单名称，例如{@link java.util.Map.Entry}的{@code "Entry"}。 */
 	public String simpleName() {
 		return simpleName;
 	}
 
 	/**
-	 * Returns the full class name of this class.
-	 * Like {@code "java.util.Map.Entry"} for {@link java.util.Map.Entry}.
+	 * 返回此类的完整类名。
+	 * 例如{@link java.util.Map.Entry}的{@code "java.util.Map.Entry"}。
 	 */
 	public String canonicalName() {
 		return canonicalName;
@@ -188,12 +168,9 @@ public final class ClassName extends TypeName implements Comparable<ClassName> {
 	}
 
 	/**
-	 * Returns a new {@link ClassName} instance for the given fully-qualified class name string. This
-	 * method assumes that the input is ASCII and follows typical Java style (lowercase package
-	 * names, UpperCamelCase class names) and may produce incorrect results or throw
-	 * {@link IllegalArgumentException} otherwise. For that reason, {@link #get(Class)} and
-	 * {@link #get(Class)} should be preferred as they can correctly create {@link ClassName}
-	 * instances without such restrictions.
+	 * 根据给定的完全限定类名字符串返回新的{@link ClassName}实例。此方法假定输入是ASCII并遵循典型的Java样式
+	 * （小写包名，大驼峰类名），否则可能会产生不正确的结果或抛出{@link IllegalArgumentException}。
+	 * 因此，应优先使用{@link #get(Class)}和{@link #get(Class)}，因为它们可以在没有此类限制的情况下正确创建{@link ClassName}实例。
 	 */
 	public static ClassName bestGuess(String classNameString) {
 		// Add the package name, like "java.util.concurrent", or "" for no package.
@@ -216,8 +193,7 @@ public final class ClassName extends TypeName implements Comparable<ClassName> {
 	}
 
 	/**
-	 * Returns a class name created from the given parts. For example, calling this with package name
-	 * {@code "java.util"} and simple names {@code "Map"}, {@code "Entry"} yields {@link java.util.Map.Entry}.
+	 * 根据给定的部分返回类名。例如，使用包名{@code "java.util"}和简单名称{@code "Map"}、{@code "Entry"}调用此方法会产生{@link java.util.Map.Entry}。
 	 */
 	public static ClassName get(String packageName, String simpleName, String... simpleNames) {
 		ClassName className = new ClassName(packageName, null, simpleName);
@@ -227,7 +203,7 @@ public final class ClassName extends TypeName implements Comparable<ClassName> {
 		return className;
 	}
 
-	/** Returns the class name for {@code element}. */
+	/** 返回{@code element}的类名。 */
 	public static ClassName get(TypeElement element) {
 		checkNotNull(element, "element == null");
 		String simpleName = element.getSimpleName().toString();
@@ -299,7 +275,7 @@ public final class ClassName extends TypeName implements Comparable<ClassName> {
 		return out;
 	}
 
-	/** Returns all enclosing classes in this, outermost first. */
+	/** 返回此中的所有封装类，最外层优先。 */
 	private List<ClassName> enclosingClasses() {
 		List<ClassName> result = new ArrayList<>();
 		for (ClassName c = this; c != null; c = c.enclosingClassName) {

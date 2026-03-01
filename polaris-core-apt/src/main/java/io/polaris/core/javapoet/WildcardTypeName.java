@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2015 Square, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package io.polaris.core.javapoet;
 
 import java.io.IOException;
@@ -73,12 +58,11 @@ public final class WildcardTypeName extends TypeName {
 			? out.emit("?")
 			: out.emit("? extends $T", upperBounds.get(0));
 	}
-
 	/**
-	 * Returns a type that represents an unknown type that extends {@code bound}. For example, if
-	 * {@code bound} is {@code CharSequence.class}, this returns {@code ? extends CharSequence}. If
-	 * {@code bound} is {@code Object.class}, this returns {@code ?}, which is shorthand for {@code
-	 * ? extends Object}.
+	 * 返回表示扩展 {@code bound} 的未知类型的类型。例如，如果
+	 * {@code bound} 是 {@code CharSequence.class}，则返回 {@code ? extends CharSequence}。如果
+	 * {@code bound} 是 {@code Object.class}，则返回 {@code ?}，这是 {@code
+	 * ? extends Object} 的简写形式。
 	 */
 	public static WildcardTypeName subtypeOf(TypeName upperBound) {
 		return new WildcardTypeName(Collections.singletonList(upperBound), Collections.emptyList());
@@ -89,8 +73,8 @@ public final class WildcardTypeName extends TypeName {
 	}
 
 	/**
-	 * Returns a type that represents an unknown supertype of {@code bound}. For example, if {@code
-	 * bound} is {@code String.class}, this returns {@code ? super String}.
+	 * 返回表示 {@code bound} 的未知超类型的类型。例如，如果 {@code
+	 * bound} 是 {@code String.class}，则返回 {@code ? super String}。
 	 */
 	public static WildcardTypeName supertypeOf(TypeName lowerBound) {
 		return new WildcardTypeName(Collections.singletonList(OBJECT),

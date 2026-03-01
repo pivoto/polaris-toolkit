@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2015 Square, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package io.polaris.core.javapoet;
 
 import java.io.IOException;
@@ -34,7 +19,7 @@ import static io.polaris.core.javapoet.Util.checkNotNull;
 import static io.polaris.core.javapoet.Util.checkState;
 import static io.polaris.core.javapoet.Util.requireExactlyOneOf;
 
-/** A generated class, interface, or enum declaration. */
+/** 生成的类、接口或枚举声明。 */
 public final class TypeSpec {
 	public final Kind kind;
 	public final String name;
@@ -85,8 +70,8 @@ public final class TypeSpec {
 	}
 
 	/**
-	 * Creates a dummy type spec for type-resolution only (in CodeWriter)
-	 * while emitting the type declaration but before entering the type body.
+	 * 创建一个仅用于类型解析的虚拟类型规范（在CodeWriter中）
+	 * 在发出类型声明但进入类型体之前。
 	 */
 	private TypeSpec(TypeSpec type) {
 		assert type.anonymousTypeArguments == null;
@@ -175,8 +160,7 @@ public final class TypeSpec {
 
 	void emit(CodeWriter codeWriter, String enumName, Set<Modifier> implicitModifiers)
 		throws IOException {
-		// Nested classes interrupt wrapped line indentation. Stash the current wrapping state and put
-		// it back afterwards when this type is complete.
+		// 嵌套类会中断换行缩进。暂存当前的换行状态，并在该类型完成后恢复。
 		int previousStatementLine = codeWriter.statementLine;
 		codeWriter.statementLine = -1;
 
@@ -664,9 +648,8 @@ public final class TypeSpec {
 		}
 
 		/**
-		 * Call this to always fully qualify any types that would conflict with possibly nested types of
-		 * this {@code typeElement}. For example - if the following type was passed in as the
-		 * typeElement:
+		 * 调用此方法以始终完全限定任何可能与此 {@code typeElement} 的嵌套类型冲突的类型。
+		 * 例如 - 如果以下类型作为参数传入：
 		 *
 		 * <pre><code>
 		 *   class Foo {
@@ -680,12 +663,11 @@ public final class TypeSpec {
 		 * </code></pre>
 		 *
 		 * <p>
-		 * Then this would add {@code "NestedTypeA"} and {@code "NestedTypeB"} as names that should
-		 * always be qualified via {@link #alwaysQualify(String...)}. This way they would avoid
-		 * possible import conflicts when this JavaFile is written.
+		 * 然后这将添加 {@code "NestedTypeA"} 和 {@code "NestedTypeB"} 作为应始终通过
+		 * {@link #alwaysQualify(String...)} 限定的名称。这样它们就可以避免在编写此 JavaFile 时可能出现的导入冲突。
 		 *
-		 * @param typeElement the {@link TypeElement} with nested types to avoid clashes with.
-		 * @return this builder instance.
+		 * @param typeElement 具有要避免冲突的嵌套类型的 {@link TypeElement}。
+		 * @return 此构建器实例。
 		 */
 		public Builder avoidClashesWithNestedClasses(TypeElement typeElement) {
 			checkArgument(typeElement != null, "typeElement == null");
@@ -708,9 +690,8 @@ public final class TypeSpec {
 		}
 
 		/**
-		 * Call this to always fully qualify any types that would conflict with possibly nested types of
-		 * this {@code typeElement}. For example - if the following type was passed in as the
-		 * typeElement:
+		 * 调用此方法以始终完全限定任何可能与此 {@code clazz} 的嵌套类型冲突的类型。
+		 * 例如 - 如果以下类型作为参数传入：
 		 *
 		 * <pre><code>
 		 *   class Foo {
@@ -724,12 +705,11 @@ public final class TypeSpec {
 		 * </code></pre>
 		 *
 		 * <p>
-		 * Then this would add {@code "NestedTypeA"} and {@code "NestedTypeB"} as names that should
-		 * always be qualified via {@link #alwaysQualify(String...)}. This way they would avoid
-		 * possible import conflicts when this JavaFile is written.
+		 * 然后这将添加 {@code "NestedTypeA"} 和 {@code "NestedTypeB"} 作为应始终通过
+		 * {@link #alwaysQualify(String...)} 限定的名称。这样它们就可以避免在编写此 JavaFile 时可能出现的导入冲突。
 		 *
-		 * @param clazz the {@link Class} with nested types to avoid clashes with.
-		 * @return this builder instance.
+		 * @param clazz 具有要避免冲突的嵌套类型的 {@link Class}。
+		 * @return 此构建器实例。
 		 */
 		public Builder avoidClashesWithNestedClasses(Class<?> clazz) {
 			checkArgument(clazz != null, "clazz == null");

@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2015 Square, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package io.polaris.core.javapoet;
 
 import java.io.ByteArrayInputStream;
@@ -43,7 +28,10 @@ import static io.polaris.core.javapoet.Util.checkArgument;
 import static io.polaris.core.javapoet.Util.checkNotNull;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-/** A Java file containing a single top level class. */
+/**
+ * 包含单个顶级类的Java文件。
+ *
+ */
 public final class JavaFile {
 	private static final Appendable NULL_APPENDABLE = new Appendable() {
 		@Override
@@ -91,7 +79,7 @@ public final class JavaFile {
 	}
 
 	public void writeTo(Appendable out) throws IOException {
-		// First pass: emit the entire class, just to collect the types we'll need to import.
+		// 第一遍：输出整个类，仅收集需要导入的类型。
 		CodeWriter importsCollector = new CodeWriter(
 			NULL_APPENDABLE,
 			indent,
@@ -101,37 +89,37 @@ public final class JavaFile {
 		emit(importsCollector);
 		Map<String, ClassName> suggestedImports = importsCollector.suggestedImports();
 
-		// Second pass: write the code, taking advantage of the imports.
+		// 第二遍：编写代码，利用已收集的导入信息。
 		CodeWriter codeWriter
 			= new CodeWriter(out, indent, suggestedImports, staticImports, alwaysQualify);
 		emit(codeWriter);
 	}
 
-	/** Writes this to {@code directory} as UTF-8 using the standard directory structure. */
+	/**
+	 * 使用标准目录结构将此文件以UTF-8编码写入{@code directory}。
+	 */
 	public void writeTo(Path directory) throws IOException {
 		writeToPath(directory);
 	}
 
 	/**
-	 * Writes this to {@code directory} with the provided {@code charset} using the standard directory
-	 * structure.
+	 * 使用标准目录结构和指定的{@code charset}将此文件写入{@code directory}。
 	 */
 	public void writeTo(Path directory, Charset charset) throws IOException {
 		writeToPath(directory, charset);
 	}
 
 	/**
-	 * Writes this to {@code directory} as UTF-8 using the standard directory structure.
-	 * Returns the {@link Path} instance to which source is actually written.
+	 * 使用标准目录结构将此文件以UTF-8编码写入{@code directory}。
+	 * 返回实际写入源码的{@link Path}实例。
 	 */
 	public Path writeToPath(Path directory) throws IOException {
 		return writeToPath(directory, UTF_8);
 	}
 
 	/**
-	 * Writes this to {@code directory} with the provided {@code charset} using the standard directory
-	 * structure.
-	 * Returns the {@link Path} instance to which source is actually written.
+	 * 使用标准目录结构和指定的{@code charset}将此文件写入{@code directory}。
+	 * 返回实际写入源码的{@link Path}实例。
 	 */
 	public Path writeToPath(Path directory, Charset charset) throws IOException {
 		checkArgument(Files.notExists(directory) || Files.isDirectory(directory),
@@ -152,21 +140,21 @@ public final class JavaFile {
 		return outputPath;
 	}
 
-	/** Writes this to {@code directory} as UTF-8 using the standard directory structure. */
+	/** 使用标准目录结构将此文件以UTF-8编码写入{@code directory}。 */
 	public void writeTo(File directory) throws IOException {
 		writeTo(directory.toPath());
 	}
 
 	/**
-	 * Writes this to {@code directory} as UTF-8 using the standard directory structure.
-	 * Returns the {@link File} instance to which source is actually written.
+	 * 使用标准目录结构将此文件以UTF-8编码写入{@code directory}。
+	 * 返回实际写入源码的{@link File}实例。
 	 */
 	public File writeToFile(File directory) throws IOException {
 		final Path outputPath = writeToPath(directory.toPath());
 		return outputPath.toFile();
 	}
 
-	/** Writes this to {@code filer}. */
+	/** 将此文件写入{@code filer}。 */
 	public void writeTo(Filer filer) throws IOException {
 		String fileName = packageName.isEmpty()
 			? typeSpec.name
@@ -206,7 +194,7 @@ public final class JavaFile {
 
 		int importedTypesCount = 0;
 		for (ClassName className : new TreeSet<>(codeWriter.importedTypes().values())) {
-			// TODO what about nested types like java.util.Map.Entry?
+			// TODO 嵌套类型如java.util.Map.Entry如何处理？
 			if (skipJavaLangImports
 				&& className.packageName().equals("java.lang")
 				&& !alwaysQualify.contains(className.simpleName)) {
@@ -327,12 +315,12 @@ public final class JavaFile {
 		}
 
 		/**
-		 * Call this to omit imports for classes in {@code java.lang}, such as {@code java.lang.String}.
+		 * 调用此方法可省略 {@code java.lang} 包中的类导入，例如 {@code java.lang.String}。
 		 *
-		 * <p>By default, JavaPoet explicitly imports types in {@code java.lang} to defend against
-		 * naming conflicts. Suppose an (ill-advised) class is named {@code com.example.String}. When
-		 * {@code java.lang} imports are skipped, generated code in {@code com.example} that references
-		 * {@code java.lang.String} will get {@code com.example.String} instead.
+		 * <p>默认情况下，JavaPoet 会显式导入 {@code java.lang} 中的类型以防止命名冲突。
+		 * 假设有一个（不建议的）类命名为 {@code com.example.String}。当跳过 {@code java.lang}
+		 * 导入时，在 {@code com.example} 包中生成的引用 {@code java.lang.String} 的代码
+		 * 将会得到 {@code com.example.String}。
 		 */
 		public Builder skipJavaLangImports(boolean skipJavaLangImports) {
 			this.skipJavaLangImports = skipJavaLangImports;

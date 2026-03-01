@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2015 Square, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package io.polaris.core.javapoet;
 
 import java.io.IOException;
@@ -29,11 +14,11 @@ import static io.polaris.core.javapoet.Util.stringLiteralWithDoubleQuotes;
 import static java.lang.String.join;
 
 /**
- * Converts a {@link JavaFile} to a string suitable to both human- and javac-consumption. This
- * honors imports, indentation, and deferred variable names.
+ * 将 {@link JavaFile} 转换为适合人类和 javac 使用的字符串。
+ * 此类遵循导入、缩进和延迟变量名的规则。
  */
 final class CodeWriter {
-	/** Sentinel value that indicates that no user-provided package has been set. */
+	/** 标记值，表示尚未设置用户提供的包。 */
 	private static final String NO_PACKAGE = new String();
 	private static final Pattern LINE_BREAKING_PATTERN = Pattern.compile("\\R");
 
@@ -55,9 +40,9 @@ final class CodeWriter {
 	private boolean trailingNewline;
 
 	/**
-	 * When emitting a statement, this is the line of the statement currently being written. The first
-	 * line of a statement is indented normally and subsequent wrapped lines are double-indented. This
-	 * is -1 when the currently-written line isn't part of a statement.
+	 * 在发出语句时，这是当前正在编写的语句行。
+	 * 语句的第一行正常缩进，后续换行则双倍缩进。
+	 * 如果当前编写的行不是语句的一部分，则为 -1。
 	 */
 	int statementLine = -1;
 
@@ -162,8 +147,8 @@ final class CodeWriter {
 	}
 
 	/**
-	 * Emits {@code modifiers} in the standard order. Modifiers in {@code implicitModifiers} will not
-	 * be emitted.
+	 * 按标准顺序发出 {@code modifiers}。
+	 * {@code implicitModifiers} 中的修饰符不会被发出。
 	 */
 	public void emitModifiers(Set<Modifier> modifiers, Set<Modifier> implicitModifiers)
 		throws IOException {
@@ -180,8 +165,8 @@ final class CodeWriter {
 	}
 
 	/**
-	 * Emit type variables with their bounds. This should only be used when declaring type variables;
-	 * everywhere else bounds are omitted.
+	 * 发出带有边界的类型变量。
+	 * 这仅应在声明类型变量时使用；其他地方省略边界。
 	 */
 	public void emitTypeVariables(List<TypeVariableName> typeVariables) throws IOException {
 		if (typeVariables.isEmpty()) return;
@@ -245,7 +230,7 @@ final class CodeWriter {
 
 				case "$T":
 					TypeName typeName = (TypeName) codeBlock.args.get(a++);
-					// defer "typeName.emit(this)" if next format part will be handled by the default case
+					// 如果下一个格式部分将由默认情况处理，则推迟 "typeName.emit(this)"
 					if (typeName instanceof ClassName && partIterator.hasNext()) {
 						if (!codeBlock.formatParts.get(partIterator.nextIndex()).startsWith("$")) {
 							ClassName candidate = (ClassName) typeName;
@@ -279,7 +264,7 @@ final class CodeWriter {
 				case "$]":
 					checkState(statementLine != -1, "statement exit $] has no matching statement enter $[");
 					if (statementLine > 0) {
-						unindent(2); // End a multi-line statement. Decrease the indentation level.
+						unindent(2); // 结束多行语句。减少缩进级别。
 					}
 					statementLine = -1;
 					break;
@@ -293,7 +278,7 @@ final class CodeWriter {
 					break;
 
 				default:
-					// handle deferred type
+					// 处理延迟类型
 					if (deferredTypeName != null) {
 						if (part.startsWith(".")) {
 							if (emitStaticImportMember(deferredTypeName.canonicalName, part)) {
@@ -360,9 +345,9 @@ final class CodeWriter {
 	}
 
 	/**
-	 * Returns the best name to identify {@code className} with in the current context. This uses the
-	 * available imports and the current scope to find the shortest name available. It does not honor
-	 * names visible due to inheritance.
+	 * 返回在当前上下文中识别 {@code className} 的最佳名称。
+	 * 此方法使用可用的导入和当前作用域来查找最短的可用名称。
+	 * 它不考虑由于继承而可见的名称。
 	 */
 	String lookupName(ClassName className) {
 		// If the top level simple name is masked by a current type variable, use the canonical name.
@@ -371,8 +356,8 @@ final class CodeWriter {
 			return className.canonicalName;
 		}
 
-		// Find the shortest suffix of className that resolves to className. This uses both local type
-		// names (so `Entry` in `Map` refers to `Map.Entry`). Also uses imports.
+		// 查找解析为 className 的 className 的最短后缀。
+		// 这使用本地类型名称（例如 `Map` 中的 `Entry` 指的是 `Map.Entry`）和导入。
 		boolean nameResolved = false;
 		for (ClassName c = className; c != null; c = c.enclosingClassName()) {
 			ClassName resolved = resolve(c.simpleName());
@@ -385,7 +370,7 @@ final class CodeWriter {
 			}
 		}
 
-		// If the name resolved but wasn't a match, we're stuck with the fully qualified name.
+		// 如果名称已解析但不匹配，则必须使用完全限定名称。
 		if (nameResolved) {
 			return className.canonicalName;
 		}
@@ -396,7 +381,7 @@ final class CodeWriter {
 			return join(".", className.simpleNames());
 		}
 
-		// We'll have to use the fully-qualified name. Mark the type as importable for a future pass.
+		// 必须使用完全限定名称。将类型标记为可导入以供将来使用。
 		if (!javadoc) {
 			importableType(className);
 		}
@@ -408,24 +393,23 @@ final class CodeWriter {
 		if (className.packageName().isEmpty()) {
 			return;
 		} else if (alwaysQualify.contains(className.simpleName)) {
-			// TODO what about nested types like java.util.Map.Entry?
+			// TODO 嵌套类型如 java.util.Map.Entry 怎么办？
 			return;
 		}
 		ClassName topLevelClassName = className.topLevelClassName();
 		String simpleName = topLevelClassName.simpleName();
 		ClassName replaced = importableTypes.put(simpleName, topLevelClassName);
 		if (replaced != null) {
-			importableTypes.put(simpleName, replaced); // On collision, prefer the first inserted.
+			importableTypes.put(simpleName, replaced); // 发生冲突时，优先选择第一个插入的。
 		}
 	}
 
 	/**
-	 * Returns the class referenced by {@code simpleName}, using the current nesting context and
-	 * imports.
+	 * 使用当前嵌套上下文和导入返回由 {@code simpleName} 引用的类。
 	 */
-	// TODO(jwilson): also honor superclass members when resolving names.
+	// TODO(jwilson): 解析名称时也考虑超类成员。
 	private ClassName resolve(String simpleName) {
-		// Match a child of the current (potentially nested) class.
+		// 匹配当前（可能是嵌套的）类的子类。
 		for (int i = typeSpecStack.size() - 1; i >= 0; i--) {
 			TypeSpec typeSpec = typeSpecStack.get(i);
 			if (typeSpec.nestedTypesSimpleNames.contains(simpleName)) {
@@ -433,20 +417,20 @@ final class CodeWriter {
 			}
 		}
 
-		// Match the top-level class.
+		// 匹配顶级类。
 		if (typeSpecStack.size() > 0 && Objects.equals(typeSpecStack.get(0).name, simpleName)) {
 			return ClassName.get(packageName, simpleName);
 		}
 
-		// Match an imported type.
+		// 匹配导入的类型。
 		ClassName importedType = importedTypes.get(simpleName);
 		if (importedType != null) return importedType;
 
-		// No match.
+		// 无匹配项。
 		return null;
 	}
 
-	/** Returns the class named {@code simpleName} when nested in the class at {@code stackDepth}. */
+	/** 返回在 {@code stackDepth} 处的类中嵌套的名为 {@code simpleName} 的类。 */
 	private ClassName stackClassName(int stackDepth, String simpleName) {
 		ClassName className = ClassName.get(packageName, typeSpecStack.get(0).name);
 		for (int i = 1; i <= stackDepth; i++) {
@@ -456,14 +440,14 @@ final class CodeWriter {
 	}
 
 	/**
-	 * Emits {@code s} with indentation as required. It's important that all code that writes to
-	 * {@link #out} does it through here, since we emit indentation lazily in order to avoid
-	 * unnecessary trailing whitespace.
+	 * 根据需要发出带缩进的 {@code s}。
+	 * 所有写入 {@link #out} 的代码都必须通过此方法进行，
+	 * 因为我们懒惰地发出缩进以避免不必要的尾随空格。
 	 */
 	CodeWriter emitAndIndent(String s) throws IOException {
 		boolean first = true;
 		for (String line : LINE_BREAKING_PATTERN.split(s, -1)) {
-			// Emit a newline character. Make sure blank lines in Javadoc & comments look good.
+			// 发出换行符。确保 Javadoc 和注释中的空行看起来不错。
 			if (!first) {
 				if ((javadoc || comment) && trailingNewline) {
 					emitIndentation();
@@ -473,16 +457,16 @@ final class CodeWriter {
 				trailingNewline = true;
 				if (statementLine != -1) {
 					if (statementLine == 0) {
-						indent(2); // Begin multiple-line statement. Increase the indentation level.
+						indent(2); // 开始多行语句。增加缩进级别。
 					}
 					statementLine++;
 				}
 			}
 
 			first = false;
-			if (line.isEmpty()) continue; // Don't indent empty lines.
+			if (line.isEmpty()) continue; // 不要缩进空行。
 
-			// Emit indentation and comment prefix if necessary.
+			// 如有必要，发出缩进和注释前缀。
 			if (trailingNewline) {
 				emitIndentation();
 				if (javadoc) {
@@ -505,8 +489,8 @@ final class CodeWriter {
 	}
 
 	/**
-	 * Returns the types that should have been imported for this code. If there were any simple name
-	 * collisions, that type's first use is imported.
+	 * 返回应为此代码导入的类型。
+	 * 如果存在任何简单名称冲突，则导入该类型的首次使用。
 	 */
 	Map<String, ClassName> suggestedImports() {
 		Map<String, ClassName> result = new LinkedHashMap<>(importableTypes);
@@ -514,7 +498,7 @@ final class CodeWriter {
 		return result;
 	}
 
-	// A makeshift multi-set implementation
+	// 临时的多重集实现
 	private static final class Multiset<T> {
 		private final Map<T, Integer> map = new LinkedHashMap<>();
 

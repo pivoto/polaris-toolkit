@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2015 Square, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package io.polaris.core.javapoet;
 
 import java.io.IOException;
@@ -218,9 +203,9 @@ public final class AnnotationSpec {
 		}
 
 		/**
-		 * Delegates to {@link #addMember(String, String, Object...)}, with parameter {@code format}
-		 * depending on the given {@code value} object. Falls back to {@code "$L"} literal format if
-		 * the class of the given {@code value} object is not supported.
+		 * 委托给 {@link #addMember(String, String, Object...)}，参数 {@code format}
+		 * 根据给定的 {@code value} 对象而定。如果给定的 {@code value} 对象的类不受支持，
+		 * 则回退到 {@code "$L"} 字面量格式。
 		 */
 		Builder addMemberForValue(String memberName, Object value) {
 			checkNotNull(memberName, "memberName == null");
@@ -257,7 +242,7 @@ public final class AnnotationSpec {
 	}
 
 	/**
-	 * Annotation value visitor adding members to the given builder instance.
+	 * 注解值访问器，向给定的构建器实例添加成员。
 	 */
 	private static class Visitor extends SimpleAnnotationValueVisitor8<Builder, String> {
 		final Builder builder;

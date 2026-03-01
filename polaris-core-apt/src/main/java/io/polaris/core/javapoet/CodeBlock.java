@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2015 Square, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package io.polaris.core.javapoet;
 
 import java.io.IOException;
@@ -31,36 +16,34 @@ import javax.lang.model.type.TypeMirror;
 import static io.polaris.core.javapoet.Util.checkArgument;
 
 /**
- * A fragment of a .java file, potentially containing declarations, statements, and documentation.
- * Code blocks are not necessarily well-formed Java code, and are not validated. This class assumes
- * javac will check correctness later!
+ * .java 文件的一个片段，可能包含声明、语句和文档。
+ * 代码块不一定是格式良好的 Java 代码，也不会进行验证。此类假设
+ * javac 稍后会检查正确性！
  *
- * <p>Code blocks support placeholders like {@link java.text.Format}. Where {@link String#format}
- * uses percent {@code %} to reference target values, this class uses dollar sign {@code $} and has
- * its own set of permitted placeholders:
+ * <p>代码块支持类似 {@link java.text.Format} 的占位符。{@link String#format}
+ * 使用百分号 {@code %} 来引用目标值，而此类使用美元符号 {@code $} 并有一套
+ * 自己允许的占位符：
  *
  * <ul>
- *   <li>{@code $L} emits a <em>literal</em> value with no escaping. Arguments for literals may be
- *       strings, primitives, {@linkplain TypeSpec type declarations}, {@linkplain AnnotationSpec
- *       annotations} and even other code blocks.
- *   <li>{@code $N} emits a <em>name</em>, using name collision avoidance where necessary. Arguments
- *       for names may be strings (actually any {@linkplain CharSequence character sequence}),
- *       {@linkplain ParameterSpec parameters}, {@linkplain FieldSpec fields}, {@linkplain
- *       MethodSpec methods}, and {@linkplain TypeSpec types}.
- *   <li>{@code $S} escapes the value as a <em>string</em>, wraps it with double quotes, and emits
- *       that. For example, {@code 6" sandwich} is emitted {@code "6\" sandwich"}.
- *   <li>{@code $T} emits a <em>type</em> reference. Types will be imported if possible. Arguments
- *       for types may be {@linkplain Class classes}, {@linkplain javax.lang.model.type.TypeMirror
- * ,*       type mirrors}, and {@linkplain javax.lang.model.element.Element elements}.
- *   <li>{@code $$} emits a dollar sign.
- *   <li>{@code $W} emits a space or a newline, depending on its position on the line. This prefers
- *       to wrap lines before 100 columns.
- *   <li>{@code $Z} acts as a zero-width space. This prefers to wrap lines before 100 columns.
- *   <li>{@code $>} increases the indentation level.
- *   <li>{@code $<} decreases the indentation level.
- *   <li>{@code $[} begins a statement. For multiline statements, every line after the first line
- *       is double-indented.
- *   <li>{@code $]} ends a statement.
+ *   <li>{@code $L} 输出一个不转义的<em>字面量</em>值。字面量的参数可以是
+ *       字符串、基本类型、{@linkplain TypeSpec 类型声明}、{@linkplain AnnotationSpec
+ *       注解}，甚至是其他代码块。
+ *   <li>{@code $N} 输出一个<em>名称</em>，必要时使用名称冲突避免机制。名称的参数可以是
+ *       字符串（实际上是任何 {@linkplain CharSequence 字符序列}）、
+ *       {@linkplain ParameterSpec 参数}、{@linkplain FieldSpec 字段}、{@linkplain
+ *       MethodSpec 方法}和 {@linkplain TypeSpec 类型}。
+ *   <li>{@code $S} 将值转义为<em>字符串</em>，用双引号包装并输出。
+ *       例如，{@code 6" sandwich} 会被输出为 {@code "6\" sandwich"}。
+ *   <li>{@code $T} 输出一个<em>类型</em>引用。如果可能，类型将被导入。类型的参数可以是
+ *       {@linkplain Class 类}、{@linkplain javax.lang.model.type.TypeMirror
+ *       类型镜像}和 {@linkplain javax.lang.model.element.Element 元素}。
+ *   <li>{@code $$} 输出一个美元符号。
+ *   <li>{@code $W} 根据其在行中的位置输出空格或换行符。它倾向于在 100 列之前换行。
+ *   <li>{@code $Z} 作为零宽度空格。它倾向于在 100 列之前换行。
+ *   <li>{@code $>} 增加缩进级别。
+ *   <li>{@code $<} 减少缩进级别。
+ *   <li>{@code $[} 开始一个语句。对于多行语句，第一行之后的每一行都会双倍缩进。
+ *   <li>{@code $]} 结束一个语句。
  * </ul>
  */
 public final class CodeBlock {
@@ -68,7 +51,7 @@ public final class CodeBlock {
 		Pattern.compile("\\$(?<argumentName>[\\w_]+):(?<typeChar>[\\w]).*");
 	private static final Pattern LOWERCASE = Pattern.compile("[a-z]+[\\w_]*");
 
-	/** A heterogeneous list containing string literals and value placeholders. */
+	/** 包含字符串字面量和值占位符的列表。 */
 	final List<String> formatParts;
 	final List<Object> args;
 
@@ -110,18 +93,18 @@ public final class CodeBlock {
 	}
 
 	/**
-	 * Joins {@code codeBlocks} into a single {@link CodeBlock}, each separated by {@code separator}.
-	 * For example, joining {@code String s}, {@code Object o} and {@code int i} using {@code ", "}
-	 * would produce {@code String s, Object o, int i}.
+	 * 将 {@code codeBlocks} 连接成一个单独的 {@link CodeBlock}，每个之间用 {@code separator} 分隔。
+	 * 例如，使用 {@code ", "} 连接 {@code String s}、{@code Object o} 和 {@code int i}，
+	 * 将产生 {@code String s, Object o, int i}。
 	 */
 	public static CodeBlock join(Iterable<CodeBlock> codeBlocks, String separator) {
 		return StreamSupport.stream(codeBlocks.spliterator(), false).collect(joining(separator));
 	}
 
 	/**
-	 * A {@link Collector} implementation that joins {@link CodeBlock} instances together into one
-	 * separated by {@code separator}. For example, joining {@code String s}, {@code Object o} and
-	 * {@code int i} using {@code ", "} would produce {@code String s, Object o, int i}.
+	 * 一个 {@link Collector} 实现，将 {@link CodeBlock} 实例连接成一个，
+	 * 并用 {@code separator} 分隔。例如，使用 {@code ", "} 连接 {@code String s}、{@code Object o} 和
+	 * {@code int i} 将产生 {@code String s, Object o, int i}。
 	 */
 	public static Collector<CodeBlock, ?, CodeBlock> joining(String separator) {
 		return Collector.of(
@@ -132,9 +115,9 @@ public final class CodeBlock {
 	}
 
 	/**
-	 * A {@link Collector} implementation that joins {@link CodeBlock} instances together into one
-	 * separated by {@code separator}. For example, joining {@code String s}, {@code Object o} and
-	 * {@code int i} using {@code ", "} would produce {@code String s, Object o, int i}.
+	 * 一个 {@link Collector} 实现，将 {@link CodeBlock} 实例连接成一个，
+	 * 并用 {@code separator} 分隔。例如，使用 {@code ", "} 连接 {@code String s}、{@code Object o} 和
+	 * {@code int i} 将产生 {@code String s, Object o, int i}。
 	 */
 	public static Collector<CodeBlock, ?, CodeBlock> joining(
 		String separator, String prefix, String suffix) {
@@ -172,15 +155,15 @@ public final class CodeBlock {
 		}
 
 		/**
-		 * Adds code using named arguments.
+		 * 使用命名参数添加代码。
 		 *
-		 * <p>Named arguments specify their name after the '$' followed by : and the corresponding type
-		 * character. Argument names consist of characters in {@code a-z, A-Z, 0-9, and _} and must
-		 * start with a lowercase character.
+		 * <p>命名参数在 '$' 后指定其名称，后跟 ':' 和相应的类型字符。
+		 * 参数名称由 {@code a-z, A-Z, 0-9, 和 _} 中的字符组成，
+		 * 且必须以小写字母开头。
 		 *
-		 * <p>For example, to refer to the type {@link java.lang.Integer} with the argument name {@code
-		 * clazz} use a format string containing {@code $clazz:T} and include the key {@code clazz} with
-		 * value {@code java.lang.Integer.class} in the argument map.
+		 * <p>例如，要引用参数名为 {@code clazz} 的类型 {@link java.lang.Integer}，
+		 * 使用包含 {@code $clazz:T} 的格式字符串，并在参数映射中包含键 {@code clazz}，
+		 * 值为 {@code java.lang.Integer.class}。
 		 */
 		public Builder addNamed(String format, Map<String, ?> arguments) {
 			int p = 0;
@@ -229,15 +212,14 @@ public final class CodeBlock {
 		}
 
 		/**
-		 * Add code with positional or relative arguments.
+		 * 添加带有位置或相对参数的代码。
 		 *
-		 * <p>Relative arguments map 1:1 with the placeholders in the format string.
+		 * <p>相对参数与格式字符串中的占位符一一对应。
 		 *
-		 * <p>Positional arguments use an index after the placeholder to identify which argument index
-		 * to use. For example, for a literal to reference the 3rd argument: "$3L" (1 based index)
+		 * <p>位置参数在占位符后使用索引来标识要使用的参数索引。
+		 * 例如，要引用第 3 个参数的字面量："3L"（基于 1 的索引）
 		 *
-		 * <p>Mixing relative and positional arguments in a call to add is invalid and will result in an
-		 * error.
+		 * <p>在调用 add 时混合相对和位置参数是无效的，并会导致错误。
 		 */
 		public Builder add(String format, Object... args) {
 			boolean hasRelative = false;
@@ -257,7 +239,7 @@ public final class CodeBlock {
 
 				p++; // '$'.
 
-				// Consume zero or more digits, leaving 'c' as the first non-digit char after the '$'.
+				// 消耗零个或多个数字，留下 'c' 作为 '$' 后的第一个非数字字符。
 				int indexStart = p;
 				char c;
 				do {
@@ -365,8 +347,8 @@ public final class CodeBlock {
 		}
 
 		/**
-		 * @param controlFlow the control flow construct and its code, such as "if (foo == 5)".
-		 *                    Shouldn't contain braces or newline characters.
+		 * @param controlFlow 控制流结构及其代码，例如 "if (foo == 5)"。
+		 *                    不应包含大括号或换行符。
 		 */
 		public Builder beginControlFlow(String controlFlow, Object... args) {
 			add(controlFlow + " {\n", args);
@@ -375,8 +357,8 @@ public final class CodeBlock {
 		}
 
 		/**
-		 * @param controlFlow the control flow construct and its code, such as "else if (foo == 10)".
-		 *                    Shouldn't contain braces or newline characters.
+		 * @param controlFlow 控制流结构及其代码，例如 "else if (foo == 10)"。
+		 *                    不应包含大括号或换行符。
 		 */
 		public Builder nextControlFlow(String controlFlow, Object... args) {
 			unindent();
@@ -392,8 +374,8 @@ public final class CodeBlock {
 		}
 
 		/**
-		 * @param controlFlow the optional control flow construct and its code, such as
-		 *                    "while(foo == 20)". Only used for "do/while" control flows.
+		 * @param controlFlow 可选的控制流结构及其代码，例如
+		 *                    "while(foo == 20)"。仅用于 "do/while" 控制流。
 		 */
 		public Builder endControlFlow(String controlFlow, Object... args) {
 			unindent();

@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2015 Square, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package io.polaris.core.javapoet;
 
 import java.io.IOException;
@@ -87,41 +72,41 @@ public final class TypeVariableName extends TypeName {
 		return out.emitAndIndent(name);
 	}
 
-	/** Returns type variable named {@code name} without bounds. */
+	/** 返回没有边界的名为 {@code name} 的类型变量。 */
 	public static TypeVariableName get(String name) {
 		return TypeVariableName.of(name, Collections.emptyList());
 	}
 
-	/** Returns type variable named {@code name} with {@code bounds}. */
+	/** 返回带有 {@code bounds} 边界的名为 {@code name} 的类型变量。 */
 	public static TypeVariableName get(String name, TypeName... bounds) {
 		return TypeVariableName.of(name, Arrays.asList(bounds));
 	}
 
-	/** Returns type variable named {@code name} with {@code bounds}. */
+	/** 返回带有 {@code bounds} 边界的名为 {@code name} 的类型变量。 */
 	public static TypeVariableName get(String name, Type... bounds) {
 		return TypeVariableName.of(name, TypeName.list(bounds));
 	}
 
-	/** Returns type variable equivalent to {@code mirror}. */
+	/** 返回等效于 {@code mirror} 的类型变量。 */
 	public static TypeVariableName get(TypeVariable mirror) {
 		return get((TypeParameterElement) mirror.asElement());
 	}
 
 	/**
-	 * Make a TypeVariableName for the given TypeMirror. This form is used internally to avoid
-	 * infinite recursion in cases like {@code Enum<E extends Enum<E>>}. When we encounter such a
-	 * thing, we will make a TypeVariableName without bounds and add that to the {@code typeVariables}
-	 * map before looking up the bounds. Then if we encounter this TypeVariable again while
-	 * constructing the bounds, we can just return it from the map. And, the code that put the entry
-	 * in {@code variables} will make sure that the bounds are filled in before returning.
+	 * 为给定的 TypeMirror 创建 TypeVariableName。此形式在内部使用以避免
+	 * 在类似 {@code Enum<E extends Enum<E>>} 的情况下出现无限递归。当我们遇到这样的
+	 * 情况时，我们将创建一个没有边界的 TypeVariableName 并将其添加到 {@code typeVariables}
+	 * 映射中，然后再查找边界。然后，如果我们在构造边界时再次遇到此 TypeVariable，
+	 * 我们可以直接从映射中返回它。并且，将条目放入 {@code variables} 的代码将确保
+	 * 在返回之前填充边界。
 	 */
 	static TypeVariableName get(
 		TypeVariable mirror, Map<TypeParameterElement, TypeVariableName> typeVariables) {
 		TypeParameterElement element = (TypeParameterElement) mirror.asElement();
 		TypeVariableName typeVariableName = typeVariables.get(element);
 		if (typeVariableName == null) {
-			// Since the bounds field is public, we need to make it an unmodifiableList. But we control
-			// the List that that wraps, which means we can change it before returning.
+			// 由于边界字段是公共的，我们需要使其成为不可修改列表。但我们控制
+			// 包装它的列表，这意味着我们可以在返回之前更改它。
 			List<TypeName> bounds = new ArrayList<>();
 			List<TypeName> visibleBounds = Collections.unmodifiableList(bounds);
 			typeVariableName = new TypeVariableName(element.getSimpleName().toString(), visibleBounds);
@@ -134,7 +119,7 @@ public final class TypeVariableName extends TypeName {
 		return typeVariableName;
 	}
 
-	/** Returns type variable equivalent to {@code element}. */
+	/** 返回等效于 {@code element} 的类型变量。 */
 	public static TypeVariableName get(TypeParameterElement element) {
 		String name = element.getSimpleName().toString();
 		List<? extends TypeMirror> boundsMirrors = element.getBounds();
@@ -147,7 +132,7 @@ public final class TypeVariableName extends TypeName {
 		return TypeVariableName.of(name, boundsTypeNames);
 	}
 
-	/** Returns type variable equivalent to {@code type}. */
+	/** 返回等效于 {@code type} 的类型变量。 */
 	public static TypeVariableName get(java.lang.reflect.TypeVariable<?> type) {
 		return get(type, new LinkedHashMap<>());
 	}

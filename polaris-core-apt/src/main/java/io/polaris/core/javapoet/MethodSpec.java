@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2015 Square, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package io.polaris.core.javapoet;
 
 import java.io.IOException;
@@ -40,7 +25,7 @@ import static io.polaris.core.javapoet.Util.checkArgument;
 import static io.polaris.core.javapoet.Util.checkNotNull;
 import static io.polaris.core.javapoet.Util.checkState;
 
-/** A generated constructor or method declaration. */
+/** 生成的构造函数或方法声明。 */
 public final class MethodSpec {
 	static final String CONSTRUCTOR = "<init>";
 
@@ -126,7 +111,7 @@ public final class MethodSpec {
 		if (hasModifier(Modifier.ABSTRACT)) {
 			codeWriter.emit(";\n");
 		} else if (hasModifier(Modifier.NATIVE)) {
-			// Code is allowed to support stuff like GWT JSNI.
+			// 允许代码支持像 GWT JSNI 这样的功能。
 			codeWriter.emit(code);
 			codeWriter.emit(";\n");
 		} else {
@@ -146,7 +131,7 @@ public final class MethodSpec {
 		boolean emitTagNewline = true;
 		for (ParameterSpec parameterSpec : parameters) {
 			if (!parameterSpec.javadoc.isEmpty()) {
-				// Emit a new line before @param section only if the method javadoc is present.
+				// 仅当方法 javadoc 存在时，在 @param 部分之前发出换行符。
 				if (emitTagNewline && !javadoc.isEmpty()) builder.add("\n");
 				emitTagNewline = false;
 				builder.add("@param $L $L", parameterSpec.name, parameterSpec.javadoc);
@@ -197,13 +182,13 @@ public final class MethodSpec {
 	}
 
 	/**
-	 * Returns a new method spec builder that overrides {@code method}.
+	 * 返回一个新的方法规范构建器，用于覆盖 {@code method}。
 	 *
-	 * <p>This will copy its visibility modifiers, type parameters, return type, name, parameters, and
-	 * throws declarations. An {@link Override} annotation will be added.
+	 * <p>这将复制其可见性修饰符、类型参数、返回类型、名称、参数和抛出声明。
+	 * 将添加 {@link Override} 注解。
 	 *
-	 * <p>Note that in JavaPoet 1.2 through 1.7 this method retained annotations from the method and
-	 * parameters of the overridden method. Since JavaPoet 1.8 annotations must be added separately.
+	 * <p>请注意，在 JavaPoet 1.2 到 1.7 版本中，此方法保留了被覆盖方法的注解和参数。
+	 * 自 JavaPoet 1.8 起，注解必须单独添加。
 	 */
 	public static Builder overriding(ExecutableElement method) {
 		checkNotNull(method, "method == null");
@@ -247,16 +232,15 @@ public final class MethodSpec {
 	}
 
 	/**
-	 * Returns a new method spec builder that overrides {@code method} as a member of {@code
-	 * enclosing}. This will resolve type parameters: for example overriding {@link
-	 * Comparable#compareTo} in a type that implements {@code Comparable<Movie>}, the {@code T}
-	 * parameter will be resolved to {@code Movie}.
+	 * 返回一个新的方法规范构建器，用于作为 {@code enclosing} 成员覆盖 {@code method}。
+	 * 这将解析类型参数：例如，在实现 {@code Comparable<Movie>} 的类型中覆盖 {@link
+	 * Comparable#compareTo} 时，{@code T} 参数将解析为 {@code Movie}。
 	 *
-	 * <p>This will copy its visibility modifiers, type parameters, return type, name, parameters, and
-	 * throws declarations. An {@link Override} annotation will be added.
+	 * <p>这将复制其可见性修饰符、类型参数、返回类型、名称、参数和抛出声明。
+	 * 将添加 {@link Override} 注解。
 	 *
-	 * <p>Note that in JavaPoet 1.2 through 1.7 this method retained annotations from the method and
-	 * parameters of the overridden method. Since JavaPoet 1.8 annotations must be added separately.
+	 * <p>请注意，在 JavaPoet 1.2 到 1.7 版本中，此方法保留了被覆盖方法的注解和参数。
+	 * 自 JavaPoet 1.8 起，注解必须单独添加。
 	 */
 	public static Builder overriding(
 		ExecutableElement method, DeclaredType enclosing, Types types) {
@@ -470,8 +454,8 @@ public final class MethodSpec {
 		}
 
 		/**
-		 * @param controlFlow the control flow construct and its code, such as "if (foo == 5)".
-		 *                    Shouldn't contain braces or newline characters.
+		 * @param controlFlow 控制流结构及其代码，例如 "if (foo == 5)"。
+		 *                    不应包含大括号或换行符。
 		 */
 		public Builder beginControlFlow(String controlFlow, Object... args) {
 			code.beginControlFlow(controlFlow, args);
@@ -479,16 +463,16 @@ public final class MethodSpec {
 		}
 
 		/**
-		 * @param codeBlock the control flow construct and its code, such as "if (foo == 5)".
-		 *                  Shouldn't contain braces or newline characters.
+		 * @param codeBlock 控制流结构及其代码，例如 "if (foo == 5)"。
+		 *                  不应包含大括号或换行符。
 		 */
 		public Builder beginControlFlow(CodeBlock codeBlock) {
 			return beginControlFlow("$L", codeBlock);
 		}
 
 		/**
-		 * @param controlFlow the control flow construct and its code, such as "else if (foo == 10)".
-		 *                    Shouldn't contain braces or newline characters.
+		 * @param controlFlow 控制流结构及其代码，例如 "else if (foo == 10)"。
+		 *                    不应包含大括号或换行符。
 		 */
 		public Builder nextControlFlow(String controlFlow, Object... args) {
 			code.nextControlFlow(controlFlow, args);
@@ -496,8 +480,8 @@ public final class MethodSpec {
 		}
 
 		/**
-		 * @param codeBlock the control flow construct and its code, such as "else if (foo == 10)".
-		 *                  Shouldn't contain braces or newline characters.
+		 * @param codeBlock 控制流结构及其代码，例如 "else if (foo == 10)"。
+		 *                  不应包含大括号或换行符。
 		 */
 		public Builder nextControlFlow(CodeBlock codeBlock) {
 			return nextControlFlow("$L", codeBlock);
@@ -509,8 +493,8 @@ public final class MethodSpec {
 		}
 
 		/**
-		 * @param controlFlow the optional control flow construct and its code, such as
-		 *                    "while(foo == 20)". Only used for "do/while" control flows.
+		 * @param controlFlow 可选的控制流结构及其代码，例如
+		 *                    "while(foo == 20)"。仅用于 "do/while" 控制流。
 		 */
 		public Builder endControlFlow(String controlFlow, Object... args) {
 			code.endControlFlow(controlFlow, args);
@@ -518,8 +502,8 @@ public final class MethodSpec {
 		}
 
 		/**
-		 * @param codeBlock the optional control flow construct and its code, such as
-		 *                  "while(foo == 20)". Only used for "do/while" control flows.
+		 * @param codeBlock 可选的控制流结构及其代码，例如
+		 *                  "while(foo == 20)"。仅用于 "do/while" 控制流。
 		 */
 		public Builder endControlFlow(CodeBlock codeBlock) {
 			return endControlFlow("$L", codeBlock);
