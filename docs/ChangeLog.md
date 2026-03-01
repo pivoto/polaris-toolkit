@@ -6,6 +6,9 @@
 - SqlStatement类新增SQL绑定参数支持功能，并实现PreparedSqlBuilder接口
 - 新增基础配置类Config，用于统一处理工具库内部的环境变量与属性获取
 - 将工具库内部对环境变量及属性的获取，统一从GlobalStdEnv方法替换为新的Config实例
+- 优化SystemEnvWrapper对环境变量的获取逻辑，支持大小写、下划线、连字符的宽松处理
+- 修改javapoet默认缩进的双空格为制表符，优化代码注释
+- 优化数据权限拦截器的反射访问逻辑
 
 ### 3.6.5
 - 新增apm-agent模块，定义追踪接口规范
