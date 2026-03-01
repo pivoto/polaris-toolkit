@@ -47,7 +47,7 @@ final class CodeWriter {
 	int statementLine = -1;
 
 	CodeWriter(Appendable out) {
-		this(out, "  ", Collections.emptySet(), Collections.emptySet());
+		this(out, "\t", Collections.emptySet(), Collections.emptySet());
 	}
 
 	CodeWriter(Appendable out, String indent, Set<String> staticImports, Set<String> alwaysQualify) {

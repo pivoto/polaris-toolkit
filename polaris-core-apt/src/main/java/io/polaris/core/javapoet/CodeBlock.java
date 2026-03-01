@@ -25,16 +25,16 @@ import static io.polaris.core.javapoet.Util.checkArgument;
  * 自己允许的占位符：
  *
  * <ul>
- *   <li>{@code $L} 输出一个不转义的<em>字面量</em>值。字面量的参数可以是
+ *   <li>{@code $L} 输出一个不转义的字面量值。字面量的参数可以是
  *       字符串、基本类型、{@linkplain TypeSpec 类型声明}、{@linkplain AnnotationSpec
  *       注解}，甚至是其他代码块。
- *   <li>{@code $N} 输出一个<em>名称</em>，必要时使用名称冲突避免机制。名称的参数可以是
+ *   <li>{@code $N} 输出一个名称，必要时使用名称冲突避免机制。名称的参数可以是
  *       字符串（实际上是任何 {@linkplain CharSequence 字符序列}）、
  *       {@linkplain ParameterSpec 参数}、{@linkplain FieldSpec 字段}、{@linkplain
  *       MethodSpec 方法}和 {@linkplain TypeSpec 类型}。
- *   <li>{@code $S} 将值转义为<em>字符串</em>，用双引号包装并输出。
+ *   <li>{@code $S} 将值转义为字符串，用双引号包装并输出。
  *       例如，{@code 6" sandwich} 会被输出为 {@code "6\" sandwich"}。
- *   <li>{@code $T} 输出一个<em>类型</em>引用。如果可能，类型将被导入。类型的参数可以是
+ *   <li>{@code $T} 输出一个类型引用。如果可能，类型将被导入。类型的参数可以是
  *       {@linkplain Class 类}、{@linkplain javax.lang.model.type.TypeMirror
  *       类型镜像}和 {@linkplain javax.lang.model.element.Element 元素}。
  *   <li>{@code $$} 输出一个美元符号。

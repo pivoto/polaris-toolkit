@@ -281,7 +281,7 @@ public final class JavaFile {
 		private final TypeSpec typeSpec;
 		private final CodeBlock.Builder fileComment = CodeBlock.builder();
 		private boolean skipJavaLangImports;
-		private String indent = "  ";
+		private String indent = "\t";
 
 		public final Set<String> staticImports = new TreeSet<>();
 
