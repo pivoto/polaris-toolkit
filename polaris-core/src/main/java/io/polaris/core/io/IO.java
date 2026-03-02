@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.polaris.core.annotation.Compatible;
+import io.polaris.core.concurrent.Threads;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -51,14 +52,11 @@ public class IO {
 
 
 	public static InputStream getInputStream(String path) throws FileNotFoundException {
-		try {
-			StackTraceElement[] traces = new Throwable().getStackTrace();
-			StackTraceElement trace = traces.length > 1 ? traces[1] : traces[0];
-			Class<?> caller = Class.forName(trace.getClassName());
-			return getInputStream(path, caller);
-		} catch (ClassNotFoundException e) {
-			return getInputStream(path, IO.class);
+		Class<?> caller = Threads.getCallerClass(IO.class);
+		if (caller == null) {
+			caller = IO.class;
 		}
+		return getInputStream(path, caller);
 	}
 
 	@SuppressWarnings("resource")
