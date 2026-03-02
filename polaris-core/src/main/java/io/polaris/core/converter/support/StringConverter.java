@@ -4,6 +4,7 @@ import io.polaris.core.converter.AbstractSimpleConverter;
 import io.polaris.core.converter.ConversionException;
 import io.polaris.core.io.IO;
 import io.polaris.core.lang.JavaType;
+import io.polaris.core.lang.Types;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -35,7 +36,7 @@ public class StringConverter extends AbstractSimpleConverter<String> {
 		} else if (value instanceof Enum) {
 			return ((Enum<?>) value).name();
 		} else if (value instanceof Class) {
-			return ((Class<?>) value).getCanonicalName();
+			return Types.getSafeCanonicalName(((Class<?>) value));
 		} else if (value instanceof Type) {
 			return ((Type) value).getTypeName();
 		}

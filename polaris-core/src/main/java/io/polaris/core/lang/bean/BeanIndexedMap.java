@@ -12,6 +12,7 @@ import java.util.Set;
 
 import io.polaris.core.asm.reflect.BeanAccess;
 import io.polaris.core.lang.Objs;
+import io.polaris.core.lang.Types;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 
@@ -97,7 +98,7 @@ class BeanIndexedMap<T> extends BeanMap<T> {
 					}
 				} catch (Exception e) {
 					if (!ignoreError) {
-						throw new IllegalArgumentException("属性写入失败：" + beanType.getCanonicalName() + "." + key, e);
+						throw new IllegalArgumentException("属性写入失败：" + Types.getSafeCanonicalName(beanType) + "." + key, e);
 					}
 				}
 				return null;
@@ -113,7 +114,7 @@ class BeanIndexedMap<T> extends BeanMap<T> {
 			throw new IllegalArgumentException("未知属性：" + key);
 		}
 		if (warnUnknownKeys) {
-			log.warn("未知属性：{}.{}", beanType.getCanonicalName(), key);
+			log.warn("未知属性：{}.{}", Types.getSafeCanonicalName(beanType), key);
 		}
 		return null;
 	}

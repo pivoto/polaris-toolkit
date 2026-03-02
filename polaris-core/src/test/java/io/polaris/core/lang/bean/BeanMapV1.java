@@ -232,7 +232,7 @@ public class BeanMapV1<T> extends AbstractMap<String, Object> implements BeanMap
 				if (!ignoreUnknownKeys) {
 					throw new IllegalArgumentException("未知属性：" + key);
 				} else if (warnUnknownKeys) {
-					log.warn("未知属性：{}.{}", bean.getClass().getCanonicalName(), key);
+					log.warn("未知属性：{}.{}", Types.getSafeCanonicalName(bean.getClass()), key);
 				}
 			}
 		}

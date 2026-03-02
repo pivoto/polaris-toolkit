@@ -10,6 +10,7 @@ import io.polaris.core.jdbc.Jdbcs;
 import io.polaris.core.jdbc.dbv.Dbv;
 import io.polaris.core.jdbc.dbv.model.Column;
 import io.polaris.core.jdbc.dbv.model.Table;
+import io.polaris.core.lang.Types;
 import io.polaris.core.string.Strings;
 
 import java.io.File;
@@ -74,7 +75,7 @@ public class JdbcTablesReader implements TablesReader {
 					column.setAutoincrement(col.isAutoincrement());
 					column.setGenerated(col.isGenerated());
 					column.setJdbcType(JdbcTypes.getTypeName(col.getDataType()));
-					column.setJavaType(JdbcTypes.getJavaType(col.getDataType(), col.getColumnSize(), col.getDecimalDigits()).getCanonicalName());
+					column.setJavaType(Types.getSafeCanonicalName(JdbcTypes.getJavaType(col.getDataType(), col.getColumnSize(), col.getDecimalDigits())));
 					table.getColumns().add(column);
 					if (pkColumns.contains(col.getColumnName())) {
 						column.setPrimary(true);

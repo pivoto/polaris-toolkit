@@ -127,7 +127,7 @@ public class JavaType<T> implements Type {
 
 	@Override
 	public String getTypeName() {
-		return type instanceof Class ? ((Class<?>) type).getCanonicalName() : type.getTypeName();
+		return type instanceof Class ? Types.getSafeCanonicalName(((Class<?>) type)) : type.getTypeName();
 	}
 
 	@Override

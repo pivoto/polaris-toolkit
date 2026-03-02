@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Deque;
 
 import io.polaris.core.io.Consoles;
+import io.polaris.core.lang.Types;
 import org.junit.jupiter.api.Test;
 
 class ReflectsTest {
@@ -48,11 +49,11 @@ class ReflectsTest {
 		Consoles.println(args4);
 		Object[] args3 = new Object[]{Reflects.loadClass("[int[]")};
 		Consoles.println(args3);
-		Object[] args2 = new Object[]{Reflects.loadClass(I.class.getCanonicalName())};
+		Object[] args2 = new Object[]{Reflects.loadClass(Types.getSafeCanonicalName(I.class))};
 		Consoles.println(args2);
-		Object[] args1 = new Object[]{Reflects.loadClass(I.II.class.getCanonicalName())};
+		Object[] args1 = new Object[]{Reflects.loadClass(Types.getSafeCanonicalName(I.II.class))};
 		Consoles.println(args1);
-		Object[] args = new Object[]{Reflects.loadClass(I.II.IIC.class.getCanonicalName())};
+		Object[] args = new Object[]{Reflects.loadClass(Types.getSafeCanonicalName(I.II.IIC.class))};
 		Consoles.println(args);
 	}
 

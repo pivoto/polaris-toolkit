@@ -12,6 +12,7 @@ import io.polaris.core.err.MultipleException;
 import io.polaris.core.function.Condition;
 import io.polaris.core.function.Executable;
 import io.polaris.core.lang.Other;
+import io.polaris.core.lang.Types;
 import io.polaris.core.string.Strings;
 
 /**
@@ -200,8 +201,8 @@ public class Assertions {
 		}
 		String hash = Integer.toHexString(System.identityHashCode(value));
 		return (value instanceof Class ?
-			"<" + ((Class<?>) value).getCanonicalName() + "@" + hash + ">"
-			: value.getClass().getCanonicalName() + "@" + hash + "<" + valueString + ">");
+			"<" + Types.getSafeCanonicalName(((Class<?>) value)) + "@" + hash + ">"
+			: Types.getSafeCanonicalName(value.getClass()) + "@" + hash + "<" + valueString + ">");
 	}
 
 	private static String toString(Object obj) {
@@ -209,7 +210,7 @@ public class Assertions {
 			return "null";
 		}
 		if (obj instanceof Class) {
-			return ((Class<?>) obj).getCanonicalName();
+			return Types.getSafeCanonicalName(((Class<?>) obj));
 		}
 		if (obj.getClass().isArray()) {
 			if (obj.getClass().getComponentType().isPrimitive()) {
@@ -281,7 +282,7 @@ public class Assertions {
 				+ format(expected, actual.getClass(), "Unexpected exception type thrown"), actual);
 		}
 		throw new AssertionException(buildPrefix(message)
-			+ String.format("Expected %s to be thrown, but nothing was thrown.", expected.getCanonicalName()));
+			+ String.format("Expected %s to be thrown, but nothing was thrown.", Types.getSafeCanonicalName(expected)));
 	}
 
 	public static <T extends Throwable> T assertThrows(Class<T> expected, Executable executable, String message) throws AssertionException {
@@ -295,7 +296,7 @@ public class Assertions {
 				+ format(expected, actual.getClass(), "Unexpected exception type thrown"), actual);
 		}
 		throw new AssertionException(buildPrefix(message)
-			+ String.format("Expected %s to be thrown, but nothing was thrown.", expected.getCanonicalName()));
+			+ String.format("Expected %s to be thrown, but nothing was thrown.", Types.getSafeCanonicalName(expected)));
 	}
 
 	public static <T extends Throwable> void assertNotThrowsExactly(Class<T> expected, Executable executable, String message) throws AssertionException {
@@ -304,7 +305,7 @@ public class Assertions {
 		} catch (Throwable actual) {
 			if (expected.equals(actual.getClass())) {
 				throw new AssertionException(buildPrefix(message)
-					+ String.format("expected: not <%s> to be thrown, but <%s> was thrown.", expected.getCanonicalName(), actual.getClass().getCanonicalName())
+					+ String.format("expected: not <%s> to be thrown, but <%s> was thrown.", Types.getSafeCanonicalName(expected), Types.getSafeCanonicalName(actual.getClass()))
 					, actual, Other.of(expected), actual);
 			}
 		}
@@ -316,7 +317,7 @@ public class Assertions {
 		} catch (Throwable actual) {
 			if (expected.isInstance(actual)) {
 				throw new AssertionException(buildPrefix(message)
-					+ String.format("expected: not <%s> to be thrown, but <%s> was thrown.", expected.getCanonicalName(), actual.getClass().getCanonicalName())
+					+ String.format("expected: not <%s> to be thrown, but <%s> was thrown.", Types.getSafeCanonicalName(expected), Types.getSafeCanonicalName(actual.getClass()))
 					, actual, Other.of(expected), actual);
 			}
 		}
@@ -335,7 +336,7 @@ public class Assertions {
 			executable.execute();
 		} catch (Throwable actual) {
 			throw new AssertionException(buildPrefix(message)
-				+ String.format("Expected nothing to be thrown, but <%s> was thrown.", actual.getClass().getCanonicalName()), actual, null, actual);
+				+ String.format("Expected nothing to be thrown, but <%s> was thrown.", Types.getSafeCanonicalName(actual.getClass())), actual, null, actual);
 		}
 	}
 

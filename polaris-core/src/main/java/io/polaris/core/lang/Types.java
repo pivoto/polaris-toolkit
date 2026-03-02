@@ -521,4 +521,15 @@ public class Types {
 		return true;
 	}
 
+	public static String getSafeCanonicalName(Class clazz) {
+		try {
+			String n = clazz.getCanonicalName();
+			if (n != null) {
+				return n;
+			}
+		} catch (Throwable ignored) {
+		}
+		return clazz.getName();
+	}
+
 }

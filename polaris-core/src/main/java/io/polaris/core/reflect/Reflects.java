@@ -1178,6 +1178,11 @@ public class Reflects {
 	}
 
 	@Nonnull
+	public static Class<?> loadSystemClass(@Nonnull String name) throws ClassNotFoundException {
+		return loadClass(name, ClassLoader.getSystemClassLoader());
+	}
+
+	@Nonnull
 	public static Class<?> loadClass(@Nonnull String name) throws ClassNotFoundException {
 		return loadClass(name, null);
 	}

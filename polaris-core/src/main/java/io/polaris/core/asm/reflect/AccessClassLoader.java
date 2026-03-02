@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 
 import io.polaris.core.env.Config;
 import io.polaris.core.io.IO;
+import io.polaris.core.lang.Types;
 import io.polaris.core.map.Maps;
 import io.polaris.core.string.Strings;
 
@@ -146,7 +147,7 @@ public class AccessClassLoader extends ClassLoader {
 
 	public static String buildAccessClassName(Class<?> type, Class<?> baseAccessClass) {
 		if (type.isArray()) {
-			throw new IllegalArgumentException("不支持数组类型：" + type.getCanonicalName());
+			throw new IllegalArgumentException("不支持数组类型：" + Types.getSafeCanonicalName(type));
 		}
 		String className = type.getName();
 		String accessClassName = className + "$$" + baseAccessClass.getSimpleName() + "$";
