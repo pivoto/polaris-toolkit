@@ -1196,12 +1196,52 @@ public class Reflects {
 
 		Class type = Types.getPrimitiveClassByName(name);
 		if (type == null) {
-			type = doLoadClass(name, classLoader);
+			type = doLoadClass(name, classLoader, true);
 		}
 		return type;
 	}
 
-	private static Class doLoadClass(String name, ClassLoader classLoader) throws ClassNotFoundException {
+	public static boolean hasSystemClass(@Nonnull String name) {
+		return hasCLass(name, ClassLoader.getSystemClassLoader());
+	}
+
+	public static boolean hasCLass(@Nonnull String name) {
+		return hasCLass(name, null);
+	}
+
+	public static boolean hasCLass(@Nonnull String name, @Nullable ClassLoader classLoader) {
+		name = name.replace(CharConsts.SLASH, CharConsts.DOT);
+		if (classLoader == null) {
+			classLoader = Thread.currentThread().getContextClassLoader();
+		}
+		try {
+			Class type = Types.getPrimitiveClassByName(name);
+			if (type == null) {
+				type = doLoadClass(name, classLoader, false);
+			}
+			return type != null;
+		} catch (Throwable e) {
+			return false;
+		}
+	}
+
+	public static Class<?> loadClassDirectly(@Nonnull String name, @Nullable ClassLoader classLoader) throws ClassNotFoundException {
+		if (classLoader != null) {
+			return Class.forName(name, false, classLoader);
+		}
+		return Class.forName(name);
+	}
+
+	public static boolean hasCLassDirectly(@Nonnull String name, @Nullable ClassLoader classLoader) {
+		try {
+			loadClassDirectly(name, classLoader);
+			return true;
+		} catch (Throwable e) {
+			return false;
+		}
+	}
+
+	private static Class doLoadClass(String name, ClassLoader classLoader, boolean initialize) throws ClassNotFoundException {
 		Class<?> clazz;
 		if (name.endsWith("[]")) {
 			// xx[]
@@ -1220,10 +1260,14 @@ public class Reflects {
 			clazz = Array.newInstance(elementClass, 0).getClass();
 		} else {
 			try {
-				clazz = Class.forName(name, true, classLoader);
+				if (classLoader != null) {
+					clazz = Class.forName(name, initialize, classLoader);
+				} else {
+					clazz = Class.forName(name);
+				}
 			} catch (ClassNotFoundException ex) {
 				// 尝试获取内部类，例如java.lang.Thread.State =》java.lang.Thread$State
-				clazz = tryLoadInnerClass(name, classLoader);
+				clazz = tryLoadInnerClass(name, classLoader, initialize);
 				if (null == clazz) {
 					throw ex;
 				}
@@ -1232,16 +1276,21 @@ public class Reflects {
 		return clazz;
 	}
 
-	private static Class<?> tryLoadInnerClass(String name, ClassLoader classLoader) {
+	private static Class<?> tryLoadInnerClass(String name, ClassLoader classLoader, boolean initialize) {
 		int lastDotIndex = name.lastIndexOf(CharConsts.DOT);
 		if (lastDotIndex > 0) {
 			String innerClassName = name.substring(0, lastDotIndex) + '$' + name.substring(lastDotIndex + 1);
 			try {
-				return Class.forName(innerClassName, true, classLoader);
+				if (classLoader != null) {
+					return Class.forName(innerClassName, initialize, classLoader);
+				} else {
+					return Class.forName(innerClassName);
+				}
 			} catch (ClassNotFoundException e) {
-				return tryLoadInnerClass(innerClassName, classLoader);
+				return tryLoadInnerClass(innerClassName, classLoader, initialize);
 			}
 		}
 		return null;
 	}
+
 }
