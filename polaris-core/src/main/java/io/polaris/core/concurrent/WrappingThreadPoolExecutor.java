@@ -9,6 +9,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import io.polaris.core.concurrent.queue.ThreadPriorityQueue;
+
 /**
  * @author Qt
  * @since Jan 24, 2025
@@ -19,18 +21,28 @@ public class WrappingThreadPoolExecutor extends ThreadPoolExecutor {
 
 	public WrappingThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue) {
 		super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
+		bindThreadPriorityQueue(workQueue);
 	}
 
 	public WrappingThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory) {
 		super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory);
+		bindThreadPriorityQueue(workQueue);
 	}
 
 	public WrappingThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, RejectedExecutionHandler handler) {
 		super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, handler);
+		bindThreadPriorityQueue(workQueue);
 	}
 
 	public WrappingThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory, RejectedExecutionHandler handler) {
 		super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler);
+		bindThreadPriorityQueue(workQueue);
+	}
+
+	private void bindThreadPriorityQueue(BlockingQueue<Runnable> workQueue) {
+		if (workQueue instanceof ThreadPriorityQueue) {
+			((ThreadPriorityQueue<?>) workQueue).bindThreadPoolExecutor(this);
+		}
 	}
 
 	public WrappingTaskFactory getWrappedTaskFactory() {
