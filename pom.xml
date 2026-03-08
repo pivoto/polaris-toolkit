@@ -235,7 +235,7 @@
 			</dependency>
 			<dependency>
 				<groupId>cn.fossc.polaris.toolkit</groupId>
-				<artifactId>polaris-bytecode</artifactId>
+				<artifactId>polaris-extension</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>

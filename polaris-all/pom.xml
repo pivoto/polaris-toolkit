@@ -35,7 +35,7 @@
 		</dependency>
 		<dependency>
 			<groupId>cn.fossc.polaris.toolkit</groupId>
-			<artifactId>polaris-bytecode</artifactId>
+			<artifactId>polaris-extension</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>cn.fossc.polaris.toolkit</groupId>

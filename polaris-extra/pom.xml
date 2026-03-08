@@ -15,7 +15,7 @@
 
 	<modules>
 		<module>polaris-apm-agent</module>
-		<module>polaris-bytecode</module>
+		<module>polaris-extension</module>
 		<module>polaris-cluster</module>
 		<module>polaris-commons</module>
 		<module>polaris-concurrent</module>
