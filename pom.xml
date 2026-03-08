@@ -250,11 +250,6 @@
 			</dependency>
 			<dependency>
 				<groupId>cn.fossc.polaris.toolkit</groupId>
-				<artifactId>polaris-concurrent</artifactId>
-				<version>${project.polaris-toolkit.revision}</version>
-			</dependency>
-			<dependency>
-				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-crypto</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
