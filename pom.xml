@@ -245,11 +245,6 @@
 			</dependency>
 			<dependency>
 				<groupId>cn.fossc.polaris.toolkit</groupId>
-				<artifactId>polaris-commons</artifactId>
-				<version>${project.polaris-toolkit.revision}</version>
-			</dependency>
-			<dependency>
-				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-crypto</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>

@@ -69,6 +69,21 @@
 		</dependency>
 		<!-- endregion -->
 
+		<!-- region commons -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.10</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+			<version>1.22</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- endregion -->
+
 		<!-- region concurent -->
 		<dependency>
 			<groupId>com.lmax</groupId>

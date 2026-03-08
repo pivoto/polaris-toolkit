@@ -43,10 +43,6 @@
 		</dependency>
 		<dependency>
 			<groupId>cn.fossc.polaris.toolkit</groupId>
-			<artifactId>polaris-commons</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>cn.fossc.polaris.toolkit</groupId>
 			<artifactId>polaris-crypto</artifactId>
 		</dependency>
 		<dependency>
