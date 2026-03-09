@@ -13,9 +13,18 @@
 	<packaging>jar</packaging>
 
 	<properties>
+		<dependency.nacos.version>2.1.0</dependency.nacos.version>
+		<dependency.curator.version>4.2.0</dependency.curator.version>
+		<dependency.curator-test.version>2.12.0</dependency.curator-test.version>
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>cn.fossc.polaris.toolkit</groupId>
+			<artifactId>polaris-json</artifactId>
+		</dependency>
+
+		<!-- region bytecode -->
 		<dependency>
 			<groupId>com.squareup</groupId>
 			<artifactId>javapoet</artifactId>
@@ -24,7 +33,6 @@
 			<groupId>org.javassist</groupId>
 			<artifactId>javassist</artifactId>
 		</dependency>
-		<!-- region bytecode -->
 		<dependency>
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy</artifactId>
@@ -98,6 +106,15 @@
 		</dependency>
 		<!-- endregion -->
 
+		<!-- region nacos -->
+		<dependency>
+			<groupId>com.alibaba.nacos</groupId>
+			<artifactId>nacos-client</artifactId>
+			<version>${dependency.nacos.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- endregion -->
+
 		<!-- region zookeeper -->
 		<dependency>
 			<groupId>org.apache.zookeeper</groupId>
@@ -122,19 +139,20 @@
 		<dependency>
 			<groupId>org.apache.curator</groupId>
 			<artifactId>curator-x-discovery</artifactId>
-			<version>4.2.0</version>
+			<version>${dependency.curator.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.curator</groupId>
 			<artifactId>curator-recipes</artifactId>
-			<version>4.2.0</version>
+			<version>${dependency.curator.version}</version>
 			<scope>provided</scope>
 		</dependency>
+		<!--https://curator.apache.org/docs/zk-compatibility-34-->
 		<dependency>
 			<groupId>org.apache.curator</groupId>
 			<artifactId>curator-test</artifactId>
-			<version>4.2.0</version>
+			<version>${dependency.curator-test.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- endregion -->
