@@ -245,11 +245,6 @@
 			</dependency>
 			<dependency>
 				<groupId>cn.fossc.polaris.toolkit</groupId>
-				<artifactId>polaris-image</artifactId>
-				<version>${project.polaris-toolkit.revision}</version>
-			</dependency>
-			<dependency>
-				<groupId>cn.fossc.polaris.toolkit</groupId>
 				<artifactId>polaris-json</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>

@@ -17,7 +17,6 @@
 		<module>polaris-apm-agent</module>
 		<module>polaris-extension</module>
 		<module>polaris-crypto</module>
-		<module>polaris-image</module>
 		<module>polaris-json</module>
 		<module>polaris-mybatis</module>
 		<module>polaris-validator</module>

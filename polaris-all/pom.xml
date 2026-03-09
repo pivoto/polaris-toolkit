@@ -43,10 +43,6 @@
 		</dependency>
 		<dependency>
 			<groupId>cn.fossc.polaris.toolkit</groupId>
-			<artifactId>polaris-image</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>cn.fossc.polaris.toolkit</groupId>
 			<artifactId>polaris-json</artifactId>
 		</dependency>
 		<dependency>

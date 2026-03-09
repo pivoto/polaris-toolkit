@@ -16,6 +16,7 @@
 		<dependency.nacos.version>2.1.0</dependency.nacos.version>
 		<dependency.curator.version>4.2.0</dependency.curator.version>
 		<dependency.curator-test.version>2.12.0</dependency.curator-test.version>
+		<zxing.version>3.5.1</zxing.version>
 	</properties>
 
 	<dependencies>
@@ -167,6 +168,19 @@
 			<artifactId>org.eclipse.jgit</artifactId>
 			<version>5.13.2.202306221912-r</version>
 			<scope>provided</scope>
+		</dependency>
+		<!-- endregion -->
+
+		<!-- region image -->
+		<dependency>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>core</artifactId>
+			<version>${zxing.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>javase</artifactId>
+			<version>${zxing.version}</version>
 		</dependency>
 		<!-- endregion -->
 
