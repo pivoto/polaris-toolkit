@@ -15,7 +15,12 @@
 ## 模块结构
 
 - polaris-core 常用核心工具库，只存在Slf4j日志、JSR标准依赖，无更多的三方依赖，以保待纯净
-- polaris-extra-* 扩展工具库，针对特定用途或功能的扩展工具，有具体的三方库依赖
+- polaris-extra 扩展工具库，针对特定用途或功能的扩展工具，有具体的三方库依赖
+  - polaris-validation 验证器工具库，封装和增强 jsr303 规范的验证器，提供更丰富的验证规则。
+  - polaris-json JSON工具库，引入`jackson`等依赖库，封装和增强JSON操作工具
+  - polaris-crypto 加解密工具库，引入`bouncycastle`等依赖库，封装和增强加解密操作工具
+  - polaris-mybatis  MyBatis工具库，封装和增强`mybatis`自动Mapper、拦截器等功能。
+  - polaris-extension 其他常用三方工具框架的封装与扩展库，简化使用，包括：apache-commons、spring-core、guava等集成封装，大部分依赖以可选形式引入，由应用方管理具体依赖关系。
 - polaris-builder 代码生成器工具
 
 ## 代码规范

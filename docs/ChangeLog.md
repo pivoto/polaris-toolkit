@@ -1,5 +1,9 @@
 ## 版本变更说明
 
+### 3.7.0
+- 新增polaris-extension模块，作为其他常用三方工具框架的封装与扩展库，简化使用
+- 合并concurrent、commons、cluster、image等几个子模块至polaris-extension模块
+
 ### 3.6.6
 - 新增PreparedSqlBuilder接口
 - 修改Jdbcs类中的查询和更新方法中SqlNode参数类型为PreparedSqlBuilder
