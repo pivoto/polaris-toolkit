@@ -23,6 +23,10 @@
 			<groupId>cn.fossc.polaris.toolkit</groupId>
 			<artifactId>polaris-json</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>cn.fossc.polaris.toolkit</groupId>
+			<artifactId>polaris-validator</artifactId>
+		</dependency>
 
 		<!-- region bytecode -->
 		<dependency>
@@ -153,6 +157,15 @@
 			<groupId>org.apache.curator</groupId>
 			<artifactId>curator-test</artifactId>
 			<version>${dependency.curator-test.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- endregion -->
+
+		<!-- region git -->
+		<dependency>
+			<groupId>org.eclipse.jgit</groupId>
+			<artifactId>org.eclipse.jgit</artifactId>
+			<version>5.13.2.202306221912-r</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- endregion -->
