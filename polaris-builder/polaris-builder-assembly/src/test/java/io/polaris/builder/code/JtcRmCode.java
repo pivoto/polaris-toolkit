@@ -20,7 +20,7 @@ public class JtcRmCode {
 	public void run() throws IOException {
 //		String dir = AppCodeGen.class.getProtectionDomain().getCodeSource().getLocation().getFile();
 //		System.setProperty("project.dir", dir.replaceFirst("/target/test-classes/?$", ""));
-		System.setProperty("project.dir", "D:/xcode/jcfc/base/basic/jtc/jtc-rm");
+		System.setProperty("project.dir", "O:/jcfc/base/basic/jtc/jtc-rm");
 		System.out.println("project.dir: " + System.getProperty("project.dir"));
 //		Codes.generate(BrmConfig.class);
 //		Codes.generate(SrmConfig.class);
