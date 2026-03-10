@@ -77,7 +77,8 @@
 		<dependency.polaris-plugins.version>3.2.0</dependency.polaris-plugins.version>
 		<dependency.spring-boot.version>2.3.10.RELEASE</dependency.spring-boot.version>
 		<dependency.spring-cloud.version>Hoxton.SR10</dependency.spring-cloud.version>
-		<dependency.log4j2.version>2.23.0</dependency.log4j2.version>
+		<!--<dependency.log4j2.version>2.23.0</dependency.log4j2.version>-->
+		<dependency.log4j2.version>2.25.3</dependency.log4j2.version>
 		<dependency.slf4j.version>1.7.36</dependency.slf4j.version>
 		<!--<dependency.slf4j.version>2.0.5</dependency.slf4j.version>-->
 		<dependency.disruptor.version>3.4.4</dependency.disruptor.version>
@@ -95,8 +96,11 @@
 		<dependency.reflectasm.version>1.11.9</dependency.reflectasm.version>
 		<dependency.javapoet.version>1.13.0</dependency.javapoet.version>
 		<dependency.mybatis-spring.version>2.1.4</dependency.mybatis-spring.version>
-		<dependency.json-path.version>2.9.0</dependency.json-path.version>
-		<dependency.jackson.version>2.14.2</dependency.jackson.version>
+		<!--<dependency.json-path.version>2.9.0</dependency.json-path.version>-->
+		<dependency.json-path.version>2.10.0</dependency.json-path.version>
+		<!--<dependency.jackson.version>2.14.2</dependency.jackson.version>-->
+		<dependency.jackson.version>2.21.1</dependency.jackson.version>
+		<dependency.jackson-annotations.version>2.21</dependency.jackson-annotations.version>
 		<dependency.fastjson2.version>2.0.53</dependency.fastjson2.version>
 
 		<dependency.dropwizard-metrics.version>4.1.7</dependency.dropwizard-metrics.version>
