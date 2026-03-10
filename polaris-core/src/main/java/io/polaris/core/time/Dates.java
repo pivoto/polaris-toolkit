@@ -689,6 +689,91 @@ public class Dates implements DateConsts {
 	}
 
 	/**
+	 * 计算两个日期之间的年数差
+	 *
+	 * @param format 格式
+	 * @param t1     日期1
+	 * @param t2     日期2
+	 * @return 年数差
+	 */
+	public static int diffYears(String format, String t1, String t2) {
+		return diffYears(parse(format, t1), parse(format, t2));
+	}
+
+	/**
+	 * 计算两个日期之间的月数差
+	 *
+	 * @param format 格式
+	 * @param t1     日期1
+	 * @param t2     日期2
+	 * @return 月数差
+	 */
+	public static int diffMonths(String format, String t1, String t2) {
+		return diffMonths(parse(format, t1), parse(format, t2));
+	}
+
+	/**
+	 * 计算两个日期之间的天数差
+	 *
+	 * @param format 格式
+	 * @param t1     日期1
+	 * @param t2     日期2
+	 * @return 天数差
+	 */
+	public static long diffDays(String format, String t1, String t2) {
+		return diffDays(parse(format, t1), parse(format, t2));
+	}
+
+
+	/**
+	 * 计算两个日期之间的小时数差
+	 *
+	 * @param format 格式
+	 * @param t1     日期1
+	 * @param t2     日期2
+	 * @return 小时数差
+	 */
+	public static long diffHours(String format, String t1, String t2) {
+		return diffHours(parse(format, t1), parse(format, t2));
+	}
+
+	/**
+	 * 计算两个日期之间的分钟数差
+	 *
+	 * @param format 格式
+	 * @param t1     日期1
+	 * @param t2     日期2
+	 * @return 分钟数差
+	 */
+	public static long diffMinutes(String format, String t1, String t2) {
+		return diffMinutes(parse(format, t1), parse(format, t2));
+	}
+
+	/**
+	 * 计算两个日期之间的秒数差
+	 *
+	 * @param format 格式
+	 * @param t1     日期1
+	 * @param t2     日期2
+	 * @return 秒数差
+	 */
+	public static long diffSeconds(String format, String t1, String t2) {
+		return diffSeconds(parse(format, t1), parse(format, t2));
+	}
+
+	/**
+	 * 计算两个日期之间的毫秒数差
+	 *
+	 * @param format 格式
+	 * @param t1     日期1
+	 * @param t2     日期2
+	 * @return 毫秒数差
+	 */
+	public static long diffMillis(String format, String t1, String t2) {
+		return diffMillis(parse(format, t1), parse(format, t2));
+	}
+
+	/**
 	 * 计算两个时间之间的年数差
 	 *
 	 * @param t1 时间1
@@ -788,12 +873,36 @@ public class Dates implements DateConsts {
 	/**
 	 * 判断两个日期是否为同一天
 	 *
+	 * @param format 日期格式
+	 * @param date1  日期1
+	 * @param date2  日期2
+	 * @return 是否为同一天
+	 */
+	public static boolean isSameDay(final String format, @Nonnull String date1, @Nonnull String date2) {
+		return Calendars.isSameDay(parseDate(format, date1), parseDate(format, date2));
+	}
+
+	/**
+	 * 判断两个日期是否为同一天
+	 *
 	 * @param date1 日期1
 	 * @param date2 日期2
 	 * @return 是否为同一天
 	 */
 	public static boolean isSameDay(@Nonnull Date date1, @Nonnull Date date2) {
 		return Calendars.isSameDay(Calendars.toCalendar(date1), Calendars.toCalendar(date2));
+	}
+
+	/**
+	 * 判断两个日期是否为同一时刻
+	 *
+	 * @param format 日期格式
+	 * @param date1  日期1
+	 * @param date2  日期2
+	 * @return 是否为同一时刻
+	 */
+	public static boolean isSameInstant(final String format, @Nonnull String date1, @Nonnull String date2) {
+		return parseDate(format, date1).getTime() == parseDate(format, date2).getTime();
 	}
 
 	/**
@@ -813,6 +922,20 @@ public class Dates implements DateConsts {
 	 * <p>
 	 * field 取值范围： Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH, Calendar.HOUR_OF_DAY, Calendar.HOUR, Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND
 	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @param field  需要向上取整的字段
+	 * @return 向上取整后的日历对象
+	 */
+	public static String ceil(final String format, final String date, final int field) {
+		return format(format, ceil(parseDate(format, date), field));
+	}
+
+	/**
+	 * 获取指定字段的向上取整值
+	 * <p>
+	 * field 取值范围： Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH, Calendar.HOUR_OF_DAY, Calendar.HOUR, Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND
+	 *
 	 * @param date  日期对象
 	 * @param field 需要向上取整的字段
 	 * @return 向上取整后的日历对象
@@ -824,12 +947,38 @@ public class Dates implements DateConsts {
 	/**
 	 * 获取指定字段的向上取整值
 	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @param field  需要向上取整的字段
+	 * @return 向上取整后的日历对象
+	 */
+	public static String ceil(final String format, final String date, final CalStdField field) {
+		return format(format, ceil(parseDate(format, date), field));
+	}
+
+	/**
+	 * 获取指定字段的向上取整值
+	 *
 	 * @param date  日期对象
 	 * @param field 需要向上取整的字段
 	 * @return 向上取整后的日历对象
 	 */
 	public static Date ceil(final Date date, final CalStdField field) {
 		return Calendars.ceil(Calendars.toCalendar(date), field).getTime();
+	}
+
+	/**
+	 * 获取指定字段的向下取整值
+	 * <p>
+	 * field 取值范围： Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH, Calendar.HOUR_OF_DAY, Calendar.HOUR, Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @param field  需要向下取整的字段
+	 * @return 向下取整后的日历对象
+	 */
+	public static String floor(final String format, final String date, final int field) {
+		return format(format, floor(parseDate(format, date), field));
 	}
 
 	/**
@@ -849,12 +998,39 @@ public class Dates implements DateConsts {
 	/**
 	 * 获取指定字段的向下取整值
 	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @param field  需要向下取整的字段
+	 * @return 向下取整后的日历对象
+	 */
+	public static String floor(final String format, final String date, final CalStdField field) {
+		return format(format, floor(parseDate(format, date), field));
+	}
+
+	/**
+	 * 获取指定字段的向下取整值
+	 *
 	 * @param date  日期对象
 	 * @param field 需要向下取整的字段
 	 * @return 向下取整后的日历对象
 	 */
 	public static Date floor(final Date date, final CalStdField field) {
 		return Calendars.floor(Calendars.toCalendar(date), field).getTime();
+	}
+
+
+	/**
+	 * 获取指定字段的四舍五入值
+	 * <p>
+	 * field 取值范围： Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH, Calendar.HOUR_OF_DAY, Calendar.HOUR, Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @param field  需要四舍五入的字段
+	 * @return 四舍五入后的日历对象
+	 */
+	public static String round(final String format, final String date, final int field) {
+		return format(format, round(parseDate(format, date), field));
 	}
 
 	/**
@@ -868,6 +1044,18 @@ public class Dates implements DateConsts {
 	 */
 	public static Date round(final Date date, final int field) {
 		return Calendars.round(Calendars.toCalendar(date), field).getTime();
+	}
+
+	/**
+	 * 获取指定字段的四舍五入值
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @param field  需要四舍五入的字段
+	 * @return 四舍五入后的日历对象
+	 */
+	public static String round(final String format, final String date, final CalStdField field) {
+		return format(format, round(parseDate(format, date), field));
 	}
 
 	/**
@@ -1152,6 +1340,304 @@ public class Dates implements DateConsts {
 	 */
 	public static int get(@Nonnull Date date, CalAllField field) {
 		return Calendars.get(Calendars.toCalendar(date), field);
+	}
+
+	/**
+	 * 给指定日期增加年数
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @param amount 增加的年数
+	 * @return 增加年数后的日期对象
+	 */
+	public static String addYears(final String format, String date, final int amount) {
+		return format(format, addYears(parseDate(format, date), amount));
+	}
+
+	/**
+	 * 给指定日期增加月数
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @param amount 增加的月数
+	 * @return 增加月数后的日期对象
+	 */
+	public static String addMonths(final String format, String date, final int amount) {
+		return format(format, addMonths(parseDate(format, date), amount));
+	}
+
+	/**
+	 * 给指定日期增加周数
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @param amount 增加的周数
+	 * @return 增加周数后的日期对象
+	 */
+	public static String addWeeks(final String format, String date, final int amount) {
+		return format(format, addWeeks(parseDate(format, date), amount));
+	}
+
+	/**
+	 * 给指定日期增加天数
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @param amount 增加的天数
+	 * @return 增加天数后的日期对象
+	 */
+	public static String addDays(final String format, String date, final int amount) {
+		return format(format, addDays(parseDate(format, date), amount));
+	}
+
+	/**
+	 * 给指定日期增加小时数
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @param amount 增加的小时数
+	 * @return 增加小时数后的日期对象
+	 */
+	public static String addHours(final String format, String date, final int amount) {
+		return format(format, addHours(parseDate(format, date), amount));
+	}
+
+	/**
+	 * 给指定日期增加分钟数
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @param amount 增加的分钟数
+	 * @return 增加分钟数后的日期对象
+	 */
+	public static String addMinutes(final String format, String date, final int amount) {
+		return format(format, addMinutes(parseDate(format, date), amount));
+	}
+
+	/**
+	 * 给指定日期增加秒数
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @param amount 增加的秒数
+	 * @return 增加秒数后的日期对象
+	 */
+	public static String addSeconds(final String format, String date, final int amount) {
+		return format(format, addSeconds(parseDate(format, date), amount));
+	}
+
+	/**
+	 * 给指定日期增加毫秒数
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @param amount 增加的毫秒数
+	 * @return 增加毫秒数后的日期对象
+	 */
+	public static String addMilliseconds(final String format, String date, final int amount) {
+		return format(format, addMilliseconds(parseDate(format, date), amount));
+	}
+
+	/**
+	 * 给指定日期增加指定字段的值
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @param field  日历字段
+	 * @param amount 增加的数量
+	 * @return 增加字段值后的日期对象
+	 */
+	public static String add(final String format, String date, CalAllField field, final int amount) {
+		return format(format, add(parseDate(format, date), field, amount));
+	}
+
+
+	/**
+	 * 设置日期的年份
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @param amount 年份值
+	 * @return 设置年份后的日期对象
+	 */
+	public static String setYear(final String format, String date, final int amount) {
+		return format(format, setYear(parseDate(format, date), amount));
+	}
+
+	/**
+	 * 设置日期的月份
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @param amount 月份值
+	 * @return 设置月份后的日期对象
+	 */
+	public static String setMonth(final String format, String date, final int amount) {
+		return format(format, setMonth(parseDate(format, date), amount));
+	}
+
+	/**
+	 * 设置日期的天数
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @param amount 天数值
+	 * @return 设置天数后的日期对象
+	 */
+	public static String setDay(final String format, String date, final int amount) {
+		return format(format, setDay(parseDate(format, date), amount));
+	}
+
+	/**
+	 * 设置日期的小时数
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @param amount 小时值
+	 * @return 设置小时数后的日期对象
+	 */
+	public static String setHour(final String format, String date, final int amount) {
+		return format(format, setHour(parseDate(format, date), amount));
+	}
+
+	/**
+	 * 设置日期的分钟数
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @param amount 分钟值
+	 * @return 设置分钟数后的日期对象
+	 */
+	public static String setMinute(final String format, String date, final int amount) {
+		return format(format, setMinute(parseDate(format, date), amount));
+	}
+
+	/**
+	 * 设置日期的秒数
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @param amount 秒数值
+	 * @return 设置秒数后的日期对象
+	 */
+	public static String setSecond(final String format, String date, final int amount) {
+		return format(format, setSecond(parseDate(format, date), amount));
+	}
+
+	/**
+	 * 设置日期的毫秒数
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @param amount 毫秒值
+	 * @return 设置毫秒数后的日期对象
+	 */
+	public static String setMillisecond(final String format, String date, final int amount) {
+		return format(format, setMillisecond(parseDate(format, date), amount));
+	}
+
+	/**
+	 * 设置日期指定字段的值
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @param field  日历字段
+	 * @param amount 字段值
+	 * @return 设置字段值后的日期对象
+	 */
+	private static String set(final String format, String date, CalAllField field, final int amount) {
+		return format(format, set(parseDate(format, date), field, amount));
+	}
+
+
+	/**
+	 * 获取日期的年份
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @return 年份值
+	 */
+	public static int getYear(final String format, String date) {
+		return getYear(parseDate(format, date));
+	}
+
+	/**
+	 * 获取日期的月份
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @return 月份值
+	 */
+	public static int getMonth(final String format, String date) {
+		return getMonth(parseDate(format, date));
+	}
+
+	/**
+	 * 获取日期的天数
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @return 天数值
+	 */
+	public static int getDay(final String format, String date) {
+		return getDay(parseDate(format, date));
+	}
+
+	/**
+	 * 获取日期的小时数
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @return 小时值
+	 */
+	public static int getHour(final String format, String date) {
+		return getHour(parseDate(format, date));
+	}
+
+
+	/**
+	 * 获取日期的分钟数
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @return 分钟值
+	 */
+	public static int getMinute(final String format, String date) {
+		return getMinute(parseDate(format, date));
+	}
+
+	/**
+	 * 获取日期的秒数
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @return 秒数值
+	 */
+	public static int getSecond(final String format, String date) {
+		return getSecond(parseDate(format, date));
+	}
+
+	/**
+	 * 获取日期的毫秒数
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @return 毫秒值
+	 */
+	public static int getMillisecond(final String format, String date) {
+		return getMillisecond(parseDate(format, date));
+	}
+
+	/**
+	 * 获取日期指定字段的值
+	 *
+	 * @param format 日期格式
+	 * @param date   日期对象
+	 * @param field  日历字段
+	 * @return 字段值
+	 */
+	public static int get(final String format, String date, CalAllField field) {
+		return get(parseDate(format, date), field);
 	}
 
 }
