@@ -16,6 +16,9 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.ANNOTATION_TYPE, ElementType.FIELD})
 public @interface Since {
 
+	/**
+	 * 版本信息
+	 */
 	String[] value() default "";
 
 }
