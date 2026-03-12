@@ -21,4 +21,9 @@ public @interface See {
 	 */
 	String[] value() default "";
 
+	/**
+	 * 关联的其他类信息
+	 */
+	Class<?>[] type() default {};
+
 }

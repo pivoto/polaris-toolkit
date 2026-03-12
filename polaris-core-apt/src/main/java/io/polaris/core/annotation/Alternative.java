@@ -21,4 +21,9 @@ public @interface Alternative {
 	 */
 	String[] value() default "";
 
+	/**
+	 * 替代类信息
+	 */
+	Class<?>[] type() default {};
+
 }
