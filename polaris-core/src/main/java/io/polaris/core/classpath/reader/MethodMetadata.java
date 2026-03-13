@@ -13,40 +13,38 @@ public interface MethodMetadata extends AnnotatedElementMetadata {
 	AnnotationMetadata getDefaultValue();
 
 	/**
-	 * Return the name of the method.
+	 * 返回方法的名称。
 	 */
 	String getMethodName();
 
 	/**
-	 * Return the fully-qualified name of the class that declares this method.
+	 * 返回声明此方法的类的完全限定名。
 	 */
 	String getDeclaringClassName();
 
 	/**
-	 * Return the fully-qualified name of this method's declared return type.
+	 * 返回此方法声明的返回类型的完全限定名。
 	 */
 	String getReturnTypeName();
 
 	/**
-	 * Return whether the underlying method is effectively abstract:
-	 * i.e. marked as abstract on a class or declared as a regular,
-	 * non-default method in an interface.
+	 * 返回底层方法是否实际上为抽象方法：
+	 * 即在类中标记为 abstract，或在接口中声明为常规的非默认方法。
 	 */
 	boolean isAbstract();
 
 	/**
-	 * Return whether the underlying method is declared as 'static'.
+	 * 返回底层方法是否被声明为 'static'。
 	 */
 	boolean isStatic();
 
 	/**
-	 * Return whether the underlying method is marked as 'final'.
+	 * 返回底层方法是否被标记为 'final'。
 	 */
 	boolean isFinal();
 
 	/**
-	 * Return whether the underlying method is overridable,
-	 * i.e. not marked as static, final or private.
+	 * 返回底层方法是否可被重写， 即未标记为 static、final 或 private。
 	 */
 	boolean isOverridable();
 }
