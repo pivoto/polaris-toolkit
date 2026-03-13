@@ -1,7 +1,9 @@
 package io.polaris.core.service;
 
+import io.polaris.core.annotation.Alternative;
+
 /**
- * 标识为一个有状态的SPI服务类。可通过{@link StatefulServiceLoader}加载
+ * 标识为一个有状态的SPI服务类。可通过{@link StatefulSpiLoader}加载
  * <p>
  * 仅作标识，无其他限制
  *
@@ -9,5 +11,7 @@ package io.polaris.core.service;
  * @since Sep 26, 2024
  */
 @Spi("标识为一个有状态的SPI服务类")
+@Deprecated
+@Alternative(StatefulSpiLoadable.class)
 public interface StatefulServiceLoadable extends ServiceLoadable {
 }

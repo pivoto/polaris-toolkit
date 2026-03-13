@@ -1,0 +1,19 @@
+package io.polaris.core.service;
+
+import io.polaris.core.consts.StdConsts;
+
+/**
+ * @author Qt
+ * @since Mar 13, 2026
+ */
+public interface SpiDirectoryLoadingStrategy {
+
+	default int priority() {
+		return Integer.MAX_VALUE;
+	}
+
+	default String[] directories() {
+		return StdConsts.EMPTY_STRING_ARRAY;
+	}
+
+}

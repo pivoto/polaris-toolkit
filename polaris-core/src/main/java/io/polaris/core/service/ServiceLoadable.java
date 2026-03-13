@@ -1,7 +1,9 @@
 package io.polaris.core.service;
 
+import io.polaris.core.annotation.Alternative;
+
 /**
- * 标识为一个SPI服务类。可通过{@link ServiceLoader}加载
+ * 标识为一个SPI服务类。可通过{@link SpiLoader}加载
  * <p>
  * 仅作标识，无其他限制
  *
@@ -9,5 +11,7 @@ package io.polaris.core.service;
  * @since Sep 26, 2024
  */
 @Spi("标识为一个SPI服务类")
-public interface ServiceLoadable {
+@Deprecated
+@Alternative(SpiLoadable.class)
+public interface ServiceLoadable extends SpiLoadable{
 }

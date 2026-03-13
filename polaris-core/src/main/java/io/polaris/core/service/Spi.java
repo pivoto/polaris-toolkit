@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 
 /**
- * 标识为一个SPI服务类。可通过{@link ServiceLoader}加载
+ * 标识为一个SPI服务类。可通过{@link SpiLoader}加载
  *
  * @author Qt
  */

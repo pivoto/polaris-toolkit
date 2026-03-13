@@ -1,50 +1,36 @@
 package io.polaris.core.service;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.Constructor;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import io.polaris.core.log.Logger;
-import io.polaris.core.log.Loggers;
+import io.polaris.core.annotation.Alternative;
 
 /**
  * @author Qt
+ * @see SpiLoader
  */
+@Alternative(SpiLoader.class)
+@Deprecated
 public class ServiceLoader<S> implements Iterable<Service<S>> {
-	public static final String[] PREFIX = {"META-INF/services/"};
-	private static final Logger log = Loggers.of(ServiceLoader.class);
-	private final Class<S> type;
-	private final ClassLoader loader;
-	private final AtomicBoolean loaded = new AtomicBoolean(false);
-	private List<Service<S>> providers;
-	private List<Service<S>> wrappers;
-	private Map<String, Service<S>> namings;
+	private final SpiLoader<S> raw;
 
 	public ServiceLoader(final Class<S> type, final ClassLoader loader) {
-		this.type = type;
-		this.loader = loader == null ? defaultClassLoader() : loader;
+		this.raw = SpiLoader.of(type, loader);
 	}
 
 	public ServiceLoader(final Class<S> type) {
-		this(type, defaultClassLoader());
+		this.raw = SpiLoader.of(type);
+	}
+
+	ServiceLoader(SpiLoader<S> raw) {
+		this.raw = raw;
 	}
 
 	public static <S> ServiceLoader<S> of(Class<S> type) {
@@ -56,351 +42,114 @@ public class ServiceLoader<S> implements Iterable<Service<S>> {
 	}
 
 	public static ClassLoader defaultClassLoader() {
-		ClassLoader cl = null;
-		try {
-			cl = Thread.currentThread().getContextClassLoader();
-		} catch (Throwable ignored) {
-		}
-		if (cl == null) {
-			cl = ServiceLoader.class.getClassLoader();
-			if (cl == null) {
-				try {
-					cl = ClassLoader.getSystemClassLoader();
-				} catch (Throwable ignored) {
-				}
-			}
-		}
-		return cl;
+		return SpiLoader.defaultClassLoader();
 	}
 
 	public List<Service<S>> getProviders() {
-		load();
-		return providers;
+		return this.raw.getProviders();
 	}
 
 	public Map<String, Service<S>> getNamings() {
-		load();
-		return namings;
+		return this.raw.getNamings();
 	}
 
 	@Override
 	public Iterator<Service<S>> iterator() {
-		load();
-		return providers.iterator();
+		return this.raw.iterator();
 	}
 
-	private void load() {
-		if (!loaded.get()) {
-			synchronized (this) {
-				if (!loaded.get()) {
-					loadClasses();
-					loaded.set(true);
-				}
-			}
-		}
-	}
-
-	@SuppressWarnings({"all"})
-	private void loadClasses() {
-		final List<Class<S>> classes = new ArrayList<>();
-		loadDirectory(classes);
-		List<Service<S>> services = new ArrayList<>();
-		List<Service<S>> wrappers = new ArrayList<>();
-		Map<String, Service<S>> namings = new HashMap<>();
-		if (!classes.isEmpty()) {
-			List<Service<S>> ordered = new ArrayList<>();
-			List<Service<S>> others = new ArrayList<>();
-			List<Service<S>> defaults = new ArrayList<>();
-
-			Function<S, S> wrapperBuilder = instance -> {
-				if (this.wrappers != null && !this.wrappers.isEmpty()) {
-					int count = this.wrappers.size();
-					for (int i = count - 1; i >= 0; i--) {
-						Service<S> wrapper = this.wrappers.get(i);
-						instance = wrapper.newPureInstance(new Class[]{type}, new Object[]{instance});
-					}
-				}
-				return instance;
-			};
-			for (Class o : classes) {
-				Class<S> clazz = (Class<S>) o;
-				Map<String, String> properties = new HashMap<>();
-				String serviceName = null;
-
-				if (clazz.isAnnotationPresent(ServiceName.class)) {
-					serviceName = clazz.getAnnotation(ServiceName.class).value();
-					properties.put("name", serviceName);
-				}
-				if (clazz.isAnnotationPresent(ServiceProperties.class)) {
-					ServiceProperties annos = clazz.getAnnotation(ServiceProperties.class);
-					for (ServiceProperty anno : annos.value()) {
-						properties.put(anno.name(), anno.value());
-					}
-				}
-				if (clazz.isAnnotationPresent(ServiceProperty.class)) {
-					ServiceProperty anno = clazz.getAnnotation(ServiceProperty.class);
-					properties.put(anno.name(), anno.value());
-				}
-
-				properties = properties.isEmpty() ? null : Collections.unmodifiableMap(properties);
-				if (clazz.isAnnotationPresent(ServiceOrder.class)) {
-					int order = clazz.getAnnotation(ServiceOrder.class).value();
-					ordered.add(new Service<S>(clazz, properties, serviceName, order, wrapperBuilder));
-				} else if (clazz.isAnnotationPresent(ServiceDefault.class)) {
-					int order = clazz.getAnnotation(ServiceDefault.class).value();
-					defaults.add(new Service<S>(clazz, properties, serviceName, order, wrapperBuilder));
-				} else {
-					others.add(new Service<S>(clazz, properties, serviceName, 0, wrapperBuilder));
-				}
-			}
-			Collections.sort(ordered, Service.defaultComparator);
-			Collections.sort(others, Service.defaultComparator);
-			Collections.sort(defaults, Service.defaultComparator);
-
-			for (List<Service<S>> list : new List[]{ordered, others, defaults}) {
-				for (Service<S> service : list) {
-					if (isWrapper(service.getServiceClass())) {
-						wrappers.add(service);
-					} else {
-						services.add(service);
-						if (service.getServiceName() != null) {
-							namings.putIfAbsent(service.getServiceName(), service);
-						}
-					}
-				}
-			}
-
-		}
-		this.providers = Collections.unmodifiableList(services);
-		this.wrappers = Collections.unmodifiableList(wrappers);
-		this.namings = Collections.unmodifiableMap(namings);
-	}
-
-	private void loadDirectory(List<Class<S>> classes) {
-		String typeName = type.getName();
-		for (String dir : PREFIX) {
-			String filename = dir + typeName;
-			try {
-				Enumeration<URL> urls = loader.getResources(filename);
-				while (urls.hasMoreElements()) {
-					URL url = urls.nextElement();
-					loadResources(classes, url);
-				}
-			} catch (Throwable ignored) {
-			}
-		}
-	}
-
-	private boolean isWrapper(Class<?> clazz) {
-		Constructor<?>[] constructors = clazz.getConstructors();
-		for (Constructor<?> constructor : constructors) {
-			if (constructor.getParameterTypes().length == 1 && constructor.getParameterTypes()[0] == type) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private void loadResources(final List<Class<S>> classes, final URL url) throws IOException {
-		try (InputStream in = url.openStream();) {
-			BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-			for (String line = br.readLine(); line != null; line = br.readLine()) {
-				line = line.trim().replaceAll("#.*", "");
-				if (!line.isEmpty() && !line.startsWith("#")) {
-					try {
-						Class<?> clazz = Class.forName(line, true, loader);
-						if (type.isAssignableFrom(clazz)) {
-							//noinspection unchecked
-							classes.add((Class<S>) clazz);
-						} else {
-							log.warn("加载服务类失败，类型不匹配：{}", line);
-						}
-					} catch (Throwable e) {
-						if (log.isDebugEnabled()) {
-							log.debug(e, "加载服务类失败：" + line);
-						} else {
-							log.warn("加载服务类失败：{}, 原因：{}", line, e.getMessage());
-						}
-					}
-				}
-			}
-		} catch (Throwable e) {
-			if (log.isDebugEnabled()) {
-				log.debug(e, "加载服务类失败，资源读取错误：{}", url);
-			} else {
-				log.warn("加载服务类失败，资源读取错误：{}", url);
-			}
-		}
-	}
-
-	@Nullable
-	private S getSingleton(@Nullable Service<S> s) {
-		return Optional.ofNullable(s).map(Service::getSingleton).orElse(null);
-	}
-
-	@Nullable
-	private S getPureSingleton(@Nullable Service<S> s) {
-		return Optional.ofNullable(s).map(Service::getPureSingleton).orElse(null);
-	}
 
 	@Nullable
 	public Service<S> get() {
-		load();
-		return providers.isEmpty() ? null : providers.get(0);
+		return this.raw.get();
 	}
 
 	@Nullable
 	public S getSingleton() {
-		return getSingleton(get());
+		return this.raw.getSingleton();
 	}
 
 	@Nullable
 	public S getPureSingleton() {
-		return getPureSingleton(get());
+		return this.raw.getPureSingleton();
 	}
 
 	@Nullable
 	public Service<S> get(String name) {
-		load();
-		return this.namings.get(name);
+		return this.raw.get(name);
 	}
 
 	@Nullable
 	public S getSingleton(String name) {
-		return getSingleton(get(name));
+		return this.raw.getSingleton(name);
 	}
 
 	@Nullable
 	public S getPureSingleton(String name) {
-		return getPureSingleton(get(name));
+		return this.raw.getPureSingleton(name);
 	}
 
 	@Nonnull
 	public List<Service<S>> getAll(String propertyName, String propertyValue) {
-		load();
-		List<Service<S>> rs = new ArrayList<>();
-		for (Service<S> service : providers) {
-			String value = service.getProperty(propertyName);
-			if (Objects.equals(propertyValue, value)) {
-				rs.add(service);
-			}
-		}
-		return rs;
+		return this.raw.getAll(propertyName, propertyValue);
 	}
 
 	@Nonnull
 	public List<S> getAllSingleton(String propertyName, String propertyValue) {
-		List<S> rs = new ArrayList<>();
-		List<Service<S>> all = getAll(propertyName, propertyValue);
-		for (Service<S> service : all) {
-			S o = getSingleton(service);
-			if (o == null) {
-				continue;
-			}
-			rs.add(o);
-		}
-		return rs;
+		return this.raw.getAllSingleton(propertyName, propertyValue);
 	}
 
 	@Nonnull
 	public List<S> getAllPureSingleton(String propertyName, String propertyValue) {
-		List<S> rs = new ArrayList<>();
-		List<Service<S>> all = getAll(propertyName, propertyValue);
-		for (Service<S> service : all) {
-			S o = getPureSingleton(service);
-			if (o == null) {
-				continue;
-			}
-			rs.add(o);
-		}
-		return rs;
+		return this.raw.getAllPureSingleton(propertyName, propertyValue);
 	}
 
 	@Nonnull
 	public List<Service<S>> getAll(@Nonnull Function<Service<S>, Boolean> matcher) {
-		load();
-		List<Service<S>> rs = new ArrayList<>();
-		for (Service<S> service : providers) {
-			if (matcher.apply(service)) {
-				rs.add(service);
-			}
-		}
-		return rs;
+		return this.raw.getAll(matcher::apply);
 	}
 
 	@Nonnull
 	public List<S> getAllSingleton(@Nonnull Function<Service<S>, Boolean> matcher) {
-		List<S> rs = new ArrayList<>();
-		List<Service<S>> all = getAll(matcher);
-		for (Service<S> service : all) {
-			S o = getSingleton(service);
-			if (o == null) {
-				continue;
-			}
-			rs.add(o);
-		}
-		return rs;
+		return this.raw.getAllSingleton(matcher::apply);
 	}
 
 	@Nonnull
 	public List<S> getAllPureSingleton(@Nonnull Function<Service<S>, Boolean> matcher) {
-		List<S> rs = new ArrayList<>();
-		List<Service<S>> all = getAll(matcher);
-		for (Service<S> service : all) {
-			S o = getPureSingleton(service);
-			if (o == null) {
-				continue;
-			}
-			rs.add(o);
-		}
-		return rs;
+		return this.raw.getAllPureSingleton(matcher::apply);
 	}
 
 	@Nullable
 	public Service<S> get(String propertyName, String propertyValue) {
-		load();
-		for (Service<S> service : providers) {
-			String value = service.getProperty(propertyName);
-			if (Objects.equals(propertyValue, value)) {
-				return service;
-			}
-		}
-		return null;
+		return this.raw.get(propertyName, propertyValue);
 	}
 
 	@Nullable
 	public S getSingleton(String propertyName, String propertyValue) {
-		return getSingleton(get(propertyName, propertyValue));
+		return this.raw.getSingleton(propertyName, propertyValue);
 	}
 
 	@Nullable
 	public S getPureSingleton(String propertyName, String propertyValue) {
-		return getPureSingleton(get(propertyName, propertyValue));
+		return this.raw.getPureSingleton(propertyName, propertyValue);
 	}
 
 	@Nullable
 	public Service<S> get(@Nonnull Function<Service<S>, Boolean> matcher) {
-		load();
-		for (Service<S> service : providers) {
-			if (matcher.apply(service)) {
-				return service;
-			}
-		}
-		return null;
+		return this.raw.get(matcher::apply);
 	}
 
 	@Nullable
 	public S getSingleton(@Nonnull Function<Service<S>, Boolean> matcher) {
-		return getSingleton(get(matcher));
+		return this.raw.getSingleton(matcher::apply);
 	}
 
 	@Nullable
 	public S getPureSingleton(@Nonnull Function<Service<S>, Boolean> matcher) {
-		return getPureSingleton(get(matcher));
+		return this.raw.getPureSingleton(matcher::apply);
 	}
 
 	public void reload() {
-		loaded.set(false);
-		load();
+		this.raw.reload();
 	}
 }

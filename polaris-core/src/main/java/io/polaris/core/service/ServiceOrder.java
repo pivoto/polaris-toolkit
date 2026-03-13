@@ -2,12 +2,16 @@ package io.polaris.core.service;
 
 import java.lang.annotation.*;
 
+import io.polaris.core.annotation.Alternative;
+
 /**
  * @author Qt
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Deprecated
+@Alternative(SpiOrder.class)
 public @interface ServiceOrder {
 
 	int value() default 0;
