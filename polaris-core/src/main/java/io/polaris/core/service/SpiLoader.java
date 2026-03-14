@@ -14,7 +14,6 @@ import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import io.polaris.core.classpath.ClassPathResource;
 import io.polaris.core.classpath.ClassPathResources;
 import io.polaris.core.classpath.reader.ClassMetadata;
 import io.polaris.core.classpath.reader.MetadataReader;
@@ -102,9 +101,7 @@ public class SpiLoader<S> implements Iterable<Service<S>> {
 
 	@SuppressWarnings({"all"})
 	private void loadClasses() {
-		final Set<Class<S>> classes = new HashSet<>();
-		loadDirectory(classes);
-		loadMetadata(classes);
+		final Set<Class<S>> classes = loadSpiClasses();
 		List<Service<S>> services = new ArrayList<>();
 		List<Service<S>> wrappers = new ArrayList<>();
 		Map<String, Service<S>> namings = new HashMap<>();
@@ -184,7 +181,42 @@ public class SpiLoader<S> implements Iterable<Service<S>> {
 		this.namings = Collections.unmodifiableMap(namings);
 	}
 
-	private void loadMetadata(Set<Class<S>> classes) {
+	private boolean isWrapper(Class<?> clazz) {
+		Constructor<?>[] constructors = clazz.getConstructors();
+		for (Constructor<?> constructor : constructors) {
+			if (constructor.getParameterTypes().length == 1 && constructor.getParameterTypes()[0] == type) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private Set<Class<S>> loadSpiClasses() {
+		Set<String> classNames = new LinkedHashSet<>();
+		loadDirectory(classNames);
+		loadMetadata(classNames);
+		Set<Class<S>> classes = new LinkedHashSet<>();
+		for (String className : classNames) {
+			try {
+				Class<?> clazz = Class.forName(className, true, loader);
+				if (type.isAssignableFrom(clazz)) {
+					//noinspection unchecked
+					classes.add((Class<S>) clazz);
+				} else {
+					log.warn("加载服务类失败，类型不匹配：{}", className);
+				}
+			} catch (Throwable e) {
+				if (log.isDebugEnabled()) {
+					log.debug(e, "加载服务类失败：" + className);
+				} else {
+					log.warn("加载服务类失败：{}, 原因：{}", className, e.getMessage());
+				}
+			}
+		}
+		return classes;
+	}
+
+	private void loadMetadata(Set<String> classNames) {
 		SpiHelper spiHelper = SpiHelper.instance();
 		String[] patterns = spiHelper.loadingFilePatterns();
 		if (patterns.length == 0) {
@@ -198,23 +230,20 @@ public class SpiLoader<S> implements Iterable<Service<S>> {
 					try (InputStream inputStream = loader.getResourceAsStream(resourceName);) {
 						MetadataReader metadataReader = factory.getMetadataReader(inputStream);
 						ClassMetadata classMetadata = metadataReader.getClassMetadata();
+						String className = classMetadata.getClassName();
+						if (classNames.contains(className)){
+							// 忽略已加载的类
+							continue;
+						}
 						if (spiHelper.isSpiClass(classMetadata, this.type)) {
-							String className = classMetadata.getClassName();
-							try {
-								Class<?> clazz = Class.forName(className, true, loader);
-								if (type.isAssignableFrom(clazz)) {
-									//noinspection unchecked
-									classes.add((Class<S>) clazz);
-								} else {
-									log.warn("加载服务类失败，类型不匹配：{}", className);
-								}
-							} catch (Throwable e) {
-								if (log.isDebugEnabled()) {
-									log.debug(e, "加载服务类失败：" + className);
-								} else {
-									log.warn("加载服务类失败：{}, 原因：{}", className, e.getMessage());
-								}
-							}
+							// 匹配服务类
+							classNames.add(className);
+						}
+					} catch (Throwable e) {
+						if (log.isDebugEnabled()) {
+							log.debug(e, "加载服务类失败，资源读取错误：{}", resourceName);
+						} else {
+							log.warn("加载服务类失败，资源读取错误：{}", resourceName);
 						}
 					}
 				}
@@ -223,8 +252,7 @@ public class SpiLoader<S> implements Iterable<Service<S>> {
 		}
 	}
 
-
-	private void loadDirectory(Set<Class<S>> classes) {
+	private void loadDirectory(Set<String> classNames) {
 		String typeName = type.getName();
 		String[] directories = SpiHelper.instance().loadingDirectories();
 		for (String dir : directories) {
@@ -233,44 +261,20 @@ public class SpiLoader<S> implements Iterable<Service<S>> {
 				Enumeration<URL> urls = loader.getResources(filename);
 				while (urls.hasMoreElements()) {
 					URL url = urls.nextElement();
-					loadResources(classes, url);
+					loadResources(classNames, url);
 				}
 			} catch (Throwable ignored) {
 			}
 		}
 	}
 
-	private boolean isWrapper(Class<?> clazz) {
-		Constructor<?>[] constructors = clazz.getConstructors();
-		for (Constructor<?> constructor : constructors) {
-			if (constructor.getParameterTypes().length == 1 && constructor.getParameterTypes()[0] == type) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private void loadResources(final Set<Class<S>> classes, final URL url) {
+	private void loadResources(final Set<String> classNames, final URL url) {
 		try (InputStream in = url.openStream()) {
 			BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
 			for (String line = br.readLine(); line != null; line = br.readLine()) {
 				line = line.trim().replaceAll("#.*", "");
 				if (!line.isEmpty() && !line.startsWith("#")) {
-					try {
-						Class<?> clazz = Class.forName(line, true, loader);
-						if (type.isAssignableFrom(clazz)) {
-							//noinspection unchecked
-							classes.add((Class<S>) clazz);
-						} else {
-							log.warn("加载服务类失败，类型不匹配：{}", line);
-						}
-					} catch (Throwable e) {
-						if (log.isDebugEnabled()) {
-							log.debug(e, "加载服务类失败：" + line);
-						} else {
-							log.warn("加载服务类失败：{}, 原因：{}", line, e.getMessage());
-						}
-					}
+					classNames.add(line);
 				}
 			}
 		} catch (Throwable e) {
