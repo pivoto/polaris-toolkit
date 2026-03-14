@@ -11,7 +11,6 @@ import io.polaris.core.jdbc.sql.VarRef;
 import io.polaris.core.json.JsonSerializer;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.service.SpiLoaders;
-import io.polaris.core.service.StatefulServiceLoader;
 import io.polaris.core.tuple.Ref;
 import io.polaris.core.tuple.Tuple1;
 

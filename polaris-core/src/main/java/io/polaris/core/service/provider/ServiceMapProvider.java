@@ -1,10 +1,13 @@
 package io.polaris.core.service.provider;
 
-import io.polaris.core.service.StatefulServiceLoader;
-import io.polaris.core.service.StatefulSpiLoader;
-
-import java.util.*;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
+
+import io.polaris.core.service.StatefulSpiLoader;
 
 /**
  * @author Qt

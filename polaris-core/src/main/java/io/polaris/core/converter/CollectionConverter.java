@@ -17,7 +17,6 @@ import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.service.SpiLoaders;
-import io.polaris.core.service.StatefulServiceLoader;
 
 /**
  * @author Qt
