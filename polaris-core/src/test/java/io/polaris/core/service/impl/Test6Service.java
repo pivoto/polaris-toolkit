@@ -4,13 +4,13 @@ import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.service.SpiTestService;
 import io.polaris.core.service.ServiceName;
-import io.polaris.core.service.ServiceOrder;
+import io.polaris.core.service.SpiOrder;
 import io.polaris.core.service.ServiceProperty;
 
 /**
  * @author Qt
  */
-@ServiceOrder(50)
+@SpiOrder(50)
 @ServiceName("test")
 @ServiceProperty(name = "key", value = "test6")
 public class Test6Service implements SpiTestService {

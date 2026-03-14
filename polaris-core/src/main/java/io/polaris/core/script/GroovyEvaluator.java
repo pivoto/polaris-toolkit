@@ -1,12 +1,12 @@
 package io.polaris.core.script;
 
 import io.polaris.core.service.ServiceName;
-import io.polaris.core.service.ServiceOrder;
+import io.polaris.core.service.SpiOrder;
 
 /**
  * @author Qt
  */
-@ServiceOrder(200)
+@SpiOrder(200)
 @ServiceName(GroovyEvaluator.ENGINE_NAME)
 public class GroovyEvaluator extends AbstractStandardEvaluator {
 	public static final String ENGINE_NAME = "groovy";

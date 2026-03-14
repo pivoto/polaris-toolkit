@@ -3,13 +3,13 @@ package io.polaris.core.service.impl;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.service.SpiTestService;
-import io.polaris.core.service.ServiceOrder;
+import io.polaris.core.service.SpiOrder;
 import io.polaris.core.service.ServiceProperty;
 
 /**
  * @author Qt
  */
-@ServiceOrder(50)
+@SpiOrder(50)
 @ServiceProperty(name = "key", value = "test5")
 public class Test5Service implements SpiTestService {
 	private static final Logger log = Loggers.of(Test5Service.class);
