@@ -1,4 +1,4 @@
-package io.polaris.core.spi.support;
+package io.polaris.core.service.support;
 
 import java.util.HashMap;
 import java.util.Map;
