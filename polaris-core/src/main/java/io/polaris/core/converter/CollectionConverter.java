@@ -56,6 +56,7 @@ public class CollectionConverter<T extends Collection<E>, E> extends AbstractCon
 		return collectionType;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected <S> T doConvert(@Nonnull S value, JavaType<T> targetType, JavaType<S> sourceType) {
 		if (this.collectionType.getRawClass().isAssignableFrom(sourceType.getRawClass())) {

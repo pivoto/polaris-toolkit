@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
 
-import io.polaris.core.service.ServiceLoader;
+import io.polaris.core.service.SpiLoader;
 import io.polaris.core.service.SpiLoaders;
 
 /**
@@ -20,7 +20,7 @@ public class WrappingExecutors extends Executors {
 	@Nonnull
 	public static WrappingTaskFactory buildDefaultWrappingTaskFactory() {
 		try {
-			ServiceLoader<WrappingTaskFactory> loader = SpiLoaders.load(WrappingTaskFactory.class);
+			SpiLoader<WrappingTaskFactory> loader = SpiLoaders.load(WrappingTaskFactory.class);
 			WrappingTaskFactory factory = loader.getSingleton();
 			if (factory != null) {
 				return factory;

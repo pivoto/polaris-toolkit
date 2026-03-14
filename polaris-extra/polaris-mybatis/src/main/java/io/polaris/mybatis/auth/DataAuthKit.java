@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
 
 import io.polaris.core.jdbc.sql.consts.Relation;
 import io.polaris.core.service.Service;
-import io.polaris.core.service.ServiceLoader;
+import io.polaris.core.service.SpiLoader;
 import io.polaris.core.service.SpiLoaders;
 import io.polaris.core.string.Strings;
 import io.polaris.core.tuple.Tuple2;
@@ -45,7 +45,7 @@ public class DataAuthKit {
 
 	private DataAuthKit() {
 		try {
-			ServiceLoader<DataScopeProvider> services = SpiLoaders.load(DataScopeProvider.class);
+			SpiLoader<DataScopeProvider> services = SpiLoaders.load(DataScopeProvider.class);
 			for (Service<DataScopeProvider> service : services) {
 				DataScopeProvider provider = service.getSingleton();
 				String name = provider.name();
@@ -59,7 +59,7 @@ public class DataAuthKit {
 		}
 
 		try {
-			ServiceLoader<DataAuthConfigurator> services = SpiLoaders.load(DataAuthConfigurator.class);
+			SpiLoader<DataAuthConfigurator> services = SpiLoaders.load(DataAuthConfigurator.class);
 			DataAuthConfigurator configurator = services.getSingleton();
 			if (configurator == null) {
 				configurator = new DefaultDataAuthConfigurator();

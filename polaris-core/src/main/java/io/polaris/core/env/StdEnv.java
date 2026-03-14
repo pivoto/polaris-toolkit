@@ -14,7 +14,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import io.polaris.core.service.SpiLoaders;
-import io.polaris.core.service.StatefulServiceLoader;
+import io.polaris.core.service.StatefulSpiLoader;
 import io.polaris.core.string.Strings;
 
 /**
@@ -137,7 +137,7 @@ public class StdEnv implements Env {
 	public StdEnv withCustomizer() {
 		if (customized.compareAndSet(false, true)) {
 			try {
-				StatefulServiceLoader<StdEnvCustomizer> loader = SpiLoaders.loadStateful(StdEnvCustomizer.class);
+				StatefulSpiLoader<StdEnvCustomizer> loader = SpiLoaders.loadStateful(StdEnvCustomizer.class);
 				for (StdEnvCustomizer customizer : loader) {
 					customizer.customize(this);
 				}

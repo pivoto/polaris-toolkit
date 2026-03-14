@@ -1,6 +1,7 @@
 package io.polaris.core.service.provider;
 
 import io.polaris.core.service.StatefulServiceLoader;
+import io.polaris.core.service.StatefulSpiLoader;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -27,7 +28,7 @@ public class ServiceListProvider<S> implements Iterable<S> {
 	}
 
 	public static <S> ServiceListProvider<S> of(Class<S> clazz) {
-		return new ServiceListProvider<>(() -> StatefulServiceLoader.of(clazz).serviceList());
+		return new ServiceListProvider<>(() -> StatefulSpiLoader.of(clazz).serviceList());
 	}
 
 	public Optional<List<S>> optional() {

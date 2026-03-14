@@ -1,11 +1,12 @@
 package io.polaris.core.cache;
 
-import io.polaris.core.service.ServiceLoadable;
-import io.polaris.core.service.SpiLoaders;
-import io.polaris.core.service.StatefulServiceLoader;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
+
+import io.polaris.core.service.ServiceLoadable;
+import io.polaris.core.service.SpiLoaders;
+import io.polaris.core.service.StatefulSpiLoader;
 
 /**
  * @author Qt
@@ -17,7 +18,7 @@ public interface CacheManagerFactory extends ServiceLoadable {
 
 	@Nullable
 	static CacheManagerFactory defaultCacheManagerFactory() {
-		StatefulServiceLoader<CacheManagerFactory> loader = SpiLoaders.loadStateful(CacheManagerFactory.class);
+		StatefulSpiLoader<CacheManagerFactory> loader = SpiLoaders.loadStateful(CacheManagerFactory.class);
 		return loader.service();
 	}
 

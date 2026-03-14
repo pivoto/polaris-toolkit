@@ -15,18 +15,18 @@ import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 
-import io.polaris.core.classpath.analyzer.spi.AnalyzerPackageProvider;
-import io.polaris.core.classpath.analyzer.spi.MethodCallAnalyzerProvider;
 import io.polaris.core.classpath.analyzer.model.ContextDto;
 import io.polaris.core.classpath.analyzer.model.EntryDto;
 import io.polaris.core.classpath.analyzer.model.FlatEntryDto;
 import io.polaris.core.classpath.analyzer.model.MethodDto;
+import io.polaris.core.classpath.analyzer.spi.AnalyzerPackageProvider;
+import io.polaris.core.classpath.analyzer.spi.MethodCallAnalyzerProvider;
 import io.polaris.core.collection.Lists;
 import io.polaris.core.function.TriFunction;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.service.Service;
-import io.polaris.core.service.ServiceLoader;
+import io.polaris.core.service.SpiLoader;
 import io.polaris.core.service.SpiLoaders;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Type;
@@ -229,7 +229,7 @@ public class EntryContext {
 		Set<String> excludeBasePackages = new HashSet<>();
 		Set<String> includeBasePackages = new HashSet<>();
 		try {
-			ServiceLoader<AnalyzerPackageProvider> services = SpiLoaders.load(AnalyzerPackageProvider.class);
+			SpiLoader<AnalyzerPackageProvider> services = SpiLoaders.load(AnalyzerPackageProvider.class);
 			AnalyzerPackageProvider provider = services.getSingleton();
 			if (provider != null) {
 				Set<String> arr1 = provider.excludePackages();

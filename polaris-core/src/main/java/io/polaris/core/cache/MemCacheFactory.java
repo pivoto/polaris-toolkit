@@ -3,7 +3,7 @@ package io.polaris.core.cache;
 import javax.annotation.Nullable;
 
 import io.polaris.core.service.SpiLoaders;
-import io.polaris.core.service.StatefulServiceLoader;
+import io.polaris.core.service.StatefulSpiLoader;
 
 /**
  * @author Qt
@@ -19,7 +19,7 @@ public interface MemCacheFactory {
 
 	@Nullable
 	static MemCacheFactory defaultFactory() {
-		StatefulServiceLoader<MemCacheFactory> loader = SpiLoaders.loadStateful(MemCacheFactory.class);
+		StatefulSpiLoader<MemCacheFactory> loader = SpiLoaders.loadStateful(MemCacheFactory.class);
 		return loader.service();
 	}
 

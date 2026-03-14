@@ -1,6 +1,7 @@
 package io.polaris.core.service.provider;
 
 import io.polaris.core.service.StatefulServiceLoader;
+import io.polaris.core.service.StatefulSpiLoader;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -24,7 +25,7 @@ public class ServiceMapProvider<S> implements Iterable<Map.Entry<String, S>> {
 	}
 
 	public static <S> ServiceMapProvider<S> of(Class<S> clazz) {
-		Supplier<Map<String, S>> supplier = () -> StatefulServiceLoader.of(clazz).serviceMap();
+		Supplier<Map<String, S>> supplier = () -> StatefulSpiLoader.of(clazz).serviceMap();
 		return new ServiceMapProvider<>(supplier);
 	}
 

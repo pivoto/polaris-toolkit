@@ -9,9 +9,8 @@ import io.polaris.core.lang.TypeRef;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.service.Service;
-import io.polaris.core.service.ServiceLoader;
+import io.polaris.core.service.SpiLoader;
 import io.polaris.core.service.SpiLoaders;
-import io.polaris.core.service.StatefulServiceLoader;
 import io.polaris.core.tuple.ValueRef;
 
 /**
@@ -39,7 +38,7 @@ public class Jsons {
 	@Nullable
 	private static JsonSerializer loadJsonSerializer() {
 		try {
-			ServiceLoader<JsonSerializer> serviceLoader = SpiLoaders.loadStateful(JsonSerializer.class).serviceLoader();
+			SpiLoader<JsonSerializer> serviceLoader = SpiLoaders.loadStateful(JsonSerializer.class).spiLoader();
 			List<Service<JsonSerializer>> providers = serviceLoader.getProviders();
 			for (Service<JsonSerializer> provider : providers) {
 				try {

@@ -10,24 +10,24 @@ import io.polaris.core.service.provider.ServiceProvider;
  */
 public class SpiLoaders {
 
-	public static <S> ServiceLoader<S> load(Class<S> type) {
-		return ServiceLoader.of(type);
+	public static <S> SpiLoader<S> load(Class<S> type) {
+		return SpiLoader.of(type);
 	}
 
-	public static <S> ServiceLoader<S> load(Class<S> type, ClassLoader loader) {
-		return ServiceLoader.of(type, loader);
+	public static <S> SpiLoader<S> load(Class<S> type, ClassLoader loader) {
+		return SpiLoader.of(type, loader);
 	}
 
-	public static <S> StatefulServiceLoader<S> loadStateful(Class<S> service) {
-		return StatefulServiceLoader.of(service);
+	public static <S> StatefulSpiLoader<S> loadStateful(Class<S> service) {
+		return StatefulSpiLoader.of(service);
 	}
 
-	public static <S> StatefulServiceLoader<S> loadStateful(Class<S> service, ClassLoader classLoader) {
-		return StatefulServiceLoader.of(service, classLoader);
+	public static <S> StatefulSpiLoader<S> loadStateful(Class<S> service, ClassLoader classLoader) {
+		return StatefulSpiLoader.of(service, classLoader);
 	}
 
 	public static <S> void clearStateful(Class<S> service) {
-		StatefulServiceLoader.clear(service);
+		StatefulSpiLoader.clear(service);
 	}
 
 	public static <S> ServiceProvider<S> loadProvider(Class<S> clazz) {
