@@ -12,7 +12,7 @@ import io.polaris.core.io.IO;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.service.Service;
-import io.polaris.core.service.ServiceLoader;
+import io.polaris.core.service.SpiLoader;
 import io.polaris.core.string.Strings;
 
 /**
@@ -26,7 +26,7 @@ public class ScriptEvaluators {
 	private static Evaluator defaultEngine;
 
 	static {
-		ServiceLoader<Evaluator> services = ServiceLoader.of(Evaluator.class);
+		SpiLoader<Evaluator> services = SpiLoader.of(Evaluator.class);
 		for (Service<Evaluator> service : services) {
 			try {
 				String engineName = service.getServiceName();

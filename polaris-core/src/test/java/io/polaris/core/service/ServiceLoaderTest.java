@@ -1,19 +1,19 @@
 package io.polaris.core.service;
 
+import java.util.Optional;
+
 import io.polaris.core.io.Consoles;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
-
 class ServiceLoaderTest {
 	private static final Logger log = Loggers.of(ServiceLoaderTest.class);
 
 	@Test
 	void test01() {
-		ServiceLoader<SpiTestService> loader = new ServiceLoader<>(SpiTestService.class);
+		SpiLoader<SpiTestService> loader = new SpiLoader<>(SpiTestService.class);
 
 		Object[] args2 = new Object[]{loader.get()};
 		Consoles.println(args2);
@@ -29,7 +29,7 @@ class ServiceLoaderTest {
 
 	@Test
 	void test02() {
-		ServiceLoader<SpiTestService> loader = new ServiceLoader<>(SpiTestService.class);
+		SpiLoader<SpiTestService> loader = new SpiLoader<>(SpiTestService.class);
 		Assertions.assertNotNull(loader.getSingleton());
 		Object[] args = new Object[]{loader.getSingleton()};
 		Consoles.println(args);
@@ -38,7 +38,7 @@ class ServiceLoaderTest {
 
 	@Test
 	void test03() {
-		ServiceLoader<SpiTestService> loader = new ServiceLoader<>(SpiTestService.class);
+		SpiLoader<SpiTestService> loader = new SpiLoader<>(SpiTestService.class);
 		Assertions.assertNotNull(loader.getSingleton("test"));
 		Object[] args = new Object[]{loader.getSingleton("test")};
 		Consoles.println(args);
@@ -47,7 +47,7 @@ class ServiceLoaderTest {
 
 	@Test
 	void test04() {
-		ServiceLoader<SpiTestService> loader = new ServiceLoader<>(SpiTestService.class);
+		SpiLoader<SpiTestService> loader = new SpiLoader<>(SpiTestService.class);
 		Assertions.assertNotNull(loader.getSingleton("key", "test0"));
 		Object[] args = new Object[]{loader.getSingleton("key", "test0")};
 		Consoles.println(args);
@@ -56,7 +56,7 @@ class ServiceLoaderTest {
 
 	@Test
 	void test05() {
-		ServiceLoader<SpiTestService> loader = new ServiceLoader<>(SpiTestService.class);
+		SpiLoader<SpiTestService> loader = new SpiLoader<>(SpiTestService.class);
 		Assertions.assertNull(loader.getSingleton("key", "test"));
 		Object[] args = new Object[]{loader.getSingleton("key", "test")};
 		Consoles.println(args);

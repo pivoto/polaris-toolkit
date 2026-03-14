@@ -4,8 +4,8 @@ import java.security.Provider;
 import java.security.Security;
 
 import io.polaris.core.service.Service;
-import io.polaris.core.service.ServiceLoader;
 import io.polaris.core.service.SpiLoadable;
+import io.polaris.core.service.SpiLoader;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -21,7 +21,7 @@ public interface CryptoProviderLoader extends SpiLoadable {
 
 	public static void loadProviders() {
 		try {
-			ServiceLoader<CryptoProviderLoader> serviceLoader = ServiceLoader.of(CryptoProviderLoader.class);
+			SpiLoader<CryptoProviderLoader> serviceLoader = SpiLoader.of(CryptoProviderLoader.class);
 			for (Service<CryptoProviderLoader> service : serviceLoader) {
 				try {
 					CryptoProviderLoader providerLoader = service.getSingleton();
