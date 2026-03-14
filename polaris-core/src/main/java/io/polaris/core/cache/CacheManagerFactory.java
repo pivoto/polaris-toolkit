@@ -4,14 +4,14 @@ import java.util.Optional;
 
 import javax.annotation.Nullable;
 
-import io.polaris.core.service.ServiceLoadable;
+import io.polaris.core.service.SpiLoadable;
 import io.polaris.core.service.SpiLoaders;
 import io.polaris.core.service.StatefulSpiLoader;
 
 /**
  * @author Qt
  */
-public interface CacheManagerFactory extends ServiceLoadable {
+public interface CacheManagerFactory extends SpiLoadable {
 
 	CacheManager getCacheManager();
 

@@ -4,15 +4,15 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
-import io.polaris.core.service.ServiceLoadable;
 import io.polaris.core.service.Spi;
+import io.polaris.core.service.SpiLoadable;
 
 /**
  * @author Qt
  * @since Jan 25, 2026
  */
 @Spi("数据权限配置")
-public interface DataAuthConfigurator extends ServiceLoadable {
+public interface DataAuthConfigurator extends SpiLoadable {
 
 
 	/**

@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import io.polaris.core.classpath.reader.impl.DefaultMetadataReaderFactory;
-import io.polaris.core.service.ServiceLoadable;
 import io.polaris.core.service.Spi;
+import io.polaris.core.service.SpiLoadable;
 import io.polaris.core.service.SpiLoaders;
 
 /**
@@ -13,7 +13,7 @@ import io.polaris.core.service.SpiLoaders;
  * @since Jan 28, 2026
  */
 @Spi
-public interface MetadataReaderFactory extends ServiceLoadable {
+public interface MetadataReaderFactory extends SpiLoadable {
 
 
 	static MetadataReaderFactory buildDefaultFactory() {

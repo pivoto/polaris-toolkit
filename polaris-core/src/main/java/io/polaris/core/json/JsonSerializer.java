@@ -1,14 +1,14 @@
 package io.polaris.core.json;
 
-import io.polaris.core.lang.TypeRef;
-import io.polaris.core.service.ServiceLoadable;
-
 import java.lang.reflect.Type;
+
+import io.polaris.core.lang.TypeRef;
+import io.polaris.core.service.SpiLoadable;
 
 /**
  * @author Qt
  */
-public interface JsonSerializer extends ServiceLoadable {
+public interface JsonSerializer extends SpiLoadable {
 
 	String serialize(Object value);
 

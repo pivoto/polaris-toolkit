@@ -2,12 +2,12 @@ package io.polaris.core.script;
 
 import java.util.Map;
 
-import io.polaris.core.service.ServiceLoadable;
+import io.polaris.core.service.SpiLoadable;
 
 /**
  * @author Qt
  */
-public interface Evaluator extends ServiceLoadable {
+public interface Evaluator extends SpiLoadable {
 	String INPUT = "input";
 	String OUTPUT = "output";
 	String BINDINGS = "bindings";

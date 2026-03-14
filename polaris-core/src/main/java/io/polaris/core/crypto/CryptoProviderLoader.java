@@ -1,17 +1,17 @@
 package io.polaris.core.crypto;
 
-import io.polaris.core.service.Service;
-import io.polaris.core.service.ServiceLoadable;
-import io.polaris.core.service.ServiceLoader;
-import org.slf4j.LoggerFactory;
-
 import java.security.Provider;
 import java.security.Security;
+
+import io.polaris.core.service.Service;
+import io.polaris.core.service.ServiceLoader;
+import io.polaris.core.service.SpiLoadable;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Qt
  */
-public interface CryptoProviderLoader extends ServiceLoadable {
+public interface CryptoProviderLoader extends SpiLoadable {
 
 	Provider provider();
 

@@ -3,15 +3,15 @@ package io.polaris.mybatis.auth;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import io.polaris.core.service.ServiceLoadable;
 import io.polaris.core.service.Spi;
+import io.polaris.core.service.SpiLoadable;
 
 /**
  * @author Qt
  * @since Jan 25, 2026
  */
 @Spi("数据权限实现")
-public interface DataScopeProvider extends ServiceLoadable {
+public interface DataScopeProvider extends SpiLoadable {
 
 
 	/**
