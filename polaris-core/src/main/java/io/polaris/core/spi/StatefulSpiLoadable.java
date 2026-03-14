@@ -1,4 +1,4 @@
-package io.polaris.core.service;
+package io.polaris.core.spi;
 
 /**
  * 标识为一个有状态的SPI服务类。可通过{@link StatefulSpiLoader}加载

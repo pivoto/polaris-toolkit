@@ -3,7 +3,7 @@ package io.polaris.core.concurrent.async;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
-import io.polaris.core.service.StatefulSpiLoadable;
+import io.polaris.core.spi.StatefulSpiLoadable;
 
 /**
  * @author Qt

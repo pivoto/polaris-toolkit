@@ -1,6 +1,6 @@
-package io.polaris.core.service.support;
+package io.polaris.core.spi.support;
 
-import io.polaris.core.service.SpiDirectoryLoadingStrategy;
+import io.polaris.core.spi.SpiDirectoryLoadingStrategy;
 
 /**
  * @author Qt

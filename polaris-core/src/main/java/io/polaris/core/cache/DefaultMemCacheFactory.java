@@ -1,6 +1,6 @@
 package io.polaris.core.cache;
 
-import io.polaris.core.service.SpiDefault;
+import io.polaris.core.spi.SpiDefault;
 
 /**
  * @author Qt

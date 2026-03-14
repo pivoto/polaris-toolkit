@@ -1,8 +1,8 @@
-package io.polaris.core.service;
+package io.polaris.core.spi;
 
-import io.polaris.core.service.provider.ServiceListProvider;
-import io.polaris.core.service.provider.ServiceMapProvider;
-import io.polaris.core.service.provider.ServiceProvider;
+import io.polaris.core.spi.provider.ServiceListProvider;
+import io.polaris.core.spi.provider.ServiceMapProvider;
+import io.polaris.core.spi.provider.ServiceProvider;
 
 /**
  * @author Qt

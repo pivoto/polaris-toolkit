@@ -25,9 +25,9 @@ import io.polaris.core.collection.Lists;
 import io.polaris.core.function.TriFunction;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
-import io.polaris.core.service.Service;
-import io.polaris.core.service.SpiLoader;
-import io.polaris.core.service.SpiLoaders;
+import io.polaris.core.spi.Service;
+import io.polaris.core.spi.SpiLoader;
+import io.polaris.core.spi.SpiLoaders;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Type;
 

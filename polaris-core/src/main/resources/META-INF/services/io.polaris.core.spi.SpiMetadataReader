@@ -1,0 +1,2 @@
+io.polaris.core.spi.support.DefaultSpiMetadataReader
+io.polaris.core.spi.support.LegacySpiMetadataReader

@@ -1,4 +1,4 @@
-package io.polaris.core.service;
+package io.polaris.core.spi;
 
 /**
  * 标识为一个SPI服务类。可通过{@link SpiLoader}加载

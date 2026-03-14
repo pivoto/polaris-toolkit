@@ -7,7 +7,7 @@ import java.util.List;
 
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.TypeRef;
-import io.polaris.core.service.SpiLoaders;
+import io.polaris.core.spi.SpiLoaders;
 import lombok.extern.slf4j.Slf4j;
 
 import com.alibaba.fastjson2.JSON;

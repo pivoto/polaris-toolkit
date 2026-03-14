@@ -2,8 +2,8 @@ package io.polaris.core.classpath.analyzer.spi;
 
 import java.util.Set;
 
-import io.polaris.core.service.Spi;
-import io.polaris.core.service.SpiLoadable;
+import io.polaris.core.spi.Spi;
+import io.polaris.core.spi.SpiLoadable;
 
 /**
  * @author Qt

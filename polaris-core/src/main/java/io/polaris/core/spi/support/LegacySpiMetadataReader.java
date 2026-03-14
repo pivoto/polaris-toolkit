@@ -1,19 +1,17 @@
-package io.polaris.core.service.support;
+package io.polaris.core.spi.support;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.Nullable;
 
-import io.polaris.core.annotation.Alternative;
 import io.polaris.core.classpath.reader.ClassMetadata;
 import io.polaris.core.service.ServiceDefault;
 import io.polaris.core.service.ServiceName;
 import io.polaris.core.service.ServiceOrder;
 import io.polaris.core.service.ServiceProperties;
 import io.polaris.core.service.ServiceProperty;
-import io.polaris.core.service.SpiMetadataReader;
-import io.polaris.core.service.SpiProperties;
+import io.polaris.core.spi.SpiMetadataReader;
 
 /**
  * @author Qt

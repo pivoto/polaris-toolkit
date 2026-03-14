@@ -1,4 +1,4 @@
-package io.polaris.core.service;
+package io.polaris.core.spi;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -12,12 +12,9 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface SpiOrder {
+public @interface SpiName {
 
-	int value() default 0;
+	String value();
 
-	int HIGHEST = Integer.MIN_VALUE;
-
-	int LOWEST = Integer.MAX_VALUE;
 }
 

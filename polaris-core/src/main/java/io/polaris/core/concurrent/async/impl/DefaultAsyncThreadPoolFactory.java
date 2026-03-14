@@ -14,7 +14,7 @@ import io.polaris.core.concurrent.WrappingTaskFactory;
 import io.polaris.core.concurrent.WrappingThreadPoolExecutor;
 import io.polaris.core.concurrent.async.AsyncThreadPoolFactory;
 import io.polaris.core.env.Config;
-import io.polaris.core.service.SpiDefault;
+import io.polaris.core.spi.SpiDefault;
 
 /**
  * @author Qt

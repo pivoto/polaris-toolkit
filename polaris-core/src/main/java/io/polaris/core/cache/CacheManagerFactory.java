@@ -4,9 +4,9 @@ import java.util.Optional;
 
 import javax.annotation.Nullable;
 
-import io.polaris.core.service.SpiLoadable;
-import io.polaris.core.service.SpiLoaders;
-import io.polaris.core.service.StatefulSpiLoader;
+import io.polaris.core.spi.SpiLoadable;
+import io.polaris.core.spi.SpiLoaders;
+import io.polaris.core.spi.StatefulSpiLoader;
 
 /**
  * @author Qt

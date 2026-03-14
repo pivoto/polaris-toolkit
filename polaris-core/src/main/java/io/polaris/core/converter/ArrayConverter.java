@@ -18,7 +18,7 @@ import io.polaris.core.json.JsonSerializer;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
-import io.polaris.core.service.SpiLoaders;
+import io.polaris.core.spi.SpiLoaders;
 
 /**
  * @author Qt

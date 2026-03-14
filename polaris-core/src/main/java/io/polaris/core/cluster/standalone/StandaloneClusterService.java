@@ -5,7 +5,7 @@ import java.util.List;
 
 import io.polaris.core.cluster.ClusterService;
 import io.polaris.core.cluster.InstanceNode;
-import io.polaris.core.service.SpiName;
+import io.polaris.core.spi.SpiName;
 
 /**
  * @author Qt

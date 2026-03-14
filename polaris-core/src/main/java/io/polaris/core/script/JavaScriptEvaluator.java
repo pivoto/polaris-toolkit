@@ -1,7 +1,7 @@
 package io.polaris.core.script;
 
-import io.polaris.core.service.SpiName;
-import io.polaris.core.service.SpiOrder;
+import io.polaris.core.spi.SpiName;
+import io.polaris.core.spi.SpiOrder;
 
 /**
  * @author Qt

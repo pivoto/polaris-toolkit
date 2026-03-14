@@ -4,8 +4,8 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
-import io.polaris.core.service.Spi;
-import io.polaris.core.service.SpiLoadable;
+import io.polaris.core.spi.Spi;
+import io.polaris.core.spi.SpiLoadable;
 
 /**
  * @author Qt

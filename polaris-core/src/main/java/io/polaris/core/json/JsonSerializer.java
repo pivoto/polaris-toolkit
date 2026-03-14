@@ -3,7 +3,7 @@ package io.polaris.core.json;
 import java.lang.reflect.Type;
 
 import io.polaris.core.lang.TypeRef;
-import io.polaris.core.service.SpiLoadable;
+import io.polaris.core.spi.SpiLoadable;
 
 /**
  * @author Qt

@@ -12,7 +12,7 @@ import io.polaris.core.cluster.InstanceQueryException;
 import io.polaris.core.cluster.InstanceRegisterException;
 import io.polaris.core.lang.bean.BeanMap;
 import io.polaris.core.lang.bean.Beans;
-import io.polaris.core.service.SpiName;
+import io.polaris.core.spi.SpiName;
 import io.polaris.core.string.Strings;
 import io.polaris.json.Jacksons;
 import lombok.Getter;

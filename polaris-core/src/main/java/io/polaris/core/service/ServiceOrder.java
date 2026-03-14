@@ -3,6 +3,7 @@ package io.polaris.core.service;
 import java.lang.annotation.*;
 
 import io.polaris.core.annotation.Alternative;
+import io.polaris.core.spi.SpiOrder;
 
 /**
  * @author Qt

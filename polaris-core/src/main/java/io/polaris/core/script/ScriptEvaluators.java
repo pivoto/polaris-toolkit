@@ -11,8 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import io.polaris.core.io.IO;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
-import io.polaris.core.service.Service;
-import io.polaris.core.service.SpiLoader;
+import io.polaris.core.spi.Service;
+import io.polaris.core.spi.SpiLoader;
 import io.polaris.core.string.Strings;
 
 /**

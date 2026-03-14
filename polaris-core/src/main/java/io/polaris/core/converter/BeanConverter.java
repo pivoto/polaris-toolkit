@@ -13,7 +13,7 @@ import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.lang.copier.Copiers;
 import io.polaris.core.lang.copier.CopyOptions;
 import io.polaris.core.reflect.Reflects;
-import io.polaris.core.service.SpiLoaders;
+import io.polaris.core.spi.SpiLoaders;
 
 /**
  * @author Qt

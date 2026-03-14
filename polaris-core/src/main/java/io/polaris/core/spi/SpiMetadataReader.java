@@ -1,8 +1,7 @@
-package io.polaris.core.service;
+package io.polaris.core.spi;
 
 import java.util.Map;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.polaris.core.classpath.reader.ClassMetadata;

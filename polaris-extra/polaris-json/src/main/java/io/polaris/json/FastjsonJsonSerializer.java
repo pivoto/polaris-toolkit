@@ -4,8 +4,8 @@ import java.lang.reflect.Type;
 
 import io.polaris.core.json.JsonSerializer;
 import io.polaris.core.lang.TypeRef;
-import io.polaris.core.service.SpiName;
-import io.polaris.core.service.SpiOrder;
+import io.polaris.core.spi.SpiName;
+import io.polaris.core.spi.SpiOrder;
 
 /**
  * @author Qt

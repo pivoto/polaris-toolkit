@@ -9,6 +9,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.polaris.core.annotation.Alternative;
+import io.polaris.core.spi.SpiLoader;
+import io.polaris.core.spi.StatefulSpiLoader;
 
 /**
  * @author Qt

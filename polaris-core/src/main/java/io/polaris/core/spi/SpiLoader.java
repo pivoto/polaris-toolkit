@@ -1,4 +1,4 @@
-package io.polaris.core.service;
+package io.polaris.core.spi;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

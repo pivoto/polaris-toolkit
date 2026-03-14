@@ -1,4 +1,4 @@
-package io.polaris.core.service;
+package io.polaris.core.spi;
 
 import java.util.*;
 import java.util.ServiceLoader;
@@ -7,9 +7,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.polaris.core.classpath.reader.ClassMetadata;
-import io.polaris.core.service.support.DefaultSpiDirectoryLoadingStrategy;
-import io.polaris.core.service.support.DefaultSpiMetadataReader;
-import io.polaris.core.service.support.DefaultSpiPackageLoadingStrategy;
+import io.polaris.core.spi.support.DefaultSpiDirectoryLoadingStrategy;
+import io.polaris.core.spi.support.DefaultSpiMetadataReader;
+import io.polaris.core.spi.support.DefaultSpiPackageLoadingStrategy;
 import io.polaris.core.string.Strings;
 
 /**

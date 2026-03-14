@@ -13,9 +13,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.polaris.core.jdbc.sql.consts.Relation;
-import io.polaris.core.service.Service;
-import io.polaris.core.service.SpiLoader;
-import io.polaris.core.service.SpiLoaders;
+import io.polaris.core.spi.Service;
+import io.polaris.core.spi.SpiLoader;
+import io.polaris.core.spi.SpiLoaders;
 import io.polaris.core.string.Strings;
 import io.polaris.core.tuple.Tuple2;
 import io.polaris.core.tuple.Tuples;

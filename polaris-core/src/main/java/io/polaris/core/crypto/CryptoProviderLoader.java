@@ -3,9 +3,9 @@ package io.polaris.core.crypto;
 import java.security.Provider;
 import java.security.Security;
 
-import io.polaris.core.service.Service;
-import io.polaris.core.service.SpiLoadable;
-import io.polaris.core.service.SpiLoader;
+import io.polaris.core.spi.Service;
+import io.polaris.core.spi.SpiLoadable;
+import io.polaris.core.spi.SpiLoader;
 import org.slf4j.LoggerFactory;
 
 /**

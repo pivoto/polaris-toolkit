@@ -5,6 +5,8 @@ import java.util.Optional;
 import io.polaris.core.io.Consoles;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
+import io.polaris.core.spi.Service;
+import io.polaris.core.spi.SpiLoader;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

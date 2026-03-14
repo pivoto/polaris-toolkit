@@ -15,8 +15,8 @@ import io.polaris.core.concurrent.Schedules;
 import io.polaris.core.concurrent.Threads;
 import io.polaris.core.concurrent.async.impl.DefaultAsyncThreadPoolFactory;
 import io.polaris.core.lang.Retry;
-import io.polaris.core.service.SpiLoaders;
-import io.polaris.core.service.StatefulSpiLoader;
+import io.polaris.core.spi.SpiLoaders;
+import io.polaris.core.spi.StatefulSpiLoader;
 
 /**
  * @author Qt

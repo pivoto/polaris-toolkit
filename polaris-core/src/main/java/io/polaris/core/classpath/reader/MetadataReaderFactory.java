@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import io.polaris.core.classpath.reader.impl.DefaultMetadataReaderFactory;
-import io.polaris.core.service.Spi;
-import io.polaris.core.service.SpiLoadable;
-import io.polaris.core.service.SpiLoaders;
+import io.polaris.core.spi.Spi;
+import io.polaris.core.spi.SpiLoadable;
+import io.polaris.core.spi.SpiLoaders;
 
 /**
  * @author Qt

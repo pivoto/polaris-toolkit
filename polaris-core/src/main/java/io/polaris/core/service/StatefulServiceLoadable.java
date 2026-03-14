@@ -1,6 +1,9 @@
 package io.polaris.core.service;
 
 import io.polaris.core.annotation.Alternative;
+import io.polaris.core.spi.Spi;
+import io.polaris.core.spi.StatefulSpiLoadable;
+import io.polaris.core.spi.StatefulSpiLoader;
 
 /**
  * 标识为一个有状态的SPI服务类。可通过{@link StatefulSpiLoader}加载

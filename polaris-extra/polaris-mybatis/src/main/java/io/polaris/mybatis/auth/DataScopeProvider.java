@@ -3,8 +3,8 @@ package io.polaris.mybatis.auth;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import io.polaris.core.service.Spi;
-import io.polaris.core.service.SpiLoadable;
+import io.polaris.core.spi.Spi;
+import io.polaris.core.spi.SpiLoadable;
 
 /**
  * @author Qt

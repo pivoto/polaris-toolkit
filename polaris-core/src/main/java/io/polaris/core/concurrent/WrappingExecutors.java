@@ -7,8 +7,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
 
-import io.polaris.core.service.SpiLoader;
-import io.polaris.core.service.SpiLoaders;
+import io.polaris.core.spi.SpiLoader;
+import io.polaris.core.spi.SpiLoaders;
 
 /**
  * @author Qt

@@ -6,6 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import io.polaris.core.annotation.Alternative;
+import io.polaris.core.spi.SpiProperties;
 
 /**
  * @author Qt

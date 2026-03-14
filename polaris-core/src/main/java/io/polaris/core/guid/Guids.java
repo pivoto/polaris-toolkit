@@ -5,8 +5,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nullable;
 
-import io.polaris.core.service.SpiLoaders;
-import io.polaris.core.service.StatefulSpiLoader;
+import io.polaris.core.spi.SpiLoaders;
+import io.polaris.core.spi.StatefulSpiLoader;
 
 /**
  * @author Qt

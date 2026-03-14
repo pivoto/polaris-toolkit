@@ -1,9 +1,9 @@
-package io.polaris.core.service.provider;
+package io.polaris.core.spi.provider;
 
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import io.polaris.core.service.SpiLoaders;
+import io.polaris.core.spi.SpiLoaders;
 
 /**
  * @author Qt

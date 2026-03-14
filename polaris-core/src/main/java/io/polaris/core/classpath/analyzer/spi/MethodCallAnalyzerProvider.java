@@ -8,8 +8,8 @@ import io.polaris.core.classpath.analyzer.EntryMethodVisitor;
 import io.polaris.core.classpath.analyzer.MethodCall;
 import io.polaris.core.classpath.analyzer.MethodCodeAnalyzer;
 import io.polaris.core.function.TriFunction;
-import io.polaris.core.service.Spi;
-import io.polaris.core.service.SpiLoadable;
+import io.polaris.core.spi.Spi;
+import io.polaris.core.spi.SpiLoadable;
 
 /**
  * @author Qt

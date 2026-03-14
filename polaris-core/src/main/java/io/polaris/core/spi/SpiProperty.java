@@ -1,7 +1,7 @@
-package io.polaris.core.service;
+package io.polaris.core.spi;
 
-import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -9,12 +9,13 @@ import java.lang.annotation.Target;
 /**
  * @author Qt
  */
+@Repeatable(SpiProperties.class)
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Documented
-public @interface SpiDefault {
+public @interface SpiProperty {
 
-	int value() default 0;
+	String name();
+
+	String value();
 
 }
-

@@ -13,8 +13,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import io.polaris.core.service.SpiLoaders;
-import io.polaris.core.service.StatefulSpiLoader;
+import io.polaris.core.spi.SpiLoaders;
+import io.polaris.core.spi.StatefulSpiLoader;
 import io.polaris.core.string.Strings;
 
 /**

@@ -2,11 +2,10 @@ package io.polaris.core.service.impl;
 
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
-import io.polaris.core.service.SpiDefault;
+import io.polaris.core.spi.SpiDefault;
 import io.polaris.core.service.SpiTestService;
-import io.polaris.core.service.ServiceDefault;
-import io.polaris.core.service.SpiName;
-import io.polaris.core.service.SpiProperty;
+import io.polaris.core.spi.SpiName;
+import io.polaris.core.spi.SpiProperty;
 
 /**
  * @author Qt
