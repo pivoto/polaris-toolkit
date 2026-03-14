@@ -5,14 +5,14 @@ import java.util.List;
 
 import io.polaris.core.cluster.ClusterService;
 import io.polaris.core.cluster.InstanceNode;
-import io.polaris.core.service.ServiceName;
+import io.polaris.core.service.SpiName;
 
 /**
  * @author Qt
  * @since Apr 17, 2024
  */
 @SuppressWarnings("ALL")
-@ServiceName("standalone")
+@SpiName("standalone")
 public class StandaloneClusterService implements ClusterService {
 
 	private volatile InstanceNode instanceNode;

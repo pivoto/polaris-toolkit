@@ -12,7 +12,7 @@ import io.polaris.core.cluster.InstanceQueryException;
 import io.polaris.core.cluster.InstanceRegisterException;
 import io.polaris.core.lang.bean.BeanMap;
 import io.polaris.core.lang.bean.Beans;
-import io.polaris.core.service.ServiceName;
+import io.polaris.core.service.SpiName;
 import io.polaris.core.string.Strings;
 import io.polaris.json.Jacksons;
 import lombok.Getter;
@@ -31,7 +31,7 @@ import com.alibaba.nacos.common.utils.CollectionUtils;
  */
 @SuppressWarnings("ALL")
 @Slf4j
-@ServiceName("nacos")
+@SpiName("nacos")
 public class NacosClusterService implements ClusterService {
 	@Setter
 	@Getter

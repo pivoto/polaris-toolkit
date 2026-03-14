@@ -17,14 +17,14 @@ import io.polaris.core.log.Loggers;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.reflect.SerializableFunctionWithArgs4;
 import io.polaris.core.service.ServiceDefault;
-import io.polaris.core.service.ServiceName;
+import io.polaris.core.service.SpiName;
 import io.polaris.core.service.SpiDefault;
 
 /**
  * @author Qt
  */
 @SpiDefault(Integer.MAX_VALUE)
-@ServiceName(JavaEvaluator.ENGINE_NAME)
+@SpiName(JavaEvaluator.ENGINE_NAME)
 public class JavaEvaluator implements Evaluator {
 	public static final String ENGINE_NAME = "java";
 	private static final Logger log = Loggers.of(JavaEvaluator.class);

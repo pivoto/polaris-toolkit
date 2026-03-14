@@ -9,7 +9,7 @@ import io.polaris.core.cluster.InstanceNode;
 import io.polaris.core.cluster.InstanceQueryException;
 import io.polaris.core.cluster.InstanceRegisterException;
 import io.polaris.core.lang.TypeRef;
-import io.polaris.core.service.ServiceName;
+import io.polaris.core.service.SpiName;
 import io.polaris.core.string.Strings;
 import io.polaris.json.Jacksons;
 import lombok.Getter;
@@ -39,7 +39,7 @@ import com.google.common.collect.Lists;
  */
 @SuppressWarnings("ALL")
 @Slf4j
-@ServiceName("zookeeper")
+@SpiName("zookeeper")
 public class ZookeeperClusterService implements ClusterService {
 	private static final String DEFAULT_NAMESPACE = "/public";
 	@Setter

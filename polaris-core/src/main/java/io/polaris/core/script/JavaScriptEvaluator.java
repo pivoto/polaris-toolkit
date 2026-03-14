@@ -1,13 +1,13 @@
 package io.polaris.core.script;
 
-import io.polaris.core.service.ServiceName;
+import io.polaris.core.service.SpiName;
 import io.polaris.core.service.SpiOrder;
 
 /**
  * @author Qt
  */
 @SpiOrder(100)
-@ServiceName(JavaScriptEvaluator.ENGINE_NAME)
+@SpiName(JavaScriptEvaluator.ENGINE_NAME)
 public class JavaScriptEvaluator extends AbstractStandardEvaluator {
 
 	public static final String ENGINE_NAME = "javascript";
