@@ -18,11 +18,12 @@ import io.polaris.core.reflect.Reflects;
 import io.polaris.core.reflect.SerializableFunctionWithArgs4;
 import io.polaris.core.service.ServiceDefault;
 import io.polaris.core.service.ServiceName;
+import io.polaris.core.service.SpiDefault;
 
 /**
  * @author Qt
  */
-@ServiceDefault(Integer.MAX_VALUE)
+@SpiDefault(Integer.MAX_VALUE)
 @ServiceName(JavaEvaluator.ENGINE_NAME)
 public class JavaEvaluator implements Evaluator {
 	public static final String ENGINE_NAME = "java";

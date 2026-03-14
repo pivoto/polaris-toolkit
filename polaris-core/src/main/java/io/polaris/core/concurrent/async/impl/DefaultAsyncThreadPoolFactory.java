@@ -14,13 +14,13 @@ import io.polaris.core.concurrent.WrappingTaskFactory;
 import io.polaris.core.concurrent.WrappingThreadPoolExecutor;
 import io.polaris.core.concurrent.async.AsyncThreadPoolFactory;
 import io.polaris.core.env.Config;
-import io.polaris.core.service.ServiceDefault;
+import io.polaris.core.service.SpiDefault;
 
 /**
  * @author Qt
  * @since Aug 07, 2025
  */
-@ServiceDefault
+@SpiDefault
 public class DefaultAsyncThreadPoolFactory implements AsyncThreadPoolFactory {
 
 	@Override

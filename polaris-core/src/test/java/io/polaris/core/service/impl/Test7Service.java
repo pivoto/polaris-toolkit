@@ -2,6 +2,7 @@ package io.polaris.core.service.impl;
 
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
+import io.polaris.core.service.SpiDefault;
 import io.polaris.core.service.SpiTestService;
 import io.polaris.core.service.ServiceDefault;
 import io.polaris.core.service.ServiceName;
@@ -10,7 +11,7 @@ import io.polaris.core.service.ServiceProperty;
 /**
  * @author Qt
  */
-@ServiceDefault(-100)
+@SpiDefault(-100)
 @ServiceName("test")
 @ServiceProperty(name = "key", value = "test7")
 public class Test7Service implements SpiTestService {

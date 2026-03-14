@@ -4,14 +4,14 @@ import java.util.concurrent.Callable;
 
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
-import io.polaris.core.service.ServiceDefault;
+import io.polaris.core.service.SpiDefault;
 import io.polaris.core.service.SpiLoaders;
 
 /**
  * @author Qt
  * @since Jan 24, 2025
  */
-@ServiceDefault
+@SpiDefault
 public class DefaultWrappingTaskFactory implements WrappingTaskFactory {
 	private static final Logger log = Loggers.of(DefaultWrappingTaskFactory.class);
 	private WrappingExecutionListener listener;

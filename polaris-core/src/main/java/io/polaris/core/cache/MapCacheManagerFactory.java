@@ -1,14 +1,14 @@
 package io.polaris.core.cache;
 
-import io.polaris.core.service.ServiceDefault;
+import io.polaris.core.service.SpiDefault;
 
 /**
  * @author Qt
  */
-@ServiceDefault(Integer.MAX_VALUE)
+@SpiDefault(Integer.MAX_VALUE)
 public class MapCacheManagerFactory implements CacheManagerFactory {
 
-	private MapCacheManager cacheManager;
+	private final MapCacheManager cacheManager;
 
 	public MapCacheManagerFactory() {
 		cacheManager = new MapCacheManager();

@@ -13,13 +13,13 @@ import io.polaris.core.asm.reflect.BeanAccess;
 import io.polaris.core.converter.Converters;
 import io.polaris.core.script.Evaluator;
 import io.polaris.core.script.ScriptEvaluators;
-import io.polaris.core.service.ServiceDefault;
+import io.polaris.core.service.SpiDefault;
 import io.polaris.core.time.Dates;
 
 /**
  * @author Qt
  */
-@ServiceDefault
+@SpiDefault
 public class DefaultJsonSerializer implements JsonSerializer {
 	@Override
 	public String serialize(Object value) {
