@@ -1,5 +1,15 @@
 ## 版本变更说明
 
+### 3.7.2
+- 优化注解 @Alternative、@See
+- 新增JavaVersion枚举
+- 实现新的SPI加载机制并迁移旧版服务加载器，实现基于类路径扫描的服务发现机制
+- 调整SPI主类与包的命名
+
+### 3.7.1
+- 新增注解 @Alternative、@See
+- Dates增加重载方法以自动处理字符串格式日期
+
 ### 3.7.0
 - 新增polaris-extension模块，作为其他常用三方工具框架的封装与扩展库，简化使用
 - 合并concurrent、commons、cluster、image等几个子模块至polaris-extension模块
