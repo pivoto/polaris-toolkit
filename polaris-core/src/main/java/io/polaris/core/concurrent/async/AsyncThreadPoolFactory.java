@@ -3,13 +3,13 @@ package io.polaris.core.concurrent.async;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
-import io.polaris.core.service.StatefulServiceLoadable;
+import io.polaris.core.service.StatefulSpiLoadable;
 
 /**
  * @author Qt
  * @since Aug 07, 2025
  */
-public interface AsyncThreadPoolFactory extends StatefulServiceLoadable {
+public interface AsyncThreadPoolFactory extends StatefulSpiLoadable {
 
 	ExecutorService buildExecutor();
 
