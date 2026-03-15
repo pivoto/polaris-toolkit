@@ -11,8 +11,8 @@ import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.mybatis.annotation.DynamicResultMapping;
 import io.polaris.mybatis.annotation.WithLogicDeleted;
 import io.polaris.mybatis.consts.MapperProviderKeys;
-import io.polaris.mybatis.provider.EntityExistsByAnyProvider;
 import io.polaris.mybatis.provider.MapperProviders;
+import io.polaris.mybatis.support.MapperHelperContext;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.SelectProvider;
@@ -559,7 +559,7 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 	 * @return 存在返回true，否则返回false
 	 */
 	default boolean exists(E entity, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields, Boolean withLogicDeleted) {
-		EntityExistsByAnyProvider.setQueryExistsByCount(false);
+		MapperHelperContext.setQueryExistsByCount(false);
 		Cursor<Boolean> cursor = null;
 		try {
 			cursor = existsInnerByAny(entity, includeAllEmpty, includeEmptyFields, excludeFields, withLogicDeleted);
@@ -570,7 +570,7 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 			}
 			return false;
 		} finally {
-			EntityExistsByAnyProvider.clearQueryExistsByCount();
+			MapperHelperContext.clearQueryExistsByCount();
 			IO.close(cursor);
 		}
 	}
@@ -643,7 +643,7 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 	 * @return 存在返回true，否则返回false
 	 */
 	default boolean existsByMap(Map<String, Object> entity, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields, Boolean withLogicDeleted) {
-		EntityExistsByAnyProvider.setQueryExistsByCount(false);
+		MapperHelperContext.setQueryExistsByCount(false);
 		Cursor<Boolean> cursor = null;
 		try {
 			cursor = existsInnerByAny(entity, includeAllEmpty, includeEmptyFields, excludeFields, withLogicDeleted);
@@ -654,7 +654,7 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 			}
 			return false;
 		} finally {
-			EntityExistsByAnyProvider.clearQueryExistsByCount();
+			MapperHelperContext.clearQueryExistsByCount();
 			IO.close(cursor);
 		}
 	}
@@ -727,7 +727,7 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 	 * @return 存在返回true，否则返回false
 	 */
 	default boolean existsByCriteria(Criteria criteria, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields, Boolean withLogicDeleted) {
-		EntityExistsByAnyProvider.setQueryExistsByCount(false);
+		MapperHelperContext.setQueryExistsByCount(false);
 		Cursor<Boolean> cursor = null;
 		try {
 			cursor = existsInnerByAny(criteria, includeAllEmpty, includeEmptyFields, excludeFields, withLogicDeleted);
@@ -738,7 +738,7 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 			}
 			return false;
 		} finally {
-			EntityExistsByAnyProvider.clearQueryExistsByCount();
+			MapperHelperContext.clearQueryExistsByCount();
 			IO.close(cursor);
 		}
 	}

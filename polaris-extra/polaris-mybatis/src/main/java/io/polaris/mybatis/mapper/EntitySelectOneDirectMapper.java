@@ -11,8 +11,8 @@ import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.mybatis.annotation.DynamicResultMapping;
 import io.polaris.mybatis.annotation.WithLogicDeleted;
 import io.polaris.mybatis.consts.MapperProviderKeys;
-import io.polaris.mybatis.provider.EntityExistsByAnyProvider;
 import io.polaris.mybatis.provider.MapperProviders;
+import io.polaris.mybatis.support.MapperHelperContext;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.SelectProvider;
@@ -443,7 +443,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	 * @return 若存在返回true，否则返回false
 	 */
 	default boolean directExists(E entity, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
-		EntityExistsByAnyProvider.setQueryExistsByCount(false);
+		MapperHelperContext.setQueryExistsByCount(false);
 		Cursor<Boolean> cursor = null;
 		try {
 			cursor = directExistsInnerByAny(entity, includeAllEmpty, includeEmptyFields, excludeFields);
@@ -454,7 +454,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 			}
 			return false;
 		} finally {
-			EntityExistsByAnyProvider.clearQueryExistsByCount();
+			MapperHelperContext.clearQueryExistsByCount();
 			IO.close(cursor);
 		}
 	}
@@ -513,7 +513,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	 * @return 若存在返回true，否则返回false
 	 */
 	default boolean directExistsByMap(Map<String, Object> entity, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
-		EntityExistsByAnyProvider.setQueryExistsByCount(false);
+		MapperHelperContext.setQueryExistsByCount(false);
 		Cursor<Boolean> cursor = null;
 		try {
 			cursor = directExistsInnerByAny(entity, includeAllEmpty, includeEmptyFields, excludeFields);
@@ -524,7 +524,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 			}
 			return false;
 		} finally {
-			EntityExistsByAnyProvider.clearQueryExistsByCount();
+			MapperHelperContext.clearQueryExistsByCount();
 			IO.close(cursor);
 		}
 	}
@@ -583,7 +583,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	 * @return 若存在返回true，否则返回false
 	 */
 	default boolean directExistsByCriteria(Criteria criteria, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
-		EntityExistsByAnyProvider.setQueryExistsByCount(false);
+		MapperHelperContext.setQueryExistsByCount(false);
 		Cursor<Boolean> cursor = null;
 		try {
 			cursor = directExistsInnerByAny(criteria, includeAllEmpty, includeEmptyFields, excludeFields);
@@ -594,7 +594,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 			}
 			return false;
 		} finally {
-			EntityExistsByAnyProvider.clearQueryExistsByCount();
+			MapperHelperContext.clearQueryExistsByCount();
 			IO.close(cursor);
 		}
 	}

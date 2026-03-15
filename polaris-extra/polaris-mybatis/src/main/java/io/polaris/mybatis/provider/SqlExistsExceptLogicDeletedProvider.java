@@ -6,6 +6,7 @@ import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.statement.SelectStatement;
 import io.polaris.mybatis.consts.MappingKeys;
+import io.polaris.mybatis.support.MapperHelperContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.builder.annotation.ProviderContext;
 
@@ -19,7 +20,7 @@ public class SqlExistsExceptLogicDeletedProvider extends BaseProviderMethodResol
 	@Published
 	public static String provideSql(Object parameterObject, ProviderContext context) {
 		// 是否不通过Count(*)查询，表示使用游标查询或通过分页插件处理，接收返回值为布尔列表
-		boolean queryByCount = isQueryExistsByCount();
+		boolean queryByCount = MapperHelperContext.isQueryExistsByCount();
 		try {
 			return provideSql(parameterObject, context, (map, ctx) -> {
 				SelectStatement<?> st = (SelectStatement<?>) map.get(BindingKeys.SELECT);
@@ -35,7 +36,7 @@ public class SqlExistsExceptLogicDeletedProvider extends BaseProviderMethodResol
 				return sql;
 			});
 		} finally {
-			clearQueryExistsByCount();
+			MapperHelperContext.clearQueryExistsByCount();
 		}
 	}
 

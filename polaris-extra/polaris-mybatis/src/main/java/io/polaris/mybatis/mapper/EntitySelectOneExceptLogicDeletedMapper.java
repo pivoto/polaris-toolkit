@@ -10,9 +10,8 @@ import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.mybatis.annotation.DynamicResultMapping;
 import io.polaris.mybatis.consts.MapperProviderKeys;
-import io.polaris.mybatis.provider.EntityExistsByAnyExceptLogicDeletedProvider;
-import io.polaris.mybatis.provider.EntityExistsByAnyProvider;
 import io.polaris.mybatis.provider.MapperProviders;
+import io.polaris.mybatis.support.MapperHelperContext;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.SelectProvider;
@@ -434,7 +433,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	 * @return 若存在返回true，否则返回false
 	 */
 	default boolean existsExceptLogicDeleted(E entity, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
-		EntityExistsByAnyProvider.setQueryExistsByCount(false);
+		MapperHelperContext.setQueryExistsByCount(false);
 		Cursor<Boolean> cursor = null;
 		try {
 			cursor = existsInnerByAnyExceptLogicDeleted(entity, includeAllEmpty, includeEmptyFields, excludeFields);
@@ -445,7 +444,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 			}
 			return false;
 		} finally {
-			EntityExistsByAnyProvider.clearQueryExistsByCount();
+			MapperHelperContext.clearQueryExistsByCount();
 			IO.close(cursor);
 		}
 	}
@@ -504,7 +503,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	 * @return 若存在返回true，否则返回false
 	 */
 	default boolean existsExceptLogicDeletedByMap(Map<String, Object> entity, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
-		EntityExistsByAnyExceptLogicDeletedProvider.setQueryExistsByCount(false);
+		MapperHelperContext.setQueryExistsByCount(false);
 		Cursor<Boolean> cursor = null;
 		try {
 			cursor = existsInnerByAnyExceptLogicDeleted(entity, includeAllEmpty, includeEmptyFields, excludeFields);
@@ -515,7 +514,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 			}
 			return false;
 		} finally {
-			EntityExistsByAnyExceptLogicDeletedProvider.clearQueryExistsByCount();
+			MapperHelperContext.clearQueryExistsByCount();
 			IO.close(cursor);
 		}
 	}
@@ -574,7 +573,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	 * @return 若存在返回true，否则返回false
 	 */
 	default boolean existsExceptLogicDeletedByCriteria(Criteria criteria, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
-		EntityExistsByAnyExceptLogicDeletedProvider.setQueryExistsByCount(false);
+		MapperHelperContext.setQueryExistsByCount(false);
 		Cursor<Boolean> cursor = null;
 		try {
 			cursor = existsInnerByAnyExceptLogicDeleted(criteria, includeAllEmpty, includeEmptyFields, excludeFields);
@@ -585,7 +584,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 			}
 			return false;
 		} finally {
-			EntityExistsByAnyExceptLogicDeletedProvider.clearQueryExistsByCount();
+			MapperHelperContext.clearQueryExistsByCount();
 			IO.close(cursor);
 		}
 	}

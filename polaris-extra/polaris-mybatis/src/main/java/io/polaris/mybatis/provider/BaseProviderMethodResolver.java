@@ -35,18 +35,6 @@ public abstract class BaseProviderMethodResolver implements ProviderMethodResolv
 	static final Map<Tuple2<Method, Class<?>>, Ref<Class<?>>> ENTITY_CLASS_MAP = new ConcurrentHashMap<>();
 
 
-	public static boolean isQueryExistsByCount() {
-		return MapperHelperContext.isQueryExistsByCount();
-	}
-
-	public static void setQueryExistsByCount(boolean withoutCount) {
-		MapperHelperContext.setQueryExistsByCount(withoutCount);
-	}
-
-	public static void clearQueryExistsByCount() {
-		MapperHelperContext.clearQueryExistsByCount();
-	}
-
 	@Override
 	public Method resolveMethod(ProviderContext context) {
 		String methodName = context.getMapperMethod().getName();

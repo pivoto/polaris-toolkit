@@ -13,9 +13,8 @@ import io.polaris.core.jdbc.sql.statement.SelectStatement;
 import io.polaris.mybatis.annotation.DynamicResultMapping;
 import io.polaris.mybatis.annotation.WithLogicDeleted;
 import io.polaris.mybatis.consts.MapperProviderKeys;
-import io.polaris.mybatis.provider.EntityExistsByAnyProvider;
 import io.polaris.mybatis.provider.MapperProviders;
-import io.polaris.mybatis.provider.SqlExistsProvider;
+import io.polaris.mybatis.support.MapperHelperContext;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.SelectProvider;
@@ -103,7 +102,7 @@ public interface SelectStatementDefaultMapper<R> {
 	 * @return 是否存在匹配记录
 	 */
 	default boolean existsBySql(SelectStatement<?> statement) {
-		SqlExistsProvider.setQueryExistsByCount(false);
+		MapperHelperContext.setQueryExistsByCount(false);
 		Cursor<Boolean> cursor = null;
 		try {
 			cursor = existsInnerBySql(statement);
@@ -114,7 +113,7 @@ public interface SelectStatementDefaultMapper<R> {
 			}
 			return false;
 		} finally {
-			EntityExistsByAnyProvider.clearQueryExistsByCount();
+			MapperHelperContext.clearQueryExistsByCount();
 			IO.close(cursor);
 		}
 	}
