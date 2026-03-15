@@ -4,6 +4,7 @@ import io.polaris.json.Jacksons;
 import io.polaris.mybatis.interceptor.DataAuthInterceptor;
 import io.polaris.mybatis.interceptor.DynamicResultMappingInterceptor;
 import io.polaris.mybatis.interceptor.MybatisLogInterceptor;
+import io.polaris.mybatis.provider.BoundSqlEnhanceInterceptor;
 import io.polaris.mybatis.type.TypeHandlers;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
@@ -54,6 +55,11 @@ public class DemoConfiguration {
 		return new DynamicResultMappingInterceptor();
 	}
 
+	@Bean
+	@Order(1)
+	public BoundSqlEnhanceInterceptor boundSqlEnhanceInterceptor() {
+		return new BoundSqlEnhanceInterceptor();
+	}
 
 	@Bean
 	public ConfigurationCustomizer configurationCustomizer() {

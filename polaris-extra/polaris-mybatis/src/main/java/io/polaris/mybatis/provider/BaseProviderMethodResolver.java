@@ -10,11 +10,7 @@ import java.util.function.BiFunction;
 
 import javax.annotation.Nullable;
 
-import io.polaris.core.annotation.Internal;
-import io.polaris.core.jdbc.sql.SqlTextParsers;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
-import io.polaris.core.jdbc.sql.node.ContainerNode;
-import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.Types;
 import io.polaris.core.lang.bean.BeanMap;
@@ -23,13 +19,11 @@ import io.polaris.core.tuple.Ref;
 import io.polaris.core.tuple.Tuple2;
 import io.polaris.mybatis.annotation.MapperEntity;
 import io.polaris.mybatis.annotation.WithLogicDeleted;
-import io.polaris.mybatis.interceptor.InterceptorHelper;
 import io.polaris.mybatis.mapper.EntityMapper;
+import io.polaris.mybatis.support.MapperHelperContext;
 import org.apache.ibatis.annotations.Lang;
 import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.apache.ibatis.builder.annotation.ProviderMethodResolver;
-import org.apache.ibatis.mapping.BoundSql;
-import org.apache.ibatis.mapping.SqlSource;
 
 /**
  * @author Qt
@@ -37,51 +31,20 @@ import org.apache.ibatis.mapping.SqlSource;
  */
 public abstract class BaseProviderMethodResolver implements ProviderMethodResolver {
 
-	static final ThreadLocal<Tuple2<Object, Map<String, Object>>> ADDITIONAL_PARAMETERS = new ThreadLocal<>();
-	static final ThreadLocal<Boolean> QUERY_EXISTS_BY_COUNT = new ThreadLocal<>();
 	static final Map<Tuple2<Method, Class<?>>, Boolean> LOGIC_DELETED_MAP = new ConcurrentHashMap<>();
 	static final Map<Tuple2<Method, Class<?>>, Ref<Class<?>>> ENTITY_CLASS_MAP = new ConcurrentHashMap<>();
 
 
 	public static boolean isQueryExistsByCount() {
-		Boolean bool = QUERY_EXISTS_BY_COUNT.get();
-		return bool == null || bool;
+		return MapperHelperContext.isQueryExistsByCount();
 	}
 
 	public static void setQueryExistsByCount(boolean withoutCount) {
-		QUERY_EXISTS_BY_COUNT.set(withoutCount);
+		MapperHelperContext.setQueryExistsByCount(withoutCount);
 	}
 
 	public static void clearQueryExistsByCount() {
-		QUERY_EXISTS_BY_COUNT.remove();
-	}
-
-	private static void bindAdditionalParameters(Object parameterObject, Map<String, Object> additionalParameters) {
-		ADDITIONAL_PARAMETERS.set(Tuple2.of(parameterObject, additionalParameters));
-	}
-
-	private static void clearAdditionalParameters() {
-		ADDITIONAL_PARAMETERS.remove();
-	}
-
-	@Internal
-	static BoundSql getBoundSql(SqlSource sqlSource, Object parameterObject) {
-		try {
-			BoundSql boundSql = sqlSource.getBoundSql(parameterObject);
-			Tuple2<Object, Map<String, Object>> tuple = ADDITIONAL_PARAMETERS.get();
-			// 存在扩展参数则创建一个扩展的SqlSource以动态追加
-			if (tuple != null && tuple.getFirst() == parameterObject) {
-				Map<String, Object> params = tuple.getSecond();
-				if (params != null && !params.isEmpty()) {
-					// 追加额外参数
-					tuple.getSecond().forEach(boundSql::setAdditionalParameter);
-				}
-			}
-			return boundSql;
-		} finally {
-			// 用完即清理
-			ADDITIONAL_PARAMETERS.remove();
-		}
+		MapperHelperContext.clearQueryExistsByCount();
 	}
 
 	@Override
@@ -215,7 +178,7 @@ public abstract class BaseProviderMethodResolver implements ProviderMethodResolv
 			String sql = function.apply(map, context);
 			return sql;
 		} catch (RuntimeException e) {
-			clearAdditionalParameters();
+			MapperHelperContext.clearAdditionalParameters();
 			throw e;
 		}
 	}
@@ -225,7 +188,7 @@ public abstract class BaseProviderMethodResolver implements ProviderMethodResolv
 		if (parameterObject instanceof Map) {
 			return (Map<String, Object>) parameterObject;
 		} else {
-			if (!hasProviderSqlSourceDriver(mapperMethod)) {
+			if (!MapperHelperContext.isEnabledEnhanceBoundSql() && !hasProviderSqlSourceDriver(mapperMethod)) {
 				if (parameterObject == null) {
 					// 参数为空时，使用空MAP，不接收任何绑定
 					return Collections.emptyMap();
@@ -264,7 +227,7 @@ public abstract class BaseProviderMethodResolver implements ProviderMethodResolv
 			BeanMap<Object> beanMap = Beans.newBeanMap(parameterObject);
 			additionalParameters.putAll(beanMap);
 		}
-		bindAdditionalParameters(parameterObject, additionalParameters);
+		MapperHelperContext.bindAdditionalParameters(parameterObject, additionalParameters);
 		return additionalParameters;
 	}
 

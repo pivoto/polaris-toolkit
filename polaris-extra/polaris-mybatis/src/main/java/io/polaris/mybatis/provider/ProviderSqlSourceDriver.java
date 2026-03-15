@@ -3,6 +3,7 @@ package io.polaris.mybatis.provider;
 import java.util.Map;
 
 import io.polaris.core.tuple.Tuple2;
+import io.polaris.mybatis.support.MapperHelperContext;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
@@ -32,7 +33,9 @@ public class ProviderSqlSourceDriver extends XMLLanguageDriver {
 
 		@Override
 		public BoundSql getBoundSql(Object parameterObject) {
-			return BaseProviderMethodResolver.getBoundSql(sqlSource,parameterObject);
+			BoundSql boundSql = sqlSource.getBoundSql(parameterObject);
+			MapperHelperContext.enhanceBoundSql(boundSql, parameterObject);
+			return boundSql;
 		}
 	}
 

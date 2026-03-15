@@ -1,6 +1,7 @@
 package io.polaris;
 
 import io.polaris.demo.aop.SourceBean;
+import io.polaris.mybatis.support.MapperHelperContext;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class DemoApp {
 
 	public static void main(String[] args) {
+		MapperHelperContext.enableEnhanceBoundSql(true);
 		ConfigurableApplicationContext ctx = SpringApplication.run(DemoApp.class, args);
 
 		SourceBean bean = ctx.getBean(SourceBean.class);
