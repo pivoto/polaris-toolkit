@@ -31,7 +31,7 @@ public class AnySqlProvider extends BaseProviderMethodResolver {
 				throw new IllegalArgumentException();
 			}
 			if (log.isDebugEnabled()) {
-				log.debug("<sql>\n{}\n<bindings>\n{}", sql, map);
+				log.debug("<sql>{}</sql><bind>{}</bind>", sql, map);
 			}
 			return sql;
 		});

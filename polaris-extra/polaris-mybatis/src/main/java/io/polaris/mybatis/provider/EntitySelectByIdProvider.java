@@ -19,7 +19,7 @@ public class EntitySelectByIdProvider extends BaseProviderMethodResolver {
 			boolean withLogicDeleted = withLogicDeleted(map, ctx);
 			String sql = SqlStatements.buildSelectById(MappingKeys.PARAMETER_MAPPING_KEYS_FILTER, map, getEntityClass(context), withLogicDeleted);
 			if (log.isDebugEnabled()) {
-				log.debug("<sql>\n{}\n<bindings>\n{}", sql, map);
+				log.debug("<sql>{}</sql><bind>{}</bind>", sql, map);
 			}
 			return sql;
 		});

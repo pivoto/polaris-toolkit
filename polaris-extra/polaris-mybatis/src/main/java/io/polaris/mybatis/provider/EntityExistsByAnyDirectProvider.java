@@ -22,7 +22,7 @@ public class EntityExistsByAnyDirectProvider extends BaseProviderMethodResolver 
 			return provideSql(parameterObject, context, (map, ctx) -> {
 				String sql = SqlStatements.buildExistsByAny(MappingKeys.PARAMETER_MAPPING_KEYS_FILTER, map, getEntityClass(context), queryByCount, false);
 				if (log.isDebugEnabled()) {
-					log.debug("<sql>\n{}\n<bindings>\n{}", sql, map);
+					log.debug("<sql>{}</sql><bind>{}</bind>", sql, map);
 				}
 				return sql;
 			});
