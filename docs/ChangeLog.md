@@ -1,5 +1,9 @@
 ## 版本变更说明
 
+### 3.7.3
+- 新增BoundSqlEnhanceInterceptor拦截器以增强对非Map参数的自动生成动态SQL功能的支持
+- 优化自动生成动成SQL的日志输出格式以保持在一行
+
 ### 3.7.2
 - 优化注解 @Alternative、@See
 - 新增JavaVersion枚举
