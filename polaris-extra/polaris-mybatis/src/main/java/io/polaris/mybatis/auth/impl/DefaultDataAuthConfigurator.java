@@ -7,12 +7,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nonnull;
 
+import io.polaris.core.spi.SpiDefault;
 import io.polaris.mybatis.auth.DataAuthConfigurator;
 
 /**
  * @author Qt
  * @since Jan 25, 2026
  */
+@SpiDefault
 public class DefaultDataAuthConfigurator implements DataAuthConfigurator {
 
 	private volatile boolean mybatisInterceptorEnabled = true;

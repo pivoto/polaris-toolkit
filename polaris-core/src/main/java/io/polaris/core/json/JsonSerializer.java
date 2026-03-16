@@ -3,12 +3,15 @@ package io.polaris.core.json;
 import java.lang.reflect.Type;
 
 import io.polaris.core.lang.TypeRef;
+import io.polaris.core.spi.Spi;
 import io.polaris.core.spi.SpiLoadable;
+import io.polaris.core.spi.StatefulSpiLoadable;
 
 /**
  * @author Qt
  */
-public interface JsonSerializer extends SpiLoadable {
+@Spi("JSON序列化器")
+public interface JsonSerializer extends StatefulSpiLoadable {
 
 	String serialize(Object value);
 

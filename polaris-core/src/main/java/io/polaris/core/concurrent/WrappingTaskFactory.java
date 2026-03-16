@@ -2,10 +2,13 @@ package io.polaris.core.concurrent;
 
 import java.util.concurrent.Callable;
 
+import io.polaris.core.spi.Spi;
+
 /**
  * @author Qt
  * @since Jan 24, 2025
  */
+@Spi("线程任务包装器")
 public interface WrappingTaskFactory {
 
 	Runnable wrap(Runnable runnable);

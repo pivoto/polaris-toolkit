@@ -2,14 +2,17 @@ package io.polaris.core.cache;
 
 import javax.annotation.Nullable;
 
+import io.polaris.core.spi.Spi;
 import io.polaris.core.spi.SpiLoaders;
+import io.polaris.core.spi.StatefulSpiLoadable;
 import io.polaris.core.spi.StatefulSpiLoader;
 
 /**
  * @author Qt
  * @since Oct 08, 2025
  */
-public interface MemCacheFactory {
+@Spi("内存缓存工厂")
+public interface MemCacheFactory extends StatefulSpiLoadable {
 
 	<K, V> MemCache<K, V> build(int maxCapacity, boolean accessOrder);
 

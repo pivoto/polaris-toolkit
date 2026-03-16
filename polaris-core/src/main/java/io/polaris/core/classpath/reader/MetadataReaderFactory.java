@@ -12,7 +12,7 @@ import io.polaris.core.spi.SpiLoaders;
  * @author Qt
  * @since Jan 28, 2026
  */
-@Spi
+@Spi("字节码元数据读取器工厂")
 public interface MetadataReaderFactory extends SpiLoadable {
 
 
