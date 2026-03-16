@@ -186,7 +186,9 @@ public class GroupEnv implements Env {
 			pushResolveKey(key);
 			String val = null;
 			if (runtime != null) {
-				val = runtime.get(key);
+				if (filter(runtime)) {
+					val = runtime.get(key);
+				}
 			}
 			if (val == null) {
 				for (Env env : envList) {
@@ -238,7 +240,9 @@ public class GroupEnv implements Env {
 		try {
 			Set<String> keys = new LinkedHashSet<>();
 			if (runtime != null) {
-				keys.addAll(runtime.keys());
+				if (filter(runtime)) {
+					keys.addAll(runtime.keys());
+				}
 			}
 			for (Env env : envList) {
 				if (!filter(env)) {
