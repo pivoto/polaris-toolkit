@@ -4,6 +4,7 @@ import java.security.Provider;
 import java.security.Security;
 
 import io.polaris.core.spi.Service;
+import io.polaris.core.spi.Spi;
 import io.polaris.core.spi.SpiLoadable;
 import io.polaris.core.spi.SpiLoader;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Qt
  */
+@Spi
 public interface CryptoProviderLoader extends SpiLoadable {
 
 	Provider provider();

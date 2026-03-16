@@ -2,10 +2,13 @@ package io.polaris.core.converter;
 
 import java.lang.reflect.Type;
 
+import io.polaris.core.spi.Spi;
+
 /**
  * @author Qt
  */
 @FunctionalInterface
+@Spi
 public interface Converter<T> {
 
 	<S> T convert(Type valueType, S value);

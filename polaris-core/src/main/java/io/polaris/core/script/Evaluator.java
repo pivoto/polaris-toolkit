@@ -2,11 +2,13 @@ package io.polaris.core.script;
 
 import java.util.Map;
 
+import io.polaris.core.spi.Spi;
 import io.polaris.core.spi.SpiLoadable;
 
 /**
  * @author Qt
  */
+@Spi
 public interface Evaluator extends SpiLoadable {
 	String INPUT = "input";
 	String OUTPUT = "output";
