@@ -189,6 +189,10 @@ public class GlobalStdEnv {
 		return Holder.env;
 	}
 
+	public static Env runtime() {
+		return Holder.env.runtime();
+	}
+
 	public static Properties asProperties() {
 		return Holder.env.asProperties();
 	}

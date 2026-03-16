@@ -9,8 +9,8 @@ import java.util.function.Predicate;
  */
 class ShadeStdEnv extends StdEnv {
 
-	ShadeStdEnv(String name, GroupEnv runtime, DelegateEnv defaults, Predicate<Env> filter) {
-		super(name, runtime.shade(filter), defaults);
+	ShadeStdEnv(String name, GroupEnv main, DelegateEnv defaults, Predicate<Env> filter) {
+		super(name, main.shade(filter), defaults);
 	}
 
 	@Override

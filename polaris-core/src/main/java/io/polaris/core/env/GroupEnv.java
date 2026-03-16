@@ -13,6 +13,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import javax.annotation.Nullable;
+
 import io.polaris.core.lang.primitive.Booleans;
 import io.polaris.core.string.Strings;
 
@@ -65,6 +67,11 @@ public class GroupEnv implements Env {
 
 	public GroupEnv shade(Predicate<Env> filter) {
 		return new ShadeGroupEnv(name, runtime, envList, filter);
+	}
+
+	@Nullable
+	public Env runtime() {
+		return runtime;
 	}
 
 	@Override

@@ -31,7 +31,7 @@ public class StdEnv implements Env {
 	public static final String APP_ENV = "AppEnv";
 
 	private final String name;
-	private final GroupEnv runtime;
+	private final GroupEnv main;
 	private final DelegateEnv defaults;
 	private final AtomicBoolean customized = new AtomicBoolean(false);
 
@@ -43,35 +43,35 @@ public class StdEnv implements Env {
 	 */
 	private StdEnv(String name, String appConf) {
 		this.name = name;
-		this.runtime = GroupEnv.newInstance(null, true);
+		this.main = GroupEnv.newInstance(null, true);
 		this.defaults = new DelegateEnv(DEFAULT, null);
 
 		// 添加系统属性环境
-		this.runtime.addEnvLast(new SystemPropertiesWrapper(SYSTEM_PROPS));
+		this.main.addEnvLast(new SystemPropertiesWrapper(SYSTEM_PROPS));
 		// 添加系统环境变量环境
-		this.runtime.addEnvLast(new SystemEnvWrapper(SYSTEM_ENV));
+		this.main.addEnvLast(new SystemEnvWrapper(SYSTEM_ENV));
 
 		// 添加应用环境
 		DelegateEnv appEnv = new DelegateEnv(APP_ENV, null);
-		this.runtime.addEnvLast(appEnv);
+		this.main.addEnvLast(appEnv);
 		if (appConf != null) {
 			Env properties = Env.file(APP_ENV, appConf);
 			appEnv.setDelegate(properties);
 		}
 		// 添加默认环境
-		this.runtime.addEnvLast(defaults);
+		this.main.addEnvLast(defaults);
 	}
 
 	/**
 	 * 包级私有构造函数，用于创建标准环境实例。
 	 *
 	 * @param name     环境名称
-	 * @param runtime  运行时环境组
+	 * @param main     运行时环境组
 	 * @param defaults 默认环境
 	 */
-	StdEnv(String name, GroupEnv runtime, DelegateEnv defaults) {
+	StdEnv(String name, GroupEnv main, DelegateEnv defaults) {
 		this.name = name;
-		this.runtime = runtime;
+		this.main = main;
 		this.defaults = defaults;
 	}
 
@@ -112,12 +112,16 @@ public class StdEnv implements Env {
 	 * @return 新的遮罩环境实例
 	 */
 	public StdEnv shade(Predicate<Env> filter) {
-		return new ShadeStdEnv(name, runtime, defaults, filter);
+		return new ShadeStdEnv(name, main, defaults, filter);
 	}
 
 	@Override
 	public String name() {
 		return this.name;
+	}
+
+	public Env runtime() {
+		return this.main.runtime();
 	}
 
 	/**
@@ -126,7 +130,7 @@ public class StdEnv implements Env {
 	 * @param appEnv 应用环境
 	 */
 	public void setAppEnv(Env appEnv) {
-		this.runtime.replaceEnv(APP_ENV, appEnv);
+		this.main.replaceEnv(APP_ENV, appEnv);
 	}
 
 	/**
@@ -151,17 +155,17 @@ public class StdEnv implements Env {
 
 	@Override
 	public Set<String> keys() {
-		return this.runtime.keys();
+		return this.main.keys();
 	}
 
 	@Override
 	public void set(String key, String value) {
-		this.runtime.set(key, value);
+		this.main.set(key, value);
 	}
 
 	@Override
 	public void remove(final String key) {
-		this.runtime.remove(key);
+		this.main.remove(key);
 	}
 
 	/**
@@ -192,7 +196,7 @@ public class StdEnv implements Env {
 	 * @param env 环境
 	 */
 	public void addEnvFirst(Env env) {
-		this.runtime.addEnvFirst(env);
+		this.main.addEnvFirst(env);
 	}
 
 	/**
@@ -201,7 +205,7 @@ public class StdEnv implements Env {
 	 * @param env 环境
 	 */
 	public void addEnvLast(Env env) {
-		this.runtime.addEnvBefore(DEFAULT, env);
+		this.main.addEnvBefore(DEFAULT, env);
 	}
 
 	/**
@@ -212,7 +216,7 @@ public class StdEnv implements Env {
 	 * @return 是否添加成功
 	 */
 	public boolean addEnvBefore(String name, Env env) {
-		return this.runtime.addEnvBefore(name, env);
+		return this.main.addEnvBefore(name, env);
 	}
 
 	/**
@@ -223,7 +227,7 @@ public class StdEnv implements Env {
 	 * @return 是否添加成功
 	 */
 	public boolean addEnvAfter(String name, Env env) {
-		return this.runtime.addEnvAfter(name, env);
+		return this.main.addEnvAfter(name, env);
 	}
 
 	/**
@@ -234,7 +238,7 @@ public class StdEnv implements Env {
 	 * @return 是否替换成功
 	 */
 	public boolean replaceEnv(String name, Env env) {
-		return this.runtime.replaceEnv(name, env);
+		return this.main.replaceEnv(name, env);
 	}
 
 	/**
@@ -244,17 +248,17 @@ public class StdEnv implements Env {
 	 * @return 是否移除成功
 	 */
 	public boolean removeEnv(String name) {
-		return this.runtime.removeEnv(name);
+		return this.main.removeEnv(name);
 	}
 
 	@Override
 	public String get(String key) {
-		return this.runtime.get(key);
+		return this.main.get(key);
 	}
 
 	@Override
 	public String get(String key, String defaultVal) {
-		return this.runtime.get(key, defaultVal);
+		return this.main.get(key, defaultVal);
 	}
 
 	/**
@@ -264,7 +268,7 @@ public class StdEnv implements Env {
 	 * @return 值或空字符串
 	 */
 	public String getOrEmpty(String key) {
-		return this.runtime.getOrEmpty(key);
+		return this.main.getOrEmpty(key);
 	}
 
 	/**
@@ -275,7 +279,7 @@ public class StdEnv implements Env {
 	 * @return 值或默认值
 	 */
 	public String getOrDefault(String key, String defaultVal) {
-		return this.runtime.getOrDefault(key, defaultVal);
+		return this.main.getOrDefault(key, defaultVal);
 	}
 
 	/**
@@ -286,7 +290,7 @@ public class StdEnv implements Env {
 	 * @return 值或默认值
 	 */
 	public String getOrDefaultIfEmpty(String key, String defaultVal) {
-		return this.runtime.getOrDefaultIfEmpty(key, defaultVal);
+		return this.main.getOrDefaultIfEmpty(key, defaultVal);
 	}
 
 	/**
@@ -309,7 +313,7 @@ public class StdEnv implements Env {
 	 * @return 解析后的字符串
 	 */
 	public String resolveRef(String origin, Function<String, String> getter) {
-		return this.runtime.resolveRef(origin, getter);
+		return this.main.resolveRef(origin, getter);
 	}
 
 	/**
@@ -319,7 +323,7 @@ public class StdEnv implements Env {
 	 * @return 解析后的字符串
 	 */
 	public String resolveRef(String origin) {
-		return this.runtime.resolveRef(origin);
+		return this.main.resolveRef(origin);
 	}
 
 	/**
@@ -330,7 +334,7 @@ public class StdEnv implements Env {
 	 * @return 解析后的字符串
 	 */
 	public String resolveRef(String origin, Map<String, String> map) {
-		return this.runtime.resolveRef(origin, map);
+		return this.main.resolveRef(origin, map);
 	}
 
 	/**
@@ -341,7 +345,7 @@ public class StdEnv implements Env {
 	 * @return 解析后的字符串
 	 */
 	public String resolveRef(String origin, Properties env) {
-		return this.runtime.resolveRef(origin, env);
+		return this.main.resolveRef(origin, env);
 	}
 
 	/**
@@ -351,7 +355,7 @@ public class StdEnv implements Env {
 	 * @return 布尔值
 	 */
 	public boolean getBoolean(String key) {
-		return this.runtime.getBoolean(key);
+		return this.main.getBoolean(key);
 	}
 
 	/**
@@ -362,7 +366,7 @@ public class StdEnv implements Env {
 	 * @return 布尔值
 	 */
 	public boolean getBoolean(String key, boolean defaultVal) {
-		return this.runtime.getBoolean(key, defaultVal);
+		return this.main.getBoolean(key, defaultVal);
 	}
 
 	/**
@@ -372,7 +376,7 @@ public class StdEnv implements Env {
 	 * @return 整数值
 	 */
 	public int getInt(String key) {
-		return this.runtime.getInt(key);
+		return this.main.getInt(key);
 	}
 
 	/**
@@ -383,7 +387,7 @@ public class StdEnv implements Env {
 	 * @return 整数值
 	 */
 	public int getInt(String key, int defaultVal) {
-		return this.runtime.getInt(key, defaultVal);
+		return this.main.getInt(key, defaultVal);
 	}
 
 	/**
@@ -393,7 +397,7 @@ public class StdEnv implements Env {
 	 * @return 长整数值
 	 */
 	public long getLong(String key) {
-		return this.runtime.getLong(key);
+		return this.main.getLong(key);
 	}
 
 	/**
@@ -404,7 +408,7 @@ public class StdEnv implements Env {
 	 * @return 长整数值
 	 */
 	public long getLong(String key, long defaultVal) {
-		return this.runtime.getLong(key, defaultVal);
+		return this.main.getLong(key, defaultVal);
 	}
 
 	/**
@@ -415,7 +419,7 @@ public class StdEnv implements Env {
 	 * @return 本地日期
 	 */
 	public LocalDate getLocalDate(String key, String defaultVal) {
-		return this.runtime.getLocalDate(key, defaultVal);
+		return this.main.getLocalDate(key, defaultVal);
 	}
 
 	/**
@@ -426,7 +430,7 @@ public class StdEnv implements Env {
 	 * @return 本地日期时间
 	 */
 	public LocalDateTime getLocalDateTime(String key, String defaultVal) {
-		return this.runtime.getLocalDateTime(key, defaultVal);
+		return this.main.getLocalDateTime(key, defaultVal);
 	}
 
 	/**
@@ -437,7 +441,7 @@ public class StdEnv implements Env {
 	 * @return 本地时间
 	 */
 	public LocalTime getLocalTime(String key, String defaultVal) {
-		return this.runtime.getLocalTime(key, defaultVal);
+		return this.main.getLocalTime(key, defaultVal);
 	}
 
 	/**
@@ -448,7 +452,7 @@ public class StdEnv implements Env {
 	 * @return 日期
 	 */
 	public Date getDate(String key, String defaultVal) {
-		return this.runtime.getDate(key, defaultVal);
+		return this.main.getDate(key, defaultVal);
 	}
 
 	/**
@@ -459,7 +463,7 @@ public class StdEnv implements Env {
 	 * @return 日期时间
 	 */
 	public Timestamp getDateTime(String key, String defaultVal) {
-		return this.runtime.getDateTime(key, defaultVal);
+		return this.main.getDateTime(key, defaultVal);
 	}
 
 	/**
@@ -470,7 +474,7 @@ public class StdEnv implements Env {
 	 * @return 时间
 	 */
 	public Time getTime(String key, String defaultVal) {
-		return this.runtime.getTime(key, defaultVal);
+		return this.main.getTime(key, defaultVal);
 	}
 
 	/**
@@ -480,7 +484,7 @@ public class StdEnv implements Env {
 	 * @return 数组
 	 */
 	public String[] getArray(String key) {
-		return this.runtime.getArray(key);
+		return this.main.getArray(key);
 	}
 
 	/**
@@ -491,6 +495,6 @@ public class StdEnv implements Env {
 	 * @return 数组
 	 */
 	public String[] getArray(String key, String[] defaultVal) {
-		return this.runtime.getArray(key, defaultVal);
+		return this.main.getArray(key, defaultVal);
 	}
 }

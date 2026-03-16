@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import io.polaris.core.env.Env;
 import io.polaris.core.env.GlobalStdEnv;
 import io.polaris.core.env.StdEnv;
@@ -40,9 +42,33 @@ public class DemoEnvironmentPostProcessor implements EnvironmentPostProcessor {
 			}
 		});
 
-
 	}
 
+	private static class GlobalStdEnvPropertySource extends EnumerablePropertySource {
+		private final Env memory;
+
+		public GlobalStdEnvPropertySource() {
+			super("StdEnvRuntime");
+			this.memory = GlobalStdEnv.runtime();
+		}
+
+		@Override
+		public Object getProperty(String name) {
+			if (memory != null) {
+				return memory.get(name);
+			}
+			return null;
+		}
+
+		@Override
+		@Nonnull
+		public String[] getPropertyNames() {
+			if (memory != null) {
+				return memory.keys().toArray(new String[0]);
+			}
+			return new String[0];
+		}
+	}
 
 	private static class SpringEnv implements Env {
 		private final ConfigurableEnvironment environment;
