@@ -7,5 +7,5 @@ package io.polaris.core.spi;
  * @since Mar 13, 2026
  */
 @Spi("标识为一个有状态的SPI服务类")
-public interface StatefulSpiLoadable {
+public interface StatefulSpiLoadable extends SpiLoadable {
 }
