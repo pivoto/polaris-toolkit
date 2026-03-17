@@ -9,6 +9,8 @@ import java.lang.annotation.Target;
 import io.polaris.core.jdbc.sql.consts.Relation;
 
 /**
+ * 数据权限注解
+ *
  * @author Qt
  * @since Jan 25, 2026
  */
@@ -17,10 +19,13 @@ import io.polaris.core.jdbc.sql.consts.Relation;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DataScope {
 
+	/** 需要开启控制的数据权限 */
 	String[] include() default {};
 
+	/** 需要关闭控制的数据权限 */
 	String[] exclude() default {};
 
+	/** 多个数据权限间的作用关系，默认为并集 */
 	Relation relation() default Relation.OR;
 
 }
