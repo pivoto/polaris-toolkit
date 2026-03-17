@@ -32,7 +32,7 @@ import io.polaris.demo.mybatis.entity.DemoUserOrgEntity;
 import io.polaris.demo.mybatis.entity.DemoUserOrgEntityMeta;
 import io.polaris.demo.mybatis.model.DemoParam;
 import io.polaris.mybatis.provider.AnyEntityProvider;
-import io.polaris.mybatis.provider.ProviderSqlSourceDriver;
+import io.polaris.mybatis.scripting.ProviderSqlSourceDriver;
 import io.polaris.mybatis.scripting.TableRefResolvableDriver;
 import org.apache.ibatis.annotations.*;
 

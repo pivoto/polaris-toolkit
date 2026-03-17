@@ -20,6 +20,7 @@ import io.polaris.core.tuple.Tuple2;
 import io.polaris.mybatis.annotation.MapperEntity;
 import io.polaris.mybatis.annotation.WithLogicDeleted;
 import io.polaris.mybatis.mapper.EntityMapper;
+import io.polaris.mybatis.scripting.EnhanceBoundSqlLanguageDriver;
 import io.polaris.mybatis.support.MapperHelperContext;
 import org.apache.ibatis.annotations.Lang;
 import org.apache.ibatis.builder.annotation.ProviderContext;
@@ -176,7 +177,7 @@ public abstract class BaseProviderMethodResolver implements ProviderMethodResolv
 		if (parameterObject instanceof Map) {
 			return (Map<String, Object>) parameterObject;
 		} else {
-			if (!MapperHelperContext.isEnabledEnhanceBoundSql() && !hasProviderSqlSourceDriver(mapperMethod)) {
+			if (!MapperHelperContext.isEnabledEnhanceBoundSql() && !hasEnhanceBoundSqlLanguageDriver(mapperMethod)) {
 				if (parameterObject == null) {
 					// 参数为空时，使用空MAP，不接收任何绑定
 					return Collections.emptyMap();
@@ -188,12 +189,12 @@ public abstract class BaseProviderMethodResolver implements ProviderMethodResolv
 		}
 	}
 
-	private static boolean hasProviderSqlSourceDriver(Method mapperMethod) {
+	private static boolean hasEnhanceBoundSqlLanguageDriver(Method mapperMethod) {
 		Lang lang = mapperMethod.getAnnotation(Lang.class);
 		if (lang == null) {
 			return false;
 		}
-		return ProviderSqlSourceDriver.class == lang.value();
+		return EnhanceBoundSqlLanguageDriver.class.isAssignableFrom(lang.value());
 	}
 
 	/**
