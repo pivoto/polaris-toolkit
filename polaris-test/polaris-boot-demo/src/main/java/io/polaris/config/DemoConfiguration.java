@@ -31,41 +31,16 @@ public class DemoConfiguration {
 	}
 
 	@Bean
-	@Order(1000)
-	public DataAuthInterceptor dataAuthInterceptor() {
-		return new DataAuthInterceptor();
-	}
-
-	@Bean
-	@Order(500)
-	public PageInterceptor pageInterceptor() {
-		return new PageInterceptor();
-	}
-
-	@Bean
-	@Order(100)
-	public MybatisLogInterceptor mybatisLogInterceptor() {
-		return new MybatisLogInterceptor();
-	}
-
-
-	@Bean
-	@Order(Integer.MAX_VALUE)
-	public DynamicResultMappingInterceptor dynamicResultMappingInterceptor() {
-		return new DynamicResultMappingInterceptor();
-	}
-
-	@Bean
-	@Order(1)
-	public BoundSqlEnhanceInterceptor boundSqlEnhanceInterceptor() {
-		return new BoundSqlEnhanceInterceptor();
-	}
-
-	@Bean
 	public ConfigurationCustomizer configurationCustomizer() {
 		return configuration -> {
 			TypeHandlerRegistry typeHandlerRegistry = configuration.getTypeHandlerRegistry();
 			TypeHandlers.registerAll(configuration);
+			// 按 org.apache.ibatis.plugin.InterceptorChain 代理规则，插件执行顺序与添加顺序相反
+			configuration.addInterceptor(new DynamicResultMappingInterceptor());
+			configuration.addInterceptor(new MybatisLogInterceptor());
+			configuration.addInterceptor(new PageInterceptor());
+			configuration.addInterceptor(new DataAuthInterceptor());
+			configuration.addInterceptor(new BoundSqlEnhanceInterceptor());
 		};
 	}
 }
