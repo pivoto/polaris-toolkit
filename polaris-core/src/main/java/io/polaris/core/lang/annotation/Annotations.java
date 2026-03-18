@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -158,6 +159,109 @@ public class Annotations {
 	public static <A extends Annotation> Set<AnnotationAttributes> getTopMergedRepeatableAnnotationAttributes(AnnotatedElement element, Class<A> annotationType) {
 		return MergedAnnotations.getTopMergedRepeatableAnnotationAttributes(element, annotationType);
 	}
+
+	/**
+	 * 查找指定元素上满足条件的合并注解属性
+	 * <p>
+	 * 该方法用于从注解元素上查找所有满足给定条件的注解类型，并获取它们的合并注解属性。
+	 * 委托给 {@link MergedAnnotations#findMergedAnnotationAttributes(AnnotatedElement, Predicate)} 实现完整的查找逻辑。
+	 * 返回的 Map 包含所有满足条件的注解类型及其对应的合并注解属性。
+	 *
+	 * @param element   注解元素，可以是类、方法、参数等任何带有注解的程序元素，不能为 null
+	 * @param predicate 条件判断器，用于测试注解类型是否应该被查找；不能为 null
+	 * @return Map，键为满足条件的注解类型，值为对应的合并注解属性；如果没有任何注解满足条件则返回空映射
+	 */
+	@Nonnull
+	public static Map<Class<? extends Annotation>, AnnotationAttributes> findMergedAnnotationAttributes(AnnotatedElement element, Predicate<Class<? extends Annotation>> predicate) {
+		return MergedAnnotations.findMergedAnnotationAttributes(element, predicate);
+	}
+
+	/**
+	 * 查找指定元素上满足条件的合并注解
+	 * <p>
+	 * 该方法用于从注解元素上查找所有满足给定条件的注解类型，并获取它们的合并注解实例。
+	 * 委托给 {@link MergedAnnotations#findMergedAnnotation(AnnotatedElement, Predicate)} 实现完整的查找逻辑。
+	 * 返回的 Map 包含所有满足条件的注解类型及其对应的合并注解实例。
+	 *
+	 * @param element   注解元素，可以是类、方法、参数等任何带有注解的程序元素，不能为 null
+	 * @param predicate 条件判断器，用于测试注解类型是否应该被查找；不能为 null
+	 * @return Map，键为满足条件的注解类型，值为对应的合并注解实例；如果没有任何注解满足条件则返回空映射
+	 */
+	@Nonnull
+	public static Map<Class<? extends Annotation>, Annotation> findMergedAnnotation(AnnotatedElement element, Predicate<Class<? extends Annotation>> predicate) {
+		return MergedAnnotations.findMergedAnnotation(element, predicate);
+	}
+
+	/**
+	 * 查找指定元素上满足条件的合并可重复注解属性集合
+	 * <p>
+	 * 该方法用于从注解元素上查找所有满足给定条件的注解类型，并获取它们的合并可重复注解属性集合。
+	 * 委托给 {@link MergedAnnotations#findMergedRepeatableAnnotationAttributes(AnnotatedElement, Predicate)} 实现完整的查找逻辑。
+	 * 返回的 Map 包含所有满足条件的注解类型及其对应的所有合并可重复注解属性。
+	 * 即使某个注解类型没有可重复注解，也会在结果中包含该类型（值为空集合）。
+	 *
+	 * @param element   注解元素，可以是类、方法、参数等任何带有注解的程序元素，不能为 null
+	 * @param predicate 条件判断器，用于测试注解类型是否应该被查找；不能为 null
+	 * @return Map，键为满足条件的注解类型，值为对应的合并可重复注解属性集合；如果没有任何注解满足条件则返回空映射
+	 */
+	@Nonnull
+	public static Map<Class<? extends Annotation>, Set<AnnotationAttributes>> findMergedRepeatableAnnotationAttributes(AnnotatedElement element, Predicate<Class<? extends Annotation>> predicate) {
+		return MergedAnnotations.findMergedRepeatableAnnotationAttributes(element, predicate);
+	}
+
+	/**
+	 * 查找指定元素上满足条件的合并可重复注解集合
+	 * <p>
+	 * 该方法用于从注解元素上查找所有满足给定条件的注解类型，并获取它们的合并可重复注解实例集合。
+	 * 委托给 {@link MergedAnnotations#findMergedRepeatableAnnotation(AnnotatedElement, Predicate)} 实现完整的查找逻辑。
+	 * 返回的 Map 包含所有满足条件的注解类型及其对应的所有合并可重复注解实例。
+	 * 即使某个注解类型没有可重复注解，也会在结果中包含该类型（值为空集合）。
+	 *
+	 * @param element   注解元素，可以是类、方法、参数等任何带有注解的程序元素，不能为 null
+	 * @param predicate 条件判断器，用于测试注解类型是否应该被查找；不能为 null
+	 * @return Map，键为满足条件的注解类型，值为对应的合并可重复注解实例集合；如果没有任何注解满足条件则返回空映射
+	 */
+	@Nonnull
+	public static Map<Class<? extends Annotation>, Set<? extends Annotation>> findMergedRepeatableAnnotation(AnnotatedElement element, Predicate<Class<? extends Annotation>> predicate) {
+		return MergedAnnotations.findMergedRepeatableAnnotation(element, predicate);
+	}
+
+	/**
+	 * 查找指定元素上满足条件的顶层合并可重复注解属性集合
+	 * <p>
+	 * 该方法用于从注解元素上查找所有满足给定条件的注解类型，并获取它们的顶层（最近距离）合并可重复注解属性集合。
+	 * 委托给 {@link MergedAnnotations#findTopMergedRepeatableAnnotationAttributes(AnnotatedElement, Predicate)} 实现完整的查找逻辑。
+	 * 与 {@link #findMergedRepeatableAnnotationAttributes(AnnotatedElement, Predicate)} 不同，该方法只返回最近层级的注解属性，
+	 * 而不包含继承层级中的注解属性。
+	 * 返回的 Map 包含所有满足条件的注解类型及其对应的顶层合并可重复注解属性。
+	 *
+	 * @param element   注解元素，可以是类、方法、参数等任何带有注解的程序元素，不能为 null
+	 * @param predicate 条件判断器，用于测试注解类型是否应该被查找；不能为 null
+	 * @return Map，键为满足条件的注解类型，值为对应的顶层合并可重复注解属性集合；如果没有任何注解满足条件则返回空映射
+	 */
+	@Nonnull
+	public static Map<Class<? extends Annotation>, Set<AnnotationAttributes>> findTopMergedRepeatableAnnotationAttributes(AnnotatedElement element, Predicate<Class<? extends Annotation>> predicate) {
+		return MergedAnnotations.findTopMergedRepeatableAnnotationAttributes(element, predicate);
+	}
+
+	/**
+	 * 查找指定元素上满足条件的顶层合并可重复注解集合
+	 * <p>
+	 * 该方法用于从注解元素上查找所有满足给定条件的注解类型，并获取它们的顶层（最近距离）合并可重复注解实例集合。
+	 * 委托给 {@link MergedAnnotations#findTopMergedRepeatableAnnotation(AnnotatedElement, Predicate)} 实现完整的查找逻辑。
+	 * 与 {@link #findMergedRepeatableAnnotation(AnnotatedElement, Predicate)} 不同，该方法只返回最近层级的注解实例，
+	 * 而不包含继承层级中的注解实例。
+	 * 返回的 Map 包含所有满足条件的注解类型及其对应的顶层合并可重复注解实例。
+	 *
+	 * @param element   注解元素，可以是类、方法、参数等任何带有注解的程序元素，不能为 null
+	 * @param predicate 条件判断器，用于测试注解类型是否应该被查找；不能为 null
+	 * @return Map，键为满足条件的注解类型，值为对应的顶层合并可重复注解实例集合；如果没有任何注解满足条件则返回空映射
+	 */
+	@Nonnull
+	public static Map<Class<? extends Annotation>, Set<? extends Annotation>> findTopMergedRepeatableAnnotation(AnnotatedElement element, Predicate<Class<? extends Annotation>> predicate) {
+		return MergedAnnotations.findTopMergedRepeatableAnnotation(element, predicate);
+	}
+
 
 	/**
 	 * 创建注解实例

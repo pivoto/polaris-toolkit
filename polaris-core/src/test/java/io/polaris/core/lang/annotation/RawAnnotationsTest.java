@@ -12,14 +12,9 @@ class RawAnnotationsTest {
 
 	@Test
 	void test() {
-		Consoles.println("", RawAnnotations.findAnnotation(BaseClass.class, a -> {
-			return a instanceof BaseAnno;
-		}));
-		Consoles.println("", RawAnnotations.findAnnotation(RepeatableClass.class, a -> {
-			return a instanceof RepeatableAnno;
-		}));
-		Consoles.println("", RawAnnotations.findAnnotation(RepeatableClass.class, a -> {
-			return a instanceof RepeatedAnno;
-		}));
+		Consoles.println("", RawAnnotations.findAnnotation(BaseClass.class, BaseAnno.class::isAssignableFrom));
+		Consoles.println("", RawAnnotations.findAnnotation(RepeatableClass.class, RepeatableAnno.class::isAssignableFrom));
+		Consoles.println("", RawAnnotations.findAnnotation(RepeatableClass.class, RepeatedAnno.class::isAssignableFrom));
 	}
+
 }

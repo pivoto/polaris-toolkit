@@ -7,9 +7,13 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -50,6 +54,198 @@ public class HierarchyMergedAnnotation {
 		return Collections.unmodifiableList(hierarchyAnnotations);
 	}
 
+
+	/**
+	 * 根据条件选择注解类型
+	 * <p>
+	 * 该方法用于从注解层次结构中筛选出满足给定条件的注解类型。
+	 * 遍历所有层级的所有注解，使用提供的谓词进行测试，收集所有满足条件且不重复的注解类型。
+	 * 使用 LinkedHashSet 确保结果不重复并保持插入顺序。
+	 *
+	 * @param predicate 条件判断器，用于测试注解类型是否应该被选中；不能为 null
+	 * @return 满足条件的注解类型集合，如果没有任何注解满足条件则返回空集合
+	 */
+	@Nonnull
+	private Set<Class<? extends Annotation>> selectAnnotationTypes(Predicate<Class<? extends Annotation>> predicate) {
+		// 使用 LinkedHashSet 存储选中的注解类型，确保不重复并保持插入顺序
+		Set<Class<? extends Annotation>> selectedAnnotations = new LinkedHashSet<>();
+		// 遍历所有层级的注解
+		for (Set<MergedAnnotation> set : hierarchyAnnotations) {
+			for (MergedAnnotation annotation : set) {
+				Class<? extends Annotation> annotationType = annotation.annotationType();
+				// 如果该注解类型已被选中，跳过以避免重复处理
+				if (selectedAnnotations.contains(annotationType)) {
+					continue;
+				}
+				// 使用谓词测试注解类型，如果满足条件则添加到结果集合
+				if (predicate.test(annotationType)) {
+					selectedAnnotations.add(annotationType);
+				}
+			}
+		}
+		return selectedAnnotations;
+	}
+
+	/**
+	 * 查找满足条件的合并注解属性
+	 * <p>
+	 * 该方法用于从注解层次结构中查找所有满足给定条件的注解类型，并获取它们的合并注解属性。
+	 * 首先通过 {@link #selectAnnotationTypes(Predicate)} 筛选出满足条件的注解类型，
+	 * 然后对每个选中的注解类型调用 {@link #getMergedAnnotationAttributes(Class)} 获取其合并后的注解属性。
+	 * 使用 LinkedHashMap 保持插入顺序，只包含成功获取到注解属性的注解类型。
+	 *
+	 * @param predicate 条件判断器，用于测试注解类型是否应该被查找；不能为 null
+	 * @return Map，键为满足条件的注解类型，值为对应的合并注解属性；如果没有任何注解满足条件则返回空映射
+	 */
+	@Nonnull
+	public Map<Class<? extends Annotation>, AnnotationAttributes> findMergedAnnotationAttributes(Predicate<Class<? extends Annotation>> predicate) {
+		// 筛选出满足条件的注解类型
+		Set<Class<? extends Annotation>> selectedAnnotations = selectAnnotationTypes(predicate);
+		// 使用 LinkedHashMap 存储结果，保持插入顺序
+		Map<Class<? extends Annotation>, AnnotationAttributes> result = new LinkedHashMap<>();
+		// 遍历所有选中的注解类型，获取其合并注解属性
+		for (Class<? extends Annotation> selectedAnnotation : selectedAnnotations) {
+			AnnotationAttributes attributes = getMergedAnnotationAttributes(selectedAnnotation);
+			// 只将成功获取到属性的注解添加到结果映射中
+			if (attributes != null) {
+				result.put(selectedAnnotation, attributes);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 查找满足条件的合并注解
+	 * <p>
+	 * 该方法用于从注解层次结构中查找所有满足给定条件的注解类型，并获取它们的合并注解实例。
+	 * 首先通过 {@link #selectAnnotationTypes(Predicate)} 筛选出满足条件的注解类型，
+	 * 然后对每个选中的注解类型调用 {@link #getMergedAnnotation(Class)} 获取其合并后的注解实例。
+	 * 使用 LinkedHashMap 保持插入顺序，只包含成功获取到注解实例的注解类型。
+	 *
+	 * @param predicate 条件判断器，用于测试注解类型是否应该被查找；不能为 null
+	 * @return Map，键为满足条件的注解类型，值为对应的合并注解实例；如果没有任何注解满足条件则返回空映射
+	 */
+	@Nonnull
+	public Map<Class<? extends Annotation>, Annotation> findMergedAnnotation(Predicate<Class<? extends Annotation>> predicate) {
+		// 筛选出满足条件的注解类型
+		Set<Class<? extends Annotation>> selectedAnnotations = selectAnnotationTypes(predicate);
+		// 使用 LinkedHashMap 存储结果，保持插入顺序
+		Map<Class<? extends Annotation>, Annotation> result = new LinkedHashMap<>();
+		// 遍历所有选中的注解类型，获取其合并注解实例
+		for (Class<? extends Annotation> selectedAnnotation : selectedAnnotations) {
+			Annotation attributes = getMergedAnnotation(selectedAnnotation);
+			// 只将成功获取到注解实例的注解添加到结果映射中
+			if (attributes != null) {
+				result.put(selectedAnnotation, attributes);
+			}
+		}
+		return result;
+	}
+
+
+	/**
+	 * 查找满足条件的合并可重复注解属性集合
+	 * <p>
+	 * 该方法用于从注解层次结构中查找所有满足给定条件的注解类型，并获取它们的合并可重复注解属性集合。
+	 * 首先通过 {@link #selectAnnotationTypes(Predicate)} 筛选出满足条件的注解类型，
+	 * 然后对每个选中的注解类型调用 {@link #getMergedRepeatableAnnotationAttributes(Class)} 获取其所有合并后的注解属性。
+	 * 使用 LinkedHashMap 保持插入顺序，即使某个注解类型没有可重复注解也会包含在结果中（值为空集合）。
+	 *
+	 * @param predicate 条件判断器，用于测试注解类型是否应该被查找；不能为 null
+	 * @return Map，键为满足条件的注解类型，值为对应的合并可重复注解属性集合；如果没有任何注解满足条件则返回空映射
+	 */
+	@Nonnull
+	public Map<Class<? extends Annotation>, Set<AnnotationAttributes>> findMergedRepeatableAnnotationAttributes(Predicate<Class<? extends Annotation>> predicate) {
+		// 筛选出满足条件的注解类型
+		Set<Class<? extends Annotation>> selectedAnnotations = selectAnnotationTypes(predicate);
+		// 使用 LinkedHashMap 存储结果，保持插入顺序
+		Map<Class<? extends Annotation>, Set<AnnotationAttributes>> result = new LinkedHashMap<>();
+		// 遍历所有选中的注解类型，获取其合并可重复注解属性集合
+		for (Class<? extends Annotation> selectedAnnotation : selectedAnnotations) {
+			Set<AnnotationAttributes> matched = getMergedRepeatableAnnotationAttributes(selectedAnnotation);
+			result.put(selectedAnnotation, matched);
+		}
+		return result;
+	}
+
+	/**
+	 * 查找满足条件的合并可重复注解集合
+	 * <p>
+	 * 该方法用于从注解层次结构中查找所有满足给定条件的注解类型，并获取它们的合并可重复注解实例集合。
+	 * 首先通过 {@link #selectAnnotationTypes(Predicate)} 筛选出满足条件的注解类型，
+	 * 然后对每个选中的注解类型调用 {@link #getMergedRepeatableAnnotation(Class)} 获取其所有合并后的注解实例。
+	 * 使用 LinkedHashMap 保持插入顺序，即使某个注解类型没有可重复注解也会包含在结果中（值为空集合）。
+	 *
+	 * @param predicate 条件判断器，用于测试注解类型是否应该被查找；不能为 null
+	 * @return Map，键为满足条件的注解类型，值为对应的合并可重复注解实例集合；如果没有任何注解满足条件则返回空映射
+	 */
+	@Nonnull
+	public Map<Class<? extends Annotation>, Set<? extends Annotation>> findMergedRepeatableAnnotation(Predicate<Class<? extends Annotation>> predicate) {
+		// 筛选出满足条件的注解类型
+		Set<Class<? extends Annotation>> selectedAnnotations = selectAnnotationTypes(predicate);
+		// 使用 LinkedHashMap 存储结果，保持插入顺序
+		Map<Class<? extends Annotation>, Set<? extends Annotation>> result = new LinkedHashMap<>();
+		// 遍历所有选中的注解类型，获取其合并可重复注解实例集合
+		for (Class<? extends Annotation> selectedAnnotation : selectedAnnotations) {
+			Set<? extends Annotation> matched = getMergedRepeatableAnnotation(selectedAnnotation);
+			result.put(selectedAnnotation, matched);
+		}
+		return result;
+	}
+
+	/**
+	 * 查找满足条件的顶层合并可重复注解属性集合
+	 * <p>
+	 * 该方法用于从注解层次结构中查找所有满足给定条件的注解类型，并获取它们的顶层合并可重复注解属性集合。
+	 * 首先通过 {@link #selectAnnotationTypes(Predicate)} 筛选出满足条件的注解类型，
+	 * 然后对每个选中的注解类型调用 {@link #getTopMergedRepeatableAnnotationAttributes(Class)} 获取其最近层级的注解属性。
+	 * 使用 LinkedHashMap 保持插入顺序，即使某个注解类型没有可重复注解也会包含在结果中（值为空集合）。
+	 * 与 {@link #findMergedRepeatableAnnotationAttributes(Predicate)} 不同，该方法只返回最近层级的注解属性。
+	 *
+	 * @param predicate 条件判断器，用于测试注解类型是否应该被查找；不能为 null
+	 * @return Map，键为满足条件的注解类型，值为对应的顶层合并可重复注解属性集合；如果没有任何注解满足条件则返回空映射
+	 */
+	@Nonnull
+	public Map<Class<? extends Annotation>, Set<AnnotationAttributes>> findTopMergedRepeatableAnnotationAttributes(Predicate<Class<? extends Annotation>> predicate) {
+		// 筛选出满足条件的注解类型
+		Set<Class<? extends Annotation>> selectedAnnotations = selectAnnotationTypes(predicate);
+		// 使用 LinkedHashMap 存储结果，保持插入顺序
+		Map<Class<? extends Annotation>, Set<AnnotationAttributes>> result = new LinkedHashMap<>();
+		// 遍历所有选中的注解类型，获取其顶层合并可重复注解属性集合
+		for (Class<? extends Annotation> selectedAnnotation : selectedAnnotations) {
+			Set<AnnotationAttributes> matched = getTopMergedRepeatableAnnotationAttributes(selectedAnnotation);
+			result.put(selectedAnnotation, matched);
+		}
+		return result;
+	}
+
+	/**
+	 * 查找满足条件的顶层合并可重复注解集合
+	 * <p>
+	 * 该方法用于从注解层次结构中查找所有满足给定条件的注解类型，并获取它们的顶层合并可重复注解实例集合。
+	 * 首先通过 {@link #selectAnnotationTypes(Predicate)} 筛选出满足条件的注解类型，
+	 * 然后对每个选中的注解类型调用 {@link #getTopMergedRepeatableAnnotation(Class)} 获取其最近层级的注解实例。
+	 * 使用 LinkedHashMap 保持插入顺序，即使某个注解类型没有可重复注解也会包含在结果中（值为空集合）。
+	 * 与 {@link #findMergedRepeatableAnnotation(Predicate)} 不同，该方法只返回最近层级的注解实例。
+	 *
+	 * @param predicate 条件判断器，用于测试注解类型是否应该被查找；不能为 null
+	 * @return Map，键为满足条件的注解类型，值为对应的顶层合并可重复注解实例集合；如果没有任何注解满足条件则返回空映射
+	 */
+	@Nonnull
+	public Map<Class<? extends Annotation>, Set<? extends Annotation>> findTopMergedRepeatableAnnotation(Predicate<Class<? extends Annotation>> predicate) {
+		// 筛选出满足条件的注解类型
+		Set<Class<? extends Annotation>> selectedAnnotations = selectAnnotationTypes(predicate);
+		// 使用 LinkedHashMap 存储结果，保持插入顺序
+		Map<Class<? extends Annotation>, Set<? extends Annotation>> result = new LinkedHashMap<>();
+		// 遍历所有选中的注解类型，获取其顶层合并可重复注解实例集合
+		for (Class<? extends Annotation> selectedAnnotation : selectedAnnotations) {
+			Set<? extends Annotation> matched = getTopMergedRepeatableAnnotation(selectedAnnotation);
+			result.put(selectedAnnotation, matched);
+		}
+		return result;
+	}
+
+
 	/**
 	 * 匹配合并后的注解
 	 * <p>
@@ -65,7 +261,7 @@ public class HierarchyMergedAnnotation {
 	 * @return MatchedMergedAnnotation 对象，封装了匹配的注解及其别名关系；如果未找到任何匹配则返回 null
 	 */
 	@Nullable
-	public <A extends Annotation> MatchedMergedAnnotation<A> matchMergedAnnotation(Class<A> annotationType) {
+	public <A extends Annotation, R> R matchMergedAnnotation(Class<A> annotationType, Function<MatchedMergedAnnotation<A>, R> mapper) {
 		// 记录第一个匹配的注解作为主注解
 		MergedAnnotation matchedAnnotation = null;
 		// 收集所有别名注解，包括匹配注解的别名和纯别名配置
@@ -94,12 +290,12 @@ public class HierarchyMergedAnnotation {
 		}
 		// 如果存在匹配的注解，则合并本级别名属性并返回
 		if (matchedAnnotation != null) {
-			return MatchedMergedAnnotation.of(annotationType, matchedAnnotation, aliasAnnotations);
+			return mapper.apply(MatchedMergedAnnotation.of(annotationType, matchedAnnotation, aliasAnnotations));
 		}
 
 		// 如果只存在纯别名配置，则汇总所有别名属性并合并成一个注解实例
 		if (!aliasAnnotations.isEmpty()) {
-			return MatchedMergedAnnotation.of(annotationType, null, aliasAnnotations);
+			return mapper.apply(MatchedMergedAnnotation.of(annotationType, null, aliasAnnotations));
 		}
 		return null;
 	}
@@ -108,7 +304,7 @@ public class HierarchyMergedAnnotation {
 	 * 获取合并后的注解属性
 	 * <p>
 	 * 该方法用于从注解层次结构中查找并合并指定类型的注解属性。
-	 * 首先调用 {@link #matchMergedAnnotation(Class)} 获取匹配的注解对象，
+	 * 首先获取匹配的注解对象，
 	 * 然后从中提取注解属性返回。
 	 * 如果未找到匹配的注解，则返回 null。
 	 *
@@ -118,13 +314,7 @@ public class HierarchyMergedAnnotation {
 	 */
 	@Nullable
 	public <A extends Annotation> AnnotationAttributes getMergedAnnotationAttributes(Class<A> annotationType) {
-		// 获取匹配的合并注解对象
-		MatchedMergedAnnotation<A> matchMergedAnnotation = matchMergedAnnotation(annotationType);
-		if (matchMergedAnnotation != null) {
-			// 返回匹配注解的属性
-			return matchMergedAnnotation.annotationAttributes();
-		}
-		return null;
+		return matchMergedAnnotation(annotationType, MatchedMergedAnnotation::annotationAttributes);
 	}
 
 	/**
@@ -142,11 +332,7 @@ public class HierarchyMergedAnnotation {
 
 	@Nullable
 	public <A extends Annotation> A getMergedAnnotation(Class<A> annotationType) {
-		MatchedMergedAnnotation<A> matchMergedAnnotation = matchMergedAnnotation(annotationType);
-		if (matchMergedAnnotation != null) {
-			return matchMergedAnnotation.asAnnotation();
-		}
-		return null;
+		return matchMergedAnnotation(annotationType, MatchedMergedAnnotation::asAnnotation);
 	}
 
 	/**
@@ -162,16 +348,18 @@ public class HierarchyMergedAnnotation {
 	 * @return MatchedMergedAnnotation 集合，包含所有匹配的可重复注解信息
 	 */
 	@Nonnull
-	public <A extends Annotation> Set<MatchedMergedAnnotation<A>> matchMergedRepeatableAnnotation(Class<A> annotationType) {
+	public <A extends Annotation, R> Set<R> matchMergedRepeatableAnnotation(Class<A> annotationType, Function<MatchedMergedAnnotation<A>, R> mapper) {
 		// 使用 LinkedHashSet 存储匹配的注解，确保不重复并保持插入顺序
-		Set<MatchedMergedAnnotation<A>> result = new LinkedHashSet<>();
+		Set<R> result = new LinkedHashSet<>();
 		// 遍历所有层级，尽可能找到所有匹配的注解
 		for (Set<MergedAnnotation> set : hierarchyAnnotations) {
 			for (MergedAnnotation annotation : set) {
 				Set<MatchedMergedAnnotation<A>> matchedSet = annotation.getMatchedRepeatableAnnotation(annotationType);
 				if (matchedSet != null) {
 					// match
-					result.addAll(matchedSet);
+					for (MatchedMergedAnnotation<A> o : matchedSet) {
+						result.add(mapper.apply(o));
+					}
 				}
 			}
 		}
@@ -182,7 +370,7 @@ public class HierarchyMergedAnnotation {
 	 * 获取合并后的可重复注解属性集合
 	 * <p>
 	 * 该方法用于从注解层次结构中查找并合并所有指定类型的可重复注解属性。
-	 * 首先调用 {@link #matchMergedRepeatableAnnotation(Class)} 获取所有匹配的注解对象，
+	 * 首先调用获取所有匹配的注解对象，
 	 * 然后从中提取注解属性并返回。
 	 * 使用 LinkedHashSet 确保结果不重复并保持插入顺序。
 	 *
@@ -192,14 +380,7 @@ public class HierarchyMergedAnnotation {
 	 */
 	@Nonnull
 	public <A extends Annotation> Set<AnnotationAttributes> getMergedRepeatableAnnotationAttributes(Class<A> annotationType) {
-		// 获取所有匹配的合并注解对象
-		Set<MatchedMergedAnnotation<A>> result = matchMergedRepeatableAnnotation(annotationType);
-		// 将所有匹配的注解转换为实际的注解实例
-		Set<AnnotationAttributes> annotationSet = new LinkedHashSet<>();
-		for (MatchedMergedAnnotation<A> matchedMergedAnnotation : result) {
-			annotationSet.add(matchedMergedAnnotation.annotationAttributes());
-		}
-		return annotationSet;
+		return matchMergedRepeatableAnnotation(annotationType, MatchedMergedAnnotation::annotationAttributes);
 	}
 
 	/**
@@ -216,20 +397,14 @@ public class HierarchyMergedAnnotation {
 	 */
 	@Nonnull
 	public <A extends Annotation> Set<A> getMergedRepeatableAnnotation(Class<A> annotationType) {
-		Set<MatchedMergedAnnotation<A>> result = matchMergedRepeatableAnnotation(annotationType);
-		// 将所有匹配的注解转换为实际的注解实例
-		Set<A> annotationSet = new LinkedHashSet<>();
-		for (MatchedMergedAnnotation<A> matchedMergedAnnotation : result) {
-			annotationSet.add(matchedMergedAnnotation.asAnnotation());
-		}
-		return annotationSet;
+		return matchMergedRepeatableAnnotation(annotationType, MatchedMergedAnnotation::asAnnotation);
 	}
 
 	/**
 	 * 匹配顶层合并后的可重复注解集合
 	 * <p>
 	 * 该方法用于从注解层次结构中查找并匹配最顶层（最近距离）的可重复注解。
-	 * 与 {@link #matchMergedRepeatableAnnotation(Class)} 不同，该方法在找到第一个包含匹配注解的层级后就会停止查找。
+	 * 该方法在找到第一个包含匹配注解的层级后就会停止查找。
 	 * 这确保了只返回距离元素最近的注解层中的可重复注解，而不会包含继承层级中的注解。
 	 * 使用 LinkedHashSet 确保结果不重复并保持插入顺序。
 	 *
@@ -238,9 +413,9 @@ public class HierarchyMergedAnnotation {
 	 * @return MatchedMergedAnnotation 集合，包含顶层匹配的所有可重复注解信息
 	 */
 	@Nonnull
-	public <A extends Annotation> Set<MatchedMergedAnnotation<A>> matchTopMergedRepeatableAnnotation(Class<A> annotationType) {
+	public <A extends Annotation, R> Set<R> matchTopMergedRepeatableAnnotation(Class<A> annotationType, Function<MatchedMergedAnnotation<A>, R> mapper) {
 		// 使用 LinkedHashSet 存储匹配的注解，确保不重复并保持插入顺序
-		Set<MatchedMergedAnnotation<A>> result = new LinkedHashSet<>();
+		Set<R> result = new LinkedHashSet<>();
 		// 遍历所有层级，找到存在匹配的注解的层级后跳出
 		for (Set<MergedAnnotation> set : hierarchyAnnotations) {
 			boolean found = false;
@@ -248,7 +423,9 @@ public class HierarchyMergedAnnotation {
 				Set<MatchedMergedAnnotation<A>> matchedSet = annotation.getTopMatchedRepeatableAnnotation(annotationType);
 				if (matchedSet != null && !matchedSet.isEmpty()) {
 					// match
-					result.addAll(matchedSet);
+					for (MatchedMergedAnnotation<A> o : matchedSet) {
+						result.add(mapper.apply(o));
+					}
 					found = true;
 				}
 			}
@@ -264,7 +441,7 @@ public class HierarchyMergedAnnotation {
 	 * 获取顶层合并后的可重复注解属性集合
 	 * <p>
 	 * 该方法用于从注解层次结构中查找并获取最顶层（最近距离）的可重复注解属性。
-	 * 首先调用 {@link #matchTopMergedRepeatableAnnotation(Class)} 获取顶层匹配的注解对象，
+	 * 首先获取顶层匹配的注解对象，
 	 * 然后从中提取注解属性并返回。
 	 * 使用 LinkedHashSet 确保结果不重复并保持插入顺序。
 	 *
@@ -274,14 +451,7 @@ public class HierarchyMergedAnnotation {
 	 */
 	@Nonnull
 	public <A extends Annotation> Set<AnnotationAttributes> getTopMergedRepeatableAnnotationAttributes(Class<A> annotationType) {
-		// 使用 LinkedHashSet 存储匹配的注解，确保不重复并保持插入顺序
-		Set<MatchedMergedAnnotation<A>> result = matchTopMergedRepeatableAnnotation(annotationType);
-		// 将所有匹配的注解转换为实际的注解实例
-		Set<AnnotationAttributes> annotationSet = new LinkedHashSet<>();
-		for (MatchedMergedAnnotation<A> matchedMergedAnnotation : result) {
-			annotationSet.add(matchedMergedAnnotation.annotationAttributes());
-		}
-		return annotationSet;
+		return matchTopMergedRepeatableAnnotation(annotationType, MatchedMergedAnnotation::annotationAttributes);
 	}
 
 	/**
@@ -298,14 +468,7 @@ public class HierarchyMergedAnnotation {
 	 */
 	@Nonnull
 	public <A extends Annotation> Set<A> getTopMergedRepeatableAnnotation(Class<A> annotationType) {
-		// 使用 LinkedHashSet 存储匹配的注解，确保不重复并保持插入顺序
-		Set<MatchedMergedAnnotation<A>> result = matchTopMergedRepeatableAnnotation(annotationType);
-		// 将所有匹配的注解转换为实际的注解实例
-		Set<A> annotationSet = new LinkedHashSet<>();
-		for (MatchedMergedAnnotation<A> matchedMergedAnnotation : result) {
-			annotationSet.add(matchedMergedAnnotation.asAnnotation());
-		}
-		return annotationSet;
+		return matchTopMergedRepeatableAnnotation(annotationType, MatchedMergedAnnotation::asAnnotation);
 	}
 
 	// region private

@@ -143,7 +143,7 @@ public class RawAnnotations {
 	 * @param predicate 注解过滤条件，用于筛选符合条件的注解，只有使 predicate.test() 返回 true 的注解才会被收集
 	 * @return 找到的所有匹配的注解实例集合，如果未找到则返回空集合，集合已自动去重并保持插入顺序
 	 */
-	public static Set<Annotation> findAnnotation(AnnotatedElement element, Predicate<Annotation> predicate) {
+	public static Set<Annotation> findAnnotation(AnnotatedElement element, Predicate<Class<? extends Annotation>> predicate) {
 		// 使用 LinkedHashSet 存储结果以保持插入顺序并自动去重
 		Set<Annotation> result = new LinkedHashSet<>();
 		// 直接在当前元素上查找匹配的注解
@@ -182,13 +182,13 @@ public class RawAnnotations {
 	 * @param element   注解元素，表示要检查的类、方法、参数等反射元素
 	 * @param predicate 注解过滤条件，用于判断注解是否应该被收集到结果集合中
 	 */
-	private static void seekDirectly(Set<Annotation> result, AnnotatedElement element, Predicate<Annotation> predicate) {
+	private static void seekDirectly(Set<Annotation> result, AnnotatedElement element, Predicate<Class<? extends Annotation>> predicate) {
 		// 获取元素上的所有直接注解
 		Annotation[] annotations = element.getAnnotations();
 		// 遍历所有直接注解
 		for (Annotation annotation : annotations) {
 			// 使用谓词测试当前注解，如果匹配则添加到结果集合
-			if (predicate.test(annotation)) {
+			if (predicate.test(annotation.annotationType())) {
 				result.add(annotation);
 			}
 			// 检查当前注解是否为可重复注解的容器注解，如果是则获取其内部的重复注解类型
@@ -199,7 +199,7 @@ public class RawAnnotations {
 				Annotation[] annotationsByType = element.getAnnotationsByType(repeatedAnnotationType);
 				// 遍历所有重复注解实例并进行过滤
 				for (Annotation repeatedAnnotation : annotationsByType) {
-					if (predicate.test(repeatedAnnotation)) {
+					if (predicate.test(repeatedAnnotation.annotationType())) {
 						result.add(repeatedAnnotation);
 					}
 				}
@@ -219,7 +219,7 @@ public class RawAnnotations {
 	 * @param element   注解元素，表示开始查找的起始元素，通常是类、方法、参数等反射元素
 	 * @param predicate 注解过滤条件，用于判断注解是否应该被收集到结果集合中
 	 */
-	private static void seekByHierarchyAnnotation(Set<Annotation> result, AnnotatedElement element, Predicate<Annotation> predicate) {
+	private static void seekByHierarchyAnnotation(Set<Annotation> result, AnnotatedElement element, Predicate<Class<? extends Annotation>> predicate) {
 		// 使用 HashSet 记录已访问的元素，避免循环依赖和重复处理
 		Set<AnnotatedElement> visited = new HashSet<>();
 		// 获取第一层候选元素，初始时只包含起始元素
@@ -248,7 +248,7 @@ public class RawAnnotations {
 	 * @param element   类元素，表示要查找注解的起始类
 	 * @param predicate 注解过滤条件，用于判断注解是否应该被收集到结果集合中
 	 */
-	private static void seekByHierarchyClass(Set<Annotation> result, Class<?> element, Predicate<Annotation> predicate) {
+	private static void seekByHierarchyClass(Set<Annotation> result, Class<?> element, Predicate<Class<? extends Annotation>> predicate) {
 		// 使用 LinkedHashSet 记录已访问的元素，保持插入顺序并避免重复处理
 		Set<AnnotatedElement> visited = new LinkedHashSet<>();
 		// 获取第一层候选类（直接父类和直接接口）
@@ -259,7 +259,7 @@ public class RawAnnotations {
 		if ((superclass == null || superclass == Object.class) && interfaces.length == 0) {
 			return;
 		}
-	
+
 		// 遍历类层级结构查找注解，直到没有更多的父类和接口
 		while (superclass != null && superclass != Object.class || interfaces.length > 0) {
 			// 检查父类上的注解，包括直接注解和元注解
@@ -267,13 +267,13 @@ public class RawAnnotations {
 				seekDirectly(result, superclass, predicate);
 				seekByHierarchyAnnotation(result, superclass, predicate);
 			}
-	
+
 			// 检查所有接口上的注解，包括直接注解和元注解
 			for (Class<?> anInterface : interfaces) {
 				seekDirectly(result, anInterface, predicate);
 				seekByHierarchyAnnotation(result, anInterface, predicate);
 			}
-	
+
 			// 获取下一层级的候选类（父类的父类、接口的父接口）
 			classCandidates = getHierarchyClassCandidates(superclass, interfaces, visited);
 			superclass = classCandidates.getFirst();
@@ -294,7 +294,7 @@ public class RawAnnotations {
 	 * @param element   方法元素，表示要查找注解的起始方法
 	 * @param predicate 注解过滤条件，用于判断注解是否应该被收集到结果集合中
 	 */
-	private static void seekByHierarchyMethod(Set<Annotation> result, Method element, Predicate<Annotation> predicate) {
+	private static void seekByHierarchyMethod(Set<Annotation> result, Method element, Predicate<Class<? extends Annotation>> predicate) {
 		// 获取声明该方法的类
 		Class<?> declaringClass = element.getDeclaringClass();
 		// 使用 LinkedHashSet 记录已访问的元素，保持插入顺序并避免重复处理
@@ -307,7 +307,7 @@ public class RawAnnotations {
 		if ((superclass == null || superclass == Object.class) && interfaces.length == 0) {
 			return;
 		}
-	
+
 		// 遍历类层级结构，在对应方法上查找注解，直到没有更多的父类和接口
 		while (superclass != null && superclass != Object.class || interfaces.length > 0) {
 			// 在父类中查找同名方法并检查注解
@@ -321,7 +321,7 @@ public class RawAnnotations {
 					// 父类中不存在该方法，忽略
 				}
 			}
-	
+
 			// 在接口中查找同名方法并检查注解
 			for (Class<?> anInterface : interfaces) {
 				try {
@@ -333,7 +333,7 @@ public class RawAnnotations {
 					// 接口中不存在该方法，忽略
 				}
 			}
-	
+
 			// 获取下一层级的候选类（父类的父类、接口的父接口）
 			classCandidates = getHierarchyClassCandidates(superclass, interfaces, visited);
 			superclass = classCandidates.getFirst();
@@ -357,7 +357,7 @@ public class RawAnnotations {
 	 * @param position        参数在方法参数列表中的位置索引，用于获取对应位置的参数
 	 * @param predicate       注解过滤条件，用于判断注解是否应该被收集到结果集合中
 	 */
-	private static void seekByHierarchyParameter(Set<Annotation> result, Parameter element, Method declaringMethod, int position, Predicate<Annotation> predicate) {
+	private static void seekByHierarchyParameter(Set<Annotation> result, Parameter element, Method declaringMethod, int position, Predicate<Class<? extends Annotation>> predicate) {
 		// 获取声明该方法的类
 		Class<?> declaringClass = declaringMethod.getDeclaringClass();
 		// 使用 LinkedHashSet 记录已访问的元素，保持插入顺序并避免重复处理
@@ -370,7 +370,7 @@ public class RawAnnotations {
 		if ((superclass == null || superclass == Object.class) && interfaces.length == 0) {
 			return;
 		}
-	
+
 		// 遍历类层级结构，在对应参数上查找注解，直到没有更多的父类和接口
 		while (superclass != null && superclass != Object.class || interfaces.length > 0) {
 			// 在父类中查找同名方法的对应参数并检查注解
@@ -386,7 +386,7 @@ public class RawAnnotations {
 					// 父类中不存在该方法，忽略
 				}
 			}
-	
+
 			// 在接口中查找同名方法的对应参数并检查注解
 			for (Class<?> anInterface : interfaces) {
 				try {
@@ -436,7 +436,7 @@ public class RawAnnotations {
 		if (rs != null) {
 			return rs;
 		}
-	
+
 		// 根据元素类型进行特定的继承结构查找
 		if (element instanceof Class) {
 			// 在类的继承结构（父类和接口）中查找
@@ -522,7 +522,7 @@ public class RawAnnotations {
 		if ((superclass == null || superclass == Object.class) && interfaces.length == 0) {
 			return null;
 		}
-	
+
 		// 遍历类层级结构查找注解，直到没有更多的父类和接口或找到目标注解
 		while (superclass != null && superclass != Object.class || interfaces.length > 0) {
 			// 检查父类上的注解，包括直接注解和元注解
@@ -538,7 +538,7 @@ public class RawAnnotations {
 					return rs;
 				}
 			}
-	
+
 			// 检查所有接口上的注解，包括直接注解和元注解
 			for (Class<?> anInterface : interfaces) {
 				// 尝试直接在接口上获取目标注解
@@ -552,7 +552,7 @@ public class RawAnnotations {
 					return rs;
 				}
 			}
-	
+
 			// 获取下一层级的候选类（父类的父类、接口的父接口）
 			classCandidates = getHierarchyClassCandidates(superclass, interfaces, visited);
 			superclass = classCandidates.getFirst();
@@ -589,7 +589,7 @@ public class RawAnnotations {
 		if ((superclass == null || superclass == Object.class) && interfaces.length == 0) {
 			return null;
 		}
-	
+
 		// 遍历类层级结构，在对应方法上查找注解，直到没有更多的父类和接口或找到目标注解
 		while (superclass != null && superclass != Object.class || interfaces.length > 0) {
 			// 在父类中查找同名方法并检查注解
@@ -611,7 +611,7 @@ public class RawAnnotations {
 					// 父类中不存在该方法，忽略
 				}
 			}
-	
+
 			// 在接口中查找同名方法并检查注解
 			for (Class<?> anInterface : interfaces) {
 				try {
@@ -631,7 +631,7 @@ public class RawAnnotations {
 					// 接口中不存在该方法，忽略
 				}
 			}
-	
+
 			// 获取下一层级的候选类（父类的父类、接口的父接口）
 			classCandidates = getHierarchyClassCandidates(superclass, interfaces, visited);
 			superclass = classCandidates.getFirst();
@@ -670,7 +670,7 @@ public class RawAnnotations {
 		if ((superclass == null || superclass == Object.class) && interfaces.length == 0) {
 			return null;
 		}
-	
+
 		// 遍历类层级结构，在对应参数上查找注解，直到没有更多的父类和接口或找到目标注解
 		while (superclass != null && superclass != Object.class || interfaces.length > 0) {
 			// 在父类中查找同名方法的对应参数并检查注解
@@ -694,7 +694,7 @@ public class RawAnnotations {
 					// 父类中不存在该方法，忽略
 				}
 			}
-	
+
 			// 在接口中查找同名方法的对应参数并检查注解
 			for (Class<?> anInterface : interfaces) {
 				try {
@@ -878,7 +878,7 @@ public class RawAnnotations {
 					return rs;
 				}
 			}
-	
+
 			// 获取下一层级的候选类（父类的父类、接口的父接口）
 			classCandidates = getHierarchyClassCandidates(superclass, interfaces, visited);
 			superclass = classCandidates.getFirst();
@@ -936,7 +936,7 @@ public class RawAnnotations {
 					// 父类中不存在该方法，忽略
 				}
 			}
-	
+
 			// 在接口中查找同名方法并检查可重复注解
 			for (Class<?> anInterface : interfaces) {
 				try {
@@ -956,7 +956,7 @@ public class RawAnnotations {
 					// 接口中不存在该方法，忽略
 				}
 			}
-	
+
 			// 获取下一层级的候选类（父类的父类、接口的父接口）
 			classCandidates = getHierarchyClassCandidates(superclass, interfaces, visited);
 			superclass = classCandidates.getFirst();
@@ -996,7 +996,7 @@ public class RawAnnotations {
 		if ((superclass == null || superclass == Object.class) && interfaces.length == 0) {
 			return null;
 		}
-	
+
 		// 遍历类层级结构，在对应参数上查找可重复注解，直到没有更多的父类和接口或找到目标注解
 		while (superclass != null && superclass != Object.class || interfaces.length > 0) {
 			// 在父类中查找同名方法的对应参数并检查可重复注解
@@ -1020,7 +1020,7 @@ public class RawAnnotations {
 					// 父类中不存在该方法，忽略
 				}
 			}
-	
+
 			// 在接口中查找同名方法的对应参数并检查可重复注解
 			for (Class<?> anInterface : interfaces) {
 				try {

@@ -251,7 +251,7 @@ public class MergedAnnotation {
 
 		// 检查当前注解是否匹配
 		if (this.annotationType == annotationType) {
-			if (this.isAliasOnly()) {
+			if (aliasOnly) {
 				aliasAnnotations.add(this);
 			} else {
 				matchedAnnotation = this;
@@ -263,7 +263,7 @@ public class MergedAnnotation {
 		for (Set<MergedAnnotation> set : hierarchyAnnotations) {
 			for (MergedAnnotation mergedAnnotation : set) {
 				if (mergedAnnotation.annotationType == annotationType) {
-					if (mergedAnnotation.isAliasOnly()) {
+					if (mergedAnnotation.aliasOnly) {
 						// 如果是仅别名注解，添加到别名列表
 						aliasAnnotations.add(mergedAnnotation);
 					} else {
@@ -306,7 +306,7 @@ public class MergedAnnotation {
 	@Nullable
 	public <A extends Annotation> Set<MatchedMergedAnnotation<A>> getMatchedRepeatableAnnotation(Class<A> annotationType) {
 
-		Set<MatchedMergedAnnotation<A>> matchedSet = newMatchedSet(annotationType);
+		Set<MatchedMergedAnnotation<A>> matchedSet = newMatchedRepeatableSet(annotationType);
 
 		List<Set<MergedAnnotation>> hierarchyAnnotations = this.hierarchyAnnotations();
 		for (Set<MergedAnnotation> set : hierarchyAnnotations) {
@@ -340,7 +340,7 @@ public class MergedAnnotation {
 	 */
 	@Nullable
 	public <A extends Annotation> Set<MatchedMergedAnnotation<A>> getTopMatchedRepeatableAnnotation(Class<A> annotationType) {
-		Set<MatchedMergedAnnotation<A>> matchedSet = newMatchedSet(annotationType);
+		Set<MatchedMergedAnnotation<A>> matchedSet = newMatchedRepeatableSet(annotationType);
 
 		List<Set<MergedAnnotation>> hierarchyAnnotations = this.hierarchyAnnotations();
 		for (Set<MergedAnnotation> set : hierarchyAnnotations) {
@@ -379,7 +379,7 @@ public class MergedAnnotation {
 	 * @return 新的匹配注解集合
 	 */
 	@Nonnull
-	private <A extends Annotation> Set<MatchedMergedAnnotation<A>> newMatchedSet(Class<A> annotationType) {
+	private <A extends Annotation> Set<MatchedMergedAnnotation<A>> newMatchedRepeatableSet(Class<A> annotationType) {
 		Set<MatchedMergedAnnotation<A>> matchedSet = new LinkedHashSet<>();
 		if (this.repeatedAnnotationType != null && this.repeatedAnnotations != null) {
 			for (MergedAnnotation repeatedAnnotation : this.repeatedAnnotations) {
