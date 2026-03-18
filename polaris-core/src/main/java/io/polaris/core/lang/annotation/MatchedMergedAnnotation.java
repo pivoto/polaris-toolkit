@@ -18,11 +18,6 @@ import lombok.Getter;
 import lombok.ToString;
 
 /**
- * @author Qt
- * @since Jan 07, 2024
- */
-
-/**
  * 匹配的合并注解类，用于处理注解及其别名的合并逻辑
  *
  * @param <A> 注解类型
