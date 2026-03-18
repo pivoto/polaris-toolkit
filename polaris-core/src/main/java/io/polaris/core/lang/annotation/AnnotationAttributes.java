@@ -15,6 +15,7 @@ import java.util.function.BiPredicate;
 import javax.annotation.Nonnull;
 
 import io.polaris.core.converter.Converters;
+import io.polaris.core.lang.Copyable;
 import io.polaris.core.reflect.Reflects;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -27,7 +28,7 @@ import lombok.ToString;
 @SuppressWarnings({"all"})
 @ToString
 @EqualsAndHashCode
-public class AnnotationAttributes implements Cloneable {
+public class AnnotationAttributes implements Cloneable, Copyable<AnnotationAttributes> {
 
 	private final Map<String, Member> members;
 	private final Class<? extends Annotation> annotationType;
@@ -177,8 +178,8 @@ public class AnnotationAttributes implements Cloneable {
 	 * 该静态工厂方法用于从已有的注解实例创建 AnnotationAttributes 对象。
 	 * 会获取注解的所有属性值并处理别名映射关系。
 	 *
-	 * @param <A>            注解类型泛型参数
-	 * @param annotation     注解实例，不能为 null
+	 * @param <A>        注解类型泛型参数
+	 * @param annotation 注解实例，不能为 null
 	 * @return AnnotationAttributes 对象，封装了注解的所有属性信息
 	 */
 	public static <A extends Annotation> AnnotationAttributes of(A annotation) {
@@ -197,6 +198,27 @@ public class AnnotationAttributes implements Cloneable {
 	 */
 	public static <A extends Annotation> AnnotationAttributes of(Class<A> annotationType) {
 		return new AnnotationAttributes(annotationType);
+	}
+
+	/**
+	 * 从注解类型创建 AnnotationAttributes（使用指定值覆盖默认值）
+	 * <p>
+	 * 该静态工厂方法用于根据注解类型和指定的属性值创建 AnnotationAttributes 对象。
+	 * 首先基于注解类型创建包含所有默认值的 AnnotationAttributes 实例，
+	 * 然后使用提供的 values 映射覆盖对应的属性值。
+	 * 适用于需要自定义部分属性值而保留其他默认值的场景。
+	 *
+	 * @param <A>            注解类型泛型参数，必须是 Annotation 的子类
+	 * @param annotationType 注解类型，不能为 null
+	 * @param values         属性值映射，键为属性名，值为属性值，用于覆盖默认值；可以为 null 或空映射
+	 * @return AnnotationAttributes 对象，包含注解类型的默认属性值并用提供的值进行覆盖
+	 */
+	public static <A extends Annotation> AnnotationAttributes of(Class<A> annotationType, Map<String, Object> values) {
+		// 基于注解类型创建包含默认值的 AnnotationAttributes 实例
+		AnnotationAttributes annotationAttributes = new AnnotationAttributes(annotationType);
+		// 使用提供的值覆盖对应的属性
+		annotationAttributes.set(values);
+		return annotationAttributes;
 	}
 
 	/**
@@ -224,6 +246,11 @@ public class AnnotationAttributes implements Cloneable {
 	}
 
 	@Override
+	public AnnotationAttributes copy() {
+		return new AnnotationAttributes(members, annotationType, aliasMembers);
+	}
+
+	@Override
 	public AnnotationAttributes clone() {
 		return new AnnotationAttributes(members, annotationType, aliasMembers);
 	}
@@ -239,7 +266,7 @@ public class AnnotationAttributes implements Cloneable {
 	 * @return 实际的注解实例
 	 */
 	public <A extends Annotation> A asAnnotation() {
-		return (A) AnnotationInvocationHandler.createProxy(annotationType, Collections.unmodifiableMap(asMap()),  true);
+		return (A) AnnotationInvocationHandler.createProxy(annotationType, Collections.unmodifiableMap(asMap()), true);
 	}
 
 	/**
@@ -624,10 +651,11 @@ public class AnnotationAttributes implements Cloneable {
 		return attributes;
 	}
 
+
 	@Getter
 	@ToString
 	@EqualsAndHashCode
-	public static class Member implements Cloneable {
+	public static class Member implements Cloneable, Copyable<Member> {
 		private Method method;
 		private Object value;
 		private Object defaultValue;
@@ -636,6 +664,11 @@ public class AnnotationAttributes implements Cloneable {
 			this.method = method;
 			this.value = value;
 			this.defaultValue = defaultValue;
+		}
+
+		@Override
+		public Member copy() {
+			return this.clone();
 		}
 
 		@Override

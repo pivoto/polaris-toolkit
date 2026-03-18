@@ -71,6 +71,24 @@ public class Annotations {
 	}
 
 	/**
+	 * 获取指定元素上的合并注解属性
+	 * <p>
+	 * 该方法用于获取经过合并处理后的注解属性，支持注解的层次结构查找和属性合并。
+	 * 委托给 {@link MergedAnnotations#getMergedAnnotationAttributes(AnnotatedElement, Class)} 实现完整的注解合并逻辑。
+	 * 合并过程包括元注解查找和别名属性处理。
+	 * 返回的是 AnnotationAttributes 对象，可以方便地访问注解的各种属性值。
+	 *
+	 * @param <A>            注解类型泛型参数，必须是 Annotation 的子类
+	 * @param element        注解元素，可以是类、方法、参数等任何带有注解的程序元素
+	 * @param annotationType 要获取的注解类型，必须是 Annotation 的子类
+	 * @return 合并后的注解属性，如果未找到则返回 null
+	 */
+	@Nullable
+	public static <A extends Annotation> AnnotationAttributes getMergedAnnotationAttributes(AnnotatedElement element, Class<A> annotationType) {
+		return MergedAnnotations.getMergedAnnotationAttributes(element, annotationType);
+	}
+
+	/**
 	 * 获取指定元素上的合并可重复注解集合
 	 * <p>
 	 * 该方法用于获取经过合并处理后的可重复注解集合，支持在注解层次结构中查找所有匹配的可重复注解。
@@ -88,6 +106,24 @@ public class Annotations {
 	}
 
 	/**
+	 * 获取指定元素上的合并可重复注解属性集合
+	 * <p>
+	 * 该方法用于获取经过合并处理后的可重复注解属性集合，支持在注解层次结构中查找所有匹配的可重复注解。
+	 * 委托给 {@link MergedAnnotations#getMergedRepeatableAnnotationAttributes(AnnotatedElement, Class)} 实现完整的注解合并逻辑。
+	 * 返回的集合包含所有层级中找到的可重复注解的 AnnotationAttributes 对象。
+	 * 与 {@link #getMergedRepeatableAnnotation(AnnotatedElement, Class)} 不同，该方法返回的是注解属性而非注解实例。
+	 *
+	 * @param <A>            注解类型泛型参数，必须是 Annotation 的子类
+	 * @param element        注解元素，可以是类、方法、参数等任何带有注解的程序元素
+	 * @param annotationType 要获取的可重复注解类型，必须是 Annotation 的子类
+	 * @return 合并后的注解属性集合，如果未找到则返回空集合而不是 null
+	 */
+	@Nonnull
+	public static <A extends Annotation> Set<AnnotationAttributes> getMergedRepeatableAnnotationAttributes(AnnotatedElement element, Class<A> annotationType) {
+		return MergedAnnotations.getMergedRepeatableAnnotationAttributes(element, annotationType);
+	}
+
+	/**
 	 * 获取指定元素上的顶层合并可重复注解集合
 	 * <p>
 	 * 该方法用于获取经过合并处理后的可重复注解集合，但只返回最顶层（最近距离）的注解实例。
@@ -102,6 +138,25 @@ public class Annotations {
 	@Nonnull
 	public static <A extends Annotation> Set<A> getTopMergedRepeatableAnnotation(AnnotatedElement element, Class<A> annotationType) {
 		return MergedAnnotations.getTopMergedRepeatableAnnotation(element, annotationType);
+	}
+
+	/**
+	 * 获取指定元素上的顶层合并可重复注解属性集合
+	 * <p>
+	 * 该方法用于获取经过合并处理后的可重复注解属性集合，但只返回最顶层（最近距离）的注解实例的属性。
+	 * 委托给 {@link MergedAnnotations#getTopMergedRepeatableAnnotationAttributes(AnnotatedElement, Class)} 实现完整的注解合并逻辑。
+	 * 与 {@link #getMergedRepeatableAnnotationAttributes(AnnotatedElement, Class)} 不同，该方法不会返回继承层级中的所有注解属性，
+	 * 而是只返回距离元素最近的注解层中的可重复注解属性。
+	 * 返回的是 AnnotationAttributes 集合，可以方便地访问每个注解的各种属性值。
+	 *
+	 * @param <A>            注解类型泛型参数，必须是 Annotation 的子类
+	 * @param element        注解元素，可以是类、方法、参数等任何带有注解的程序元素
+	 * @param annotationType 要获取的可重复注解类型，必须是 Annotation 的子类
+	 * @return 顶层合并后的注解属性集合，如果未找到则返回空集合而不是 null
+	 */
+	@Nonnull
+	public static <A extends Annotation> Set<AnnotationAttributes> getTopMergedRepeatableAnnotationAttributes(AnnotatedElement element, Class<A> annotationType) {
+		return MergedAnnotations.getTopMergedRepeatableAnnotationAttributes(element, annotationType);
 	}
 
 	/**
@@ -210,7 +265,19 @@ public class Annotations {
 		return null;
 	}
 
+	/**
+	 * 判断注解类型是否为可重复注解
+	 * <p>
+	 * 该方法用于检查指定的注解类型是否为可重复注解的容器类型。
+	 * 通过调用 {@link #getRepeatedAnnotationType(Class)} 来判断，如果返回非 null 则表示是可重复注解。
+	 * 可重复注解是指使用了 {@code @Repeatable} 元注解的注解类型。
+	 *
+	 * @param <A>            注解类型泛型参数，必须是 Annotation 的子类
+	 * @param annotationType 要检查的注解类型
+	 * @return 如果是可重复注解则返回 true，否则返回 false
+	 */
 	public static <A extends Annotation> boolean isRepeatable(Class<A> annotationType) {
+		// 通过检查是否存在对应的可重复注解类型来判断
 		return getRepeatedAnnotationType(annotationType) != null;
 	}
 
@@ -301,6 +368,23 @@ public class Annotations {
 	}
 
 	/**
+	 * 将注解类型和属性值转换为注解属性
+	 * <p>
+	 * 该方法用于根据注解类型和指定的属性值创建 AnnotationAttributes 对象。
+	 * 首先基于注解类型创建包含所有默认值的 AnnotationAttributes 实例，
+	 * 然后使用提供的 values 映射覆盖对应的属性值。
+	 * 委托给 {@link AnnotationAttributes#of(Class, Map)} 实现转换逻辑。
+	 * 适用于需要自定义部分属性值而保留其他默认值的场景。
+	 *
+	 * @param annotationType 注解类型，不能为 null
+	 * @param values         属性值映射，键为属性名，值为属性值，用于覆盖默认值；可以为 null 或空映射
+	 * @return 注解属性对象，包含注解类型的默认属性值并用提供的值进行覆盖
+	 */
+	public static AnnotationAttributes asAnnotationAttributes(Class<? extends Annotation> annotationType, Map<String, Object> values) {
+		return AnnotationAttributes.of(annotationType, values);
+	}
+
+	/**
 	 * 将注解转换为合并注解
 	 * <p>
 	 * 该方法用于将普通注解实例转换为 MergedAnnotation 对象，以便进行注解合并操作。
@@ -312,6 +396,21 @@ public class Annotations {
 	 */
 	public static MergedAnnotation asMergedAnnotation(Annotation annotation) {
 		return MergedAnnotation.of(annotation);
+	}
+
+	/**
+	 * 将注解属性转换为合并注解
+	 * <p>
+	 * 该方法用于将 AnnotationAttributes 对象转换为 MergedAnnotation 对象，以便进行注解合并操作。
+	 * 委托给 {@link MergedAnnotation#of(AnnotationAttributes)} 实现转换逻辑。
+	 * MergedAnnotation 包含了注解的层级信息和别名映射关系。
+	 * 与 {@link #asMergedAnnotation(Annotation)} 不同，该方法接受的是注解属性而非注解实例。
+	 *
+	 * @param attributes 注解属性对象，不能为 null
+	 * @return 合并注解对象，封装了注解的完整信息
+	 */
+	public static MergedAnnotation asMergedAnnotation(AnnotationAttributes attributes) {
+		return MergedAnnotation.of(attributes);
 	}
 
 	/**

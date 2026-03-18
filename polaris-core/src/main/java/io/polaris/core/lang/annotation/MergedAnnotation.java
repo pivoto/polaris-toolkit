@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import io.polaris.core.annotation.Internal;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.tuple.LazyRef;
 import io.polaris.core.tuple.Ref;
@@ -24,14 +25,15 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode
 public class MergedAnnotation {
-	/** 注解层级 */
-	private final int level;
 	/** 注解类型 */
 	@Nonnull
 	private final Class<? extends Annotation> annotationType;
 	/** 注解实例 */
 	@Nullable
 	private final Annotation annotation;
+	/** 注解实例 */
+	@Nullable
+	private final AnnotationAttributes annotationAttributes;
 	/** 别名的源注解实例 */
 	@Nullable
 	private final MergedAnnotation aliasSourceAnnotation;
@@ -47,30 +49,32 @@ public class MergedAnnotation {
 	/** 注解属性值 */
 	@EqualsAndHashCode.Exclude
 	@ToString.Exclude
-	private final Ref<AnnotationAttributes> annotationAttributes;
+	private final Ref<AnnotationAttributes> annotationAttributesRef;
 	@EqualsAndHashCode.Exclude
 	@ToString.Exclude
-	private final Ref<List<Set<MergedAnnotation>>> hierarchyAnnotations;
+	private final Ref<List<Set<MergedAnnotation>>> hierarchyAnnotationsRef;
+	/** 注解层级 */
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
+	private final int level;
+	/** 是否仅为别名注解，不含元注解实例 */
+	private final boolean aliasOnly;
 
 	public static MergedAnnotation of(@Nonnull Annotation annotation) {
 		return of(0, annotation);
+	}
+
+	public static MergedAnnotation of(@Nonnull AnnotationAttributes annotationAttributes) {
+		return of(0, annotationAttributes);
 	}
 
 	public static MergedAnnotation of(int level, @Nonnull Annotation annotation) {
 		return new MergedAnnotation(level, annotation.annotationType(), annotation, null, null);
 	}
 
-	/**
-	 * 创建一个合并注解实例
-	 *
-	 * @param annotationType        注解类型
-	 * @param annotation            注解实例
-	 * @param aliasSourceAnnotation 别名源注解
-	 * @param aliasSourceMembers    别名成员映射, alias-attribute -> source-member
-	 * @return 合并注解实例
-	 */
-	public static MergedAnnotation of(@Nonnull Class<? extends Annotation> annotationType, @Nullable Annotation annotation, @Nonnull MergedAnnotation aliasSourceAnnotation, @Nonnull Map<String, String> aliasSourceMembers) {
-		return of(0, annotationType, annotation, aliasSourceAnnotation, aliasSourceMembers);
+
+	public static MergedAnnotation of(int level, @Nonnull AnnotationAttributes annotationAttributes) {
+		return new MergedAnnotation(level, annotationAttributes, null, null);
 	}
 
 	/**
@@ -83,8 +87,69 @@ public class MergedAnnotation {
 	 * @param aliasSourceMembers    别名成员映射, alias-attribute -> source-member
 	 * @return 合并注解实例
 	 */
-	public static MergedAnnotation of(int level, @Nonnull Class<? extends Annotation> annotationType, @Nullable Annotation annotation, @Nonnull MergedAnnotation aliasSourceAnnotation, @Nonnull Map<String, String> aliasSourceMembers) {
+	static MergedAnnotation of(int level, @Nonnull Class<? extends Annotation> annotationType, @Nullable Annotation annotation, @Nonnull MergedAnnotation aliasSourceAnnotation, @Nonnull Map<String, String> aliasSourceMembers) {
 		return new MergedAnnotation(level, annotationType, annotation, aliasSourceAnnotation, aliasSourceMembers);
+	}
+
+	/**
+	 * 创建一个合并注解实例
+	 *
+	 * @param level                 注解层级
+	 * @param annotationAttributes  注解属性
+	 * @param aliasSourceAnnotation 别名源注解
+	 * @param aliasSourceMembers    别名成员映射, alias-attribute -> source-member
+	 * @return 合并注解实例
+	 */
+	static MergedAnnotation of(int level, @Nonnull AnnotationAttributes annotationAttributes, @Nonnull MergedAnnotation aliasSourceAnnotation, @Nonnull Map<String, String> aliasSourceMembers) {
+		return new MergedAnnotation(level, annotationAttributes, aliasSourceAnnotation, aliasSourceMembers);
+	}
+
+
+	/**
+	 * 构造函数
+	 *
+	 * @param level                 注解层级
+	 * @param annotationAttributes  注解属性
+	 * @param aliasSourceAnnotation 别名源注解
+	 * @param aliasSourceMembers    别名成员映射
+	 */
+	private MergedAnnotation(int level, @Nonnull AnnotationAttributes annotationAttributes, @Nullable MergedAnnotation aliasSourceAnnotation, @Nullable Map<String, String> aliasSourceMembers) {
+		this.level = level;
+		this.annotationType = annotationAttributes.annotationType();
+		this.annotation = null;
+		this.annotationAttributes = annotationAttributes;
+		this.aliasSourceAnnotation = aliasSourceAnnotation;
+		this.aliasSourceMembers = aliasSourceMembers;
+		// 是否仅为别名注解，不含元注解实例
+		this.aliasOnly = false;
+
+		// 初始化可重复注解相关字段
+		this.repeatedAnnotationType = Annotations.getRepeatedAnnotationType(annotationType);
+		if (this.repeatedAnnotationType != null) {
+			// 获取可重复注解数组
+			Annotation[] annotations = annotationAttributes.getAnnotationArray("value", this.repeatedAnnotationType);
+			if (annotations != null) {
+				MergedAnnotation[] repeatedAnnotations = new MergedAnnotation[annotations.length];
+				for (int i = 0; i < annotations.length; i++) {
+					repeatedAnnotations[i] = of(this.level + 1, annotations[i]);
+				}
+				this.repeatedAnnotations = repeatedAnnotations;
+			} else {
+				this.repeatedAnnotations = null;
+			}
+		} else {
+			this.repeatedAnnotations = null;
+		}
+
+		// 延迟初始化层级注解列表
+		this.hierarchyAnnotationsRef = LazyRef.of(this::newHierarchyAnnotations);
+		// 延迟初始化注解属性
+		this.annotationAttributesRef = LazyRef.of(() -> {
+			// 根据是否存在注解实例获取基本属性
+			AnnotationAttributes attributes = annotationAttributes.copy();
+			mergeAliasAttributes(attributes);
+			return attributes;
+		});
 	}
 
 
@@ -101,8 +166,12 @@ public class MergedAnnotation {
 		this.level = level;
 		this.annotationType = annotationType;
 		this.annotation = annotation;
+		this.annotationAttributes = null;
 		this.aliasSourceAnnotation = aliasSourceAnnotation;
 		this.aliasSourceMembers = aliasSourceMembers;
+
+		// 是否仅为别名注解，不含元注解实例
+		this.aliasOnly = annotation == null && aliasSourceAnnotation != null && aliasSourceMembers != null;
 
 		// 初始化可重复注解相关字段
 		this.repeatedAnnotationType = Annotations.getRepeatedAnnotationType(annotationType);
@@ -124,32 +193,41 @@ public class MergedAnnotation {
 		}
 
 		// 延迟初始化层级注解列表
-		this.hierarchyAnnotations = LazyRef.of(() -> Collections.unmodifiableList(MergedAnnotations.scanHierarchyAnnotations(this)));
-
+		this.hierarchyAnnotationsRef = LazyRef.of(this::newHierarchyAnnotations);
 		// 延迟初始化注解属性
-		this.annotationAttributes = LazyRef.of(() -> {
+		this.annotationAttributesRef = LazyRef.of(() -> {
 			// 根据是否存在注解实例获取基本属性
-			AnnotationAttributes annotationAttributes = annotation != null ? AnnotationAttributes.of(annotation) : AnnotationAttributes.of(annotationType);
-
+			AnnotationAttributes annotationAttributes = this.annotation != null ? AnnotationAttributes.of(this.annotation) : AnnotationAttributes.of(this.annotationType);
 			// 如果存在别名源注解，则合并别名属性值
-			if (aliasSourceAnnotation != null && aliasSourceMembers != null) {
-				AnnotationAttributes aliasAnnotationAttributes = aliasSourceAnnotation.annotationAttributes();
-				for (Map.Entry<String, String> entry : aliasSourceMembers.entrySet()) {
-					// 检查目标注解是否包含别名映射的成员
-					if (annotationAttributes.hasMember(entry.getKey())) {
-						Object val = aliasAnnotationAttributes.get(entry.getValue());
-						if (val != null) {
-							// 设置非默认值
-							annotationAttributes.setIfNotDefault(entry.getKey(), val);
-						}
-					}
-				}
-			}
+			mergeAliasAttributes(annotationAttributes);
 			return annotationAttributes;
 		});
 	}
 
-	public int level() {
+	@Nonnull
+	private List<Set<MergedAnnotation>> newHierarchyAnnotations() {
+		return Collections.unmodifiableList(MergedAnnotations.scanHierarchyAnnotations(this));
+	}
+
+	private void mergeAliasAttributes(AnnotationAttributes annotationAttributes) {
+		// 如果存在别名源注解，则合并别名属性值
+		if (aliasSourceAnnotation != null && aliasSourceMembers != null) {
+			AnnotationAttributes aliasAnnotationAttributes = aliasSourceAnnotation.annotationAttributes();
+			for (Map.Entry<String, String> entry : aliasSourceMembers.entrySet()) {
+				// 检查目标注解是否包含别名映射的成员
+				if (annotationAttributes.hasMember(entry.getKey())) {
+					Object val = aliasAnnotationAttributes.get(entry.getValue());
+					if (val != null) {
+						// 设置非默认值
+						annotationAttributes.setIfNotDefault(entry.getKey(), val);
+					}
+				}
+			}
+		}
+	}
+
+	@Internal
+	int level() {
 		return level;
 	}
 
@@ -326,7 +404,7 @@ public class MergedAnnotation {
 	 * @return 注解属性
 	 */
 	public AnnotationAttributes annotationAttributes() {
-		return annotationAttributes.get();
+		return annotationAttributesRef.get();
 	}
 
 	/**
@@ -335,7 +413,7 @@ public class MergedAnnotation {
 	 * @return 层级注解列表
 	 */
 	public List<Set<MergedAnnotation>> hierarchyAnnotations() {
-		return this.hierarchyAnnotations.get();
+		return this.hierarchyAnnotationsRef.get();
 	}
 
 	/**
@@ -361,7 +439,7 @@ public class MergedAnnotation {
 	 * 是否仅为别名注解，不含元注解实例
 	 */
 	public boolean isAliasOnly() {
-		return annotation == null && aliasSourceAnnotation != null && aliasSourceMembers != null;
+		return aliasOnly;
 	}
 
 }

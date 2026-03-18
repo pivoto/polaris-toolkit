@@ -33,17 +33,17 @@ public class MatchedMergedAnnotation<A extends Annotation> {
 	private final Class<A> annotationType;
 	/** 匹配到的注解实例 */
 	@Nullable
-	private final MergedAnnotation matchedAnnotation;
+	private final MergedAnnotation directMatched;
 
 	/** 别名注解列表 */
 	@Nonnull
-	private final List<MergedAnnotation> aliasAnnotations;
+	private final List<MergedAnnotation> aliasMatchedList;
 
 	/** 注解属性缓存 */
 	@EqualsAndHashCode.Exclude
 	@ToString.Exclude
 	@Getter(AccessLevel.NONE)
-	private transient Ref<AnnotationAttributes> annotationAttributes;
+	private transient Ref<AnnotationAttributes> annotationAttributesRef;
 
 	/**
 	 * 构造函数
@@ -52,13 +52,13 @@ public class MatchedMergedAnnotation<A extends Annotation> {
 	 * 该构造器允许传入 null 的别名注解列表，此时会自动转换为空列表。
 	 *
 	 * @param annotationType    注解类型，指定要创建的注解的类型，不能为 null
-	 * @param matchedAnnotation 匹配的注解实例，可以是 null，表示没有直接匹配的注解
-	 * @param aliasAnnotations  别名注解列表，可以是 null，为 null 时会自动转换为空列表
+	 * @param directMatched 匹配的注解实例，可以是 null，表示没有直接匹配的注解
+	 * @param aliasMatchedList  别名注解列表，可以是 null，为 null 时会自动转换为空列表
 	 */
-	public MatchedMergedAnnotation(@Nonnull Class<A> annotationType, @Nullable MergedAnnotation matchedAnnotation, @Nullable List<MergedAnnotation> aliasAnnotations) {
+	private MatchedMergedAnnotation(@Nonnull Class<A> annotationType, @Nullable MergedAnnotation directMatched, @Nullable List<MergedAnnotation> aliasMatchedList) {
 		this.annotationType = annotationType;
-		this.matchedAnnotation = matchedAnnotation;
-		this.aliasAnnotations = aliasAnnotations == null ? Collections.emptyList() : aliasAnnotations;
+		this.directMatched = directMatched;
+		this.aliasMatchedList = aliasMatchedList == null ? Collections.emptyList() : aliasMatchedList;
 	}
 
 	/**
@@ -68,13 +68,13 @@ public class MatchedMergedAnnotation<A extends Annotation> {
 	 * 该方法允许别名注解列表为 null，此时会创建不包含别名的合并注解。
 	 *
 	 * @param annotationType    注解类型，指定要创建的注解的类型，不能为 null
-	 * @param matchedAnnotation 匹配的注解实例，可以是 null，表示没有直接匹配的注解
-	 * @param aliasAnnotations  别名注解列表，可以是 null，为 null 时会在构造函数中转换为空列表
+	 * @param directMatched 匹配的注解实例，可以是 null，表示没有直接匹配的注解
+	 * @param aliasMatchedList  别名注解列表，可以是 null，为 null 时会在构造函数中转换为空列表
 	 * @param <A>               注解类型泛型参数，必须是 Annotation 的子类
 	 * @return MatchedMergedAnnotation 实例，封装了注解类型、匹配注解和别名注解
 	 */
-	public static <A extends Annotation> MatchedMergedAnnotation<A> of(@Nonnull Class<A> annotationType, @Nullable MergedAnnotation matchedAnnotation, @Nullable List<MergedAnnotation> aliasAnnotations) {
-		return new MatchedMergedAnnotation<>(annotationType, matchedAnnotation, aliasAnnotations);
+	static <A extends Annotation> MatchedMergedAnnotation<A> of(@Nonnull Class<A> annotationType, @Nullable MergedAnnotation directMatched, @Nullable List<MergedAnnotation> aliasMatchedList) {
+		return new MatchedMergedAnnotation<>(annotationType, directMatched, aliasMatchedList);
 	}
 
 	/**
@@ -84,12 +84,12 @@ public class MatchedMergedAnnotation<A extends Annotation> {
 	 * 适用于只有直接匹配的注解而没有别名注解的场景。
 	 *
 	 * @param annotationType    注解类型，指定要创建的注解的类型，不能为 null
-	 * @param matchedAnnotation 匹配的注解实例，可以是 null，表示没有直接匹配的注解
+	 * @param directMatched 匹配的注解实例，可以是 null，表示没有直接匹配的注解
 	 * @param <A>               注解类型泛型参数，必须是 Annotation 的子类
 	 * @return MatchedMergedAnnotation 实例，封装了注解类型和匹配注解，不包含别名注解
 	 */
-	public static <A extends Annotation> MatchedMergedAnnotation<A> of(@Nonnull Class<A> annotationType, @Nullable MergedAnnotation matchedAnnotation) {
-		return new MatchedMergedAnnotation<>(annotationType, matchedAnnotation, Collections.emptyList());
+	static <A extends Annotation> MatchedMergedAnnotation<A> of(@Nonnull Class<A> annotationType, @Nullable MergedAnnotation directMatched) {
+		return new MatchedMergedAnnotation<>(annotationType, directMatched, Collections.emptyList());
 	}
 
 	/**
@@ -104,10 +104,10 @@ public class MatchedMergedAnnotation<A extends Annotation> {
 	@Nullable
 	public AnnotationAttributes annotationAttributes() {
 		// 使用懒加载模式，首次访问时才创建注解属性
-		if (this.annotationAttributes == null) {
-			this.annotationAttributes = Ref.of(newAnnotationAttributes());
+		if (this.annotationAttributesRef == null) {
+			this.annotationAttributesRef = Ref.of(newAnnotationAttributes());
 		}
-		return this.annotationAttributes.get();
+		return this.annotationAttributesRef.get();
 	}
 
 	/**
@@ -126,8 +126,8 @@ public class MatchedMergedAnnotation<A extends Annotation> {
 	 */
 	@Nullable
 	public AnnotationAttributes newAnnotationAttributes() {
-		MergedAnnotation matchedAnnotation = this.matchedAnnotation;
-		List<MergedAnnotation> aliasAnnotations = this.aliasAnnotations;
+		MergedAnnotation matchedAnnotation = this.directMatched;
+		List<MergedAnnotation> aliasAnnotations = this.aliasMatchedList;
 
 		// 如果没有别名注解，则直接返回匹配注解的属性或 null
 		if (aliasAnnotations.isEmpty()) {
@@ -197,6 +197,29 @@ public class MatchedMergedAnnotation<A extends Annotation> {
 		return annotationAttributes;
 	}
 
+
+	/**
+	 * 创建新的合并注解实例
+	 * <p>
+	 * 该方法用于基于当前的注解属性创建一个新的 MergedAnnotation 对象。
+	 * 首先通过 {@link #newAnnotationAttributes()} 获取合并后的注解属性，
+	 * 然后将其包装为 MergedAnnotation 实例返回。
+	 * 如果没有任何匹配的注解或别名注解导致属性为 null，则返回 null。
+	 *
+	 * @return 新的合并注解实例，如果注解属性为 null 则返回 null
+	 */
+	@Nullable
+	public MergedAnnotation newMergedAnnotation() {
+		// 获取合并后的注解属性
+		AnnotationAttributes annotationAttributes = newAnnotationAttributes();
+		if (annotationAttributes == null) {
+			// 属性为 null，无法创建合并注解
+			return null;
+		}
+		// 将注解属性包装为 MergedAnnotation 并返回
+		return MergedAnnotation.of(annotationAttributes);
+	}
+
 	/**
 	 * 将注解属性转换为实际注解实例
 	 * <p>
@@ -221,6 +244,29 @@ public class MatchedMergedAnnotation<A extends Annotation> {
 	}
 
 	/**
+	 * 将匹配的合并注解转换为 MergedAnnotation 对象
+	 * <p>
+	 * 该方法用于将当前的 MatchedMergedAnnotation 转换为标准的 MergedAnnotation 对象。
+	 * 首先通过 {@link #annotationAttributes()} 获取合并后的注解属性，
+	 * 然后将其包装为 MergedAnnotation 实例返回。
+	 * 如果没有任何匹配的注解或别名注解导致属性为 null，则返回 null。
+	 * 与 {@link #newMergedAnnotation()} 方法功能相同，只是命名角度不同。
+	 *
+	 * @return MergedAnnotation 对象，如果注解属性为 null 则返回 null
+	 */
+	@Nullable
+	public MergedAnnotation asMergedAnnotation() {
+		// 获取合并后的注解属性
+		AnnotationAttributes annotationAttributes = annotationAttributes();
+		if (annotationAttributes == null) {
+			// 属性为 null，无法转换为注解实例
+			return null;
+		}
+		// 将注解属性包装为 MergedAnnotation 并返回
+		return MergedAnnotation.of(annotationAttributes);
+	}
+
+	/**
 	 * 获取注解类型
 	 * <p>
 	 * 返回此 MatchedMergedAnnotation 所表示的注解的类型。
@@ -242,8 +288,8 @@ public class MatchedMergedAnnotation<A extends Annotation> {
 	 * @return 匹配的注解实例，如果不存在直接匹配的注解则返回 null
 	 */
 	@Nullable
-	public MergedAnnotation matchedAnnotation() {
-		return matchedAnnotation;
+	public MergedAnnotation directMatched() {
+		return directMatched;
 	}
 
 	/**
@@ -256,7 +302,7 @@ public class MatchedMergedAnnotation<A extends Annotation> {
 	 * @return 别名注解列表，不会是 null，可能是空列表
 	 */
 	@Nonnull
-	public List<MergedAnnotation> aliasAnnotations() {
-		return aliasAnnotations;
+	public List<MergedAnnotation> aliasMatchedList() {
+		return aliasMatchedList;
 	}
 }
