@@ -143,6 +143,7 @@ public class RawAnnotations {
 	 * @param predicate 注解过滤条件，用于筛选符合条件的注解，只有使 predicate.test() 返回 true 的注解才会被收集
 	 * @return 找到的所有匹配的注解实例集合，如果未找到则返回空集合，集合已自动去重并保持插入顺序
 	 */
+	@Nonnull
 	public static Set<Annotation> findAnnotation(AnnotatedElement element, Predicate<Class<? extends Annotation>> predicate) {
 		// 使用 LinkedHashSet 存储结果以保持插入顺序并自动去重
 		Set<Annotation> result = new LinkedHashSet<>();

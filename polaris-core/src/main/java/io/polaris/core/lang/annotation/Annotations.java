@@ -54,6 +54,23 @@ public class Annotations {
 		return RawAnnotations.getRepeatableAnnotation(element, annotationType);
 	}
 
+
+	/**
+	 * 查找指定元素上满足条件的原始注解
+	 * <p>
+	 * 该方法用于从注解元素上查找所有满足给定条件的原始注解实例。
+	 * 委托给 {@link RawAnnotations#findAnnotation(AnnotatedElement, Predicate)} 实现完整的注解查找逻辑。
+	 * 返回的集合包含所有满足条件的注解实例，支持在继承结构中查找。
+	 *
+	 * @param element   注解元素，可以是类、方法、参数等任何带有注解的程序元素，不能为 null
+	 * @param predicate 条件判断器，用于测试注解类型是否应该被选中；不能为 null
+	 * @return 满足条件的注解实例集合，如果没有任何注解满足条件则返回空集合而不是 null
+	 */
+	@Nonnull
+	public static Set<Annotation> findRawAnnotation(AnnotatedElement element, Predicate<Class<? extends Annotation>> predicate) {
+		return RawAnnotations.findAnnotation(element, predicate);
+	}
+
 	/**
 	 * 获取指定元素上的合并注解
 	 * <p>
