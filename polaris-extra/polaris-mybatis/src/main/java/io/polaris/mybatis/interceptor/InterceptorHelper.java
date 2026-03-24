@@ -2,11 +2,18 @@ package io.polaris.mybatis.interceptor;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+
+import javax.annotation.Nullable;
 
 import io.polaris.core.reflect.Methods;
 import io.polaris.core.reflect.Reflects;
+import io.polaris.core.tuple.Ref;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.executor.statement.BaseStatementHandler;
 import org.apache.ibatis.executor.statement.RoutingStatementHandler;
@@ -25,6 +32,7 @@ public class InterceptorHelper {
 	private volatile Function<RoutingStatementHandler, StatementHandler> getDelegate;
 	private volatile Function<BaseStatementHandler, MappedStatement> getMappedStatement;
 	private volatile Function<BoundSql, Map<String, Object>> getAdditionalParameters;
+	private final Map<String, Ref<Method>> statementMethodCache = new ConcurrentHashMap<>();
 
 	private InterceptorHelper() {
 	}
@@ -39,6 +47,36 @@ public class InterceptorHelper {
 		}
 		return instance;
 	}
+
+	@Nullable
+	public Method getStatementMethod(String statementId) {
+		Ref<Method> ref = statementMethodCache.get(statementId);
+		if (ref == null) {
+			synchronized (statementMethodCache) {
+				ref = statementMethodCache.get(statementId);
+				if (ref == null) {
+					try {
+						int idx = statementId.lastIndexOf(".");
+						String mapperClassName = statementId.substring(0, idx);
+						String mapperMethodName = statementId.substring(idx + 1);
+						Class<?> mapperClass = Class.forName(mapperClassName);
+						List<Method> methods = Reflects.getPublicMethods(mapperClass, m ->
+							!m.isDefault() && !Modifier.isStatic(m.getModifiers())
+								&& mapperMethodName.equals(m.getName()));
+						if (methods.size() == 1) {
+							ref = Ref.of(methods.get(0));
+						}
+					} catch (Exception e) {
+						log.warn("", e);
+						ref = Ref.of(null);
+					}
+					statementMethodCache.put(statementId, ref);
+				}
+			}
+		}
+		return ref.get();
+	}
+
 
 	@SuppressWarnings("unchecked")
 	private <O, F> Function<O, F> getPrivateGetter(Class<O> clazz, String fieldName, Class<F> fieldType) {
