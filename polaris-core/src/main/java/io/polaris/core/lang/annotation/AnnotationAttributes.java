@@ -480,6 +480,32 @@ public class AnnotationAttributes implements Cloneable, Copyable<AnnotationAttri
 	 * @param name 属性名称
 	 * @return Enum 类型的属性值
 	 */
+	public <E extends Enum<E>> E getEnum(String name, Class<E> type) {
+		return Converters.convert(type, get(name));
+	}
+
+	/**
+	 * 获取 Enum[] 类型的属性值
+	 * <p>
+	 * 该方法用于获取指定属性的枚举数组类型值。
+	 * 通过转换器将原始值转换为 Enum[] 类型。
+	 *
+	 * @param name 属性名称
+	 * @return Enum[] 类型的属性值
+	 */
+	public <E extends Enum<E>> E[] getEnumArray(String name, Class<E> type) {
+		return Converters.convert(Array.newInstance(type, 0).getClass(), get(name));
+	}
+
+	/**
+	 * 获取 Enum 类型的属性值
+	 * <p>
+	 * 该方法用于获取指定属性的枚举类型值。
+	 * 通过转换器将原始值转换为 Enum 类型。
+	 *
+	 * @param name 属性名称
+	 * @return Enum 类型的属性值
+	 */
 	public Enum getEnum(String name) {
 		return Converters.convert(Enum.class, get(name));
 	}
