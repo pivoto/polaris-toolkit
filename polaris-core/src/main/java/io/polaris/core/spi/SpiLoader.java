@@ -21,6 +21,8 @@ import io.polaris.core.classpath.reader.MetadataReaderFactory;
 import io.polaris.core.classpath.reader.impl.DefaultMetadataReaderFactory;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
+import io.polaris.core.spi.condition.SpiConditionResult;
+import io.polaris.core.spi.condition.SpiConditions;
 
 /**
  * @author Qt
@@ -199,12 +201,17 @@ public class SpiLoader<S> implements Iterable<Service<S>> {
 		for (String className : classNames) {
 			try {
 				Class<?> clazz = Class.forName(className, true, loader);
-				if (type.isAssignableFrom(clazz)) {
-					//noinspection unchecked
-					classes.add((Class<S>) clazz);
-				} else {
+				if (!type.isAssignableFrom(clazz)) {
 					log.warn("加载服务类失败，类型不匹配：{}", className);
+					continue;
 				}
+				SpiConditionResult conditionResult = SpiConditions.matches(clazz);
+				if (!conditionResult.isMatched()){
+					log.warn("加载服务类失败，条件不满足：{}，原因：{}", className, conditionResult.getMessage());
+					continue;
+				}
+				//noinspection unchecked
+				classes.add((Class<S>) clazz);
 			} catch (Throwable e) {
 				if (log.isDebugEnabled()) {
 					log.debug(e, "加载服务类失败：" + className);

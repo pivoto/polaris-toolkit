@@ -1,19 +1,16 @@
-package io.polaris.core.service.impl;
+package io.polaris.core.spi.impl;
 
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
+import io.polaris.core.spi.SpiTestService;
 import io.polaris.core.spi.SpiProperty;
-import io.polaris.core.spi.SpiDefault;
-import io.polaris.core.service.SpiTestService;
 
 /**
  * @author Qt
  */
-@SpiDefault()
-@SpiProperty(name = "key", value = "test0")
-public class Test0Service implements SpiTestService {
+@SpiProperty(name = "key", value = "test2")
+public class Test2Service implements SpiTestService {
 	private static final Logger log = Loggers.of(SpiTestService.class);
-
 	@Override
 	public void call() {
 		log.info("called in {}", this.getClass().getName());

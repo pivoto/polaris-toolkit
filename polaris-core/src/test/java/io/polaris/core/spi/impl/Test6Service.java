@@ -1,8 +1,8 @@
-package io.polaris.core.service.impl;
+package io.polaris.core.spi.impl;
 
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
-import io.polaris.core.service.SpiTestService;
+import io.polaris.core.spi.SpiTestService;
 import io.polaris.core.spi.SpiName;
 import io.polaris.core.spi.SpiOrder;
 import io.polaris.core.spi.SpiProperty;
