@@ -17,47 +17,28 @@ import io.polaris.mybatis.auth.DataAuthConfigurator;
 @SpiDefault
 public class DefaultDataAuthConfigurator implements DataAuthConfigurator {
 
-	private volatile boolean mybatisInterceptorEnabled = true;
-	private final Map<String, TableConfig> tableConfigs = new ConcurrentHashMap<>();
+	private static final class MemoryConfiguratorHolder {
+		static final MemoryDataAuthConfigurator memoryConfigurator = new MemoryDataAuthConfigurator();
+	}
+
+	public static MemoryDataAuthConfigurator memoryConfigurator() {
+		return MemoryConfiguratorHolder.memoryConfigurator;
+	}
 
 	@Override
 	public boolean isScopeEnabled(String tableName, String scopeName) {
-		TableConfig tableConfig = tableConfigs.get(tableName);
-		if (tableConfig == null) {
-			return false;
-		}
-		ScopeConfig scopeConfig = tableConfig.getScopeConfig(scopeName);
-		if (scopeConfig == null) {
-			return false;
-		}
-		return scopeConfig.isEnabled();
+		return memoryConfigurator().isScopeEnabled(tableName, scopeName);
 	}
 
 	@Nonnull
 	@Override
 	public Set<String> getGlobalScopes() {
-		return Collections.emptySet();
+		return memoryConfigurator().getGlobalScopes();
 	}
 
 	@Override
 	public boolean isMybatisInterceptorEnabled() {
-		return mybatisInterceptorEnabled;
-	}
-
-	public void setMybatisInterceptorEnabled(boolean mybatisInterceptorEnabled) {
-		this.mybatisInterceptorEnabled = mybatisInterceptorEnabled;
-	}
-
-	public void addTableConfig(String tableName, TableConfig tableConfig) {
-		tableConfigs.put(tableName, tableConfig);
-	}
-
-	public void removeTableConfig(String tableName) {
-		tableConfigs.remove(tableName);
-	}
-
-	public TableConfig getTableConfig(String tableName) {
-		return tableConfigs.get(tableName);
+		return memoryConfigurator().isMybatisInterceptorEnabled();
 	}
 
 }

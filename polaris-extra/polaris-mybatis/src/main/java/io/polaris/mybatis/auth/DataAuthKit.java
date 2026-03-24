@@ -84,9 +84,15 @@ public class DataAuthKit {
 		this.configurator = configurator;
 	}
 
-	public void unregister(String name) {
-		if (Strings.isNotBlank(name)) {
-			dataScopeProviders.remove(name);
+
+	@Nullable
+	public DataScopeProvider getDataScopeProvider(String scopeName) {
+		return dataScopeProviders.get(scopeName);
+	}
+
+	public void unregister(String scopeName) {
+		if (Strings.isNotBlank(scopeName)) {
+			dataScopeProviders.remove(scopeName);
 		}
 	}
 
@@ -201,14 +207,14 @@ public class DataAuthKit {
 			//String defaultSql = relation == Relation.AND ? " 1=2 " : " 1=1 ";
 
 			for (Table table : tables) {
-				String name = table.getName();
-				if (Strings.isBlank(name)) {
+				String tableName = table.getName();
+				if (Strings.isBlank(tableName)) {
 					continue;
 				}
 				StringBuilder tableSql = new StringBuilder();
-				String alias = table.getAlias() == null ? null : table.getAlias().getName();
+				String tableAlias = table.getAlias() == null ? null : table.getAlias().getName();
 				for (String scope : scopes) {
-					boolean scopeEnabled = configurator != null && configurator.isScopeEnabled(name, scope);
+					boolean scopeEnabled = configurator != null && configurator.isScopeEnabled(tableName, scope);
 					if (!scopeEnabled) {
 						continue;
 					}
@@ -216,7 +222,7 @@ public class DataAuthKit {
 					if (provider == null) {
 						continue;
 					}
-					String where = provider.where(name, alias);
+					String where = provider.where(tableName, tableAlias);
 					if (Strings.isNotBlank(where)) {
 						if (tableSql.length() > 0) {
 							tableSql.append(conj);
@@ -236,14 +242,14 @@ public class DataAuthKit {
 			}
 			return whereSql.toString();
 		};
-		TableColumnFilter columnFilter = (table, column) -> {
-			String name = table.getName();
-			if (Strings.isBlank(name)) {
+		TableColumnFilter columnFilter = (table, colunmName) -> {
+			String tableName = table.getName();
+			if (Strings.isBlank(tableName)) {
 				return true;
 			}
 			if (relation == Relation.AND) {
 				for (String scope : scopes) {
-					boolean scopeEnabled = configurator != null && configurator.isScopeEnabled(name, scope);
+					boolean scopeEnabled = configurator != null && configurator.isScopeEnabled(tableName, scope);
 					if (!scopeEnabled) {
 						continue;
 					}
@@ -251,7 +257,7 @@ public class DataAuthKit {
 					if (provider == null) {
 						continue;
 					}
-					boolean selected = provider.select(name, column);
+					boolean selected = provider.select(tableName, colunmName);
 					if (!selected) {
 						return false;
 					}
@@ -260,7 +266,7 @@ public class DataAuthKit {
 			} else {
 				boolean denied = false;
 				for (String scope : scopes) {
-					boolean scopeEnabled = configurator != null && configurator.isScopeEnabled(name, scope);
+					boolean scopeEnabled = configurator != null && configurator.isScopeEnabled(tableName, scope);
 					if (!scopeEnabled) {
 						continue;
 					}
@@ -268,7 +274,7 @@ public class DataAuthKit {
 					if (provider == null) {
 						continue;
 					}
-					boolean selected = provider.select(name, column);
+					boolean selected = provider.select(tableName, colunmName);
 					if (selected) {
 						return true;
 					} else {
