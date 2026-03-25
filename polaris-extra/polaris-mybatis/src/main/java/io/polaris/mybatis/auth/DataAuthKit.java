@@ -20,6 +20,7 @@ import io.polaris.core.string.Strings;
 import io.polaris.core.tuple.Tuple2;
 import io.polaris.core.tuple.Tuples;
 import io.polaris.mybatis.auth.impl.DefaultDataAuthConfigurator;
+import io.polaris.mybatis.auth.impl.DefaultDataAuthCtxProvider;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Alias;
@@ -42,6 +43,7 @@ public class DataAuthKit {
 	private static final DataAuthKit instance = new DataAuthKit();
 	private final Map<String, DataScopeProvider> dataScopeProviders = new ConcurrentHashMap<>();
 	private volatile DataAuthConfigurator configurator;
+	private volatile DataAuthCtxProvider dataAuthCtxProvider;
 
 	private DataAuthKit() {
 		try {
@@ -69,6 +71,18 @@ public class DataAuthKit {
 		} catch (Exception e) {
 			log.error("加载DataAuthConfigurator失败", e);
 		}
+
+		try {
+			SpiLoader<DataAuthCtxProvider> services = SpiLoaders.load(DataAuthCtxProvider.class);
+			DataAuthCtxProvider dataAuthCtxProvider = services.getSingleton();
+			if (dataAuthCtxProvider == null) {
+				dataAuthCtxProvider = new DefaultDataAuthCtxProvider();
+			}
+			log.info("加载DataAuthCtxProvider成功：{}", dataAuthCtxProvider.getClass().getName());
+			this.dataAuthCtxProvider = dataAuthCtxProvider;
+		} catch (Exception e) {
+			log.error("加载DataAuthCtxProvider失败", e);
+		}
 	}
 
 	public static DataAuthKit instance() {
@@ -84,6 +98,14 @@ public class DataAuthKit {
 		this.configurator = configurator;
 	}
 
+	@Nullable
+	public DataAuthCtxProvider getDataAuthCtxProvider() {
+		return dataAuthCtxProvider;
+	}
+
+	public void setDataAuthCtxProvider(DataAuthCtxProvider dataAuthCtxProvider) {
+		this.dataAuthCtxProvider = dataAuthCtxProvider;
+	}
 
 	@Nullable
 	public DataScopeProvider getDataScopeProvider(String scopeName) {
@@ -174,9 +196,18 @@ public class DataAuthKit {
 	@Nonnull
 	public Tuple2<TableWhereGenerator, TableColumnFilter> getCurrentResolver() {
 		Set<String> globalScopes = configurator == null ? Collections.emptySet() : configurator.getGlobalScopes();
-		Relation relation = DataAuthCtx.getRelation();
-		Set<String> includedScopes = DataAuthCtx.getIncludedScopes();
-		Set<String> excludedScopes = DataAuthCtx.getExcludedScopes();
+		Relation relation;
+		Set<String> includedScopes;
+		Set<String> excludedScopes;
+		if (dataAuthCtxProvider == null) {
+			relation = DataAuthCtx.getRelation();
+			includedScopes = DataAuthCtx.getIncludedScopes();
+			excludedScopes = DataAuthCtx.getExcludedScopes();
+		} else {
+			relation = dataAuthCtxProvider.getRelation();
+			includedScopes = dataAuthCtxProvider.getIncludedScopes();
+			excludedScopes = dataAuthCtxProvider.getExcludedScopes();
+		}
 		final Set<String> scopes;
 		if (excludedScopes.isEmpty()) {
 			if (globalScopes.isEmpty()) {
