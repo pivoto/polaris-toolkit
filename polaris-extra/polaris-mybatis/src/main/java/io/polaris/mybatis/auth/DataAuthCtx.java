@@ -15,6 +15,7 @@ import io.polaris.core.function.ThrowableExecution;
 import io.polaris.core.function.ThrowableSupplier;
 import io.polaris.core.jdbc.sql.consts.Relation;
 import io.polaris.mybatis.auth.annotation.DataScope;
+import lombok.RequiredArgsConstructor;
 
 /**
  * 数据权限控制上下文
@@ -28,6 +29,49 @@ public class DataAuthCtx {
 	private final static ThreadLocal<Set<String>> INCLUDED_SCOPE = new ThreadLocal<>();
 	private final static ThreadLocal<Set<String>> EXCLUDED_SCOPE = new ThreadLocal<>();
 
+	@RequiredArgsConstructor
+	public static class Snapshot {
+		private final Relation relation;
+		private final Set<String> includedScopes;
+		private final Set<String> excludedScopes;
+	}
+
+	public static Snapshot capture() {
+		return new Snapshot(getRelation(), getIncludedScopes(), getExcludedScopes());
+	}
+
+	public static Runnable continued(Runnable runnable) {
+		return continued(capture(), runnable);
+	}
+
+	public static <T> Supplier<T> continued(Supplier<T> supplier) {
+		return continued(capture(), supplier);
+	}
+
+	public static Runnable continued(Snapshot snapshot, Runnable runnable) {
+		return () -> doContinued(snapshot, runnable);
+	}
+
+
+	public static <T> Supplier<T> continued(Snapshot snapshot, Supplier<T> supplier) {
+		return () -> doContinued(snapshot, supplier);
+	}
+
+	public static void doContinued(Snapshot snapshot, Runnable runnable) {
+		if (snapshot != null) {
+			execute(runnable, snapshot.relation, snapshot.includedScopes, snapshot.excludedScopes);
+		} else {
+			runnable.run();
+		}
+	}
+
+	public static <T> T doContinued(Snapshot snapshot, Supplier<T> supplier) {
+		if (snapshot != null) {
+			return execute(supplier, snapshot.relation, snapshot.includedScopes, snapshot.excludedScopes);
+		} else {
+			return supplier.get();
+		}
+	}
 
 	public static Set<String> getComputedScopes() {
 		Set<String> set = new LinkedHashSet<>();
