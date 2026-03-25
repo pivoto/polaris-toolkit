@@ -12,15 +12,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import io.polaris.core.jdbc.sql.consts.Relation;
 import io.polaris.core.spi.Service;
 import io.polaris.core.spi.SpiLoader;
 import io.polaris.core.spi.SpiLoaders;
 import io.polaris.core.string.Strings;
 import io.polaris.core.tuple.Tuple2;
 import io.polaris.core.tuple.Tuples;
+import io.polaris.mybatis.auth.consts.DataScopeRelation;
 import io.polaris.mybatis.auth.impl.DefaultDataAuthConfigurator;
-import io.polaris.mybatis.auth.impl.DefaultDataAuthCtxProvider;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Alias;
@@ -43,7 +42,7 @@ public class DataAuthKit {
 	private static final DataAuthKit instance = new DataAuthKit();
 	private final Map<String, DataScopeProvider> dataScopeProviders = new ConcurrentHashMap<>();
 	private volatile DataAuthConfigurator configurator;
-	private volatile DataAuthCtxProvider dataAuthCtxProvider;
+	private volatile DataAuthEnvProvider dataAuthEnvProvider;
 
 	private DataAuthKit() {
 		try {
@@ -73,15 +72,14 @@ public class DataAuthKit {
 		}
 
 		try {
-			SpiLoader<DataAuthCtxProvider> services = SpiLoaders.load(DataAuthCtxProvider.class);
-			DataAuthCtxProvider dataAuthCtxProvider = services.getSingleton();
-			if (dataAuthCtxProvider == null) {
-				dataAuthCtxProvider = new DefaultDataAuthCtxProvider();
+			SpiLoader<DataAuthEnvProvider> services = SpiLoaders.load(DataAuthEnvProvider.class);
+			DataAuthEnvProvider dataAuthCtxProvider = services.getSingleton();
+			if (dataAuthCtxProvider != null) {
+				log.info("加载DataAuthEnvProvider成功：{}", dataAuthCtxProvider.getClass().getName());
 			}
-			log.info("加载DataAuthCtxProvider成功：{}", dataAuthCtxProvider.getClass().getName());
-			this.dataAuthCtxProvider = dataAuthCtxProvider;
+			this.dataAuthEnvProvider = dataAuthCtxProvider;
 		} catch (Exception e) {
-			log.error("加载DataAuthCtxProvider失败", e);
+			log.error("加载DataAuthEnvProvider失败", e);
 		}
 	}
 
@@ -99,12 +97,12 @@ public class DataAuthKit {
 	}
 
 	@Nullable
-	public DataAuthCtxProvider getDataAuthCtxProvider() {
-		return dataAuthCtxProvider;
+	public DataAuthEnvProvider getDataAuthEnvProvider() {
+		return dataAuthEnvProvider;
 	}
 
-	public void setDataAuthCtxProvider(DataAuthCtxProvider dataAuthCtxProvider) {
-		this.dataAuthCtxProvider = dataAuthCtxProvider;
+	public void setDataAuthEnvProvider(DataAuthEnvProvider dataAuthCtxProvider) {
+		this.dataAuthEnvProvider = dataAuthCtxProvider;
 	}
 
 	@Nullable
@@ -195,51 +193,19 @@ public class DataAuthKit {
 
 	@Nonnull
 	public Tuple2<TableWhereGenerator, TableColumnFilter> getCurrentResolver() {
-		Set<String> globalScopes = configurator == null ? Collections.emptySet() : configurator.getGlobalScopes();
-		Relation relation;
-		Set<String> includedScopes;
-		Set<String> excludedScopes;
-		if (dataAuthCtxProvider == null) {
-			relation = DataAuthCtx.getRelation();
-			includedScopes = DataAuthCtx.getIncludedScopes();
-			excludedScopes = DataAuthCtx.getExcludedScopes();
-		} else {
-			relation = dataAuthCtxProvider.getRelation();
-			includedScopes = dataAuthCtxProvider.getIncludedScopes();
-			excludedScopes = dataAuthCtxProvider.getExcludedScopes();
-		}
-		final Set<String> scopes;
-		if (excludedScopes.isEmpty()) {
-			if (globalScopes.isEmpty()) {
-				scopes = includedScopes;
-			} else if (includedScopes.isEmpty()) {
-				scopes = globalScopes;
-			} else {
-				scopes = new LinkedHashSet<>();
-				scopes.addAll(globalScopes);
-				scopes.addAll(includedScopes);
-			}
-		} else {
-			if (includedScopes.isEmpty() && globalScopes.isEmpty()) {
-				scopes = Collections.emptySet();
-			} else {
-				scopes = new LinkedHashSet<>();
-				scopes.addAll(globalScopes);
-				scopes.addAll(includedScopes);
-				scopes.removeAll(excludedScopes);
-			}
-		}
+		final Set<String> scopes = DataAuthCtx.getComputedScopes();
 		if (scopes.isEmpty()) {
 			return Tuples.of(null, null);
 		}
+		final DataScopeRelation relation = DataAuthCtx.getComputedRelation();
 
 		TableWhereGenerator whereGenerator = tables -> {
 			if (tables == null || tables.isEmpty()) {
 				return null;
 			}
 			StringBuilder whereSql = new StringBuilder();
-			String conj = relation == Relation.AND ? " AND " : " OR ";
-			//String defaultSql = relation == Relation.AND ? " 1=2 " : " 1=1 ";
+			String conj = relation == DataScopeRelation.AND ? " AND " : " OR ";
+			//String defaultSql = relation == DataScopeRelation.AND ? " 1=2 " : " 1=1 ";
 
 			for (Table table : tables) {
 				String tableName = table.getName();
@@ -282,7 +248,7 @@ public class DataAuthKit {
 			if (Strings.isBlank(tableName)) {
 				return true;
 			}
-			if (relation == Relation.AND) {
+			if (relation == DataScopeRelation.AND) {
 				for (String scope : scopes) {
 					boolean scopeEnabled = configurator != null && configurator.isScopeEnabled(tableName, scope);
 					if (!scopeEnabled) {

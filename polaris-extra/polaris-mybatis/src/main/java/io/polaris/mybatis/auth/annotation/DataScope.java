@@ -6,7 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import io.polaris.core.jdbc.sql.consts.Relation;
+import io.polaris.mybatis.auth.consts.DataScopeRelation;
 
 /**
  * 数据权限注解
@@ -26,6 +26,6 @@ public @interface DataScope {
 	String[] exclude() default {};
 
 	/** 多个数据权限间的作用关系，默认为并集 */
-	Relation relation() default Relation.OR;
+	DataScopeRelation relation() default DataScopeRelation.UNSET;
 
 }

@@ -1,13 +1,12 @@
 package io.polaris.mybatis.auth;
 
 import java.util.Set;
-import java.util.StringJoiner;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import io.polaris.core.jdbc.sql.consts.Relation;
 import io.polaris.core.string.Strings;
+import io.polaris.mybatis.auth.consts.DataScopeRelation;
 
 /**
  * @author Qt
@@ -24,8 +23,8 @@ public interface CompositeDataScopeProvider extends DataScopeProvider {
 	/**
 	 * @return 组合关系
 	 */
-	default Relation compositeRelation() {
-		return Relation.OR;
+	default DataScopeRelation compositeRelation() {
+		return DataScopeRelation.OR;
 	}
 
 	@Override
@@ -34,8 +33,8 @@ public interface CompositeDataScopeProvider extends DataScopeProvider {
 		if (names == null || names.isEmpty()) {
 			return null;
 		}
-		Relation relation = compositeRelation();
-		String conj = relation == Relation.AND ? " AND " : " OR ";
+		DataScopeRelation relation = compositeRelation();
+		String conj = relation == DataScopeRelation.AND ? " AND " : " OR ";
 		StringBuilder sql = new StringBuilder();
 		for (String name : names) {
 			DataScopeProvider provider = DataAuthKit.instance().getDataScopeProvider(name);
@@ -62,9 +61,9 @@ public interface CompositeDataScopeProvider extends DataScopeProvider {
 		if (names == null || names.isEmpty()) {
 			return true;
 		}
-		Relation relation = compositeRelation();
+		DataScopeRelation relation = compositeRelation();
 
-		if (relation == Relation.AND) {
+		if (relation == DataScopeRelation.AND) {
 			for (String name : names) {
 				DataScopeProvider provider = DataAuthKit.instance().getDataScopeProvider(name);
 				if (provider == null) {

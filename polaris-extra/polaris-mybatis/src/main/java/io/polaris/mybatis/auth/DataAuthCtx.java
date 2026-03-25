@@ -13,9 +13,8 @@ import javax.annotation.Nonnull;
 import io.polaris.core.function.Executable;
 import io.polaris.core.function.ThrowableExecution;
 import io.polaris.core.function.ThrowableSupplier;
-import io.polaris.core.jdbc.sql.consts.Relation;
 import io.polaris.mybatis.auth.annotation.DataScope;
-import lombok.RequiredArgsConstructor;
+import io.polaris.mybatis.auth.consts.DataScopeRelation;
 
 import com.alibaba.ttl.TransmittableThreadLocal;
 
@@ -27,19 +26,12 @@ import com.alibaba.ttl.TransmittableThreadLocal;
  */
 public class DataAuthCtx {
 
-	private final static ThreadLocal<Relation> RELATION = new TransmittableThreadLocal<>();
+	private final static ThreadLocal<DataScopeRelation> RELATION = new TransmittableThreadLocal<>();
 	private final static ThreadLocal<Set<String>> INCLUDED_SCOPE = new TransmittableThreadLocal<>();
 	private final static ThreadLocal<Set<String>> EXCLUDED_SCOPE = new TransmittableThreadLocal<>();
 
-	@RequiredArgsConstructor
-	public static class Snapshot {
-		private final Relation relation;
-		private final Set<String> includedScopes;
-		private final Set<String> excludedScopes;
-	}
-
-	public static Snapshot capture() {
-		return new Snapshot(getRelation(), getIncludedScopes(), getExcludedScopes());
+	public static DataAuthEnv capture() {
+		return new DataAuthEnv(getRelation(), getIncludedScopes(), getExcludedScopes());
 	}
 
 	public static Runnable continued(Runnable runnable) {
@@ -50,33 +42,60 @@ public class DataAuthCtx {
 		return continued(capture(), supplier);
 	}
 
-	public static Runnable continued(Snapshot snapshot, Runnable runnable) {
-		return () -> doContinued(snapshot, runnable);
+	public static Runnable continued(DataAuthEnv env, Runnable runnable) {
+		return () -> doContinued(env, runnable);
 	}
 
-
-	public static <T> Supplier<T> continued(Snapshot snapshot, Supplier<T> supplier) {
-		return () -> doContinued(snapshot, supplier);
+	public static <T> Supplier<T> continued(DataAuthEnv env, Supplier<T> supplier) {
+		return () -> doContinued(env, supplier);
 	}
 
-	public static void doContinued(Snapshot snapshot, Runnable runnable) {
-		if (snapshot != null) {
-			execute(runnable, snapshot.relation, snapshot.includedScopes, snapshot.excludedScopes);
+	public static void doContinued(DataAuthEnv env, Runnable runnable) {
+		if (env != null) {
+			execute(runnable, env.relation, env.includedScopes, env.excludedScopes);
 		} else {
 			runnable.run();
 		}
 	}
 
-	public static <T> T doContinued(Snapshot snapshot, Supplier<T> supplier) {
-		if (snapshot != null) {
-			return execute(supplier, snapshot.relation, snapshot.includedScopes, snapshot.excludedScopes);
+	public static <T> T doContinued(DataAuthEnv env, Supplier<T> supplier) {
+		if (env != null) {
+			return execute(supplier, env.relation, env.includedScopes, env.excludedScopes);
 		} else {
 			return supplier.get();
 		}
 	}
 
+	public static DataScopeRelation getComputedRelation() {
+		DataScopeRelation relation = RELATION.get();
+		if (relation != null && relation != DataScopeRelation.UNSET) {
+			return relation;
+		}
+
+		DataAuthEnvProvider dataAuthEnvProvider = DataAuthKit.instance().getDataAuthEnvProvider();
+		if (dataAuthEnvProvider != null) {
+			DataAuthEnv dataAuthEnv = dataAuthEnvProvider.getDataAuthEnv();
+			if (dataAuthEnv != null) {
+				relation = dataAuthEnv.relation;
+				if (relation != null && relation != DataScopeRelation.UNSET) {
+					return relation;
+				}
+			}
+		}
+
+		DataAuthConfigurator configurator = DataAuthKit.instance().getConfigurator();
+		if (configurator != null) {
+			relation = configurator.getGlobalRelation();
+			if (relation != null && relation != DataScopeRelation.UNSET) {
+				return relation;
+			}
+		}
+		return DataScopeRelation.OR;
+	}
+
 	public static Set<String> getComputedScopes() {
 		Set<String> set = new LinkedHashSet<>();
+
 		DataAuthConfigurator configurator = DataAuthKit.instance().getConfigurator();
 		if (configurator != null) {
 			Set<String> globalScopes = configurator.getGlobalScopes();
@@ -84,22 +103,39 @@ public class DataAuthCtx {
 				set.addAll(globalScopes);
 			}
 		}
-		Set<String> includedScopes = getIncludedScopes();
+
+		DataAuthEnvProvider dataAuthEnvProvider = DataAuthKit.instance().getDataAuthEnvProvider();
+		if (dataAuthEnvProvider != null) {
+			DataAuthEnv dataAuthEnv = dataAuthEnvProvider.getDataAuthEnv();
+			if (dataAuthEnv != null) {
+				Set<String> includedScopes = dataAuthEnv.includedScopes;
+				if (includedScopes != null && !includedScopes.isEmpty()) {
+					set.addAll(includedScopes);
+				}
+				Set<String> excludedScopes = dataAuthEnv.excludedScopes;
+				if (excludedScopes != null && !excludedScopes.isEmpty()) {
+					set.removeAll(excludedScopes);
+				}
+			}
+		}
+
+		Set<String> includedScopes = INCLUDED_SCOPE.get();
 		if (includedScopes != null && !includedScopes.isEmpty()) {
 			set.addAll(includedScopes);
 		}
-		Set<String> excludedScopes = getExcludedScopes();
+		Set<String> excludedScopes = EXCLUDED_SCOPE.get();
 		if (excludedScopes != null && !excludedScopes.isEmpty()) {
 			set.removeAll(excludedScopes);
 		}
+
 		return Collections.unmodifiableSet(set);
 	}
 
 	@Nonnull
-	public static Relation getRelation() {
-		Relation relation = RELATION.get();
+	public static DataScopeRelation getRelation() {
+		DataScopeRelation relation = RELATION.get();
 		if (relation == null) {
-			return Relation.OR;
+			return DataScopeRelation.OR;
 		}
 		return relation;
 	}
@@ -128,13 +164,13 @@ public class DataAuthCtx {
 		addExcludedScope(dataScope.exclude());
 	}
 
-	public static void addScope(@Nonnull Relation relation, Collection<String> includedScopes, Collection<String> excludedScopes) {
+	public static void addScope(@Nonnull DataScopeRelation relation, Collection<String> includedScopes, Collection<String> excludedScopes) {
 		setRelation(relation);
 		addIncludedScope(includedScopes);
 		addExcludedScope(excludedScopes);
 	}
 
-	public static void setRelation(@Nonnull Relation relation) {
+	public static void setRelation(@Nonnull DataScopeRelation relation) {
 		RELATION.set(relation);
 	}
 
@@ -243,40 +279,44 @@ public class DataAuthCtx {
 	}
 
 
+	public static void execute(@Nonnull Runnable task, @Nonnull DataAuthEnv env) {
+		execute(task, env.relation, env.includedScopes, env.excludedScopes);
+	}
+
 	public static void execute(@Nonnull Runnable task, @Nonnull DataScope dataScope) {
 		execute(task, dataScope.relation(), dataScope.include(), dataScope.exclude());
 	}
 
 	public static void execute(@Nonnull Runnable task, @Nonnull String[] includedScopes) {
-		execute(task, Relation.OR, Arrays.asList(includedScopes));
+		execute(task, DataScopeRelation.OR, Arrays.asList(includedScopes));
 	}
 
-	public static void execute(@Nonnull Runnable task, @Nonnull Relation relation, @Nonnull String[] includedScopes) {
+	public static void execute(@Nonnull Runnable task, @Nonnull DataScopeRelation relation, @Nonnull String[] includedScopes) {
 		execute(task, relation, Arrays.asList(includedScopes));
 	}
 
 	public static void execute(@Nonnull Runnable task, @Nonnull String[] includedScopes, @Nonnull String[] excludedScopes) {
-		execute(task, Relation.OR, Arrays.asList(includedScopes), Arrays.asList(excludedScopes));
+		execute(task, DataScopeRelation.OR, Arrays.asList(includedScopes), Arrays.asList(excludedScopes));
 	}
 
-	public static void execute(@Nonnull Runnable task, @Nonnull Relation relation, @Nonnull String[] includedScopes, @Nonnull String[] excludedScopes) {
+	public static void execute(@Nonnull Runnable task, @Nonnull DataScopeRelation relation, @Nonnull String[] includedScopes, @Nonnull String[] excludedScopes) {
 		execute(task, relation, Arrays.asList(includedScopes), Arrays.asList(excludedScopes));
 	}
 
 	public static void execute(@Nonnull Runnable task, Collection<String> includedScopes) {
-		execute(task, Relation.OR, includedScopes, Collections.emptySet());
+		execute(task, DataScopeRelation.OR, includedScopes, Collections.emptySet());
 	}
 
-	public static void execute(@Nonnull Runnable task, @Nonnull Relation relation, Collection<String> includedScopes) {
+	public static void execute(@Nonnull Runnable task, @Nonnull DataScopeRelation relation, Collection<String> includedScopes) {
 		execute(task, relation, includedScopes, Collections.emptySet());
 	}
 
 	public static void execute(@Nonnull Runnable task, Collection<String> includedScopes, Collection<String> excludedScopes) {
-		execute(task, Relation.OR, includedScopes, excludedScopes);
+		execute(task, DataScopeRelation.OR, includedScopes, excludedScopes);
 	}
 
-	public static void execute(@Nonnull Runnable task, @Nonnull Relation relation, Collection<String> includedScopes, Collection<String> excludedScopes) {
-		Relation oldRelation = RELATION.get();
+	public static void execute(@Nonnull Runnable task, @Nonnull DataScopeRelation relation, Collection<String> includedScopes, Collection<String> excludedScopes) {
+		DataScopeRelation oldRelation = RELATION.get();
 		Set<String> includedSet = INCLUDED_SCOPE.get();
 		Set<String> excludedSet = EXCLUDED_SCOPE.get();
 
@@ -300,40 +340,44 @@ public class DataAuthCtx {
 		}
 	}
 
+	public static <V> V execute(@Nonnull Supplier<V> task, @Nonnull DataAuthEnv env) {
+		return execute(task, env.relation, env.includedScopes, env.excludedScopes);
+	}
+
 	public static <V> V execute(@Nonnull Supplier<V> task, @Nonnull DataScope dataScope) {
 		return execute(task, dataScope.relation(), dataScope.include(), dataScope.exclude());
 	}
 
 	public static <V> V execute(@Nonnull Supplier<V> task, @Nonnull String[] includedScopes) {
-		return execute(task, Relation.OR, Arrays.asList(includedScopes));
+		return execute(task, DataScopeRelation.OR, Arrays.asList(includedScopes));
 	}
 
-	public static <V> V execute(@Nonnull Supplier<V> task, @Nonnull Relation relation, @Nonnull String[] includedScopes) {
+	public static <V> V execute(@Nonnull Supplier<V> task, @Nonnull DataScopeRelation relation, @Nonnull String[] includedScopes) {
 		return execute(task, relation, Arrays.asList(includedScopes));
 	}
 
 	public static <V> V execute(@Nonnull Supplier<V> task, @Nonnull String[] includedScopes, @Nonnull String[] excludedScopes) {
-		return execute(task, Relation.OR, Arrays.asList(includedScopes), Arrays.asList(excludedScopes));
+		return execute(task, DataScopeRelation.OR, Arrays.asList(includedScopes), Arrays.asList(excludedScopes));
 	}
 
-	public static <V> V execute(@Nonnull Supplier<V> task, @Nonnull Relation relation, @Nonnull String[] includedScopes, @Nonnull String[] excludedScopes) {
+	public static <V> V execute(@Nonnull Supplier<V> task, @Nonnull DataScopeRelation relation, @Nonnull String[] includedScopes, @Nonnull String[] excludedScopes) {
 		return execute(task, relation, Arrays.asList(includedScopes), Arrays.asList(excludedScopes));
 	}
 
 	public static <V> V execute(@Nonnull Supplier<V> task, Collection<String> includedScopes) {
-		return execute(task, Relation.OR, includedScopes, Collections.emptySet());
+		return execute(task, DataScopeRelation.OR, includedScopes, Collections.emptySet());
 	}
 
-	public static <V> V execute(@Nonnull Supplier<V> task, @Nonnull Relation relation, Collection<String> includedScopes) {
+	public static <V> V execute(@Nonnull Supplier<V> task, @Nonnull DataScopeRelation relation, Collection<String> includedScopes) {
 		return execute(task, relation, includedScopes, Collections.emptySet());
 	}
 
 	public static <V> V execute(@Nonnull Supplier<V> task, Collection<String> includedScopes, Collection<String> excludedScopes) {
-		return execute(task, Relation.OR, includedScopes, excludedScopes);
+		return execute(task, DataScopeRelation.OR, includedScopes, excludedScopes);
 	}
 
-	public static <V> V execute(@Nonnull Supplier<V> task, @Nonnull Relation relation, Collection<String> includedScopes, Collection<String> excludedScopes) {
-		Relation oldRelation = RELATION.get();
+	public static <V> V execute(@Nonnull Supplier<V> task, @Nonnull DataScopeRelation relation, Collection<String> includedScopes, Collection<String> excludedScopes) {
+		DataScopeRelation oldRelation = RELATION.get();
 		Set<String> includedSet = INCLUDED_SCOPE.get();
 		Set<String> excludedSet = EXCLUDED_SCOPE.get();
 
@@ -355,6 +399,10 @@ public class DataAuthCtx {
 				addExcludedScope(oldExcludeSet);
 			}
 		}
+	}
+
+	public static void executeThrowably(@Nonnull ThrowableExecution task, @Nonnull DataAuthEnv env) throws Throwable {
+		executeThrowably(task, env.relation, env.includedScopes, env.excludedScopes);
 	}
 
 	public static void executeThrowably(@Nonnull ThrowableExecution task, @Nonnull DataScope dataScope) throws Throwable {
@@ -362,35 +410,35 @@ public class DataAuthCtx {
 	}
 
 	public static void executeThrowably(@Nonnull ThrowableExecution task, @Nonnull String[] includedScopes) throws Throwable {
-		executeThrowably(task, Relation.OR, Arrays.asList(includedScopes));
+		executeThrowably(task, DataScopeRelation.OR, Arrays.asList(includedScopes));
 	}
 
-	public static void executeThrowably(@Nonnull ThrowableExecution task, @Nonnull Relation relation, @Nonnull String[] includedScopes) throws Throwable {
+	public static void executeThrowably(@Nonnull ThrowableExecution task, @Nonnull DataScopeRelation relation, @Nonnull String[] includedScopes) throws Throwable {
 		executeThrowably(task, relation, Arrays.asList(includedScopes));
 	}
 
 	public static void executeThrowably(@Nonnull ThrowableExecution task, @Nonnull String[] includedScopes, @Nonnull String[] excludedScopes) throws Throwable {
-		executeThrowably(task, Relation.OR, Arrays.asList(includedScopes), Arrays.asList(excludedScopes));
+		executeThrowably(task, DataScopeRelation.OR, Arrays.asList(includedScopes), Arrays.asList(excludedScopes));
 	}
 
-	public static void executeThrowably(@Nonnull ThrowableExecution task, @Nonnull Relation relation, @Nonnull String[] includedScopes, @Nonnull String[] excludedScopes) throws Throwable {
+	public static void executeThrowably(@Nonnull ThrowableExecution task, @Nonnull DataScopeRelation relation, @Nonnull String[] includedScopes, @Nonnull String[] excludedScopes) throws Throwable {
 		executeThrowably(task, relation, Arrays.asList(includedScopes), Arrays.asList(excludedScopes));
 	}
 
 	public static void executeThrowably(@Nonnull ThrowableExecution task, Collection<String> includedScopes) throws Throwable {
-		executeThrowably(task, Relation.OR, includedScopes, Collections.emptySet());
+		executeThrowably(task, DataScopeRelation.OR, includedScopes, Collections.emptySet());
 	}
 
-	public static void executeThrowably(@Nonnull ThrowableExecution task, @Nonnull Relation relation, Collection<String> includedScopes) throws Throwable {
+	public static void executeThrowably(@Nonnull ThrowableExecution task, @Nonnull DataScopeRelation relation, Collection<String> includedScopes) throws Throwable {
 		executeThrowably(task, relation, includedScopes, Collections.emptySet());
 	}
 
 	public static void executeThrowably(@Nonnull ThrowableExecution task, Collection<String> includedScopes, Collection<String> excludedScopes) throws Throwable {
-		executeThrowably(task, Relation.OR, includedScopes, excludedScopes);
+		executeThrowably(task, DataScopeRelation.OR, includedScopes, excludedScopes);
 	}
 
-	public static void executeThrowably(@Nonnull ThrowableExecution task, @Nonnull Relation relation, Collection<String> includedScopes, Collection<String> excludedScopes) throws Throwable {
-		Relation oldRelation = RELATION.get();
+	public static void executeThrowably(@Nonnull ThrowableExecution task, @Nonnull DataScopeRelation relation, Collection<String> includedScopes, Collection<String> excludedScopes) throws Throwable {
+		DataScopeRelation oldRelation = RELATION.get();
 		Set<String> includedSet = INCLUDED_SCOPE.get();
 		Set<String> excludedSet = EXCLUDED_SCOPE.get();
 
@@ -414,40 +462,44 @@ public class DataAuthCtx {
 		}
 	}
 
+	public static <V> V executeThrowably(@Nonnull ThrowableSupplier<V> task, @Nonnull DataAuthEnv env) throws Throwable {
+		return executeThrowably(task, env.relation, env.includedScopes, env.excludedScopes);
+	}
+
 	public static <V> V executeThrowably(@Nonnull ThrowableSupplier<V> task, @Nonnull DataScope dataScope) throws Throwable {
 		return executeThrowably(task, dataScope.relation(), dataScope.include(), dataScope.exclude());
 	}
 
 	public static <V> V executeThrowably(@Nonnull ThrowableSupplier<V> task, @Nonnull String[] includedScopes) throws Throwable {
-		return executeThrowably(task, Relation.OR, Arrays.asList(includedScopes));
+		return executeThrowably(task, DataScopeRelation.OR, Arrays.asList(includedScopes));
 	}
 
-	public static <V> V executeThrowably(@Nonnull ThrowableSupplier<V> task, @Nonnull Relation relation, @Nonnull String[] includedScopes) throws Throwable {
+	public static <V> V executeThrowably(@Nonnull ThrowableSupplier<V> task, @Nonnull DataScopeRelation relation, @Nonnull String[] includedScopes) throws Throwable {
 		return executeThrowably(task, relation, Arrays.asList(includedScopes));
 	}
 
 	public static <V> V executeThrowably(@Nonnull ThrowableSupplier<V> task, @Nonnull String[] includedScopes, @Nonnull String[] excludedScopes) throws Throwable {
-		return executeThrowably(task, Relation.OR, Arrays.asList(includedScopes), Arrays.asList(excludedScopes));
+		return executeThrowably(task, DataScopeRelation.OR, Arrays.asList(includedScopes), Arrays.asList(excludedScopes));
 	}
 
-	public static <V> V executeThrowably(@Nonnull ThrowableSupplier<V> task, @Nonnull Relation relation, @Nonnull String[] includedScopes, @Nonnull String[] excludedScopes) throws Throwable {
+	public static <V> V executeThrowably(@Nonnull ThrowableSupplier<V> task, @Nonnull DataScopeRelation relation, @Nonnull String[] includedScopes, @Nonnull String[] excludedScopes) throws Throwable {
 		return executeThrowably(task, relation, Arrays.asList(includedScopes), Arrays.asList(excludedScopes));
 	}
 
 	public static <V> V executeThrowably(@Nonnull ThrowableSupplier<V> task, Collection<String> includedScopes) throws Throwable {
-		return executeThrowably(task, Relation.OR, includedScopes, Collections.emptySet());
+		return executeThrowably(task, DataScopeRelation.OR, includedScopes, Collections.emptySet());
 	}
 
-	public static <V> V executeThrowably(@Nonnull ThrowableSupplier<V> task, @Nonnull Relation relation, Collection<String> includedScopes) throws Throwable {
+	public static <V> V executeThrowably(@Nonnull ThrowableSupplier<V> task, @Nonnull DataScopeRelation relation, Collection<String> includedScopes) throws Throwable {
 		return executeThrowably(task, relation, includedScopes, Collections.emptySet());
 	}
 
 	public static <V> V executeThrowably(@Nonnull ThrowableSupplier<V> task, Collection<String> includedScopes, Collection<String> excludedScopes) throws Throwable {
-		return executeThrowably(task, Relation.OR, includedScopes, excludedScopes);
+		return executeThrowably(task, DataScopeRelation.OR, includedScopes, excludedScopes);
 	}
 
-	public static <V> V executeThrowably(@Nonnull ThrowableSupplier<V> task, @Nonnull Relation relation, Collection<String> includedScopes, Collection<String> excludedScopes) throws Throwable {
-		Relation oldRelation = RELATION.get();
+	public static <V> V executeThrowably(@Nonnull ThrowableSupplier<V> task, @Nonnull DataScopeRelation relation, Collection<String> includedScopes, Collection<String> excludedScopes) throws Throwable {
+		DataScopeRelation oldRelation = RELATION.get();
 		Set<String> includedSet = INCLUDED_SCOPE.get();
 		Set<String> excludedSet = EXCLUDED_SCOPE.get();
 
@@ -472,40 +524,44 @@ public class DataAuthCtx {
 	}
 
 
+	public static void executeExceptionally(@Nonnull Executable task, @Nonnull DataAuthEnv env) throws Exception {
+		executeExceptionally(task, env.relation, env.includedScopes, env.excludedScopes);
+	}
+
 	public static void executeExceptionally(@Nonnull Executable task, @Nonnull DataScope dataScope) throws Exception {
 		executeExceptionally(task, dataScope.relation(), dataScope.include(), dataScope.exclude());
 	}
 
 	public static void executeExceptionally(@Nonnull Executable task, @Nonnull String[] includedScopes) throws Exception {
-		executeExceptionally(task, Relation.OR, Arrays.asList(includedScopes));
+		executeExceptionally(task, DataScopeRelation.OR, Arrays.asList(includedScopes));
 	}
 
-	public static void executeExceptionally(@Nonnull Executable task, @Nonnull Relation relation, @Nonnull String[] includedScopes) throws Exception {
+	public static void executeExceptionally(@Nonnull Executable task, @Nonnull DataScopeRelation relation, @Nonnull String[] includedScopes) throws Exception {
 		executeExceptionally(task, relation, Arrays.asList(includedScopes));
 	}
 
 	public static void executeExceptionally(@Nonnull Executable task, @Nonnull String[] includedScopes, @Nonnull String[] excludedScopes) throws Exception {
-		executeExceptionally(task, Relation.OR, Arrays.asList(includedScopes), Arrays.asList(excludedScopes));
+		executeExceptionally(task, DataScopeRelation.OR, Arrays.asList(includedScopes), Arrays.asList(excludedScopes));
 	}
 
-	public static void executeExceptionally(@Nonnull Executable task, @Nonnull Relation relation, @Nonnull String[] includedScopes, @Nonnull String[] excludedScopes) throws Exception {
+	public static void executeExceptionally(@Nonnull Executable task, @Nonnull DataScopeRelation relation, @Nonnull String[] includedScopes, @Nonnull String[] excludedScopes) throws Exception {
 		executeExceptionally(task, relation, Arrays.asList(includedScopes), Arrays.asList(excludedScopes));
 	}
 
 	public static void executeExceptionally(@Nonnull Executable task, Collection<String> includedScopes) throws Exception {
-		executeExceptionally(task, Relation.OR, includedScopes, Collections.emptySet());
+		executeExceptionally(task, DataScopeRelation.OR, includedScopes, Collections.emptySet());
 	}
 
-	public static void executeExceptionally(@Nonnull Executable task, @Nonnull Relation relation, Collection<String> includedScopes) throws Exception {
+	public static void executeExceptionally(@Nonnull Executable task, @Nonnull DataScopeRelation relation, Collection<String> includedScopes) throws Exception {
 		executeExceptionally(task, relation, includedScopes, Collections.emptySet());
 	}
 
 	public static void executeExceptionally(@Nonnull Executable task, Collection<String> includedScopes, Collection<String> excludedScopes) throws Exception {
-		executeExceptionally(task, Relation.OR, includedScopes, excludedScopes);
+		executeExceptionally(task, DataScopeRelation.OR, includedScopes, excludedScopes);
 	}
 
-	public static void executeExceptionally(@Nonnull Executable task, @Nonnull Relation relation, Collection<String> includedScopes, Collection<String> excludedScopes) throws Exception {
-		Relation oldRelation = RELATION.get();
+	public static void executeExceptionally(@Nonnull Executable task, @Nonnull DataScopeRelation relation, Collection<String> includedScopes, Collection<String> excludedScopes) throws Exception {
+		DataScopeRelation oldRelation = RELATION.get();
 		Set<String> includedSet = INCLUDED_SCOPE.get();
 		Set<String> excludedSet = EXCLUDED_SCOPE.get();
 
@@ -529,40 +585,44 @@ public class DataAuthCtx {
 		}
 	}
 
+	public static <V> V executeExceptionally(@Nonnull Callable<V> task, @Nonnull DataAuthEnv env) throws Exception {
+		return executeExceptionally(task, env.relation, env.includedScopes, env.excludedScopes);
+	}
+
 	public static <V> V executeExceptionally(@Nonnull Callable<V> task, @Nonnull DataScope dataScope) throws Exception {
 		return executeExceptionally(task, dataScope.relation(), dataScope.include(), dataScope.exclude());
 	}
 
 	public static <V> V executeExceptionally(@Nonnull Callable<V> task, @Nonnull String[] includedScopes) throws Exception {
-		return executeExceptionally(task, Relation.OR, Arrays.asList(includedScopes));
+		return executeExceptionally(task, DataScopeRelation.OR, Arrays.asList(includedScopes));
 	}
 
-	public static <V> V executeExceptionally(@Nonnull Callable<V> task, @Nonnull Relation relation, @Nonnull String[] includedScopes) throws Exception {
+	public static <V> V executeExceptionally(@Nonnull Callable<V> task, @Nonnull DataScopeRelation relation, @Nonnull String[] includedScopes) throws Exception {
 		return executeExceptionally(task, relation, Arrays.asList(includedScopes));
 	}
 
 	public static <V> V executeExceptionally(@Nonnull Callable<V> task, @Nonnull String[] includedScopes, @Nonnull String[] excludedScopes) throws Exception {
-		return executeExceptionally(task, Relation.OR, Arrays.asList(includedScopes), Arrays.asList(excludedScopes));
+		return executeExceptionally(task, DataScopeRelation.OR, Arrays.asList(includedScopes), Arrays.asList(excludedScopes));
 	}
 
-	public static <V> V executeExceptionally(@Nonnull Callable<V> task, @Nonnull Relation relation, @Nonnull String[] includedScopes, @Nonnull String[] excludedScopes) throws Exception {
+	public static <V> V executeExceptionally(@Nonnull Callable<V> task, @Nonnull DataScopeRelation relation, @Nonnull String[] includedScopes, @Nonnull String[] excludedScopes) throws Exception {
 		return executeExceptionally(task, relation, Arrays.asList(includedScopes), Arrays.asList(excludedScopes));
 	}
 
 	public static <V> V executeExceptionally(@Nonnull Callable<V> task, Collection<String> includedScopes) throws Exception {
-		return executeExceptionally(task, Relation.OR, includedScopes, Collections.emptySet());
+		return executeExceptionally(task, DataScopeRelation.OR, includedScopes, Collections.emptySet());
 	}
 
-	public static <V> V executeExceptionally(@Nonnull Callable<V> task, @Nonnull Relation relation, Collection<String> includedScopes) throws Exception {
+	public static <V> V executeExceptionally(@Nonnull Callable<V> task, @Nonnull DataScopeRelation relation, Collection<String> includedScopes) throws Exception {
 		return executeExceptionally(task, relation, includedScopes, Collections.emptySet());
 	}
 
 	public static <V> V executeExceptionally(@Nonnull Callable<V> task, Collection<String> includedScopes, Collection<String> excludedScopes) throws Exception {
-		return executeExceptionally(task, Relation.OR, includedScopes, excludedScopes);
+		return executeExceptionally(task, DataScopeRelation.OR, includedScopes, excludedScopes);
 	}
 
-	public static <V> V executeExceptionally(@Nonnull Callable<V> task, @Nonnull Relation relation, Collection<String> includedScopes, Collection<String> excludedScopes) throws Exception {
-		Relation oldRelation = RELATION.get();
+	public static <V> V executeExceptionally(@Nonnull Callable<V> task, @Nonnull DataScopeRelation relation, Collection<String> includedScopes, Collection<String> excludedScopes) throws Exception {
+		DataScopeRelation oldRelation = RELATION.get();
 		Set<String> includedSet = INCLUDED_SCOPE.get();
 		Set<String> excludedSet = EXCLUDED_SCOPE.get();
 

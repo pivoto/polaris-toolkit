@@ -6,6 +6,8 @@ import javax.annotation.Nonnull;
 
 import io.polaris.core.spi.Spi;
 import io.polaris.core.spi.SpiLoadable;
+import io.polaris.mybatis.auth.annotation.DataScope;
+import io.polaris.mybatis.auth.consts.DataScopeRelation;
 
 /**
  * @author Qt
@@ -23,6 +25,16 @@ public interface DataAuthConfigurator extends SpiLoadable {
 	 * @return true表示启用数据权限，false表示不启用数据权限
 	 */
 	boolean isScopeEnabled(String tableName, String scopeName);
+
+
+	/**
+	 * 获取全局数据权限关系
+	 *
+	 * @return 全局数据权限关系
+	 */
+	default DataScopeRelation getGlobalRelation() {
+		return DataScopeRelation.OR;
+	}
 
 	/**
 	 * 获取全局数据权限列表
