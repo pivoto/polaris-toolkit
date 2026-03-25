@@ -17,6 +17,8 @@ import io.polaris.core.jdbc.sql.consts.Relation;
 import io.polaris.mybatis.auth.annotation.DataScope;
 import lombok.RequiredArgsConstructor;
 
+import com.alibaba.ttl.TransmittableThreadLocal;
+
 /**
  * 数据权限控制上下文
  *
@@ -25,9 +27,9 @@ import lombok.RequiredArgsConstructor;
  */
 public class DataAuthCtx {
 
-	private final static ThreadLocal<Relation> RELATION = new ThreadLocal<>();
-	private final static ThreadLocal<Set<String>> INCLUDED_SCOPE = new ThreadLocal<>();
-	private final static ThreadLocal<Set<String>> EXCLUDED_SCOPE = new ThreadLocal<>();
+	private final static ThreadLocal<Relation> RELATION = new TransmittableThreadLocal<>();
+	private final static ThreadLocal<Set<String>> INCLUDED_SCOPE = new TransmittableThreadLocal<>();
+	private final static ThreadLocal<Set<String>> EXCLUDED_SCOPE = new TransmittableThreadLocal<>();
 
 	@RequiredArgsConstructor
 	public static class Snapshot {
