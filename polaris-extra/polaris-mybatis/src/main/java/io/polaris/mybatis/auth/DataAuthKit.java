@@ -90,17 +90,21 @@ public class DataAuthKit {
 		return dataScopeProviders.get(scopeName);
 	}
 
-	public void unregister(String scopeName) {
+	public Set<String> getDataScopeNames() {
+		return Collections.unmodifiableSet(dataScopeProviders.keySet());
+	}
+
+	public void unregisterDataScopeProvider(String scopeName) {
 		if (Strings.isNotBlank(scopeName)) {
 			dataScopeProviders.remove(scopeName);
 		}
 	}
 
-	public boolean register(DataScopeProvider provider) {
-		return register(provider, true);
+	public boolean registerDataScopeProvider(DataScopeProvider provider) {
+		return registerDataScopeProvider(provider, true);
 	}
 
-	public boolean register(DataScopeProvider provider, boolean override) {
+	public boolean registerDataScopeProvider(DataScopeProvider provider, boolean override) {
 		if (provider == null) {
 			return false;
 		}
