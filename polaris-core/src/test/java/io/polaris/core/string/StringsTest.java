@@ -10,6 +10,7 @@ import io.polaris.core.junit.Fast;
 import io.polaris.core.lang.annotation.Annotations;
 import io.polaris.core.reflect.Reflects;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -114,5 +115,23 @@ class StringsTest {
 	@Test
 	void test08() {
 		Consoles.println(Strings.getExistedSystemProperty("platform.dir", "user.dir"));
+	}
+
+
+	@Test
+	@DisplayName("测试空值情况")
+	void test09() {
+		String rs = Strings.resolvePlaceholders("测试${key01:${key02}}", (key) -> {
+			switch (key) {
+				case "key01":
+					return "1";
+				case "key02":
+					return "${key03}";
+				case "key03":
+					return "${key04}";
+			}
+			return null;
+		}, false);
+		Consoles.println("rs: {}", rs);
 	}
 }

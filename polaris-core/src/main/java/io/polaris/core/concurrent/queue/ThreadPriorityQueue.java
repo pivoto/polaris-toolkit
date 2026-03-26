@@ -41,7 +41,7 @@ public class ThreadPriorityQueue<E> implements BlockingQueue<E> {
 
 	@Override
 	public boolean add(E e) {
-		if (!hasEnoughThreads()) {
+		if (hasEnoughThreads()) {
 			return false;
 		}
 		return raw.add(e);
@@ -49,7 +49,7 @@ public class ThreadPriorityQueue<E> implements BlockingQueue<E> {
 
 	@Override
 	public boolean offer(E e) {
-		if (!hasEnoughThreads()) {
+		if (hasEnoughThreads()) {
 			return false;
 		}
 		return raw.offer(e);
@@ -62,7 +62,7 @@ public class ThreadPriorityQueue<E> implements BlockingQueue<E> {
 
 	@Override
 	public boolean offer(E e, long timeout, TimeUnit unit) throws InterruptedException {
-		if (!hasEnoughThreads()) {
+		if (hasEnoughThreads()) {
 			return false;
 		}
 		return raw.offer(e, timeout, unit);
