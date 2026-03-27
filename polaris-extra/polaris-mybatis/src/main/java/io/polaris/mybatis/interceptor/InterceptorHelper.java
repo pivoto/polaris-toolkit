@@ -65,6 +65,8 @@ public class InterceptorHelper {
 								&& mapperMethodName.equals(m.getName()));
 						if (methods.size() == 1) {
 							ref = Ref.of(methods.get(0));
+						} else {
+							ref = Ref.of(null);
 						}
 					} catch (Exception e) {
 						log.warn("", e);
