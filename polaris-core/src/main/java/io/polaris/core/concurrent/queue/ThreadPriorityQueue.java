@@ -6,7 +6,6 @@ import java.util.Spliterator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -17,7 +16,7 @@ import java.util.stream.Stream;
  */
 public class ThreadPriorityQueue<E> implements BlockingQueue<E> {
 	private final BlockingQueue<E> raw;
-	private BooleanSupplier enoughThreadsChecker;
+	private ThreadPoolExecutor executor;
 
 	private ThreadPriorityQueue(BlockingQueue<E> raw) {
 		this.raw = raw;
@@ -27,16 +26,12 @@ public class ThreadPriorityQueue<E> implements BlockingQueue<E> {
 		return new ThreadPriorityQueue<>(raw);
 	}
 
-	public void bindThreadPoolExecutor(ThreadPoolExecutor executor) {
-		this.enoughThreadsChecker = () -> executor.getPoolSize() < executor.getMaximumPoolSize();
-	}
-
-	public void setEnoughThreadsChecker(BooleanSupplier enoughThreadsChecker) {
-		this.enoughThreadsChecker = enoughThreadsChecker;
+	public void bind(ThreadPoolExecutor executor) {
+		this.executor = executor;
 	}
 
 	private boolean hasEnoughThreads() {
-		return enoughThreadsChecker != null && enoughThreadsChecker.getAsBoolean();
+		return executor != null && executor.getPoolSize() < executor.getMaximumPoolSize();
 	}
 
 	@Override

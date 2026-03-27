@@ -173,14 +173,14 @@ public class Executors {
 		if (wrappingTaskFactory != null) {
 			WrappingThreadPoolExecutor executor = new WrappingThreadPoolExecutor(core, max, keepAliveTime, unit, blockingQueue, threadFactory, defaultRejectedPolicy);
 			if (blockingQueue instanceof ThreadPriorityQueue) {
-				((ThreadPriorityQueue<?>) blockingQueue).bindThreadPoolExecutor(executor);
+				((ThreadPriorityQueue<?>) blockingQueue).bind(executor);
 			}
 			executor.setWrappedTaskFactory(wrappingTaskFactory);
 			return executor;
 		}
 		ThreadPoolExecutor executor = new ThreadPoolExecutor(core, max, keepAliveTime, unit, blockingQueue, threadFactory, defaultRejectedPolicy);
 		if (blockingQueue instanceof ThreadPriorityQueue) {
-			((ThreadPriorityQueue<?>) blockingQueue).bindThreadPoolExecutor(executor);
+			((ThreadPriorityQueue<?>) blockingQueue).bind(executor);
 		}
 		return executor;
 	}

@@ -41,7 +41,7 @@ public class WrappingThreadPoolExecutor extends ThreadPoolExecutor {
 
 	private void bindThreadPriorityQueue(BlockingQueue<Runnable> workQueue) {
 		if (workQueue instanceof ThreadPriorityQueue) {
-			((ThreadPriorityQueue<?>) workQueue).bindThreadPoolExecutor(this);
+			((ThreadPriorityQueue<?>) workQueue).bind(this);
 		}
 	}
 
