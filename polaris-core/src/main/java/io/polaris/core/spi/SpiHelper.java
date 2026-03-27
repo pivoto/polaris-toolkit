@@ -1,7 +1,14 @@
 package io.polaris.core.spi;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -9,7 +16,6 @@ import javax.annotation.Nullable;
 import io.polaris.core.classpath.reader.ClassMetadata;
 import io.polaris.core.spi.support.DefaultSpiDirectoryLoadingStrategy;
 import io.polaris.core.spi.support.DefaultSpiMetadataReader;
-import io.polaris.core.spi.support.DefaultSpiPackageLoadingStrategy;
 import io.polaris.core.string.Strings;
 
 /**
@@ -111,12 +117,12 @@ class SpiHelper {
 				strategies.add(strategy);
 			}
 			if (strategies.isEmpty()) {
-				return Collections.singletonList(new DefaultSpiPackageLoadingStrategy());
+				return Collections.emptyList();
 			}
 			strategies.sort(Comparator.comparingInt(SpiPackageLoadingStrategy::priority));
 			return Collections.unmodifiableList(strategies);
 		} catch (Throwable e) {
-			return Collections.singletonList(new DefaultSpiPackageLoadingStrategy());
+			return Collections.emptyList();
 		}
 	}
 
