@@ -18,7 +18,7 @@ import org.apache.ibatis.type.JdbcType;
  */
 @Slf4j
 @Alias("dynamicEnumOrdinalTypeHandler")
-public class DynamicEnumOrdinalTypeHandler<E extends Enum<E>> extends BaseTypeHandler<Object> {
+public class DynamicEnumOrdinalTypeHandler<E extends Enum<E>> extends AbstractTypeHandler<E> {
 
 	private final Class<E> type;
 	private final E[] enums;
@@ -41,7 +41,7 @@ public class DynamicEnumOrdinalTypeHandler<E extends Enum<E>> extends BaseTypeHa
 	}
 
 	@Override
-	public void setNonNullParameter(PreparedStatement ps, int i, Object parameter, JdbcType jdbcType)
+	public void setNonNullParameter(PreparedStatement ps, int i, E parameter, JdbcType jdbcType)
 		throws SQLException {
 		int ordinal = -1;
 		if (parameter != null) {

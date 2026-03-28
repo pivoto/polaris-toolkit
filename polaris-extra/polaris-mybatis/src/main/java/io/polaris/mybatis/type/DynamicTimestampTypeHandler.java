@@ -28,7 +28,7 @@ import org.apache.ibatis.type.MappedTypes;
 @MappedTypes(Timestamp.class)
 @MappedJdbcTypes(value = {JdbcType.DATE, JdbcType.TIMESTAMP, JdbcType.TIME}, includeNullJdbcType = true)
 @Alias("dynamicTimestampTypeHandler")
-public class DynamicTimestampTypeHandler extends BaseTypeHandler<Object> {
+public class DynamicTimestampTypeHandler extends AbstractTypeHandler<Object> {
 
 	@Override
 	public void setNonNullParameter(PreparedStatement ps, int i, Object parameter, JdbcType jdbcType)

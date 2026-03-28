@@ -13,7 +13,7 @@ import org.apache.ibatis.type.JdbcType;
  * @author Qt
  * @since Aug 28, 2023
  */
-public abstract class StringTokenizerTypeHandler<T> extends BaseTypeHandler<T[]> {
+public abstract class StringTokenizerTypeHandler<T> extends AbstractTypeHandler<T[]> {
 	private Class<T> clazz;
 
 	public StringTokenizerTypeHandler(Class<T> clazz) {

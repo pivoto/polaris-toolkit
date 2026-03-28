@@ -19,7 +19,7 @@ import org.apache.ibatis.type.TypeException;
  */
 @MappedTypes(Object[].class)
 @MappedJdbcTypes(value = {JdbcType.ARRAY, JdbcType.VARCHAR, JdbcType.CHAR}, includeNullJdbcType = true)
-public class ArrayTypeHandler extends BaseTypeHandler<Object[]> {
+public class ArrayTypeHandler extends AbstractTypeHandler<Object[]> {
 	private static final String TYPE_NAME_VARCHAR = "VARCHAR";
 	private static final String TYPE_NAME_INTEGER = "INTEGER";
 	private static final String TYPE_NAME_BOOLEAN = "BOOLEAN";

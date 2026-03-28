@@ -24,7 +24,7 @@ import org.apache.ibatis.type.MappedTypes;
  */
 @Slf4j
 @Alias("dynamicBooleanTypeHandler")
-public class DynamicBooleanTypeHandler extends BaseTypeHandler<Object> {
+public class DynamicBooleanTypeHandler extends AbstractTypeHandler<Object> {
 
 	@Override
 	public void setNonNullParameter(PreparedStatement ps, int i, Object parameter, JdbcType jdbcType)
