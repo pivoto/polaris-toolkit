@@ -11,13 +11,53 @@ import java.util.function.Supplier;
 
 import io.polaris.core.map.reference.ReferenceType;
 import io.polaris.core.map.reference.ValueReference;
+import io.polaris.core.random.Randoms;
 import io.polaris.core.reflect.Reflects;
 
 /**
  * @author Qt
  */
 public class Maps {
-
+	/**
+	 * 检查Map是否可修改
+	 *
+	 * @param map 要检查的Map对象
+	 * @return true = 可修改; false = 不可修改
+	 */
+	public static boolean isModifiable(Map<?, ?> map) {
+		// 空指针直接返回不可修改
+		if (map == null) {
+			return false;
+		}
+		try {
+			@SuppressWarnings("unchecked")
+			Map<Object, Object> tempMap = (Map<Object, Object>) map;
+			// 生成唯一临时key，避免覆盖原数据
+			String prefix = "__temp_key_check_modifiable_" + System.nanoTime();
+			String tempKey = prefix;
+			int i = 0;
+			while (tempMap.containsKey(tempKey)) {
+				tempKey = prefix + i++;
+			}
+			// 尝试插入：不可变Map会抛出 UnsupportedOperationException
+			tempMap.put(tempKey, new Object());
+			// 插入成功 → 可修改，立即删除临时数据
+			tempMap.remove(tempKey);
+			if (tempMap.containsKey(tempKey)){
+				throw new IllegalStateException("检查可修改性时发生异常，原Map已被污染，残留了测试数据！");
+			}
+			return true;
+		} catch (UnsupportedOperationException e) {
+			// 标准不可变集合抛出的异常 → 不可修改
+			return false;
+		} catch (ClassCastException e) {
+			// 泛型强转失败（极端情况）→ 视为不可修改
+			return false;
+		} catch (Exception e) {
+			// 其他异常 → 安全起见，视为不可修改
+			return false;
+		}
+	}
 
 	/**
 	 * 创建指定类型的Map
