@@ -1,5 +1,6 @@
 package io.polaris.mybatis.support;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -47,9 +48,22 @@ public class MapperHelperContext {
 		}
 	}
 
+	public static Map<String, Object> getBoundAdditionalParameters(Object parameterObject) {
+		Tuple2<Object, Map<String, Object>> tuple = additionalParametersLocal.get();
+		if (tuple != null && tuple.getFirst() == parameterObject) {
+			return tuple.getSecond();
+		}
+		return null;
+	}
 
-	public static void bindAdditionalParameters(Object parameterObject, Map<String, Object> additionalParameters) {
-		additionalParametersLocal.set(Tuple2.of(parameterObject, additionalParameters));
+
+	public static Map<String, Object> bindAdditionalParameters(Object parameterObject) {
+		Map<String, Object> additionalParameters = getBoundAdditionalParameters(parameterObject);
+		if (additionalParameters == null) {
+			additionalParameters = new HashMap<>();
+			additionalParametersLocal.set(Tuple2.of(parameterObject, additionalParameters));
+		}
+		return additionalParameters;
 	}
 
 	public static void clearAdditionalParameters() {

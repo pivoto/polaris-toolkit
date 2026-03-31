@@ -3,7 +3,7 @@ package io.polaris.mybatis.consts;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-import io.polaris.mybatis.enhance.EnhancedAutoMapperProviders;
+import io.polaris.mybatis.enhance.EnhancedAutoMappers;
 import io.polaris.mybatis.provider.*;
 import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.apache.ibatis.mapping.SqlCommandType;
@@ -14,56 +14,56 @@ import org.apache.ibatis.mapping.SqlCommandType;
  */
 public enum AutoMapperType {
 
-	selectAny(SqlCommandType.SELECT, EnhancedAutoMapperProviders::selectAny),
-	updateAny(SqlCommandType.UPDATE, EnhancedAutoMapperProviders::updateAny),
-	selectAnySql(SqlCommandType.SELECT, EnhancedAutoMapperProviders::executeAnySql),
-	updateAnySql(SqlCommandType.UPDATE, EnhancedAutoMapperProviders::executeAnySql),
+	selectAny(SqlCommandType.SELECT, EnhancedAutoMappers::selectAny),
+	updateAny(SqlCommandType.UPDATE, EnhancedAutoMappers::updateAny),
+	selectAnySql(SqlCommandType.SELECT, EnhancedAutoMappers::executeAnySql),
+	updateAnySql(SqlCommandType.UPDATE, EnhancedAutoMappers::executeAnySql),
 
-	insertBySql(SqlCommandType.INSERT, SqlInsertProvider::doProvideSql),
-	deleteBySql(SqlCommandType.DELETE, SqlDeleteProvider::doProvideSql),
-	updateBySql(SqlCommandType.UPDATE, SqlUpdateProvider::doProvideSql),
-	selectBySql(SqlCommandType.SELECT, SqlSelectProvider::doProvideSql),
-	selectBySqlDirect(SqlCommandType.SELECT, SqlSelectDirectProvider::doProvideSql),
-	selectBySqlExceptLogicDeleted(SqlCommandType.SELECT, SqlSelectExceptLogicDeletedProvider::doProvideSql),
-	countBySql(SqlCommandType.SELECT, SqlCountProvider::doProvideSql),
+	insertBySql(SqlCommandType.INSERT, EnhancedAutoMappers::insertBySql),
+	deleteBySql(SqlCommandType.DELETE, EnhancedAutoMappers::deleteBySql),
+	updateBySql(SqlCommandType.UPDATE, EnhancedAutoMappers::updateBySql),
+	selectBySql(SqlCommandType.SELECT, EnhancedAutoMappers::selectBySql),
+	selectBySqlDirect(SqlCommandType.SELECT, EnhancedAutoMappers::selectBySqlDirect),
+	selectBySqlExceptLogicDeleted(SqlCommandType.SELECT, EnhancedAutoMappers::selectBySqlExceptLogicDeleted),
+	countBySql(SqlCommandType.SELECT, EnhancedAutoMappers::countBySql),
 
 
-	countBySqlDirect(SqlCommandType.SELECT, SqlCountDirectProvider::doProvideSql),
-	countBySqlExceptLogicDeleted(SqlCommandType.SELECT, SqlCountExceptLogicDeletedProvider::doProvideSql),
-	existsBySql(SqlCommandType.SELECT, SqlExistsProvider::doProvideSql),
-	existsBySqlDirect(SqlCommandType.SELECT, SqlExistsDirectProvider::doProvideSql),
-	existsBySqlExceptLogicDeleted(SqlCommandType.SELECT, SqlExistsExceptLogicDeletedProvider::doProvideSql),
-	mergeBySql(SqlCommandType.UPDATE, SqlMergeProvider::doProvideSql),
+	countBySqlDirect(SqlCommandType.SELECT, EnhancedAutoMappers::countBySqlDirect),
+	countBySqlExceptLogicDeleted(SqlCommandType.SELECT, EnhancedAutoMappers::countBySqlExceptLogicDeleted),
+	existsBySql(SqlCommandType.SELECT, EnhancedAutoMappers::existsBySql),
+	existsBySqlDirect(SqlCommandType.SELECT, EnhancedAutoMappers::existsBySqlDirect),
+	existsBySqlExceptLogicDeleted(SqlCommandType.SELECT, EnhancedAutoMappers::existsBySqlExceptLogicDeleted),
+	mergeBySql(SqlCommandType.UPDATE, EnhancedAutoMappers::mergeBySql),
 
-	insertEntity(SqlCommandType.INSERT, EntityInsertProvider::doProvideSql),
+	insertEntity(SqlCommandType.INSERT, EnhancedAutoMappers::insertEntity),
 
-	deleteEntityById(SqlCommandType.DELETE, EntityDeleteByIdProvider::doProvideSql),
-	directDeleteEntityById(SqlCommandType.DELETE, EntityDeleteDirectByIdProvider::doProvideSql),
-	logicDeleteEntityById(SqlCommandType.UPDATE, EntityDeleteLogicByIdProvider::doProvideSql),
-	deleteEntityByAny(SqlCommandType.DELETE, EntityDeleteByAnyProvider::doProvideSql),
-	directDeleteEntityByAny(SqlCommandType.DELETE, EntityDeleteDirectByAnyProvider::doProvideSql),
-	logicDeleteEntityByAny(SqlCommandType.UPDATE, EntityDeleteLogicByAnyProvider::doProvideSql),
+	deleteEntityById(SqlCommandType.DELETE, EnhancedAutoMappers::deleteEntityById),
+	directDeleteEntityById(SqlCommandType.DELETE, EnhancedAutoMappers::directDeleteEntityById),
+	logicDeleteEntityById(SqlCommandType.UPDATE, EnhancedAutoMappers::logicDeleteEntityById),
+	deleteEntityByAny(SqlCommandType.DELETE, EnhancedAutoMappers::deleteEntityByAny),
+	directDeleteEntityByAny(SqlCommandType.DELETE, EnhancedAutoMappers::directDeleteEntityByAny),
+	logicDeleteEntityByAny(SqlCommandType.UPDATE, EnhancedAutoMappers::logicDeleteEntityByAny),
 
-	updateEntityById(SqlCommandType.UPDATE, EntityUpdateByIdProvider::doProvideSql),
-	updateEntityByAny(SqlCommandType.UPDATE, EntityUpdateByAnyProvider::doProvideSql),
+	updateEntityById(SqlCommandType.UPDATE, EnhancedAutoMappers::updateEntityById),
+	updateEntityByAny(SqlCommandType.UPDATE, EnhancedAutoMappers::updateEntityByAny),
 
-	existsEntity(SqlCommandType.SELECT, EntityExistsByAnyProvider::doProvideSql),
-	existsEntityDirect(SqlCommandType.SELECT, EntityExistsByAnyDirectProvider::doProvideSql),
-	existsEntityExceptLogicDeleted(SqlCommandType.SELECT, EntityExistsByAnyExceptLogicDeletedProvider::doProvideSql),
-	existsEntityById(SqlCommandType.SELECT, EntityExistsByIdProvider::doProvideSql),
-	existsEntityByIdDirect(SqlCommandType.SELECT, EntityExistsByIdDirectProvider::doProvideSql),
-	existsEntityByIdExceptLogicDeleted(SqlCommandType.SELECT, EntityExistsByIdExceptLogicDeletedProvider::doProvideSql),
+	existsEntity(SqlCommandType.SELECT, EnhancedAutoMappers::existsEntity),
+	existsEntityDirect(SqlCommandType.SELECT, EnhancedAutoMappers::existsEntityDirect),
+	existsEntityExceptLogicDeleted(SqlCommandType.SELECT, EnhancedAutoMappers::existsEntityExceptLogicDeleted),
+	existsEntityById(SqlCommandType.SELECT, EnhancedAutoMappers::existsEntityById),
+	existsEntityByIdDirect(SqlCommandType.SELECT, EnhancedAutoMappers::existsEntityByIdDirect),
+	existsEntityByIdExceptLogicDeleted(SqlCommandType.SELECT, EnhancedAutoMappers::existsEntityByIdExceptLogicDeleted),
 
-	selectEntity(SqlCommandType.SELECT, EntitySelectByAnyProvider::doProvideSql),
-	selectEntityDirect(SqlCommandType.SELECT, EntitySelectByAnyDirectProvider::doProvideSql),
-	selectEntityExceptLogicDeleted(SqlCommandType.SELECT, EntitySelectByAnyExceptLogicDeletedProvider::doProvideSql),
-	selectEntityById(SqlCommandType.SELECT, EntitySelectByIdProvider::doProvideSql),
-	selectEntityByIdDirect(SqlCommandType.SELECT, EntitySelectByIdDirectProvider::doProvideSql),
-	selectEntityByIdExceptLogicDeleted(SqlCommandType.SELECT, EntitySelectByIdExceptLogicDeletedProvider::doProvideSql),
+	selectEntity(SqlCommandType.SELECT, EnhancedAutoMappers::selectEntity),
+	selectEntityDirect(SqlCommandType.SELECT, EnhancedAutoMappers::selectEntityDirect),
+	selectEntityExceptLogicDeleted(SqlCommandType.SELECT, EnhancedAutoMappers::selectEntityExceptLogicDeleted),
+	selectEntityById(SqlCommandType.SELECT, EnhancedAutoMappers::selectEntityById),
+	selectEntityByIdDirect(SqlCommandType.SELECT, EnhancedAutoMappers::selectEntityByIdDirect),
+	selectEntityByIdExceptLogicDeleted(SqlCommandType.SELECT, EnhancedAutoMappers::selectEntityByIdExceptLogicDeleted),
 
-	countEntity(SqlCommandType.SELECT, EntityCountProvider::doProvideSql),
-	countEntityDirect(SqlCommandType.SELECT, EntityCountDirectProvider::doProvideSql),
-	countEntityExceptLogicDeleted(SqlCommandType.SELECT, EntityCountExceptLogicDeletedProvider::doProvideSql),
+	countEntity(SqlCommandType.SELECT, EnhancedAutoMappers::countEntity),
+	countEntityDirect(SqlCommandType.SELECT, EnhancedAutoMappers::countEntityDirect),
+	countEntityExceptLogicDeleted(SqlCommandType.SELECT, EnhancedAutoMappers::countEntityExceptLogicDeleted),
 
 	;
 

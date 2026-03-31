@@ -22,7 +22,7 @@ public interface AnySqlMapper {
 	 * @param sqlNode SQL节点对象，包含要执行的SQL语句信息
 	 * @return 受影响的行数
 	 */
-	@UpdateProvider(type = MapperProviders.class, method = MapperProviderKeys.executeAnySql)
+	@UpdateProvider(type = MapperProviders.class, method = MapperProviderKeys.updateAnySql)
 	int executeAnySql(@Param(BindingKeys.SQL) SqlNode sqlNode);
 
 

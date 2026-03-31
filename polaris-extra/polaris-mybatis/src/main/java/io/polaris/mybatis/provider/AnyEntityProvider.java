@@ -2,16 +2,16 @@ package io.polaris.mybatis.provider;
 
 import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.function.Function;
 
+import io.polaris.core.annotation.Internal;
 import io.polaris.core.annotation.Published;
-import io.polaris.core.jdbc.sql.BindingValues;
-import io.polaris.core.jdbc.sql.EntityStatements;
-import io.polaris.core.jdbc.sql.node.SqlNode;
-import io.polaris.mybatis.consts.MappingKeys;
+import io.polaris.mybatis.annotation.AutoMapper;
+import io.polaris.mybatis.enhance.EnhancedAutoMappers;
+import io.polaris.mybatis.enhance.EnhancedMapperAnnotations;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.builder.annotation.ProviderContext;
+import org.apache.ibatis.mapping.SqlCommandType;
 
 /**
  * @author Qt
@@ -22,26 +22,24 @@ public class AnyEntityProvider extends BaseProviderMethodResolver {
 
 	@Published
 	public static String provideSql(Object parameterObject, ProviderContext context) {
-		return provideSql(parameterObject, context, (map, ctx) -> {
-			String sql = doProvideSql(map, context.getMapperMethod());
-			if (log.isDebugEnabled()) {
-				log.debug("<sql>{}</sql><bind>{}</bind>", sql, map);
-			}
-			return sql;
-		});
+		return provideSql(parameterObject, context, AnyEntityProvider::doProvideSql);
 	}
 
-	@SuppressWarnings("all")
-	private static String doProvideSql(Map<String, Object> bindings, Method method) {
-		boolean isSelect = method.isAnnotationPresent(SelectProvider.class);
-		Function<Map<String, Object>, SqlNode> function;
-		if (isSelect) {
-			function = EntityStatements.buildSqlSelectFunction(method);
-		} else {
-			function = EntityStatements.buildSqlUpdateFunction(method);
+	@Internal
+	public static String doProvideSql(Map<String, Object> map, ProviderContext ctx) {
+		Method mapperMethod = ctx.getMapperMethod();
+		boolean isSelect = mapperMethod.isAnnotationPresent(SelectProvider.class);
+		if (!isSelect) {
+			AutoMapper annotation = EnhancedMapperAnnotations.getAutoMapper(ctx.getDatabaseId(), mapperMethod);
+			if (annotation != null) {
+				isSelect = annotation.type().sqlCommandType() == SqlCommandType.SELECT;
+			}
 		}
-		SqlNode sqlNode = function.apply(bindings);
-		return BindingValues.asSqlWithBindings(MappingKeys.PARAMETER_MAPPING_KEYS_FILTER, bindings, sqlNode);
+		if (isSelect) {
+			return EnhancedAutoMappers.selectAny(map, ctx);
+		} else {
+			return EnhancedAutoMappers.updateAny(map, ctx);
+		}
 	}
 
 }

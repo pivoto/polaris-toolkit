@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 
 import io.polaris.core.annotation.Published;
+import io.polaris.mybatis.consts.AutoMapperType;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import org.apache.ibatis.builder.annotation.ProviderContext;
 
@@ -18,54 +19,14 @@ public class MapperProviders {
 	static final Map<String, BiFunction<Map<String, Object>, ProviderContext, String>> methods;
 
 	static {
-		Map<String, BiFunction<Map<String, Object>, ProviderContext, String>> map = new HashMap<>();
+		AutoMapperType[] autoMapperTypes = AutoMapperType.values();
+		Map<String, BiFunction<Map<String, Object>, ProviderContext, String>> map = new HashMap<>(autoMapperTypes.length * 2);
 
-		map.put(MapperProviderKeys.executeAnySql, MapperProviders::executeAnySql);
-
-		map.put(MapperProviderKeys.insertBySql, MapperProviders::insertBySql);
-		map.put(MapperProviderKeys.deleteBySql, MapperProviders::deleteBySql);
-		map.put(MapperProviderKeys.updateBySql, MapperProviders::updateBySql);
-		map.put(MapperProviderKeys.selectBySql, MapperProviders::selectBySql);
-		map.put(MapperProviderKeys.selectBySqlDirect, MapperProviders::selectBySqlDirect);
-		map.put(MapperProviderKeys.selectBySqlExceptLogicDeleted, MapperProviders::selectBySqlExceptLogicDeleted);
-		map.put(MapperProviderKeys.countBySql, MapperProviders::countBySql);
-		map.put(MapperProviderKeys.countBySqlDirect, MapperProviders::countBySqlDirect);
-		map.put(MapperProviderKeys.countBySqlExceptLogicDeleted, MapperProviders::countBySqlExceptLogicDeleted);
-		map.put(MapperProviderKeys.existsBySql, MapperProviders::existsBySql);
-		map.put(MapperProviderKeys.existsBySqlDirect, MapperProviders::existsBySqlDirect);
-		map.put(MapperProviderKeys.existsBySqlExceptLogicDeleted, MapperProviders::existsBySqlExceptLogicDeleted);
-		map.put(MapperProviderKeys.mergeBySql, MapperProviders::mergeBySql);
-
-		map.put(MapperProviderKeys.insertEntity, MapperProviders::insertEntity);
-
-		map.put(MapperProviderKeys.deleteEntityById, MapperProviders::deleteEntityById);
-		map.put(MapperProviderKeys.directDeleteEntityById, MapperProviders::directDeleteEntityById);
-		map.put(MapperProviderKeys.logicDeleteEntityById, MapperProviders::logicDeleteEntityById);
-		map.put(MapperProviderKeys.deleteEntityByAny, MapperProviders::deleteEntityByAny);
-		map.put(MapperProviderKeys.directDeleteEntityByAny, MapperProviders::directDeleteEntityByAny);
-		map.put(MapperProviderKeys.logicDeleteEntityByAny, MapperProviders::logicDeleteEntityByAny);
-
-		map.put(MapperProviderKeys.updateEntityById, MapperProviders::updateEntityById);
-		map.put(MapperProviderKeys.updateEntityByAny, MapperProviders::updateEntityByAny);
-
-		map.put(MapperProviderKeys.existsEntity, MapperProviders::existsEntity);
-		map.put(MapperProviderKeys.existsEntityDirect, MapperProviders::existsEntityDirect);
-		map.put(MapperProviderKeys.existsEntityExceptLogicDeleted, MapperProviders::existsEntityExceptLogicDeleted);
-		map.put(MapperProviderKeys.existsEntityById, MapperProviders::existsEntityById);
-		map.put(MapperProviderKeys.existsEntityByIdDirect, MapperProviders::existsEntityByIdDirect);
-		map.put(MapperProviderKeys.existsEntityByIdExceptLogicDeleted, MapperProviders::existsEntityByIdExceptLogicDeleted);
-
-		map.put(MapperProviderKeys.selectEntity, MapperProviders::selectEntity);
-		map.put(MapperProviderKeys.selectEntityDirect, MapperProviders::selectEntityDirect);
-		map.put(MapperProviderKeys.selectEntityExceptLogicDeleted, MapperProviders::selectEntityExceptLogicDeleted);
-		map.put(MapperProviderKeys.selectEntityById, MapperProviders::selectEntityById);
-		map.put(MapperProviderKeys.selectEntityByIdDirect, MapperProviders::selectEntityByIdDirect);
-		map.put(MapperProviderKeys.selectEntityByIdExceptLogicDeleted, MapperProviders::selectEntityByIdExceptLogicDeleted);
-
-		map.put(MapperProviderKeys.countEntity, MapperProviders::countEntity);
-		map.put(MapperProviderKeys.countEntityDirect, MapperProviders::countEntityDirect);
-		map.put(MapperProviderKeys.countEntityExceptLogicDeleted, MapperProviders::countEntityExceptLogicDeleted);
-
+		for (AutoMapperType autoMapperType : autoMapperTypes) {
+			map.put(autoMapperType.name(), autoMapperType.sqlFunction());
+		}
+		map.put(MapperProviderKeys.executeAnySql, AutoMapperType.updateAnySql.sqlFunction());
+		map.put(MapperProviderKeys.provideSql, AnyEntityProvider::doProvideSql);
 
 		methods = Collections.unmodifiableMap(map);
 	}
@@ -78,206 +39,226 @@ public class MapperProviders {
 	/**
 	 * @see AnyEntityProvider
 	 */
-	@Published
+	@Published(MapperProviderKeys.provideSql)
 	public static String provideSql(Object parameterObject, ProviderContext context) {
 		return AnyEntityProvider.provideSql(parameterObject, context);
 	}
 
+	@Published(MapperProviderKeys.selectAny)
+	public static String selectAny(Object parameterObject, ProviderContext context) {
+		return AnyEntityProvider.provideSql(parameterObject, context);
+	}
 
-	@Published
+	@Published(MapperProviderKeys.updateAny)
+	public static String updateAny(Object parameterObject, ProviderContext context) {
+		return AnyEntityProvider.provideSql(parameterObject, context);
+	}
+
+
+	@Published(MapperProviderKeys.executeAnySql)
 	public static String executeAnySql(Object parameterObject, ProviderContext context) {
 		return AnySqlProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.selectAnySql)
+	public static String selectAnySql(Object parameterObject, ProviderContext context) {
+		return AnySqlProvider.provideSql(parameterObject, context);
+	}
+
+	@Published(MapperProviderKeys.updateAnySql)
+	public static String updateAnySql(Object parameterObject, ProviderContext context) {
+		return AnySqlProvider.provideSql(parameterObject, context);
+	}
+
+	@Published(MapperProviderKeys.insertEntity)
 	public static String insertEntity(Object parameterObject, ProviderContext context) {
 		return EntityInsertProvider.provideSql(parameterObject, context);
 	}
 
 
-	@Published
+	@Published(MapperProviderKeys.deleteEntityById)
 	public static String deleteEntityById(Object parameterObject, ProviderContext context) {
 		return EntityDeleteByIdProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.directDeleteEntityById)
 	public static String directDeleteEntityById(Object parameterObject, ProviderContext context) {
 		return EntityDeleteDirectByIdProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.logicDeleteEntityById)
 	public static String logicDeleteEntityById(Object parameterObject, ProviderContext context) {
 		return EntityDeleteLogicByIdProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.deleteEntityByAny)
 	public static String deleteEntityByAny(Object parameterObject, ProviderContext context) {
 		return EntityDeleteByAnyProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.directDeleteEntityByAny)
 	public static String directDeleteEntityByAny(Object parameterObject, ProviderContext context) {
 		return EntityDeleteDirectByAnyProvider.provideSql(parameterObject, context);
 	}
 
 
-	@Published
+	@Published(MapperProviderKeys.logicDeleteEntityByAny)
 	public static String logicDeleteEntityByAny(Object parameterObject, ProviderContext context) {
 		return EntityDeleteLogicByAnyProvider.provideSql(parameterObject, context);
 	}
 
 
-	@Published
+	@Published(MapperProviderKeys.updateEntityById)
 	public static String updateEntityById(Object parameterObject, ProviderContext context) {
 		return EntityUpdateByIdProvider.provideSql(parameterObject, context);
 	}
 
 
-	@Published
+	@Published(MapperProviderKeys.updateEntityByAny)
 	public static String updateEntityByAny(Object parameterObject, ProviderContext context) {
 		return EntityUpdateByAnyProvider.provideSql(parameterObject, context);
 	}
 
 
-	@Published
+	@Published(MapperProviderKeys.countEntity)
 	public static String countEntity(Object parameterObject, ProviderContext context) {
 		return EntityCountProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.countEntityDirect)
 	public static String countEntityDirect(Object parameterObject, ProviderContext context) {
 		return EntityCountDirectProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.countEntityExceptLogicDeleted)
 	public static String countEntityExceptLogicDeleted(Object parameterObject, ProviderContext context) {
 		return EntityCountExceptLogicDeletedProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.existsEntityById)
 	public static String existsEntityById(Object parameterObject, ProviderContext context) {
 		return EntityExistsByIdProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.existsEntityByIdDirect)
 	public static String existsEntityByIdDirect(Object parameterObject, ProviderContext context) {
 		return EntityExistsByIdDirectProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.existsEntityByIdExceptLogicDeleted)
 	public static String existsEntityByIdExceptLogicDeleted(Object parameterObject, ProviderContext context) {
 		return EntityExistsByIdExceptLogicDeletedProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.existsEntity)
 	public static String existsEntity(Object parameterObject, ProviderContext context) {
 		return EntityExistsByAnyProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.existsEntityDirect)
 	public static String existsEntityDirect(Object parameterObject, ProviderContext context) {
 		return EntityExistsByAnyDirectProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.existsEntityExceptLogicDeleted)
 	public static String existsEntityExceptLogicDeleted(Object parameterObject, ProviderContext context) {
 		return EntityExistsByAnyExceptLogicDeletedProvider.provideSql(parameterObject, context);
 	}
 
 
-	@Published
+	@Published(MapperProviderKeys.selectEntityById)
 	public static String selectEntityById(Object parameterObject, ProviderContext context) {
 		return EntitySelectByIdProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.selectEntityByIdDirect)
 	public static String selectEntityByIdDirect(Object parameterObject, ProviderContext context) {
 		return EntitySelectByIdDirectProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.selectEntityByIdExceptLogicDeleted)
 	public static String selectEntityByIdExceptLogicDeleted(Object parameterObject, ProviderContext context) {
 		return EntitySelectByIdExceptLogicDeletedProvider.provideSql(parameterObject, context);
 	}
 
 
-	@Published
+	@Published(MapperProviderKeys.selectEntity)
 	public static String selectEntity(Object parameterObject, ProviderContext context) {
 		return EntitySelectByAnyProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.selectEntityDirect)
 	public static String selectEntityDirect(Object parameterObject, ProviderContext context) {
 		return EntitySelectByAnyDirectProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.selectEntityExceptLogicDeleted)
 	public static String selectEntityExceptLogicDeleted(Object parameterObject, ProviderContext context) {
 		return EntitySelectByAnyExceptLogicDeletedProvider.provideSql(parameterObject, context);
 	}
 
 
-	@Published
+	@Published(MapperProviderKeys.insertBySql)
 	public static String insertBySql(Object parameterObject, ProviderContext context) {
 		return SqlInsertProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.deleteBySql)
 	public static String deleteBySql(Object parameterObject, ProviderContext context) {
 		return SqlDeleteProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.updateBySql)
 	public static String updateBySql(Object parameterObject, ProviderContext context) {
 		return SqlUpdateProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.selectBySql)
 	public static String selectBySql(Object parameterObject, ProviderContext context) {
 		return SqlSelectProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.countBySql)
 	public static String countBySql(Object parameterObject, ProviderContext context) {
 		return SqlCountProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.existsBySql)
 	public static String existsBySql(Object parameterObject, ProviderContext context) {
 		return SqlExistsProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.selectBySqlDirect)
 	public static String selectBySqlDirect(Object parameterObject, ProviderContext context) {
 		return SqlSelectDirectProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.countBySqlDirect)
 	public static String countBySqlDirect(Object parameterObject, ProviderContext context) {
 		return SqlCountDirectProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.existsBySqlDirect)
 	public static String existsBySqlDirect(Object parameterObject, ProviderContext context) {
 		return SqlExistsDirectProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.selectBySqlExceptLogicDeleted)
 	public static String selectBySqlExceptLogicDeleted(Object parameterObject, ProviderContext context) {
 		return SqlSelectExceptLogicDeletedProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.countBySqlExceptLogicDeleted)
 	public static String countBySqlExceptLogicDeleted(Object parameterObject, ProviderContext context) {
 		return SqlCountExceptLogicDeletedProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.existsBySqlExceptLogicDeleted)
 	public static String existsBySqlExceptLogicDeleted(Object parameterObject, ProviderContext context) {
 		return SqlExistsExceptLogicDeletedProvider.provideSql(parameterObject, context);
 	}
 
-	@Published
+	@Published(MapperProviderKeys.mergeBySql)
 	public static String mergeBySql(Object parameterObject, ProviderContext context) {
 		return SqlMergeProvider.provideSql(parameterObject, context);
 	}

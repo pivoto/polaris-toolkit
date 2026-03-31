@@ -26,7 +26,7 @@ public interface AnySqlSelectMapper<R> {
 	 * @param sqlNode SQL节点对象，包含要执行的查询SQL语句
 	 * @return 查询结果对象
 	 */
-	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.executeAnySql)
+	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectAnySql)
 	R selectObjectByAnySql(@Param(BindingKeys.SQL) SqlNode sqlNode);
 
 	/**
@@ -35,7 +35,7 @@ public interface AnySqlSelectMapper<R> {
 	 * @param sqlNode SQL节点对象，包含要执行的查询SQL语句
 	 * @return 查询结果Map，键为列名，值为对应的值
 	 */
-	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.executeAnySql)
+	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectAnySql)
 	Map<String, Object> selectMapByAnySql(@Param(BindingKeys.SQL) SqlNode sqlNode);
 
 	/**
@@ -44,7 +44,7 @@ public interface AnySqlSelectMapper<R> {
 	 * @param sqlNode SQL节点对象，包含要执行的查询SQL语句
 	 * @return 查询结果对象列表
 	 */
-	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.executeAnySql)
+	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectAnySql)
 	List<R> selectObjectListByAnySql(@Param(BindingKeys.SQL) SqlNode sqlNode);
 
 	/**
@@ -53,7 +53,7 @@ public interface AnySqlSelectMapper<R> {
 	 * @param sqlNode SQL节点对象，包含要执行的查询SQL语句
 	 * @return 查询结果Map列表，每个Map代表一条记录
 	 */
-	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.executeAnySql)
+	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectAnySql)
 	List<Map<String, Object>> selectMapListByAnySql(@Param(BindingKeys.SQL) SqlNode sqlNode);
 
 }

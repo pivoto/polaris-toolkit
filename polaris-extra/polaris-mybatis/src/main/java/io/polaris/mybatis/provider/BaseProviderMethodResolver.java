@@ -1,25 +1,14 @@
 package io.polaris.mybatis.provider;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 
-import javax.annotation.Nullable;
-
-import io.polaris.core.jdbc.sql.consts.BindingKeys;
-import io.polaris.core.lang.JavaType;
-import io.polaris.core.lang.Types;
 import io.polaris.core.lang.bean.BeanMap;
 import io.polaris.core.lang.bean.Beans;
-import io.polaris.core.tuple.Ref;
-import io.polaris.core.tuple.Tuple2;
-import io.polaris.mybatis.annotation.MapperEntity;
-import io.polaris.mybatis.annotation.WithLogicDeleted;
-import io.polaris.mybatis.mapper.EntityMapper;
+import io.polaris.core.map.Maps;
+import io.polaris.mybatis.enhance.EnhancedAutoMapperHelper;
 import io.polaris.mybatis.scripting.EnhanceBoundSqlLanguageDriver;
 import io.polaris.mybatis.support.MapperHelperContext;
 import org.apache.ibatis.annotations.Lang;
@@ -32,21 +21,9 @@ import org.apache.ibatis.builder.annotation.ProviderMethodResolver;
  */
 public abstract class BaseProviderMethodResolver implements ProviderMethodResolver {
 
-	static final Map<Tuple2<Method, Class<?>>, Boolean> LOGIC_DELETED_MAP = new ConcurrentHashMap<>();
-	static final Map<Tuple2<Method, Class<?>>, Ref<Class<?>>> ENTITY_CLASS_MAP = new ConcurrentHashMap<>();
-
-
 	@Override
 	public Method resolveMethod(ProviderContext context) {
 		String methodName = context.getMapperMethod().getName();
-		try {
-			return getClass().getMethod(methodName, Map.class, ProviderContext.class);
-		} catch (NoSuchMethodException ignore) {
-		}
-		try {
-			return getClass().getMethod("provideSql", Map.class, ProviderContext.class);
-		} catch (NoSuchMethodException ignore) {
-		}
 		try {
 			return getClass().getMethod(methodName, Object.class, ProviderContext.class);
 		} catch (NoSuchMethodException ignore) {
@@ -60,104 +37,7 @@ public abstract class BaseProviderMethodResolver implements ProviderMethodResolv
 
 
 	protected static Class<?> getEntityClass(ProviderContext context) {
-		Method mapperMethod = context.getMapperMethod();
-		Class<?> mapperType = context.getMapperType();
-
-		Ref<Class<?>> ref = ENTITY_CLASS_MAP.computeIfAbsent(Tuple2.of(mapperMethod, context.getMapperType()),
-			k -> Ref.of(innerGetEntityClass(mapperMethod, mapperType)));
-		Class<?> entityClass = ref.get();
-		if (entityClass != null) {
-			return entityClass;
-		}
-		throw new IllegalStateException("未知实体类型！");
-	}
-
-	@Nullable
-	private static Class<?> innerGetEntityClass(Method mapperMethod, Class<?> mapperType) {
-		// 从方法上获取
-		MapperEntity declared = mapperMethod.getAnnotation(MapperEntity.class);
-		Class<?> entityClass = null;
-		if (declared != null) {
-			entityClass = declared.entity();
-			if (entityClass != null && entityClass != Object.class) {
-				return entityClass;
-			}
-		}
-		// 从Mapper接口类上获取
-		declared = mapperType.getAnnotation(MapperEntity.class);
-		if (declared != null) {
-			entityClass = declared.entity();
-			if (entityClass != null && entityClass != Object.class) {
-				return entityClass;
-			}
-		}
-		// 从方法所在接口类上获取
-		Class<?> declaringClass = mapperMethod.getDeclaringClass();
-		if (declaringClass != mapperType) {
-			declared = declaringClass.getAnnotation(MapperEntity.class);
-			if (declared != null) {
-				entityClass = declared.entity();
-				if (entityClass != null && entityClass != Object.class) {
-					return entityClass;
-				}
-			}
-		}
-		// 从基类泛型中获取
-		if (EntityMapper.class.isAssignableFrom(mapperType)) {
-			Type actualType = JavaType.of(mapperType).getActualType(EntityMapper.class, 0);
-			entityClass = Types.getClass(actualType);
-			if (entityClass != null && entityClass != Object.class) {
-				return entityClass;
-			}
-		}
-		return null;
-	}
-
-	protected static boolean withLogicDeleted(Map<String, Object> bindings, ProviderContext context) {
-		try {
-			// fix for MapperMethod.ParamMap.get()
-			if (bindings.containsKey(BindingKeys.WITH_LOGIC_DELETED)) {
-				Object sld = bindings.get(BindingKeys.WITH_LOGIC_DELETED);
-				if (sld != null) {
-					if (sld instanceof Boolean) {
-						return (Boolean) sld;
-					}
-				}
-			}
-		} catch (Exception ignored) {
-		}
-		return withLogicDeleted(context);
-	}
-
-	protected static boolean withLogicDeleted(ProviderContext context) {
-		Method mapperMethod = context.getMapperMethod();
-		Class<?> mapperType = context.getMapperType();
-
-		return LOGIC_DELETED_MAP.computeIfAbsent(Tuple2.of(mapperMethod, context.getMapperType()),
-			k -> innerGetWithLogicDeleted(mapperMethod, mapperType));
-	}
-
-	private static boolean innerGetWithLogicDeleted(Method mapperMethod, Class<?> mapperType) {
-		// 从方法上获取
-		WithLogicDeleted declared = mapperMethod.getAnnotation(WithLogicDeleted.class);
-		Class<?> entityClass = null;
-		if (declared != null) {
-			return declared.value();
-		}
-		// 从Mapper接口类上获取
-		declared = mapperType.getAnnotation(WithLogicDeleted.class);
-		if (declared != null) {
-			return declared.value();
-		}
-		// 从方法所在接口类上获取
-		Class<?> declaringClass = mapperMethod.getDeclaringClass();
-		if (declaringClass != mapperType) {
-			declared = declaringClass.getAnnotation(WithLogicDeleted.class);
-			if (declared != null) {
-				return declared.value();
-			}
-		}
-		return false;
+		return EnhancedAutoMapperHelper.getEntityClassOrThrows(context);
 	}
 
 
@@ -174,15 +54,20 @@ public abstract class BaseProviderMethodResolver implements ProviderMethodResolv
 
 	@SuppressWarnings("unchecked")
 	private static Map<String, Object> toParameterBindings(Method mapperMethod, Object parameterObject) {
-		if (parameterObject instanceof Map) {
+		if (parameterObject instanceof Map && Maps.isModifiable((Map<?, ?>) parameterObject)) {
 			return (Map<String, Object>) parameterObject;
 		} else {
-			if (!MapperHelperContext.isEnabledEnhanceBoundSql() && !hasEnhanceBoundSqlLanguageDriver(mapperMethod)) {
+			if (!MapperHelperContext.isEnabledEnhanceBoundSql()
+				&& !hasEnhanceBoundSqlLanguageDriver(mapperMethod)
+			) {
+				Map<String, Object> additionalParameters = MapperHelperContext.getBoundAdditionalParameters(parameterObject);
+				if (additionalParameters != null) {
+					return additionalParameters;
+				}
 				if (parameterObject == null) {
 					// 参数为空时，使用空MAP，不接收任何绑定
 					return Collections.emptyMap();
 				}
-				// TODO 考虑增加支持非Map类型的入参，转为直接sql拼接，通过配置开启，但需要处理非字符串参数转换问题
 				throw new IllegalArgumentException("请使用Map类型参数或明确声明参数键名");
 			}
 			return toParameterBindings(parameterObject);
@@ -208,15 +93,14 @@ public abstract class BaseProviderMethodResolver implements ProviderMethodResolv
 	 */
 	@SuppressWarnings({"all"})
 	private static Map<String, Object> toParameterBindings(Object parameterObject) {
-		if (parameterObject instanceof Map) {
+		if (parameterObject instanceof Map && Maps.isModifiable((Map<?, ?>) parameterObject)) {
 			return (Map) parameterObject;
 		}
-		Map<String, Object> additionalParameters = new HashMap<>();
+		Map<String, Object> additionalParameters = MapperHelperContext.bindAdditionalParameters(parameterObject);
 		if (parameterObject != null) {
 			BeanMap<Object> beanMap = Beans.newBeanMap(parameterObject);
 			additionalParameters.putAll(beanMap);
 		}
-		MapperHelperContext.bindAdditionalParameters(parameterObject, additionalParameters);
 		return additionalParameters;
 	}
 

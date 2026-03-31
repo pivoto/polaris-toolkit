@@ -25,7 +25,7 @@ public interface EntityMergeMapper<E> extends MergeStatementMapper, EntityMapper
 	default int mergeBySql(E entity) {
 		Type actualType = JavaType.of(getClass()).getActualType(EntityMapper.class, 0);
 		Class<?> entityClass = Types.getClass(actualType);
-		if (entityClass == Object.class) {
+		if (entityClass == Object.class || entityClass == void.class) {
 			throw new IllegalStateException("未知实体类型！");
 		}
 		return mergeBySql((Class<E>) entityClass, entity);
@@ -44,7 +44,7 @@ public interface EntityMergeMapper<E> extends MergeStatementMapper, EntityMapper
 	default int mergeBySql(E entity, boolean includeAllEmpty, boolean updateWhenMatched, boolean insertWhenNotMatched) {
 		Type actualType = JavaType.of(getClass()).getActualType(EntityMapper.class, 0);
 		Class<?> entityClass = Types.getClass(actualType);
-		if (entityClass == Object.class) {
+		if (entityClass == Object.class || entityClass == void.class) {
 			throw new IllegalStateException("未知实体类型！");
 		}
 		return mergeBySql((Class<E>) entityClass, entity, includeAllEmpty, updateWhenMatched, insertWhenNotMatched);
@@ -62,7 +62,7 @@ public interface EntityMergeMapper<E> extends MergeStatementMapper, EntityMapper
 	default int mergeBySql(E entity, boolean updateWhenMatched, boolean insertWhenNotMatched) {
 		Type actualType = JavaType.of(getClass()).getActualType(EntityMapper.class, 0);
 		Class<?> entityClass = Types.getClass(actualType);
-		if (entityClass == Object.class) {
+		if (entityClass == Object.class || entityClass == void.class) {
 			throw new IllegalStateException("未知实体类型！");
 		}
 		return mergeBySql((Class<E>) entityClass, entity, updateWhenMatched, insertWhenNotMatched);

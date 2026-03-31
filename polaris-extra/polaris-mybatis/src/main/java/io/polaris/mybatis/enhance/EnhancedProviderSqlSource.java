@@ -142,126 +142,126 @@ public class EnhancedProviderSqlSource extends ProviderSqlSource implements SqlS
 			return AnyEntityProvider::doProvideSql;
 		}
 		if (AnySqlProvider.class.equals(providerClass)) {
-			return AnySqlProvider::doProvideSql;
+			return AutoMapperType.updateAnySql.sqlFunction();
 		}
 		if (SqlInsertProvider.class.equals(providerClass)) {
-			return SqlInsertProvider::doProvideSql;
+			return AutoMapperType.insertBySql.sqlFunction();
 		}
 		if (SqlDeleteProvider.class.equals(providerClass)) {
-			return SqlDeleteProvider::doProvideSql;
+			return AutoMapperType.deleteBySql.sqlFunction();
 		}
 		if (SqlUpdateProvider.class.equals(providerClass)) {
-			return SqlUpdateProvider::doProvideSql;
+			return AutoMapperType.updateBySql.sqlFunction();
 		}
 		if (SqlSelectProvider.class.equals(providerClass)) {
-			return SqlSelectProvider::doProvideSql;
+			return AutoMapperType.selectBySql.sqlFunction();
 		}
 		if (SqlSelectDirectProvider.class.equals(providerClass)) {
-			return SqlSelectDirectProvider::doProvideSql;
+			return AutoMapperType.selectBySqlDirect.sqlFunction();
 		}
 		if (SqlSelectExceptLogicDeletedProvider.class.equals(providerClass)) {
-			return SqlSelectExceptLogicDeletedProvider::doProvideSql;
+			return AutoMapperType.selectBySqlExceptLogicDeleted.sqlFunction();
 		}
 
 		if (SqlCountProvider.class.equals(providerClass)) {
-			return SqlCountProvider::doProvideSql;
+			return AutoMapperType.countBySql.sqlFunction();
 		}
 		if (SqlCountDirectProvider.class.equals(providerClass)) {
-			return SqlCountDirectProvider::doProvideSql;
+			return AutoMapperType.countBySqlDirect.sqlFunction();
 		}
 		if (SqlCountExceptLogicDeletedProvider.class.equals(providerClass)) {
-			return SqlCountExceptLogicDeletedProvider::doProvideSql;
+			return AutoMapperType.countBySqlExceptLogicDeleted.sqlFunction();
 		}
 
 		if (SqlExistsProvider.class.equals(providerClass)) {
-			return SqlExistsProvider::doProvideSql;
+			return AutoMapperType.existsBySql.sqlFunction();
 		}
 		if (SqlExistsDirectProvider.class.equals(providerClass)) {
-			return SqlExistsDirectProvider::doProvideSql;
+			return AutoMapperType.existsBySqlDirect.sqlFunction();
 		}
 		if (SqlExistsExceptLogicDeletedProvider.class.equals(providerClass)) {
-			return SqlExistsExceptLogicDeletedProvider::doProvideSql;
+			return AutoMapperType.existsBySqlExceptLogicDeleted.sqlFunction();
 		}
 
 		if (SqlMergeProvider.class.equals(providerClass)) {
-			return SqlMergeProvider::doProvideSql;
+			return AutoMapperType.mergeBySql.sqlFunction();
 		}
 		if (EntityInsertProvider.class.equals(providerClass)) {
-			return EntityInsertProvider::doProvideSql;
+			return AutoMapperType.insertEntity.sqlFunction();
 		}
 
 		if (EntityDeleteByIdProvider.class.equals(providerClass)) {
-			return EntityDeleteByIdProvider::doProvideSql;
+			return AutoMapperType.deleteEntityById.sqlFunction();
 		}
 		if (EntityDeleteDirectByIdProvider.class.equals(providerClass)) {
-			return EntityDeleteDirectByIdProvider::doProvideSql;
+			return AutoMapperType.directDeleteEntityById.sqlFunction();
 		}
 		if (EntityDeleteLogicByIdProvider.class.equals(providerClass)) {
-			return EntityDeleteLogicByIdProvider::doProvideSql;
+			return AutoMapperType.logicDeleteEntityById.sqlFunction();
 		}
 		if (EntityDeleteByAnyProvider.class.equals(providerClass)) {
-			return EntityDeleteByAnyProvider::doProvideSql;
+			return AutoMapperType.deleteEntityByAny.sqlFunction();
 		}
 		if (EntityDeleteDirectByAnyProvider.class.equals(providerClass)) {
-			return EntityDeleteDirectByAnyProvider::doProvideSql;
+			return AutoMapperType.directDeleteEntityByAny.sqlFunction();
 		}
 		if (EntityDeleteLogicByAnyProvider.class.equals(providerClass)) {
-			return EntityDeleteLogicByAnyProvider::doProvideSql;
+			return AutoMapperType.logicDeleteEntityByAny.sqlFunction();
 		}
 
 		if (EntityUpdateByIdProvider.class.equals(providerClass)) {
-			return EntityUpdateByIdProvider::doProvideSql;
+			return AutoMapperType.updateEntityById.sqlFunction();
 		}
 		if (EntityUpdateByAnyProvider.class.equals(providerClass)) {
-			return EntityUpdateByAnyProvider::doProvideSql;
+			return AutoMapperType.updateEntityByAny.sqlFunction();
 		}
 
 		if (EntityExistsByAnyProvider.class.equals(providerClass)) {
-			return EntityExistsByAnyProvider::doProvideSql;
+			return AutoMapperType.existsEntity.sqlFunction();
 		}
 		if (EntityExistsByAnyDirectProvider.class.equals(providerClass)) {
-			return EntityExistsByAnyDirectProvider::doProvideSql;
+			return AutoMapperType.existsEntityDirect.sqlFunction();
 		}
 		if (EntityExistsByAnyExceptLogicDeletedProvider.class.equals(providerClass)) {
-			return EntityExistsByAnyExceptLogicDeletedProvider::doProvideSql;
+			return AutoMapperType.existsEntityExceptLogicDeleted.sqlFunction();
 		}
 		if (EntityExistsByIdProvider.class.equals(providerClass)) {
-			return EntityExistsByIdProvider::doProvideSql;
+			return AutoMapperType.existsEntityById.sqlFunction();
 		}
 		if (EntityExistsByIdDirectProvider.class.equals(providerClass)) {
-			return EntityExistsByIdDirectProvider::doProvideSql;
+			return AutoMapperType.existsEntityByIdDirect.sqlFunction();
 		}
 		if (EntityExistsByIdExceptLogicDeletedProvider.class.equals(providerClass)) {
-			return EntityExistsByIdExceptLogicDeletedProvider::doProvideSql;
+			return AutoMapperType.existsEntityByIdExceptLogicDeleted.sqlFunction();
 		}
 
 		if (EntitySelectByAnyProvider.class.equals(providerClass)) {
-			return EntitySelectByAnyProvider::doProvideSql;
+			return AutoMapperType.selectEntity.sqlFunction();
 		}
 		if (EntitySelectByAnyDirectProvider.class.equals(providerClass)) {
-			return EntitySelectByAnyDirectProvider::doProvideSql;
+			return AutoMapperType.selectEntityDirect.sqlFunction();
 		}
 		if (EntitySelectByAnyExceptLogicDeletedProvider.class.equals(providerClass)) {
-			return EntitySelectByAnyExceptLogicDeletedProvider::doProvideSql;
+			return AutoMapperType.selectEntityExceptLogicDeleted.sqlFunction();
 		}
 		if (EntitySelectByIdProvider.class.equals(providerClass)) {
-			return EntitySelectByIdProvider::doProvideSql;
+			return AutoMapperType.selectEntityById.sqlFunction();
 		}
 		if (EntitySelectByIdDirectProvider.class.equals(providerClass)) {
-			return EntitySelectByIdDirectProvider::doProvideSql;
+			return AutoMapperType.selectEntityByIdDirect.sqlFunction();
 		}
 		if (EntitySelectByIdExceptLogicDeletedProvider.class.equals(providerClass)) {
-			return EntitySelectByIdExceptLogicDeletedProvider::doProvideSql;
+			return AutoMapperType.selectEntityByIdExceptLogicDeleted.sqlFunction();
 		}
 
 		if (EntityCountProvider.class.equals(providerClass)) {
-			return EntityCountProvider::doProvideSql;
+			return AutoMapperType.countEntity.sqlFunction();
 		}
 		if (EntityCountDirectProvider.class.equals(providerClass)) {
-			return EntityCountDirectProvider::doProvideSql;
+			return AutoMapperType.countEntityDirect.sqlFunction();
 		}
 		if (EntityCountExceptLogicDeletedProvider.class.equals(providerClass)) {
-			return EntityCountExceptLogicDeletedProvider::doProvideSql;
+			return AutoMapperType.countEntityExceptLogicDeleted.sqlFunction();
 		}
 
 		return null;
