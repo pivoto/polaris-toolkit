@@ -1,11 +1,26 @@
 package io.polaris.core.reflect;
 
+import java.lang.invoke.MethodHandle;
+
 import io.polaris.core.io.Consoles;
 import io.polaris.core.string.Strings;
 import io.polaris.core.tuple.Returnee;
 import org.junit.jupiter.api.Test;
 
 public class MethodsTest {
+
+	@Test
+	void testConstuctor() throws Throwable {
+		MethodHandle constructor = Methods.findConstructor(MethodsTestCtx.Target.class);
+		MethodsTestCtx.Target target = (MethodsTestCtx.Target) constructor.invokeExact();
+		Consoles.println("", target);
+		{
+			MethodHandle mh = Methods.findVirtual(MethodsTestCtx.Target.class, "publicMethod", int.class, new Class<?>[]{int.class});
+			int o = (int) mh.bindTo(target).invokeExact(1);
+			Consoles.println("", o);
+		}
+
+	}
 
 	@Test
 	void test01() throws Throwable {

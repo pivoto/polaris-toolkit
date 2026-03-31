@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
  * @author Qt
  * @since Oct 08, 2024
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings("all")
 public class Methods {
 
 	public static <T> T newInstance(Class<T> clazz) throws Throwable {
@@ -39,28 +39,44 @@ public class Methods {
 	}
 
 	public static void invoke(Object instance, String methodName) throws Throwable {
-		MethodHandle handle = findVirtual(instance.getClass(), methodName);
+		Class<?> instanceType = instance.getClass();
+		invoke(instanceType, instance, methodName);
+	}
+
+	public static void invoke(Class<?> instanceType, Object instance, String methodName) throws Throwable {
+		MethodHandle handle = findVirtual(instanceType, methodName);
 		handle.invoke(instance);
 	}
 
 	public static void invoke(Object instance, String methodName, Class<?>[] parameterTypes, Object[] params) throws Throwable {
-		MethodHandle handle = findVirtual(instance.getClass(), methodName, parameterTypes);
+		invoke(instance.getClass(), instance, methodName, parameterTypes, params);
+	}
+
+	public static void invoke(Class<?> instanceType, Object instance, String methodName, Class<?>[] parameterTypes, Object[] params) throws Throwable {
+		MethodHandle handle = findVirtual(instanceType, methodName, parameterTypes);
 		Object[] args = new Object[params.length + 1];
 		args[0] = instance;
 		System.arraycopy(params, 0, args, 1, params.length);
 		handle.invokeWithArguments(args);
 	}
 
-
 	public static <T> T invoke(Object instance, String methodName, Class<T> returnType) throws Throwable {
-		MethodHandle handle = findVirtual(instance.getClass(), methodName, returnType);
+		return invoke(instance.getClass(), instance, methodName, returnType);
+	}
+
+	public static <T> T invoke(Class<?> instanceType, Object instance, String methodName, Class<T> returnType) throws Throwable {
+		MethodHandle handle = findVirtual(instanceType, methodName, returnType);
 		Object rs = handle.invoke(instance);
 		return (T) rs;
 	}
 
 
 	public static <T> T invoke(Object instance, String methodName, Class<T> returnType, Class<?>[] parameterTypes, Object[] params) throws Throwable {
-		MethodHandle handle = findVirtual(instance.getClass(), methodName, returnType, parameterTypes);
+		return invoke(instance.getClass(), instance, methodName, returnType, parameterTypes, params);
+	}
+
+	public static <T> T invoke(Class<?> instanceType, Object instance, String methodName, Class<T> returnType, Class<?>[] parameterTypes, Object[] params) throws Throwable {
+		MethodHandle handle = findVirtual(instanceType, methodName, returnType, parameterTypes);
 		Object[] args = new Object[params.length + 1];
 		args[0] = instance;
 		System.arraycopy(params, 0, args, 1, params.length);
@@ -70,12 +86,20 @@ public class Methods {
 
 
 	public static void invokePrivate(Object instance, String methodName) throws Throwable {
-		MethodHandle handle = findPrivate(instance.getClass(), methodName);
+		invokePrivate(instance.getClass(), instance, methodName);
+	}
+
+	public static void invokePrivate(Class<?> instanceType, Object instance, String methodName) throws Throwable {
+		MethodHandle handle = findPrivate(instanceType, methodName);
 		handle.invoke(instance);
 	}
 
 	public static void invokePrivate(Object instance, String methodName, Class<?>[] parameterTypes, Object[] params) throws Throwable {
-		MethodHandle handle = findPrivate(instance.getClass(), methodName, parameterTypes);
+		invokePrivate(instance.getClass(), instance, methodName, parameterTypes, params);
+	}
+
+	public static void invokePrivate(Class<?> instanceType, Object instance, String methodName, Class<?>[] parameterTypes, Object[] params) throws Throwable {
+		MethodHandle handle = findPrivate(instanceType, methodName, parameterTypes);
 		Object[] args = new Object[params.length + 1];
 		args[0] = instance;
 		System.arraycopy(params, 0, args, 1, params.length);
@@ -83,7 +107,11 @@ public class Methods {
 	}
 
 	public static <T> T invokePrivate(Object instance, String methodName, Class<T> returnType) throws Throwable {
-		MethodHandle handle = findPrivate(instance.getClass(), methodName, returnType);
+		return invokePrivate(instance.getClass(), instance, methodName, returnType);
+	}
+
+	public static <T> T invokePrivate(Class<?> instanceType, Object instance, String methodName, Class<T> returnType) throws Throwable {
+		MethodHandle handle = findPrivate(instanceType, methodName, returnType);
 		Object rs = handle.invoke(instance);
 		return (T) rs;
 	}
@@ -145,25 +173,43 @@ public class Methods {
 
 
 	public static <T> T getField(Object instance, String fieldName, Class<T> fieldType) throws Throwable {
-		MethodHandle handle = findGetter(instance.getClass(), fieldName, fieldType);
+		return getField(instance.getClass(), instance, fieldName, fieldType);
+	}
+
+
+	public static <T> T getField(Class<?> instanceType, Object instance, String fieldName, Class<T> fieldType) throws Throwable {
+		MethodHandle handle = findGetter(instanceType, fieldName, fieldType);
 		Object rs = handle.invoke(instance);
 		return (T) rs;
 	}
 
 
 	public static <T> T getPrivateField(Object instance, String fieldName, Class<T> fieldType) throws Throwable {
-		MethodHandle handle = findPrivateGetter(instance.getClass(), fieldName, fieldType);
+		return getPrivateField(instance.getClass(), instance, fieldName, fieldType);
+	}
+
+
+	public static <T> T getPrivateField(Class<?> instanceType, Object instance, String fieldName, Class<T> fieldType) throws Throwable {
+		MethodHandle handle = findPrivateGetter(instanceType, fieldName, fieldType);
 		Object rs = handle.invoke(instance);
 		return (T) rs;
 	}
 
 	public static <T> void setField(Object instance, String fieldName, Class<T> fieldType, T value) throws Throwable {
-		MethodHandle handle = findSetter(instance.getClass(), fieldName, fieldType);
+		setField(instance.getClass(), instance, fieldName, fieldType, value);
+	}
+
+	public static <T> void setField(Class<?> instanceType, Object instance, String fieldName, Class<T> fieldType, T value) throws Throwable {
+		MethodHandle handle = findSetter(instanceType, fieldName, fieldType);
 		handle.invoke(instance, value);
 	}
 
 	public static <T> void setPrivateField(Object instance, String fieldName, Class<T> fieldType, T value) throws Throwable {
-		MethodHandle handle = findPrivateSetter(instance.getClass(), fieldName, fieldType);
+		setPrivateField(instance.getClass(), instance, fieldName, fieldType, value);
+	}
+
+	public static <T> void setPrivateField(Class<?> instanceType, Object instance, String fieldName, Class<T> fieldType, T value) throws Throwable {
+		MethodHandle handle = findPrivateSetter(instanceType, fieldName, fieldType);
 		handle.invoke(instance, value);
 	}
 
@@ -189,6 +235,25 @@ public class Methods {
 		handle.invoke(value);
 	}
 
+	public static Class<?>[] actualParamTypes(Object[] params) {
+		Class<?>[] actualParamTypes = new Class[params.length];
+		for (int i = 0; i < params.length; i++) {
+			actualParamTypes[i] = params[i].getClass();
+		}
+		return actualParamTypes;
+	}
+
+	public static MethodHandle adaptMethodHandle(MethodHandle mh, Class<?> actualReturnType, Class<?>[] actualParamTypes) {
+		MethodType originalType = mh.type();
+		// 构建实际参数的方法类型
+		MethodType targetType = MethodType.methodType(actualReturnType, actualParamTypes);
+		// 类型完全一致时，直接返回原句柄，跳过 asType
+		if (originalType.equals(targetType)) {
+			return mh;
+		}
+		// 类型不一致时，才执行 asType 适配（子类转型、装箱拆箱）
+		return mh.asType(targetType);
+	}
 
 	public static <T> MethodHandle findConstructor(Class<T> clazz) throws NoSuchMethodException, IllegalAccessException {
 		MethodHandles.Lookup lookup = MethodHandles.lookup();

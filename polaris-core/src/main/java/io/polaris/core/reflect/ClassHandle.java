@@ -7,6 +7,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
+ * 高频调用时可尽量使用查询方法获取到 MethodHandle 后，再使用 MethodHandle.invokeExact 等高性能方法执行，避免类型处理、转换等性能问题
+ *
  * @author Qt
  * @since Sep 09, 2025
  */
@@ -35,14 +37,19 @@ public class ClassHandle<T> {
 		this.clazz = clazz;
 	}
 
-	public T newInstance() throws Throwable {
+	// region get MethodHandle
+
+	public MethodHandle getConstructor() throws NoSuchMethodException, IllegalAccessException {
 		if (defaultConstructor == null) {
 			defaultConstructor = Methods.findConstructor(clazz);
 		}
-		return (T) defaultConstructor.invoke();
+		return defaultConstructor;
 	}
 
-	public T newInstance(Class<?>[] parameterTypes, Object[] params) throws Throwable {
+	public MethodHandle getConstructor(Class<?>[] parameterTypes) throws NoSuchMethodException, IllegalAccessException {
+		if (parameterTypes == null || parameterTypes.length == 0) {
+			return getConstructor();
+		}
 		if (constructors == null) {
 			synchronized (this) {
 				if (constructors == null) {
@@ -61,18 +68,20 @@ public class ClassHandle<T> {
 				}
 			}
 		}
-		return (T) handle.invokeWithArguments(params);
+		return handle;
 	}
 
-
-	public T newPrivateInstance() throws Throwable {
+	public MethodHandle getPrivateConstructor() throws NoSuchMethodException, IllegalAccessException {
 		if (defaultPrivateConstructor == null) {
 			defaultPrivateConstructor = Methods.findPrivateConstructor(clazz);
 		}
-		return (T) defaultPrivateConstructor.invoke();
+		return defaultPrivateConstructor;
 	}
 
-	public T newPrivateInstance(Class<?>[] parameterTypes, Object[] params) throws Throwable {
+	public MethodHandle getPrivateConstructor(Class<?>[] parameterTypes) throws NoSuchMethodException, IllegalAccessException {
+		if (parameterTypes == null || parameterTypes.length == 0) {
+			return getPrivateConstructor();
+		}
 		if (privateConstructors == null) {
 			synchronized (this) {
 				if (privateConstructors == null) {
@@ -91,6 +100,271 @@ public class ClassHandle<T> {
 				}
 			}
 		}
+		return handle;
+	}
+
+	public MethodHandle getMethod(String methodName, Class<?> returnType, Class<?>[] parameterTypes) throws NoSuchMethodException, IllegalAccessException {
+		if (methods == null) {
+			synchronized (this) {
+				if (methods == null) {
+					methods = new ConcurrentHashMap<>();
+				}
+			}
+		}
+		MethodKey methodKey = new MethodKey(methodName, returnType, parameterTypes);
+		MethodHandle handle = methods.get(methodKey);
+		if (handle == null) {
+			synchronized (this) {
+				handle = methods.get(methodKey);
+				if (handle == null) {
+					handle = Methods.findVirtual(clazz, methodName, returnType, parameterTypes);
+					methods.put(methodKey, handle);
+				}
+			}
+		}
+		return handle;
+	}
+
+	public MethodHandle getStaticMethod(String methodName, Class<?> returnType, Class<?>[] parameterTypes) throws NoSuchMethodException, IllegalAccessException {
+		if (staticMethods == null) {
+			synchronized (this) {
+				if (staticMethods == null) {
+					staticMethods = new ConcurrentHashMap<>();
+				}
+			}
+		}
+		MethodKey methodKey = new MethodKey(methodName, returnType, parameterTypes);
+		MethodHandle handle = staticMethods.get(methodKey);
+		if (handle == null) {
+			synchronized (this) {
+				handle = staticMethods.get(methodKey);
+				if (handle == null) {
+					handle = Methods.findStatic(clazz, methodName, returnType, parameterTypes);
+					staticMethods.put(methodKey, handle);
+				}
+			}
+		}
+		return handle;
+	}
+
+	public MethodHandle getPrivateMethod(String methodName, Class<?> returnType, Class<?>[] parameterTypes) throws NoSuchMethodException, IllegalAccessException {
+		if (privateMethods == null) {
+			synchronized (this) {
+				if (privateMethods == null) {
+					privateMethods = new ConcurrentHashMap<>();
+				}
+			}
+		}
+		MethodKey methodKey = new MethodKey(methodName, returnType, parameterTypes);
+		MethodHandle handle = privateMethods.get(methodKey);
+		if (handle == null) {
+			synchronized (this) {
+				handle = privateMethods.get(methodKey);
+				if (handle == null) {
+					handle = Methods.findPrivate(clazz, methodName, returnType, parameterTypes);
+					privateMethods.put(methodKey, handle);
+				}
+			}
+		}
+		return handle;
+	}
+
+	public MethodHandle getPrivateStaticMethod(String methodName, Class<?> returnType, Class<?>[] parameterTypes) throws NoSuchMethodException, IllegalAccessException {
+		if (privateStaticMethods == null) {
+			synchronized (this) {
+				if (privateStaticMethods == null) {
+					privateStaticMethods = new ConcurrentHashMap<>();
+				}
+			}
+		}
+		MethodKey methodKey = new MethodKey(methodName, returnType, parameterTypes);
+		MethodHandle handle = privateStaticMethods.get(methodKey);
+		if (handle == null) {
+			synchronized (this) {
+				handle = privateStaticMethods.get(methodKey);
+				if (handle == null) {
+					handle = Methods.findPrivateStatic(clazz, methodName, returnType, parameterTypes);
+					privateStaticMethods.put(methodKey, handle);
+				}
+			}
+		}
+		return handle;
+	}
+
+	public MethodHandle getFieldGetter(String fieldName, Class<?> fieldType) throws NoSuchFieldException, IllegalAccessException {
+		if (fieldGetters == null) {
+			synchronized (this) {
+				if (fieldGetters == null) {
+					fieldGetters = new ConcurrentHashMap<>();
+				}
+			}
+		}
+		FieldKey fieldKey = new FieldKey(fieldName, fieldType);
+		MethodHandle handle = fieldGetters.get(fieldKey);
+		if (handle == null) {
+			synchronized (this) {
+				handle = fieldGetters.get(fieldKey);
+				if (handle == null) {
+					handle = Methods.findGetter(clazz, fieldName, fieldType);
+					fieldGetters.put(fieldKey, handle);
+				}
+			}
+		}
+		return handle;
+	}
+
+	public MethodHandle getStaticFieldGetter(String fieldName, Class<?> fieldType) throws NoSuchFieldException, IllegalAccessException {
+		if (staticFieldGetters == null) {
+			synchronized (this) {
+				if (staticFieldGetters == null) {
+					staticFieldGetters = new ConcurrentHashMap<>();
+				}
+			}
+		}
+		FieldKey fieldKey = new FieldKey(fieldName, fieldType);
+		MethodHandle handle = staticFieldGetters.get(fieldKey);
+		if (handle == null) {
+			synchronized (this) {
+				handle = staticFieldGetters.get(fieldKey);
+				if (handle == null) {
+					handle = Methods.findStaticGetter(clazz, fieldName, fieldType);
+					staticFieldGetters.put(fieldKey, handle);
+				}
+			}
+		}
+		return handle;
+	}
+
+	public MethodHandle getPrivateFieldGetter(String fieldName, Class<?> fieldType) throws NoSuchFieldException, IllegalAccessException {
+		if (privateFieldGetters == null) {
+			synchronized (this) {
+				if (privateFieldGetters == null) {
+					privateFieldGetters = new ConcurrentHashMap<>();
+				}
+			}
+		}
+		FieldKey fieldKey = new FieldKey(fieldName, fieldType);
+		MethodHandle handle = privateFieldGetters.get(fieldKey);
+		if (handle == null) {
+			synchronized (this) {
+				handle = privateFieldGetters.get(fieldKey);
+				if (handle == null) {
+					handle = Methods.findPrivateGetter(clazz, fieldName, fieldType);
+					privateFieldGetters.put(fieldKey, handle);
+				}
+			}
+		}
+		return handle;
+	}
+
+	public MethodHandle getFieldSetter(String fieldName, Class<?> fieldType) throws NoSuchFieldException, IllegalAccessException {
+		if (fieldSetters == null) {
+			synchronized (this) {
+				if (fieldSetters == null) {
+					fieldSetters = new ConcurrentHashMap<>();
+				}
+			}
+		}
+		FieldKey fieldKey = new FieldKey(fieldName, fieldType);
+		MethodHandle handle = fieldSetters.get(fieldKey);
+		if (handle == null) {
+			synchronized (this) {
+				handle = fieldSetters.get(fieldKey);
+				if (handle == null) {
+					handle = Methods.findSetter(clazz, fieldName, fieldType);
+					fieldSetters.put(fieldKey, handle);
+				}
+			}
+		}
+		return handle;
+	}
+
+	public MethodHandle getStaticFieldSetter(String fieldName, Class<?> fieldType) throws NoSuchFieldException, IllegalAccessException {
+		if (staticFieldSetters == null) {
+			synchronized (this) {
+				if (staticFieldSetters == null) {
+					staticFieldSetters = new ConcurrentHashMap<>();
+				}
+			}
+		}
+		FieldKey fieldKey = new FieldKey(fieldName, fieldType);
+		MethodHandle handle = staticFieldSetters.get(fieldKey);
+		if (handle == null) {
+			synchronized (this) {
+				handle = staticFieldSetters.get(fieldKey);
+				if (handle == null) {
+					handle = Methods.findStaticSetter(clazz, fieldName, fieldType);
+					staticFieldSetters.put(fieldKey, handle);
+				}
+			}
+		}
+		return handle;
+	}
+
+	public MethodHandle getPrivateFieldSetter(String fieldName, Class<?> fieldType) throws NoSuchFieldException, IllegalAccessException {
+		if (privateFieldSetters == null) {
+			synchronized (this) {
+				if (privateFieldSetters == null) {
+					privateFieldSetters = new ConcurrentHashMap<>();
+				}
+			}
+		}
+		FieldKey fieldKey = new FieldKey(fieldName, fieldType);
+		MethodHandle handle = privateFieldSetters.get(fieldKey);
+		if (handle == null) {
+			synchronized (this) {
+				handle = privateFieldSetters.get(fieldKey);
+				if (handle == null) {
+					handle = Methods.findPrivateSetter(clazz, fieldName, fieldType);
+					privateFieldSetters.put(fieldKey, handle);
+				}
+			}
+		}
+		return handle;
+	}
+
+	public MethodHandle getPrivateStaticFieldSetter(String fieldName, Class<?> fieldType) throws NoSuchFieldException, IllegalAccessException {
+		if (privateStaticFieldSetters == null) {
+			synchronized (this) {
+				if (privateStaticFieldSetters == null) {
+					privateStaticFieldSetters = new ConcurrentHashMap<>();
+				}
+			}
+		}
+		FieldKey fieldKey = new FieldKey(fieldName, fieldType);
+		MethodHandle handle = privateStaticFieldSetters.get(fieldKey);
+		if (handle == null) {
+			synchronized (this) {
+				handle = privateStaticFieldSetters.get(fieldKey);
+				if (handle == null) {
+					handle = Methods.findPrivateStaticSetter(clazz, fieldName, fieldType);
+					privateStaticFieldSetters.put(fieldKey, handle);
+				}
+			}
+		}
+		return handle;
+	}
+
+	// endregion get MethodHandle
+
+	// region invoke MethodHandle
+
+	public T newInstance() throws Throwable {
+		return (T) getConstructor().invoke();
+	}
+
+	public T newInstance(Class<?>[] parameterTypes, Object[] params) throws Throwable {
+		MethodHandle handle = getConstructor(parameterTypes);
+		return (T) handle.invokeWithArguments(params);
+	}
+
+
+	public T newPrivateInstance() throws Throwable {
+		return (T) getPrivateConstructor().invoke();
+	}
+
+	public T newPrivateInstance(Class<?>[] parameterTypes, Object[] params) throws Throwable {
+		MethodHandle handle = getPrivateConstructor(parameterTypes);
 		return (T) handle.invokeWithArguments(params);
 	}
 
@@ -127,28 +401,6 @@ public class ClassHandle<T> {
 		return (R) handle.invokeWithArguments(args);
 	}
 
-	private MethodHandle getMethod(String methodName, Class<?> returnType, Class<?>[] parameterTypes) throws NoSuchMethodException, IllegalAccessException {
-		if (methods == null) {
-			synchronized (this) {
-				if (methods == null) {
-					methods = new ConcurrentHashMap<>();
-				}
-			}
-		}
-		MethodKey methodKey = new MethodKey(methodName, returnType, parameterTypes);
-		MethodHandle handle = methods.get(methodKey);
-		if (handle == null) {
-			synchronized (this) {
-				handle = methods.get(methodKey);
-				if (handle == null) {
-					handle = Methods.findVirtual(clazz, methodName, returnType, parameterTypes);
-					methods.put(methodKey, handle);
-				}
-			}
-		}
-		return handle;
-	}
-
 
 	public void invokeStatic(String methodName) throws Throwable {
 		MethodHandle handle = getStaticMethod(methodName, void.class, new Class<?>[]{});
@@ -168,28 +420,6 @@ public class ClassHandle<T> {
 	public <R> R invokeStatic(String methodName, Class<R> returnType, Class<?>[] parameterTypes, Object[] params) throws Throwable {
 		MethodHandle handle = getStaticMethod(methodName, returnType, parameterTypes);
 		return (R) handle.invokeWithArguments(params);
-	}
-
-	private MethodHandle getStaticMethod(String methodName, Class<?> returnType, Class<?>[] parameterTypes) throws NoSuchMethodException, IllegalAccessException {
-		if (staticMethods == null) {
-			synchronized (this) {
-				if (staticMethods == null) {
-					staticMethods = new ConcurrentHashMap<>();
-				}
-			}
-		}
-		MethodKey methodKey = new MethodKey(methodName, returnType, parameterTypes);
-		MethodHandle handle = staticMethods.get(methodKey);
-		if (handle == null) {
-			synchronized (this) {
-				handle = staticMethods.get(methodKey);
-				if (handle == null) {
-					handle = Methods.findStatic(clazz, methodName, returnType, parameterTypes);
-					staticMethods.put(methodKey, handle);
-				}
-			}
-		}
-		return handle;
 	}
 
 
@@ -215,28 +445,6 @@ public class ClassHandle<T> {
 		return (R) handle.invokeWithArguments(args);
 	}
 
-	private MethodHandle getPrivateMethod(String methodName, Class<?> returnType, Class<?>[] parameterTypes) throws NoSuchMethodException, IllegalAccessException {
-		if (privateMethods == null) {
-			synchronized (this) {
-				if (privateMethods == null) {
-					privateMethods = new ConcurrentHashMap<>();
-				}
-			}
-		}
-		MethodKey methodKey = new MethodKey(methodName, returnType, parameterTypes);
-		MethodHandle handle = privateMethods.get(methodKey);
-		if (handle == null) {
-			synchronized (this) {
-				handle = privateMethods.get(methodKey);
-				if (handle == null) {
-					handle = Methods.findPrivate(clazz, methodName, returnType, parameterTypes);
-					privateMethods.put(methodKey, handle);
-				}
-			}
-		}
-		return handle;
-	}
-
 
 	public void invokePrivateStatic(String methodName) throws Throwable {
 		MethodHandle handle = getPrivateStaticMethod(methodName, void.class, new Class<?>[]{});
@@ -258,109 +466,24 @@ public class ClassHandle<T> {
 		return (R) handle.invokeWithArguments(params);
 	}
 
-	private MethodHandle getPrivateStaticMethod(String methodName, Class<?> returnType, Class<?>[] parameterTypes) throws NoSuchMethodException, IllegalAccessException {
-		if (privateStaticMethods == null) {
-			synchronized (this) {
-				if (privateStaticMethods == null) {
-					privateStaticMethods = new ConcurrentHashMap<>();
-				}
-			}
-		}
-		MethodKey methodKey = new MethodKey(methodName, returnType, parameterTypes);
-		MethodHandle handle = privateStaticMethods.get(methodKey);
-		if (handle == null) {
-			synchronized (this) {
-				handle = privateStaticMethods.get(methodKey);
-				if (handle == null) {
-					handle = Methods.findPrivateStatic(clazz, methodName, returnType, parameterTypes);
-					privateStaticMethods.put(methodKey, handle);
-				}
-			}
-		}
-		return handle;
-	}
-
 
 	public <R> R getField(T instance, String fieldName, Class<R> fieldType) throws Throwable {
 		MethodHandle handle = getFieldGetter(fieldName, fieldType);
 		return (R) handle.invoke(instance);
 	}
 
-	private MethodHandle getFieldGetter(String fieldName, Class<?> fieldType) throws NoSuchFieldException, IllegalAccessException {
-		if (fieldGetters == null) {
-			synchronized (this) {
-				if (fieldGetters == null) {
-					fieldGetters = new ConcurrentHashMap<>();
-				}
-			}
-		}
-		FieldKey fieldKey = new FieldKey(fieldName, fieldType);
-		MethodHandle handle = fieldGetters.get(fieldKey);
-		if (handle == null) {
-			synchronized (this) {
-				handle = fieldGetters.get(fieldKey);
-				if (handle == null) {
-					handle = Methods.findGetter(clazz, fieldName, fieldType);
-					fieldGetters.put(fieldKey, handle);
-				}
-			}
-		}
-		return handle;
-	}
 
 	public <R> R getStaticField(String fieldName, Class<R> fieldType) throws Throwable {
 		MethodHandle handle = getStaticFieldGetter(fieldName, fieldType);
 		return (R) handle.invoke();
 	}
 
-	private MethodHandle getStaticFieldGetter(String fieldName, Class<?> fieldType) throws NoSuchFieldException, IllegalAccessException {
-		if (staticFieldGetters == null) {
-			synchronized (this) {
-				if (staticFieldGetters == null) {
-					staticFieldGetters = new ConcurrentHashMap<>();
-				}
-			}
-		}
-		FieldKey fieldKey = new FieldKey(fieldName, fieldType);
-		MethodHandle handle = staticFieldGetters.get(fieldKey);
-		if (handle == null) {
-			synchronized (this) {
-				handle = staticFieldGetters.get(fieldKey);
-				if (handle == null) {
-					handle = Methods.findStaticGetter(clazz, fieldName, fieldType);
-					staticFieldGetters.put(fieldKey, handle);
-				}
-			}
-		}
-		return handle;
-	}
 
 	public <R> R getPrivateField(T instance, String fieldName, Class<R> fieldType) throws Throwable {
 		MethodHandle handle = getPrivateFieldGetter(fieldName, fieldType);
 		return (R) handle.invoke(instance);
 	}
 
-	private MethodHandle getPrivateFieldGetter(String fieldName, Class<?> fieldType) throws NoSuchFieldException, IllegalAccessException {
-		if (privateFieldGetters == null) {
-			synchronized (this) {
-				if (privateFieldGetters == null) {
-					privateFieldGetters = new ConcurrentHashMap<>();
-				}
-			}
-		}
-		FieldKey fieldKey = new FieldKey(fieldName, fieldType);
-		MethodHandle handle = privateFieldGetters.get(fieldKey);
-		if (handle == null) {
-			synchronized (this) {
-				handle = privateFieldGetters.get(fieldKey);
-				if (handle == null) {
-					handle = Methods.findPrivateGetter(clazz, fieldName, fieldType);
-					privateFieldGetters.put(fieldKey, handle);
-				}
-			}
-		}
-		return handle;
-	}
 
 	public <R> R getPrivateStaticField(String fieldName, Class<R> fieldType) throws Throwable {
 		MethodHandle handle = getPrivateFieldGetter(fieldName, fieldType);
@@ -395,109 +518,24 @@ public class ClassHandle<T> {
 		handle.invoke(instance, value);
 	}
 
-	private MethodHandle getFieldSetter(String fieldName, Class<?> fieldType) throws NoSuchFieldException, IllegalAccessException {
-		if (fieldSetters == null) {
-			synchronized (this) {
-				if (fieldSetters == null) {
-					fieldSetters = new ConcurrentHashMap<>();
-				}
-			}
-		}
-		FieldKey fieldKey = new FieldKey(fieldName, fieldType);
-		MethodHandle handle = fieldSetters.get(fieldKey);
-		if (handle == null) {
-			synchronized (this) {
-				handle = fieldSetters.get(fieldKey);
-				if (handle == null) {
-					handle = Methods.findSetter(clazz, fieldName, fieldType);
-					fieldSetters.put(fieldKey, handle);
-				}
-			}
-		}
-		return handle;
-	}
-
 
 	public <R> void setStaticField(String fieldName, Class<R> fieldType, R value) throws Throwable {
 		MethodHandle handle = getStaticFieldSetter(fieldName, fieldType);
 		handle.invoke(value);
 	}
 
-	private MethodHandle getStaticFieldSetter(String fieldName, Class<?> fieldType) throws NoSuchFieldException, IllegalAccessException {
-		if (staticFieldSetters == null) {
-			synchronized (this) {
-				if (staticFieldSetters == null) {
-					staticFieldSetters = new ConcurrentHashMap<>();
-				}
-			}
-		}
-		FieldKey fieldKey = new FieldKey(fieldName, fieldType);
-		MethodHandle handle = staticFieldSetters.get(fieldKey);
-		if (handle == null) {
-			synchronized (this) {
-				handle = staticFieldSetters.get(fieldKey);
-				if (handle == null) {
-					handle = Methods.findStaticSetter(clazz, fieldName, fieldType);
-					staticFieldSetters.put(fieldKey, handle);
-				}
-			}
-		}
-		return handle;
-	}
 
 	public <R> void setPrivateField(T instance, String fieldName, Class<R> fieldType, R value) throws Throwable {
 		MethodHandle handle = getPrivateFieldSetter(fieldName, fieldType);
 		handle.invoke(instance, value);
 	}
 
-	private MethodHandle getPrivateFieldSetter(String fieldName, Class<?> fieldType) throws NoSuchFieldException, IllegalAccessException {
-		if (privateFieldSetters == null) {
-			synchronized (this) {
-				if (privateFieldSetters == null) {
-					privateFieldSetters = new ConcurrentHashMap<>();
-				}
-			}
-		}
-		FieldKey fieldKey = new FieldKey(fieldName, fieldType);
-		MethodHandle handle = privateFieldSetters.get(fieldKey);
-		if (handle == null) {
-			synchronized (this) {
-				handle = privateFieldSetters.get(fieldKey);
-				if (handle == null) {
-					handle = Methods.findPrivateSetter(clazz, fieldName, fieldType);
-					privateFieldSetters.put(fieldKey, handle);
-				}
-			}
-		}
-		return handle;
-	}
 
 	public <R> void setPrivateStaticField(String fieldName, Class<R> fieldType, R value) throws Throwable {
 		MethodHandle handle = getPrivateStaticFieldSetter(fieldName, fieldType);
 		handle.invoke(value);
 	}
 
-	private MethodHandle getPrivateStaticFieldSetter(String fieldName, Class<?> fieldType) throws NoSuchFieldException, IllegalAccessException {
-		if (privateStaticFieldSetters == null) {
-			synchronized (this) {
-				if (privateStaticFieldSetters == null) {
-					privateStaticFieldSetters = new ConcurrentHashMap<>();
-				}
-			}
-		}
-		FieldKey fieldKey = new FieldKey(fieldName, fieldType);
-		MethodHandle handle = privateStaticFieldSetters.get(fieldKey);
-		if (handle == null) {
-			synchronized (this) {
-				handle = privateStaticFieldSetters.get(fieldKey);
-				if (handle == null) {
-					handle = Methods.findPrivateStaticSetter(clazz, fieldName, fieldType);
-					privateStaticFieldSetters.put(fieldKey, handle);
-				}
-			}
-		}
-		return handle;
-	}
-
+	// endregion invoke MethodHandle
 
 }
