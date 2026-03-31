@@ -14,6 +14,7 @@ public class TypeHandlers {
 	public static void registerAll(Configuration configuration) {
 		registerAll(configuration.getTypeHandlerRegistry());
 		registerAll(configuration.getTypeAliasRegistry());
+		configuration.setDefaultEnumTypeHandler(DynamicEnumTypeHandler.class);
 	}
 
 	public static void registerAll(TypeHandlerRegistry typeHandlerRegistry) {
@@ -39,7 +40,6 @@ public class TypeHandlers {
 		typeHandlerRegistry.register(DynamicTimestampTypeHandler.class);
 		typeHandlerRegistry.register(DynamicTimeTypeHandler.class);
 
-		typeHandlerRegistry.setDefaultEnumTypeHandler(DynamicEnumTypeHandler.class);
 	}
 
 	public static void registerAll(TypeAliasRegistry typeAliasRegistry) {

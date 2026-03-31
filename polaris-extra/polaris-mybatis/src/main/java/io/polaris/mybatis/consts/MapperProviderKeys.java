@@ -6,7 +6,13 @@ package io.polaris.mybatis.consts;
  */
 public interface MapperProviderKeys {
 
+	String provideSql = "provideSql";
+
+	String selectAny = "selectAny";
+	String updateAny = "updateAny";
 	String executeAnySql = "executeAnySql";
+	String selectAnySql = "selectAnySql";
+	String updateAnySql = "updateAnySql";
 
 	String insertBySql = "insertBySql";
 	String deleteBySql = "deleteBySql";
