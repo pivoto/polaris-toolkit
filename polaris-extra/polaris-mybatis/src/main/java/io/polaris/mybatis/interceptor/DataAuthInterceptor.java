@@ -9,6 +9,7 @@ import io.polaris.core.tuple.Tuple2;
 import io.polaris.mybatis.auth.DataAuthKit;
 import io.polaris.mybatis.auth.TableColumnFilter;
 import io.polaris.mybatis.auth.TableWhereGenerator;
+import io.polaris.mybatis.support.InterceptorHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.executor.statement.BaseStatementHandler;
 import org.apache.ibatis.executor.statement.RoutingStatementHandler;

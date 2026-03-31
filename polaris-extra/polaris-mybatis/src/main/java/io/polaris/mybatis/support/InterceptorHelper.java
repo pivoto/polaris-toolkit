@@ -1,4 +1,4 @@
-package io.polaris.mybatis.interceptor;
+package io.polaris.mybatis.support;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Field;
@@ -79,53 +79,45 @@ public class InterceptorHelper {
 		return ref.get();
 	}
 
-
-	@SuppressWarnings("unchecked")
-	private <O, F> Function<O, F> getPrivateGetter(Class<O> clazz, String fieldName, Class<F> fieldType) {
-		try {
-			MethodHandle methodHandle = Methods.findPrivateGetter(clazz, fieldName, fieldType);
-			Field field = Reflects.getField(clazz, fieldName);
-			Reflects.setAccessible(field);
-			return handler -> {
-				try {
-					return (F) methodHandle.invoke(handler);
-				} catch (Throwable e1) {
-					try {
-						if (field == null) {
-							return null;
-						}
-						return (F) field.get(handler);
-					} catch (Throwable e2) {
-						log.warn("", e2);
-						return null;
-					}
-				}
-			};
-		} catch (Exception e) {
-			Field field = Reflects.getField(clazz, fieldName);
-			Reflects.setAccessible(field);
-			return handler -> {
-				try {
-					if (field == null) {
-						return null;
-					}
-					return (F) field.get(handler);
-				} catch (Throwable ex) {
-					log.warn("", ex);
-					return null;
-				}
-			};
-		}
-	}
-
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> getAdditionalParameters(BoundSql boundSql) {
 		if (getAdditionalParameters == null) {
 			synchronized (this) {
 				if (getAdditionalParameters == null) {
-					@SuppressWarnings("rawtypes")
-					Class<Map<String, Object>> fieldType = (Class) Map.class;
-					getAdditionalParameters = getPrivateGetter(BoundSql.class, "additionalParameters", fieldType);
+					Field field = Reflects.getField(BoundSql.class, "additionalParameters");
+					Reflects.setAccessible(field);
+					try {
+						@SuppressWarnings("rawtypes")
+						Class<Map<String, Object>> fieldType = (Class) Map.class;
+						MethodHandle methodHandle = Methods.findPrivateGetter(BoundSql.class, "additionalParameters", fieldType);
+						getAdditionalParameters = instance -> {
+							try {
+								return (Map<String, Object>) methodHandle.invokeExact((BoundSql) instance);
+							} catch (Throwable e1) {
+								try {
+									if (field == null) {
+										return null;
+									}
+									return (Map<String, Object>) field.get(instance);
+								} catch (Throwable ex) {
+									log.warn("", ex);
+									return null;
+								}
+							}
+						};
+					} catch (Throwable e) {
+						getAdditionalParameters = instance -> {
+							try {
+								if (field == null) {
+									return null;
+								}
+								return (Map<String, Object>) field.get(instance);
+							} catch (Throwable ex) {
+								log.warn("", ex);
+								return null;
+							}
+						};
+					}
 				}
 			}
 		}
@@ -136,7 +128,38 @@ public class InterceptorHelper {
 		if (getMappedStatement == null) {
 			synchronized (this) {
 				if (getMappedStatement == null) {
-					getMappedStatement = getPrivateGetter(BaseStatementHandler.class, "mappedStatement", MappedStatement.class);
+					Field field = Reflects.getField(BaseStatementHandler.class, "mappedStatement");
+					Reflects.setAccessible(field);
+					try {
+						MethodHandle methodHandle = Methods.findPrivateGetter(BaseStatementHandler.class, "mappedStatement", MappedStatement.class);
+						getMappedStatement = instance -> {
+							try {
+								return (MappedStatement) methodHandle.invokeExact((BaseStatementHandler) instance);
+							} catch (Throwable e1) {
+								try {
+									if (field == null) {
+										return null;
+									}
+									return (MappedStatement) field.get(instance);
+								} catch (Throwable ex) {
+									log.warn("", ex);
+									return null;
+								}
+							}
+						};
+					} catch (Throwable e) {
+						getMappedStatement = instance -> {
+							try {
+								if (field == null) {
+									return null;
+								}
+								return (MappedStatement) field.get(instance);
+							} catch (Throwable ex) {
+								log.warn("", ex);
+								return null;
+							}
+						};
+					}
 				}
 			}
 		}
@@ -147,7 +170,38 @@ public class InterceptorHelper {
 		if (getDelegate == null) {
 			synchronized (this) {
 				if (getDelegate == null) {
-					getDelegate = getPrivateGetter(RoutingStatementHandler.class, "mappedStatement", StatementHandler.class);
+					Field field = Reflects.getField(BaseStatementHandler.class, "delegate");
+					Reflects.setAccessible(field);
+					try {
+						MethodHandle methodHandle = Methods.findPrivateGetter(RoutingStatementHandler.class, "delegate", StatementHandler.class);
+						getDelegate = instance -> {
+							try {
+								return (StatementHandler) methodHandle.invokeExact((RoutingStatementHandler) instance);
+							} catch (Throwable e1) {
+								try {
+									if (field == null) {
+										return null;
+									}
+									return (StatementHandler) field.get(instance);
+								} catch (Throwable ex) {
+									log.warn("", ex);
+									return null;
+								}
+							}
+						};
+					} catch (Throwable e) {
+						getDelegate = instance -> {
+							try {
+								if (field == null) {
+									return null;
+								}
+								return (StatementHandler) field.get(instance);
+							} catch (Throwable ex) {
+								log.warn("", ex);
+								return null;
+							}
+						};
+					}
 				}
 			}
 		}

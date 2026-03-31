@@ -1,16 +1,14 @@
 package io.polaris.mybatis.interceptor;
 
 import java.lang.reflect.Method;
-import java.sql.Connection;
-import java.sql.Statement;
 
 import io.polaris.mybatis.auth.DataAuthCtx;
 import io.polaris.mybatis.auth.annotation.DataScope;
+import io.polaris.mybatis.support.InterceptorHelper;
 import io.polaris.mybatis.support.MapperHelperContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
-import org.apache.ibatis.executor.statement.StatementHandler;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
