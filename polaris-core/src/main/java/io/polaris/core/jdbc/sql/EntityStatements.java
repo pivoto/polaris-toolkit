@@ -17,12 +17,10 @@ import java.util.function.BiPredicate;
 import io.polaris.core.converter.Converters;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.ExpressionMeta;
-import io.polaris.core.jdbc.SqlParamPredicate;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.TableMetaKit;
 import io.polaris.core.jdbc.annotation.*;
 import io.polaris.core.jdbc.annotation.segment.*;
-import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.consts.JoinType;
 import io.polaris.core.jdbc.sql.consts.Relation;
 import io.polaris.core.jdbc.sql.consts.SelectSetOps;
@@ -114,6 +112,22 @@ public class EntityStatements {
 	 * 如果未找到匹配注解，则返回原始 SQL 构建函数
 	 */
 	public static java.util.function.Function<Map<String, Object>, SqlNode> buildSqlUpdateFunction(Method method) {
+		return buildSqlUpdateFunction(method, BindingKeyModel.DEFAULT);
+	}
+
+	/**
+	 * 根据方法上的注解构建对应的 SQL 更新函数。
+	 * <p>
+	 * 该方法会检查方法上是否存在特定的注解（如 EntityInsert、EntityDelete 等），
+	 * 并根据找到的第一个匹配注解构建相应的 SQL 语句生成函数。
+	 * 如果没有找到任何已知注解，则回退到原始 SQL 函数构建逻辑。
+	 *
+	 * @param method 要检查和处理的方法对象，不能为 null
+	 * @param bindingKeyModel 绑定参数映射的模型
+	 * @return 一个函数，接受绑定参数映射并返回对应的 SqlNode 对象；
+	 * 如果未找到匹配注解，则返回原始 SQL 构建函数
+	 */
+	public static java.util.function.Function<Map<String, Object>, SqlNode> buildSqlUpdateFunction(Method method, BindingKeyModel bindingKeyModel) {
 		{
 			EntityInsert entityInsert = method.getAnnotation(EntityInsert.class);
 			if (entityInsert != null) {
@@ -157,7 +171,7 @@ public class EntityStatements {
 			}
 		}
 		// 如果以上注解都不存在，则使用默认的原始 SQL 构建函数
-		return buildSqlRawFunction(method);
+		return buildSqlRawFunction(method, bindingKeyModel);
 	}
 
 	/**
@@ -168,6 +182,18 @@ public class EntityStatements {
 	 * 并返回SqlNode类型的SQL节点对象
 	 */
 	public static java.util.function.Function<Map<String, Object>, SqlNode> buildSqlSelectFunction(Method method) {
+		return buildSqlSelectFunction(method, BindingKeyModel.DEFAULT);
+	}
+
+	/**
+	 * 构建SQL查询函数
+	 *
+	 * @param method 方法对象，用于获取注解信息
+	 * @param bindingKeyModel 绑定参数映射的模型
+	 * @return 返回一个函数，该函数接收Map<String, Object>类型的参数bindings，
+	 * 并返回SqlNode类型的SQL节点对象
+	 */
+	public static java.util.function.Function<Map<String, Object>, SqlNode> buildSqlSelectFunction(Method method, BindingKeyModel bindingKeyModel) {
 		{
 			EntitySelect entitySelect = method.getAnnotation(EntitySelect.class);
 			if (entitySelect != null) {
@@ -195,7 +221,7 @@ public class EntityStatements {
 				return (bindings) -> EntityStatements.buildSqlSelectSet(bindings, sqlSelect).toSqlNode();
 			}
 		}
-		return buildSqlRawFunction(method);
+		return buildSqlRawFunction(method, bindingKeyModel);
 	}
 
 	/**
@@ -212,6 +238,29 @@ public class EntityStatements {
 	 * @return 返回一个函数，该函数接收变量绑定映射并返回对应的 {@link SqlNode}
 	 */
 	public static java.util.function.Function<Map<String, Object>, SqlNode> buildSqlRawFunction(Method method) {
+		return buildSqlRawFunction(method, BindingKeyModel.DEFAULT);
+	}
+
+	/**
+	 * 构建一个原始 SQL 函数，用于根据方法上的注解生成对应的 {@link SqlNode}。
+	 * <p>
+	 * 支持以下几种情况：
+	 * <ul>
+	 *   <li>如果方法上存在 {@link SqlRawSimple} 注解，则解析其定义的 SQL 文本，并可选地处理表引用。</li>
+	 *   <li>如果方法上存在 {@link SqlRaw} 注解，则使用更复杂的模型构建 SQL 节点。</li>
+	 *   <li>如果没有找到上述注解，则尝试从绑定参数中获取 SQL 内容（通过 {@code BindingKeys.SQL}）。</li>
+	 * </ul>
+	 *
+	 * @param method 方法对象，应包含 SQL 相关注解
+	 * @param bindingKeyModel 绑定参数映射的模型
+	 * @return 返回一个函数，该函数接收变量绑定映射并返回对应的 {@link SqlNode}
+	 */
+	public static java.util.function.Function<Map<String, Object>, SqlNode> buildSqlRawFunction(Method method, BindingKeyModel bindingKeyModel) {
+		if (bindingKeyModel == null) {
+			bindingKeyModel = BindingKeyModel.DEFAULT;
+		}
+		String sqlBindingKey = bindingKeyModel.sql();
+
 		TableAccessible tableAccessible = asTableAccessible(method.getAnnotation(SqlEntity.class));
 
 		{
@@ -246,14 +295,14 @@ public class EntityStatements {
 		}
 		// 找不到实体Sql注解，从入参获取直接SQL
 		return (bindings) -> {
-			Object sql = BindingValues.getBindingValueOrDefault(bindings, BindingKeys.SQL, null);
+			Object sql = BindingValues.getBindingValueOrDefault(bindings, sqlBindingKey, null);
 			if (sql instanceof SqlNode) {
 				return (SqlNode) sql;
 			}
 			if (sql instanceof SqlNodeBuilder) {
 				return ((SqlNodeBuilder) sql).toSqlNode();
 			}
-			throw new IllegalArgumentException("缺少SQL参数：`" + BindingKeys.SQL + "`");
+			throw new IllegalArgumentException("缺少SQL参数：`" + sqlBindingKey + "`");
 		};
 	}
 

@@ -8,18 +8,6 @@ public interface BindingKeys {
 
 	/** 实体对象参数 */
 	String ENTITY = "_e";
-	/** 字段参数 */
-	String FIELD = "_f";
-	/** insert语句参数 */
-	String INSERT = "_c";
-	/** select语句参数 */
-	String SELECT = "_r";
-	/** update语句参数 */
-	String UPDATE = "_u";
-	/** delete语句参数 */
-	String DELETE = "_d";
-	/** merge语句参数 */
-	String MERGE = "_m";
 	/** where条件参数 */
 	String WHERE = "_w";
 	/** 排序列参数 */
@@ -46,4 +34,5 @@ public interface BindingKeys {
 
 	/** 是否支持逻辑删除处理的标志 */
 	String WITH_LOGIC_DELETED = "_w_ld";
+
 }

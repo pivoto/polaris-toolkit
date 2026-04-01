@@ -36,7 +36,7 @@ public interface SelectStatementCursorDirectMapper<R> {
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySqlDirect)
 	@Options(fetchSize = 1000)
-	Cursor<R> directSelectEntityCursorBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
+	Cursor<R> directSelectEntityCursorBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 
 	/**
 	 * 根据提供的 SQL 语句直接查询数据，并返回 Map 类型的游标结果。
@@ -49,7 +49,7 @@ public interface SelectStatementCursorDirectMapper<R> {
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySqlDirect)
 	@Options(fetchSize = 1000)
-	Cursor<Map<String, Object>> directSelectMapCursorBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
+	Cursor<Map<String, Object>> directSelectMapCursorBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 
 	/**
 	 * 根据提供的查询条件和排序规则，查询实体对象并返回游标结果。

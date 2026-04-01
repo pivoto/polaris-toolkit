@@ -34,7 +34,7 @@ public interface SelectStatementCursorDefaultMapper<R> {
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
 	@Options(fetchSize = 1000)
-	Cursor<R> selectEntityCursorBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
+	Cursor<R> selectEntityCursorBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 
 	/**
 	 * 根据SQL语句查询Map结构的游标结果。
@@ -46,7 +46,7 @@ public interface SelectStatementCursorDefaultMapper<R> {
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
 	@Options(fetchSize = 1000)
-	Cursor<Map<String, Object>> selectMapCursorBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
+	Cursor<Map<String, Object>> selectMapCursorBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 
 	/**
 	 * 根据条件和排序规则查询实体对象的游标结果。

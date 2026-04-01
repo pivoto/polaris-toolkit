@@ -22,6 +22,6 @@ public interface InsertStatementMapper {
 	 * @return 插入操作影响的行数
 	 */
 	@InsertProvider(type = MapperProviders.class, method = MapperProviderKeys.insertBySql)
-	int insertBySql(@Param(BindingKeys.INSERT) InsertStatement<?> statement);
+	int insertBySql(@Param(BindingKeys.SQL) InsertStatement<?> statement);
 
 }

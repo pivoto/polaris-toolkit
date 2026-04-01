@@ -39,7 +39,7 @@ public interface SelectStatementDefaultMapper<R> {
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.existsBySql)
 	@Options(fetchSize = 1)
 	@Internal("考虑到查询性能与分页实现的兼容性，声明此此方法，实际开发中不直接调用")
-	Cursor<Boolean> existsInnerBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
+	Cursor<Boolean> existsInnerBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 
 	/**
 	 * 统计满足条件的记录数量
@@ -49,7 +49,7 @@ public interface SelectStatementDefaultMapper<R> {
 	 */
 	@WithLogicDeleted(true)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.countBySql)
-	int countBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
+	int countBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 
 	/**
 	 * 查询实体列表
@@ -60,7 +60,7 @@ public interface SelectStatementDefaultMapper<R> {
 	@WithLogicDeleted(true)
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
-	List<R> selectEntityListBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
+	List<R> selectEntityListBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 
 	/**
 	 * 查询Map列表
@@ -71,7 +71,7 @@ public interface SelectStatementDefaultMapper<R> {
 	@WithLogicDeleted(true)
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
-	List<Map<String, Object>> selectMapListBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
+	List<Map<String, Object>> selectMapListBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 
 	/**
 	 * 查询单个实体对象
@@ -82,7 +82,7 @@ public interface SelectStatementDefaultMapper<R> {
 	@WithLogicDeleted(true)
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
-	R selectEntityBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
+	R selectEntityBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 
 	/**
 	 * 查询单个Map对象
@@ -93,7 +93,7 @@ public interface SelectStatementDefaultMapper<R> {
 	@WithLogicDeleted(true)
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
-	Map<String, Object> selectMapBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
+	Map<String, Object> selectMapBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 
 	/**
 	 * 检查是否存在满足条件的记录

@@ -7,8 +7,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import io.polaris.core.jdbc.sql.consts.BindingKeys;
-
 /**
  * @author Qt
  * @since Jan 29, 2024

@@ -23,6 +23,6 @@ public interface UpdateStatementMapper {
 	 * @return 受影响的行数
 	 */
 	@UpdateProvider(type = MapperProviders.class, method = MapperProviderKeys.updateBySql)
-	int updateBySql(@Param(BindingKeys.UPDATE) UpdateStatement<?> statement);
+	int updateBySql(@Param(BindingKeys.SQL) UpdateStatement<?> statement);
 
 }

@@ -25,6 +25,6 @@ public interface DeleteStatementMapper {
 	 * @return 受影响的行数
 	 */
 	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.deleteBySql)
-	int deleteBySql(@Param(BindingKeys.DELETE) DeleteStatement<?> statement);
+	int deleteBySql(@Param(BindingKeys.SQL) DeleteStatement<?> statement);
 
 }

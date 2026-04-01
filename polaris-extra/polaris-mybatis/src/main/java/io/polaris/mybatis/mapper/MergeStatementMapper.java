@@ -27,7 +27,7 @@ public interface MergeStatementMapper {
 	 * @return 受影响的行数
 	 */
 	@UpdateProvider(type = MapperProviders.class, method = MapperProviderKeys.mergeBySql)
-	int mergeBySql(@Param(BindingKeys.MERGE) MergeStatement<?> statement);
+	int mergeBySql(@Param(BindingKeys.SQL) MergeStatement<?> statement);
 
 	/**
 	 * 根据实体类和实体对象执行SQL MERGE操作。

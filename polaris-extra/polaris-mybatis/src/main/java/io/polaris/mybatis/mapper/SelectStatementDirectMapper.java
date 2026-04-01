@@ -40,7 +40,7 @@ public interface SelectStatementDirectMapper<R> {
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.existsBySqlDirect)
 	@Options(fetchSize = 1)
 	@Internal("考虑到查询性能与分页实现的兼容性，声明此此方法，实际开发中不直接调用")
-	Cursor<Boolean> directExistsInnerBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
+	Cursor<Boolean> directExistsInnerBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 
 	/**
 	 * 统计满足条件的记录数量。
@@ -50,7 +50,7 @@ public interface SelectStatementDirectMapper<R> {
 	 */
 	@WithLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.countBySqlDirect)
-	int directCountBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
+	int directCountBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 
 	/**
 	 * 查询满足条件的实体列表。
@@ -61,7 +61,7 @@ public interface SelectStatementDirectMapper<R> {
 	@WithLogicDeleted(false)
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySqlDirect)
-	List<R> directSelectEntityListBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
+	List<R> directSelectEntityListBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 
 	/**
 	 * 查询满足条件的映射列表。
@@ -72,7 +72,7 @@ public interface SelectStatementDirectMapper<R> {
 	@WithLogicDeleted(false)
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySqlDirect)
-	List<Map<String, Object>> directSelectMapListBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
+	List<Map<String, Object>> directSelectMapListBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 
 	/**
 	 * 查询满足条件的单个实体。
@@ -83,7 +83,7 @@ public interface SelectStatementDirectMapper<R> {
 	@WithLogicDeleted(false)
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySqlDirect)
-	R directSelectEntityBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
+	R directSelectEntityBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 
 	/**
 	 * 查询满足条件的单个映射。
@@ -94,7 +94,7 @@ public interface SelectStatementDirectMapper<R> {
 	@WithLogicDeleted(false)
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySqlDirect)
-	Map<String, Object> directSelectMapBySql(@Param(BindingKeys.SELECT) SelectStatement<?> statement);
+	Map<String, Object> directSelectMapBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 
 	/**
 	 * 检查是否存在满足条件的记录。
