@@ -2,12 +2,10 @@ package io.polaris.mybatis.enhance;
 
 import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 
 import io.polaris.core.collection.ObjectArrays;
-import io.polaris.core.function.CallableWithArgs1;
 import io.polaris.core.jdbc.sql.BindingKeyModel;
 import lombok.Data;
 
@@ -44,6 +42,14 @@ public class BindingKeyDefinition {
 	/** 是否支持逻辑删除处理的标志 */
 	private String[] withLogicDeleted;
 
+	public boolean hasDefinition() {
+		return ObjectArrays.isNotEmpty(entity) || ObjectArrays.isNotEmpty(where) || ObjectArrays.isNotEmpty(orderBy)
+			|| ObjectArrays.isNotEmpty(includeEmptyColumns) || ObjectArrays.isNotEmpty(includeAllEmpty)
+			|| ObjectArrays.isNotEmpty(includeColumns) || ObjectArrays.isNotEmpty(excludeColumns)
+			|| ObjectArrays.isNotEmpty(sql) || ObjectArrays.isNotEmpty(whereIncludeEmptyColumns)
+			|| ObjectArrays.isNotEmpty(whereIncludeAllEmpty) || ObjectArrays.isNotEmpty(whereIncludeColumns)
+			|| ObjectArrays.isNotEmpty(whereExcludeColumns) || ObjectArrays.isNotEmpty(withLogicDeleted);
+	}
 
 	/**
 	 * 将当前定义对象转换为 BindingKeyModel 对象。
@@ -55,7 +61,7 @@ public class BindingKeyDefinition {
 	 * @param parameterObject 参数对象，包含所有可能的绑定键值对
 	 * @return 转换后的 BindingKeyModel 对象；如果没有任何字段匹配，则返回 null
 	 */
-	@Nullable
+	@Nonnull
 	public BindingKeyModel toBindingKeyModel(Map<String, Object> parameterObject) {
 		// 使用数组引用以便在 lambda 中修改
 		BindingKeyModel[] modelRef = new BindingKeyModel[1];
@@ -73,7 +79,7 @@ public class BindingKeyDefinition {
 		resolveDefinition(parameterObject, whereIncludeColumns, modelRef, BindingKeyModel::whereIncludeColumns);
 		resolveDefinition(parameterObject, whereExcludeColumns, modelRef, BindingKeyModel::whereExcludeColumns);
 		resolveDefinition(parameterObject, withLogicDeleted, modelRef, BindingKeyModel::withLogicDeleted);
-		return modelRef[0];
+		return modelRef[0] == null ? BindingKeyModel.DEFAULT : modelRef[0].freeze();
 	}
 
 	private static void resolveDefinition(Map<String, Object> parameterObject, String[] defKeys, BindingKeyModel[] modelRef, BiConsumer<BindingKeyModel, String> setter) {

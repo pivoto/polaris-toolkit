@@ -8,22 +8,26 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.polaris.core.collection.Lists;
 import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.TableMetaKit;
+import io.polaris.core.jdbc.sql.BindingKeyModel;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.Types;
 import io.polaris.core.string.Strings;
 import io.polaris.core.tuple.Ref;
+import io.polaris.core.tuple.Tuple2;
 import io.polaris.mybatis.annotation.AutoMapper;
 import io.polaris.mybatis.annotation.ColumnJdbcType;
 import io.polaris.mybatis.annotation.ColumnTypeHandler;
 import io.polaris.mybatis.annotation.DynamicResultMapping;
 import io.polaris.mybatis.annotation.DynamicUseGeneratedKeys;
 import io.polaris.mybatis.annotation.MapperEntity;
+import io.polaris.mybatis.annotation.WithLogicDeleted;
 import io.polaris.mybatis.consts.MappingPropKeys;
 import io.polaris.mybatis.mapper.EntityMapper;
 import lombok.EqualsAndHashCode;
@@ -40,6 +44,8 @@ import org.apache.ibatis.type.TypeHandler;
  */
 public class EnhancedAutoMapperHelper {
 	private static final Map<MapperKey, Ref<Class<?>>> ENTITY_CLASS_MAP = new ConcurrentHashMap<>();
+	private static final Map<Method, BindingKeyDefinition> METHOD_BINDING_KEY_MAP = new ConcurrentHashMap<>();
+	private static final Map<Tuple2<Method, Class<?>>, Boolean> LOGIC_DELETED_MAP = new ConcurrentHashMap<>();
 
 
 	// region EnhancedAutoMapperMeta
@@ -218,7 +224,7 @@ public class EnhancedAutoMapperHelper {
 	 * 获取 Mapper 接口或方法上声明的实体类。
 	 *
 	 * @param mapperMethod 当前调用的方法对象
-	 * @param mapperType   Mapper 接口类型
+	 * @param mapperType Mapper 接口类型
 	 * @return 实体类 Class 对象
 	 * @throws IllegalStateException 如果无法确定实体类则抛出异常
 	 */
@@ -307,6 +313,77 @@ public class EnhancedAutoMapperHelper {
 	}
 
 	// endregion entity class
+
+	// region BindingKeyDefinition
+
+	@Nonnull
+	public static BindingKeyDefinition getBindingKeyDefinition(@Nonnull ProviderContext context) {
+		return getBindingKeyDefinition(context.getMapperMethod());
+	}
+
+	@Nonnull
+	public static BindingKeyDefinition getBindingKeyDefinition(@Nonnull Method method) {
+		return METHOD_BINDING_KEY_MAP.computeIfAbsent(method, EnhancedParamNameResolver::resolve);
+	}
+
+	@Nullable
+	public static BindingKeyDefinition registerBindingKeyDefinition(@Nonnull Method method,@Nonnull BindingKeyDefinition bindingKeyDefinition) {
+		return METHOD_BINDING_KEY_MAP.put(method, bindingKeyDefinition);
+	}
+
+	// endregion
+
+	// region logic deleted
+
+
+	public static boolean withLogicDeleted(Map<String, Object> bindings, ProviderContext context, BindingKeyModel bindingKeyModel) {
+		try {
+			// fix for MapperMethod.ParamMap.get()
+			String key = bindingKeyModel.withLogicDeleted();
+			if (bindings.containsKey(key)) {
+				Object sld = bindings.get(key);
+				if (sld != null) {
+					if (sld instanceof Boolean) {
+						return (Boolean) sld;
+					}
+				}
+			}
+		} catch (Exception ignored) {
+		}
+		return withLogicDeleted(context);
+	}
+
+	public static boolean withLogicDeleted(ProviderContext context) {
+		Method mapperMethod = context.getMapperMethod();
+		Class<?> mapperType = context.getMapperType();
+		return LOGIC_DELETED_MAP.computeIfAbsent(Tuple2.of(mapperMethod, context.getMapperType()),
+			k -> innerGetWithLogicDeleted(mapperMethod, mapperType));
+	}
+
+	private static boolean innerGetWithLogicDeleted(Method mapperMethod, Class<?> mapperType) {
+		// 从方法上获取
+		WithLogicDeleted declared = mapperMethod.getAnnotation(WithLogicDeleted.class);
+		Class<?> entityClass = null;
+		if (declared != null) {
+			return declared.value();
+		}
+		// 从Mapper接口类上获取
+		declared = mapperType.getAnnotation(WithLogicDeleted.class);
+		if (declared != null) {
+			return declared.value();
+		}
+		// 从方法所在接口类上获取
+		Class<?> declaringClass = mapperMethod.getDeclaringClass();
+		if (declaringClass != mapperType) {
+			declared = declaringClass.getAnnotation(WithLogicDeleted.class);
+			if (declared != null) {
+				return declared.value();
+			}
+		}
+		return false;
+	}
+
+	// endregion
 
 
 	@Getter
