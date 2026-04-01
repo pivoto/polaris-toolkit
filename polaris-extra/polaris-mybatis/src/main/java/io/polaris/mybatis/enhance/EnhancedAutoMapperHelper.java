@@ -18,18 +18,16 @@ import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.Types;
 import io.polaris.core.string.Strings;
 import io.polaris.core.tuple.Ref;
-import io.polaris.core.tuple.Tuple2;
 import io.polaris.mybatis.annotation.AutoMapper;
 import io.polaris.mybatis.annotation.ColumnJdbcType;
 import io.polaris.mybatis.annotation.ColumnTypeHandler;
 import io.polaris.mybatis.annotation.DynamicResultMapping;
 import io.polaris.mybatis.annotation.DynamicUseGeneratedKeys;
 import io.polaris.mybatis.annotation.MapperEntity;
-import io.polaris.mybatis.consts.MappingKeys;
+import io.polaris.mybatis.consts.MappingPropKeys;
 import io.polaris.mybatis.mapper.EntityMapper;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.apache.ibatis.mapping.ResultFlag;
@@ -42,6 +40,9 @@ import org.apache.ibatis.type.TypeHandler;
  */
 public class EnhancedAutoMapperHelper {
 	private static final Map<MapperKey, Ref<Class<?>>> ENTITY_CLASS_MAP = new ConcurrentHashMap<>();
+
+
+	// region EnhancedAutoMapperMeta
 
 	public static EnhancedAutoMapperMeta parseEnhancedAutoMapperMeta(ProviderContext context) {
 		return parseEnhancedAutoMapperMeta(context, getEntityClassOrNull(context));
@@ -121,7 +122,7 @@ public class EnhancedAutoMapperHelper {
 
 		List<ColumnMeta> idCols = new ArrayList<>();
 		for (ColumnMeta col : tableMeta.getColumns().values()) {
-			boolean match = col.hasProperties(MappingKeys.RESULT_MAPPING_KEYS_FILTER);
+			boolean match = col.hasProperties(MappingPropKeys.RESULT_MAPPING_KEYS_FILTER);
 			// 是否存在
 			if (match) {
 				try {
@@ -177,6 +178,9 @@ public class EnhancedAutoMapperHelper {
 			.resultJavaType(resultJavaType);
 	}
 
+	// endregion EnhancedAutoMapperMeta
+
+	// region entity class
 
 	public static Class<?> registerEntityClass(ProviderContext context, Class<?> entityClass) {
 		Ref<Class<?>> old = ENTITY_CLASS_MAP.put(new MapperKey(context), Ref.of(entityClass));
@@ -302,6 +306,8 @@ public class EnhancedAutoMapperHelper {
 		return null;
 	}
 
+	// endregion entity class
+
 
 	@Getter
 	@EqualsAndHashCode
@@ -321,4 +327,5 @@ public class EnhancedAutoMapperHelper {
 			this(context.getMapperMethod(), context.getMapperType(), context.getDatabaseId());
 		}
 	}
+
 }
