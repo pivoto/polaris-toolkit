@@ -20,6 +20,7 @@ import org.apache.ibatis.executor.statement.RoutingStatementHandler;
 import org.apache.ibatis.executor.statement.StatementHandler;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.scripting.defaults.DefaultParameterHandler;
 
 /**
  * @author Qt
@@ -31,6 +32,7 @@ public class InterceptorHelper {
 	private static volatile InterceptorHelper instance;
 	private volatile Function<RoutingStatementHandler, StatementHandler> getDelegate;
 	private volatile Function<BaseStatementHandler, MappedStatement> getMappedStatement;
+	private volatile Function<DefaultParameterHandler, MappedStatement> getMappedStatement2;
 	private volatile Function<BoundSql, Map<String, Object>> getAdditionalParameters;
 	private final Map<String, Ref<Method>> statementMethodCache = new ConcurrentHashMap<>();
 
@@ -164,6 +166,49 @@ public class InterceptorHelper {
 			}
 		}
 		return getMappedStatement.apply(statementHandler);
+	}
+
+
+	public MappedStatement getMappedStatement(DefaultParameterHandler statementHandler) {
+		if (getMappedStatement2 == null) {
+			synchronized (this) {
+				if (getMappedStatement2 == null) {
+					Field field = Reflects.getField(DefaultParameterHandler.class, "mappedStatement");
+					Reflects.setAccessible(field);
+					try {
+						MethodHandle methodHandle = Methods.findPrivateGetter(DefaultParameterHandler.class, "mappedStatement", MappedStatement.class);
+						getMappedStatement2 = instance -> {
+							try {
+								return (MappedStatement) methodHandle.invokeExact((DefaultParameterHandler) instance);
+							} catch (Throwable e1) {
+								try {
+									if (field == null) {
+										return null;
+									}
+									return (MappedStatement) field.get(instance);
+								} catch (Throwable ex) {
+									log.warn("", ex);
+									return null;
+								}
+							}
+						};
+					} catch (Throwable e) {
+						getMappedStatement2 = instance -> {
+							try {
+								if (field == null) {
+									return null;
+								}
+								return (MappedStatement) field.get(instance);
+							} catch (Throwable ex) {
+								log.warn("", ex);
+								return null;
+							}
+						};
+					}
+				}
+			}
+		}
+		return getMappedStatement2.apply(statementHandler);
 	}
 
 	public StatementHandler getDelegate(RoutingStatementHandler statementHandler) {
