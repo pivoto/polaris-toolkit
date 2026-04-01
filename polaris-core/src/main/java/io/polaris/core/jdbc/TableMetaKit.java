@@ -19,6 +19,7 @@ import io.polaris.core.jdbc.annotation.Id;
 import io.polaris.core.jdbc.annotation.Table;
 import io.polaris.core.jdbc.annotation.processing.JdbcBeanInfo;
 import io.polaris.core.jdbc.sql.VarRef;
+import io.polaris.core.lang.annotation.Annotations;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 
@@ -220,7 +221,8 @@ public class TableMetaKit {
 	}
 
 	private TableMeta parse(Class<?> entityClass) {
-		Table annotation = entityClass.getAnnotation(Table.class);
+		//Table annotation = entityClass.getAnnotation(Table.class);
+		Table annotation = Annotations.getMergedAnnotation(entityClass, Table.class);
 		String entityClassName = entityClass.getName();
 		if (annotation == null) {
 			throw new IllegalArgumentException("unsupported class without @Table annotation: " + entityClassName);
@@ -263,13 +265,15 @@ public class TableMetaKit {
 				if (Modifier.isStatic(field.getModifiers()) || Modifier.isTransient(field.getModifiers())) {
 					continue;
 				}
-				Column column = field.getAnnotation(Column.class);
+				//Column column = field.getAnnotation(Column.class);
+				Column column = Annotations.getMergedAnnotation(field, Column.class);
 				if (column != null) {
 					if (column.ignored()) {
 						continue;
 					}
 				}
-				Expression expression = field.getAnnotation(Expression.class);
+				//Expression expression = field.getAnnotation(Expression.class);
+				Expression expression = Annotations.getMergedAnnotation(field, Expression.class);
 				if (expression != null) {
 					if (expression.value() != null && !expression.value().trim().isEmpty()) {
 						JdbcBeanInfo.ExpressionInfo expressionInfo = new JdbcBeanInfo.ExpressionInfo();
@@ -292,7 +296,8 @@ public class TableMetaKit {
 				}
 
 				JdbcBeanInfo.FieldInfo fieldInfo = new JdbcBeanInfo.FieldInfo();
-				fieldInfo.readColumn(fieldName, column, field.getAnnotation(Id.class));
+				//fieldInfo.readColumn(fieldName, column, field.getAnnotation(Id.class));
+				fieldInfo.readColumn(fieldName, column, Annotations.getMergedAnnotation(field, Id.class));
 				ColumnMeta columnMeta = ColumnMeta.builder()
 					.tableName(annotation.value())
 					.schema(annotation.schema())
