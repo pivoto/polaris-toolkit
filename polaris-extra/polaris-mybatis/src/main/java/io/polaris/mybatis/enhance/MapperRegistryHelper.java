@@ -7,6 +7,8 @@ import org.apache.ibatis.binding.MapperRegistry;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * 在不启用 EnhancedProviderSqlSource 时，尝试强制解析生成新的 Mapper 与 MappedStatement 并覆盖原有配置
+ *
  * @author Qt
  * @since Mar 31, 2026
  */

@@ -71,7 +71,7 @@ public class EnhancedAutoMappers {
 		} else if (obj instanceof String) {
 			sql = (String) obj;
 		} else {
-			throw new IllegalArgumentException("缺少SQL参数键值：" + sqlKey);
+			throw new IllegalArgumentException("缺少SQL参数键值：`" + sqlKey + "`");
 		}
 		if (log.isDebugEnabled()) {
 			log.debug("[SQL-TEXT]{}", sql);
@@ -83,10 +83,14 @@ public class EnhancedAutoMappers {
 	public static String insertBySql(Map<String, Object> map, ProviderContext ctx) {
 		BindingKeyModel bindingKeyModel = EnhancedAutoMapperHelper.getBindingKeyDefinition(ctx.getMapperMethod()).toBindingKeyModel(map);
 		String sqlKey = bindingKeyModel.sql();
-		InsertStatement<?> st = (InsertStatement<?>) map.get(sqlKey);
-		if (st == null) {
-			throw new IllegalArgumentException("缺少SQL参数键值：" + sqlKey);
+		Object obj = map.get(sqlKey);
+		if (obj == null) {
+			throw new IllegalArgumentException("缺少SQL参数键值：`" + sqlKey + "`");
 		}
+		if (!(obj instanceof InsertStatement)) {
+			throw new IllegalArgumentException("SQL参数键值：`" + sqlKey + "` 的对象类型不支持");
+		}
+		InsertStatement<?> st = (InsertStatement<?>) obj;
 		String sql = BindingValues.asSqlWithBindings(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, st);
 		if (log.isDebugEnabled()) {
 			log.debug("[SQL-TEXT]{}", sql);
@@ -98,10 +102,14 @@ public class EnhancedAutoMappers {
 	public static String deleteBySql(Map<String, Object> map, ProviderContext ctx) {
 		BindingKeyModel bindingKeyModel = EnhancedAutoMapperHelper.getBindingKeyDefinition(ctx.getMapperMethod()).toBindingKeyModel(map);
 		String sqlKey = bindingKeyModel.sql();
-		DeleteStatement<?> st = (DeleteStatement<?>) map.get(sqlKey);
-		if (st == null) {
-			throw new IllegalArgumentException("缺少SQL参数键值：" + sqlKey);
+		Object obj = map.get(sqlKey);
+		if (obj == null) {
+			throw new IllegalArgumentException("缺少SQL参数键值：`" + sqlKey + "`");
 		}
+		if (!(obj instanceof DeleteStatement)) {
+			throw new IllegalArgumentException("SQL参数键值：`" + sqlKey + "` 的对象类型不支持");
+		}
+		DeleteStatement<?> st = (DeleteStatement<?>) obj;
 		String sql = BindingValues.asSqlWithBindings(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, st);
 		if (log.isDebugEnabled()) {
 			log.debug("[SQL-TEXT]{}", sql);
@@ -113,10 +121,14 @@ public class EnhancedAutoMappers {
 	public static String updateBySql(Map<String, Object> map, ProviderContext ctx) {
 		BindingKeyModel bindingKeyModel = EnhancedAutoMapperHelper.getBindingKeyDefinition(ctx.getMapperMethod()).toBindingKeyModel(map);
 		String sqlKey = bindingKeyModel.sql();
-		UpdateStatement<?> st = (UpdateStatement<?>) map.get(sqlKey);
-		if (st == null) {
-			throw new IllegalArgumentException("缺少SQL参数键值：" + sqlKey);
+		Object obj = map.get(sqlKey);
+		if (obj == null) {
+			throw new IllegalArgumentException("缺少SQL参数键值：`" + sqlKey + "`");
 		}
+		if (!(obj instanceof UpdateStatement)) {
+			throw new IllegalArgumentException("SQL参数键值：`" + sqlKey + "` 的对象类型不支持");
+		}
+		UpdateStatement<?> st = (UpdateStatement<?>) obj;
 		String sql = BindingValues.asSqlWithBindings(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, st);
 		if (log.isDebugEnabled()) {
 			log.debug("[SQL-TEXT]{}", sql);
@@ -128,10 +140,14 @@ public class EnhancedAutoMappers {
 	public static String selectBySql(Map<String, Object> map, ProviderContext ctx) {
 		BindingKeyModel bindingKeyModel = EnhancedAutoMapperHelper.getBindingKeyDefinition(ctx.getMapperMethod()).toBindingKeyModel(map);
 		String sqlKey = bindingKeyModel.sql();
-		SelectStatement<?> st = (SelectStatement<?>) map.get(sqlKey);
-		if (st == null) {
-			throw new IllegalArgumentException("缺少SQL参数键值：" + sqlKey);
+		Object obj = map.get(sqlKey);
+		if (obj == null) {
+			throw new IllegalArgumentException("缺少SQL参数键值：`" + sqlKey + "`");
 		}
+		if (!(obj instanceof SelectStatement)) {
+			throw new IllegalArgumentException("SQL参数键值：`" + sqlKey + "` 的对象类型不支持");
+		}
+		SelectStatement<?> st = (SelectStatement<?>) obj;
 		boolean withLogicDeleted = EnhancedAutoMapperHelper.withLogicDeleted(map, ctx, bindingKeyModel);
 		if (withLogicDeleted) {
 			st.exceptLogicDeleted(true, true, true);
@@ -147,10 +163,14 @@ public class EnhancedAutoMappers {
 	public static String selectBySqlDirect(Map<String, Object> map, ProviderContext ctx) {
 		BindingKeyModel bindingKeyModel = EnhancedAutoMapperHelper.getBindingKeyDefinition(ctx.getMapperMethod()).toBindingKeyModel(map);
 		String sqlKey = bindingKeyModel.sql();
-		SelectStatement<?> st = (SelectStatement<?>) map.get(sqlKey);
-		if (st == null) {
-			throw new IllegalArgumentException("缺少SQL参数键值：" + sqlKey);
+		Object obj = map.get(sqlKey);
+		if (obj == null) {
+			throw new IllegalArgumentException("缺少SQL参数键值：`" + sqlKey + "`");
 		}
+		if (!(obj instanceof SelectStatement)) {
+			throw new IllegalArgumentException("SQL参数键值：`" + sqlKey + "` 的对象类型不支持");
+		}
+		SelectStatement<?> st = (SelectStatement<?>) obj;
 		String sql = BindingValues.asSqlWithBindings(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, st);
 		if (log.isDebugEnabled()) {
 			log.debug("[SQL-TEXT]{}", sql);
@@ -162,10 +182,14 @@ public class EnhancedAutoMappers {
 	public static String selectBySqlExceptLogicDeleted(Map<String, Object> map, ProviderContext ctx) {
 		BindingKeyModel bindingKeyModel = EnhancedAutoMapperHelper.getBindingKeyDefinition(ctx.getMapperMethod()).toBindingKeyModel(map);
 		String sqlKey = bindingKeyModel.sql();
-		SelectStatement<?> st = (SelectStatement<?>) map.get(sqlKey);
-		if (st == null) {
-			throw new IllegalArgumentException("缺少SQL参数键值：" + sqlKey);
+		Object obj = map.get(sqlKey);
+		if (obj == null) {
+			throw new IllegalArgumentException("缺少SQL参数键值：`" + sqlKey + "`");
 		}
+		if (!(obj instanceof SelectStatement)) {
+			throw new IllegalArgumentException("SQL参数键值：`" + sqlKey + "` 的对象类型不支持");
+		}
+		SelectStatement<?> st = (SelectStatement<?>) obj;
 		st.exceptLogicDeleted(true, true, true);
 		String sql = BindingValues.asSqlWithBindings(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, st);
 		if (log.isDebugEnabled()) {
@@ -178,10 +202,14 @@ public class EnhancedAutoMappers {
 	public static String countBySql(Map<String, Object> map, ProviderContext ctx) {
 		BindingKeyModel bindingKeyModel = EnhancedAutoMapperHelper.getBindingKeyDefinition(ctx.getMapperMethod()).toBindingKeyModel(map);
 		String sqlKey = bindingKeyModel.sql();
-		SelectStatement<?> st = (SelectStatement<?>) map.get(sqlKey);
-		if (st == null) {
-			throw new IllegalArgumentException("缺少SQL参数键值：" + sqlKey);
+		Object obj = map.get(sqlKey);
+		if (obj == null) {
+			throw new IllegalArgumentException("缺少SQL参数键值：`" + sqlKey + "`");
 		}
+		if (!(obj instanceof SelectStatement)) {
+			throw new IllegalArgumentException("SQL参数键值：`" + sqlKey + "` 的对象类型不支持");
+		}
+		SelectStatement<?> st = (SelectStatement<?>) obj;
 		boolean withLogicDeleted = EnhancedAutoMapperHelper.withLogicDeleted(map, ctx, bindingKeyModel);
 		if (withLogicDeleted) {
 			st.exceptLogicDeleted(true, true, true);
@@ -198,10 +226,14 @@ public class EnhancedAutoMappers {
 	public static String countBySqlDirect(Map<String, Object> map, ProviderContext ctx) {
 		BindingKeyModel bindingKeyModel = EnhancedAutoMapperHelper.getBindingKeyDefinition(ctx.getMapperMethod()).toBindingKeyModel(map);
 		String sqlKey = bindingKeyModel.sql();
-		SelectStatement<?> st = (SelectStatement<?>) map.get(sqlKey);
-		if (st == null) {
-			throw new IllegalArgumentException("缺少SQL参数键值：" + sqlKey);
+		Object obj = map.get(sqlKey);
+		if (obj == null) {
+			throw new IllegalArgumentException("缺少SQL参数键值：`" + sqlKey + "`");
 		}
+		if (!(obj instanceof SelectStatement)) {
+			throw new IllegalArgumentException("SQL参数键值：`" + sqlKey + "` 的对象类型不支持");
+		}
+		SelectStatement<?> st = (SelectStatement<?>) obj;
 		String sql = BindingValues.asSqlWithBindings(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, st::toCountSqlNode);
 		if (log.isDebugEnabled()) {
 			log.debug("[SQL-TEXT]{}", sql);
@@ -213,10 +245,14 @@ public class EnhancedAutoMappers {
 	public static String countBySqlExceptLogicDeleted(Map<String, Object> map, ProviderContext ctx) {
 		BindingKeyModel bindingKeyModel = EnhancedAutoMapperHelper.getBindingKeyDefinition(ctx.getMapperMethod()).toBindingKeyModel(map);
 		String sqlKey = bindingKeyModel.sql();
-		SelectStatement<?> st = (SelectStatement<?>) map.get(sqlKey);
-		if (st == null) {
-			throw new IllegalArgumentException("缺少SQL参数键值：" + sqlKey);
+		Object obj = map.get(sqlKey);
+		if (obj == null) {
+			throw new IllegalArgumentException("缺少SQL参数键值：`" + sqlKey + "`");
 		}
+		if (!(obj instanceof SelectStatement)) {
+			throw new IllegalArgumentException("SQL参数键值：`" + sqlKey + "` 的对象类型不支持");
+		}
+		SelectStatement<?> st = (SelectStatement<?>) obj;
 		st.exceptLogicDeleted(true, true, true);
 		String sql = BindingValues.asSqlWithBindings(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, st::toCountSqlNode);
 		if (log.isDebugEnabled()) {
@@ -232,10 +268,14 @@ public class EnhancedAutoMappers {
 		try {
 			BindingKeyModel bindingKeyModel = EnhancedAutoMapperHelper.getBindingKeyDefinition(ctx.getMapperMethod()).toBindingKeyModel(map);
 			String sqlKey = bindingKeyModel.sql();
-			SelectStatement<?> st = (SelectStatement<?>) map.get(sqlKey);
-			if (st == null) {
-				throw new IllegalArgumentException("缺少SQL参数键值：" + sqlKey);
+			Object obj = map.get(sqlKey);
+			if (obj == null) {
+				throw new IllegalArgumentException("缺少SQL参数键值：`" + sqlKey + "`");
 			}
+			if (!(obj instanceof SelectStatement)) {
+				throw new IllegalArgumentException("SQL参数键值：`" + sqlKey + "` 的对象类型不支持");
+			}
+			SelectStatement<?> st = (SelectStatement<?>) obj;
 			boolean withLogicDeleted = EnhancedAutoMapperHelper.withLogicDeleted(map, ctx, bindingKeyModel);
 			if (withLogicDeleted) {
 				st.exceptLogicDeleted(true, true, true);
@@ -258,10 +298,14 @@ public class EnhancedAutoMappers {
 		try {
 			BindingKeyModel bindingKeyModel = EnhancedAutoMapperHelper.getBindingKeyDefinition(ctx.getMapperMethod()).toBindingKeyModel(map);
 			String sqlKey = bindingKeyModel.sql();
-			SelectStatement<?> st = (SelectStatement<?>) map.get(sqlKey);
-			if (st == null) {
-				throw new IllegalArgumentException("缺少SQL参数键值：" + sqlKey);
+			Object obj = map.get(sqlKey);
+			if (obj == null) {
+				throw new IllegalArgumentException("缺少SQL参数键值：`" + sqlKey + "`");
 			}
+			if (!(obj instanceof SelectStatement)) {
+				throw new IllegalArgumentException("SQL参数键值：`" + sqlKey + "` 的对象类型不支持");
+			}
+			SelectStatement<?> st = (SelectStatement<?>) obj;
 			SqlNode sqlNode = st.toExistsSqlNode(queryByCount);
 			String sql = BindingValues.asSqlWithBindings(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, sqlNode);
 			if (log.isDebugEnabled()) {
@@ -280,10 +324,14 @@ public class EnhancedAutoMappers {
 		try {
 			BindingKeyModel bindingKeyModel = EnhancedAutoMapperHelper.getBindingKeyDefinition(ctx.getMapperMethod()).toBindingKeyModel(map);
 			String sqlKey = bindingKeyModel.sql();
-			SelectStatement<?> st = (SelectStatement<?>) map.get(sqlKey);
-			if (st == null) {
-				throw new IllegalArgumentException("缺少SQL参数键值：" + sqlKey);
+			Object obj = map.get(sqlKey);
+			if (obj == null) {
+				throw new IllegalArgumentException("缺少SQL参数键值：`" + sqlKey + "`");
 			}
+			if (!(obj instanceof SelectStatement)) {
+				throw new IllegalArgumentException("SQL参数键值：`" + sqlKey + "` 的对象类型不支持");
+			}
+			SelectStatement<?> st = (SelectStatement<?>) obj;
 			st.exceptLogicDeleted(true, true, true);
 			SqlNode sqlNode = st.toExistsSqlNode(queryByCount);
 			String sql = BindingValues.asSqlWithBindings(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, sqlNode);
@@ -299,11 +347,14 @@ public class EnhancedAutoMappers {
 
 	public static String mergeBySql(Map<String, Object> map, ProviderContext ctx) {
 		BindingKeyModel bindingKeyModel = EnhancedAutoMapperHelper.getBindingKeyDefinition(ctx.getMapperMethod()).toBindingKeyModel(map);
-		String sqlKey = bindingKeyModel.sql();
-		MergeStatement<?> st = (MergeStatement<?>) map.get(sqlKey);
-		if (st == null) {
-			throw new IllegalArgumentException("缺少SQL参数键值：" + sqlKey);
+		String sqlKey = bindingKeyModel.sql();	Object obj = map.get(sqlKey);
+		if (obj == null) {
+			throw new IllegalArgumentException("缺少SQL参数键值：`" + sqlKey + "`");
 		}
+		if (!(obj instanceof MergeStatement)) {
+			throw new IllegalArgumentException("SQL参数键值：`" + sqlKey + "` 的对象类型不支持");
+		}
+		MergeStatement<?> st = (MergeStatement<?>) obj;
 		String sql = BindingValues.asSqlWithBindings(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, st);
 		if (log.isDebugEnabled()) {
 			log.debug("[SQL-TEXT]{}", sql);

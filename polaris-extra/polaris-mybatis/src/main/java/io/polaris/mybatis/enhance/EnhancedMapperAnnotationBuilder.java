@@ -64,8 +64,7 @@ public class EnhancedMapperAnnotationBuilder extends MapperAnnotationBuilder {
 	private static final Set<Class<? extends Annotation>> statementAnnotationTypes = Stream
 		.of(
 			Select.class, Update.class, Insert.class, Delete.class,
-			SelectProvider.class, UpdateProvider.class, InsertProvider.class, DeleteProvider.class,
-			AutoMapper.class
+			SelectProvider.class, UpdateProvider.class, InsertProvider.class, DeleteProvider.class
 		)
 		.collect(Collectors.toSet());
 
@@ -186,13 +185,23 @@ public class EnhancedMapperAnnotationBuilder extends MapperAnnotationBuilder {
 				}
 				// enhanced: 加入扩展注解的解析处理
 				if (method.getAnnotation(ResultMap.class) == null) {
-					getAnnotationWrapper(method, false,
-						AutoMapper.class, Select.class, SelectProvider.class)
-						.ifPresent(annotation -> {
-							if (annotation.getSqlCommandType() == SqlCommandType.SELECT) {
-								parseResultMap(method);
-							}
-						});
+					boolean parsed = false;
+					Optional<EnhancedMapperAnnotations.AnnotationWrapper<?>> autoMapperOptional = getAnnotationWrapper(method, true, AutoMapper.class);
+					if (autoMapperOptional.isPresent()) {
+						EnhancedMapperAnnotations.AnnotationWrapper<?> annotation = autoMapperOptional.get();
+						if (annotation.getSqlCommandType() == SqlCommandType.SELECT) {
+							parsed = true;
+							parseResultMap(method);
+						}
+					}
+					if (!parsed) {
+						getAnnotationWrapper(method, false, Select.class, SelectProvider.class)
+							.ifPresent(annotation -> {
+								if (annotation.getSqlCommandType() == SqlCommandType.SELECT) {
+									parseResultMap(method);
+								}
+							});
+					}
 				}
 				try {
 					parseStatement(method);
@@ -362,102 +371,110 @@ public class EnhancedMapperAnnotationBuilder extends MapperAnnotationBuilder {
 	}
 
 	void parseStatement(Method method) {
+		// enhanced： 优先支持 AutoMapper 注解，不存在再继续解析 Mybatis 原生注解
+		Optional<EnhancedMapperAnnotations.AnnotationWrapper<?>> autoMapperOptional = getAnnotationWrapper(method, true, AutoMapper.class);
+		if (autoMapperOptional.isPresent()) {
+			parseStatement(method, autoMapperOptional.get());
+		} else {
+			getAnnotationWrapper(method, true, statementAnnotationTypes)
+				.ifPresent(statementAnnotation -> {
+					parseStatement(method, statementAnnotation);
+				});
+		}
+	}
+
+	private void parseStatement(Method method, EnhancedMapperAnnotations.AnnotationWrapper<?> statementAnnotation) {
 		final Class<?> parameterTypeClass = getParameterType(method);
 		final LanguageDriver languageDriver = getLanguageDriver(method);
+		final SqlSource sqlSource = buildSqlSource(statementAnnotation.getAnnotation(), parameterTypeClass, languageDriver, method);
+		final SqlCommandType sqlCommandType = statementAnnotation.getSqlCommandType();
+		final Options options = getAnnotationWrapper(method, false, Options.class).map(x -> (Options) x.getAnnotation()).orElse(null);
+		final String mappedStatementId = type.getName() + "." + method.getName();
 
-		getAnnotationWrapper(method, true, statementAnnotationTypes)
-			.ifPresent(statementAnnotation -> {
-				final SqlSource sqlSource = buildSqlSource(statementAnnotation.getAnnotation(), parameterTypeClass, languageDriver, method);
-				final SqlCommandType sqlCommandType = statementAnnotation.getSqlCommandType();
-				final Options options = getAnnotationWrapper(method, false, Options.class).map(x -> (Options) x.getAnnotation()).orElse(null);
-				final String mappedStatementId = type.getName() + "." + method.getName();
+		final KeyGenerator keyGenerator;
+		String keyProperty = null;
+		String keyColumn = null;
+		if (SqlCommandType.INSERT.equals(sqlCommandType) || SqlCommandType.UPDATE.equals(sqlCommandType)) {
+			// first check for SelectKey annotation - that overrides everything else
+			SelectKey selectKey = getAnnotationWrapper(method, false, SelectKey.class).map(x -> (SelectKey) x.getAnnotation()).orElse(null);
+			if (selectKey != null) {
+				keyGenerator = handleSelectKeyAnnotation(selectKey, mappedStatementId, getParameterType(method), languageDriver);
+				keyProperty = selectKey.keyProperty();
+			} else if (options == null) {
+				keyGenerator = configuration.isUseGeneratedKeys() ? Jdbc3KeyGenerator.INSTANCE : NoKeyGenerator.INSTANCE;
+			} else {
+				keyGenerator = options.useGeneratedKeys() ? Jdbc3KeyGenerator.INSTANCE : NoKeyGenerator.INSTANCE;
+				keyProperty = options.keyProperty();
+				keyColumn = options.keyColumn();
+			}
+		} else {
+			keyGenerator = NoKeyGenerator.INSTANCE;
+		}
 
-				final KeyGenerator keyGenerator;
-				String keyProperty = null;
-				String keyColumn = null;
-				if (SqlCommandType.INSERT.equals(sqlCommandType) || SqlCommandType.UPDATE.equals(sqlCommandType)) {
-					// first check for SelectKey annotation - that overrides everything else
-					SelectKey selectKey = getAnnotationWrapper(method, false, SelectKey.class).map(x -> (SelectKey) x.getAnnotation()).orElse(null);
-					if (selectKey != null) {
-						keyGenerator = handleSelectKeyAnnotation(selectKey, mappedStatementId, getParameterType(method), languageDriver);
-						keyProperty = selectKey.keyProperty();
-					} else if (options == null) {
-						keyGenerator = configuration.isUseGeneratedKeys() ? Jdbc3KeyGenerator.INSTANCE : NoKeyGenerator.INSTANCE;
-					} else {
-						keyGenerator = options.useGeneratedKeys() ? Jdbc3KeyGenerator.INSTANCE : NoKeyGenerator.INSTANCE;
-						keyProperty = options.keyProperty();
-						keyColumn = options.keyColumn();
-					}
-				} else {
-					keyGenerator = NoKeyGenerator.INSTANCE;
-				}
+		Integer fetchSize = null;
+		Integer timeout = null;
+		StatementType statementType = StatementType.PREPARED;
+		ResultSetType resultSetType = configuration.getDefaultResultSetType();
+		boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
+		boolean flushCache = !isSelect;
+		boolean useCache = isSelect;
+		if (options != null) {
+			if (Options.FlushCachePolicy.TRUE.equals(options.flushCache())) {
+				flushCache = true;
+			} else if (Options.FlushCachePolicy.FALSE.equals(options.flushCache())) {
+				flushCache = false;
+			}
+			useCache = options.useCache();
+			fetchSize = options.fetchSize() > -1 || options.fetchSize() == Integer.MIN_VALUE ? options.fetchSize() : null; //issue #348
+			timeout = options.timeout() > -1 ? options.timeout() : null;
+			statementType = options.statementType();
+			if (options.resultSetType() != ResultSetType.DEFAULT) {
+				resultSetType = options.resultSetType();
+			}
+		}
 
-				Integer fetchSize = null;
-				Integer timeout = null;
-				StatementType statementType = StatementType.PREPARED;
-				ResultSetType resultSetType = configuration.getDefaultResultSetType();
-				boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
-				boolean flushCache = !isSelect;
-				boolean useCache = isSelect;
-				if (options != null) {
-					if (Options.FlushCachePolicy.TRUE.equals(options.flushCache())) {
-						flushCache = true;
-					} else if (Options.FlushCachePolicy.FALSE.equals(options.flushCache())) {
-						flushCache = false;
-					}
-					useCache = options.useCache();
-					fetchSize = options.fetchSize() > -1 || options.fetchSize() == Integer.MIN_VALUE ? options.fetchSize() : null; //issue #348
-					timeout = options.timeout() > -1 ? options.timeout() : null;
-					statementType = options.statementType();
-					if (options.resultSetType() != ResultSetType.DEFAULT) {
-						resultSetType = options.resultSetType();
-					}
-				}
+		String resultMapId = null;
+		if (isSelect) {
+			ResultMap resultMapAnnotation = method.getAnnotation(ResultMap.class);
+			if (resultMapAnnotation != null) {
+				resultMapId = String.join(",", resultMapAnnotation.value());
+			} else {
+				resultMapId = generateResultMapName(method);
+			}
+		}
 
-				String resultMapId = null;
-				if (isSelect) {
-					ResultMap resultMapAnnotation = method.getAnnotation(ResultMap.class);
-					if (resultMapAnnotation != null) {
-						resultMapId = String.join(",", resultMapAnnotation.value());
-					} else {
-						resultMapId = generateResultMapName(method);
-					}
-				}
-
-				// enhanced: 加入扩展注解的解析处理
-				Class<?> declaredEntityClass = EnhancedAutoMapperHelper.getEntityClassOrNull(method, type, statementAnnotation.getDatabaseId());
-				EnhancedAutoMapperMeta autoMapperMeta = EnhancedAutoMapperHelper.parseEnhancedAutoMapperMeta(method, type, declaredEntityClass);
-				assistant.pushAutoMapperMeta(autoMapperMeta);
-				try {
-					assistant.addMappedStatement(
-						mappedStatementId,
-						sqlSource,
-						statementType,
-						sqlCommandType,
-						fetchSize,
-						timeout,
-						// ParameterMapID
-						null,
-						parameterTypeClass,
-						resultMapId,
-						getReturnType(method),
-						resultSetType,
-						flushCache,
-						useCache,
-						// TODO gcode issue #577
-						false,
-						keyGenerator,
-						keyProperty,
-						keyColumn,
-						statementAnnotation.getDatabaseId(),
-						languageDriver,
-						// ResultSets
-						options != null ? nullOrEmpty(options.resultSets()) : null);
-				} finally {
-					assistant.popAutoMapperMeta();
-				}
-			});
-
+		// enhanced: 加入扩展注解的解析处理
+		Class<?> declaredEntityClass = EnhancedAutoMapperHelper.getEntityClassOrNull(method, type, statementAnnotation.getDatabaseId());
+		EnhancedAutoMapperMeta autoMapperMeta = EnhancedAutoMapperHelper.parseEnhancedAutoMapperMeta(method, type, declaredEntityClass);
+		assistant.pushAutoMapperMeta(autoMapperMeta);
+		try {
+			assistant.addMappedStatement(
+				mappedStatementId,
+				sqlSource,
+				statementType,
+				sqlCommandType,
+				fetchSize,
+				timeout,
+				// ParameterMapID
+				null,
+				parameterTypeClass,
+				resultMapId,
+				getReturnType(method),
+				resultSetType,
+				flushCache,
+				useCache,
+				// TODO gcode issue #577
+				false,
+				keyGenerator,
+				keyProperty,
+				keyColumn,
+				statementAnnotation.getDatabaseId(),
+				languageDriver,
+				// ResultSets
+				options != null ? nullOrEmpty(options.resultSets()) : null);
+		} finally {
+			assistant.popAutoMapperMeta();
+		}
 	}
 
 	private LanguageDriver getLanguageDriver(Method method) {
