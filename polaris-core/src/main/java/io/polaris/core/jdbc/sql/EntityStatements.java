@@ -302,7 +302,7 @@ public class EntityStatements {
 			if (sql instanceof SqlNodeBuilder) {
 				return ((SqlNodeBuilder) sql).toSqlNode();
 			}
-			throw new IllegalArgumentException("缺少SQL参数：`" + sqlBindingKey + "`");
+			throw new IllegalArgumentException("缺少SQL参数键值：`" + sqlBindingKey + "`");
 		};
 	}
 

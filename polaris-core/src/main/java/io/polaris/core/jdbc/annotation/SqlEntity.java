@@ -8,7 +8,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 声明实体类型与别名
+ * 声明实体类型与别名，配合 @SqlRawSimple 与 @SqlRaw 使用
  *
  * @author Qt
  * @since Jan 28, 2024
