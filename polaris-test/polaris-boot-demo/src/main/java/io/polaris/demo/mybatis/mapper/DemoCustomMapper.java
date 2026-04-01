@@ -41,7 +41,7 @@ import org.apache.ibatis.annotations.*;
  * @since Jan 30, 2024
  */
 @Mapper
-public interface DemoMapper {
+public interface DemoCustomMapper {
 
 	@InsertProvider(AnyEntityProvider.class)
 	@EntityInsert(table = DemoOrgEntity.class, entityKey = "e")

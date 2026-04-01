@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 import javax.sql.DataSource;
 
-import io.polaris.demo.mybatis.mapper.DemoMapper;
+import io.polaris.demo.mybatis.mapper.DemoCustomMapper;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,14 +16,14 @@ import org.springframework.transaction.annotation.Transactional;
  * @since Aug 25, 2023
  */
 @Service
-public class DemoService {
+public class DemoCustomService {
 
 	private final DataSource dataSource;
-	private final DemoMapper demoMapper;
+	private final DemoCustomMapper demoCustomMapper;
 
-	public DemoService(DataSource dataSource, DemoMapper demoMapper) {
+	public DemoCustomService(DataSource dataSource, DemoCustomMapper demoCustomMapper) {
 		this.dataSource = dataSource;
-		this.demoMapper = demoMapper;
+		this.demoCustomMapper = demoCustomMapper;
 	}
 
 	public Connection getConnection() {
@@ -31,12 +31,12 @@ public class DemoService {
 	}
 
 	@Transactional
-	public <R> R doTransaction(Function<DemoMapper, R> function) {
-		return function.apply(demoMapper);
+	public <R> R doTransaction(Function<DemoCustomMapper, R> function) {
+		return function.apply(demoCustomMapper);
 	}
 
 	@Transactional
-	public void doTransaction(Consumer<DemoMapper> function) {
-		function.accept(demoMapper);
+	public void doTransaction(Consumer<DemoCustomMapper> function) {
+		function.accept(demoCustomMapper);
 	}
 }

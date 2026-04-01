@@ -1,0 +1,4 @@
+POST http://localhost:6666/demo/user/list
+Content-Type: application/json
+
+{}

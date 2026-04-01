@@ -7,8 +7,7 @@ import java.util.Map;
 import io.polaris.DemoApp;
 import io.polaris.core.time.Dates;
 import io.polaris.demo.mybatis.entity.DemoOrgEntity;
-import io.polaris.demo.mybatis.entity.DemoUserEntity;
-import io.polaris.demo.mybatis.service.DemoService;
+import io.polaris.demo.mybatis.service.DemoCustomService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -25,17 +24,17 @@ import org.springframework.context.ApplicationContext;
 @SpringBootTest(classes = DemoApp.class)
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Slf4j
-public class DemoMapperTest {
+public class DemoCustomMapperTest {
 	@Autowired
 	private ApplicationContext ctx;
 	@Autowired
-	private DemoService demoService;
+	private DemoCustomService demoCustomService;
 
 
 	@Test
 	@Order(0)
 	void test_insert() {
-		demoService.doTransaction(mapper -> {
+		demoCustomService.doTransaction(mapper -> {
 			DemoOrgEntity param = new DemoOrgEntity();
 			param.setId(11L);
 			param.setVersion(11L);
@@ -44,7 +43,7 @@ public class DemoMapperTest {
 			param.setUptDt(Dates.nowDate());
 			log.warn("执行结果：{}", mapper.insertEntity(param));
 		});
-		demoService.doTransaction(mapper -> {
+		demoCustomService.doTransaction(mapper -> {
 			DemoOrgEntity param = new DemoOrgEntity();
 			param.setId(11L);
 			param.setVersion(11L);
@@ -54,21 +53,21 @@ public class DemoMapperTest {
 			param.setUptDt(Dates.nowDate());
 			log.warn("执行结果：{}", mapper.updateEntity(param));
 		});
-		demoService.doTransaction(mapper -> {
+		demoCustomService.doTransaction(mapper -> {
 			DemoOrgEntity param = new DemoOrgEntity();
 			param.setId(11L);
 			param.setVersion(11L);
 			DemoOrgEntity rs = mapper.selectOrgById(param);
 			log.warn("执行结果：{}", rs);
 		});
-		demoService.doTransaction(mapper -> {
+		demoCustomService.doTransaction(mapper -> {
 			DemoOrgEntity param = new DemoOrgEntity();
 			param.setId(11L);
 			param.setVersion(12L);
 			DemoOrgEntity rs = mapper.selectOrgById(param);
 			log.warn("执行结果：{}", rs);
 		});
-		demoService.doTransaction(mapper -> {
+		demoCustomService.doTransaction(mapper -> {
 			DemoOrgEntity param = new DemoOrgEntity();
 			param.setId(11L);
 			param.setVersion(11L);
@@ -76,7 +75,7 @@ public class DemoMapperTest {
 			param.setIntro("test...");
 			log.warn("执行结果：{}", mapper.deleteEntity(param));
 		});
-		demoService.doTransaction(mapper -> {
+		demoCustomService.doTransaction(mapper -> {
 			DemoOrgEntity param = new DemoOrgEntity();
 			param.setId(11L);
 			param.setVersion(12L);
@@ -89,7 +88,7 @@ public class DemoMapperTest {
 	@Test
 	@Order(10)
 	void test_selectOrgById() {
-		demoService.doTransaction(mapper -> {
+		demoCustomService.doTransaction(mapper -> {
 			DemoOrgEntity param = new DemoOrgEntity();
 			param.setId(1L);
 			param.setVersion(0L);
@@ -101,7 +100,7 @@ public class DemoMapperTest {
 	@Test
 	@Order(20)
 	void test_selectOrgList() {
-		demoService.doTransaction(mapper -> {
+		demoCustomService.doTransaction(mapper -> {
 			DemoOrgEntity param = new DemoOrgEntity();
 			param.setName("%org%");
 			List<DemoOrgEntity> rs = mapper.selectOrgList(param);
@@ -112,7 +111,7 @@ public class DemoMapperTest {
 	@Test
 	@Order(30)
 	void test_selectOrgListByAny() {
-		demoService.doTransaction(mapper -> {
+		demoCustomService.doTransaction(mapper -> {
 			{
 				List<DemoOrgEntity> rs = mapper.selectOrgListByAny(null, null);
 				log.warn("执行结果：{}", rs);
@@ -133,7 +132,7 @@ public class DemoMapperTest {
 	@Test
 	@Order(40)
 	void test_selectOrgListByAny2() {
-		demoService.doTransaction(mapper -> {
+		demoCustomService.doTransaction(mapper -> {
 			{
 				Map<String,Object> map = new LinkedHashMap<>();
 				map.put("id",1);

@@ -11,7 +11,7 @@ import io.polaris.demo.mybatis.entity.DemoOrgEntity;
 import io.polaris.demo.mybatis.entity.DemoUserEntity;
 import io.polaris.demo.mybatis.entity.DemoUserEntitySql;
 import io.polaris.demo.mybatis.model.DemoParam;
-import io.polaris.demo.mybatis.service.DemoService;
+import io.polaris.demo.mybatis.service.DemoCustomService;
 import io.polaris.demo.mybatis.service.DemoUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,13 +27,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("demo")
 @RequiredArgsConstructor
 public class DemoController {
-	private final DemoService demoService;
+	private final DemoCustomService demoCustomService;
 	private final DemoUserService demoUserService;
 
 
 	@PostMapping("test")
 	public Object test() {
-		return demoService.doTransaction(mapper -> {
+		return demoCustomService.doTransaction(mapper -> {
 			Map<String, Object> map = new HashMap<>();
 			map.put("selectOrgById", mapper.selectOrgById(DemoOrgEntity.builder().id(1L).build()));
 			map.put("selectOrgList", mapper.selectOrgList(DemoOrgEntity.builder().name("org%").build()));
@@ -53,7 +53,7 @@ public class DemoController {
 
 	@PostMapping("test1")
 	public Object test1() {
-		return demoService.doTransaction(mapper -> {
+		return demoCustomService.doTransaction(mapper -> {
 			Map<String, Object> map = new HashMap<>();
 			{
 				map.put("selectOrgById", mapper.selectOrgById(DemoOrgEntity.builder().id(1L).build()));
@@ -64,7 +64,7 @@ public class DemoController {
 
 	@PostMapping("test2")
 	public Object test2() {
-		return demoService.doTransaction(mapper -> {
+		return demoCustomService.doTransaction(mapper -> {
 			Map<String, Object> map = new HashMap<>();
 			{
 				DemoParam param = new DemoParam();

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="io.polaris.demo.mybatis.mapper.DemoMapper">
+<mapper namespace="io.polaris.demo.mybatis.mapper.DemoCustomMapper">
 	<select id="getOrgListByIdsInXml" resultType="io.polaris.demo.mybatis.entity.DemoOrgEntity"
 					lang="io.polaris.mybatis.scripting.TableRefResolvableDriver">
 		<bind name="xEntity" value="'io.polaris.demo.mybatis.entity.DemoOrgEntity'"/>

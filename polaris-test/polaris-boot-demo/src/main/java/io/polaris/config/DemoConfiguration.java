@@ -1,6 +1,7 @@
 package io.polaris.config;
 
 import io.polaris.json.Jacksons;
+import io.polaris.mybatis.enhance.EnhancedConfiguration;
 import io.polaris.mybatis.interceptor.DataAuthInterceptor;
 import io.polaris.mybatis.interceptor.DynamicResultMappingInterceptor;
 import io.polaris.mybatis.interceptor.MybatisLogInterceptor;
@@ -8,6 +9,9 @@ import io.polaris.mybatis.interceptor.BoundSqlEnhanceInterceptor;
 import io.polaris.mybatis.type.TypeHandlers;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
+import org.mybatis.spring.boot.autoconfigure.MybatisProperties;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -21,7 +25,15 @@ import com.github.pagehelper.PageInterceptor;
  * @since Jul 04, 2024
  */
 @Configuration
+@EnableConfigurationProperties(MybatisProperties.class)
+@AutoConfigureBefore(org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration.class) // 确保在MybatisAutoConfiguration之前执行，以应用EnhancedConfiguration
 public class DemoConfiguration {
+
+	public DemoConfiguration(MybatisProperties properties) throws Throwable {
+		org.apache.ibatis.session.Configuration configuration = properties.getConfiguration();
+		EnhancedConfiguration enhancedConfiguration = new EnhancedConfiguration(configuration);
+		properties.setConfiguration(enhancedConfiguration);
+	}
 
 	@Bean
 	@Primary

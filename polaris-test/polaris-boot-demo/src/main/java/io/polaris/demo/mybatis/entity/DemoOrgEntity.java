@@ -5,6 +5,7 @@ import java.util.Date;
 import io.polaris.core.jdbc.annotation.Column;
 import io.polaris.core.jdbc.annotation.Id;
 import io.polaris.core.jdbc.annotation.Table;
+import io.polaris.demo.annotation.DemoOrgTable;
 import io.polaris.mybatis.annotation.ColumnTypeHandler;
 import io.polaris.mybatis.type.DynamicDateTypeHandler;
 import io.polaris.mybatis.type.DynamicTimestampTypeHandler;
@@ -18,7 +19,8 @@ import lombok.NoArgsConstructor;
  * @since Aug 25, 2023
  */
 @Data
-@Table(value = "demo_org")
+//@Table(value = "demo_org")
+@DemoOrgTable
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
