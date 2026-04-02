@@ -14,6 +14,7 @@ import java.util.function.Consumer;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.string.Strings;
 import io.polaris.mybatis.annotation.MapperParam;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.reflection.ParamNameResolver;
 import org.apache.ibatis.reflection.ParamNameUtil;
@@ -25,6 +26,7 @@ import org.apache.ibatis.session.RowBounds;
  * @see ParamNameResolver
  * @since Mar 30, 2026
  */
+@Slf4j
 public class EnhancedParamNameResolver {
 
 	public static BindingKeyDefinition resolve(Method method) {
@@ -82,6 +84,10 @@ public class EnhancedParamNameResolver {
 		if (realCount > 0) {
 			if (realCount == 1 && !hasParamAnnotation) {
 				Integer paramIndex = possibleNames.firstKey();
+				Class<?> paramType = paramTypes[paramIndex];
+				if (paramType == Object.class) {
+					log.error("Mapper方法未明确声明入参的绑定键名，请使用@Param注解：`{}`", method);
+				}
 				String actualParamName = possibleNames.get(paramIndex)[0];
 				for (Annotation annotation : paramAnnotations[paramIndex]) {
 					resolveParamAnnotation(bindingKeyDefinition, new String[]{actualParamName}, annotation);
