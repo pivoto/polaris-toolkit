@@ -17,6 +17,7 @@ import javax.annotation.Nullable;
 
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.consts.CharConsts;
+import io.polaris.core.function.Consumer;
 import io.polaris.core.lang.Types;
 import io.polaris.core.map.Maps;
 import io.polaris.core.tuple.Tuple1;
@@ -75,8 +76,8 @@ public class Reflects {
 	 * 得到指定类型的指定位置的泛型实参
 	 *
 	 * @param parameterizedSuperType 泛型基类
-	 * @param obj                    目标类
-	 * @param index                  位置
+	 * @param obj 目标类
+	 * @param index 位置
 	 * @return 泛型实参
 	 */
 	public static Class findActualTypeArgument(Class parameterizedSuperType, Object obj, int index) {
@@ -87,8 +88,8 @@ public class Reflects {
 	 * 得到指定类型的指定位置的泛型实参
 	 *
 	 * @param parameterizedSuperType 泛型基类
-	 * @param targetClass            目标类
-	 * @param index                  位置
+	 * @param targetClass 目标类
+	 * @param index 位置
 	 * @return 泛型实参
 	 */
 	public static Class findActualTypeArgument(Class parameterizedSuperType, Class targetClass, int index) {
@@ -444,13 +445,38 @@ public class Reflects {
 		return list.toArray(new Field[0]);
 	}
 
+	public static void doWithFields(Class<?> clazz, Predicate<Field> fieldFilter, Consumer<Field> consumer) {
+		for (Field field : getFields(clazz)) {
+			if (fieldFilter.test(field)) {
+				consumer.accept(field);
+			}
+		}
+	}
+
+	public static void doWithFieldsDirectly(Class<?> clazz, boolean withSuperClassFields, Predicate<Field> fieldFilter, Consumer<Field> consumer) {
+		for (Field field : getFieldsDirectly(clazz, withSuperClassFields)) {
+			if (fieldFilter.test(field)) {
+				consumer.accept(field);
+			}
+		}
+	}
+
 	public static Field[] getFields(Class<?> clazz, Predicate<Field> fieldFilter) {
 		return Arrays.stream(getFields(clazz)).filter(fieldFilter).toArray(Field[]::new);
+	}
+
+	public static Field[] getFieldsDirectly(Class<?> clazz, boolean withSuperClassFields, Predicate<Field> fieldFilter) {
+		return Arrays.stream(getFieldsDirectly(clazz, withSuperClassFields)).filter(fieldFilter).toArray(Field[]::new);
 	}
 
 	@Nullable
 	public static Field getField(Class<?> clazz, Predicate<Field> fieldFilter) {
 		return Arrays.stream(getFields(clazz)).filter(fieldFilter).findFirst().orElse(null);
+	}
+
+	@Nullable
+	public static Field getFieldDirectly(Class<?> clazz, boolean withSuperClassFields, Predicate<Field> fieldFilter) {
+		return Arrays.stream(getFieldsDirectly(clazz, withSuperClassFields)).filter(fieldFilter).findFirst().orElse(null);
 	}
 
 	@Nullable
@@ -591,7 +617,7 @@ public class Reflects {
 	/**
 	 * 获得一个类中所有方法列表，包括其父类中的方法
 	 */
-	@SuppressWarnings({"ConstantValue", "StatementWithEmptyBody"})
+	@SuppressWarnings({"StatementWithEmptyBody"})
 	public static Method[] getMethods(Class<?> clazz) {
 		Method[] rs;
 		// 防止因对象回收后导致WeakMap结果丢失，尝试多次获取
@@ -604,8 +630,8 @@ public class Reflects {
 	/**
 	 * 获得一个类中所有方法列表
 	 *
-	 * @param clazz                类或接口
-	 * @param withSupers           是否包括父类或接口的方法列表
+	 * @param clazz 类或接口
+	 * @param withSupers 是否包括父类或接口的方法列表
 	 * @param withMethodFromObject 是否包括Object中的方法
 	 * @return methods
 	 */
@@ -637,8 +663,29 @@ public class Reflects {
 		return map.values().toArray(new Method[0]);
 	}
 
+	public static void doWithMethods(Class<?> clazz, Predicate<Method> filter, Consumer<Method> consumer) {
+		for (Method method : getMethods(clazz)) {
+			if (filter.test(method)) {
+				consumer.accept(method);
+			}
+		}
+	}
+
+	public static void doWithMethodsDirectly(Class<?> clazz, boolean withSupers, boolean withMethodFromObject, Predicate<Method> filter, Consumer<Method> consumer) {
+		for (Method method : getMethodsDirectly(clazz, withSupers, withMethodFromObject)) {
+			if (filter.test(method)) {
+				consumer.accept(method);
+			}
+		}
+	}
+
 	public static Method[] getMethods(Class<?> clazz, Predicate<Method> filter) {
 		return Arrays.stream(getMethods(clazz)).filter(filter).toArray(Method[]::new);
+	}
+
+
+	public static Method[] getMethodsDirectly(Class<?> clazz, boolean withSupers, boolean withMethodFromObject, Predicate<Method> filter) {
+		return Arrays.stream(getMethodsDirectly(clazz, withSupers, withMethodFromObject)).filter(filter).toArray(Method[]::new);
 	}
 
 	public static Set<String> getMethodNames(Class<?> clazz) {
