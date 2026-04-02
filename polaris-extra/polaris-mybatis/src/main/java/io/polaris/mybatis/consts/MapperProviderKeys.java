@@ -2,6 +2,7 @@ package io.polaris.mybatis.consts;
 
 /**
  * @author Qt
+ * @see AutoMapperType
  * @since Aug 25, 2023
  */
 public interface MapperProviderKeys {

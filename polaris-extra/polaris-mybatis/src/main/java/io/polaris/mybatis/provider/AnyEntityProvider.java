@@ -8,6 +8,7 @@ import io.polaris.core.annotation.Published;
 import io.polaris.mybatis.annotation.AutoMapper;
 import io.polaris.mybatis.enhance.EnhancedAutoMappers;
 import io.polaris.mybatis.enhance.EnhancedMapperAnnotations;
+import io.polaris.mybatis.enhance.EnhancedProviderContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.builder.annotation.ProviderContext;
@@ -26,7 +27,7 @@ public class AnyEntityProvider extends BaseProviderMethodResolver {
 	}
 
 	@Internal
-	public static String doProvideSql(Map<String, Object> map, ProviderContext ctx) {
+	public static String doProvideSql(Map<String, Object> map, EnhancedProviderContext ctx) {
 		Method mapperMethod = ctx.getMapperMethod();
 		boolean isSelect = mapperMethod.isAnnotationPresent(SelectProvider.class);
 		if (!isSelect) {

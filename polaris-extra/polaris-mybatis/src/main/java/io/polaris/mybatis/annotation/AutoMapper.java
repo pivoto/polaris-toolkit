@@ -8,7 +8,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import io.polaris.mybatis.consts.AutoMapperType;
-import org.apache.ibatis.annotations.Select;
+import io.polaris.mybatis.mapper.EntityMapper;
 
 /**
  * @author Qt
@@ -22,8 +22,17 @@ public @interface AutoMapper {
 
 	String databaseId() default "";
 
+	/**
+	 * 自动Mapper方法生成使用的实体类，不配置则默认从方法或接口的注解及泛型参数推断
+	 *
+	 * @see MapperEntity
+	 * @see EntityMapper
+	 */
 	Class<?> entity() default Object.class;
 
+	/**
+	 * 自动Mapper方法生成类型
+	 */
 	AutoMapperType type();
 
 	@Documented

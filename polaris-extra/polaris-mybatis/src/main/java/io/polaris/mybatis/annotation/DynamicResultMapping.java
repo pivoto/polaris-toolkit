@@ -6,12 +6,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import io.polaris.mybatis.interceptor.DynamicResultMappingInterceptor;
+import io.polaris.mybatis.interceptor.DynamicEnhancedInterceptor;
 
 /**
  * 声明此注解后，表示将自动生成列映射配置
  * <p>
- * 由于以插件形式实现，需启用插件{@link DynamicResultMappingInterceptor}
+ * 由于以插件形式实现，需启用插件{@link DynamicEnhancedInterceptor}
  *
  * @author Qt
  * @since Aug 24, 2023

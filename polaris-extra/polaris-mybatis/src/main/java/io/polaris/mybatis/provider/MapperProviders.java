@@ -8,6 +8,7 @@ import java.util.function.BiFunction;
 import io.polaris.core.annotation.Published;
 import io.polaris.mybatis.consts.AutoMapperType;
 import io.polaris.mybatis.consts.MapperProviderKeys;
+import io.polaris.mybatis.enhance.EnhancedProviderContext;
 import org.apache.ibatis.builder.annotation.ProviderContext;
 
 /**
@@ -16,11 +17,11 @@ import org.apache.ibatis.builder.annotation.ProviderContext;
  */
 @Published
 public class MapperProviders {
-	static final Map<String, BiFunction<Map<String, Object>, ProviderContext, String>> methods;
+	static final Map<String, BiFunction<Map<String, Object>, EnhancedProviderContext, String>> methods;
 
 	static {
 		AutoMapperType[] autoMapperTypes = AutoMapperType.values();
-		Map<String, BiFunction<Map<String, Object>, ProviderContext, String>> map = new HashMap<>(autoMapperTypes.length * 2);
+		Map<String, BiFunction<Map<String, Object>, EnhancedProviderContext, String>> map = new HashMap<>(autoMapperTypes.length * 2);
 
 		for (AutoMapperType autoMapperType : autoMapperTypes) {
 			map.put(autoMapperType.name(), autoMapperType.sqlFunction());
@@ -32,7 +33,7 @@ public class MapperProviders {
 	}
 
 
-	public static BiFunction<Map<String, Object>, ProviderContext, String> getProviderMethod(String name) {
+	public static BiFunction<Map<String, Object>, EnhancedProviderContext, String> getProviderMethod(String name) {
 		return methods.get(name);
 	}
 

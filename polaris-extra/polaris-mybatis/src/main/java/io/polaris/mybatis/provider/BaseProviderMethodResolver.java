@@ -9,6 +9,7 @@ import io.polaris.core.lang.bean.BeanMap;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.map.Maps;
 import io.polaris.mybatis.enhance.EnhancedAutoMapperHelper;
+import io.polaris.mybatis.enhance.EnhancedProviderContext;
 import io.polaris.mybatis.scripting.EnhanceBoundSqlLanguageDriver;
 import io.polaris.mybatis.support.MapperHelperContext;
 import org.apache.ibatis.annotations.Lang;
@@ -41,10 +42,11 @@ public abstract class BaseProviderMethodResolver implements ProviderMethodResolv
 	}
 
 
-	protected static String provideSql(Object parameterObject, ProviderContext context, BiFunction<Map<String, Object>, ProviderContext, String> function) {
+	protected static String provideSql(Object parameterObject, ProviderContext context, BiFunction<Map<String, Object>, EnhancedProviderContext, String> function) {
 		try {
 			Map<String, Object> map = toParameterBindings(context.getMapperMethod(), parameterObject);
-			String sql = function.apply(map, context);
+			EnhancedProviderContext enhancedProviderContext = EnhancedProviderContext.ofLazy(context);
+			String sql = function.apply(map, enhancedProviderContext);
 			return sql;
 		} catch (RuntimeException e) {
 			MapperHelperContext.clearAdditionalParameters();

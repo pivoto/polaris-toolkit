@@ -444,7 +444,7 @@ public class EnhancedMapperAnnotationBuilder extends MapperAnnotationBuilder {
 		}
 
 		// enhanced: 加入扩展注解的解析处理
-		Class<?> declaredEntityClass = EnhancedAutoMapperHelper.getEntityClassOrNull(method, type, statementAnnotation.getDatabaseId());
+		Class<?> declaredEntityClass = EnhancedAutoMapperHelper.getEntityClassOrNull(type, method, statementAnnotation.getDatabaseId());
 		EnhancedAutoMapperMeta autoMapperMeta = EnhancedAutoMapperHelper.parseEnhancedAutoMapperMeta(method, type, declaredEntityClass);
 		assistant.pushAutoMapperMeta(autoMapperMeta);
 		try {

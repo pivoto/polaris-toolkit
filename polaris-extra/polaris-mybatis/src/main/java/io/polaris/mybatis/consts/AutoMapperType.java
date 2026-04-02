@@ -3,12 +3,16 @@ package io.polaris.mybatis.consts;
 import java.util.Map;
 import java.util.function.BiFunction;
 
+import javax.annotation.Nonnull;
+
 import io.polaris.mybatis.enhance.EnhancedAutoMappers;
+import io.polaris.mybatis.enhance.EnhancedProviderContext;
 import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.apache.ibatis.mapping.SqlCommandType;
 
 /**
  * @author Qt
+ * @see MapperProviderKeys
  * @since Mar 29, 2026
  */
 public enum AutoMapperType {
@@ -104,10 +108,12 @@ public enum AutoMapperType {
 
 	;
 
+	@Nonnull
 	private final SqlCommandType sqlCommandType;
-	private final BiFunction<Map<String, Object>, ProviderContext, String> sqlFunction;
+	@Nonnull
+	private final BiFunction<Map<String, Object>, EnhancedProviderContext, String> sqlFunction;
 
-	AutoMapperType(SqlCommandType sqlCommandType, BiFunction<Map<String, Object>, ProviderContext, String> sqlFunction) {
+	AutoMapperType(@Nonnull SqlCommandType sqlCommandType, @Nonnull BiFunction<Map<String, Object>, EnhancedProviderContext, String> sqlFunction) {
 		this.sqlCommandType = sqlCommandType;
 		this.sqlFunction = sqlFunction;
 	}
@@ -117,7 +123,8 @@ public enum AutoMapperType {
 		return sqlCommandType;
 	}
 
-	public BiFunction<Map<String, Object>, ProviderContext, String> sqlFunction() {
+	@Nonnull
+	public BiFunction<Map<String, Object>, EnhancedProviderContext, String> sqlFunction() {
 		return sqlFunction;
 	}
 }

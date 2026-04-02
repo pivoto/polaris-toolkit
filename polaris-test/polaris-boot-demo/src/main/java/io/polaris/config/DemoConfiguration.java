@@ -5,7 +5,7 @@ import io.polaris.mybatis.enhance.EnhancedConfiguration;
 import io.polaris.mybatis.enhance.log.DebuggableLog;
 import io.polaris.mybatis.enhance.log.OriginalLogFactory;
 import io.polaris.mybatis.interceptor.DataAuthInterceptor;
-import io.polaris.mybatis.interceptor.DynamicResultMappingInterceptor;
+import io.polaris.mybatis.interceptor.DynamicEnhancedInterceptor;
 import io.polaris.mybatis.interceptor.MybatisLogInterceptor;
 import io.polaris.mybatis.interceptor.BoundSqlEnhanceInterceptor;
 import io.polaris.mybatis.interceptor.MybatisSqlLogInterceptor;
@@ -18,7 +18,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.core.annotation.Order;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.PageInterceptor;
@@ -53,7 +52,7 @@ public class DemoConfiguration {
 			TypeHandlerRegistry typeHandlerRegistry = configuration.getTypeHandlerRegistry();
 			TypeHandlers.registerAll(configuration);
 			// 按 org.apache.ibatis.plugin.InterceptorChain 代理规则，插件执行顺序与添加顺序相反
-			configuration.addInterceptor(new DynamicResultMappingInterceptor());
+			configuration.addInterceptor(new DynamicEnhancedInterceptor());
 			configuration.addInterceptor(new MybatisSqlLogInterceptor());
 			configuration.addInterceptor(new MybatisLogInterceptor());
 			configuration.addInterceptor(new PageInterceptor());

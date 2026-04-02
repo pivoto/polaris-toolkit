@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.function.Function;
 
 import io.polaris.core.reflect.Methods;
+import io.polaris.mybatis.interceptor.BoundSqlEnhanceInterceptor;
+import io.polaris.mybatis.interceptor.DynamicEnhancedInterceptor;
 import io.polaris.mybatis.type.TypeHandlers;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.binding.MapperRegistry;
@@ -103,7 +105,7 @@ public class EnhancedConfiguration extends Configuration {
 
 		this.mapperRegistry.copyKnownMappers(origin.getMapperRegistry());
 		for (Interceptor interceptor : origin.getInterceptors()) {
-			this.interceptorChain.addInterceptor(interceptor);
+			this.addInterceptor(interceptor);
 		}
 		copyTypeHandlerRegistry(origin.getTypeHandlerRegistry());
 		origin.getTypeAliasRegistry().getTypeAliases().forEach(this.typeAliasRegistry::registerAlias);
@@ -285,6 +287,21 @@ public class EnhancedConfiguration extends Configuration {
 	}
 
 	// endregion copy Configuration
+
+
+	@Override
+	public void addInterceptor(Interceptor interceptor) {
+		boolean contains = interceptorChain.getInterceptors().stream().anyMatch(p -> interceptor.getClass().isAssignableFrom(p.getClass()));
+		if (contains) {
+			return;
+		}
+		if (BoundSqlEnhanceInterceptor.class.equals(interceptor.getClass())
+			|| DynamicEnhancedInterceptor.class.equals(interceptor.getClass())) {
+			// 增强拦截器的功能已在生成 EnhancedProviderSqlSource 时处理，不需要再添加此拦截器
+			return;
+		}
+		super.addInterceptor(interceptor);
+	}
 
 	@Override
 	public void addMappedStatement(MappedStatement ms) {

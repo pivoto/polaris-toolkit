@@ -2,17 +2,13 @@ package io.polaris.mybatis.interceptor;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nonnull;
 
-import io.polaris.core.jdbc.ColumnMeta;
 import io.polaris.core.reflect.Reflects;
-import io.polaris.core.string.Strings;
 import io.polaris.mybatis.annotation.DynamicResultMapping;
 import io.polaris.mybatis.annotation.DynamicUseGeneratedKeys;
 import io.polaris.mybatis.enhance.EnhancedAutoMapperHelper;
@@ -20,11 +16,8 @@ import io.polaris.mybatis.enhance.EnhancedAutoMapperMeta;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
-import org.apache.ibatis.executor.keygen.KeyGenerator;
-import org.apache.ibatis.executor.keygen.NoKeyGenerator;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.mapping.ResultMapping;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.plugin.Intercepts;
@@ -32,14 +25,14 @@ import org.apache.ibatis.plugin.Invocation;
 import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
-import org.apache.ibatis.type.TypeHandler;
 
 /**
- * 动态启用 MyBatis 的 useGeneratedKeys 特性的拦截器。
+ * 动态启用 MyBatis 的 自动列映射与 useGeneratedKeys 特性的拦截器。
  * <p>
- * 该拦截器用于在执行 INSERT 操作时动态判断是否需要开启 useGeneratedKeys，
+ * 1、该拦截器在执行 INSERT 操作时动态判断是否需要开启 useGeneratedKeys，
  * 并根据实体类中的自增列信息构建新的 MappedStatement 来替换原始语句。
- * </p>
+ * <p>
+ * 2、该拦截器在执行 SELECT 操作时动态判断是否需要自动生成列映射配置，并根据实体类中的字段信息构建新的 MappedStatement 来替换原始语句。
  *
  * @author Qt
  * @since Jul 04, 2024
@@ -50,7 +43,7 @@ import org.apache.ibatis.type.TypeHandler;
 	@Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class}),
 	@Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class, CacheKey.class, BoundSql.class}),
 })
-public class DynamicResultMappingInterceptor implements Interceptor {
+public class DynamicEnhancedInterceptor implements Interceptor {
 
 
 	/**
@@ -121,7 +114,7 @@ public class DynamicResultMappingInterceptor implements Interceptor {
 				if (methods.size() == 1) {
 					Method method = methods.get(0);
 					String databaseId = mappedStatement.getDatabaseId();
-					Class<?> declaredEntityClass = EnhancedAutoMapperHelper.getEntityClassOrNull(method, mapperClass, databaseId);
+					Class<?> declaredEntityClass = EnhancedAutoMapperHelper.getEntityClassOrNull(mapperClass, method, databaseId);
 					EnhancedAutoMapperMeta autoMapperMeta = EnhancedAutoMapperHelper.parseEnhancedAutoMapperMeta(method, mapperClass, declaredEntityClass);
 					return new Meta(autoMapperMeta);
 				}

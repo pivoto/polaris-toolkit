@@ -15,8 +15,11 @@ import io.polaris.core.lang.bean.BeanMap;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.map.Maps;
 import io.polaris.core.reflect.Methods;
+import io.polaris.core.reflect.Reflects;
+import io.polaris.core.string.Strings;
 import io.polaris.mybatis.annotation.AutoMapper;
 import io.polaris.mybatis.consts.AutoMapperType;
+import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.*;
 import io.polaris.mybatis.support.MapperHelperContext;
 import lombok.extern.slf4j.Slf4j;
@@ -27,10 +30,10 @@ import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.annotations.UpdateProvider;
 import org.apache.ibatis.builder.BuilderException;
 import org.apache.ibatis.builder.annotation.ProviderContext;
-import org.apache.ibatis.builder.annotation.ProviderMethodResolver;
+import org.apache.ibatis.builder.annotation.ProviderSqlSource;
 import org.apache.ibatis.mapping.BoundSql;
+import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.mapping.SqlSource;
-import org.apache.ibatis.reflection.ParamNameResolver;
 import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
 
@@ -47,136 +50,35 @@ public class EnhancedProviderSqlSource implements SqlSource {
 	@Nonnull
 	private final LanguageDriver languageDriver;
 	@Nonnull
-	private final ProviderContext providerContext;
+	private final EnhancedProviderContext providerContext;
 	@Nullable
-	private final BiFunction<Map<String, Object>, ProviderContext, String> sqlFunction;
-
-	@Nonnull
-	private final Method mapperMethod;
-	@Nullable
-	private final Class<?> providerType;
+	private final BiFunction<Map<String, Object>, EnhancedProviderContext, String> sqlFunction;
 
 	@Nullable
-	private final Method providerMethod;
-	@Nullable
-	private final String[] providerMethodArgumentNames;
-	@Nullable
-	private final Class<?>[] providerMethodParameterTypes;
-	@Nullable
-	private final Integer providerContextIndex;
+	private final ProviderSqlSource providerSqlSource;
 
 
 	public EnhancedProviderSqlSource(@Nonnull Configuration configuration, @Nonnull Annotation provider, @Nonnull Class<?> mapperType, @Nonnull Method mapperMethod) {
+		this.configuration = configuration;
+		Lang lang = mapperMethod.getAnnotation(Lang.class);
+		this.languageDriver = configuration.getLanguageDriver(lang == null ? null : lang.value());
 
-		try {
-			this.configuration = configuration;
-			Lang lang = mapperMethod.getAnnotation(Lang.class);
-			this.languageDriver = configuration.getLanguageDriver(lang == null ? null : lang.value());
-			this.providerContext = newProviderContext(mapperType, mapperMethod, configuration.getDatabaseId());
-		} catch (BuilderException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new BuilderException("Error creating SqlSource for SqlProvider.  Cause: " + e, e);
+		String databaseId = Strings.trimToEmpty(configuration.getDatabaseId());
+		if (provider instanceof AutoMapper) {
+			Class<?> entityClass = ((AutoMapper) provider).entity();
+			EnhancedAutoMapperHelper.registerEntityClass(mapperType, mapperMethod, databaseId, entityClass);
 		}
-		BiFunction<Map<String, Object>, ProviderContext, String> sqlFunction = extractSqlFunction(provider);
-		this.sqlFunction = sqlFunction;
-		this.mapperMethod = mapperMethod;
+		BiFunction<Map<String, Object>, EnhancedProviderContext, String> sqlFunction = extractSqlFunction(provider, mapperType, mapperMethod, databaseId);
+		this.providerContext = EnhancedProviderContext.of(mapperType, mapperMethod, databaseId);
 
 		// 以下逻辑尽量与 ProviderSqlSource 保持一致
 		if (sqlFunction == null) {
-			String candidateProviderMethodName;
-			Method candidateProviderMethod = null;
-			try {
-				this.providerType = getProviderType(configuration, provider, mapperMethod);
-				candidateProviderMethodName = (String) provider.annotationType().getMethod("method").invoke(provider);
-
-				if (candidateProviderMethodName.length() == 0 && ProviderMethodResolver.class.isAssignableFrom(this.providerType)) {
-					candidateProviderMethod = ((ProviderMethodResolver) this.providerType.getDeclaredConstructor().newInstance())
-						.resolveMethod(this.providerContext);
-				}
-				if (candidateProviderMethod == null) {
-					candidateProviderMethodName = candidateProviderMethodName.length() == 0 ? "provideSql" : candidateProviderMethodName;
-					for (Method m : this.providerType.getMethods()) {
-						if (candidateProviderMethodName.equals(m.getName()) && CharSequence.class.isAssignableFrom(m.getReturnType())) {
-							if (candidateProviderMethod != null) {
-								throw new BuilderException("Error creating SqlSource for SqlProvider. Method '"
-									+ candidateProviderMethodName + "' is found multiple in SqlProvider '" + this.providerType.getName()
-									+ "'. Sql provider method can not overload.");
-							}
-							candidateProviderMethod = m;
-						}
-					}
-				}
-			} catch (BuilderException e) {
-				throw e;
-			} catch (Exception e) {
-				throw new BuilderException("Error creating SqlSource for SqlProvider.  Cause: " + e, e);
-			}
-			if (candidateProviderMethod == null) {
-				throw new BuilderException("Error creating SqlSource for SqlProvider. Method '"
-					+ candidateProviderMethodName + "' not found in SqlProvider '" + this.providerType.getName() + "'.");
-			}
-			this.providerMethod = candidateProviderMethod;
-			this.providerMethodArgumentNames = new ParamNameResolver(configuration, this.providerMethod).getNames();
-			this.providerMethodParameterTypes = this.providerMethod.getParameterTypes();
-
-			Integer candidateProviderContextIndex = null;
-			for (int i = 0; i < this.providerMethodParameterTypes.length; i++) {
-				Class<?> parameterType = this.providerMethodParameterTypes[i];
-				if (parameterType == ProviderContext.class) {
-					if (candidateProviderContextIndex != null) {
-						throw new BuilderException("Error creating SqlSource for SqlProvider. Method '"
-							+ candidateProviderMethodName + "' is found multiple in SqlProvider '" + this.providerType.getName()
-							+ "'. Sql provider method can not overload.");
-					}
-					candidateProviderContextIndex = i;
-				}
-			}
-			this.providerContextIndex = candidateProviderContextIndex;
+			this.sqlFunction = null;
+			this.providerSqlSource = new ProviderSqlSource(configuration, provider, mapperType, mapperMethod);
 		} else {
-			this.providerType = null;
-			this.providerMethod = null;
-			this.providerMethodArgumentNames = null;
-			this.providerMethodParameterTypes = null;
-			this.providerContextIndex = null;
+			this.sqlFunction = sqlFunction;
+			this.providerSqlSource = null;
 		}
-
-	}
-
-	@Nullable
-	private BiFunction<Map<String, Object>, ProviderContext, String> extractSqlFunction(Annotation provider) {
-		BiFunction<Map<String, Object>, ProviderContext, String> sqlFunction = null;
-		if (provider instanceof AutoMapper) {
-			AutoMapperType autoMapperType = ((AutoMapper) provider).type();
-			Class<?> entityClass = ((AutoMapper) provider).entity();
-			EnhancedAutoMapperHelper.registerEntityClass(providerContext, entityClass);
-			sqlFunction = autoMapperType.sqlFunction();
-		} else if (provider instanceof SelectProvider) {
-			Class<?> providerClass = ((SelectProvider) provider).value();
-			if (providerClass == null || providerClass == void.class || providerClass == Object.class) {
-				providerClass = ((SelectProvider) provider).type();
-			}
-			sqlFunction = findSqlFunction(providerClass, ((SelectProvider) provider).method());
-		} else if (provider instanceof UpdateProvider) {
-			Class<?> providerClass = ((UpdateProvider) provider).value();
-			if (providerClass == null || providerClass == void.class || providerClass == Object.class) {
-				providerClass = ((UpdateProvider) provider).type();
-			}
-			sqlFunction = findSqlFunction(providerClass, ((UpdateProvider) provider).method());
-		} else if (provider instanceof InsertProvider) {
-			Class<?> providerClass = ((InsertProvider) provider).value();
-			if (providerClass == null || providerClass == void.class || providerClass == Object.class) {
-				providerClass = ((InsertProvider) provider).type();
-			}
-			sqlFunction = findSqlFunction(providerClass, ((InsertProvider) provider).method());
-		} else if (provider instanceof DeleteProvider) {
-			Class<?> providerClass = ((DeleteProvider) provider).value();
-			if (providerClass == null || providerClass == void.class || providerClass == Object.class) {
-				providerClass = ((DeleteProvider) provider).type();
-			}
-			sqlFunction = findSqlFunction(providerClass, ((DeleteProvider) provider).method());
-		}
-		return sqlFunction;
 	}
 
 	@Override
@@ -203,184 +105,338 @@ public class EnhancedProviderSqlSource implements SqlSource {
 			return boundSql;
 		}
 
-		SqlSource sqlSource = createSqlSource(parameterObject);
-		BoundSql boundSql = sqlSource.getBoundSql(parameterObject);
+		assert providerSqlSource != null;
+		BoundSql boundSql = providerSqlSource.getBoundSql(parameterObject);
 		MapperHelperContext.enhanceBoundSql(boundSql, parameterObject);
 		return boundSql;
 	}
 
-	private BiFunction<Map<String, Object>, ProviderContext, String> findSqlFunction(Class<?> providerClass, String providerMethod) {
-		if (MapperProviders.class.equals(providerClass)) {
+	@Nullable
+	private BiFunction<Map<String, Object>, EnhancedProviderContext, String> extractSqlFunction(Annotation provider, Class<?> mapperType, Method mapperMethod, String databaseId) {
+		if (provider instanceof AutoMapper) {
+			AutoMapperType autoMapperType = ((AutoMapper) provider).type();
+			return autoMapperType.sqlFunction();
+		}
+
+		Class<?> providerType = null;
+		String providerMethod = null;
+		if (provider instanceof SelectProvider) {
+			providerType = ((SelectProvider) provider).value();
+			if (providerType == null || providerType == void.class || providerType == Object.class) {
+				providerType = ((SelectProvider) provider).type();
+			}
+			providerMethod = ((SelectProvider) provider).method();
+		} else if (provider instanceof UpdateProvider) {
+			providerType = ((UpdateProvider) provider).value();
+			if (providerType == null || providerType == void.class || providerType == Object.class) {
+				providerType = ((UpdateProvider) provider).type();
+			}
+			providerMethod = ((UpdateProvider) provider).method();
+		} else if (provider instanceof InsertProvider) {
+			providerType = ((InsertProvider) provider).value();
+			if (providerType == null || providerType == void.class || providerType == Object.class) {
+				providerType = ((InsertProvider) provider).type();
+			}
+			providerMethod = ((InsertProvider) provider).method();
+		} else if (provider instanceof DeleteProvider) {
+			providerType = ((DeleteProvider) provider).value();
+			if (providerType == null || providerType == void.class || providerType == Object.class) {
+				providerType = ((DeleteProvider) provider).type();
+			}
+			providerMethod = ((DeleteProvider) provider).method();
+		}
+
+		BiFunction<Map<String, Object>, EnhancedProviderContext, String> sqlFunction = null;
+		if (providerType != null && providerType != void.class && providerType != Object.class) {
+			if (Strings.isBlank(providerMethod)) {
+				providerMethod = MapperProviderKeys.provideSql;
+			}
+			sqlFunction = findSqlFunction(providerType, providerMethod);
+			if (sqlFunction == null) {
+				AutoMapper annotation = EnhancedMapperAnnotations.getAutoMapper(databaseId, mapperMethod);
+				if (annotation != null) {
+					return annotation.type().sqlFunction();
+				}
+				// 再次尝试探测并生成 SqlFunction
+				sqlFunction = buildSqlFunction(providerType, providerMethod);
+				if (sqlFunction == null && !MapperProviderKeys.provideSql.equals(providerMethod)) {
+					sqlFunction = buildSqlFunction(providerType, MapperProviderKeys.provideSql);
+				}
+				if (sqlFunction == null && SqlProvider.class.isAssignableFrom(providerType)) {
+					try {
+						SqlProvider targetObject = (SqlProvider) providerType.getDeclaredConstructor().newInstance();
+						sqlFunction = targetObject::provideSql;
+					} catch (Exception ignored) {
+					}
+				}
+			}
+		}
+
+		return sqlFunction;
+	}
+
+	private BiFunction<Map<String, Object>, EnhancedProviderContext, String> buildSqlFunction(Class<?> providerType, String providerMethod) {
+
+		Method[] targetMethods = new Method[7];
+
+		Method[] methods = providerType.getMethods();
+		for (Method method : methods) {
+			if (method.getName().equals(providerMethod)
+				&& CharSequence.class.isAssignableFrom(method.getReturnType())) {
+				Class<?>[] parameterTypes = method.getParameterTypes();
+				if (parameterTypes.length == 2) {
+					if (parameterTypes[0] == Map.class && parameterTypes[1] == EnhancedProviderContext.class) {
+						targetMethods[0] = method;
+					} else if (parameterTypes[0] == EnhancedProviderContext.class && parameterTypes[1] == Map.class) {
+						targetMethods[1] = method;
+					} else if (parameterTypes[0] == Object.class && parameterTypes[1] == EnhancedProviderContext.class) {
+						targetMethods[2] = method;
+					} else if (parameterTypes[0] == EnhancedProviderContext.class && parameterTypes[1] == Object.class) {
+						targetMethods[3] = method;
+					}
+				} else if (parameterTypes.length == 1) {
+					if (parameterTypes[0] == Map.class) {
+						targetMethods[4] = method;
+					} else if (parameterTypes[0] == Object.class) {
+						targetMethods[5] = method;
+					} else if (parameterTypes[0] == EnhancedProviderContext.class) {
+						targetMethods[6] = method;
+					}
+				}
+			}
+		}
+		try {
+			BiFunction<Map<String, Object>, EnhancedProviderContext, Object[]> remapArgs;
+			Method targetMethod;
+			// (Map, EnhancedProviderContext): CharSequence
+			if (targetMethods[0] != null) {
+				targetMethod = targetMethods[0];
+				remapArgs = null;
+			}
+			// (EnhancedProviderContext, Map): CharSequence
+			else if (targetMethods[1] != null) {
+				targetMethod = targetMethods[1];
+				remapArgs = (map, ctx) -> new Object[]{ctx, map};
+			}
+			// (Object, EnhancedProviderContext): CharSequence
+			else if (targetMethods[2] != null) {
+				targetMethod = targetMethods[2];
+				remapArgs = null;
+			}
+			// (EnhancedProviderContext, Object): CharSequence
+			else if (targetMethods[3] != null) {
+				targetMethod = targetMethods[3];
+				remapArgs = (map, ctx) -> new Object[]{ctx, map};
+			}
+			// (Map): CharSequence
+			else if (targetMethods[4] != null) {
+				targetMethod = targetMethods[4];
+				remapArgs = (map, ctx) -> new Object[]{map};
+			}
+			// (Object): CharSequence
+			else if (targetMethods[5] != null) {
+				targetMethod = targetMethods[5];
+				remapArgs = (map, ctx) -> new Object[]{map};
+			}
+			// (EnhancedProviderContext): CharSequence
+			else if (targetMethods[6] != null) {
+				targetMethod = targetMethods[6];
+				remapArgs = (map, ctx) -> new Object[]{ctx};
+			}
+			// not found
+			else {
+				targetMethod = null;
+				remapArgs = null;
+			}
+			if (targetMethod != null) {
+				if (Modifier.isStatic(targetMethod.getModifiers())) {
+					if (remapArgs == null) {
+						return (map, ctx) -> {
+							try {
+								CharSequence sql = (CharSequence) targetMethod.invoke(null, map, ctx);
+								return sql != null ? sql.toString() : null;
+							} catch (Exception e) {
+								throw new BuilderException("Error invoking SqlProvider method '" + targetMethod
+									+ "'.  Cause: " + e, e);
+							}
+						};
+					}
+					return (map, ctx) -> {
+						try {
+							Object[] args = remapArgs.apply(map, ctx);
+							CharSequence sql = (CharSequence) targetMethod.invoke(null, args);
+							return sql != null ? sql.toString() : null;
+						} catch (Exception e) {
+							throw new BuilderException("Error invoking SqlProvider method '" + targetMethod
+								+ "'.  Cause: " + e, e);
+						}
+					};
+				} else {
+					Object targetObject = providerType.getDeclaredConstructor().newInstance();
+					if (remapArgs == null) {
+						return (map, ctx) -> {
+							try {
+								CharSequence sql = (CharSequence) targetMethod.invoke(targetObject, map, ctx);
+								return sql != null ? sql.toString() : null;
+							} catch (Exception e) {
+								throw new BuilderException("Error invoking SqlProvider method '" + targetMethod
+									+ "'.  Cause: " + e, e);
+							}
+						};
+					}
+					return (map, ctx) -> {
+						try {
+							Object[] args = remapArgs.apply(map, ctx);
+							CharSequence sql = (CharSequence) targetMethod.invoke(targetObject, args);
+							return sql != null ? sql.toString() : null;
+						} catch (Exception e) {
+							throw new BuilderException("Error invoking SqlProvider method '" + targetMethod
+								+ "'.  Cause: " + e, e);
+						}
+					};
+				}
+			}
+
+		} catch (Exception ignored) {
+		}
+
+		return null;
+	}
+
+	private BiFunction<Map<String, Object>, EnhancedProviderContext, String> findSqlFunction(Class<?> providerType, String providerMethod) {
+		if (MapperProviders.class.equals(providerType)) {
 			return MapperProviders.getProviderMethod(providerMethod);
 		}
 		// see MapperProviders.getProviderMethod
-		if (AnyEntityProvider.class.equals(providerClass)) {
+		if (AnyEntityProvider.class.equals(providerType)) {
 			return AnyEntityProvider::doProvideSql;
 		}
-		if (AnySqlProvider.class.equals(providerClass)) {
+		if (AnySqlProvider.class.equals(providerType)) {
 			return AutoMapperType.updateAnySql.sqlFunction();
 		}
-		if (SqlInsertProvider.class.equals(providerClass)) {
+		if (SqlInsertProvider.class.equals(providerType)) {
 			return AutoMapperType.insertBySql.sqlFunction();
 		}
-		if (SqlDeleteProvider.class.equals(providerClass)) {
+		if (SqlDeleteProvider.class.equals(providerType)) {
 			return AutoMapperType.deleteBySql.sqlFunction();
 		}
-		if (SqlUpdateProvider.class.equals(providerClass)) {
+		if (SqlUpdateProvider.class.equals(providerType)) {
 			return AutoMapperType.updateBySql.sqlFunction();
 		}
-		if (SqlSelectProvider.class.equals(providerClass)) {
+		if (SqlSelectProvider.class.equals(providerType)) {
 			return AutoMapperType.selectBySql.sqlFunction();
 		}
-		if (SqlSelectDirectProvider.class.equals(providerClass)) {
+		if (SqlSelectDirectProvider.class.equals(providerType)) {
 			return AutoMapperType.selectBySqlDirect.sqlFunction();
 		}
-		if (SqlSelectExceptLogicDeletedProvider.class.equals(providerClass)) {
+		if (SqlSelectExceptLogicDeletedProvider.class.equals(providerType)) {
 			return AutoMapperType.selectBySqlExceptLogicDeleted.sqlFunction();
 		}
 
-		if (SqlCountProvider.class.equals(providerClass)) {
+		if (SqlCountProvider.class.equals(providerType)) {
 			return AutoMapperType.countBySql.sqlFunction();
 		}
-		if (SqlCountDirectProvider.class.equals(providerClass)) {
+		if (SqlCountDirectProvider.class.equals(providerType)) {
 			return AutoMapperType.countBySqlDirect.sqlFunction();
 		}
-		if (SqlCountExceptLogicDeletedProvider.class.equals(providerClass)) {
+		if (SqlCountExceptLogicDeletedProvider.class.equals(providerType)) {
 			return AutoMapperType.countBySqlExceptLogicDeleted.sqlFunction();
 		}
 
-		if (SqlExistsProvider.class.equals(providerClass)) {
+		if (SqlExistsProvider.class.equals(providerType)) {
 			return AutoMapperType.existsBySql.sqlFunction();
 		}
-		if (SqlExistsDirectProvider.class.equals(providerClass)) {
+		if (SqlExistsDirectProvider.class.equals(providerType)) {
 			return AutoMapperType.existsBySqlDirect.sqlFunction();
 		}
-		if (SqlExistsExceptLogicDeletedProvider.class.equals(providerClass)) {
+		if (SqlExistsExceptLogicDeletedProvider.class.equals(providerType)) {
 			return AutoMapperType.existsBySqlExceptLogicDeleted.sqlFunction();
 		}
 
-		if (SqlMergeProvider.class.equals(providerClass)) {
+		if (SqlMergeProvider.class.equals(providerType)) {
 			return AutoMapperType.mergeBySql.sqlFunction();
 		}
-		if (EntityInsertProvider.class.equals(providerClass)) {
+		if (EntityInsertProvider.class.equals(providerType)) {
 			return AutoMapperType.insertEntity.sqlFunction();
 		}
 
-		if (EntityDeleteByIdProvider.class.equals(providerClass)) {
+		if (EntityDeleteByIdProvider.class.equals(providerType)) {
 			return AutoMapperType.deleteEntityById.sqlFunction();
 		}
-		if (EntityDeleteDirectByIdProvider.class.equals(providerClass)) {
+		if (EntityDeleteDirectByIdProvider.class.equals(providerType)) {
 			return AutoMapperType.directDeleteEntityById.sqlFunction();
 		}
-		if (EntityDeleteLogicByIdProvider.class.equals(providerClass)) {
+		if (EntityDeleteLogicByIdProvider.class.equals(providerType)) {
 			return AutoMapperType.logicDeleteEntityById.sqlFunction();
 		}
-		if (EntityDeleteByAnyProvider.class.equals(providerClass)) {
+		if (EntityDeleteByAnyProvider.class.equals(providerType)) {
 			return AutoMapperType.deleteEntityByAny.sqlFunction();
 		}
-		if (EntityDeleteDirectByAnyProvider.class.equals(providerClass)) {
+		if (EntityDeleteDirectByAnyProvider.class.equals(providerType)) {
 			return AutoMapperType.directDeleteEntityByAny.sqlFunction();
 		}
-		if (EntityDeleteLogicByAnyProvider.class.equals(providerClass)) {
+		if (EntityDeleteLogicByAnyProvider.class.equals(providerType)) {
 			return AutoMapperType.logicDeleteEntityByAny.sqlFunction();
 		}
 
-		if (EntityUpdateByIdProvider.class.equals(providerClass)) {
+		if (EntityUpdateByIdProvider.class.equals(providerType)) {
 			return AutoMapperType.updateEntityById.sqlFunction();
 		}
-		if (EntityUpdateByAnyProvider.class.equals(providerClass)) {
+		if (EntityUpdateByAnyProvider.class.equals(providerType)) {
 			return AutoMapperType.updateEntityByAny.sqlFunction();
 		}
 
-		if (EntityExistsByAnyProvider.class.equals(providerClass)) {
+		if (EntityExistsByAnyProvider.class.equals(providerType)) {
 			return AutoMapperType.existsEntity.sqlFunction();
 		}
-		if (EntityExistsByAnyDirectProvider.class.equals(providerClass)) {
+		if (EntityExistsByAnyDirectProvider.class.equals(providerType)) {
 			return AutoMapperType.existsEntityDirect.sqlFunction();
 		}
-		if (EntityExistsByAnyExceptLogicDeletedProvider.class.equals(providerClass)) {
+		if (EntityExistsByAnyExceptLogicDeletedProvider.class.equals(providerType)) {
 			return AutoMapperType.existsEntityExceptLogicDeleted.sqlFunction();
 		}
-		if (EntityExistsByIdProvider.class.equals(providerClass)) {
+		if (EntityExistsByIdProvider.class.equals(providerType)) {
 			return AutoMapperType.existsEntityById.sqlFunction();
 		}
-		if (EntityExistsByIdDirectProvider.class.equals(providerClass)) {
+		if (EntityExistsByIdDirectProvider.class.equals(providerType)) {
 			return AutoMapperType.existsEntityByIdDirect.sqlFunction();
 		}
-		if (EntityExistsByIdExceptLogicDeletedProvider.class.equals(providerClass)) {
+		if (EntityExistsByIdExceptLogicDeletedProvider.class.equals(providerType)) {
 			return AutoMapperType.existsEntityByIdExceptLogicDeleted.sqlFunction();
 		}
 
-		if (EntitySelectByAnyProvider.class.equals(providerClass)) {
+		if (EntitySelectByAnyProvider.class.equals(providerType)) {
 			return AutoMapperType.selectEntity.sqlFunction();
 		}
-		if (EntitySelectByAnyDirectProvider.class.equals(providerClass)) {
+		if (EntitySelectByAnyDirectProvider.class.equals(providerType)) {
 			return AutoMapperType.selectEntityDirect.sqlFunction();
 		}
-		if (EntitySelectByAnyExceptLogicDeletedProvider.class.equals(providerClass)) {
+		if (EntitySelectByAnyExceptLogicDeletedProvider.class.equals(providerType)) {
 			return AutoMapperType.selectEntityExceptLogicDeleted.sqlFunction();
 		}
-		if (EntitySelectByIdProvider.class.equals(providerClass)) {
+		if (EntitySelectByIdProvider.class.equals(providerType)) {
 			return AutoMapperType.selectEntityById.sqlFunction();
 		}
-		if (EntitySelectByIdDirectProvider.class.equals(providerClass)) {
+		if (EntitySelectByIdDirectProvider.class.equals(providerType)) {
 			return AutoMapperType.selectEntityByIdDirect.sqlFunction();
 		}
-		if (EntitySelectByIdExceptLogicDeletedProvider.class.equals(providerClass)) {
+		if (EntitySelectByIdExceptLogicDeletedProvider.class.equals(providerType)) {
 			return AutoMapperType.selectEntityByIdExceptLogicDeleted.sqlFunction();
 		}
 
-		if (EntityCountProvider.class.equals(providerClass)) {
+		if (EntityCountProvider.class.equals(providerType)) {
 			return AutoMapperType.countEntity.sqlFunction();
 		}
-		if (EntityCountDirectProvider.class.equals(providerClass)) {
+		if (EntityCountDirectProvider.class.equals(providerType)) {
 			return AutoMapperType.countEntityDirect.sqlFunction();
 		}
-		if (EntityCountExceptLogicDeletedProvider.class.equals(providerClass)) {
+		if (EntityCountExceptLogicDeletedProvider.class.equals(providerType)) {
 			return AutoMapperType.countEntityExceptLogicDeleted.sqlFunction();
 		}
 
 		return null;
 	}
 
-
-	private SqlSource createSqlSource(Object parameterObject) {
-		try {
-			String sql;
-			if (parameterObject instanceof Map) {
-				int bindParameterCount = providerMethodParameterTypes.length - (providerContext == null ? 0 : 1);
-				if (bindParameterCount == 1
-					&& providerMethodParameterTypes[Integer.valueOf(0).equals(providerContextIndex) ? 1 : 0].isAssignableFrom(parameterObject.getClass())) {
-					sql = invokeProviderMethod(extractProviderMethodArguments(parameterObject));
-				} else {
-					@SuppressWarnings("unchecked")
-					Map<String, Object> params = (Map<String, Object>) parameterObject;
-					sql = invokeProviderMethod(extractProviderMethodArguments(params, providerMethodArgumentNames));
-				}
-			} else if (providerMethodParameterTypes.length == 0) {
-				sql = invokeProviderMethod();
-			} else if (providerMethodParameterTypes.length == 1) {
-				if (providerContext == null) {
-					sql = invokeProviderMethod(parameterObject);
-				} else {
-					sql = invokeProviderMethod(providerContext);
-				}
-			} else if (providerMethodParameterTypes.length == 2) {
-				sql = invokeProviderMethod(extractProviderMethodArguments(parameterObject));
-			} else {
-				throw new BuilderException("Cannot invoke SqlProvider method '" + providerMethod
-					+ "' with specify parameter '" + (parameterObject == null ? null : parameterObject.getClass())
-					+ "' because SqlProvider method arguments for '" + mapperMethod + "' is an invalid combination.");
-			}
-			Class<?> parameterType = parameterObject == null ? Object.class : parameterObject.getClass();
-			return languageDriver.createSqlSource(configuration, sql, parameterType);
-		} catch (BuilderException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new BuilderException("Error invoking SqlProvider method '" + providerMethod
-				+ "' with specify parameter '" + (parameterObject == null ? null : parameterObject.getClass()) + "'.  Cause: " + extractRootCause(e), e);
-		}
-	}
 
 	private static final MethodHandle newProviderContext = find$newProviderContext();
 
@@ -407,66 +463,6 @@ public class EnhancedProviderSqlSource implements SqlSource {
 			log.error("", e);
 			throw new IllegalStateException("构造ProviderContext对象失败，请检查Mybatis版本兼容性");
 		}
-	}
-
-	private Throwable extractRootCause(Exception e) {
-		Throwable cause = e;
-		while (cause.getCause() != null) {
-			cause = cause.getCause();
-		}
-		return cause;
-	}
-
-	private Object[] extractProviderMethodArguments(Object parameterObject) {
-		if (providerContext != null) {
-			Object[] args = new Object[2];
-			args[providerContextIndex == 0 ? 1 : 0] = parameterObject;
-			args[providerContextIndex] = providerContext;
-			return args;
-		} else {
-			return new Object[]{parameterObject};
-		}
-	}
-
-	private Object[] extractProviderMethodArguments(Map<String, Object> params, String[] argumentNames) {
-		Object[] args = new Object[argumentNames.length];
-		for (int i = 0; i < args.length; i++) {
-			if (providerContextIndex != null && providerContextIndex == i) {
-				args[i] = providerContext;
-			} else {
-				args[i] = params.get(argumentNames[i]);
-			}
-		}
-		return args;
-	}
-
-	private String invokeProviderMethod(Object... args) throws Exception {
-		Object targetObject = null;
-		if (!Modifier.isStatic(providerMethod.getModifiers())) {
-			targetObject = providerType.getDeclaredConstructor().newInstance();
-		}
-		CharSequence sql = (CharSequence) providerMethod.invoke(targetObject, args);
-		return sql != null ? sql.toString() : null;
-	}
-
-	private Class<?> getProviderType(Configuration configuration, Annotation providerAnnotation, Method mapperMethod)
-		throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-		Class<?> type = (Class<?>) providerAnnotation.annotationType().getMethod("type").invoke(providerAnnotation);
-		Class<?> value = (Class<?>) providerAnnotation.annotationType().getMethod("value").invoke(providerAnnotation);
-		if (value == void.class && type == void.class) {
-			if (configuration.getDefaultSqlProviderType() != null) {
-				return configuration.getDefaultSqlProviderType();
-			}
-			throw new BuilderException("Please specify either 'value' or 'type' attribute of @"
-				+ providerAnnotation.annotationType().getSimpleName()
-				+ " at the '" + mapperMethod.toString() + "'.");
-		}
-		if (value != void.class && type != void.class && value != type) {
-			throw new BuilderException("Cannot specify different class on 'value' and 'type' attribute of @"
-				+ providerAnnotation.annotationType().getSimpleName()
-				+ " at the '" + mapperMethod.toString() + "'.");
-		}
-		return value == void.class ? type : value;
 	}
 
 }

@@ -59,7 +59,7 @@ public class EnhancedAutoMapperHelper {
 	}
 
 	public static EnhancedAutoMapperMeta parseEnhancedAutoMapperMeta(Method method, Class<?> mapperClass) {
-		return parseEnhancedAutoMapperMeta(method, mapperClass, getEntityClassOrNull(method, mapperClass));
+		return parseEnhancedAutoMapperMeta(method, mapperClass, getEntityClassOrNull(mapperClass, method));
 	}
 
 	public static EnhancedAutoMapperMeta parseEnhancedAutoMapperMeta(Method method, Class<?> mapperClass, Class<?> declaredEntityClass) {
@@ -87,7 +87,7 @@ public class EnhancedAutoMapperHelper {
 			if (declaredEntityClass != null && declaredEntityClass != Object.class && declaredEntityClass != void.class) {
 				entityClass = declaredEntityClass;
 			} else {
-				entityClass = getEntityClassOrThrows(method, mapperClass);
+				entityClass = getEntityClassOrThrows(mapperClass, method);
 			}
 		}
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
@@ -117,7 +117,7 @@ public class EnhancedAutoMapperHelper {
 			if (declaredEntityClass != null && declaredEntityClass != Object.class && declaredEntityClass != void.class) {
 				resultJavaType = declaredEntityClass;
 			} else {
-				resultJavaType = getEntityClassOrThrows(method, mapperClass);
+				resultJavaType = getEntityClassOrThrows(mapperClass, method);
 			}
 		}
 
@@ -193,13 +193,13 @@ public class EnhancedAutoMapperHelper {
 		return old != null ? old.get() : entityClass;
 	}
 
-	public static Class<?> registerEntityClass(Method mapperMethod, Class<?> mapperType, Class<?> entityClass) {
-		Ref<Class<?>> old = ENTITY_CLASS_MAP.put(new MapperKey(mapperMethod, mapperType, ""), Ref.of(entityClass));
+	public static Class<?> registerEntityClass(Class<?> mapperType, Method mapperMethod, Class<?> entityClass) {
+		Ref<Class<?>> old = ENTITY_CLASS_MAP.put(new MapperKey(mapperType, mapperMethod, ""), Ref.of(entityClass));
 		return old != null ? old.get() : entityClass;
 	}
 
-	public static Class<?> registerEntityClass(Method mapperMethod, Class<?> mapperType, String databaseId, Class<?> entityClass) {
-		Ref<Class<?>> old = ENTITY_CLASS_MAP.put(new MapperKey(mapperMethod, mapperType, databaseId), Ref.of(entityClass));
+	public static Class<?> registerEntityClass(Class<?> mapperType, Method mapperMethod, String databaseId, Class<?> entityClass) {
+		Ref<Class<?>> old = ENTITY_CLASS_MAP.put(new MapperKey(mapperType, mapperMethod, databaseId), Ref.of(entityClass));
 		return old != null ? old.get() : entityClass;
 	}
 
@@ -223,18 +223,18 @@ public class EnhancedAutoMapperHelper {
 	/**
 	 * 获取 Mapper 接口或方法上声明的实体类。
 	 *
-	 * @param mapperMethod 当前调用的方法对象
 	 * @param mapperType Mapper 接口类型
+	 * @param mapperMethod 当前调用的方法对象
 	 * @return 实体类 Class 对象
 	 * @throws IllegalStateException 如果无法确定实体类则抛出异常
 	 */
-	public static Class<?> getEntityClassOrThrows(Method mapperMethod, Class<?> mapperType) {
-		return getEntityClassOrThrows(mapperMethod, mapperType, "");
+	public static Class<?> getEntityClassOrThrows(Class<?> mapperType, Method mapperMethod) {
+		return getEntityClassOrThrows(mapperType, mapperMethod, "");
 	}
 
-	public static Class<?> getEntityClassOrThrows(Method mapperMethod, Class<?> mapperType, String databaseId) {
-		Ref<Class<?>> ref = ENTITY_CLASS_MAP.computeIfAbsent(new MapperKey(mapperMethod, mapperType, databaseId),
-			k -> Ref.of(innerGetEntityClass(mapperMethod, mapperType, databaseId)));
+	public static Class<?> getEntityClassOrThrows(Class<?> mapperType, Method mapperMethod, String databaseId) {
+		Ref<Class<?>> ref = ENTITY_CLASS_MAP.computeIfAbsent(new MapperKey(mapperType, mapperMethod, databaseId),
+			k -> Ref.of(innerGetEntityClass(mapperType, mapperMethod, databaseId)));
 		Class<?> entityClass = ref.get();
 		if (entityClass != null) {
 			return entityClass;
@@ -243,26 +243,26 @@ public class EnhancedAutoMapperHelper {
 	}
 
 	@Nullable
-	public static Class<?> getEntityClassOrNull(Method mapperMethod, Class<?> mapperType) {
-		return getEntityClassOrNull(mapperMethod, mapperType, "");
+	public static Class<?> getEntityClassOrNull(Class<?> mapperType, Method mapperMethod) {
+		return getEntityClassOrNull(mapperType, mapperMethod, "");
 	}
 
 	@Nullable
-	public static Class<?> getEntityClassOrNull(Method mapperMethod, Class<?> mapperType, String databaseId) {
-		Ref<Class<?>> ref = ENTITY_CLASS_MAP.computeIfAbsent(new MapperKey(mapperMethod, mapperType, databaseId),
-			k -> Ref.of(innerGetEntityClass(mapperMethod, mapperType, databaseId)));
+	public static Class<?> getEntityClassOrNull(Class<?> mapperType, Method mapperMethod, String databaseId) {
+		Ref<Class<?>> ref = ENTITY_CLASS_MAP.computeIfAbsent(new MapperKey(mapperType, mapperMethod, databaseId),
+			k -> Ref.of(innerGetEntityClass(mapperType, mapperMethod, databaseId)));
 		return ref.get();
 	}
 
 
 	@Nullable
 	private static Class<?> innerGetEntityClass(ProviderContext context) {
-		return innerGetEntityClass(context.getMapperMethod(), context.getMapperType(), context.getDatabaseId());
+		return innerGetEntityClass(context.getMapperType(), context.getMapperMethod(), context.getDatabaseId());
 	}
 
 
 	@Nullable
-	private static Class<?> innerGetEntityClass(Method mapperMethod, Class<?> mapperType, String databaseId) {
+	private static Class<?> innerGetEntityClass(Class<?> mapperType, Method mapperMethod, String databaseId) {
 		Class<?> entityClass = null;
 
 		AutoMapper annotation = EnhancedMapperAnnotations.getAutoMapper(databaseId, mapperMethod);
@@ -327,7 +327,7 @@ public class EnhancedAutoMapperHelper {
 	}
 
 	@Nullable
-	public static BindingKeyDefinition registerBindingKeyDefinition(@Nonnull Method method,@Nonnull BindingKeyDefinition bindingKeyDefinition) {
+	public static BindingKeyDefinition registerBindingKeyDefinition(@Nonnull Method method, @Nonnull BindingKeyDefinition bindingKeyDefinition) {
 		return METHOD_BINDING_KEY_MAP.put(method, bindingKeyDefinition);
 	}
 
@@ -350,17 +350,15 @@ public class EnhancedAutoMapperHelper {
 			}
 		} catch (Exception ignored) {
 		}
-		return withLogicDeleted(context);
+		return withLogicDeleted(context.getMapperType(), context.getMapperMethod());
 	}
 
-	public static boolean withLogicDeleted(ProviderContext context) {
-		Method mapperMethod = context.getMapperMethod();
-		Class<?> mapperType = context.getMapperType();
-		return LOGIC_DELETED_MAP.computeIfAbsent(Tuple2.of(mapperMethod, context.getMapperType()),
-			k -> innerGetWithLogicDeleted(mapperMethod, mapperType));
+	public static boolean withLogicDeleted(Class<?> mapperType, Method mapperMethod) {
+		return LOGIC_DELETED_MAP.computeIfAbsent(Tuple2.of(mapperMethod, mapperType),
+			k -> innerGetWithLogicDeleted(mapperType, mapperMethod));
 	}
 
-	private static boolean innerGetWithLogicDeleted(Method mapperMethod, Class<?> mapperType) {
+	private static boolean innerGetWithLogicDeleted(Class<?> mapperType, Method mapperMethod) {
 		// 从方法上获取
 		WithLogicDeleted declared = mapperMethod.getAnnotation(WithLogicDeleted.class);
 		Class<?> entityClass = null;
@@ -390,18 +388,18 @@ public class EnhancedAutoMapperHelper {
 	@EqualsAndHashCode
 	@ToString
 	public static class MapperKey {
-		private final Method mapperMethod;
 		private final Class<?> mapperType;
+		private final Method mapperMethod;
 		private final String databaseId;
 
-		public MapperKey(Method mapperMethod, Class<?> mapperType, String databaseId) {
+		public MapperKey(Class<?> mapperType, Method mapperMethod, String databaseId) {
 			this.mapperMethod = mapperMethod;
 			this.mapperType = mapperType;
 			this.databaseId = Strings.trimToEmpty(databaseId);
 		}
 
 		public MapperKey(ProviderContext context) {
-			this(context.getMapperMethod(), context.getMapperType(), context.getDatabaseId());
+			this(context.getMapperType(), context.getMapperMethod(), context.getDatabaseId());
 		}
 	}
 
