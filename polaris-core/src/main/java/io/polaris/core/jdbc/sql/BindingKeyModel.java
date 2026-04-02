@@ -1,7 +1,15 @@
 package io.polaris.core.jdbc.sql;
 
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
+import io.polaris.core.collection.Sets;
+import io.polaris.core.jdbc.annotation.EntityDelete;
+import io.polaris.core.jdbc.annotation.EntityInsert;
+import io.polaris.core.jdbc.annotation.EntityMerge;
+import io.polaris.core.jdbc.annotation.EntitySelect;
+import io.polaris.core.jdbc.annotation.EntityUpdate;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.statement.ColumnPredicate;
 import io.polaris.core.jdbc.sql.statement.ConfigurableColumnPredicate;
@@ -52,14 +60,72 @@ public class BindingKeyModel {
 	 * @param bindings 绑定参数
 	 * @return 空值列处理控制器
 	 */
-	public ColumnPredicate toCompatibleColumnPredicate(Map<String, Object> bindings) {
+	public ColumnPredicate toFusionColumnPredicate(Map<String, Object> bindings) {
 		BindingKeyModel bindingKeyModel = this;
 		// 兼容 where keys
-		String[] includeColumnsKey = {bindingKeyModel.whereIncludeColumns(), bindingKeyModel.includeColumns()};
-		String[] excludeColumnsKey = {bindingKeyModel.whereExcludeColumns(), bindingKeyModel.excludeColumns()};
-		String[] includeEmptyColumnsKey = {bindingKeyModel.whereIncludeEmptyColumns(), bindingKeyModel.includeEmptyColumns()};
-		String[] includeAllEmptyKey = {bindingKeyModel.whereIncludeAllEmpty(), bindingKeyModel.includeAllEmpty()};
-		return ConfigurableColumnPredicate.of(bindings, null, includeColumnsKey, null, excludeColumnsKey, null, includeEmptyColumnsKey, false, includeAllEmptyKey);
+		Set<String> includeColumnsKey = Sets.asSet(() -> new LinkedHashSet<>(),
+			Strings.trimToEmpty(bindingKeyModel.whereIncludeColumns()),
+			Strings.trimToEmpty(bindingKeyModel.includeColumns()));
+		includeColumnsKey.remove("");
+		Set<String> excludeColumnsKey = Sets.asSet(() -> new LinkedHashSet<>(),
+			Strings.trimToEmpty(bindingKeyModel.whereExcludeColumns()),
+			Strings.trimToEmpty(bindingKeyModel.excludeColumns()));
+		excludeColumnsKey.remove("");
+		Set<String> includeEmptyColumnsKey = Sets.asSet(() -> new LinkedHashSet<>(),
+			Strings.trimToEmpty(bindingKeyModel.whereIncludeEmptyColumns()),
+			Strings.trimToEmpty(bindingKeyModel.includeEmptyColumns()));
+		includeEmptyColumnsKey.remove("");
+		Set<String> includeAllEmptyKey = Sets.asSet(() -> new LinkedHashSet<>(),
+			Strings.trimToEmpty(bindingKeyModel.whereIncludeAllEmpty()),
+			Strings.trimToEmpty(bindingKeyModel.includeAllEmpty()));
+		includeEmptyColumnsKey.remove("");
+
+		return ConfigurableColumnPredicate.of(bindings,
+			null, includeColumnsKey.toArray(new String[0]),
+			null, excludeColumnsKey.toArray(new String[0]),
+			null, includeEmptyColumnsKey.toArray(new String[0]),
+			false, includeAllEmptyKey.toArray(new String[0]));
+	}
+
+	/**
+	 * 生成空值列的处理开关控制器，绑定健同时支持 entity 与 where 关联键，适用于不需要区分 entity 与 where 类型的场景，如 select、delete
+	 *
+	 * @param bindings 绑定参数
+	 * @return 空值列处理控制器
+	 */
+	public ColumnPredicate toFusionColumnPredicate(Map<String, Object> bindings, io.polaris.core.jdbc.annotation.segment.ColumnPredicate columnedPredicate) {
+		BindingKeyModel bindingKeyModel = this;
+		// 兼容 where keys
+		Set<String> includeColumnsKey = Sets.asSet(() -> new LinkedHashSet<>(),
+			Strings.equalsAny(columnedPredicate.includeColumnsKey(), BindingKeys.WHERE_INCLUDE_COLUMNS, BindingKeys.INCLUDE_COLUMNS) ? "" : Strings.trimToEmpty(columnedPredicate.includeColumnsKey()),
+			Strings.trimToEmpty(bindingKeyModel.whereIncludeColumns()),
+			Strings.trimToEmpty(bindingKeyModel.includeColumns()));
+		includeColumnsKey.remove("");
+		Set<String> excludeColumnsKey = Sets.asSet(() -> new LinkedHashSet<>(),
+			Strings.equalsAny(columnedPredicate.excludeColumnsKey(), BindingKeys.WHERE_EXCLUDE_COLUMNS, BindingKeys.EXCLUDE_COLUMNS) ? "" : Strings.trimToEmpty(columnedPredicate.excludeColumnsKey()),
+			Strings.trimToEmpty(bindingKeyModel.whereExcludeColumns()),
+			Strings.trimToEmpty(bindingKeyModel.excludeColumns()));
+		excludeColumnsKey.remove("");
+		Set<String> includeEmptyColumnsKey = Sets.asSet(() -> new LinkedHashSet<>(),
+			Strings.equalsAny(columnedPredicate.includeEmptyColumnsKey(), BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS, BindingKeys.INCLUDE_EMPTY_COLUMNS) ? "" : Strings.trimToEmpty(columnedPredicate.includeEmptyColumnsKey()),
+			Strings.trimToEmpty(bindingKeyModel.whereIncludeEmptyColumns()),
+			Strings.trimToEmpty(bindingKeyModel.includeEmptyColumns()));
+		includeEmptyColumnsKey.remove("");
+		Set<String> includeAllEmptyKey = Sets.asSet(() -> new LinkedHashSet<>(),
+			Strings.equalsAny(columnedPredicate.includeAllEmptyKey(), BindingKeys.WHERE_INCLUDE_ALL_EMPTY, BindingKeys.INCLUDE_ALL_EMPTY) ? "" : Strings.trimToEmpty(columnedPredicate.includeAllEmptyKey()),
+			Strings.trimToEmpty(bindingKeyModel.whereIncludeAllEmpty()),
+			Strings.trimToEmpty(bindingKeyModel.includeAllEmpty()));
+		includeAllEmptyKey.remove("");
+
+		return ConfigurableColumnPredicate.of(bindings,
+			columnedPredicate.includeColumns(),
+			includeColumnsKey.toArray(new String[0]),
+			columnedPredicate.excludeColumns(),
+			excludeColumnsKey.toArray(new String[0]),
+			columnedPredicate.includeEmptyColumns(),
+			includeEmptyColumnsKey.toArray(new String[0]),
+			columnedPredicate.includeAllEmpty(),
+			includeAllEmptyKey.toArray(new String[0]));
 	}
 
 	/**
@@ -75,6 +141,43 @@ public class BindingKeyModel {
 		String includeEmptyColumnsKey = bindingKeyModel.includeEmptyColumns();
 		String includeAllEmptyKey = bindingKeyModel.includeAllEmpty();
 		return ConfigurableColumnPredicate.of(bindings, null, includeColumnsKey, null, excludeColumnsKey, null, includeEmptyColumnsKey, false, includeAllEmptyKey);
+	}
+
+	/**
+	 * 生成空值列的处理开关控制器，适用于 update、insert 子句
+	 *
+	 * @param bindings 绑定参数
+	 * @return 空值列处理控制器
+	 */
+	public ColumnPredicate toEntityColumnPredicate(Map<String, Object> bindings, io.polaris.core.jdbc.annotation.segment.ColumnPredicate columnedPredicate) {
+		BindingKeyModel bindingKeyModel = this;
+
+		Set<String> includeColumnsKey = Sets.asSet(() -> new LinkedHashSet<>(),
+			Strings.equals(columnedPredicate.includeColumnsKey(), BindingKeys.INCLUDE_COLUMNS) ? "" : Strings.trimToEmpty(columnedPredicate.includeColumnsKey()),
+			Strings.trimToEmpty(bindingKeyModel.includeColumns()));
+		includeColumnsKey.remove("");
+		Set<String> excludeColumnsKey = Sets.asSet(() -> new LinkedHashSet<>(),
+			Strings.equals(columnedPredicate.excludeColumnsKey(), BindingKeys.EXCLUDE_COLUMNS) ? "" : Strings.trimToEmpty(columnedPredicate.excludeColumnsKey()),
+			Strings.trimToEmpty(bindingKeyModel.excludeColumns()));
+		excludeColumnsKey.remove("");
+		Set<String> includeEmptyColumnsKey = Sets.asSet(() -> new LinkedHashSet<>(),
+			Strings.equals(columnedPredicate.includeEmptyColumnsKey(), BindingKeys.INCLUDE_EMPTY_COLUMNS) ? "" : Strings.trimToEmpty(columnedPredicate.includeEmptyColumnsKey()),
+			Strings.trimToEmpty(bindingKeyModel.includeEmptyColumns()));
+		includeEmptyColumnsKey.remove("");
+		Set<String> includeAllEmptyKey = Sets.asSet(() -> new LinkedHashSet<>(),
+			Strings.equals(columnedPredicate.includeAllEmptyKey(), BindingKeys.INCLUDE_ALL_EMPTY) ? "" : Strings.trimToEmpty(columnedPredicate.includeAllEmptyKey()),
+			Strings.trimToEmpty(bindingKeyModel.includeAllEmpty()));
+		includeAllEmptyKey.remove("");
+
+		return ConfigurableColumnPredicate.of(bindings,
+			columnedPredicate.includeColumns(),
+			includeColumnsKey.toArray(new String[0]),
+			columnedPredicate.excludeColumns(),
+			excludeColumnsKey.toArray(new String[0]),
+			columnedPredicate.includeEmptyColumns(),
+			includeEmptyColumnsKey.toArray(new String[0]),
+			columnedPredicate.includeAllEmpty(),
+			includeAllEmptyKey.toArray(new String[0]));
 	}
 
 
@@ -93,6 +196,42 @@ public class BindingKeyModel {
 		return ConfigurableColumnPredicate.of(bindings, null, whereIncludeColumnsKey, null, whereExcludeColumnsKey, null, whereIncludeEmptyColumnsKey, false, whereIncludeAllEmptyKey);
 	}
 
+	/**
+	 * 生成 where 列处理开关控制器，适用于 where 语句
+	 *
+	 * @param bindings 绑定参数
+	 * @return 空值列处理控制器
+	 */
+	public ColumnPredicate toWhereColumnPredicate(Map<String, Object> bindings, io.polaris.core.jdbc.annotation.segment.ColumnPredicate columnedPredicate) {
+		BindingKeyModel bindingKeyModel = this;
+		Set<String> includeColumnsKey = Sets.asSet(() -> new LinkedHashSet<>(),
+			Strings.equals(columnedPredicate.includeColumnsKey(), BindingKeys.WHERE_INCLUDE_COLUMNS) ? "" : Strings.trimToEmpty(columnedPredicate.includeColumnsKey()),
+			Strings.trimToEmpty(bindingKeyModel.whereIncludeColumns()));
+		includeColumnsKey.remove("");
+		Set<String> excludeColumnsKey = Sets.asSet(() -> new LinkedHashSet<>(),
+			Strings.equals(columnedPredicate.excludeColumnsKey(), BindingKeys.WHERE_EXCLUDE_COLUMNS) ? "" : Strings.trimToEmpty(columnedPredicate.excludeColumnsKey()),
+			Strings.trimToEmpty(bindingKeyModel.whereExcludeColumns()));
+		excludeColumnsKey.remove("");
+		Set<String> includeEmptyColumnsKey = Sets.asSet(() -> new LinkedHashSet<>(),
+			Strings.equals(columnedPredicate.includeEmptyColumnsKey(), BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) ? "" : Strings.trimToEmpty(columnedPredicate.includeEmptyColumnsKey()),
+			Strings.trimToEmpty(bindingKeyModel.whereIncludeEmptyColumns()));
+		includeEmptyColumnsKey.remove("");
+		Set<String> includeAllEmptyKey = Sets.asSet(() -> new LinkedHashSet<>(),
+			Strings.equals(columnedPredicate.includeAllEmptyKey(), BindingKeys.WHERE_INCLUDE_ALL_EMPTY) ? "" : Strings.trimToEmpty(columnedPredicate.includeAllEmptyKey()),
+			Strings.trimToEmpty(bindingKeyModel.whereIncludeAllEmpty()));
+		includeAllEmptyKey.remove("");
+
+		return ConfigurableColumnPredicate.of(bindings,
+			columnedPredicate.includeColumns(),
+			includeColumnsKey.toArray(new String[0]),
+			columnedPredicate.excludeColumns(),
+			excludeColumnsKey.toArray(new String[0]),
+			columnedPredicate.includeEmptyColumns(),
+			includeEmptyColumnsKey.toArray(new String[0]),
+			columnedPredicate.includeAllEmpty(),
+			includeAllEmptyKey.toArray(new String[0]));
+	}
+
 
 	public boolean isFrozen() {
 		return frozen;
@@ -109,6 +248,7 @@ public class BindingKeyModel {
 		}
 	}
 
+	// region setter
 
 	public BindingKeyModel entity(String entity) {
 		checkState();
@@ -229,16 +369,91 @@ public class BindingKeyModel {
 		return this;
 	}
 
+	// endregion
+
+	// region getter
+
 	public String entity() {
 		return entity;
+	}
+
+	public String entity(EntityInsert entityInsert) {
+		String entityKey = entityInsert.entityKey();
+		if (BindingKeys.ENTITY.equals(entityKey) || Strings.isBlank(entityKey)) {
+			entityKey = entity;
+		}
+		return entityKey;
+	}
+
+	public String entity(EntityDelete entityDelete) {
+		String entityKey = entityDelete.entityKey();
+		if (BindingKeys.ENTITY.equals(entityKey) || Strings.isBlank(entityKey)) {
+			entityKey = entity;
+		}
+		return entityKey;
+	}
+
+	public String entity(EntityUpdate entityUpdate) {
+		String entityKey = entityUpdate.entityKey();
+		if (BindingKeys.ENTITY.equals(entityKey) || Strings.isBlank(entityKey)) {
+			entityKey = entity;
+		}
+		return entityKey;
+	}
+
+	public String entity(EntitySelect entitySelect) {
+		String entityKey = entitySelect.entityKey();
+		if (BindingKeys.ENTITY.equals(entityKey) || Strings.isBlank(entityKey)) {
+			entityKey = entity;
+		}
+		return entityKey;
+	}
+	public String entity(EntityMerge entityMerge) {
+		String entityKey = entityMerge.entityKey();
+		if (BindingKeys.ENTITY.equals(entityKey) || Strings.isBlank(entityKey)) {
+			entityKey = entity;
+		}
+		return entityKey;
 	}
 
 	public String where() {
 		return where;
 	}
 
+	public String where(EntityDelete entityDelete) {
+		String whereKey = entityDelete.whereKey();
+		if (BindingKeys.WHERE.equals(whereKey) || Strings.isBlank(whereKey)) {
+			whereKey = where;
+		}
+		return whereKey;
+	}
+
+	public String where(EntityUpdate entityUpdate) {
+		String whereKey = entityUpdate.whereKey();
+		if (BindingKeys.WHERE.equals(whereKey) || Strings.isBlank(whereKey)) {
+			whereKey = where;
+		}
+		return whereKey;
+	}
+
+	public String where(EntitySelect entitySelect) {
+		String whereKey = entitySelect.whereKey();
+		if (BindingKeys.WHERE.equals(whereKey) || Strings.isBlank(whereKey)) {
+			whereKey = where;
+		}
+		return whereKey;
+	}
+
 	public String orderBy() {
 		return orderBy;
+	}
+
+	public String orderBy(EntitySelect entitySelect) {
+		String orderByKey = entitySelect.orderByKey();
+		if (BindingKeys.ORDER_BY.equals(orderByKey) || Strings.isBlank(orderByKey)) {
+			orderByKey = orderBy;
+		}
+		return orderByKey;
 	}
 
 	public String includeEmptyColumns() {
@@ -280,4 +495,7 @@ public class BindingKeyModel {
 	public String withLogicDeleted() {
 		return withLogicDeleted;
 	}
+
+	// endregion
+
 }

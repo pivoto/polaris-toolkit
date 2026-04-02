@@ -503,7 +503,7 @@ public class SqlStatements {
 		String entityKey = bindingKeyModel.entity();
 		String whereKey = bindingKeyModel.where();
 		// 兼容 where keys
-		ColumnPredicate columnPredicate = bindingKeyModel.toCompatibleColumnPredicate(bindings);
+		ColumnPredicate columnPredicate = bindingKeyModel.toFusionColumnPredicate(bindings);
 		return buildDeleteByAny(varPropFilter, bindings, entityClass, withLogicDeleted, entityKey, whereKey, columnPredicate);
 	}
 
@@ -639,7 +639,7 @@ public class SqlStatements {
 		String entityKey = bindingKeyModel.entity();
 		String whereKey = bindingKeyModel.where();
 		// 兼容 where keys
-		ColumnPredicate columnPredicate = bindingKeyModel.toCompatibleColumnPredicate(bindings);
+		ColumnPredicate columnPredicate = bindingKeyModel.toFusionColumnPredicate(bindings);
 		return buildDirectDeleteByAny(varPropFilter, bindings, entityClass, entityKey, whereKey, columnPredicate);
 	}
 
@@ -709,7 +709,7 @@ public class SqlStatements {
 		String entityKey = bindingKeyModel.entity();
 		String whereKey = bindingKeyModel.where();
 		// 兼容 where keys
-		ColumnPredicate columnPredicate = bindingKeyModel.toCompatibleColumnPredicate(bindings);
+		ColumnPredicate columnPredicate = bindingKeyModel.toFusionColumnPredicate(bindings);
 		return buildLogicDeleteByAny(varPropFilter, bindings, entityClass, entityKey, whereKey, columnPredicate);
 	}
 
@@ -1087,7 +1087,7 @@ public class SqlStatements {
 		String entityKey = bindingKeyModel.entity();
 		String whereKey = bindingKeyModel.where();
 		// 兼容 where keys
-		ColumnPredicate columnPredicate = bindingKeyModel.toCompatibleColumnPredicate(bindings);
+		ColumnPredicate columnPredicate = bindingKeyModel.toFusionColumnPredicate(bindings);
 		return buildCount(varPropFilter, bindings, entityClass, withLogicDeleted, entityKey, whereKey, columnPredicate);
 	}
 
@@ -1348,7 +1348,7 @@ public class SqlStatements {
 		String entityKey = bindingKeyModel.entity();
 		String whereKey = bindingKeyModel.where();
 		// 兼容 where keys
-		ColumnPredicate columnPredicate = bindingKeyModel.toCompatibleColumnPredicate(bindings);
+		ColumnPredicate columnPredicate = bindingKeyModel.toFusionColumnPredicate(bindings);
 		return buildExistsByAny(varPropFilter, bindings, entityClass, queryByCount, withLogicDeleted, entityKey, whereKey, columnPredicate);
 	}
 
@@ -1620,7 +1620,7 @@ public class SqlStatements {
 		String whereKey = bindingKeyModel.where();
 		String orderByKey = bindingKeyModel.orderBy();
 		// 兼容 where keys
-		ColumnPredicate columnPredicate = bindingKeyModel.toCompatibleColumnPredicate(bindings);
+		ColumnPredicate columnPredicate = bindingKeyModel.toFusionColumnPredicate(bindings);
 		return buildSelectByAny(varPropFilter, bindings, entityClass, withLogicDeleted, entityKey, whereKey, orderByKey, columnPredicate);
 	}
 
