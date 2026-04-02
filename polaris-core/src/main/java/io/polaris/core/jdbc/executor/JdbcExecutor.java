@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import io.polaris.core.converter.Converters;
@@ -66,6 +67,8 @@ public class JdbcExecutor<T> implements InvocationHandler, InvocationHandlerHold
 		lookupConstructor = lookup;
 	}
 
+	private Map<Method, MethodHandle> methodHandleCache;
+
 	protected JdbcExecutor(Class<T> interfaceClass) {
 		this.interfaceClass = interfaceClass;
 		Map<Method, Function<Object[], Object>> methodFunctions = new HashMap<>();
@@ -75,9 +78,49 @@ public class JdbcExecutor<T> implements InvocationHandler, InvocationHandlerHold
 		this.methodFunctions = Collections.unmodifiableMap(methodFunctions);
 	}
 
+
+	private MethodHandle getMethodHandleJava9(Method method)
+		throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+		final Class<?> declaringClass = method.getDeclaringClass();
+		return ((MethodHandles.Lookup) privateLookupInMethod.invoke(null, declaringClass, MethodHandles.lookup())).findSpecial(
+			declaringClass, method.getName(), MethodType.methodType(method.getReturnType(), method.getParameterTypes()),
+			declaringClass);
+	}
+
+	private MethodHandle getMethodHandleJava8(Method method)
+		throws IllegalAccessException, InstantiationException, InvocationTargetException {
+		final Class<?> declaringClass = method.getDeclaringClass();
+		return lookupConstructor.newInstance(declaringClass, ALLOWED_MODES).unreflectSpecial(method, declaringClass);
+	}
+
+	private MethodHandle getCachedMethodHandle(Method method) {
+		Map<Method, MethodHandle> methodHandleCache = this.methodHandleCache;
+		if (methodHandleCache == null) {
+			methodHandleCache = new ConcurrentHashMap<>();
+			this.methodHandleCache = methodHandleCache;
+		}
+		MethodHandle methodHandle = methodHandleCache.get(method);
+		if (methodHandle == null) {
+			try {
+				if (privateLookupInMethod == null) {
+					methodHandle = getMethodHandleJava8(method);
+				} else {
+					methodHandle = getMethodHandleJava9(method);
+				}
+			} catch (ReflectiveOperationException e) {
+				throw new RuntimeException(e);
+			}
+			methodHandleCache.put(method, methodHandle);
+		}
+		return methodHandle;
+	}
+
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		if (method.getDeclaringClass() == InvocationHandlerHolder.class) {
+			if (method.getName().equals("$handler")) {
+				return this.$handler();
+			}
 			return Reflects.invoke(this, method, args);
 		}
 		if (Reflects.isToStringMethod(method)) {
@@ -190,21 +233,5 @@ public class JdbcExecutor<T> implements InvocationHandler, InvocationHandlerHold
 		}
 		return conn;
 	}
-
-
-	private MethodHandle getMethodHandleJava9(Method method)
-		throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-		final Class<?> declaringClass = method.getDeclaringClass();
-		return ((MethodHandles.Lookup) privateLookupInMethod.invoke(null, declaringClass, MethodHandles.lookup())).findSpecial(
-			declaringClass, method.getName(), MethodType.methodType(method.getReturnType(), method.getParameterTypes()),
-			declaringClass);
-	}
-
-	private MethodHandle getMethodHandleJava8(Method method)
-		throws IllegalAccessException, InstantiationException, InvocationTargetException {
-		final Class<?> declaringClass = method.getDeclaringClass();
-		return lookupConstructor.newInstance(declaringClass, ALLOWED_MODES).unreflectSpecial(method, declaringClass);
-	}
-
 
 }

@@ -79,6 +79,9 @@ public class StatefulJdbcExecutor<T> extends JdbcExecutor<T> implements JdbcBatc
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		if (method.getDeclaringClass() == JdbcBatchExecutor.class) {
+			if (method.getName().equals("flush")){
+				return this.flush();
+			}
 			return Reflects.invoke(this, method, args);
 		}
 		return super.invoke(proxy, method, args);

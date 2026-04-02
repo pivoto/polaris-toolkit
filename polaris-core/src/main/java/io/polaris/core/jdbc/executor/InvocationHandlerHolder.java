@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationHandler;
  * @author Qt
  * @since Feb 06, 2024
  */
+@FunctionalInterface
 interface InvocationHandlerHolder {
 
 	InvocationHandler $handler();
