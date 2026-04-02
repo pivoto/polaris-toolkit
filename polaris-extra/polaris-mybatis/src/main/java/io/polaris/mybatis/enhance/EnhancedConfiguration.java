@@ -291,13 +291,12 @@ public class EnhancedConfiguration extends Configuration {
 
 	@Override
 	public void addInterceptor(Interceptor interceptor) {
-		boolean contains = interceptorChain.getInterceptors().stream().anyMatch(p -> interceptor.getClass().isAssignableFrom(p.getClass()));
-		if (contains) {
+		if (interceptor instanceof EnhancedInterceptor) {
+			// 增强拦截器的功能已在生成 EnhancedProviderSqlSource 时处理，不需要再添加此拦截器
 			return;
 		}
-		if (BoundSqlEnhanceInterceptor.class.equals(interceptor.getClass())
-			|| DynamicEnhancedInterceptor.class.equals(interceptor.getClass())) {
-			// 增强拦截器的功能已在生成 EnhancedProviderSqlSource 时处理，不需要再添加此拦截器
+		boolean contains = interceptorChain.getInterceptors().stream().anyMatch(p -> interceptor.getClass().isAssignableFrom(p.getClass()));
+		if (contains) {
 			return;
 		}
 		super.addInterceptor(interceptor);

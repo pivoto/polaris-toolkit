@@ -13,6 +13,7 @@ import io.polaris.mybatis.annotation.DynamicResultMapping;
 import io.polaris.mybatis.annotation.DynamicUseGeneratedKeys;
 import io.polaris.mybatis.enhance.EnhancedAutoMapperHelper;
 import io.polaris.mybatis.enhance.EnhancedAutoMapperMeta;
+import io.polaris.mybatis.enhance.EnhancedInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
@@ -43,7 +44,7 @@ import org.apache.ibatis.session.RowBounds;
 	@Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class}),
 	@Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class, CacheKey.class, BoundSql.class}),
 })
-public class DynamicEnhancedInterceptor implements Interceptor {
+public class DynamicEnhancedInterceptor implements Interceptor, EnhancedInterceptor {
 
 
 	/**

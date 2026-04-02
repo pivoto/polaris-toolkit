@@ -3,6 +3,7 @@ package io.polaris.mybatis.interceptor;
 import java.sql.Connection;
 import java.sql.Statement;
 
+import io.polaris.mybatis.enhance.EnhancedInterceptor;
 import io.polaris.mybatis.support.MapperHelperContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.cache.CacheKey;
@@ -34,7 +35,7 @@ import org.apache.ibatis.session.RowBounds;
 	@Signature(type = StatementHandler.class, method = "queryCursor", args = {Statement.class}),
 	@Signature(type = StatementHandler.class, method = "getBoundSql", args = {})
 })
-public class BoundSqlEnhanceInterceptor implements Interceptor {
+public class BoundSqlEnhanceInterceptor implements Interceptor, EnhancedInterceptor {
 
 	public static void enableEnhanceBoundSql(boolean enable) {
 		MapperHelperContext.enableEnhanceBoundSql(enable);
