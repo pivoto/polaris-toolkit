@@ -1,5 +1,12 @@
 ## 版本变更说明
 
+### 3.8.1
+- 优化MyBatis增强工具模块，优化增强逻辑与执行性能
+- 优化Reflects工具类，增加工具方法
+- 优化SQL动态生成工具模块
+- 优化EnhancedParamNameResolver
+- 优化JDBC执行器等方法调用机制
+
 ### 3.8.0
 - 添加扩展Map实现和可修改性检测功能
 - 重构ClassHandle以提供MethodHandle获取方法
