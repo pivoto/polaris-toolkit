@@ -29,11 +29,17 @@ public class DemoOrgController {
 	@PostMapping("list")
 	public Object list() {
 		Map<String, Object> params = Maps.asMap(new HashMap<>(), "id", new Long[]{1L, 2L});
-		List<DemoOrgEntity> list = demoOrgService.doTransaction(mapper -> {
-			return mapper.queryAuto(params);
-		});
 		log.info("params: {}", params);
-		return list;
+		Map<String, Object> rs = new HashMap<>();
+		rs.put("list1", demoOrgService.doTransaction(mapper -> {
+			return mapper.queryAuto(params);
+		}));
+		rs.put("list2", demoOrgService.doTransaction(mapper -> {
+			DemoOrgEntity entity = new DemoOrgEntity();
+			entity.setId(1L);
+			return mapper.queryAuto(entity);
+		}));
+		return rs;
 	}
 
 }

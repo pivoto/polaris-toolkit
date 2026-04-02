@@ -10,6 +10,7 @@ import io.polaris.mybatis.annotation.MapperParam;
 import io.polaris.mybatis.consts.AutoMapperType;
 import io.polaris.mybatis.mapper.EntityMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.SelectProvider;
 
 /**
@@ -23,13 +24,13 @@ public interface DemoOrgAutoMapper extends EntityMapper<DemoOrgEntity> {
 	@AutoMapper(type = AutoMapperType.selectAny)
 	@SelectProvider
 	@EntitySelect(table = DemoOrgEntity.class, byId = false)
-	List<DemoOrgEntity> queryAuto(@MapperParam.Where Map<String, Object> param);
+	List<DemoOrgEntity> queryAuto(@MapperParam.Where @Param("param") Map<String, Object> param);
 
 
 	@AutoMapper(type = AutoMapperType.selectAny)
 	@SelectProvider
 	@EntitySelect(table = DemoOrgEntity.class, byId = false)
-	List<DemoOrgEntity> queryAuto(@MapperParam.Where DemoOrgEntity param);
+	List<DemoOrgEntity> queryAuto(@MapperParam.Where @Param("param") DemoOrgEntity param);
 
 
 }

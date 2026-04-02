@@ -55,9 +55,6 @@ public interface DemoCustomMapper {
 	@EntityDelete(table = DemoOrgEntity.class, entityKey = "e")
 	int deleteEntity(@Param("e") DemoOrgEntity param);
 
-//	@Results({
-//		@Result(property = "intro", column = "intro",  typeHandler = StringArrayTypeHandler.class),
-//	})
 	@SelectProvider(AnyEntityProvider.class)
 	@EntitySelect(table = DemoOrgEntity.class, byId = true)
 	DemoOrgEntity selectOrgById(@Param(BindingKeys.ENTITY) DemoOrgEntity param);
