@@ -234,7 +234,7 @@
 			<!-- extra -->
 			<dependency>
 				<groupId>cn.fossc.polaris.toolkit</groupId>
-				<artifactId>polaris-apm-agent</artifactId>
+				<artifactId>polaris-agent-sdk</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>

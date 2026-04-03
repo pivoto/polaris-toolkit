@@ -31,7 +31,7 @@
 		<!-- extra -->
 		<dependency>
 			<groupId>cn.fossc.polaris.toolkit</groupId>
-			<artifactId>polaris-apm-agent</artifactId>
+			<artifactId>polaris-agent-sdk</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>cn.fossc.polaris.toolkit</groupId>

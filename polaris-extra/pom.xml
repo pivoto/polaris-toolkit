@@ -14,7 +14,7 @@
 	<name>polaris-extra</name>
 
 	<modules>
-		<module>polaris-apm-agent</module>
+		<module>polaris-agent-sdk</module>
 		<module>polaris-extension</module>
 		<module>polaris-crypto</module>
 		<module>polaris-json</module>
