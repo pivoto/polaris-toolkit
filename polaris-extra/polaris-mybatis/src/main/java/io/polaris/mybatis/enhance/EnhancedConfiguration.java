@@ -366,7 +366,7 @@ public class EnhancedConfiguration extends Configuration {
 	}
 
 	@Override
-	public MapperRegistry getMapperRegistry() {
+	public EnhancedMapperRegistry getMapperRegistry() {
 		return mapperRegistry;
 	}
 

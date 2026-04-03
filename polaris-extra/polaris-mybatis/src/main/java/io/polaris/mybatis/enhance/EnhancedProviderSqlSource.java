@@ -2,7 +2,6 @@ package io.polaris.mybatis.enhance;
 
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Map;
@@ -15,13 +14,13 @@ import io.polaris.core.lang.bean.BeanMap;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.map.Maps;
 import io.polaris.core.reflect.Methods;
-import io.polaris.core.reflect.Reflects;
 import io.polaris.core.string.Strings;
 import io.polaris.mybatis.annotation.AutoMapper;
 import io.polaris.mybatis.consts.AutoMapperType;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.*;
 import io.polaris.mybatis.support.MapperHelperContext;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.DeleteProvider;
 import org.apache.ibatis.annotations.InsertProvider;
@@ -32,7 +31,6 @@ import org.apache.ibatis.builder.BuilderException;
 import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.apache.ibatis.builder.annotation.ProviderSqlSource;
 import org.apache.ibatis.mapping.BoundSql;
-import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
@@ -46,15 +44,19 @@ import org.apache.ibatis.session.Configuration;
 public class EnhancedProviderSqlSource implements SqlSource {
 
 	@Nonnull
+	@Getter
 	private final Configuration configuration;
 	@Nonnull
+	@Getter
 	private final LanguageDriver languageDriver;
 	@Nonnull
+	@Getter
 	private final EnhancedProviderContext providerContext;
 	@Nullable
+	@Getter
 	private final BiFunction<Map<String, Object>, EnhancedProviderContext, String> sqlFunction;
-
 	@Nullable
+	@Getter
 	private final ProviderSqlSource providerSqlSource;
 
 

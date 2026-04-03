@@ -73,6 +73,53 @@
 - pro: 生产环境
 
 
+## GIT 操作步骤规范
+
+### 功能分支更新与推送
+
+假定功能分支名为`fea_xxx`，操作步骤如下：
+
+1. 切换到`fea_xxx`分支
+2. 确定`fea_xxx`分支是基于最近一次的`master`分支演进的，如不是，则执行`git rebase master`操作以变基到最新的`master`分支
+3. 执行`git fetch origin fea_xxx`、`git rebase origin/fea_xxx`操作以更新到远程最新（或`git pull --rebase origin fea_xxx`）
+4. 执行`git push origin fea_xxx`操作推送到远程。如果出现冲突被拒绝，则回到第3步重新处理。
+
+> 注：注意每次推送前先执行更新操作，以`rebase`方式解决所有冲突，再推送远程。尤其在多人协作开发时必须确保操作正确，不要无脑使用IDE默认状态的更新方法（即`git pull --no-rebase`)
+
+### 功能分支合并到主线分支(`dev|sit|uat|pre|master`)
+
+假定功能分支名为`fea_xxx`，主线分支名为`dev`，操作步骤如下：
+
+1. 切换到`fea_xxx`分支
+2. 确定`fea_xxx`分支是基于最近一次的`master`分支演进的，如不是，则执行`git rebase master`操作以变基到最新的`master`分支
+3. 基于`fea_xxx`分支创建`dev_fea_xxx`临时分支，作为合并到主线分支前的预处理临时分支
+4. 切换到`dev`分支
+5. 执行`git fetch origin dev`、`git reset --keep origin/dev`操作以更新到远程最新。
+6. 确认此主线分支是否基于最近一次的`master`分支演进，如不是，则执行`git merge --no-ff master`操作以更新状态
+7. 切换到`dev_fea_xxx`分支
+8. 执行`git rebase dev`将`dev_fea_xxx`变基到`dev`分支
+9. 切换到`dev`分支
+10. 执行`git merge --no-ff dev_fea_xxx`操作合并功能分支
+11. 执行`git push origin dev`操作推送到远程。如果出现冲突被拒绝，则回到第4步重新处理。
+12. 删除分支`dev_fea_xxx`
+
+> 注：如果目标主线分支是`sit|uat|pre|master`等，则预处理分支名修改为`{sit|uat|pre|master}_fea_xxx`，其他操作步骤雷同。
+
+### 生产主线分支(`master`)完成部署上线后的操作
+
+生产分支完成部署上线后，需要即时将各环境主线分支更新到最新状态，操作步骤如下：
+
+1. 切换到`master`分支
+2. 执行`git fetch origin master`、`git reset --keep origin/master`操作以更新到远程最新
+3. 切换到`dev`分支
+4. 执行`git fetch origin dev`、`git reset --keep origin/dev`操作以更新到远程最新
+5. 执行`git merge --no-ff master`操作合并`master`分支
+6. 执行`git push origin dev`操作推送到远程。如果出现冲突被拒绝，则回到第3步重新处理。
+7. 在`sit|uat|pre`等主线分支上执行第3~6步，与`dev`分支操作雷同。
+
+> 注：如果未即时更新某环境分支，请在下一次部署此环境分支前，对其进行上述更新操作。
+
+
 ## GIT 提交信息规范
 
 >- 在`push`到远程仓库前，请先通过`fetch+rebase`操作保证同分支的线性迭代，不要产生无意义的`merge`信息
