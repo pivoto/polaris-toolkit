@@ -13,8 +13,8 @@
 	<name>polaris-builder-assembly</name>
 
 	<properties>
-		<!--<maven.install.skip>false</maven.install.skip>
-		<maven.deploy.skip>false</maven.deploy.skip>-->
+		<maven.install.skip>true</maven.install.skip>
+		<maven.deploy.skip>true</maven.deploy.skip>
 		<project.testResources.addition>src/assembly/conf</project.testResources.addition>
 	</properties>
 

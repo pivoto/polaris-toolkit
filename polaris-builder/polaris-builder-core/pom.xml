@@ -13,8 +13,8 @@
 	<name>polaris-builder-core</name>
 
 	<properties>
-		<!--<maven.install.skip>false</maven.install.skip>
-		<maven.deploy.skip>false</maven.deploy.skip>-->
+		<maven.install.skip>false</maven.install.skip>
+		<maven.deploy.skip>false</maven.deploy.skip>
 		<project.testResources.addition>src/assembly/conf</project.testResources.addition>
 	</properties>
 
@@ -135,6 +135,16 @@
 			<artifactId>orai18n</artifactId>
 			<version>19.3.0.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>compile</scope>
+		</dependency>
 		<!-- endregion -->
 
 		<!-- region POI Libraries  -->
@@ -169,16 +179,6 @@
 		<dependency>
 			<groupId>org.openjdk.jmh</groupId>
 			<artifactId>jmh-generator-annprocess</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
