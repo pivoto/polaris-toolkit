@@ -9,12 +9,15 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -60,7 +63,7 @@ public class Types {
 	}
 
 	@Nullable
-	public static Class getPrimitiveClassByWrapper(@Nonnull Class type) {
+	public static Class getPrimitiveClass(@Nonnull Class type) {
 		if (type.isPrimitive()) {
 			return type;
 		}
@@ -114,6 +117,22 @@ public class Types {
 			|| clazz.equals(Float.class)
 			|| clazz.equals(Long.class)
 			|| clazz.equals(Double.class);
+	}
+
+	public static boolean isPrimitiveOrWrapper(Class<?> clazz) {
+		return clazz != null && (clazz.isPrimitive() || isPrimitiveWrapper(clazz));
+	}
+
+	public static boolean isPrimitiveArray(Class<?> clazz) {
+		return clazz != null && (clazz.isArray() && clazz.getComponentType().isPrimitive());
+	}
+
+	public static boolean isPrimitiveWrapperArray(Class<?> clazz) {
+		return clazz != null && (clazz.isArray() && isPrimitiveWrapper(clazz.getComponentType()));
+	}
+
+	public static boolean isPrimitiveOrWrapperArray(Class<?> clazz) {
+		return clazz != null && (clazz.isArray() && isPrimitiveOrWrapper(clazz.getComponentType()));
 	}
 
 	/**
@@ -501,12 +520,16 @@ public class Types {
 
 	public static boolean isAssignable(Class<?> definedType, Class<?> checkedType) {
 		if (definedType.isPrimitive()) {
-			return definedType == getPrimitiveClassByWrapper(checkedType);
+			return definedType == getPrimitiveClass(checkedType);
 		} else if (checkedType.isPrimitive()) {
-			return getPrimitiveClassByWrapper(definedType) == checkedType;
+			return getPrimitiveClass(definedType) == checkedType;
 		} else {
 			return definedType.isAssignableFrom(checkedType);
 		}
+	}
+
+	public static boolean isAssignableValue(Class<?> definedType, Object checkedValue) {
+		return (checkedValue != null ? isAssignable(definedType, checkedValue.getClass()) : !definedType.isPrimitive());
 	}
 
 	public static boolean isAssignable(Class<?>[] definedTypes, Class<?>[] checkedTypes) {
@@ -515,6 +538,18 @@ public class Types {
 		}
 		for (int i = 0; i < definedTypes.length; i++) {
 			if (!isAssignable(definedTypes[i], checkedTypes[i])) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public static boolean isAssignableValue(Class<?>[] definedTypes, Object[] checkedValues) {
+		if (definedTypes.length != checkedValues.length) {
+			return false;
+		}
+		for (int i = 0; i < definedTypes.length; i++) {
+			if (!isAssignableValue(definedTypes[i], checkedValues[i])) {
 				return false;
 			}
 		}
@@ -532,4 +567,44 @@ public class Types {
 		return clazz.getName();
 	}
 
+	public static boolean isVisible(Class<?> clazz, ClassLoader classLoader) {
+		try {
+			if (clazz.getClassLoader() == classLoader) {
+				return true;
+			}
+			return classLoader.loadClass(clazz.getName()) == clazz;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	public static Class<?>[] getAllInterfaces(Class<?> clazz) {
+		return getAllInterfaces(clazz, null);
+	}
+
+	public static Class<?>[] getAllInterfaces(Class<?> clazz, @Nullable ClassLoader classLoader) {
+		return getAllInterfacesAsSet(clazz, classLoader).toArray(new Class[0]);
+	}
+
+	public static Set<Class<?>> getAllInterfacesAsSet(Class<?> clazz) {
+		return getAllInterfacesAsSet(clazz, null);
+	}
+
+	public static Set<Class<?>> getAllInterfacesAsSet(Class<?> clazz, @Nullable ClassLoader classLoader) {
+		if (clazz.isInterface() && (classLoader == null || isVisible(clazz, classLoader))) {
+			return Collections.singleton(clazz);
+		}
+		Set<Class<?>> interfaces = new LinkedHashSet<>();
+		Class<?> current = clazz;
+		while (current != null) {
+			Class<?>[] ifcs = current.getInterfaces();
+			for (Class<?> ifc : ifcs) {
+				if (classLoader == null || isVisible(ifc, classLoader)) {
+					interfaces.add(ifc);
+				}
+			}
+			current = current.getSuperclass();
+		}
+		return interfaces;
+	}
 }

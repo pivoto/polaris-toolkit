@@ -12,8 +12,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 
-import javax.annotation.Nonnull;
-
 /**
  * @author Qt
  */
@@ -40,7 +38,7 @@ public class Nets {
 		return port >= 0 && port <= PORT_RANGE_MAX;
 	}
 
-	public static boolean isUsableLocalPort(int port) {
+	public static boolean isAvailableTcpPort(int port) {
 		if (!isValidPort(port)) {
 			return false;
 		}
@@ -52,24 +50,24 @@ public class Nets {
 		}
 	}
 
-	public static int getUsableLocalPort() {
-		return getUsableLocalPort(PORT_RANGE_MIN);
+	public static int getAvailableTcpPort() {
+		return getAvailableTcpPort(PORT_RANGE_MIN);
 	}
 
-	public static int getUsableLocalPort(int minPort) {
-		return getUsableLocalPort(minPort, PORT_RANGE_MAX);
+	public static int getAvailableTcpPort(int minPort) {
+		return getAvailableTcpPort(minPort, PORT_RANGE_MAX);
 	}
 
-	public static int getUsableLocalPort(int minPort, int maxPort) {
+	public static int getAvailableTcpPort(int minPort, int maxPort) {
 		for (int i = minPort; i <= maxPort; i++) {
-			if (isUsableLocalPort(i)) {
+			if (isAvailableTcpPort(i)) {
 				return i;
 			}
 		}
 		return -1;
 	}
 
-	public static int getRandomLocalPort() {
+	public static int getRandomTcpPort() {
 		try (ServerSocket ss = new ServerSocket(0);) {
 			int port = ss.getLocalPort();
 			ss.close();
@@ -79,10 +77,58 @@ public class Nets {
 		}
 	}
 
-	public static int getRandomLocalPort(int minPort, int maxPort) {
+	public static int getRandomTcpPort(int minPort, int maxPort) {
 		for (int i = minPort; i <= maxPort; i++) {
 			int port = ThreadLocalRandom.current().nextInt(minPort, maxPort + 1);
-			if (isUsableLocalPort(port)) {
+			if (isAvailableTcpPort(port)) {
+				return port;
+			}
+		}
+		return -1;
+	}
+	public static boolean isAvailableUdpPort(int port) {
+		if (!isValidPort(port)) {
+			return false;
+		}
+		try (DatagramSocket ss = new DatagramSocket(port);) {
+			ss.close();
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	public static int getAvailableUdpPort() {
+		return getAvailableUdpPort(PORT_RANGE_MIN);
+	}
+
+	public static int getAvailableUdpPort(int minPort) {
+		return getAvailableUdpPort(minPort, PORT_RANGE_MAX);
+	}
+
+	public static int getAvailableUdpPort(int minPort, int maxPort) {
+		for (int i = minPort; i <= maxPort; i++) {
+			if (isAvailableUdpPort(i)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	public static int getRandomUdpPort() {
+		try (ServerSocket ss = new ServerSocket(0);) {
+			int port = ss.getLocalPort();
+			ss.close();
+			return port;
+		} catch (Exception e) {
+			return -1;
+		}
+	}
+
+	public static int getRandomUdpPort(int minPort, int maxPort) {
+		for (int i = minPort; i <= maxPort; i++) {
+			int port = ThreadLocalRandom.current().nextInt(minPort, maxPort + 1);
+			if (isAvailableUdpPort(port)) {
 				return port;
 			}
 		}
@@ -138,6 +184,7 @@ public class Nets {
 			writer.write(content);
 			writer.newLine();
 			writer.flush();
+			socket.shutdownOutput();
 			return IO.toString(reader);
 		}
 	}

@@ -1087,8 +1087,9 @@ public class Reflects {
 	@SuppressWarnings("unchecked")
 	public static <T> T newInstanceIfPossible(Class<T> type) {
 		if (Types.isPrimitiveWrapper(type)) {
-			type = Types.getPrimitiveClassByWrapper(type);
+			type = Types.getPrimitiveClass(type);
 		}
+		//noinspection DataFlowIssue
 		if (type.isPrimitive()) {
 			return (T) Types.getDefaultValue(type);
 		}
