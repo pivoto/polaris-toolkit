@@ -11,8 +11,9 @@ import lombok.experimental.FieldNameConstants;
  */
 @ToString
 @FieldNameConstants
-public class PrimitiveArrayBean {
+public class PrimitiveArrayBeanTarget {
 	// @formatter:off
+
 	@Getter@Setter
 	private byte[] byteArray;
 	@Getter@Setter
@@ -33,4 +34,6 @@ public class PrimitiveArrayBean {
 	private String[] stringArray;
 	@Getter@Setter
 	private Object[] objectArray;
+
+	// @formatter:on
 }

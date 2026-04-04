@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 
-import io.polaris.core.asm.internal.AsmUtils;
+import io.polaris.core.asm.internal.Asms;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.TypeRef;
 import io.polaris.core.lang.Types;
@@ -424,7 +424,7 @@ public abstract class BeanCopier<S> {
 		}
 	}
 
-	protected final <T> void copyBeanToBeanWithDynamicKeyMappings(@Nonnull BeanAccess<S> sourceBeanAccess, @Nonnull S source,@Nonnull  BeanAccess<T> targetBeanAccess, @Nonnull T target, @Nonnull CopyOptions options, @Nonnull Set<String> targetKeys, @Nonnull List<Tuple2<BeanPropertyInfo, BeanPropertyInfo>> mapping) {
+	protected final <T> void copyBeanToBeanWithDynamicKeyMappings(@Nonnull BeanAccess<S> sourceBeanAccess, @Nonnull S source, @Nonnull BeanAccess<T> targetBeanAccess, @Nonnull T target, @Nonnull CopyOptions options, @Nonnull Set<String> targetKeys, @Nonnull List<Tuple2<BeanPropertyInfo, BeanPropertyInfo>> mapping) {
 		for (Tuple2<BeanPropertyInfo, BeanPropertyInfo> tuple : mapping) {
 			String sourceKey = tuple.getFirst().getPropertyName();
 			String targetKey = tuple.getSecond().getPropertyName();
@@ -438,7 +438,7 @@ public abstract class BeanCopier<S> {
 		}
 	}
 
-	protected final <T> void copyBeanToBeanWithDynamicKeyMapping(@Nonnull BeanAccess<T> targetBeanAccess,@Nonnull  T target, @Nonnull String sourceKey,@Nonnull  String targetKey, @Nonnull Supplier<Object> valueSupplier, @Nonnull CopyOptions options,@Nonnull  Set<String> targetKeys) {
+	protected final <T> void copyBeanToBeanWithDynamicKeyMapping(@Nonnull BeanAccess<T> targetBeanAccess, @Nonnull T target, @Nonnull String sourceKey, @Nonnull String targetKey, @Nonnull Supplier<Object> valueSupplier, @Nonnull CopyOptions options, @Nonnull Set<String> targetKeys) {
 		if (options.isIgnoredKey(sourceKey) || !targetKeys.contains(targetKey)) {
 			return;
 		}
@@ -547,8 +547,8 @@ public abstract class BeanCopier<S> {
 	 * <p>从缓存池中获取，如果不存在则创建</p>
 	 *
 	 * @param type Bean 类型
-	 * @return Bean 复制器实例
 	 * @param <T> Bean 类型
+	 * @return Bean 复制器实例
 	 */
 	public static <T> BeanCopier<T> get(@Nonnull Class<T> type) {
 		return pool.computeIfAbsent(type, BeanCopier::create);
@@ -559,8 +559,8 @@ public abstract class BeanCopier<S> {
 	 * <p>通过 ASM 动态生成字节码类并初始化</p>
 	 *
 	 * @param type Bean 类型
-	 * @return Bean 复制器实例
 	 * @param <T> Bean 类型
+	 * @return Bean 复制器实例
 	 */
 	public static <T> BeanCopier<T> create(@Nonnull Class<T> type) {
 		BeanPropertyInfo.Classification classification = BeanPropertyInfo.classify(type);
@@ -571,7 +571,7 @@ public abstract class BeanCopier<S> {
 		BeanCopier<T> access;
 		try {
 			access = (BeanCopier<T>) accessClass.newInstance();
-			// 全部设为只读属性
+			// 全部为只读属性
 			access.sourceType = type;
 			access.properties = Collections.unmodifiableMap(classification.properties);
 			access.initTypeFields();
@@ -582,43 +582,65 @@ public abstract class BeanCopier<S> {
 	}
 
 	/**
-	 * 构建访问类字节码
-	 * <p>使用 ASM 动态生成 Bean 复制器的子类字节码</p>
+	 * 构建访问器类的字节码
+	 * <p>
+	 * 该方法使用ASM框架动态生成一个继承自BeanCopier的类，该类针对特定类型T优化了所有属性拷贝操作。
+	 * 生成的类包含以下核心功能：
+	 * 1. 初始化类型字段缓存（避免反射开销）
+	 * 2. Bean到Map的转换（支持直接访问字段和getter方法）
+	 * 3. Map到Bean的转换（支持多种键名映射策略）
+	 * 4. Bean到Bean的同类型拷贝
+	 * 5. 支持类型转换器的高级拷贝功能
+	 * </p>
 	 *
-	 * @param loader 访问类加载器
-	 * @param accessClassName 访问类名称
-	 * @param type Bean 类型
-	 * @param classification 属性分类信息
-	 * @return 生成的类字节码数组
+	 * @param loader 访问类加载器，用于加载生成的字节码类
+	 * @param accessClassName 生成的访问器类的完整类名（包含包路径）
+	 * @param type 目标Bean的类型，所有生成的方法都将针对此类型进行优化
+	 * @param classification Bean属性分类信息，包含所有需要处理的属性元数据
 	 * @param <T> Bean 类型
+	 * @return 生成的类的字节码数组，可直接通过ClassLoader定义类
 	 */
 	private static <T> byte[] buildAccessClass(AccessClassLoader loader
 		, String accessClassName, Class<T> type
 		, BeanPropertyInfo.Classification classification) {
+		// 将类名转换为JVM内部格式（点号替换为斜杠）
 		String accessClassNameInternal = accessClassName.replace('.', '/');
 
+		// 创建ClassWriter，启用自动计算栈帧和局部变量表
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
 		String superClassNameInternal = BeanCopier.class.getName().replace('.', '/');
+		// 定义生成的类：public class AccessClass extends BeanCopier<Type>
+		// 签名指定泛型类型为实际的目标类型
 		cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, accessClassNameInternal,
 			"L" + superClassNameInternal + "<L" + Type.getInternalName(type) + ";>;",
 			superClassNameInternal, null);
+		// 声明内部类引用，用于后续MethodHandle相关操作： import java.lang.invoke.MethodHandles.Lookup;
 		cw.visitInnerClass("java/lang/invoke/MethodHandles$Lookup", "java/lang/invoke/MethodHandles", "Lookup", ACC_PUBLIC | ACC_FINAL | ACC_STATIC);
 
-		AsmUtils.insertDefaultConstructor(cw, superClassNameInternal);
+		// 插入默认构造函数，调用父类构造方法
+		Asms.insertDefaultConstructor(cw, superClassNameInternal);
+		// 插入初始化类型字段的方法，为每个属性创建Type和Class缓存字段
 		insertInitTypeFields(cw, superClassNameInternal, accessClassNameInternal, type, classification);
+		// 插入Bean转Map的核心方法实现
 		insertBeanToMap(cw, superClassNameInternal, accessClassNameInternal, type, classification);
+		// 插入带类型转换器的Bean转Map方法实现
 		insertBeanToMapByConverter(cw, superClassNameInternal, accessClassNameInternal, type, classification);
+		// 插入Map转Bean的核心方法实现
 		insertMapToBean(cw, superClassNameInternal, accessClassNameInternal, type, classification);
+		// 插入带类型转换器的Map转Bean方法实现
 		insertMapToBeanByConverter(cw, superClassNameInternal, accessClassNameInternal, type, classification);
+		// 插入同类型Bean之间的直接拷贝方法实现
 		insertBeanToBeanBySameType(cw, superClassNameInternal, accessClassNameInternal, type, classification);
+		// 插入带选项配置的Bean转Map方法实现
 		insertBeanToMapByOptions(cw, superClassNameInternal, accessClassNameInternal, type, classification);
 
+		// 插入使用所有源键的Map转Bean方法（遍历Map所有键尝试匹配）
 		insertMapToBeanWithSourceKeyAll(cw, superClassNameInternal, accessClassNameInternal, type, classification);
-		// copyMapToBeanWithCustomKeys
+		// 插入自定义键映射的Map转Bean方法 copyMapToBeanWithCustomKeys
 		insertMapToBeanWithCustomKeys(cw, accessClassNameInternal, type, classification);
-		// copyMapToBeanWithSameKeys
+		// 插入相同键名的Map转Bean方法（Map键与Bean属性名完全一致） copyMapToBeanWithSameKeys
 		insertMapToBeanWithSourceKeys(cw, accessClassNameInternal, type, classification, BeanCopier::copyMapToBeanWithSameKeys, key -> key);
-		// copyMapToBeanWithCapitalizeKeys
+		// 插入首字母大小写转换的Map转Bean方法 copyMapToBeanWithCapitalizeKeys
 		insertMapToBeanWithSourceKeys(cw, accessClassNameInternal, type, classification, BeanCopier::copyMapToBeanWithCapitalizeKeys, key -> {
 			if (key.length() > 1) {
 				String mapKey;
@@ -631,7 +653,7 @@ public abstract class BeanCopier<S> {
 			}
 			return null;
 		});
-		// copyMapToBeanWithUnderlineToCamelKeys
+		// 插入下划线转驼峰的Map转Bean方法（适用于数据库字段到Java属性的映射） copyMapToBeanWithUnderlineToCamelKeys
 		insertMapToBeanWithSourceKeys(cw, accessClassNameInternal, type, classification, BeanCopier::copyMapToBeanWithUnderlineToCamelKeys, key -> {
 			String mapKey = StringCases.camelToUnderlineCase(key);
 			if (!key.equals(mapKey)) {
@@ -639,7 +661,7 @@ public abstract class BeanCopier<S> {
 			}
 			return null;
 		});
-		// copyMapToBeanWithCamelToUnderlineKeys
+		// 插入驼峰转下划线的Map转Bean方法（反向映射场景） copyMapToBeanWithCamelToUnderlineKeys
 		insertMapToBeanWithSourceKeys(cw, accessClassNameInternal, type, classification, BeanCopier::copyMapToBeanWithCamelToUnderlineKeys, key -> {
 			if (key.indexOf('_') >= 0) {
 				String mapKey = StringCases.underlineToCamelCase(key);
@@ -648,45 +670,91 @@ public abstract class BeanCopier<S> {
 			return null;
 		});
 
+		// 完成类的构建
 		cw.visitEnd();
+		// 获取生成的字节码数组
 		byte[] byteArray = cw.toByteArray();
 		return byteArray;
 	}
 
+	/**
+	 * 插入类型字段初始化方法的字节码
+	 * <p>
+	 * 该方法为每个Bean属性生成两个缓存字段：
+	 * 1. type_{propertyName}: 存储属性的泛型类型信息（java.lang.reflect.Type）
+	 * 2. class_{propertyName}: 存储属性的原始类型信息（java.lang.Class）
+	 * </p>
+	 * <p>
+	 * 同时生成initTypeFields()方法的字节码实现，在运行时通过反射获取并缓存这些类型信息，
+	 * 避免后续类型转换时重复反射调用，提升性能。
+	 * </p>
+	 *
+	 * @param cw ASM类写入器
+	 * @param superClassNameInternal 父类的JVM内部名称
+	 * @param accessClassNameInternal 生成的访问器类的JVM内部名称
+	 * @param type Bean的类型
+	 * @param classification Bean属性分类信息
+	 * @param <T> Bean类型参数
+	 */
 	@SuppressWarnings("all")
 	private static <T> void insertInitTypeFields(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertyInfo.Classification classification) {
-		SerializableConsumer<BeanCopier> init = BeanCopier::initTypeFields;
+		SerializableConsumer<BeanCopier> initTypeFields = BeanCopier::initTypeFields;
 		SerializableBiFunction<BeanCopier, String, java.lang.reflect.Type> getPropertyGenericType = BeanCopier::getPropertyGenericType;
 		SerializableBiFunction<BeanCopier, String, Class> getPropertyType = BeanCopier::getPropertyType;
 
-		insertInitTypes(cw, superClassNameInternal, accessClassNameInternal, classification,
-			init.serialized().getImplMethodName(),
+		insertInitTypeFields(cw, superClassNameInternal, accessClassNameInternal, classification,
+			initTypeFields.serialized().getImplMethodName(),
 			getPropertyGenericType.serialized().getImplMethodName(),
 			getPropertyType.serialized().getImplMethodName());
 	}
 
-	static void insertInitTypes(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, BeanPropertyInfo.Classification classification, String initTypesMethodName, String getPropertyGenericTypeMethodName, String getPropertyTypeMethodName) {
-		// field
+	/**
+	 * 生成类型字段初始化的字节码实现
+	 * <p>
+	 * 该方法执行以下操作：
+	 * 1. 为每个属性创建两个protected字段：type_{name}和class_{name}
+	 * 2. 生成initTypes()方法，遍历所有属性并调用父类的getPropertyGenericType()和getPropertyType()
+	 * 3. 将返回的类型信息存入对应的字段中
+	 * </p>
+	 *
+	 * @param cw ASM类写入器
+	 * @param superClassNameInternal 父类的JVM内部名称
+	 * @param accessClassNameInternal 访问器类的JVM内部名称
+	 * @param classification Bean属性分类信息
+	 * @param initTypeFieldsMethodName 初始化方法的名称
+	 * @param getPropertyGenericTypeMethodName 获取泛型类型的方法名
+	 * @param getPropertyTypeMethodName 获取原始类型的方法名
+	 */
+	static void insertInitTypeFields(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, BeanPropertyInfo.Classification classification, String initTypeFieldsMethodName, String getPropertyGenericTypeMethodName, String getPropertyTypeMethodName) {
+		// 为每个属性创建Type和Class缓存字段
 		classification.properties.forEach((name, info) -> {
+			// protected Type type_fieldName;
 			FieldVisitor fieldVisitor = cw.visitField(ACC_PROTECTED, FIELD_PREFIX_TYPE + name, "Ljava/lang/reflect/Type;", null, null);
 			fieldVisitor.visitEnd();
+			// protected Class class_fieldName;
 			fieldVisitor = cw.visitField(ACC_PROTECTED, FIELD_PREFIX_CLASS + name, "Ljava/lang/Class;", null, null);
 			fieldVisitor.visitEnd();
 		});
 
-		MethodVisitor methodVisitor = cw.visitMethod(ACC_PROTECTED, initTypesMethodName, "()V", null, null);
+		// 生成i initTypeFields()方法的字节码： protected void initTypeFields()
+		MethodVisitor methodVisitor = cw.visitMethod(ACC_PROTECTED, initTypeFieldsMethodName, "()V", null, null);
 		methodVisitor.visitCode();
+		// 遍历所有属性，为每个属性生成类型信息的获取和赋值指令
 		classification.properties.forEach((name, info) -> {
+			// 获取泛型类型：super.getPropertyGenericType(fieldName)
 			methodVisitor.visitVarInsn(ALOAD, 0);
 			methodVisitor.visitVarInsn(ALOAD, 0);
 			methodVisitor.visitLdcInsn(name);
 			methodVisitor.visitMethodInsn(INVOKESPECIAL, superClassNameInternal, getPropertyGenericTypeMethodName, "(Ljava/lang/String;)Ljava/lang/reflect/Type;", false);
+			// 将泛型类型存入type_fieldName字段: this.type_fieldName = super.getPropertyGenericType(fieldName)
 			methodVisitor.visitFieldInsn(PUTFIELD, accessClassNameInternal, FIELD_PREFIX_TYPE + name, "Ljava/lang/reflect/Type;");
 
+			// 获取原始类型：super.getPropertyType(fieldName)
 			methodVisitor.visitVarInsn(ALOAD, 0);
 			methodVisitor.visitVarInsn(ALOAD, 0);
 			methodVisitor.visitLdcInsn(name);
 			methodVisitor.visitMethodInsn(INVOKESPECIAL, superClassNameInternal, getPropertyTypeMethodName, "(Ljava/lang/String;)Ljava/lang/Class;", false);
+			// 将原始类型存入class_fieldName字段：this.class_fieldName = super.getPropertyType(fieldName)
 			methodVisitor.visitFieldInsn(PUTFIELD, accessClassNameInternal, FIELD_PREFIX_CLASS + name, "Ljava/lang/Class;");
 		});
 		methodVisitor.visitInsn(RETURN);
@@ -695,27 +763,53 @@ public abstract class BeanCopier<S> {
 	}
 
 
+	/**
+	 * 插入Bean转Map方法的字节码实现
+	 * <p>
+	 * 该方法生成copyBeanToMap()的字节码，实现将Bean的所有可读属性复制到Map中。
+	 * 对于每个属性：
+	 * - 如果有公共字段：直接通过GETFIELD读取字段值
+	 * - 如果有getter方法：通过方法调用读取属性值，并添加异常处理
+	 * - 自动装箱基本类型为包装类型后放入Map
+	 * </p>
+	 * <p>
+	 * 同时生成桥接方法以支持泛型擦除后的调用。
+	 * </p>
+	 *
+	 * @param cw ASM类写入器
+	 * @param superClassNameInternal 父类的JVM内部名称
+	 * @param accessClassNameInternal 访问器类的JVM内部名称
+	 * @param type Bean的类型
+	 * @param classification Bean属性分类信息
+	 * @param <T> Bean类型参数
+	 */
 	@SuppressWarnings("all")
 	private static <T> void insertBeanToMap(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertyInfo.Classification classification) {
 		SerializableTriConsumer<BeanCopier, String, Throwable> resolveCopyError = BeanCopier::resolveCopyError;
 		SerializableTriConsumer<BeanCopier, Object, Map<String, Object>> copyBeanToMap = BeanCopier::copyBeanToMap;
 		String copyBeanToMapName = copyBeanToMap.serialized().getImplMethodName();
 
-		// 重写方法
+		// 生成具体的 copyBeanToMap(Type source, Map target)方法实现
 		{
+			// public copyBeanToMap(Type source, Map target)
 			MethodVisitor methodVisitor = cw.visitMethod(ACC_PUBLIC, copyBeanToMapName, "(L" + Type.getInternalName(type) + ";Ljava/util/Map;)V", "(L" + Type.getInternalName(type) + ";Ljava/util/Map<Ljava/lang/String;Ljava/lang/Object;>;)V", null);
 			methodVisitor.visitCode();
 
+			// 遍历所有属性，为每个属性生成读取并放入Map的字节码
 			classification.properties.forEach((name, info) -> {
 				if (info.getField() != null) {
-					methodVisitor.visitVarInsn(ALOAD, 2);
-					methodVisitor.visitLdcInsn(name);
-					methodVisitor.visitVarInsn(ALOAD, 1);
+					// 有公共字段：直接通过GETFIELD读取
+					methodVisitor.visitVarInsn(ALOAD, 2); // targetMap
+					methodVisitor.visitLdcInsn(name); // fieldName
+					methodVisitor.visitVarInsn(ALOAD, 1); // sourceObj
 					methodVisitor.visitFieldInsn(GETFIELD, Type.getInternalName(info.getField().getDeclaringClass()), name, Type.getDescriptor(info.getField().getType()));
-					AsmUtils.autoBoxing(methodVisitor, info.getField().getType());
+					// 基本类型自动装箱
+					Asms.autoBoxing(methodVisitor, info.getField().getType());
+					// targetMap.put(fieldName, sourceObj.fieldName)
 					methodVisitor.visitMethodInsn(INVOKEINTERFACE, "java/util/Map", "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", true);
 					methodVisitor.visitInsn(POP);
 				} else if (info.getReadMethod() != null) {
+					// 有getter方法：通过方法调用读取，需要异常处理
 					boolean hasThrows = info.getReadMethod().getExceptionTypes().length > 0;
 					Label labelStart = new Label();
 					Label labelEnd = new Label();
@@ -724,7 +818,7 @@ public abstract class BeanCopier<S> {
 						methodVisitor.visitTryCatchBlock(labelStart, labelEnd, labelCatch, "java/lang/Throwable");
 						methodVisitor.visitLabel(labelStart);
 					}
-					// try
+					// try块：调用getter方法获取属性值
 					Method readMethod = info.getReadMethod();
 					Class<?> declaringClass = readMethod.getDeclaringClass();
 					boolean isInterface = declaringClass.isInterface();
@@ -736,41 +830,52 @@ public abstract class BeanCopier<S> {
 					} else {
 						invokeOpcode = INVOKEVIRTUAL;
 					}
-					methodVisitor.visitVarInsn(ALOAD, 2);
-					methodVisitor.visitLdcInsn(name);
-					methodVisitor.visitVarInsn(ALOAD, 1);
+					// 准备方法调用参数：target, key, source
+					methodVisitor.visitVarInsn(ALOAD, 2); // targetMap
+					methodVisitor.visitLdcInsn(name); // fieldName
+					methodVisitor.visitVarInsn(ALOAD, 1); // sourceObj
 					methodVisitor.visitMethodInsn(invokeOpcode, Type.getInternalName(declaringClass), readMethod.getName(), Type.getMethodDescriptor(readMethod), isInterface);
 					Class<?> returnType = readMethod.getReturnType();
-					AsmUtils.autoBoxing(methodVisitor, returnType);
+					// 返回值自动装箱
+					Asms.autoBoxing(methodVisitor, returnType);
+					// targetMap.put(fieldName, sourceObj.getFieldName())
 					methodVisitor.visitMethodInsn(INVOKEINTERFACE, "java/util/Map", "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", true);
 					methodVisitor.visitInsn(POP);
-					// end
-					methodVisitor.visitLabel(labelEnd);
-					Label labelFinal = new Label();
-					methodVisitor.visitJumpInsn(GOTO, labelFinal);
-					// catch
-					methodVisitor.visitLabel(labelCatch);
-					methodVisitor.visitVarInsn(ASTORE, 3);
-					methodVisitor.visitVarInsn(ALOAD, 0);
-					methodVisitor.visitLdcInsn(name);
-					methodVisitor.visitVarInsn(ALOAD, 3);
-					methodVisitor.visitMethodInsn(INVOKESPECIAL, superClassNameInternal, resolveCopyError.serialized().getImplMethodName(), "(Ljava/lang/String;Ljava/lang/Throwable;)V", false);
-					//finally
-					methodVisitor.visitLabel(labelFinal);
+					// try块结束标记
+					if (hasThrows) {
+						methodVisitor.visitLabel(labelEnd);
+						Label labelFinal = new Label();
+						methodVisitor.visitJumpInsn(GOTO, labelFinal);
+						// catch
+						methodVisitor.visitLabel(labelCatch);
+						methodVisitor.visitVarInsn(ASTORE, 3); // throwable
+						methodVisitor.visitVarInsn(ALOAD, 0); // this
+						methodVisitor.visitLdcInsn(name); // fieldName
+						methodVisitor.visitVarInsn(ALOAD, 3); // throwable
+						// 调用resolveCopyError: super.resolveCopyError(fieldName, throwable)
+						methodVisitor.visitMethodInsn(INVOKESPECIAL, superClassNameInternal, resolveCopyError.serialized().getImplMethodName(), "(Ljava/lang/String;Ljava/lang/Throwable;)V", false);
+						// finally块标记
+						methodVisitor.visitLabel(labelFinal);
+					}
 				}
 			});
 			methodVisitor.visitInsn(RETURN);
 			methodVisitor.visitMaxs(0, 0);
 			methodVisitor.visitEnd();
 		}
-		// 泛型合成方法
+		// 泛型合成方法, 生成桥接方法以支持泛型擦除：copyBeanToMap(Object, Map)
 		{
+			/*
+			public copyBeanToMap(Object source, Map target){
+				return copyBeanToMap((S) source, target);
+			}
+			 */
 			MethodVisitor methodVisitor = cw.visitMethod(ACC_PUBLIC | ACC_BRIDGE | ACC_SYNTHETIC, copyBeanToMapName, "(Ljava/lang/Object;Ljava/util/Map;)V", null, null);
 			methodVisitor.visitCode();
-			methodVisitor.visitVarInsn(ALOAD, 0);
-			methodVisitor.visitVarInsn(ALOAD, 1);
+			methodVisitor.visitVarInsn(ALOAD, 0); // this
+			methodVisitor.visitVarInsn(ALOAD, 1); // source
 			methodVisitor.visitTypeInsn(CHECKCAST, Type.getInternalName(type));
-			methodVisitor.visitVarInsn(ALOAD, 2);
+			methodVisitor.visitVarInsn(ALOAD, 2); // target
 			methodVisitor.visitMethodInsn(INVOKEVIRTUAL, accessClassNameInternal, copyBeanToMapName, "(L" + Type.getInternalName(type) + ";Ljava/util/Map;)V", false);
 			methodVisitor.visitInsn(RETURN);
 			methodVisitor.visitMaxs(3, 3);
@@ -778,13 +883,32 @@ public abstract class BeanCopier<S> {
 		}
 	}
 
+	/**
+	 * 插入带类型转换器的Bean转Map方法的字节码实现
+	 * <p>
+	 * 该方法生成copyBeanToMapByConverter()的字节码，支持在复制过程中使用自定义的类型转换器。
+	 * 对于每个属性：
+	 * 1. 读取属性值（通过字段或getter）
+	 * 2. 调用convert()方法进行类型转换
+	 * 3. 如果转换后的键和值都不为null，则放入Map
+	 * 4. 包含完整的异常处理机制
+	 * </p>
+	 *
+	 * @param cw ASM类写入器
+	 * @param superClassNameInternal 父类的JVM内部名称
+	 * @param accessClassNameInternal 访问器类的JVM内部名称
+	 * @param type Bean的类型
+	 * @param classification Bean属性分类信息
+	 * @param <T> Bean类型参数
+	 */
 	@SuppressWarnings("all")
 	private static <T> void insertBeanToMapByConverter(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertyInfo.Classification classification) {
 		SerializableTriConsumer<BeanCopier, String, Throwable> resolveCopyError = BeanCopier::resolveCopyError;
 		SerializableConsumerWithArgs6<BeanCopier, Object, Map, BiFunction<java.lang.reflect.Type, Object, Object>, JavaType, JavaType> copyBeanToMap = BeanCopier::copyBeanToMapByConverter;
 		SerializableFunctionWithArgs4<BeanCopier, java.lang.reflect.Type, Object, BiFunction<java.lang.reflect.Type, Object, Object>, Object> convert = BeanCopier::convert;
-		// 重写方法
+		// 生成带转换器的copyBeanToMapByConverter方法实现
 		{
+			// protected void copyBeanToMapByConverter(Object source, Map target, BiFunction<Type, Object, Object> converter, JavaType keyType, JavaType valueType)
 			MethodVisitor methodVisitor = cw.visitMethod(ACC_PROTECTED, copyBeanToMap.serialized().getImplMethodName(),
 				"(Ljava/lang/Object;Ljava/util/Map;Ljava/util/function/BiFunction;" +
 					Type.getDescriptor(JavaType.class) +
@@ -798,17 +922,19 @@ public abstract class BeanCopier<S> {
 				if (!info.hasGetter()) {
 					return;
 				}
-				Label label0 = new Label();
-				Label label1 = new Label();
-				Label label2 = new Label();
-				methodVisitor.visitTryCatchBlock(label0, label1, label2, "java/lang/Throwable");
-				methodVisitor.visitLabel(label0);
-				methodVisitor.visitVarInsn(ALOAD, 1);
+				Label labelTryStart = new Label();
+				Label labelTryEnd = new Label();
+				Label labelCatch = new Label();
+				methodVisitor.visitTryCatchBlock(labelTryStart, labelTryEnd, labelCatch, "java/lang/Throwable");
+				methodVisitor.visitLabel(labelTryStart);
+				methodVisitor.visitVarInsn(ALOAD, 1); // sourceObj
 				methodVisitor.visitTypeInsn(CHECKCAST, Type.getInternalName(type));
 				if (info.getField() != null) {
+					// Object var = ((S)sourceObj).fieldName;
 					methodVisitor.visitFieldInsn(GETFIELD, Type.getInternalName(info.getField().getDeclaringClass()), name, Type.getDescriptor(info.getField().getType()));
-					AsmUtils.autoBoxing(methodVisitor, info.getField().getType());
+					Asms.autoBoxing(methodVisitor, info.getField().getType());
 				} else {
+					// Object var = ((S)sourceObj).getFieldName();
 					Method readMethod = info.getReadMethod();
 					Class<?> declaringClass = readMethod.getDeclaringClass();
 					boolean isInterface = declaringClass.isInterface();
@@ -822,44 +948,61 @@ public abstract class BeanCopier<S> {
 					}
 					methodVisitor.visitMethodInsn(invokeOpcode, Type.getInternalName(declaringClass), readMethod.getName(), Type.getMethodDescriptor(readMethod), isInterface);
 					Class<?> returnType = readMethod.getReturnType();
-					AsmUtils.autoBoxing(methodVisitor, returnType);
+					Asms.autoBoxing(methodVisitor, returnType);
 				}
-				methodVisitor.visitVarInsn(ASTORE, 6);
-				methodVisitor.visitVarInsn(ALOAD, 0);
-				methodVisitor.visitVarInsn(ALOAD, 5);
-				methodVisitor.visitVarInsn(ALOAD, 6);
-				methodVisitor.visitVarInsn(ALOAD, 3);
+				methodVisitor.visitVarInsn(ASTORE, 6); // var
+
+				methodVisitor.visitVarInsn(ALOAD, 0); // this
+				methodVisitor.visitVarInsn(ALOAD, 5); // valueType
+				methodVisitor.visitVarInsn(ALOAD, 6); // var
+				methodVisitor.visitVarInsn(ALOAD, 3); // converter
+				// var = super.convert(valueType, var, converter);
 				methodVisitor.visitMethodInsn(INVOKESPECIAL, superClassNameInternal,
 					convert.serialized().getImplMethodName(),
 					"(Ljava/lang/reflect/Type;Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;", false);
 				methodVisitor.visitVarInsn(ASTORE, 6);
-				methodVisitor.visitVarInsn(ALOAD, 0);
-				methodVisitor.visitVarInsn(ALOAD, 4);
-				methodVisitor.visitLdcInsn(info.getPropertyName());
-				methodVisitor.visitVarInsn(ALOAD, 3);
+
+				methodVisitor.visitVarInsn(ALOAD, 0); // this
+				methodVisitor.visitVarInsn(ALOAD, 4); // keyType
+				methodVisitor.visitLdcInsn(info.getPropertyName()); // fieldName
+				methodVisitor.visitVarInsn(ALOAD, 3); // converter
+				// varKey = super.convert(valueType, fieldName, converter);
 				methodVisitor.visitMethodInsn(INVOKESPECIAL, superClassNameInternal,
 					convert.serialized().getImplMethodName(),
 					"(Ljava/lang/reflect/Type;Ljava/lang/Object;Ljava/util/function/BiFunction;)Ljava/lang/Object;", false);
 				methodVisitor.visitVarInsn(ASTORE, 7);
-				methodVisitor.visitVarInsn(ALOAD, 7);
-				methodVisitor.visitJumpInsn(IFNULL, label1);
-				methodVisitor.visitVarInsn(ALOAD, 6);
-				methodVisitor.visitJumpInsn(IFNULL, label1);
-				methodVisitor.visitVarInsn(ALOAD, 2);
-				methodVisitor.visitVarInsn(ALOAD, 7);
-				methodVisitor.visitVarInsn(ALOAD, 6);
+
+				/*
+				if(var != null && varKey != null) {
+					targetMap.put(varKey, var);
+				}
+				 */
+				methodVisitor.visitVarInsn(ALOAD, 7); // varKey
+				methodVisitor.visitJumpInsn(IFNULL, labelTryEnd);
+				methodVisitor.visitVarInsn(ALOAD, 6);  // var
+				methodVisitor.visitJumpInsn(IFNULL, labelTryEnd);
+				methodVisitor.visitVarInsn(ALOAD, 2); // targetMap
+				methodVisitor.visitVarInsn(ALOAD, 7); // varKey
+				methodVisitor.visitVarInsn(ALOAD, 6); // var
 				methodVisitor.visitMethodInsn(INVOKEINTERFACE, "java/util/Map", "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", true);
 				methodVisitor.visitInsn(POP);
-				methodVisitor.visitLabel(label1);
-				Label label3 = new Label();
-				methodVisitor.visitJumpInsn(GOTO, label3);
-				methodVisitor.visitLabel(label2);
-				methodVisitor.visitVarInsn(ASTORE, 6);
-				methodVisitor.visitVarInsn(ALOAD, 0);
-				methodVisitor.visitLdcInsn(info.getPropertyName());
-				methodVisitor.visitVarInsn(ALOAD, 6);
+
+				methodVisitor.visitLabel(labelTryEnd);
+				Label labelFinally = new Label();
+				methodVisitor.visitJumpInsn(GOTO, labelFinally);
+				/*
+				catch(Throwable throwable) {
+					super.resolveCopyError(fieldName, throwable);
+				}
+				 */
+				methodVisitor.visitLabel(labelCatch);
+				methodVisitor.visitVarInsn(ASTORE, 6); // throwable
+				methodVisitor.visitVarInsn(ALOAD, 0); // this
+				methodVisitor.visitLdcInsn(info.getPropertyName()); // fieldName
+				methodVisitor.visitVarInsn(ALOAD, 6); // throwable
 				methodVisitor.visitMethodInsn(INVOKESPECIAL, superClassNameInternal, resolveCopyError.serialized().getImplMethodName(), "(Ljava/lang/String;Ljava/lang/Throwable;)V", false);
-				methodVisitor.visitLabel(label3);
+
+				methodVisitor.visitLabel(labelFinally);
 			});
 			methodVisitor.visitInsn(RETURN);
 			methodVisitor.visitMaxs(0, 0);
@@ -874,29 +1017,41 @@ public abstract class BeanCopier<S> {
 		SerializableTriConsumer<BeanCopier, Map<String, Object>, Object> copyMapToBean = BeanCopier::copyMapToBean;
 		String copyMapToBeanName = copyMapToBean.serialized().getImplMethodName();
 
-		// 重写方法
+		// 生成具体的copyMapToBean(Map source, Type target)方法实现
 		{
+			// public void copyMapToBean(Map<String, Object> sourceMap, S targetObj)
 			MethodVisitor methodVisitor = cw.visitMethod(ACC_PUBLIC, copyMapToBeanName, "(Ljava/util/Map;L" + Type.getInternalName(type) + ";)V", "(LLjava/util/Map<Ljava/lang/String;Ljava/lang/Object;>;" + Type.getInternalName(type) + ";)V", null);
 			methodVisitor.visitCode();
 
+			// 遍历所有属性，为每个属性生成从Map读取并设置到Bean的字节码
 			classification.properties.forEach((name, info) -> {
 				if (info.getField() != null) {
-					methodVisitor.visitVarInsn(ALOAD, 1);
+					// 有公共字段：直接从Map获取并设置字段
+					// Object var = sourceMap.get(fieldName);
+					methodVisitor.visitVarInsn(ALOAD, 1); // sourceMap
 					methodVisitor.visitLdcInsn(name);
 					methodVisitor.visitMethodInsn(INVOKEINTERFACE, "java/util/Map", "get", "(Ljava/lang/Object;)Ljava/lang/Object;", true);
 					methodVisitor.visitVarInsn(ASTORE, 3);
 					methodVisitor.visitVarInsn(ALOAD, 3);
-					Label labelIf = new Label();
-					methodVisitor.visitJumpInsn(IFNULL, labelIf);
+					/*
+					if(var != null && FieldType.class.isInstance(var)) {
+						targetObj.setFieldName(var);
+					}
+					 */
+					Label labelIfEnd = new Label();
+					// 检查值是否为null
+					methodVisitor.visitJumpInsn(IFNULL, labelIfEnd);
+					// 检查类型是否匹配
 					methodVisitor.visitLdcInsn(Type.getType(Types.getWrapperClass(info.getField().getType())));
-					methodVisitor.visitVarInsn(ALOAD, 3);
+					methodVisitor.visitVarInsn(ALOAD, 3); // var
 					methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Class", "isInstance", "(Ljava/lang/Object;)Z", false);
-					methodVisitor.visitJumpInsn(IFEQ, labelIf);
-					methodVisitor.visitVarInsn(ALOAD, 2);
-					methodVisitor.visitVarInsn(ALOAD, 3);
-					AsmUtils.autoUnBoxing(methodVisitor, info.getField().getType());
+					methodVisitor.visitJumpInsn(IFEQ, labelIfEnd);
+					// 类型匹配，设置字段值（自动拆箱）
+					methodVisitor.visitVarInsn(ALOAD, 2); // targetObj
+					methodVisitor.visitVarInsn(ALOAD, 3); // var
+					Asms.autoUnBoxing(methodVisitor, info.getField().getType());
 					methodVisitor.visitFieldInsn(PUTFIELD, Type.getInternalName(info.getField().getDeclaringClass()), name, Type.getDescriptor(info.getField().getType()));
-					methodVisitor.visitLabel(labelIf);
+					methodVisitor.visitLabel(labelIfEnd);
 				} else if (info.getWriteMethod() != null) {
 					boolean hasThrows = info.getWriteMethod().getExceptionTypes().length > 0;
 					Label labelStart = new Label();
@@ -922,6 +1077,11 @@ public abstract class BeanCopier<S> {
 					methodVisitor.visitLdcInsn(name);
 					methodVisitor.visitMethodInsn(INVOKEINTERFACE, "java/util/Map", "get", "(Ljava/lang/Object;)Ljava/lang/Object;", true);
 
+					/*
+					if(var != null && FieldType.class.isInstance(var)) {
+						targetObj.setFieldName(var);
+					}
+					 */
 					methodVisitor.visitVarInsn(ASTORE, 3);
 					methodVisitor.visitVarInsn(ALOAD, 3);
 					Label labelIf = new Label();
@@ -935,22 +1095,24 @@ public abstract class BeanCopier<S> {
 					methodVisitor.visitVarInsn(ALOAD, 3);
 
 					Type paramType = Type.getType(method.getParameterTypes()[0]);
-					AsmUtils.autoUnBoxing(methodVisitor, paramType);
+					Asms.autoUnBoxing(methodVisitor, paramType);
 					methodVisitor.visitMethodInsn(invokeOpcode, Type.getInternalName(declaringClass), method.getName(), Type.getMethodDescriptor(method), isInterface);
 					methodVisitor.visitLabel(labelIf);
 					// end
-					methodVisitor.visitLabel(labelEnd);
-					Label labelFinal = new Label();
-					methodVisitor.visitJumpInsn(GOTO, labelFinal);
-					// catch
-					methodVisitor.visitLabel(labelCatch);
-					methodVisitor.visitVarInsn(ASTORE, 3);
-					methodVisitor.visitVarInsn(ALOAD, 0);
-					methodVisitor.visitLdcInsn(name);
-					methodVisitor.visitVarInsn(ALOAD, 3);
-					methodVisitor.visitMethodInsn(INVOKESPECIAL, superClassNameInternal, resolveCopyError.serialized().getImplMethodName(), "(Ljava/lang/String;Ljava/lang/Throwable;)V", false);
-					//finally
-					methodVisitor.visitLabel(labelFinal);
+					if (hasThrows) {
+						methodVisitor.visitLabel(labelEnd);
+						Label labelFinal = new Label();
+						methodVisitor.visitJumpInsn(GOTO, labelFinal);
+						// catch块：捕获异常并记录错误
+						methodVisitor.visitLabel(labelCatch);
+						methodVisitor.visitVarInsn(ASTORE, 3);
+						methodVisitor.visitVarInsn(ALOAD, 0);
+						methodVisitor.visitLdcInsn(name);
+						methodVisitor.visitVarInsn(ALOAD, 3);
+						methodVisitor.visitMethodInsn(INVOKESPECIAL, superClassNameInternal, resolveCopyError.serialized().getImplMethodName(), "(Ljava/lang/String;Ljava/lang/Throwable;)V", false);
+						// finally块标记
+						methodVisitor.visitLabel(labelFinal);
+					}
 				}
 			});
 			methodVisitor.visitInsn(RETURN);
@@ -984,6 +1146,7 @@ public abstract class BeanCopier<S> {
 
 		// 重写方法
 		{
+			// protected void copyMapToBean(Map<String, Object> source, S target, BiFunction<Type, Object, Object> converter)
 			MethodVisitor methodVisitor = cw.visitMethod(ACC_PROTECTED, copyMapToBeanName, "(Ljava/util/Map;L" + Type.getInternalName(type) + ";Ljava/util/function/BiFunction;)V", "(Ljava/util/Map<Ljava/lang/String;Ljava/lang/Object;>;L" + Type.getInternalName(type) + ";Ljava/util/function/BiFunction<Ljava/lang/reflect/Type;Ljava/lang/Object;Ljava/lang/Object;>;)V", null);
 			methodVisitor.visitCode();
 
@@ -997,6 +1160,17 @@ public abstract class BeanCopier<S> {
 					methodVisitor.visitLabel(labelStart);
 
 					// try
+					/*
+					try {
+						Object var = source.get(filedName);
+						if( var != null ){
+							var = super.convert(this.type_filedName, var, converter);
+							if (var != null) {
+								target.fieldName = (FieldType)var;
+							}
+						}
+					}
+					 */
 					methodVisitor.visitVarInsn(ALOAD, 1);
 					methodVisitor.visitLdcInsn(name);
 					methodVisitor.visitMethodInsn(INVOKEINTERFACE, "java/util/Map", "get", "(Ljava/lang/Object;)Ljava/lang/Object;", true);
@@ -1018,7 +1192,7 @@ public abstract class BeanCopier<S> {
 					methodVisitor.visitJumpInsn(IFNULL, labelIf);
 					methodVisitor.visitVarInsn(ALOAD, 2);
 					methodVisitor.visitVarInsn(ALOAD, 4);
-					AsmUtils.autoUnBoxing(methodVisitor, Type.getType(info.getField().getType()));
+					Asms.autoUnBoxing(methodVisitor, Type.getType(info.getField().getType()));
 					methodVisitor.visitFieldInsn(PUTFIELD, Type.getInternalName(info.getField().getDeclaringClass()), name, Type.getDescriptor(info.getField().getType()));
 
 					methodVisitor.visitLabel(labelIf);
@@ -1029,6 +1203,11 @@ public abstract class BeanCopier<S> {
 					methodVisitor.visitJumpInsn(GOTO, labelFinal);
 
 					// catch
+					/*
+					catch (Throwable t) {
+						super.resolveCopyError(fieldName, t);
+					}
+					 */
 					methodVisitor.visitLabel(labelCatch);
 					methodVisitor.visitVarInsn(ASTORE, 4);
 					methodVisitor.visitVarInsn(ALOAD, 0);
@@ -1046,6 +1225,17 @@ public abstract class BeanCopier<S> {
 
 					Method method = info.getWriteMethod();
 					// try
+					/*
+					try {
+						Object var = source.get(filedName);
+						if( var != null ){
+							var = super.convert(this.type_filedName, var, converter);
+							if (var != null) {
+								target.setFieldName((FieldType)var);
+							}
+						}
+					}
+					 */
 					methodVisitor.visitVarInsn(ALOAD, 1);
 					methodVisitor.visitLdcInsn(name);
 					methodVisitor.visitMethodInsn(INVOKEINTERFACE, "java/util/Map", "get", "(Ljava/lang/Object;)Ljava/lang/Object;", true);
@@ -1066,7 +1256,7 @@ public abstract class BeanCopier<S> {
 					methodVisitor.visitJumpInsn(IFNULL, labelIf);
 					methodVisitor.visitVarInsn(ALOAD, 2);
 					methodVisitor.visitVarInsn(ALOAD, 4);
-					AsmUtils.autoUnBoxing(methodVisitor, Type.getType(method.getParameterTypes()[0]));
+					Asms.autoUnBoxing(methodVisitor, Type.getType(method.getParameterTypes()[0]));
 
 					Class<?> declaringClass = method.getDeclaringClass();
 					boolean isInterface = declaringClass.isInterface();
@@ -1089,6 +1279,11 @@ public abstract class BeanCopier<S> {
 					methodVisitor.visitJumpInsn(GOTO, labelFinal);
 
 					// catch
+					/*
+					catch (Throwable t) {
+						super.resolveCopyError(fieldName, t);
+					}
+					 */
 					methodVisitor.visitLabel(labelCatch);
 					methodVisitor.visitVarInsn(ASTORE, 4);
 					methodVisitor.visitVarInsn(ALOAD, 0);
@@ -1121,34 +1316,63 @@ public abstract class BeanCopier<S> {
 		}
 	}
 
+	/**
+	 * 插入同类型Bean拷贝方法的字节码实现
+	 * <p>
+	 * 该方法生成copyBeanToBeanBySameType()的字节码，针对源和目标类型完全相同的场景进行优化。
+	 * 对于每个属性：
+	 * - 直接从源对象读取属性值（通过字段或getter）
+	 * - 如果非基本类型且值为null则跳过
+	 * - 直接设置到目标对象（通过字段或setter）
+	 * - 包含可选的异常处理机制
+	 * </p>
+	 * <p>
+	 * 这是性能最高的拷贝方式，因为不需要类型检查和转换。
+	 * </p>
+	 *
+	 * @param cw ASM类写入器
+	 * @param superClassNameInternal 父类的JVM内部名称
+	 * @param accessClassNameInternal 访问器类的JVM内部名称
+	 * @param type Bean的类型
+	 * @param classification Bean属性分类信息
+	 * @param <T> Bean类型参数
+	 */
 	@SuppressWarnings("all")
 	private static <T> void insertBeanToBeanBySameType(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertyInfo.Classification classification) {
 		SerializableTriConsumer<BeanCopier, Object, Object> copyBeanToBeanBySameType = BeanCopier::copyBeanToBeanBySameType;
 		SerializableTriConsumer<BeanCopier, String, Throwable> resolveCopyError = BeanCopier::resolveCopyError;
 
 		String copyBeanToSameName = copyBeanToBeanBySameType.serialized().getImplMethodName();
-		// 重写方法
+		// 生成具体的copyBeanToBeanBySameType(Type source, Type target)方法实现
 		{
+			// protected void copyBeanToBeanBySameType(S source, S target)
 			MethodVisitor methodVisitor = cw.visitMethod(ACC_PROTECTED, copyBeanToSameName,
 				"(L" + Type.getInternalName(type) + ";L" + Type.getInternalName(type) + ";)V", null, null);
 			methodVisitor.visitCode();
 
+			// 遍历所有属性，为每个属性生成直接拷贝的字节码
 			classification.properties.forEach((name, info) -> {
-				// 基本类不可能为空，直接赋值
+				// 基本类型不可能为空，直接赋值
 				if (info.getField() != null) {
-					methodVisitor.visitVarInsn(ALOAD, 1);
+					// 有公共字段：直接GETFIELD -> PUTFIELD
+					/*
+					target.fieldName = source.fieldName;
+					 */
+					methodVisitor.visitVarInsn(ALOAD, 1); // source
 					methodVisitor.visitFieldInsn(GETFIELD, Type.getInternalName(info.getField().getDeclaringClass()), name, Type.getDescriptor(info.getField().getType()));
-					AsmUtils.storeVar(methodVisitor, info.getPropertyType(), 3);
+					// 存储到局部变量表
+					Asms.storeVar(methodVisitor, info.getPropertyType(), 3);
 
 					Label labelIf = null;
+					// 非基本类型需要检查null
 					if (!Types.isPrimitive(info.getPropertyType())) {
 						labelIf = new Label();
-						AsmUtils.loadVar(methodVisitor, info.getPropertyType(), 3);
+						Asms.loadVar(methodVisitor, info.getPropertyType(), 3);
 						methodVisitor.visitJumpInsn(IFNULL, labelIf);
 					}
 
 					methodVisitor.visitVarInsn(ALOAD, 2);
-					AsmUtils.loadVar(methodVisitor, info.getPropertyType(), 3);
+					Asms.loadVar(methodVisitor, info.getPropertyType(), 3);
 					methodVisitor.visitFieldInsn(PUTFIELD, Type.getInternalName(info.getField().getDeclaringClass()), name, Type.getDescriptor(info.getField().getType()));
 					if (labelIf != null) {
 						methodVisitor.visitLabel(labelIf);
@@ -1164,6 +1388,12 @@ public abstract class BeanCopier<S> {
 						methodVisitor.visitLabel(labelStart);
 					}
 					// try
+					/*
+					try{
+						Object var = source.getFieldName();
+						target.setFieldName(var);
+					}
+					 */
 					methodVisitor.visitVarInsn(ALOAD, 1);
 					{
 						Class<?> declaringClass = info.getReadMethod().getDeclaringClass();
@@ -1178,16 +1408,16 @@ public abstract class BeanCopier<S> {
 						}
 						methodVisitor.visitMethodInsn(invokeOpcode, Type.getInternalName(declaringClass), info.getReadMethod().getName(), Type.getMethodDescriptor(info.getReadMethod()), isInterface);
 					}
-					AsmUtils.storeVar(methodVisitor, info.getPropertyType(), 3);
+					Asms.storeVar(methodVisitor, info.getPropertyType(), 3);
 					Label labelIf = null;
 					if (!Types.isPrimitive(info.getPropertyType())) {
 						labelIf = new Label();
-						AsmUtils.loadVar(methodVisitor, info.getPropertyType(), 3);
+						Asms.loadVar(methodVisitor, info.getPropertyType(), 3);
 						methodVisitor.visitJumpInsn(IFNULL, labelIf);
 					}
 
 					methodVisitor.visitVarInsn(ALOAD, 2);
-					AsmUtils.loadVar(methodVisitor, info.getPropertyType(), 3);
+					Asms.loadVar(methodVisitor, info.getPropertyType(), 3);
 					{
 						Class<?> declaringClass = info.getWriteMethod().getDeclaringClass();
 						boolean isInterface = declaringClass.isInterface();
@@ -1210,6 +1440,11 @@ public abstract class BeanCopier<S> {
 						Label labelFinal = new Label();
 						methodVisitor.visitJumpInsn(GOTO, labelFinal);
 						// catch
+						/*
+						catch (Throwable t) {
+							super.resolveCopyError(fieldName, t);
+						}
+						 */
 						methodVisitor.visitLabel(labelCatch);
 						methodVisitor.visitVarInsn(ASTORE, 3);
 						methodVisitor.visitVarInsn(ALOAD, 0);
@@ -1243,10 +1478,32 @@ public abstract class BeanCopier<S> {
 		}
 	}
 
+	/**
+	 * 插入带选项配置的Bean转Map方法的字节码实现
+	 * <p>
+	 * 该方法生成copyBeanToMapByOptions()的字节码，支持通过CopyOptions配置各种复制规则：
+	 * - 忽略null值
+	 * - 键名转换（驼峰、下划线等）
+	 * - 值编辑和类型转换
+	 * - 是否覆盖目标值
+	 * </p>
+	 * <p>
+	 * 为每个属性生成独立的子方法copyBeanToMapWithKeyByOptions${propertyName}，
+	 * 主方法依次调用所有子方法完成全部属性的复制。
+	 * </p>
+	 *
+	 * @param cw ASM类写入器
+	 * @param superClassNameInternal 父类的JVM内部名称
+	 * @param accessClassNameInternal 访问器类的JVM内部名称
+	 * @param type Bean的类型
+	 * @param classification Bean属性分类信息
+	 * @param <T> Bean类型参数
+	 */
 	@SuppressWarnings("all")
 	private static <T> void insertBeanToMapByOptions(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertyInfo.Classification classification) {
 		String subMethodPrefix = "copyBeanToMapWithKeyByOptions$";
 		List<String> subMethods = new ArrayList<>();
+		// 为每个有getter的属性生成独立的子方法
 		for (Map.Entry<String, BeanPropertyInfo> entry : classification.properties.entrySet()) {
 			BeanPropertyInfo info = entry.getValue();
 			if (!info.hasGetter()) {
@@ -1257,7 +1514,7 @@ public abstract class BeanCopier<S> {
 			subMethods.add(subMethod);
 		}
 		SerializableConsumerWithArgs6<BeanCopier, Object, Map, CopyOptions, JavaType, JavaType> copyBeanToMapByOptions = BeanCopier::copyBeanToMapByOptions;
-		// 重写方法
+		// 生成主方法：依次调用所有子方法
 		{
 			MethodVisitor methodVisitor = cw.visitMethod(ACC_PROTECTED, copyBeanToMapByOptions.serialized().getImplMethodName(),
 				"(" +
@@ -1274,6 +1531,7 @@ public abstract class BeanCopier<S> {
 					Type.getDescriptor(JavaType.class) +
 					")V", null);
 			methodVisitor.visitCode();
+			// 依次调用每个属性的子方法
 			for (String subMethod : subMethods) {
 				methodVisitor.visitVarInsn(ALOAD, 0);
 				methodVisitor.visitVarInsn(ALOAD, 1);
@@ -1358,7 +1616,7 @@ public abstract class BeanCopier<S> {
 				Type.getInternalName(info.getField().getDeclaringClass()),
 				info.getField().getName(), Type.getDescriptor(var7Class));
 			// autoBoxing
-			AsmUtils.autoBoxing(methodVisitor, var7Class);
+			Asms.autoBoxing(methodVisitor, var7Class);
 		} else {
 			Class<?> var7Class = info.getReadMethod().getReturnType();
 			boolean isInterface = info.getReadMethod().getDeclaringClass().isInterface();
@@ -1366,7 +1624,7 @@ public abstract class BeanCopier<S> {
 				Type.getInternalName(info.getReadMethod().getDeclaringClass()),
 				info.getReadMethod().getName(), Type.getMethodDescriptor(info.getReadMethod()), isInterface);
 			// autoBoxing
-			AsmUtils.autoBoxing(methodVisitor, var7Class);
+			Asms.autoBoxing(methodVisitor, var7Class);
 		}
 		methodVisitor.visitVarInsn(ASTORE, 7);
 		methodVisitor.visitVarInsn(ALOAD, 0);
@@ -1403,6 +1661,20 @@ public abstract class BeanCopier<S> {
 		methodVisitor.visitEnd();
 	}
 
+	/**
+	 * 插入自定义键映射的Map转Bean方法的字节码实现
+	 * <p>
+	 * 该方法生成copyMapToBeanWithCustomKeys()的字节码，处理需要动态键名映射的场景。
+	 * 通过keyMapping参数指定源Map键到目标Bean属性的映射关系，
+	 * 然后调用对应的copyMapToBeanWithSourceKeys${propertyName}子方法完成属性设置。
+	 * </p>
+	 *
+	 * @param cw ASM类写入器
+	 * @param accessClassNameInternal 访问器类的JVM内部名称
+	 * @param type Bean的类型
+	 * @param classification Bean属性分类信息
+	 * @param <T> Bean类型参数
+	 */
 	@SuppressWarnings("all")
 	private static <T> void insertMapToBeanWithCustomKeys(ClassWriter cw, String accessClassNameInternal,
 		Class<T> type, BeanPropertyInfo.Classification classification) {
@@ -1449,6 +1721,28 @@ public abstract class BeanCopier<S> {
 		methodVisitor.visitEnd();
 	}
 
+	/**
+	 * 插入带源键映射的Map转Bean方法的字节码实现
+	 * <p>
+	 * 该方法生成各种键名映射策略的Map转Bean方法，包括：
+	 * - copyMapToBeanWithSameKeys: 相同键名
+	 * - copyMapToBeanWithCapitalizeKeys: 首字母大小写转换
+	 * - copyMapToBeanWithUnderlineToCamelKeys: 下划线转驼峰
+	 * - copyMapToBeanWithCamelToUnderlineKeys: 驼峰转下划线
+	 * </p>
+	 * <p>
+	 * 通过keyMapper函数将目标属性名转换为源Map的键名，
+	 * 如果转换后的键名不为null，则调用对应的子方法进行属性设置。
+	 * </p>
+	 *
+	 * @param cw ASM类写入器
+	 * @param accessClassNameInternal 访问器类的JVM内部名称
+	 * @param type Bean的类型
+	 * @param classification Bean属性分类信息
+	 * @param copyMethod 要生成的方法引用
+	 * @param keyMapper 键名转换函数，返回null表示跳过该属性
+	 * @param <T> Bean类型参数
+	 */
 	@SuppressWarnings("all")
 	private static <T> void insertMapToBeanWithSourceKeys(ClassWriter cw, String accessClassNameInternal,
 		Class<T> type, BeanPropertyInfo.Classification classification,
@@ -1461,9 +1755,11 @@ public abstract class BeanCopier<S> {
 			"(Ljava/util/Map<Ljava/lang/String;Ljava/lang/Object;>;Ljava/lang/Object;" +
 				Type.getDescriptor(CopyOptions.class) + "Ljava/util/Set<Ljava/lang/String;>;)V", null);
 		methodVisitor.visitCode();
+		// 遍历所有有setter的属性，根据keyMapper生成对应的源键名
 		classification.properties.forEach((key, info) -> {
 			if (info.hasSetter()) {
 				String sourceKey = keyMapper.apply(info.getPropertyName());
+				// 如果keyMapper返回null，表示该属性不需要在此方法中处理
 				if (sourceKey == null) {
 					return;
 				}
@@ -1495,6 +1791,21 @@ public abstract class BeanCopier<S> {
 		methodVisitor.visitEnd();
 	}
 
+	/**
+	 * 插入使用所有源键的Map转Bean方法的字节码实现
+	 * <p>
+	 * 该方法为每个有setter的属性生成一个独立的子方法copyMapToBeanWithSourceKeys${propertyName}，
+	 * 这些子方法被insertMapToBeanWithCustomKeys和insertMapToBeanWithSourceKeys调用，
+	 * 实现具体的属性设置逻辑。
+	 * </p>
+	 *
+	 * @param cw ASM类写入器
+	 * @param superClassNameInternal 父类的JVM内部名称
+	 * @param accessClassNameInternal 访问器类的JVM内部名称
+	 * @param type Bean的类型
+	 * @param classification Bean属性分类信息
+	 * @param <T> Bean类型参数
+	 */
 	@SuppressWarnings("all")
 	private static <T> void insertMapToBeanWithSourceKeyAll(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertyInfo.Classification classification) {
 		classification.properties.forEach((key, info) -> {
@@ -1504,11 +1815,39 @@ public abstract class BeanCopier<S> {
 		});
 	}
 
+	/**
+	 * 插入单个属性的Map转Bean子方法的字节码实现
+	 * <p>
+	 * 该方法为每个属性生成一个私有的copyMapToBeanWithSourceKeys${propertyName}方法，
+	 * 实现从Map中读取指定键的值并设置到Bean属性的完整逻辑。
+	 * </p>
+	 * <p>
+	 * 生成的字节码包含以下检查和处理：
+	 * 1. 检查源键是否为null或被忽略
+	 * 2. 检查目标键是否在待处理集合中
+	 * 3. 如果不覆盖且目标已有值则跳过
+	 * 4. 从Map获取值并检查null
+	 * 5. 调用options.editValue()编辑值
+	 * 6. 调用options.convert()进行类型转换
+	 * 7. 再次检查转换后的值和基本类型
+	 * 8. 类型匹配后设置字段或调用setter
+	 * 9. 从待处理集合中移除已处理的键
+	 * 10. 完整的异常处理和错误报告
+	 * </p>
+	 *
+	 * @param cw ASM类写入器
+	 * @param superClassNameInternal 父类的JVM内部名称
+	 * @param accessClassNameInternal 访问器类的JVM内部名称
+	 * @param type Bean的类型
+	 * @param info 当前属性的信息
+	 * @param <T> Bean类型参数
+	 */
 	@SuppressWarnings("all")
 	private static <T> void insertMapToBeanWithSourceKey(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertyInfo info) {
 		String methodName = "copyMapToBeanWithSourceKeys$" + info.getPropertyName();
 		String targetKey = info.getPropertyName();
 		{
+			// 生成私有方法：copyMapToBeanWithSourceKeys$propertyName(Map, Bean, CopyOptions, Set<String>, String)
 			MethodVisitor methodVisitor = cw.visitMethod(ACC_PRIVATE, methodName, "(Ljava/util/Map;" +
 				Type.getDescriptor(type) +
 				Type.getDescriptor(CopyOptions.class) +
@@ -1517,6 +1856,7 @@ public abstract class BeanCopier<S> {
 				Type.getDescriptor(CopyOptions.class) +
 				"Ljava/util/Set<Ljava/lang/String;>;Ljava/lang/String;)V", null);
 			methodVisitor.visitCode();
+			// 定义多个异常处理块，覆盖不同的代码段
 			Label label0 = new Label();
 			Label label1 = new Label();
 			Label label2 = new Label();
@@ -1539,10 +1879,11 @@ public abstract class BeanCopier<S> {
 			methodVisitor.visitLdcInsn(targetKey);
 			methodVisitor.visitVarInsn(ASTORE, 6);
 			methodVisitor.visitLabel(label0);
+			/* 步骤1: 检查源键是否有效 */
 			/* if (sourceKey == null || options.isIgnoredKey(sourceKey)) {
 				return;
 			} */
-			methodVisitor.visitVarInsn(ALOAD, 5);
+			methodVisitor.visitVarInsn(ALOAD, 5); // sourceKey
 			methodVisitor.visitJumpInsn(IFNULL, label1);
 			methodVisitor.visitVarInsn(ALOAD, 3);
 			methodVisitor.visitVarInsn(ALOAD, 5);
@@ -1552,29 +1893,31 @@ public abstract class BeanCopier<S> {
 			methodVisitor.visitLabel(label1);
 			methodVisitor.visitInsn(RETURN);
 			methodVisitor.visitLabel(label3);
+			/* 步骤2: 检查目标键是否在待处理集合中 */
 			/* if (!targetKeys.contains(targetKey)) {
 				return;
 			} */
-			methodVisitor.visitVarInsn(ALOAD, 4);
+			methodVisitor.visitVarInsn(ALOAD, 4); // targetKeys
 			methodVisitor.visitVarInsn(ALOAD, 6);
 			methodVisitor.visitMethodInsn(INVOKEINTERFACE, "java/util/Set", "contains", "(Ljava/lang/Object;)Z", true);
 			methodVisitor.visitJumpInsn(IFNE, label5);
 			methodVisitor.visitLabel(label4);
 			methodVisitor.visitInsn(RETURN);
 			methodVisitor.visitLabel(label5);
+			/* 步骤3: 检查是否需要覆盖目标值 */
 			/* if (!options.override()) {
 				Object orig = var2.get();
 				if (orig != null) {
 					return;
 				}
 			} */
-			methodVisitor.visitVarInsn(ALOAD, 3);
+			methodVisitor.visitVarInsn(ALOAD, 3); // options
 			methodVisitor.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(CopyOptions.class), "override", "()Z", false);
 			methodVisitor.visitJumpInsn(IFNE, label7);
 			if (info.getField() != null) {
 				methodVisitor.visitVarInsn(ALOAD, 2);
 				methodVisitor.visitFieldInsn(GETFIELD, Type.getDescriptor(info.getField().getDeclaringClass()), info.getField().getName(), Type.getDescriptor(info.getField().getType()));
-				AsmUtils.autoBoxing(methodVisitor, info.getField().getType());
+				Asms.autoBoxing(methodVisitor, info.getField().getType());
 				methodVisitor.visitVarInsn(ASTORE, 7);
 				methodVisitor.visitVarInsn(ALOAD, 7);
 				methodVisitor.visitJumpInsn(IFNULL, label7);
@@ -1585,7 +1928,7 @@ public abstract class BeanCopier<S> {
 					Type.getInternalName(info.getReadMethod().getDeclaringClass()),
 					info.getReadMethod().getName(), Type.getMethodDescriptor(info.getReadMethod()), isInterface);
 				// autoBoxing
-				AsmUtils.autoBoxing(methodVisitor, info.getReadMethod().getReturnType());
+				Asms.autoBoxing(methodVisitor, info.getReadMethod().getReturnType());
 				methodVisitor.visitVarInsn(ASTORE, 7);
 				methodVisitor.visitVarInsn(ALOAD, 7);
 				methodVisitor.visitJumpInsn(IFNULL, label7);
@@ -1595,11 +1938,12 @@ public abstract class BeanCopier<S> {
 			methodVisitor.visitLabel(label6);
 			methodVisitor.visitInsn(RETURN);
 			methodVisitor.visitLabel(label7);
+			/* 步骤4: 从Map获取值并检查null */
 			/* Object value = var1.get(sourceKey);
 			if (value == null && options.ignoreNull()) {
 				return;
 			} */
-			methodVisitor.visitVarInsn(ALOAD, 1);
+			methodVisitor.visitVarInsn(ALOAD, 1); // source Map
 			methodVisitor.visitVarInsn(ALOAD, 5);
 			methodVisitor.visitMethodInsn(INVOKEINTERFACE, "java/util/Map", "get", "(Ljava/lang/Object;)Ljava/lang/Object;", true);
 			methodVisitor.visitVarInsn(ASTORE, 7);
@@ -1612,12 +1956,14 @@ public abstract class BeanCopier<S> {
 			methodVisitor.visitLabel(label8);
 			methodVisitor.visitInsn(RETURN);
 			methodVisitor.visitLabel(label9);
+			/* 步骤5: 编辑值 */
 			/* value = options.editValue(sourceKey, value); */
-			methodVisitor.visitVarInsn(ALOAD, 3);
+			methodVisitor.visitVarInsn(ALOAD, 3); // options
 			methodVisitor.visitVarInsn(ALOAD, 5);
 			methodVisitor.visitVarInsn(ALOAD, 7);
 			SerializableTriFunction<CopyOptions, String, Object, Object> editValue = CopyOptions::editValue;
 			methodVisitor.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(CopyOptions.class), editValue.serialized().getImplMethodName(), "(Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;", false);
+			/* 步骤6: 类型转换 */
 			/* value = options.convert(this.type$field, value); */
 			methodVisitor.visitVarInsn(ASTORE, 7);
 			methodVisitor.visitVarInsn(ALOAD, 3);
@@ -1627,10 +1973,11 @@ public abstract class BeanCopier<S> {
 			SerializableTriFunction<CopyOptions, java.lang.reflect.Type, Object, Object> convert = CopyOptions::convert;
 			methodVisitor.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(CopyOptions.class), convert.serialized().getImplMethodName(), "(Ljava/lang/reflect/Type;Ljava/lang/Object;)Ljava/lang/Object;", false);
 			methodVisitor.visitVarInsn(ASTORE, 7);
+			/* 步骤7: 再次检查转换后的值和基本类型 */
 			/* if (value == null && (options.ignoreNull() || class$booleanVal0.isPrimitive())) {
 				return;
 			} */
-			methodVisitor.visitVarInsn(ALOAD, 7);
+			methodVisitor.visitVarInsn(ALOAD, 7); // value
 			methodVisitor.visitJumpInsn(IFNONNULL, label11);
 			methodVisitor.visitVarInsn(ALOAD, 3);
 			methodVisitor.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(CopyOptions.class), ignoreNull.serialized().getImplMethodName(), "()Z", false);
@@ -1642,20 +1989,22 @@ public abstract class BeanCopier<S> {
 			methodVisitor.visitLabel(label10);
 			methodVisitor.visitInsn(RETURN);
 			methodVisitor.visitLabel(label11);
+			/* 步骤8: 类型匹配后设置字段或调用setter */
 			/* if (Types.getWrapperClass(class$field).isInstance(value)) {
 				var2.set( (Boolean) value);
 				targetKeys.remove(targetKey);
 			} */
-			methodVisitor.visitVarInsn(ALOAD, 0);
+			methodVisitor.visitVarInsn(ALOAD, 0); // this
 			methodVisitor.visitFieldInsn(GETFIELD, accessClassNameInternal, FIELD_PREFIX_CLASS + info.getPropertyName(), "Ljava/lang/Class;");
 			SerializableFunction<Class, Class> getWrapperClass = Types::getWrapperClass;
 			methodVisitor.visitMethodInsn(INVOKESTATIC, Type.getInternalName(Types.class), getWrapperClass.serialized().getImplMethodName(), "(Ljava/lang/Class;)Ljava/lang/Class;", false);
 			methodVisitor.visitVarInsn(ALOAD, 7);
 			methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Class", "isInstance", "(Ljava/lang/Object;)Z", false);
 			methodVisitor.visitJumpInsn(IFEQ, label12);
-			methodVisitor.visitVarInsn(ALOAD, 2);
+			// 类型匹配，设置属性值
+			methodVisitor.visitVarInsn(ALOAD, 2); // target Bean
 			methodVisitor.visitVarInsn(ALOAD, 7);
-			AsmUtils.autoUnBoxing(methodVisitor, info.getPropertyType());
+			Asms.autoUnBoxing(methodVisitor, info.getPropertyType());
 			if (info.getField() != null) {
 				methodVisitor.visitFieldInsn(PUTFIELD, Type.getInternalName(info.getField().getDeclaringClass()), info.getField().getName(), Type.getDescriptor(info.getField().getType()));
 			} else {
@@ -1664,17 +2013,20 @@ public abstract class BeanCopier<S> {
 					Type.getInternalName(info.getWriteMethod().getDeclaringClass()),
 					info.getWriteMethod().getName(), Type.getMethodDescriptor(info.getWriteMethod()), isInterface);
 			}
-			methodVisitor.visitVarInsn(ALOAD, 4);
+			// 步骤9: 从待处理集合中移除已处理的键
+			methodVisitor.visitVarInsn(ALOAD, 4); // targetKeys
 			methodVisitor.visitVarInsn(ALOAD, 6);
 			methodVisitor.visitMethodInsn(INVOKEINTERFACE, "java/util/Set", "remove", "(Ljava/lang/Object;)Z", true);
 			methodVisitor.visitInsn(POP);
 			methodVisitor.visitLabel(label12);
 			Label label13 = new Label();
 			methodVisitor.visitJumpInsn(GOTO, label13);
+			// catch块：异常处理
 			methodVisitor.visitLabel(label2);
 			methodVisitor.visitVarInsn(ASTORE, 7);
 			methodVisitor.visitVarInsn(ALOAD, 0);
 
+			// 构建错误消息：sourceKey + "->" + targetKey
 			methodVisitor.visitTypeInsn(NEW, "java/lang/StringBuilder");
 			methodVisitor.visitInsn(DUP);
 			methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "()V", false);

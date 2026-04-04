@@ -19,7 +19,7 @@ import static org.objectweb.asm.Opcodes.RETURN;
  * @author Qt
  * @since Apr 11, 2024
  */
-public class AsmUtils {
+public class Asms {
 
 	/**
 	 * 添加自动拆箱指令

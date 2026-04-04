@@ -1,5 +1,7 @@
 package io.polaris.core.asm;
 
+import java.io.File;
+
 import io.polaris.core.consts.StdKeys;
 
 /**
@@ -8,6 +10,9 @@ import io.polaris.core.consts.StdKeys;
  */
 public class BaseAsmTest {
 	static {
-		System.setProperty(StdKeys.BYTECODE_GENERATOR_TMPDIR, "/data/classes");
+		File dir = new File(BaseAsmTest.class.getProtectionDomain().getCodeSource().getLocation().getFile());
+		if (dir.exists()) {
+			System.setProperty(StdKeys.BYTECODE_GENERATOR_TMPDIR, dir.getAbsolutePath());
+		}
 	}
 }

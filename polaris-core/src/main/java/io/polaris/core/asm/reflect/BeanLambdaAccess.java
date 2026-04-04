@@ -11,7 +11,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import io.polaris.core.asm.internal.AsmUtils;
+import io.polaris.core.asm.internal.Asms;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.reflect.SerializableFunction;
@@ -587,7 +587,7 @@ public abstract class BeanLambdaAccess<T> {
 			superClassNameInternal, null);
 		cw.visitInnerClass("java/lang/invoke/MethodHandles$Lookup", "java/lang/invoke/MethodHandles", "Lookup", ACC_PUBLIC | ACC_FINAL | ACC_STATIC);
 
-		AsmUtils.insertDefaultConstructor(cw, superClassNameInternal);
+		Asms.insertDefaultConstructor(cw, superClassNameInternal);
 		insertSetterInvokers(cw, accessClassNameInternal, type, classification.setters);
 		insertGetterInvokers(cw, accessClassNameInternal, type, classification.getters);
 		insertFieldSetterInvokers(cw, accessClassNameInternal, type, classification.fields);
@@ -691,7 +691,7 @@ public abstract class BeanLambdaAccess<T> {
 				mv.visitVarInsn(ALOAD, 1);
 				Class<?> parameterType = parameterTypes[0];
 				Type paramType = Type.getType(parameterType);
-				AsmUtils.autoUnBoxing(mv, paramType);
+				Asms.autoUnBoxing(mv, paramType);
 
 				Class<?> declaringClass = method.getDeclaringClass();
 				boolean isInterface = declaringClass.isInterface();
@@ -706,7 +706,7 @@ public abstract class BeanLambdaAccess<T> {
 
 				mv.visitMethodInsn(invokeOpcode, Type.getInternalName(declaringClass), methodName, Type.getMethodDescriptor(method), isInterface);
 				Class<?> returnType = method.getReturnType();
-				AsmUtils.autoBoxing(mv, returnType);
+				Asms.autoBoxing(mv, returnType);
 
 				if (hasThrows) {
 					mv.visitLabel(labelEnd);
@@ -826,7 +826,7 @@ public abstract class BeanLambdaAccess<T> {
 
 				mv.visitMethodInsn(invokeOpcode, Type.getInternalName(declaringClass), methodName, Type.getMethodDescriptor(method), isInterface);
 				Class<?> returnType = method.getReturnType();
-				AsmUtils.autoBoxingForReturn(mv, returnType);
+				Asms.autoBoxingForReturn(mv, returnType);
 
 				if (hasThrows) {
 					mv.visitLabel(labelEnd);
@@ -945,7 +945,7 @@ public abstract class BeanLambdaAccess<T> {
 				}
 				mv.visitVarInsn(ALOAD, 1);
 				Type fieldType = Type.getType(field.getType());
-				AsmUtils.autoUnBoxing(mv, fieldType);
+				Asms.autoUnBoxing(mv, fieldType);
 				if (Modifier.isStatic(field.getModifiers())) {
 					mv.visitFieldInsn(PUTSTATIC, Type.getInternalName(field.getDeclaringClass()), name, fieldType.getDescriptor());
 				} else {
@@ -1013,7 +1013,7 @@ public abstract class BeanLambdaAccess<T> {
 					mv.visitFieldInsn(GETFIELD, Type.getInternalName(type), name, Type.getDescriptor(field.getType()));
 				}
 				Type fieldType = Type.getType(field.getType());
-				AsmUtils.autoBoxing(mv, fieldType);
+				Asms.autoBoxing(mv, fieldType);
 				mv.visitInsn(ARETURN);
 				mv.visitMaxs(1, 1);
 				mv.visitEnd();

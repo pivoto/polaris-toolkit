@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.polaris.core.asm.BaseAsmTest;
-import io.polaris.core.asm.reflect.copy.CopyBean00;
-import io.polaris.core.asm.reflect.copy.sub.SubCopyBean00;
+import io.polaris.core.asm.reflect.sample.SampleCopyBeanSource;
+import io.polaris.core.asm.reflect.sample.SampleCopyBeanTarget;
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.converter.Converters;
 import io.polaris.core.io.Consoles;
@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
  */
 public class BeanCopierTest extends BaseAsmTest {
 
-	private CopyBean00 source = new CopyBean00();
+	private SampleCopyBeanSource source = new SampleCopyBeanSource();
 
 	{
 		source.errorIntVal0 = -9999;
@@ -47,7 +47,7 @@ public class BeanCopierTest extends BaseAsmTest {
 
 	@Test
 	void test_copyBeanToMap() {
-		BeanCopier<CopyBean00> copier = BeanCopier.get(CopyBean00.class);
+		BeanCopier<SampleCopyBeanSource> copier = BeanCopier.get(SampleCopyBeanSource.class);
 		Consoles.log("", copier);
 		Consoles.log("source: {}", source);
 		Map<String, Object> target = new HashMap<>();
@@ -64,7 +64,7 @@ public class BeanCopierTest extends BaseAsmTest {
 	}
 	@Test
 	void test_copyBeanToMapByOptions() {
-		BeanCopier<CopyBean00> copier = BeanCopier.get(CopyBean00.class);
+		BeanCopier<SampleCopyBeanSource> copier = BeanCopier.get(SampleCopyBeanSource.class);
 		Consoles.log("", copier);
 		Consoles.log("source: {}", source);
 		Map<String, Object> target = new HashMap<>();
@@ -96,7 +96,7 @@ public class BeanCopierTest extends BaseAsmTest {
 
 	@Test
 	void test_copyMapToBean() {
-		BeanCopier<SubCopyBean00> copier = BeanCopier.get(SubCopyBean00.class);
+		BeanCopier<SampleCopyBeanTarget> copier = BeanCopier.get(SampleCopyBeanTarget.class);
 		Consoles.log("", copier);
 		Map<String, Object> source = new HashMap<>();
 		source.put("intVal0",111);
@@ -105,7 +105,7 @@ public class BeanCopierTest extends BaseAsmTest {
 		source.put("methodToFieldInt0",333);
 		source.put("fieldToMethodIntVal0",444);
 		Consoles.log("source: {}", source);
-		SubCopyBean00 target = new SubCopyBean00();
+		SampleCopyBeanTarget target = new SampleCopyBeanTarget();
 		copier.copyMapToBean(source, target, Converters::convertQuietly);
 		Consoles.log("target: {}", target);
 		Assertions.assertEquals( source.get("intVal0"),target.getIntVal0());
@@ -119,7 +119,7 @@ public class BeanCopierTest extends BaseAsmTest {
 	}
 	@Test
 	void test_copyMapToBeanByOptions() {
-		BeanCopier<SubCopyBean00> copier = BeanCopier.get(SubCopyBean00.class);
+		BeanCopier<SampleCopyBeanTarget> copier = BeanCopier.get(SampleCopyBeanTarget.class);
 		Consoles.log("", copier);
 		Map<String, Object> source = new HashMap<>();
 		source.put("intVal0",111);
@@ -134,7 +134,7 @@ public class BeanCopierTest extends BaseAsmTest {
 		source.put("field_IGNORE_CASE_underline_to_camel_val0","field_IGNORE_CASE_underline_to_camel_val0");
 		source.put("fieldIgnoreCaseCamelToUnderlineVal0","fieldIgnoreCaseCamelToUnderlineVal0");
 		Consoles.log("source: {}", source);
-		SubCopyBean00 target = new SubCopyBean00();
+		SampleCopyBeanTarget target = new SampleCopyBeanTarget();
 		copier.copyMapToBean(source, target,
 			CopyOptions.create().ignoreCase(true)
 				.ignoreCapitalize(true)
@@ -165,10 +165,10 @@ public class BeanCopierTest extends BaseAsmTest {
 	}
 	@Test
 	void test_copyBeanToBean() {
-		BeanCopier<CopyBean00> copier = BeanCopier.get(CopyBean00.class);
+		BeanCopier<SampleCopyBeanSource> copier = BeanCopier.get(SampleCopyBeanSource.class);
 		Consoles.log("", copier);
 		Consoles.log("source: {}", source);
-		SubCopyBean00 target = new SubCopyBean00();
+		SampleCopyBeanTarget target = new SampleCopyBeanTarget();
 		copier.copyBeanToBean(source, target);
 		Consoles.log("target: {}", target);
 		Assertions.assertEquals(source.getIntVal0(), target.getIntVal0());
@@ -183,11 +183,11 @@ public class BeanCopierTest extends BaseAsmTest {
 
 	@Test
 	void test_copyBeanToBeanByOptions() {
-		BeanCopier<CopyBean00> copier = BeanCopier.get(CopyBean00.class);
+		BeanCopier<SampleCopyBeanSource> copier = BeanCopier.get(SampleCopyBeanSource.class);
 		Consoles.log("", copier);
 		Consoles.log("source: {}", source);
-		SubCopyBean00 target = new SubCopyBean00();
-		copier.copyBeanToBean(source, SubCopyBean00.class, target,
+		SampleCopyBeanTarget target = new SampleCopyBeanTarget();
+		copier.copyBeanToBean(source, SampleCopyBeanTarget.class, target,
 			CopyOptions.create().ignoreCase(true)
 				.ignoreCapitalize(true)
 				.enableCamelToUnderlineCase(true)
@@ -204,11 +204,11 @@ public class BeanCopierTest extends BaseAsmTest {
 
 	@Test
 	void test_copyBeanToBeanByOptions_ignoreKeys() {
-		BeanCopier<CopyBean00> copier = BeanCopier.get(CopyBean00.class);
+		BeanCopier<SampleCopyBeanSource> copier = BeanCopier.get(SampleCopyBeanSource.class);
 		Consoles.log("", copier);
 		Consoles.log("source: {}", source);
-		SubCopyBean00 target = new SubCopyBean00();
-		copier.copyBeanToBean(source, SubCopyBean00.class, target,
+		SampleCopyBeanTarget target = new SampleCopyBeanTarget();
+		copier.copyBeanToBean(source, SampleCopyBeanTarget.class, target,
 			CopyOptions.create().ignoreCase(true)
 				.ignoreCapitalize(true)
 				.enableCamelToUnderlineCase(true)
@@ -222,11 +222,11 @@ public class BeanCopierTest extends BaseAsmTest {
 
 	@Test
 	void test_copyBeanToBeanByOptions_keyMapping() {
-		BeanCopier<CopyBean00> copier = BeanCopier.get(CopyBean00.class);
+		BeanCopier<SampleCopyBeanSource> copier = BeanCopier.get(SampleCopyBeanSource.class);
 		Consoles.log("", copier);
 		Consoles.log("source: {}", source);
-		SubCopyBean00 target = new SubCopyBean00();
-		copier.copyBeanToBean(source, SubCopyBean00.class, target,
+		SampleCopyBeanTarget target = new SampleCopyBeanTarget();
+		copier.copyBeanToBean(source, SampleCopyBeanTarget.class, target,
 			CopyOptions.create().ignoreCase(true)
 				.ignoreCapitalize(true)
 				.enableCamelToUnderlineCase(true)

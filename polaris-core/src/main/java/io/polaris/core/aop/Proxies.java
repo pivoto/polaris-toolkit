@@ -11,7 +11,7 @@ import io.polaris.core.asm.proxy.Interceptor;
  * @author Qt
  * @since May 13, 2024
  */
-public class ProxyUtils {
+public class Proxies {
 
 	public static <T> ProxyFactory proxyFactory(Object target) {
 		return new AsmProxyFactory(target);

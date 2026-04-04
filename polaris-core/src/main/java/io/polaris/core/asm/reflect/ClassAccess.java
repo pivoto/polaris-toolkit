@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import io.polaris.core.asm.internal.AsmUtils;
+import io.polaris.core.asm.internal.Asms;
 import io.polaris.core.lang.Types;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
@@ -671,7 +671,7 @@ public abstract class ClassAccess<T> {
 			superClassNameInternal, null);
 		cw.visitInnerClass("java/lang/invoke/MethodHandles$Lookup", "java/lang/invoke/MethodHandles", "Lookup", ACC_PUBLIC | ACC_FINAL | ACC_STATIC);
 
-		AsmUtils.insertDefaultConstructor(cw, superClassNameInternal);
+		Asms.insertDefaultConstructor(cw, superClassNameInternal);
 		insertConstructorInvokers(cw, accessClassNameInternal, type);
 		insertMethodInvokers(cw, accessClassNameInternal, type);
 		insertFieldInvokers(cw, accessClassNameInternal, type);
@@ -770,7 +770,7 @@ public abstract class ClassAccess<T> {
 						mv.visitIntInsn(BIPUSH, iParam);
 						mv.visitInsn(AALOAD);
 						Type paramType = Type.getType(parameterType);
-						AsmUtils.autoUnBoxing(mv, paramType);
+						Asms.autoUnBoxing(mv, paramType);
 					}
 					String constructorDescriptor = Type.getConstructorDescriptor(constructor);
 					mv.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(type), "<init>",
@@ -892,7 +892,7 @@ public abstract class ClassAccess<T> {
 			{
 				methodVisitor.visitVarInsn(ILOAD, 2);
 
-				Label[] labels = AsmUtils.newLabels(methodEntryArray.length);
+				Label[] labels = Asms.newLabels(methodEntryArray.length);
 				Label labelDefault = new Label();
 				methodVisitor.visitTableSwitchInsn(0, methodEntryArray.length - 1, labelDefault, labels);
 				// case
@@ -912,7 +912,7 @@ public abstract class ClassAccess<T> {
 					} else {
 						// switch 重载参数分支
 						{
-							Label[] labelsInner = AsmUtils.newLabels(count);
+							Label[] labelsInner = Asms.newLabels(count);
 							Label labelInnerDefault = new Label();
 							if (count > 1) {
 								methodVisitor.visitVarInsn(ILOAD, 3);
@@ -949,7 +949,7 @@ public abstract class ClassAccess<T> {
 										methodVisitor.visitIntInsn(BIPUSH, idxParams);
 										methodVisitor.visitInsn(AALOAD);
 										Type paramType = Type.getType(parameterType);
-										AsmUtils.autoUnBoxing(methodVisitor, paramType);
+										Asms.autoUnBoxing(methodVisitor, paramType);
 									}
 									Class<?> declaringClass = method.getDeclaringClass();
 									boolean isInterface = declaringClass.isInterface();
@@ -966,7 +966,7 @@ public abstract class ClassAccess<T> {
 									if (returnType.equals(Void.TYPE)) {
 										methodVisitor.visitInsn(ACONST_NULL);
 									} else {
-										AsmUtils.autoBoxing(methodVisitor, returnType);
+										Asms.autoBoxing(methodVisitor, returnType);
 									}
 									if (hasThrows) {
 										methodVisitor.visitLabel(labelEnd);
@@ -1149,7 +1149,7 @@ public abstract class ClassAccess<T> {
 				} else {
 					methodVisitor.visitFieldInsn(GETFIELD, Type.getInternalName(type), fieldName, Type.getDescriptor(field.getType()));
 				}
-				AsmUtils.autoBoxing(methodVisitor, fieldType);
+				Asms.autoBoxing(methodVisitor, fieldType);
 				methodVisitor.visitInsn(ARETURN);
 			}
 			// default
@@ -1189,7 +1189,7 @@ public abstract class ClassAccess<T> {
 					methodVisitor.visitInsn(POP);
 				}
 				methodVisitor.visitVarInsn(ALOAD, 3);
-				AsmUtils.autoUnBoxing(methodVisitor, fieldType);
+				Asms.autoUnBoxing(methodVisitor, fieldType);
 
 				if (Modifier.isStatic(field.getModifiers())) {
 					methodVisitor.visitFieldInsn(PUTSTATIC, Type.getInternalName(field.getDeclaringClass()), fieldName, fieldType.getDescriptor());

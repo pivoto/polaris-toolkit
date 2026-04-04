@@ -52,7 +52,7 @@ public class JdkProxyFactory implements ProxyFactory {
 
 	@Override
 	public <T> T get() {
-		return ProxyUtils.jdkProxy(classloader, interfaces, aspect);
+		return Proxies.jdkProxy(classloader, interfaces, aspect);
 	}
 
 }

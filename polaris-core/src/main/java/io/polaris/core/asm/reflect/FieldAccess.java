@@ -1,6 +1,6 @@
 package io.polaris.core.asm.reflect;
 
-import io.polaris.core.asm.internal.AsmUtils;
+import io.polaris.core.asm.internal.Asms;
 import io.polaris.core.collection.Iterables;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -447,7 +447,7 @@ public abstract class FieldAccess {
 				mv.visitTypeInsn(CHECKCAST, classNameInternal);
 				mv.visitVarInsn(ALOAD, 3);
 
-				AsmUtils.autoUnBoxing(mv, fieldType);
+				Asms.autoUnBoxing(mv, fieldType);
 
 				mv.visitFieldInsn(PUTFIELD, field.getDeclaringClass().getName().replace('.', '/'), field.getName(),
 					fieldType.getDescriptor());
@@ -488,7 +488,7 @@ public abstract class FieldAccess {
 					Type.getDescriptor(field.getType()));
 
 				Type fieldType = Type.getType(field.getType());
-				AsmUtils.autoBoxing(mv, fieldType);
+				Asms.autoBoxing(mv, fieldType);
 
 				mv.visitInsn(ARETURN);
 			}

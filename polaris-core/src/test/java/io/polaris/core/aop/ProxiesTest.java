@@ -8,7 +8,7 @@ import io.polaris.core.asm.BaseAsmTest;
 import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Test;
 
-public class ProxyUtilsTest extends BaseAsmTest {
+public class ProxiesTest extends BaseAsmTest {
 
 	@Test
 	void test01() {
@@ -40,7 +40,7 @@ public class ProxyUtilsTest extends BaseAsmTest {
 
 		ProxyTarget01 target = new ProxyTarget01();
 		{
-			ProxyTarget01 proxy = ProxyUtils.proxyFactory(target)
+			ProxyTarget01 proxy = Proxies.proxyFactory(target)
 				.interfaces(new Class[]{Supplier.class})
 				.addAdvice(predicate,
 					beforeAdvice, afterAdvice, fixedAdvice, aroundAdvice1, aroundAdvice2, throwingAdvice, finallyAdvice)
@@ -54,7 +54,7 @@ public class ProxyUtilsTest extends BaseAsmTest {
 			Consoles.log("exec: \n\t{}", proxy.equals(target));
 		}
 		{
-			Supplier proxy = ProxyUtils.jdkProxyFactory(target)
+			Supplier proxy = Proxies.jdkProxyFactory(target)
 				.interfaces(new Class[]{Supplier.class})
 				.addAdvice(predicate,
 					beforeAdvice, afterAdvice, fixedAdvice, aroundAdvice1, aroundAdvice2, throwingAdvice, finallyAdvice)

@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-import io.polaris.core.asm.internal.AsmUtils;
+import io.polaris.core.asm.internal.Asms;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.Types;
 import io.polaris.core.lang.copier.CopyOptions;
@@ -27,10 +27,10 @@ import static org.objectweb.asm.Opcodes.*;
  * <p>默认规则下的 Bean 属性复制，不接受 CopyOptions 参数</p>
  * <p>通过 ASM 字节码生成技术，为相同类型的 Bean 提供高性能的直接属性复制能力</p>
  *
- * @author Qt
- * @since Apr 14, 2024
  * @param <S> 源 Bean 类型
  * @param <T> 目标 Bean 类型
+ * @author Qt
+ * @since Apr 14, 2024
  */
 public abstract class BeanDirectCopier<S, T> {
 	/**
@@ -164,9 +164,9 @@ public abstract class BeanDirectCopier<S, T> {
 	 *
 	 * @param beanCopier Bean 复制器
 	 * @param targetType 目标类型
-	 * @return 直接复制器实例
 	 * @param <S> 源 Bean 类型
 	 * @param <T> 目标 Bean 类型
+	 * @return 直接复制器实例
 	 */
 	@SuppressWarnings({"unchecked"})
 	static <S, T> BeanDirectCopier<S, T> create(BeanCopier<S> beanCopier, Class<T> targetType) {
@@ -200,9 +200,9 @@ public abstract class BeanDirectCopier<S, T> {
 	 * @param accessClassName 访问类名称
 	 * @param type 目标类型
 	 * @param classification 属性分类信息
-	 * @return 生成的类字节码数组
 	 * @param <S> 源 Bean 类型
 	 * @param <T> 目标 Bean 类型
+	 * @return 生成的类字节码数组
 	 */
 	private static <S, T> byte[] buildFastCopierClass(AccessClassLoader loader
 		, BeanCopier<S> beanCopier, String accessClassName, Class<T> type
@@ -215,7 +215,7 @@ public abstract class BeanDirectCopier<S, T> {
 			superClassNameInternal, null);
 		cw.visitInnerClass("java/lang/invoke/MethodHandles$Lookup", "java/lang/invoke/MethodHandles", "Lookup", ACC_PUBLIC | ACC_FINAL | ACC_STATIC);
 
-		AsmUtils.insertDefaultConstructor(cw, superClassNameInternal);
+		Asms.insertDefaultConstructor(cw, superClassNameInternal);
 		insertInitTypeFields(cw, superClassNameInternal, accessClassNameInternal, type, classification);
 		insertMethodCopy(cw, beanCopier, superClassNameInternal, accessClassNameInternal, type, classification);
 
@@ -240,7 +240,7 @@ public abstract class BeanDirectCopier<S, T> {
 		SerializableBiFunction<BeanDirectCopier, String, java.lang.reflect.Type> getPropertyGenericType = BeanDirectCopier::getPropertyGenericType;
 		SerializableBiFunction<BeanDirectCopier, String, Class> getPropertyType = BeanDirectCopier::getPropertyType;
 
-		BeanCopier.insertInitTypes(cw, superClassNameInternal, accessClassNameInternal, classification,
+		BeanCopier.insertInitTypeFields(cw, superClassNameInternal, accessClassNameInternal, classification,
 			init.serialized().getImplMethodName(),
 			getPropertyGenericType.serialized().getImplMethodName(),
 			getPropertyType.serialized().getImplMethodName());
@@ -326,17 +326,17 @@ public abstract class BeanDirectCopier<S, T> {
 	private static void insertCodeFieldToField(MethodVisitor methodVisitor, BeanPropertyInfo sourceInfo, BeanPropertyInfo targetInfo) {
 		methodVisitor.visitVarInsn(ALOAD, 1);
 		methodVisitor.visitFieldInsn(GETFIELD, Type.getInternalName(sourceInfo.getField().getDeclaringClass()), sourceInfo.getField().getName(), Type.getDescriptor(sourceInfo.getField().getType()));
-		AsmUtils.storeVar(methodVisitor, sourceInfo.getField().getType(), 3);
+		Asms.storeVar(methodVisitor, sourceInfo.getField().getType(), 3);
 		Label labelIf = null;
 		if (Types.isPrimitive(sourceInfo.getField().getType())) {
 			methodVisitor.visitVarInsn(ALOAD, 2);
-			AsmUtils.loadVar(methodVisitor, sourceInfo.getField().getType(), 3);
+			Asms.loadVar(methodVisitor, sourceInfo.getField().getType(), 3);
 		} else {
-			AsmUtils.loadVar(methodVisitor, sourceInfo.getField().getType(), 3);
+			Asms.loadVar(methodVisitor, sourceInfo.getField().getType(), 3);
 			labelIf = new Label();
 			methodVisitor.visitJumpInsn(IFNULL, labelIf);
 			methodVisitor.visitVarInsn(ALOAD, 2);
-			AsmUtils.loadVar(methodVisitor, sourceInfo.getField().getType(), 3);
+			Asms.loadVar(methodVisitor, sourceInfo.getField().getType(), 3);
 		}
 		methodVisitor.visitFieldInsn(PUTFIELD, Type.getInternalName(targetInfo.getField().getDeclaringClass()), targetInfo.getField().getName(), Type.getDescriptor(targetInfo.getField().getType()));
 		if (labelIf != null) {
@@ -374,18 +374,18 @@ public abstract class BeanDirectCopier<S, T> {
 			invokeOpcode = INVOKEVIRTUAL;
 		}
 		methodVisitor.visitMethodInsn(invokeOpcode, Type.getInternalName(readMethod.getDeclaringClass()), readMethod.getName(), Type.getMethodDescriptor(readMethod), isInterface);
-		AsmUtils.storeVar(methodVisitor, readMethod.getReturnType(), 3);
+		Asms.storeVar(methodVisitor, readMethod.getReturnType(), 3);
 
 		Label labelIf = null;
 		if (Types.isPrimitive(readMethod.getReturnType())) {
 			methodVisitor.visitVarInsn(ALOAD, 2);
-			AsmUtils.loadVar(methodVisitor, readMethod.getReturnType(), 3);
+			Asms.loadVar(methodVisitor, readMethod.getReturnType(), 3);
 		} else {
-			AsmUtils.loadVar(methodVisitor, readMethod.getReturnType(), 3);
+			Asms.loadVar(methodVisitor, readMethod.getReturnType(), 3);
 			labelIf = new Label();
 			methodVisitor.visitJumpInsn(IFNULL, labelIf);
 			methodVisitor.visitVarInsn(ALOAD, 2);
-			AsmUtils.loadVar(methodVisitor, readMethod.getReturnType(), 3);
+			Asms.loadVar(methodVisitor, readMethod.getReturnType(), 3);
 		}
 		methodVisitor.visitFieldInsn(PUTFIELD, Type.getInternalName(targetInfo.getField().getDeclaringClass()), targetInfo.getField().getName(), Type.getDescriptor(targetInfo.getField().getType()));
 		if (labelIf != null) {
@@ -393,19 +393,21 @@ public abstract class BeanDirectCopier<S, T> {
 		}
 
 		// end
-		methodVisitor.visitLabel(labelEnd);
-		Label labelFinal = new Label();
-		methodVisitor.visitJumpInsn(GOTO, labelFinal);
+		if (hasThrows) {
+			methodVisitor.visitLabel(labelEnd);
+			Label labelFinal = new Label();
+			methodVisitor.visitJumpInsn(GOTO, labelFinal);
 
-		// catch
-		methodVisitor.visitLabel(labelCatch);
-		methodVisitor.visitVarInsn(ASTORE, 3);
-		methodVisitor.visitVarInsn(ALOAD, 0);
-		methodVisitor.visitLdcInsn(targetInfo.getPropertyName());
-		methodVisitor.visitVarInsn(ALOAD, 3);
-		methodVisitor.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(BeanDirectCopier.class), logCopyError.serialized().getImplMethodName(), "(Ljava/lang/String;Ljava/lang/Throwable;)V", false);
-		//finally
-		methodVisitor.visitLabel(labelFinal);
+			// catch
+			methodVisitor.visitLabel(labelCatch);
+			methodVisitor.visitVarInsn(ASTORE, 3);
+			methodVisitor.visitVarInsn(ALOAD, 0);
+			methodVisitor.visitLdcInsn(targetInfo.getPropertyName());
+			methodVisitor.visitVarInsn(ALOAD, 3);
+			methodVisitor.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(BeanDirectCopier.class), logCopyError.serialized().getImplMethodName(), "(Ljava/lang/String;Ljava/lang/Throwable;)V", false);
+			//finally
+			methodVisitor.visitLabel(labelFinal);
+		}
 	}
 
 	/**
@@ -440,18 +442,18 @@ public abstract class BeanDirectCopier<S, T> {
 			invokeOpcode = INVOKEVIRTUAL;
 		}
 		methodVisitor.visitMethodInsn(invokeOpcode, Type.getInternalName(readMethod.getDeclaringClass()), readMethod.getName(), Type.getMethodDescriptor(readMethod), isInterface);
-		AsmUtils.storeVar(methodVisitor, readMethod.getReturnType(), 3);
+		Asms.storeVar(methodVisitor, readMethod.getReturnType(), 3);
 
 		Label labelIf = null;
 		if (Types.isPrimitive(readMethod.getReturnType())) {
 			methodVisitor.visitVarInsn(ALOAD, 2);
-			AsmUtils.loadVar(methodVisitor, readMethod.getReturnType(), 3);
+			Asms.loadVar(methodVisitor, readMethod.getReturnType(), 3);
 		} else {
-			AsmUtils.loadVar(methodVisitor, readMethod.getReturnType(), 3);
+			Asms.loadVar(methodVisitor, readMethod.getReturnType(), 3);
 			labelIf = new Label();
 			methodVisitor.visitJumpInsn(IFNULL, labelIf);
 			methodVisitor.visitVarInsn(ALOAD, 2);
-			AsmUtils.loadVar(methodVisitor, readMethod.getReturnType(), 3);
+			Asms.loadVar(methodVisitor, readMethod.getReturnType(), 3);
 		}
 
 		isInterface = writeMethod.getDeclaringClass().isInterface();
@@ -469,19 +471,21 @@ public abstract class BeanDirectCopier<S, T> {
 		}
 
 		// end
-		methodVisitor.visitLabel(labelEnd);
-		Label labelFinal = new Label();
-		methodVisitor.visitJumpInsn(GOTO, labelFinal);
+		if (hasThrows) {
+			methodVisitor.visitLabel(labelEnd);
+			Label labelFinal = new Label();
+			methodVisitor.visitJumpInsn(GOTO, labelFinal);
 
-		// catch
-		methodVisitor.visitLabel(labelCatch);
-		methodVisitor.visitVarInsn(ASTORE, 3);
-		methodVisitor.visitVarInsn(ALOAD, 0);
-		methodVisitor.visitLdcInsn(targetInfo.getPropertyName());
-		methodVisitor.visitVarInsn(ALOAD, 3);
-		methodVisitor.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(BeanDirectCopier.class), logCopyError.serialized().getImplMethodName(), "(Ljava/lang/String;Ljava/lang/Throwable;)V", false);
-		//finally
-		methodVisitor.visitLabel(labelFinal);
+			// catch
+			methodVisitor.visitLabel(labelCatch);
+			methodVisitor.visitVarInsn(ASTORE, 3);
+			methodVisitor.visitVarInsn(ALOAD, 0);
+			methodVisitor.visitLdcInsn(targetInfo.getPropertyName());
+			methodVisitor.visitVarInsn(ALOAD, 3);
+			methodVisitor.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(BeanDirectCopier.class), logCopyError.serialized().getImplMethodName(), "(Ljava/lang/String;Ljava/lang/Throwable;)V", false);
+			//finally
+			methodVisitor.visitLabel(labelFinal);
+		}
 	}
 
 	/**
@@ -506,18 +510,18 @@ public abstract class BeanDirectCopier<S, T> {
 		methodVisitor.visitVarInsn(ALOAD, 1);
 
 		methodVisitor.visitFieldInsn(GETFIELD, Type.getInternalName(sourceInfo.getField().getDeclaringClass()), sourceInfo.getField().getName(), Type.getDescriptor(sourceInfo.getField().getType()));
-		AsmUtils.storeVar(methodVisitor, sourceInfo.getField().getType(), 3);
+		Asms.storeVar(methodVisitor, sourceInfo.getField().getType(), 3);
 
 		Label labelIf = null;
 		if (Types.isPrimitive(sourceInfo.getField().getType())) {
 			methodVisitor.visitVarInsn(ALOAD, 2);
-			AsmUtils.loadVar(methodVisitor, sourceInfo.getField().getType(), 3);
+			Asms.loadVar(methodVisitor, sourceInfo.getField().getType(), 3);
 		} else {
-			AsmUtils.loadVar(methodVisitor, sourceInfo.getField().getType(), 3);
+			Asms.loadVar(methodVisitor, sourceInfo.getField().getType(), 3);
 			labelIf = new Label();
 			methodVisitor.visitJumpInsn(IFNULL, labelIf);
 			methodVisitor.visitVarInsn(ALOAD, 2);
-			AsmUtils.loadVar(methodVisitor, sourceInfo.getField().getType(), 3);
+			Asms.loadVar(methodVisitor, sourceInfo.getField().getType(), 3);
 		}
 		boolean isInterface = writeMethod.getDeclaringClass().isInterface();
 		int invokeOpcode;
@@ -534,19 +538,21 @@ public abstract class BeanDirectCopier<S, T> {
 			methodVisitor.visitLabel(labelIf);
 		}
 		// end
-		methodVisitor.visitLabel(labelEnd);
-		Label labelFinal = new Label();
-		methodVisitor.visitJumpInsn(GOTO, labelFinal);
+		if (hasThrows) {
+			methodVisitor.visitLabel(labelEnd);
+			Label labelFinal = new Label();
+			methodVisitor.visitJumpInsn(GOTO, labelFinal);
 
-		// catch
-		methodVisitor.visitLabel(labelCatch);
-		methodVisitor.visitVarInsn(ASTORE, 3);
-		methodVisitor.visitVarInsn(ALOAD, 0);
-		methodVisitor.visitLdcInsn(targetInfo.getPropertyName());
-		methodVisitor.visitVarInsn(ALOAD, 3);
-		methodVisitor.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(BeanDirectCopier.class), logCopyError.serialized().getImplMethodName(), "(Ljava/lang/String;Ljava/lang/Throwable;)V", false);
-		//finally
-		methodVisitor.visitLabel(labelFinal);
+			// catch
+			methodVisitor.visitLabel(labelCatch);
+			methodVisitor.visitVarInsn(ASTORE, 3);
+			methodVisitor.visitVarInsn(ALOAD, 0);
+			methodVisitor.visitLdcInsn(targetInfo.getPropertyName());
+			methodVisitor.visitVarInsn(ALOAD, 3);
+			methodVisitor.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(BeanDirectCopier.class), logCopyError.serialized().getImplMethodName(), "(Ljava/lang/String;Ljava/lang/Throwable;)V", false);
+			//finally
+			methodVisitor.visitLabel(labelFinal);
+		}
 	}
 
 }

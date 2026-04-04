@@ -1,4 +1,4 @@
-package io.polaris.core.asm.reflect.copy.sub;
+package io.polaris.core.asm.reflect.sample;
 
 import java.util.Date;
 
@@ -13,7 +13,7 @@ import lombok.experimental.FieldNameConstants;
  */
 @ToString
 @FieldNameConstants
-public class SubCopyBean00 {
+public class SampleCopyBeanTarget {
 	// @formatter:off
 
 	public int errorIntVal0 = 1;

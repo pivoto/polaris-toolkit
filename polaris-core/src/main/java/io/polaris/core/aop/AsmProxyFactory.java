@@ -60,7 +60,7 @@ public class AsmProxyFactory implements ProxyFactory {
 
 	@Override
 	public <T> T get() {
-		return ProxyUtils.proxy(classloader, superclass == null ? target.getClass() : superclass, interfaces, aspect);
+		return Proxies.proxy(classloader, superclass == null ? target.getClass() : superclass, interfaces, aspect);
 	}
 
 }

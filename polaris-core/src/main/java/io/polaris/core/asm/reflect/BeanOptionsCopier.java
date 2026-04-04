@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import io.polaris.core.asm.internal.AsmUtils;
+import io.polaris.core.asm.internal.Asms;
 import io.polaris.core.lang.Types;
 import io.polaris.core.lang.copier.CopyOptions;
 import io.polaris.core.log.Logger;
@@ -275,7 +275,7 @@ public abstract class BeanOptionsCopier<S, T> {
 			superClassNameInternal, null);
 		cw.visitInnerClass("java/lang/invoke/MethodHandles$Lookup", "java/lang/invoke/MethodHandles", "Lookup", ACC_PUBLIC | ACC_FINAL | ACC_STATIC);
 
-		AsmUtils.insertDefaultConstructor(cw, superClassNameInternal);
+		Asms.insertDefaultConstructor(cw, superClassNameInternal);
 		insertInitTypeFields(cw, superClassNameInternal, accessClassNameInternal, type, classification);
 
 		insertCopyKeysMethod(cw, beanCopier, superClassNameInternal, accessClassNameInternal,
@@ -304,7 +304,7 @@ public abstract class BeanOptionsCopier<S, T> {
 		SerializableBiFunction<BeanOptionsCopier, String, java.lang.reflect.Type> getPropertyGenericType = BeanOptionsCopier::getPropertyGenericType;
 		SerializableBiFunction<BeanOptionsCopier, String, Class> getPropertyType = BeanOptionsCopier::getPropertyType;
 
-		BeanCopier.insertInitTypes(cw, superClassNameInternal, accessClassNameInternal, classification,
+		BeanCopier.insertInitTypeFields(cw, superClassNameInternal, accessClassNameInternal, classification,
 			init.serialized().getImplMethodName(),
 			getPropertyGenericType.serialized().getImplMethodName(),
 			getPropertyType.serialized().getImplMethodName());
@@ -465,7 +465,7 @@ public abstract class BeanOptionsCopier<S, T> {
 					Type.getInternalName(targetInfo.getField().getDeclaringClass()),
 					targetInfo.getField().getName(), Type.getDescriptor(var7Class));
 				// autoBoxing
-				AsmUtils.autoBoxing(methodVisitor, var7Class);
+				Asms.autoBoxing(methodVisitor, var7Class);
 			} else {
 				Class var7Class = targetInfo.getReadMethod().getReturnType();
 				boolean isInterface = targetInfo.getReadMethod().getDeclaringClass().isInterface();
@@ -473,7 +473,7 @@ public abstract class BeanOptionsCopier<S, T> {
 					Type.getInternalName(targetInfo.getReadMethod().getDeclaringClass()),
 					targetInfo.getReadMethod().getName(), Type.getMethodDescriptor(targetInfo.getReadMethod()), isInterface);
 				// autoBoxing
-				AsmUtils.autoBoxing(methodVisitor, var7Class);
+				Asms.autoBoxing(methodVisitor, var7Class);
 			}
 			methodVisitor.visitVarInsn(ASTORE, 7);
 			methodVisitor.visitVarInsn(ALOAD, 7);
@@ -488,14 +488,14 @@ public abstract class BeanOptionsCopier<S, T> {
 		if (sourceInfo.getField() != null) {
 			Class var7Class = sourceInfo.getField().getType();
 			methodVisitor.visitFieldInsn(GETFIELD, Type.getInternalName(sourceInfo.getField().getDeclaringClass()), sourceInfo.getField().getName(), Type.getDescriptor(var7Class));
-			AsmUtils.autoBoxing(methodVisitor, var7Class);
+			Asms.autoBoxing(methodVisitor, var7Class);
 		} else {
 			Class var7Class = sourceInfo.getReadMethod().getReturnType();
 			boolean isInterface = sourceInfo.getReadMethod().getDeclaringClass().isInterface();
 			methodVisitor.visitMethodInsn(isInterface ? INVOKEINTERFACE : INVOKEVIRTUAL,
 				Type.getInternalName(sourceInfo.getReadMethod().getDeclaringClass()),
 				sourceInfo.getReadMethod().getName(), Type.getMethodDescriptor(sourceInfo.getReadMethod()), isInterface);
-			AsmUtils.autoBoxing(methodVisitor, var7Class);
+			Asms.autoBoxing(methodVisitor, var7Class);
 		}
 		methodVisitor.visitVarInsn(ASTORE, 7);
 		methodVisitor.visitVarInsn(ALOAD, 7);
@@ -550,7 +550,7 @@ public abstract class BeanOptionsCopier<S, T> {
 		methodVisitor.visitJumpInsn(IFEQ, label10);
 		methodVisitor.visitVarInsn(ALOAD, 2);
 		methodVisitor.visitVarInsn(ALOAD, 7);
-		AsmUtils.autoUnBoxing(methodVisitor, targetInfo.getPropertyType());
+		Asms.autoUnBoxing(methodVisitor, targetInfo.getPropertyType());
 		if (targetInfo.getField() != null) {
 			methodVisitor.visitFieldInsn(PUTFIELD, Type.getInternalName(targetInfo.getField().getDeclaringClass()), targetInfo.getField().getName(), Type.getDescriptor(targetInfo.getField().getType()));
 		} else {

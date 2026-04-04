@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import io.polaris.core.asm.internal.AsmUtils;
+import io.polaris.core.asm.internal.Asms;
 import io.polaris.core.collection.Iterables;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -314,7 +314,7 @@ public abstract class MethodAccess {
 								mv.visitIntInsn(BIPUSH, paramIndex);
 								mv.visitInsn(AALOAD);
 								Type paramType = Type.getType(paramTypes[paramIndex]);
-								AsmUtils.autoUnBoxing(mv, paramType);
+								Asms.autoUnBoxing(mv, paramType);
 
 								buffer.append(paramType.getDescriptor());
 							}
@@ -331,7 +331,7 @@ public abstract class MethodAccess {
 							}
 							mv.visitMethodInsn(invoke, classNameInternal, methodNames[i], buffer.toString());
 
-							AsmUtils.autoBoxingForReturn(mv, Type.getType(returnType));
+							Asms.autoBoxingForReturn(mv, Type.getType(returnType));
 							mv.visitInsn(ARETURN);
 						}
 

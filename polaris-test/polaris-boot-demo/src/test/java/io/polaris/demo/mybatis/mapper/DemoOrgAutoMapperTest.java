@@ -16,6 +16,6 @@ class DemoOrgAutoMapperTest {
 		mapper.queryAuto(DemoOrgEntity.builder().id(2L).build());
 		mapper.queryAuto(Maps.asMap("id", 1L, "name", "org"));
 		mapper.queryAuto(Maps.asMap("id", 1L, "name", "org%"));
-		Consoles.println("sql: \n{}", SqlRecorders.popALlSql());
+		Consoles.println("sql: \n{}", SqlRecorders.pollALlSqlText());
 	}
 }
