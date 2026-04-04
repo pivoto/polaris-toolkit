@@ -11,24 +11,36 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
+ * 代码发射器，继承自 LocalVariablesSorter
+ * <p>
+ * 提供高级 API 用于生成 JVM 字节码指令，封装了 ASM 的底层操作
+ *
  * @author Qt
  * @since May 10, 2024
  */
 public class CodeEmitter extends LocalVariablesSorter {
+	/** 布尔值转换方法签名：booleanValue() */
 	private static final Signature BOOLEAN_VALUE =
 		AsmTypes.parseSignature("boolean booleanValue()");
+	/** 字符值转换方法签名：charValue() */
 	private static final Signature CHAR_VALUE =
 		AsmTypes.parseSignature("char charValue()");
+	/** 长整型转换方法签名：longValue() */
 	private static final Signature LONG_VALUE =
 		AsmTypes.parseSignature("long longValue()");
+	/** 双精度浮点转换方法签名：doubleValue() */
 	private static final Signature DOUBLE_VALUE =
 		AsmTypes.parseSignature("double doubleValue()");
+	/** 浮点转换方法签名：floatValue() */
 	private static final Signature FLOAT_VALUE =
 		AsmTypes.parseSignature("float floatValue()");
+	/** 整型转换方法签名：intValue() */
 	private static final Signature INT_VALUE =
 		AsmTypes.parseSignature("int intValue()");
+	/** 无参构造方法签名 */
 	private static final Signature CSTRUCT_NULL =
 		AsmTypes.parseConstructor("");
+	/** String 参数构造方法签名 */
 	private static final Signature CSTRUCT_STRING =
 		AsmTypes.parseConstructor("String");
 
@@ -50,16 +62,27 @@ public class CodeEmitter extends LocalVariablesSorter {
 	public static final int NE = AsmConsts.IFNE;
 	public static final int EQ = AsmConsts.IFEQ;
 
+	/** 代码发射器引用 */
 	private ClassEmitter ce;
+	/** 方法状态信息 */
 	private State state;
 
+	/**
+	 * 方法状态内部类，存储当前方法的详细信息
+	 */
 	private static class State
 		extends MethodInfo {
+		/** 所属类信息 */
 		ClassInfo classInfo;
+		/** 访问标志 */
 		int access;
+		/** 方法签名 */
 		Signature sig;
+		/** 参数类型数组 */
 		Type[] argumentTypes;
+		/** 局部变量偏移量 */
 		int localOffset;
+		/** 异常类型数组 */
 		Type[] exceptionTypes;
 
 		State(ClassInfo classInfo, int access, Signature sig, Type[] exceptionTypes) {
@@ -125,32 +148,62 @@ public class CodeEmitter extends LocalVariablesSorter {
 		return ce;
 	}
 
+	/**
+	 * 结束当前方法的生成
+	 */
 	public void end_method() {
 		visitMaxs(0, 0);
 	}
 
+	/**
+	 * 开始一个新的代码块
+	 *
+	 * @return Block 对象，表示新创建的代码块
+	 */
 	public Block begin_block() {
 		return new Block(this);
 	}
 
+	/**
+	 * 捕获代码块中的异常
+	 *
+	 * @param block 要捕获异常的代码块
+	 * @param exception 异常类型
+	 */
 	public void catch_exception(Block block, Type exception) {
 		if (block.getEnd() == null) {
 			throw new IllegalStateException("end of block is unset");
 		}
+		// 访问 try-catch 块，设置异常处理器
 		mv.visitTryCatchBlock(block.getStart(),
 			block.getEnd(),
 			mark(),
 			exception.getInternalName());
 	}
 
+	/**
+	 * 无条件跳转到指定标签
+	 *
+	 * @param label 目标标签
+	 */
 	public void goTo(Label label) {
 		mv.visitJumpInsn(AsmConsts.GOTO, label);
 	}
 
+	/**
+	 * 如果栈顶对象为 null 则跳转到指定标签
+	 *
+	 * @param label 目标标签
+	 */
 	public void ifnull(Label label) {
 		mv.visitJumpInsn(AsmConsts.IFNULL, label);
 	}
 
+	/**
+	 * 如果栈顶对象不为 null 则跳转到指定标签
+	 *
+	 * @param label 目标标签
+	 */
 	public void ifnonnull(Label label) {
 		mv.visitJumpInsn(AsmConsts.IFNONNULL, label);
 	}

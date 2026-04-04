@@ -13,6 +13,8 @@ import io.polaris.core.string.Strings;
 import lombok.Data;
 
 /**
+ * 不同于 StdCfg，每次访问都获取最新配置值，并支持优先使用直接覆盖的配置值
+ *
  * @author Qt
  * @since Feb 26, 2026
  */

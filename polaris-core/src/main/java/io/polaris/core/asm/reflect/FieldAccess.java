@@ -15,17 +15,45 @@ import java.util.List;
 import static org.objectweb.asm.Opcodes.*;
 
 /**
+ * ASM 字段访问器
+ * <p>通过 ASM 字节码生成技术，为 Java 字段提供高性能的直接访问能力</p>
+ * <p>支持通过索引快速读取和设置字段值，包括所有基本类型和对象类型</p>
+ * <p>参考：<a href="https://github.com/EsotericSoftware/reflectasm">https://github.com/EsotericSoftware/reflectasm</a></p>
+ *
  * @author Qt
  * @see <a href="https://github.com/EsotericSoftware/reflectasm">https://github.com/EsotericSoftware/reflectasm</a>
  * @since Aug 04, 2023
  */
+@SuppressWarnings("rawtypes")
 public abstract class FieldAccess {
+	/**
+	 * 访问类缓存池
+	 */
 	private static final AccessClassPool<Class, FieldAccess> pool = new AccessClassPool<>();
+	/**
+	 * 字段名称数组
+	 */
 	private String[] fieldNames;
+	/**
+	 * 字段类型数组
+	 */
 	private Class[] fieldTypes;
+	/**
+	 * 字段对象数组
+	 */
 	private Field[] fields;
+	/**
+	 * 字段泛型类型数组
+	 */
 	private java.lang.reflect.Type[] fieldGenericTypes;
 
+	/**
+	 * 获取指定名称字段的索引
+	 *
+	 * @param fieldName 字段名称
+	 * @return 字段索引
+	 * @throws IllegalArgumentException 当字段不存在时抛出
+	 */
 	public int getIndex(String fieldName) {
 		for (int i = 0, n = fieldNames.length; i < n; i++) {
 			if (fieldNames[i].equals(fieldName)) {
@@ -35,6 +63,13 @@ public abstract class FieldAccess {
 		throw new IllegalArgumentException("Unable to find non-private field: " + fieldName);
 	}
 
+	/**
+	 * 获取指定字段对象的索引
+	 *
+	 * @param field 字段对象
+	 * @return 字段索引
+	 * @throws IllegalArgumentException 当字段不存在时抛出
+	 */
 	public int getIndex(Field field) {
 		for (int i = 0, n = fields.length; i < n; i++) {
 			if (fields[i].equals(field)) {
@@ -44,72 +79,252 @@ public abstract class FieldAccess {
 		throw new IllegalArgumentException("Unable to find non-private field: " + field);
 	}
 
+	/**
+	 * 设置字段值（对象类型）
+	 *
+	 * @param instance 目标实例
+	 * @param fieldName 字段名称
+	 * @param value 新值
+	 */
 	public void set(Object instance, String fieldName, Object value) {
 		set(instance, getIndex(fieldName), value);
 	}
 
+	/**
+	 * 获取字段值（对象类型）
+	 *
+	 * @param instance 目标实例
+	 * @param fieldName 字段名称
+	 * @return 字段值
+	 */
 	public Object get(Object instance, String fieldName) {
 		return get(instance, getIndex(fieldName));
 	}
 
+	/**
+	 * 获取所有字段名称列表
+	 *
+	 * @return 字段名称列表
+	 */
 	public List<String> getFieldNames() {
 		return Iterables.asList(fieldNames) ;
 	}
 
+	/**
+	 * 获取所有字段类型列表
+	 *
+	 * @return 字段类型列表
+	 */
 	public List<Class> getFieldTypes() {
 		return Iterables.asList(fieldTypes);
 	}
 
+	/**
+	 * 获取所有字段泛型类型列表
+	 *
+	 * @return 字段泛型类型列表
+	 */
 	public List<java.lang.reflect.Type> getFieldGenericTypes() {
 		return Iterables.asList(fieldGenericTypes);
 	}
 
+	/**
+	 * 获取字段数量
+	 *
+	 * @return 字段数量
+	 */
 	public int getFieldCount() {
 		return fieldTypes.length;
 	}
 
+	/**
+	 * 获取所有字段对象列表
+	 *
+	 * @return 字段对象列表
+	 */
 	public List<Field> getFields() {
 		return Iterables.asList(fields);
 	}
 
+	/**
+	 * 设置字段值（索引方式，对象类型）
+	 * <p>子类必须实现此方法以提供具体的字段设置逻辑</p>
+	 *
+	 * @param instance 目标实例
+	 * @param fieldIndex 字段索引
+	 * @param value 新值
+	 */
 	abstract public void set(Object instance, int fieldIndex, Object value);
 
+	/**
+	 * 设置 boolean 类型字段值
+	 *
+	 * @param instance 目标实例
+	 * @param fieldIndex 字段索引
+	 * @param value 新值
+	 */
 	abstract public void setBoolean(Object instance, int fieldIndex, boolean value);
 
+	/**
+	 * 设置 byte 类型字段值
+	 *
+	 * @param instance 目标实例
+	 * @param fieldIndex 字段索引
+	 * @param value 新值
+	 */
 	abstract public void setByte(Object instance, int fieldIndex, byte value);
 
+	/**
+	 * 设置 short 类型字段值
+	 *
+	 * @param instance 目标实例
+	 * @param fieldIndex 字段索引
+	 * @param value 新值
+	 */
 	abstract public void setShort(Object instance, int fieldIndex, short value);
 
+	/**
+	 * 设置 int 类型字段值
+	 *
+	 * @param instance 目标实例
+	 * @param fieldIndex 字段索引
+	 * @param value 新值
+	 */
 	abstract public void setInt(Object instance, int fieldIndex, int value);
 
+	/**
+	 * 设置 long 类型字段值
+	 *
+	 * @param instance 目标实例
+	 * @param fieldIndex 字段索引
+	 * @param value 新值
+	 */
 	abstract public void setLong(Object instance, int fieldIndex, long value);
 
+	/**
+	 * 设置 double 类型字段值
+	 *
+	 * @param instance 目标实例
+	 * @param fieldIndex 字段索引
+	 * @param value 新值
+	 */
 	abstract public void setDouble(Object instance, int fieldIndex, double value);
 
+	/**
+	 * 设置 float 类型字段值
+	 *
+	 * @param instance 目标实例
+	 * @param fieldIndex 字段索引
+	 * @param value 新值
+	 */
 	abstract public void setFloat(Object instance, int fieldIndex, float value);
 
+	/**
+	 * 设置 char 类型字段值
+	 *
+	 * @param instance 目标实例
+	 * @param fieldIndex 字段索引
+	 * @param value 新值
+	 */
 	abstract public void setChar(Object instance, int fieldIndex, char value);
 
+	/**
+	 * 获取字段值（索引方式，对象类型）
+	 * <p>子类必须实现此方法以提供具体的字段获取逻辑</p>
+	 *
+	 * @param instance 目标实例
+	 * @param fieldIndex 字段索引
+	 * @return 字段值
+	 */
 	abstract public Object get(Object instance, int fieldIndex);
 
+	/**
+	 * 获取 String 类型字段值
+	 *
+	 * @param instance 目标实例
+	 * @param fieldIndex 字段索引
+	 * @return 字段值
+	 */
 	abstract public String getString(Object instance, int fieldIndex);
 
+	/**
+	 * 获取 char 类型字段值
+	 *
+	 * @param instance 目标实例
+	 * @param fieldIndex 字段索引
+	 * @return 字段值
+	 */
 	abstract public char getChar(Object instance, int fieldIndex);
 
+	/**
+	 * 获取 boolean 类型字段值
+	 *
+	 * @param instance 目标实例
+	 * @param fieldIndex 字段索引
+	 * @return 字段值
+	 */
 	abstract public boolean getBoolean(Object instance, int fieldIndex);
 
+	/**
+	 * 获取 byte 类型字段值
+	 *
+	 * @param instance 目标实例
+	 * @param fieldIndex 字段索引
+	 * @return 字段值
+	 */
 	abstract public byte getByte(Object instance, int fieldIndex);
 
+	/**
+	 * 获取 short 类型字段值
+	 *
+	 * @param instance 目标实例
+	 * @param fieldIndex 字段索引
+	 * @return 字段值
+	 */
 	abstract public short getShort(Object instance, int fieldIndex);
 
+	/**
+	 * 获取 int 类型字段值
+	 *
+	 * @param instance 目标实例
+	 * @param fieldIndex 字段索引
+	 * @return 字段值
+	 */
 	abstract public int getInt(Object instance, int fieldIndex);
 
+	/**
+	 * 获取 long 类型字段值
+	 *
+	 * @param instance 目标实例
+	 * @param fieldIndex 字段索引
+	 * @return 字段值
+	 */
 	abstract public long getLong(Object instance, int fieldIndex);
 
+	/**
+	 * 获取 double 类型字段值
+	 *
+	 * @param instance 目标实例
+	 * @param fieldIndex 字段索引
+	 * @return 字段值
+	 */
 	abstract public double getDouble(Object instance, int fieldIndex);
 
+	/**
+	 * 获取 float 类型字段值
+	 *
+	 * @param instance 目标实例
+	 * @param fieldIndex 字段索引
+	 * @return 字段值
+	 */
 	abstract public float getFloat(Object instance, int fieldIndex);
 
+	/**
+	 * 获取或创建字段访问器实例
+	 *
+	 * @param type 要访问的类型
+	 * @return 字段访问器实例
+	 */
 	public static FieldAccess get(Class type){
 		return pool.computeIfAbsent(type, FieldAccess::create);
 	}
@@ -120,7 +335,7 @@ public abstract class FieldAccess {
 			throw new IllegalArgumentException("类型不能为Object、interface、原始类型或void");
 		}
 
-		ArrayList<Field> fields = new ArrayList<Field>();
+		ArrayList<Field> fields = new ArrayList<>();
 		Class nextClass = type;
 		while (nextClass != null && nextClass != Object.class) {
 			Field[] declaredFields = nextClass.getDeclaredFields();

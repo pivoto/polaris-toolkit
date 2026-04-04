@@ -18,8 +18,6 @@ import java.util.function.Function;
 
 import io.polaris.core.asm.internal.AsmUtils;
 import io.polaris.core.lang.Types;
-import io.polaris.core.log.Logger;
-import io.polaris.core.log.Loggers;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.reflect.SerializableFunction;
 import io.polaris.core.tuple.Tuple2;
@@ -33,13 +31,16 @@ import org.objectweb.asm.Type;
 import static org.objectweb.asm.Opcodes.*;
 
 /**
+ * ASM 类 Lambda 访问器
+ * <p>基于 Lambda 表达式的 ASM 类访问器，提供函数式接口的构造器、方法和字段访问能力</p>
+ *
  * @author Qt
  * @since Aug 05, 2023
+ * @param <T> 要访问的类型
  */
 @SuppressWarnings("all")
 public abstract class ClassLambdaAccess<T> {
 	private static final AccessClassPool<Class, ClassLambdaAccess> pool = new AccessClassPool<>();
-	private static Logger log = Loggers.of(ClassLambdaAccess.class);
 	private int constructorIndex = -1;
 	private Class[][] constructorParamTypes;
 	private Function<Object[], Object>[] constructors;

@@ -24,36 +24,91 @@ import org.objectweb.asm.Type;
 import static org.objectweb.asm.Opcodes.*;
 
 /**
+ * ASM Bean 访问器
+ * <p>通过 ASM 字节码生成技术，为 Java Bean 提供高性能的反射访问能力</p>
+ * <p>支持通过索引快速调用 getter/setter 方法和访问字段</p>
+ *
  * @author Qt
  * @since Apr 11, 2024
+ * @param <T> Bean 类型
  */
 public abstract class BeanAccess<T> {
-	private static Logger log = Loggers.of(BeanAccess.class);
+	private static final Logger log = Loggers.of(BeanAccess.class);
+	/**
+	 * 访问类缓存池
+	 */
 	@SuppressWarnings({"rawtypes"})
 	private static final AccessClassPool<Class<?>, BeanAccess> pool = new AccessClassPool<>();
 
+	/**
+	 * 属性信息映射表
+	 */
 	private Map<String, BeanPropertyInfo> properties;
+	/**
+	 * Setter 方法索引映射表
+	 */
 	private Map<String, Integer> setterIndices;
+	/**
+	 * Getter 方法索引映射表
+	 */
 	private Map<String, Integer> getterIndices;
+	/**
+	 * 字段索引映射表
+	 */
 	private Map<String, Integer> fieldIndices;
 
+	/**
+	 * 默认构造函数
+	 */
 	protected BeanAccess() {
 	}
 
 	// region to be inherited
 
+	/**
+	 * 通过索引获取属性值（子类实现）
+	 *
+	 * @param o 目标对象
+	 * @param methodIndex 方法索引
+	 * @return 属性值
+	 * @throws IllegalArgumentException 当方法不存在时抛出
+	 */
 	public Object getIndexProperty(Object o, int methodIndex) {
 		throw new IllegalArgumentException("Method not found");
 	}
 
+	/**
+	 * 通过索引设置属性值（子类实现）
+	 *
+	 * @param o 目标对象
+	 * @param methodIndex 方法索引
+	 * @param val 新值
+	 * @throws IllegalArgumentException 当方法不存在时抛出
+	 */
 	public void setIndexProperty(Object o, int methodIndex, Object val) {
 		throw new IllegalArgumentException("Method not found");
 	}
 
+	/**
+	 * 通过索引获取字段值（子类实现）
+	 *
+	 * @param o 目标对象
+	 * @param fieldIndex 字段索引
+	 * @return 字段值
+	 * @throws IllegalArgumentException 当字段不存在时抛出
+	 */
 	public Object getIndexField(Object o, int fieldIndex) {
 		throw new IllegalArgumentException("Field not found");
 	}
 
+	/**
+	 * 通过索引设置字段值（子类实现）
+	 *
+	 * @param o 目标对象
+	 * @param methodIndex 方法索引
+	 * @param val 新值
+	 * @throws IllegalArgumentException 当字段不存在时抛出
+	 */
 	public void setIndexField(Object o, int methodIndex, Object val) {
 		throw new IllegalArgumentException("Field not found");
 	}
@@ -67,19 +122,42 @@ public abstract class BeanAccess<T> {
 		return properties;
 	}
 
+	/**
+	 * 判断是否包含指定属性
+	 *
+	 * @param property 属性名
+	 * @return 如果存在返回 true，否则返回 false
+	 */
 	public boolean containsAny(String property) {
 		return properties.containsKey(property);
 	}
 
+	/**
+	 * 获取所有属性名称集合
+	 *
+	 * @return 属性名称集合
+	 */
 	public Set<String> allPropertyNames() {
 		return properties.keySet();
 	}
 
+	/**
+	 * 获取属性的泛型类型
+	 *
+	 * @param property 属性名
+	 * @return 属性的泛型类型，如果属性不存在返回 null
+	 */
 	public java.lang.reflect.Type propertyGenericType(String property) {
 		BeanPropertyInfo info = this.properties.get(property);
 		return info == null ? null : info.getPropertyGenericType();
 	}
 
+	/**
+	 * 获取属性的原始类型
+	 *
+	 * @param property 属性名
+	 * @return 属性的 Class 类型，如果属性不存在返回 null
+	 */
 	public java.lang.reflect.Type propertyType(String property) {
 		BeanPropertyInfo info = this.properties.get(property);
 		return info == null ? null : info.getPropertyType();
@@ -97,6 +175,12 @@ public abstract class BeanAccess<T> {
 		return false;
 	}
 
+	/**
+	 * 判断是否包含指定属性的 getter 或字段
+	 *
+	 * @param key 属性名
+	 * @return 如果存在返回 true，否则返回 false
+	 */
 	public boolean containsGetterOrField(String key) {
 		BeanPropertyInfo info = properties.get(key);
 		if (info != null) {
@@ -105,6 +189,14 @@ public abstract class BeanAccess<T> {
 		return false;
 	}
 
+	/**
+	 * 获取属性或字段的值
+	 * <p>优先使用 getter 方法，其次使用字段访问</p>
+	 *
+	 * @param o 目标对象
+	 * @param key 属性名
+	 * @return 属性值，如果不存在返回 null
+	 */
 	public Object getPropertyOrField(Object o, String key) {
 		int i = getGetterIndex(key);
 		if (i >= 0) {
@@ -117,6 +209,15 @@ public abstract class BeanAccess<T> {
 		return null;
 	}
 
+	/**
+	 * 设置属性或字段的值
+	 * <p>优先使用 setter 方法，其次使用字段访问</p>
+	 *
+	 * @param o 目标对象
+	 * @param key 属性名
+	 * @param val 新值
+	 * @return 如果成功设置返回 true，否则返回 false
+	 */
 	public boolean setPropertyOrField(Object o, String key, Object val) {
 		int i = getSetterIndex(key);
 		if (i >= 0) {
@@ -131,6 +232,16 @@ public abstract class BeanAccess<T> {
 		return false;
 	}
 
+	/**
+	 * 设置属性或字段的值（带类型转换）
+	 * <p>使用提供的转换器进行类型转换后设置</p>
+	 *
+	 * @param o 目标对象
+	 * @param key 属性名
+	 * @param val 新值
+	 * @param converter 类型转换器，接受泛型类型和值，返回转换后的值
+	 * @return 如果成功设置返回 true，否则返回 false
+	 */
 	public boolean setPropertyOrField(Object o, String key, Object val, BiFunction<java.lang.reflect.Type, Object, Object> converter) {
 		BeanPropertyInfo info = this.properties.get(key);
 		if (info == null) {
@@ -150,25 +261,55 @@ public abstract class BeanAccess<T> {
 
 	// endregion
 
-	// region setter
+	// region Setter 方法相关
 
+	/**
+	 * 判断是否包含指定属性的 setter 方法
+	 *
+	 * @param property 属性名
+	 * @return 如果存在返回 true，否则返回 false
+	 */
 	public boolean containsSetter(String property) {
 		return setterIndices.containsKey(property);
 	}
 
+	/**
+	 * 获取所有 Setter 方法的索引映射表
+	 *
+	 * @return Setter 方法索引映射表
+	 */
 	public Map<String, Integer> setterIndices() {
 		return setterIndices;
 	}
 
+	/**
+	 * 获取所有可设置属性的名称集合
+	 *
+	 * @return 属性名称集合
+	 */
 	public Set<String> setterPropertyNames() {
 		return setterIndices.keySet();
 	}
 
+	/**
+	 * 获取指定属性的 Setter 方法索引
+	 *
+	 * @param property 属性名
+	 * @return 方法索引，如果不存在返回 -1
+	 */
 	public int getSetterIndex(String property) {
 		Integer index = setterIndices.get(property);
 		return index == null ? -1 : index;
 	}
 
+	/**
+	 * 设置属性值
+	 *
+	 * @param o 目标对象
+	 * @param property 属性名
+	 * @param val 新值
+	 * @throws IllegalArgumentException 当 setter 方法不存在时抛出
+	 */
 	public void setProperty(Object o, String property, Object val) {
 		int index = getSetterIndex(property);
 		if (index == -1) {
@@ -177,6 +318,13 @@ public abstract class BeanAccess<T> {
 		setIndexProperty(o, index, val);
 	}
 
+	/**
+	 * 设置属性值（如果不存在则忽略）
+	 *
+	 * @param o 目标对象
+	 * @param property 属性名
+	 * @param val 新值
+	 */
 	public void setPropertyOrNoop(Object o, String property, Object val) {
 		int index = getSetterIndex(property);
 		if (index == -1) {
@@ -189,23 +337,53 @@ public abstract class BeanAccess<T> {
 
 	// region getter
 
+	/**
+	 * 判断是否包含指定属性的 getter 方法
+	 *
+	 * @param property 属性名
+	 * @return 如果存在返回 true，否则返回 false
+	 */
 	public boolean containsGetter(String property) {
 		return getterIndices.containsKey(property);
 	}
 
+	/**
+	 * 获取所有 Getter 方法的索引映射表
+	 *
+	 * @return Getter 方法索引映射表
+	 */
 	public Map<String, Integer> getterIndices() {
 		return getterIndices;
 	}
 
+	/**
+	 * 获取所有可读取属性的名称集合
+	 *
+	 * @return 属性名称集合
+	 */
 	public Set<String> getterPropertyNames() {
 		return getterIndices.keySet();
 	}
 
+	/**
+	 * 获取指定属性的 Getter 方法索引
+	 *
+	 * @param property 属性名
+	 * @return 方法索引，如果不存在返回 -1
+	 */
 	public int getGetterIndex(String property) {
 		Integer index = getterIndices.get(property);
 		return index == null ? -1 : index;
 	}
 
+	/**
+	 * 获取属性值
+	 *
+	 * @param o 目标对象
+	 * @param property 属性名
+	 * @return 属性值
+	 * @throws IllegalArgumentException 当 getter 方法不存在时抛出
+	 */
 	public Object getProperty(Object o, String property) {
 		int index = getGetterIndex(property);
 		if (index == -1) {
@@ -214,6 +392,13 @@ public abstract class BeanAccess<T> {
 		return getIndexProperty(o, index);
 	}
 
+	/**
+	 * 获取属性值（如果不存在则返回 null）
+	 *
+	 * @param o 目标对象
+	 * @param property 属性名
+	 * @return 属性值，如果不存在返回 null
+	 */
 	public Object getPropertyOrNoop(Object o, String property) {
 		int index = getSetterIndex(property);
 		if (index == -1) {
@@ -226,23 +411,53 @@ public abstract class BeanAccess<T> {
 
 	// region field
 
+	/**
+	 * 判断是否包含指定字段
+	 *
+	 * @param property 属性名
+	 * @return 如果存在返回 true，否则返回 false
+	 */
 	public boolean containsField(String property) {
 		return fieldIndices.containsKey(property);
 	}
 
+	/**
+	 * 获取所有字段的索引映射表
+	 *
+	 * @return 字段索引映射表
+	 */
 	public Map<String, Integer> fieldIndices() {
 		return fieldIndices;
 	}
 
+	/**
+	 * 获取所有字段名称集合
+	 *
+	 * @return 字段名称集合
+	 */
 	public Set<String> fieldNames() {
 		return fieldIndices.keySet();
 	}
 
+	/**
+	 * 获取指定字段的索引
+	 *
+	 * @param property 字段名
+	 * @return 字段索引，如果不存在返回 -1
+	 */
 	public int getFieldIndex(String property) {
 		Integer index = fieldIndices.get(property);
 		return index == null ? -1 : index;
 	}
 
+	/**
+	 * 设置字段值
+	 *
+	 * @param o 目标对象
+	 * @param property 字段名
+	 * @param val 新值
+	 * @throws IllegalArgumentException 当字段不存在时抛出
+	 */
 	public void setField(Object o, String property, Object val) {
 		int index = getFieldIndex(property);
 		if (index == -1) {
@@ -251,6 +466,14 @@ public abstract class BeanAccess<T> {
 		setIndexField(o, index, val);
 	}
 
+	/**
+	 * 获取字段值
+	 *
+	 * @param o 目标对象
+	 * @param property 字段名
+	 * @return 字段值
+	 * @throws IllegalArgumentException 当字段不存在时抛出
+	 */
 	public Object getField(Object o, String property) {
 		int index = getFieldIndex(property);
 		if (index == -1) {
@@ -259,6 +482,13 @@ public abstract class BeanAccess<T> {
 		return getIndexField(o, index);
 	}
 
+	/**
+	 * 设置字段值（如果不存在则忽略）
+	 *
+	 * @param o 目标对象
+	 * @param property 字段名
+	 * @param val 新值
+	 */
 	public void setFieldOrNoop(Object o, String property, Object val) {
 		int index = getFieldIndex(property);
 		if (index == -1) {
@@ -267,6 +497,13 @@ public abstract class BeanAccess<T> {
 		setIndexField(o, index, val);
 	}
 
+	/**
+	 * 获取字段值（如果不存在则返回 null）
+	 *
+	 * @param o 目标对象
+	 * @param property 字段名
+	 * @return 字段值，如果不存在返回 null
+	 */
 	public Object getFieldOrNoop(Object o, String property) {
 		int index = getFieldIndex(property);
 		if (index == -1) {
@@ -277,11 +514,27 @@ public abstract class BeanAccess<T> {
 
 	// endregion
 
+	/**
+	 * 获取或创建 Bean 访问器实例
+	 * <p>从缓存池中获取，如果不存在则创建</p>
+	 *
+	 * @param type Bean 类型
+	 * @return Bean 访问器实例
+	 * @param <T> Bean 类型
+	 */
 	@SuppressWarnings("unchecked")
 	public static <T> BeanAccess<T> get(Class<T> type) {
 		return pool.computeIfAbsent(type, BeanAccess::create);
 	}
 
+	/**
+	 * 创建 Bean 访问器实例
+	 * <p>通过 ASM 动态生成字节码类并初始化</p>
+	 *
+	 * @param type Bean 类型
+	 * @return Bean 访问器实例
+	 * @param <T> Bean 类型
+	 */
 	@SuppressWarnings({"unchecked"})
 	public static <T> BeanAccess<T> create(Class<T> type) {
 		BeanPropertyInfo.Classification classification = BeanPropertyInfo.classify(type);
@@ -326,6 +579,17 @@ public abstract class BeanAccess<T> {
 		return access;
 	}
 
+	/**
+	 * 构建访问类字节码
+	 * <p>使用 ASM 动态生成 Bean 访问器的子类字节码</p>
+	 *
+	 * @param loader 访问类加载器
+	 * @param accessClassName 访问类名称
+	 * @param type Bean 类型
+	 * @param classification 属性分类信息
+	 * @return 生成的 Class 对象
+	 * @param <T> Bean 类型
+	 */
 	private static <T> Class buildAccessClass(AccessClassLoader loader
 		, String accessClassName, Class<T> type
 		, BeanPropertyInfo.Classification classification) {
@@ -350,6 +614,16 @@ public abstract class BeanAccess<T> {
 		return loader.defineAccessClass(accessClassName, byteArray);
 	}
 
+	/**
+	 * 插入 Setter 方法调用代码
+	 * <p>生成通过索引调用 setter 方法的字节码</p>
+	 *
+	 * @param cw ClassWriter
+	 * @param accessClassNameInternal 访问类内部名
+	 * @param type Bean 类型
+	 * @param setters Setter 方法列表
+	 * @param <T> Bean 类型
+	 */
 	private static <T> void insertSetterInvokers(ClassWriter cw, String accessClassNameInternal, Class<T> type, List<BeanPropertyInfo> setters) {
 		// ignore
 		if (setters.isEmpty()) {
@@ -449,6 +723,16 @@ public abstract class BeanAccess<T> {
 		}
 	}
 
+	/**
+	 * 插入 Getter 方法调用代码
+	 * <p>生成通过索引调用 getter 方法的字节码</p>
+	 *
+	 * @param cw ClassWriter
+	 * @param accessClassNameInternal 访问类内部名
+	 * @param type Bean 类型
+	 * @param getters Getter 方法列表
+	 * @param <T> Bean 类型
+	 */
 	private static <T> void insertGetterInvokers(ClassWriter cw, String accessClassNameInternal, Class<T> type, List<BeanPropertyInfo> getters) {
 		// ignore
 		if (getters.isEmpty()) {
@@ -537,6 +821,16 @@ public abstract class BeanAccess<T> {
 		}
 	}
 
+	/**
+	 * 插入字段访问方法调用代码
+	 * <p>生成通过索引访问字段的字节码</p>
+	 *
+	 * @param cw ClassWriter
+	 * @param accessClassNameInternal 访问类内部名
+	 * @param type Bean 类型
+	 * @param fields 字段列表
+	 * @param <T> Bean 类型
+	 */
 	private static <T> void insertFieldInvokers(ClassWriter cw, String accessClassNameInternal, Class<T> type, List<BeanPropertyInfo> fields) {
 		// ignore
 		if (fields.isEmpty()) {
@@ -547,6 +841,17 @@ public abstract class BeanAccess<T> {
 		insertStdFieldInvoker(cw, type, fields, getIndexField, setIndexField);
 	}
 
+	/**
+	 * 插入标准字段访问调用代码
+	 * <p>生成 getter 和 setter 的字段访问字节码</p>
+	 *
+	 * @param cw ClassWriter
+	 * @param type Bean 类型
+	 * @param fields 字段列表
+	 * @param getter Getter 函数接口
+	 * @param setter Setter 消费者接口
+	 * @param <T> Bean 类型
+	 */
 	private static <T> void insertStdFieldInvoker(ClassWriter cw, Class<T> type, List<BeanPropertyInfo> fields, SerializableTriFunction<BeanAccess<?>, Object, Integer, Object> getter, SerializableConsumerWithArgs4<BeanAccess<?>, Object, Integer, Object> setter) {
 		// getter
 		{

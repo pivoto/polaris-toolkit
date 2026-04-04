@@ -13,34 +13,47 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
 
 /**
+ * ASM 字节码增强器，支持为类添加方法拦截器
+ * <p>
+ * 通过生成子类的方式，在目标方法调用前后插入拦截器逻辑
+ *
  * @author Qt
  * @since May 11, 2024
  */
 public class Enhancer extends AbstractEnhancer {
+	/** 增强器类的 ASM 类型 */
 	protected static final Type TYPE_ENHANCER = Type.getType(Enhancer.class);
+	/** 默认调用上下文的 ASM 类型 */
 	protected static final Type TYPE_DEFAULT_INVOCATION = Type.getType(DefaultInvocation.class);
 
+	/** 默认调用上下文构造方法签名 */
 	protected static final Signature CSTRUCT_DEFAULT_INVOCATION = AsmTypes.parseConstructor(new Type[]{
 		Type.INT_TYPE, AsmConsts.TYPE_OBJECT, TYPE_METHOD,
 		TYPE_INVOKER, TYPE_INVOKER
 	});
+	/** 拦截器 intercept 方法签名 */
 	protected static final Signature METHOD_INTERCEPTOR_INTERCEPT =
 		new Signature("intercept", AsmConsts.TYPE_OBJECT, new Type[]{
 			AsmConsts.TYPE_OBJECT, TYPE_METHOD, AsmConsts.TYPE_OBJECT_ARRAY, Type.getType(Invocation.class)
 		});
 
 
+	/** 设置静态拦截器的方法签名 */
 	protected static final Signature GENERATED$SET_STATIC_INTERCEPTOR =
 		new Signature("GENERATED$SET_STATIC_INTERCEPTOR", Type.VOID_TYPE, new Type[]{
 			TYPE_INTERCEPTOR_ARRAY
 		});
+	/** 设置线程拦截器的方法签名 */
 	protected static final Signature GENERATED$SET_THREAD_INTERCEPTOR =
 		new Signature("GENERATED$SET_THREAD_INTERCEPTOR", Type.VOID_TYPE, new Type[]{
 			TYPE_INTERCEPTOR_ARRAY
 		});
 
+	/** 条件拦截器列表，每个拦截器都关联一个方法匹配条件 */
 	private final List<Tuple2<Predicate<Method>, Interceptor>> interceptors = new ArrayList<>();
+	/** 默认拦截器，当没有匹配的条件时使用 */
 	private Interceptor defaultInterceptor;
+	/** 拦截器矩阵，存储每个目标方法对应的拦截器 */
 	private Interceptor[] matrix;
 
 	public Enhancer() {
@@ -67,12 +80,25 @@ public class Enhancer extends AbstractEnhancer {
 		return (Enhancer) super.interfaces(interfaces);
 	}
 
+	/**
+	 * 设置默认拦截器，应用于所有未匹配的方法
+	 *
+	 * @param interceptor 默认拦截器实例
+	 * @return 当前增强器实例，支持链式调用
+	 */
 	public Enhancer interceptor(Interceptor interceptor) {
 		checkState();
 		this.defaultInterceptor = interceptor;
 		return this;
 	}
 
+	/**
+	 * 添加条件拦截器，仅应用于匹配指定条件的方法
+	 *
+	 * @param predicate 方法匹配条件
+	 * @param interceptors 要应用的拦截器数组
+	 * @return 当前增强器实例，支持链式调用
+	 */
 	public Enhancer interceptor(Predicate<Method> predicate, Interceptor... interceptors) {
 		checkState();
 		for (Interceptor interceptor : interceptors) {
@@ -81,18 +107,37 @@ public class Enhancer extends AbstractEnhancer {
 		return this;
 	}
 
+	/**
+	 * 清空所有已配置的拦截器
+	 *
+	 * @return 当前增强器实例，支持链式调用
+	 */
 	public Enhancer clear() {
 		checkState();
 		this.interceptors.clear();
 		return this;
 	}
 
+	/**
+	 * 生成缓存键值，用于标识唯一的增强类配置
+	 *
+	 * @return 包含所有配置信息的对象数组
+	 */
 	@Override
 	protected Object generateKey() {
 		return new Object[]{superclass, withFinal, interfaces, defaultInterceptor, interceptors, serialVersion};
 	}
 
 
+	/**
+	 * 注册静态拦截器到生成的增强类
+	 * <p>
+	 * 通过反射调用增强类的 GENERATED$SET_STATIC_INTERCEPTOR 方法设置拦截器矩阵
+	 *
+	 * @param type 生成的增强类
+	 * @throws IllegalArgumentException 如果类型不是增强类
+	 * @throws BytecodeOperationException 如果反射操作失败
+	 */
 	@Override
 	protected void registerStaticInterceptors(Class<?> type) {
 		try {
@@ -105,6 +150,15 @@ public class Enhancer extends AbstractEnhancer {
 		}
 	}
 
+	/**
+	 * 绑定线程拦截器到生成的增强类
+	 * <p>
+	 * 通过反射调用增强类的 GENERATED$SET_THREAD_INTERCEPTOR 方法设置线程级别的拦截器矩阵
+	 *
+	 * @param type 生成的增强类
+	 * @throws IllegalArgumentException 如果类型不是增强类
+	 * @throws BytecodeOperationException 如果反射操作失败
+	 */
 	@Override
 	protected void bindThreadInterceptors(Class<?> type) {
 		try {
@@ -117,12 +171,20 @@ public class Enhancer extends AbstractEnhancer {
 		}
 	}
 
+	/**
+	 * 保存目标方法并构建拦截器矩阵
+	 * <p>
+	 * 为每个目标方法匹配对应的拦截器：优先使用条件匹配的拦截器，若无匹配则使用默认拦截器
+	 *
+	 * @param targetMethods 目标方法数组
+	 */
 	@Override
 	protected void saveTargetMethods(Method[] targetMethods){
 		Interceptor[] matrix = new Interceptor[targetMethods.length];
 		for (int i = 0; i < targetMethods.length; i++) {
 			Method method = targetMethods[i];
 			Interceptor match = null;
+			// 遍历所有条件拦截器，找到第一个匹配的拦截器
 			for (Tuple2<Predicate<Method>, Interceptor> tuple : interceptors) {
 				Predicate<Method> predicate = tuple.getFirst();
 				if (predicate == null || predicate.test(method)) {
@@ -139,23 +201,46 @@ public class Enhancer extends AbstractEnhancer {
 	}
 
 
+	/**
+	 * 发射生成特殊的字段，包括静态拦截器和实例拦截器矩阵
+	 *
+	 * @param ce 类发射器
+	 */
 	@Override
 	protected void emitSpecialFields(ClassEmitter ce) {
 		ce.declare_field(AsmConsts.ACC_PRIVATE | AsmConsts.ACC_STATIC, GENERATED$STATIC_INTERCEPTOR, TYPE_INTERCEPTOR_ARRAY, null);
 		ce.declare_field(AsmConsts.ACC_PRIVATE, GENERATED$INTERCEPTORS_MATRIX, TYPE_INTERCEPTOR_ARRAY, null);
 	}
 
+	/**
+	 * 获取设置静态拦截器的方法签名
+	 *
+	 * @return 设置静态拦截器的方法签名
+	 */
 	@Override
 	protected Signature getSetStaticInterceptorSignature() {
 		return GENERATED$SET_STATIC_INTERCEPTOR;
 	}
 
+	/**
+	 * 获取设置线程拦截器的方法签名
+	 *
+	 * @return 设置线程拦截器的方法签名
+	 */
 	@Override
 	protected Signature getSetThreadInterceptorSignature() {
 		return GENERATED$SET_THREAD_INTERCEPTOR;
 	}
 
 
+	/**
+	 * 发射生成绑定拦截器的静态方法
+	 * <p>
+	 * 生成 GENERATED$BIND_INTERCEPTOR 方法，用于在对象创建时绑定拦截器矩阵。
+	 * 优先使用线程级别的拦截器，其次使用静态拦截器
+	 *
+	 * @param ce 类发射器
+	 */
 	@Override
 	protected void emitStaticBindInterceptor(ClassEmitter ce) {
 		CodeEmitter e = ce.begin_method(AsmConsts.ACC_PRIVATE | AsmConsts.ACC_STATIC,
@@ -204,6 +289,15 @@ public class Enhancer extends AbstractEnhancer {
 	}
 
 
+	/**
+	 * 发射生成所有目标方法的拦截逻辑
+	 * <p>
+	 * 为每个目标方法生成代理方法，检查是否存在拦截器，如果存在则执行拦截逻辑，否则直接调用父类方法
+	 *
+	 * @param ce 类发射器
+	 * @param methods 目标方法信息列表
+	 * @param undeclaredMethods 未声明的方法映射（接口扩展方法）
+	 */
 	@Override
 	protected void emitMethods(ClassEmitter ce, List<MethodInfo> methods, Map<String, Method> undeclaredMethods) {
 		Type thisType = ce.getClassType();
@@ -299,7 +393,7 @@ public class Enhancer extends AbstractEnhancer {
 				e.mark(labelSuper);
 				e.load_this();
 				e.load_args();
-				// 调用本类生成的GENERATED$SUPER_方法以兼容接口方法
+				// 调用本类生成的 GENERATED$SUPER_方法以兼容接口方法
 				e.invoke_virtual(thisType, new Signature(GENERATED$SUPER_ + method.getSignature().getName(), method.getSignature().getDescriptor()));
 				////e.super_invoke(method.getSignature());
 				//e.super_invoke();

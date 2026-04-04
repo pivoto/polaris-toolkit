@@ -31,23 +31,59 @@ import org.objectweb.asm.Type;
 import static org.objectweb.asm.Opcodes.*;
 
 /**
+ * ASM 类访问器
+ * <p>通过 ASM 字节码生成技术，为 Java 类提供高性能的构造器、方法和字段访问能力</p>
+ * <p>支持通过索引快速调用构造器、方法和访问字段</p>
+ *
  * @author Qt
  * @since Aug 05, 2023
+ * @param <T> 要访问的类型
  */
 @SuppressWarnings("all")
 public abstract class ClassAccess<T> {
+	private final static Logger log = Loggers.of(ClassAccess.class);
+	/**
+	 * 访问类缓存池
+	 */
 	private static final AccessClassPool<Class, ClassAccess> pool = new AccessClassPool<>();
-	private static Logger log = Loggers.of(ClassAccess.class);
+	/**
+	 * 默认构造器索引
+	 */
 	private final int defaultConstructorIndex;
+	/**
+	 * 构造器参数类型数组
+	 */
 	private final Class[][] constructorParamTypes;
 
+	/**
+	 * 方法名称数组
+	 */
 	private final String[] methodNames;
+	/**
+	 * 方法参数类型三维数组
+	 */
 	private final Class[][][] methodParamTypes;
+	/**
+	 * 字段名称数组
+	 */
 	private final String[] fieldNames;
+	/**
+	 * 字段类型数组
+	 */
 	private final Class[] fieldTypes;
+	/**
+	 * 方法索引映射表
+	 */
 	private final Map<String, Integer> methodIndices;
+	/**
+	 * 字段索引映射表
+	 */
 	private final Map<String, Integer> fieldIndices;
 
+	/**
+	 * 默认构造函数
+	 * <p>初始化所有索引和映射表</p>
+	 */
 	protected ClassAccess() {
 		this.constructorParamTypes = this.buildConstructorParamTypes();
 		int defaultConstructorIndex = -1;
@@ -74,61 +110,137 @@ public abstract class ClassAccess<T> {
 	}
 
 
-	// region expect to overwrite
+	// region 待子类重写的方法
 
+	/**
+	 * 构建构造器参数类型数组（子类实现）
+	 *
+	 * @return 构造器参数类型二维数组
+	 */
 	protected Class[][] buildConstructorParamTypes() {
 		return new Class[0][0];
 	}
 
+	/**
+	 * 构建方法名称数组（子类实现）
+	 *
+	 * @return 方法名称数组
+	 */
 	protected String[] buildMethodNames() {
 		return new String[0];
 	}
 
+	/**
+	 * 构建方法参数类型三维数组（子类实现）
+	 *
+	 * @return 方法参数类型三维数组
+	 */
 	protected Class[][][] buildMethodParamTypes() {
 		return new Class[0][][];
 	}
 
+	/**
+	 * 构建方法返回值类型数组（子类实现）
+	 *
+	 * @return 方法返回值类型数组
+	 */
 	protected Class[] buildMethodReturnTypes() {
 		return new Class[0];
 	}
 
+	/**
+	 * 构建字段名称数组（子类实现）
+	 *
+	 * @return 字段名称数组
+	 */
 	protected String[] buildFieldNames() {
 		return new String[0];
 	}
 
+	/**
+	 * 构建字段类型数组（子类实现）
+	 *
+	 * @return 字段类型数组
+	 */
 	protected Class[] buildFieldTypes() {
 		return new Class[0];
 	}
 
+	/**
+	 * 通过索引创建新实例（子类实现）
+	 *
+	 * @param index 构造器索引
+	 * @param args 构造器参数
+	 * @return 新实例化的对象
+	 */
 	public Object newIndexInstance(int index, Object... args) {
 		throw new IllegalArgumentException("Constructor not found");
 	}
 
+	/**
+	 * 通过索引调用方法（子类实现）
+	 *
+	 * @param instance 目标实例
+	 * @param index 方法索引
+	 * @param overloadIndex 重载方法索引
+	 * @param args 方法参数
+	 * @return 方法返回值
+	 */
 	public Object invokeIndexMethod(Object instance, int index, int overloadIndex, Object... args) {
 		throw new IllegalArgumentException("Method not found");
 	}
 
+	/**
+	 * 通过索引获取字段值（子类实现）
+	 *
+	 * @param instance 目标实例
+	 * @param index 字段索引
+	 * @return 字段值
+	 */
 	public Object getIndexField(Object instance, int index) {
 		throw new IllegalArgumentException("Field not found");
 	}
 
+	/**
+	 * 通过索引设置字段值（子类实现）
+	 *
+	 * @param instance 目标实例
+	 * @param index 字段索引
+	 * @param value 新值
+	 */
 	public void setIndexField(Object instance, int index, Object value) {
 		throw new IllegalArgumentException("Field not found");
 	}
 
 	// endregion
 
+	// region 构造器访问相关
 
-	// region constructor access
-
+	/**
+	 * 判断是否包含默认构造器（无参构造器）
+	 *
+	 * @return 如果存在返回 true，否则返回 false
+	 */
 	public boolean containsDefaultConstructor() {
 		return defaultConstructorIndex >= 0;
 	}
 
+	/**
+	 * 判断是否包含指定参数类型的构造器
+	 *
+	 * @param types 构造器参数类型数组
+	 * @return 如果存在返回 true，否则返回 false
+	 */
 	public boolean containsConstructor(Class... types) {
 		return getConstructorIndex(types) >= 0;
 	}
 
+	/**
+	 * 通过默认构造器实例化对象
+	 *
+	 * @return 新实例化的对象
+	 * @throws IllegalArgumentException 当默认构造器不存在或实例化失败时抛出
+	 */
 	public T newInstance() {
 		if (defaultConstructorIndex >= 0) {
 			try {
@@ -140,6 +252,14 @@ public abstract class ClassAccess<T> {
 		throw new IllegalArgumentException("Constructor not found");
 	}
 
+	/**
+	 * 通过指定参数类型的构造器实例化对象
+	 *
+	 * @param types 构造器参数类型数组
+	 * @param args 构造器参数值数组
+	 * @return 新实例化的对象
+	 * @throws IllegalArgumentException 当构造器不存在或实例化失败时抛出
+	 */
 	public T newInstance(Class<?>[] types, Object... args) {
 		int index = getConstructorIndex(types);
 		if (index < 0) {
@@ -152,6 +272,13 @@ public abstract class ClassAccess<T> {
 		}
 	}
 
+	/**
+	 * 通过参数值自动匹配构造器并实例化对象
+	 *
+	 * @param args 构造器参数值数组
+	 * @return 新实例化的对象
+	 * @throws IllegalArgumentException 当构造器不存在或实例化失败时抛出
+	 */
 	public T newInstance(Object... args) {
 		int index = getConstructorIndex(args);
 		if (index < 0) {
@@ -164,6 +291,12 @@ public abstract class ClassAccess<T> {
 		}
 	}
 
+	/**
+	 * 通过默认构造器实例化对象（如果不存在则返回 null）
+	 *
+	 * @return 新实例化的对象，如果构造器不存在返回 null
+	 * @throws IllegalArgumentException 当实例化过程失败时抛出
+	 */
 	public T newInstanceOrNoop() {
 		if (defaultConstructorIndex >= 0) {
 			try {
@@ -175,6 +308,14 @@ public abstract class ClassAccess<T> {
 		return null;
 	}
 
+	/**
+	 * 通过指定参数类型的构造器实例化对象（如果不存在则返回 null）
+	 *
+	 * @param types 构造器参数类型数组
+	 * @param args 构造器参数值数组
+	 * @return 新实例化的对象，如果构造器不存在返回 null
+	 * @throws IllegalArgumentException 当实例化过程失败时抛出
+	 */
 	public T newInstanceOrNoop(Class<?>[] types, Object... args) {
 		int index = getConstructorIndex(types);
 		if (index < 0) {
@@ -187,6 +328,13 @@ public abstract class ClassAccess<T> {
 		}
 	}
 
+	/**
+	 * 通过参数值自动匹配构造器实例化对象（如果不存在则返回 null）
+	 *
+	 * @param args 构造器参数值数组
+	 * @return 新实例化的对象，如果构造器不存在返回 null
+	 * @throws IllegalArgumentException 当实例化过程失败时抛出
+	 */
 	public T newInstanceOrNoop(Object... args) {
 		int index = getConstructorIndex(args);
 		if (index < 0) {

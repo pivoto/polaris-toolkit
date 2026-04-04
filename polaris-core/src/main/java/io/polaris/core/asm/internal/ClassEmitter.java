@@ -31,6 +31,7 @@ public class ClassEmitter extends ClassTransformer {
 		super(AsmConsts.ASM_API);
 	}
 
+	@Override
 	public void setTarget(ClassVisitor cv) {
 		this.cv = cv;
 		fieldInfo = new HashMap();
@@ -133,9 +134,11 @@ public class ClassEmitter extends ClassTransformer {
 		if (sig.equals(AsmConsts.SIG_STATIC) && !AsmTypes.isInterface(getAccess())) {
 			rawStaticInit = v;
 			MethodVisitor wrapped = new MethodVisitor(AsmConsts.ASM_API, v) {
+				@Override
 				public void visitMaxs(int maxStack, int maxLocals) {
 					// ignore
 				}
+				@Override
 				public void visitInsn(int insn) {
 					if (insn != AsmConsts.RETURN) {
 						super.visitInsn(insn);

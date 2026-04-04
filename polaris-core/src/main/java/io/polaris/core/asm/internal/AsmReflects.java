@@ -30,16 +30,25 @@ import org.objectweb.asm.Type;
  * @since May 10, 2024
  */
 public class AsmReflects {
+	/** 私有构造器，防止实例化 */
 	private AsmReflects() {
 	}
 
+	/** 默认的类加载器，使用当前类的类加载器 */
 	private static final ClassLoader defaultLoader = AsmReflects.class.getClassLoader();
+	/** 定义类的方法反射对象（标准方式） */
 	private static final Method DEFINE_CLASS;
+	/** 定义类的方法反射对象（使用 Unsafe） */
 	private static final Method DEFINE_CLASS_UNSAFE;
+	/** 保护域，用于定义类时的安全控制 */
 	private static final ProtectionDomain PROTECTION_DOMAIN;
+	/** Unsafe 实例，用于绕过 JVM 安全检查 */
 	private static final Object UNSAFE;
+	/** 初始化过程中可能抛出的异常 */
 	private static final Throwable THROWABLE;
 
+	/** Object 类的所有可访问方法列表 */
+	/** Object 类的所有可访问方法列表 */
 	private static final List<Method> OBJECT_METHODS = new ArrayList<>();
 
 	static {
@@ -48,8 +57,10 @@ public class AsmReflects {
 		Object unsafe;
 		Throwable throwable = null;
 		try {
+			// 获取当前类的保护域
 			protectionDomain = getProtectionDomain(AsmReflects.class);
 			try {
+				// 通过特权操作获取 ClassLoader 的 defineClass 方法
 				defineClass = AccessController.doPrivileged((PrivilegedExceptionAction<Method>) () -> {
 					Class<?> loader = Class.forName("java.lang.ClassLoader"); // JVM crash w/o this
 					Method defineClass1 = loader.getDeclaredMethod("defineClass",
@@ -58,15 +69,17 @@ public class AsmReflects {
 						Integer.TYPE,
 						Integer.TYPE,
 						ProtectionDomain.class);
+					// 设置方法可访问
 					defineClass1.setAccessible(true);
 					return defineClass1;
 				});
 				defineClassUnsafe = null;
 				unsafe = null;
 			} catch (Throwable t) {
-				// Fallback on Jigsaw where this method is not available.
+				// 在 Jigsaw 模块系统中 defineClass 不可用，回退到 Unsafe 方式
 				throwable = t;
 				defineClass = null;
+				// 通过特权操作获取 Unsafe 实例
 				unsafe = AccessController.doPrivileged((PrivilegedExceptionAction<?>) () -> {
 					Class<?> u = Class.forName("sun.misc.Unsafe");
 					Field theUnsafe = u.getDeclaredField("theUnsafe");
@@ -74,6 +87,7 @@ public class AsmReflects {
 					return theUnsafe.get(null);
 				});
 				Class<?> u = Class.forName("sun.misc.Unsafe");
+				// 获取 Unsafe 的 defineClass 方法
 				defineClassUnsafe = u.getMethod("defineClass",
 					String.class,
 					byte[].class,
@@ -82,6 +96,7 @@ public class AsmReflects {
 					ClassLoader.class,
 					ProtectionDomain.class);
 			}
+			// 收集 Object 类的所有非 final、非静态方法（除了 finalize）
 			AccessController.doPrivileged((PrivilegedExceptionAction<?>) () -> {
 				Method[] methods = Object.class.getDeclaredMethods();
 				for (Method method : methods) {
@@ -102,6 +117,7 @@ public class AsmReflects {
 			defineClassUnsafe = null;
 			unsafe = null;
 		}
+		// 初始化静态常量
 		PROTECTION_DOMAIN = protectionDomain;
 		DEFINE_CLASS = defineClass;
 		DEFINE_CLASS_UNSAFE = defineClassUnsafe;
@@ -109,10 +125,24 @@ public class AsmReflects {
 		THROWABLE = throwable;
 	}
 
+	/** 默认搜索的包名数组，用于辅助类查找 */
+	/** 默认搜索的包名数组，用于辅助类查找 */
 	private static final String[] DEFAULT_PACKAGES = {
 		"java.lang",
 	};
 
+	/**
+	 * 根据名称获取基本类型对应的 Class 对象
+	 *
+	 * @param name 基本类型名称（如 "int", "boolean" 等）
+	 * @return 对应的基本类型 Class 对象，如果不是基本类型则返回 null
+	 */
+	/**
+	 * 根据名称获取基本类型对应的 Class 对象
+	 *
+	 * @param name 基本类型名称（如 "int", "boolean" 等）
+	 * @return 对应的基本类型 Class 对象，如果不是基本类型则返回 null
+	 */
 	private static Class<?> getPrimitiveClassByName(String name) {
 		switch (name) {
 			case "void":
@@ -137,6 +167,18 @@ public class AsmReflects {
 		return null;
 	}
 
+	/**
+	 * 根据名称获取基本类型的描述符
+	 *
+	 * @param name 基本类型名称（如 "int", "boolean" 等）
+	 * @return 对应的基本类型描述符（如 "I", "Z" 等），如果不是基本类型则返回 null
+	 */
+	/**
+	 * 根据名称获取基本类型的描述符
+	 *
+	 * @param name 基本类型名称（如 "int", "boolean" 等）
+	 * @return 对应的基本类型描述符（如 "I", "Z" 等），如果不是基本类型则返回 null
+	 */
 	private static String getPrimitiveDescriptorByName(String name) {
 		switch (name) {
 			case "void":
@@ -162,75 +204,128 @@ public class AsmReflects {
 	}
 
 
+	/**
+	 * 定义类，使用默认保护域
+	 *
+	 * @param className 类名
+	 * @param b 字节码数组
+	 * @param loader 类加载器
+	 * @return 定义的 Class 对象
+	 * @throws Exception 定义类过程中可能抛出的异常
+	 */
 	public static Class<?> defineClass(String className, byte[] b, ClassLoader loader) throws Exception {
 		return defineClass(className, b, loader, PROTECTION_DOMAIN);
 	}
 
+	/**
+	 * 定义类，可指定保护域
+	 *
+	 * @param className 类名
+	 * @param b 字节码数组
+	 * @param loader 类加载器
+	 * @param protectionDomain 保护域
+	 * @return 定义的 Class 对象
+	 * @throws Exception 定义类过程中可能抛出的异常
+	 */
 	public static Class<?> defineClass(String className, byte[] b, ClassLoader loader, ProtectionDomain protectionDomain) throws Exception {
 		Class<?> c;
 		if (DEFINE_CLASS != null) {
+			// 使用标准方式定义类
 			Object[] args = new Object[]{className, b, 0, b.length, protectionDomain};
 			c = (Class<?>) DEFINE_CLASS.invoke(loader, args);
 		} else if (DEFINE_CLASS_UNSAFE != null) {
+			// 使用 Unsafe 方式定义类
 			Object[] args = new Object[]{className, b, 0, b.length, loader, protectionDomain};
 			c = (Class<?>) DEFINE_CLASS_UNSAFE.invoke(UNSAFE, args);
 		} else {
+			// 两种方式都不可用，抛出异常
 			throw new RuntimeException(THROWABLE);
 		}
-		// Force static initializers to run.
+		// 强制运行静态初始化器
 		Class.forName(className, true, loader);
 		return c;
 	}
 
+	/**
+	 * 获取类的所有可访问方法（包括父类和接口）
+	 *
+	 * @param type 目标类
+	 * @return 方法 Map，键为方法签名，值为 Method 对象
+	 */
 	public static Map<String, Method> getAllAccessibleMethods(Class<?> type) {
 		Map<String, Method> allMethods = new LinkedHashMap<>();
 		boolean isInterface = type.isInterface();
 		if (!isInterface) {
+			// 非接口类，递归收集所有父类的方法
 			Class<?> nextClass = type;
-			while (nextClass != null) { // 也包含Object类的方法
+			while (nextClass != null) { // 也包含 Object 类的方法
 				recursiveAddMethodsToMap(nextClass, allMethods);
 				nextClass = nextClass.getSuperclass();
 			}
 		} else {
+			// 接口类，只收集接口本身的方法
 			recursiveAddMethodsToMap(type, allMethods);
 		}
 		return allMethods;
 	}
 
+	/**
+	 * 递归添加接口或类的方法到 Map 中
+	 *
+	 * @param interfaceType 目标接口或类
+	 * @param methods 方法 Map，用于存储收集到的方法
+	 */
 	@SuppressWarnings("all")
 	private static void recursiveAddMethodsToMap(Class<?> interfaceType, Map<String, Method> methods) {
 		Method[] declaredMethods = interfaceType.getDeclaredMethods();
 		for (int i = 0, n = declaredMethods.length; i < n; i++) {
 			Method method = declaredMethods[i];
 			int modifiers = method.getModifiers();
+			// 跳过私有方法
 			if (Modifier.isPrivate(modifiers)) {
 				continue;
 			}
-			// 忽略几下Object方法
+			// 忽略几下 Object 方法
 			if (Reflects.isFinalizeMethod(method) ||
 				Reflects.isNotifyMethod(method) || Reflects.isNotifyAllMethod(method) ||
 				Reflects.isWaitMethod(method)) {
 				continue;
 			}
-			// 忽略非覆写的clone方法
+			// 忽略非覆写的 clone 方法
 			if (Reflects.isCloneMethod(method) && method.getDeclaringClass() == Object.class) {
 				continue;
 			}
+			// 使用方法名和描述符作为键存入 Map
 			methods.putIfAbsent(method.getName() + Type.getMethodDescriptor(method), method);
 		}
+		// 递归处理父接口
 		for (Class<?> nextInterface : interfaceType.getInterfaces()) {
 			recursiveAddMethodsToMap(nextInterface, methods);
 		}
 	}
 
 
+	/**
+	 * 获取类的保护域
+	 *
+	 * @param source 源类
+	 * @return 保护域对象
+	 */
 	public static ProtectionDomain getProtectionDomain(final Class<?> source) {
 		if (source == null) {
 			return null;
 		}
+		// 通过特权操作获取保护域
 		return AccessController.doPrivileged((PrivilegedAction<ProtectionDomain>) source::getProtectionDomain);
 	}
 
+	/**
+	 * 获取成员（方法或构造器）的异常类型数组
+	 *
+	 * @param member 成员对象（Method 或 Constructor）
+	 * @return ASM Type 数组，表示异常类型
+	 * @throws IllegalArgumentException 如果传入的是 Field
+	 */
 	public static Type[] getExceptionTypes(Member member) {
 		if (member instanceof Method) {
 			return AsmTypes.getTypes(((Method) member).getExceptionTypes());
@@ -241,6 +336,13 @@ public class AsmReflects {
 		}
 	}
 
+	/**
+	 * 获取成员（方法或构造器）的签名
+	 *
+	 * @param member 成员对象（Method 或 Constructor）
+	 * @return Signature 对象，包含方法名和描述符
+	 * @throws IllegalArgumentException 如果传入的是 Field
+	 */
 	public static Signature getSignature(Member member) {
 		if (member instanceof Method) {
 			return new Signature(member.getName(), Type.getMethodDescriptor((Method) member));
@@ -253,14 +355,31 @@ public class AsmReflects {
 		}
 	}
 
+	/**
+	 * 查找构造器
+	 *
+	 * @param desc 构造器描述符字符串
+	 * @return 找到的 Constructor 对象
+	 * @throws IllegalArgumentException 如果找不到对应的构造器
+	 */
 	public static Constructor<?> findConstructor(String desc) {
 		return findConstructor(desc, defaultLoader);
 	}
 
+	/**
+	 * 查找构造器，可指定类加载器
+	 *
+	 * @param desc 构造器描述符字符串
+	 * @param loader 类加载器
+	 * @return 找到的 Constructor 对象
+	 * @throws IllegalArgumentException 如果找不到对应的构造器
+	 */
 	public static Constructor<?> findConstructor(String desc, ClassLoader loader) {
 		try {
 			int lparen = desc.indexOf('(');
+			// 提取类名
 			String className = desc.substring(0, lparen).trim();
+			// 解析参数类型并获取构造器
 			return getClass(className, loader).getConstructor(parseTypes(desc, loader));
 		} catch (ReflectiveOperationException e) {
 			throw new IllegalArgumentException(e);

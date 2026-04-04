@@ -23,6 +23,9 @@ public class AsmUtils {
 
 	/**
 	 * 添加自动拆箱指令
+	 *
+	 * @param mv 方法访问者
+	 * @param clz 要拆箱的目标类型 Class
 	 */
 	public static void autoUnBoxing(MethodVisitor mv, Class<?> clz) {
 		autoUnBoxing(mv, Type.getType(clz));
@@ -30,6 +33,9 @@ public class AsmUtils {
 
 	/**
 	 * 添加自动拆箱指令
+	 *
+	 * @param mv 方法访问者
+	 * @param fieldType 要拆箱的目标类型 Type
 	 */
 	public static void autoUnBoxing(MethodVisitor mv, Type fieldType) {
 		switch (fieldType.getSort()) {
@@ -78,6 +84,9 @@ public class AsmUtils {
 
 	/**
 	 * 添加自动装箱指令
+	 *
+	 * @param mv 方法访问者
+	 * @param clz 要装箱的目标类型 Class
 	 */
 	public static void autoBoxing(MethodVisitor mv, Class<?> clz) {
 		autoBoxing(mv, Type.getType(clz));
@@ -85,60 +94,90 @@ public class AsmUtils {
 
 	/**
 	 * 添加自动装箱指令
+	 *
+	 * @param mv 方法访问者
+	 * @param fieldType 要装箱的目标类型 Type
 	 */
 	public static void autoBoxing(MethodVisitor mv, Type fieldType) {
 		switch (fieldType.getSort()) {
 			case Type.BOOLEAN:
+				// boolean -> Boolean
 				mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
 				break;
 			case Type.BYTE:
+				// byte -> Byte
 				mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;", false);
 				break;
 			case Type.CHAR:
+				// char -> Character
 				mv.visitMethodInsn(INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;", false);
 				break;
 			case Type.SHORT:
+				// short -> Short
 				mv.visitMethodInsn(INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;", false);
 				break;
 			case Type.INT:
+				// int -> Integer
 				mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
 				break;
 			case Type.FLOAT:
+				// float -> Float
 				mv.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;", false);
 				break;
 			case Type.LONG:
+				// long -> Long
 				mv.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
 				break;
 			case Type.DOUBLE:
+				// double -> Double
 				mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
 				break;
 			default:
+				// 其他类型不需要装箱
 		}
 	}
 
 	/**
-	 * 添加自动装箱指令
+	 * 添加自动装箱指令（用于返回值）
+	 *
+	 * @param mv 方法访问者
+	 * @param clz 要装箱的目标类型 Class
 	 */
 	public static void autoBoxingForReturn(MethodVisitor mv, Class<?> clz) {
 		autoBoxingForReturn(mv, Type.getType(clz));
 	}
 
 	/**
-	 * 添加自动装箱指令
+	 * 添加自动装箱指令（用于返回值）
+	 *
+	 * @param mv 方法访问者
+	 * @param fieldType 要装箱的目标类型 Type
 	 */
 	public static void autoBoxingForReturn(MethodVisitor mv, Type fieldType) {
 		if (fieldType.getSort() == Type.VOID) {
+			// void 类型返回 null
 			mv.visitInsn(ACONST_NULL);
 		} else {
+			// 其他类型进行装箱
 			autoBoxing(mv, fieldType);
 		}
 	}
 
+	/**
+	 * 插入默认构造方法（无参构造器）
+	 *
+	 * @param cw 类写入器
+	 * @param superclassNameInternal 父类的内部名
+	 */
 	public static void insertDefaultConstructor(ClassWriter cw, String superclassNameInternal) {
+		// 创建公有构造方法
 		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
 		mv.visitCode();
+		// 加载 this
 		mv.visitVarInsn(ALOAD, 0);
+		// 调用父类构造方法
 		mv.visitMethodInsn(INVOKESPECIAL, superclassNameInternal, "<init>", "()V", false);
+		// 返回
 		mv.visitInsn(RETURN);
 		mv.visitMaxs(1, 1);
 		mv.visitEnd();
@@ -161,20 +200,6 @@ public class AsmUtils {
 			mv.visitVarInsn(Opcodes.FSTORE, varIndex);
 		} else if (type == double.class) {
 			mv.visitVarInsn(Opcodes.DSTORE, varIndex);
-//		} else if (type == byte[].class || type == boolean[].class) {
-//			mv.visitVarInsn(Opcodes.BASTORE, varIndex);
-//		} else if (type == char[].class) {
-//			mv.visitVarInsn(Opcodes.CASTORE, varIndex);
-//		} else if (type == short[].class) {
-//			mv.visitVarInsn(Opcodes.SASTORE, varIndex);
-//		} else if (type == long[].class) {
-//			mv.visitVarInsn(Opcodes.LASTORE, varIndex);
-//		} else if (type == float[].class) {
-//			mv.visitVarInsn(Opcodes.FASTORE, varIndex);
-//		} else if (type == double[].class) {
-//			mv.visitVarInsn(Opcodes.DASTORE, varIndex);
-//		} else if (type.isArray()) {
-//			mv.visitVarInsn(Opcodes.AASTORE, varIndex);
 		} else {
 			mv.visitVarInsn(Opcodes.ASTORE, varIndex);
 		}
@@ -189,20 +214,6 @@ public class AsmUtils {
 			mv.visitVarInsn(Opcodes.FLOAD, varIndex);
 		} else if (type == double.class) {
 			mv.visitVarInsn(Opcodes.DLOAD, varIndex);
-//		} else if (type == byte[].class || type == boolean[].class) {
-//			mv.visitVarInsn(Opcodes.BALOAD, varIndex);
-//		} else if (type == char[].class) {
-//			mv.visitVarInsn(Opcodes.CALOAD, varIndex);
-//		} else if (type == short[].class) {
-//			mv.visitVarInsn(Opcodes.SALOAD, varIndex);
-//		} else if (type == long[].class) {
-//			mv.visitVarInsn(Opcodes.LALOAD, varIndex);
-//		} else if (type == float[].class) {
-//			mv.visitVarInsn(Opcodes.FALOAD, varIndex);
-//		} else if (type == double[].class) {
-//			mv.visitVarInsn(Opcodes.DALOAD, varIndex);
-//		} else if (type.isArray()) {
-//			mv.visitVarInsn(Opcodes.AALOAD, varIndex);
 		} else {
 			mv.visitVarInsn(Opcodes.ALOAD, varIndex);
 		}

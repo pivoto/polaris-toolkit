@@ -97,7 +97,9 @@ public class MemoryClassLoader extends URLClassLoader {
 		if (classBytesCacheEnabled) {
 			try {
 				File file = new File(classBytesCacheDir + "/" + className.replace(".", "/") + ".class");
-				log.debug("缓存动态生成类的字节码：{}", file.getAbsolutePath());
+				if (log.isDebugEnabled()) {
+					log.debug("缓存动态生成类的字节码：{}", file.getAbsolutePath());
+				}
 				IO.writeBytes(file, bytes);
 			} catch (Throwable e) {
 				log.error("", e);

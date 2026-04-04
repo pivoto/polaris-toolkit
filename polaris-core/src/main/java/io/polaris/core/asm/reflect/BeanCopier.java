@@ -49,25 +49,73 @@ import static org.objectweb.asm.Opcodes.*;
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class BeanCopier<S> {
-	private static Logger log = Loggers.of(BeanCopier.class);
+	/**
+	 * 日志记录器
+	 */
+	private static final Logger log = Loggers.of(BeanCopier.class);
+	/**
+	 * 访问类缓存池
+	 */
 	@SuppressWarnings({"rawtypes"})
 	private static final AccessClassPool<Class<?>, BeanCopier> pool = new AccessClassPool<>();
+	/**
+	 * 类型字段前缀标识
+	 */
 	public static final String FIELD_PREFIX_TYPE = "type_";
+	/**
+	 * Class 字段前缀标识
+	 */
 	public static final String FIELD_PREFIX_CLASS = "class_";
+	/**
+	 * 快速复制器缓存（针对相同类型的 Bean）
+	 */
 	private final Map<Class<?>, BeanDirectCopier> fastCopiers = new ConcurrentHashMap<>();
+	/**
+	 * 选项复制器缓存（针对不同配置项的 Bean 复制）
+	 */
 	private final Map<Class<?>, BeanOptionsCopier> optionsCopiers = new ConcurrentHashMap<>();
 
+	/**
+	 * 源 Bean 类型
+	 */
 	protected Class<S> sourceType;
+	/**
+	 * 属性信息映射表
+	 */
 	protected Map<String, BeanPropertyInfo> properties;
 
+	/**
+	 * 默认构造函数
+	 */
 	protected BeanCopier() {
 	}
 
+	/**
+	 * 初始化类型字段（子类实现）
+	 * <p>用于存储泛型类型信息，供后续类型转换使用</p>
+	 */
 	protected abstract void initTypeFields();
 
+	/**
+	 * 复制 Bean 到 Map（基础方法）
+	 * <p>将源 Bean 的所有可读属性复制到目标 Map 中</p>
+	 *
+	 * @param source 源 Bean 对象
+	 * @param target 目标 Map 对象
+	 */
 	public abstract void copyBeanToMap(@Nonnull S source, @Nonnull Map<String, Object> target);
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
+	/**
+	 * 复制 Bean 到 Map（带类型转换器）
+	 * <p>将源 Bean 的属性复制到目标 Map，并使用提供的转换器进行类型转换</p>
+	 *
+	 * @param source 源 Bean 对象
+	 * @param targetType 目标 Map 的泛型类型
+	 * @param target 目标 Map 对象
+	 * @param converter 类型转换器，用于将属性值转换为目标类型
+	 * @param <K> Map 键类型
+	 * @param <V> Map 值类型
+	 */
 	public final <K, V> void copyBeanToMap(@Nonnull S source, @Nonnull java.lang.reflect.Type targetType, @Nonnull Map<K, V> target, BiFunction<java.lang.reflect.Type, Object, Object> converter) {
 		JavaType javaType = JavaType.of(targetType);
 		JavaType keyType = JavaType.of(javaType.getActualType(Map.class, 0));
@@ -75,18 +123,61 @@ public abstract class BeanCopier<S> {
 		copyBeanToMapByConverter(source, target, converter, keyType, valueType);
 	}
 
+	/**
+	 * 通过转换器复制 Bean 到 Map（子类实现）
+	 *
+	 * @param source 源 Bean 对象
+	 * @param target 目标 Map 对象
+	 * @param converter 类型转换器
+	 * @param keyType Map 键类型
+	 * @param valueType Map 值类型
+	 */
 	protected abstract void copyBeanToMapByConverter(@Nonnull Object source, @Nonnull Map target, BiFunction<java.lang.reflect.Type, Object, Object> converter, @Nonnull JavaType keyType, @Nonnull JavaType valueType);
 
+	/**
+	 * 复制 Map 到 Bean（基础方法）
+	 * <p>将源 Map 中的属性值复制到目标 Bean 中</p>
+	 *
+	 * @param source 源 Map 对象
+	 * @param target 目标 Bean 对象
+	 */
 	public abstract void copyMapToBean(@Nonnull Map<String, Object> source, @Nonnull S target);
 
+	/**
+	 * 复制 Map 到 Bean（带类型转换器）
+	 * <p>将源 Map 中的属性值复制到目标 Bean，并使用提供的转换器进行类型转换</p>
+	 *
+	 * @param source 源 Map 对象
+	 * @param target 目标 Bean 对象
+	 * @param converter 类型转换器
+	 */
 	public abstract void copyMapToBean(@Nonnull Map<String, Object> source, @Nonnull S target, BiFunction<java.lang.reflect.Type, Object, Object> converter);
 
-	@SuppressWarnings({"unchecked"})
+	/**
+	 * 复制 Bean 到 Bean（自动判断目标类型）
+	 * <p>将源 Bean 的属性复制到目标 Bean，自动获取目标对象的类型</p>
+	 *
+	 * @param source 源 Bean 对象
+	 * @param target 目标 Bean 对象
+	 * @param <T> 目标 Bean 类型
+	 */
 	public final <T> void copyBeanToBean(@Nonnull S source, @Nonnull T target) {
 		copyBeanToBean(source, (Class<T>) target.getClass(), target);
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	/**
+	 * 复制 Bean 到 Bean（指定目标类型）
+	 * <p>将源 Bean 的属性复制到目标 Bean，支持相同类型和不同类型的复制</p>
+	 * <ul>
+	 *   <li>相同类型：直接使用优化的同类型复制器</li>
+	 *   <li>不同类型：创建或获取对应的直接复制器进行处理</li>
+	 * </ul>
+	 *
+	 * @param source 源 Bean 对象
+	 * @param type 目标 Bean 的类型（可为 null，为 null 时使用 target 的实际类型）
+	 * @param target 目标 Bean 对象
+	 * @param <T> 目标 Bean 类型
+	 */
 	public final <T> void copyBeanToBean(@Nonnull S source, Class<T> type, @Nonnull T target) {
 		Class<T> targetType = type == null ? (Class<T>) target.getClass() : type;
 		// 完全相同时，直接拷贝同属性，否则即使有继承关系也可能存在属性、字段覆盖等问题，需要按不同类型处理
@@ -99,12 +190,38 @@ public abstract class BeanCopier<S> {
 		}
 	}
 
+	/**
+	 * 通过相同类型复制 Bean（子类实现）
+	 * <p>针对源和目标类型完全相同的情况进行优化的复制方法</p>
+	 *
+	 * @param source 源 Bean 对象
+	 * @param target 目标 Bean 对象
+	 */
 	protected abstract void copyBeanToBeanBySameType(@Nonnull S source, @Nonnull S target);
 
+	/**
+	 * 复制 Bean 到 Map（带选项配置）
+	 * <p>使用指定的复制选项将 Bean 属性复制到 Map</p>
+	 *
+	 * @param source 源 Bean 对象
+	 * @param target 目标 Map 对象
+	 * @param options 复制选项配置
+	 */
 	public final void copyBeanToMap(@Nonnull S source, @Nonnull Map<String, Object> target, @Nonnull CopyOptions options) {
 		copyBeanToMap(source, new TypeRef<Map<String, Object>>() {}.getType(), target, options);
 	}
 
+	/**
+	 * 复制 Bean 到 Map（带选项配置和类型参数）
+	 * <p>使用指定的复制选项和泛型类型信息将 Bean 属性复制到 Map</p>
+	 *
+	 * @param source 源 Bean 对象
+	 * @param targetType 目标 Map 的泛型类型
+	 * @param target 目标 Map 对象
+	 * @param options 复制选项配置
+	 * @param <K> Map 键类型
+	 * @param <V> Map 值类型
+	 */
 	public final <K, V> void copyBeanToMap(@Nonnull S source, @Nonnull java.lang.reflect.Type targetType, @Nonnull Map<K, V> target, @Nonnull CopyOptions options) {
 		JavaType javaType = JavaType.of(targetType);
 		JavaType keyType = JavaType.of(javaType.getActualType(Map.class, 0));
@@ -112,9 +229,31 @@ public abstract class BeanCopier<S> {
 		copyBeanToMapByOptions(source, target, options, keyType, valueType);
 	}
 
+	/**
+	 * 通过选项配置复制 Bean 到 Map（子类实现）
+	 *
+	 * @param source 源 Bean 对象
+	 * @param target 目标 Map 对象
+	 * @param options 复制选项配置
+	 * @param keyType Map 键类型
+	 * @param valueType Map 值类型
+	 * @param <K> Map 键类型
+	 * @param <V> Map 值类型
+	 */
 	protected abstract <K, V> void copyBeanToMapByOptions(@Nonnull S source, @Nonnull Map<K, V> target, @Nonnull CopyOptions options, @Nonnull JavaType keyType, @Nonnull JavaType valueType);
 
 
+	/**
+	 * 使用选项配置复制单个属性到 Map
+	 * <p>处理单个属性的复制逻辑，包括空值检查、键转换、值转换等</p>
+	 *
+	 * @param target 目标 Map
+	 * @param options 复制选项配置
+	 * @param keyType Map 键类型
+	 * @param valueType Map 值类型
+	 * @param sourceKey 源属性名
+	 * @param sourceValue 源属性值
+	 */
 	protected final void copyBeanToMapWithKeyByOptions(@Nonnull Map target, @Nonnull CopyOptions options, @Nonnull JavaType keyType, @Nonnull JavaType valueType, String sourceKey, Object sourceValue) {
 		if (sourceValue == null && options.ignoreNull()) {
 			return;
@@ -403,12 +542,26 @@ public abstract class BeanCopier<S> {
 		return converter.apply(type, value);
 	}
 
-	@SuppressWarnings("unchecked")
+	/**
+	 * 获取或创建 Bean 复制器实例
+	 * <p>从缓存池中获取，如果不存在则创建</p>
+	 *
+	 * @param type Bean 类型
+	 * @return Bean 复制器实例
+	 * @param <T> Bean 类型
+	 */
 	public static <T> BeanCopier<T> get(@Nonnull Class<T> type) {
 		return pool.computeIfAbsent(type, BeanCopier::create);
 	}
 
-	@SuppressWarnings({"unchecked"})
+	/**
+	 * 创建 Bean 复制器实例
+	 * <p>通过 ASM 动态生成字节码类并初始化</p>
+	 *
+	 * @param type Bean 类型
+	 * @return Bean 复制器实例
+	 * @param <T> Bean 类型
+	 */
 	public static <T> BeanCopier<T> create(@Nonnull Class<T> type) {
 		BeanPropertyInfo.Classification classification = BeanPropertyInfo.classify(type);
 		String accessClassName = AccessClassLoader.buildAccessClassName(type, BeanCopier.class);
@@ -428,6 +581,17 @@ public abstract class BeanCopier<S> {
 		}
 	}
 
+	/**
+	 * 构建访问类字节码
+	 * <p>使用 ASM 动态生成 Bean 复制器的子类字节码</p>
+	 *
+	 * @param loader 访问类加载器
+	 * @param accessClassName 访问类名称
+	 * @param type Bean 类型
+	 * @param classification 属性分类信息
+	 * @return 生成的类字节码数组
+	 * @param <T> Bean 类型
+	 */
 	private static <T> byte[] buildAccessClass(AccessClassLoader loader
 		, String accessClassName, Class<T> type
 		, BeanPropertyInfo.Classification classification) {

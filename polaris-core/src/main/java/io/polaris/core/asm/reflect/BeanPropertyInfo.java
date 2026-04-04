@@ -20,6 +20,9 @@ import lombok.Getter;
 import lombok.ToString;
 
 /**
+ * Bean 属性信息
+ * <p>封装 Java Bean 属性的详细信息，包括属性名、类型、getter/setter 方法和字段</p>
+ *
  * @author Qt
  * @since Apr 11, 2024
  */
@@ -28,15 +31,41 @@ import lombok.ToString;
 @ToString
 public class BeanPropertyInfo {
 
+	/**
+	 * 属性名称
+	 */
 	private final String propertyName;
+	/**
+	 * 属性的泛型类型
+	 */
 	private final java.lang.reflect.Type propertyGenericType;
+	/**
+	 * 属性的原始类型
+	 */
 	private final Class<?> propertyType;
+	/**
+	 * Setter 方法
+	 */
 	private final Method writeMethod;
+	/**
+	 * Getter 方法
+	 */
 	private final Method readMethod;
+	/**
+	 * 直接访问字段
+	 */
 	private final Field field;
 
 	/**
-	 * 要求：存在属性方法时，直接字段为空，只能通过属性方法访问属性
+	 * 构造函数
+	 * <p>要求：存在属性方法时，直接字段为空，只能通过属性方法访问属性</p>
+	 *
+	 * @param propertyName 属性名
+	 * @param propertyGenericType 属性泛型类型
+	 * @param propertyType 属性原始类型
+	 * @param writeMethod Setter 方法
+	 * @param readMethod Getter 方法
+	 * @param field 直接访问字段
 	 */
 	private BeanPropertyInfo(String propertyName, Type propertyGenericType, Class<?> propertyType, Method writeMethod, Method readMethod, Field field) {
 		this.propertyName = propertyName;
@@ -47,14 +76,30 @@ public class BeanPropertyInfo {
 		this.field = field;
 	}
 
+	/**
+	 * 判断是否存在 Setter 方法或字段
+	 *
+	 * @return 如果存在返回 true，否则返回 false
+	 */
 	public boolean hasSetter() {
 		return writeMethod != null || field != null;
 	}
 
+	/**
+	 * 判断是否存在 Getter 方法或字段
+	 *
+	 * @return 如果存在返回 true，否则返回 false
+	 */
 	public boolean hasGetter() {
 		return readMethod != null || field != null;
 	}
 
+	/**
+	 * 从属性描述符创建 BeanPropertyInfo 实例
+	 *
+	 * @param propertyDescriptor Java Bean 属性描述符
+	 * @return BeanPropertyInfo 实例
+	 */
 	public static BeanPropertyInfo of(PropertyDescriptor propertyDescriptor) {
 		return of(propertyDescriptor.getName(), propertyDescriptor.getWriteMethod(), propertyDescriptor.getReadMethod(), null);
 	}
@@ -64,6 +109,15 @@ public class BeanPropertyInfo {
 			, writeMethod, readMethod, field);
 	}
 
+	/**
+	 * 创建 BeanPropertyInfo 实例
+	 *
+	 * @param propertyName 属性名
+	 * @param writeMethod Setter 方法
+	 * @param readMethod Getter 方法
+	 * @param field 直接访问字段
+	 * @return BeanPropertyInfo 实例
+	 */
 	private static BeanPropertyInfo of(String propertyName, Method writeMethod, Method readMethod, Field field) {
 		propertyName = Strings.trimToNull(propertyName);
 		if (propertyName == null) {
@@ -103,6 +157,12 @@ public class BeanPropertyInfo {
 			, writeMethod, readMethod, field);
 	}
 
+	/**
+	 * 获取类的所有属性信息列表
+	 *
+	 * @param beanType Bean 类型
+	 * @return 属性信息列表
+	 */
 	public static List<BeanPropertyInfo> listOf(Class<?> beanType) {
 		Map<String, BeanPropertyInfo> map = mapOf(beanType);
 		List<BeanPropertyInfo> list = new ArrayList<>(map.size());
@@ -110,6 +170,12 @@ public class BeanPropertyInfo {
 		return list;
 	}
 
+	/**
+	 * 获取类的所有属性信息映射表
+	 *
+	 * @param beanType Bean 类型
+	 * @return 属性信息映射表（LinkedHashMap，保持插入顺序）
+	 */
 	public static Map<String, BeanPropertyInfo> mapOf(Class<?> beanType) {
 		BeanInfo beanInfo = null;
 		try {
@@ -159,7 +225,11 @@ public class BeanPropertyInfo {
 	}
 
 	/**
-	 * 获取所有属性访问贪睡并返回划分setter、getter、field三种类型后的数组
+	 * 对类的属性进行分类
+	 * <p>将属性划分为 setter、getter、field 三种类型</p>
+	 *
+	 * @param beanType Bean 类型
+	 * @return 分类结果
 	 */
 	public static Classification classify(Class<?> beanType) {
 		Map<String, BeanPropertyInfo> properties = mapOf(beanType);

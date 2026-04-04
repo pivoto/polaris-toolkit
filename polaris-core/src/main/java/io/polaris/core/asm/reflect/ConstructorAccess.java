@@ -9,17 +9,31 @@ import java.lang.reflect.Modifier;
 import static org.objectweb.asm.Opcodes.*;
 
 /**
+ * ASM 构造器访问器
+ * <p>通过 ASM 字节码生成技术，为 Java 类提供高性能的实例化能力</p>
+ * <p>支持实例化顶级类、静态内部类和非静态成员内部类</p>
+ * <p>参考：<a href="https://github.com/EsotericSoftware/reflectasm">https://github.com/EsotericSoftware/reflectasm</a></p>
+ *
  * @author Qt
  * @see <a href="https://github.com/EsotericSoftware/reflectasm">https://github.com/EsotericSoftware/reflectasm</a>
  * @since Aug 04, 2023
+ * @param <T> 要实例化的类型
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class ConstructorAccess<T> {
 
+	/**
+	 * 访问类缓存池
+	 */
 	private static final AccessClassPool<Class, ConstructorAccess> pool = new AccessClassPool<>();
-	/** 是否非静态成员内部类 */
-	private boolean isNonStaticMemberClass;
 	/**
 	 * 是否非静态成员内部类
+	 */
+	private boolean isNonStaticMemberClass;
+	/**
+	 * 判断是否为非静态成员内部类
+	 *
+	 * @return 如果是非静态成员内部类返回 true，否则返回 false
 	 */
 	public boolean isNonStaticMemberClass() {
 		return isNonStaticMemberClass;
@@ -27,14 +41,29 @@ public abstract class ConstructorAccess<T> {
 
 	/**
 	 * 通过默认构造器实例化顶级类或静态内部类
+	 * <p>仅适用于有无参默认构造器的类</p>
+	 *
+	 * @return 新实例化的对象
 	 */
 	public abstract T newInstance();
 
 	/**
 	 * 通过默认构造器实例化非静态成员内部类
+	 * <p>需要提供外部类实例作为参数</p>
+	 *
+	 * @param enclosingInstance 外部类实例
+	 * @return 新实例化的内部类对象
 	 */
 	public abstract T newInstance(Object enclosingInstance);
 
+	/**
+	 * 获取或创建构造器访问器实例
+	 * <p>从缓存池中获取，如果不存在则创建</p>
+	 *
+	 * @param type 要实例化的类型
+	 * @return 构造器访问器实例
+	 * @param <T> 类型
+	 */
 	@SuppressWarnings("unchecked")
 	public static <T> ConstructorAccess<T> get(Class<T> type) {
 		return pool.computeIfAbsent(type, ConstructorAccess::create);

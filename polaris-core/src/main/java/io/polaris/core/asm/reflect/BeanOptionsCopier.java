@@ -36,7 +36,7 @@ import static org.objectweb.asm.Opcodes.*;
  * @since Apr 14, 2024
  */
 public abstract class BeanOptionsCopier<S, T> {
-	private static Logger log = Loggers.of(BeanOptionsCopier.class);
+	private static final Logger log = Loggers.of(BeanOptionsCopier.class);
 	private static final String CLASS_NAME_PREFIX = "Options$";
 	public static final String FIELD_PREFIX_TYPE = BeanCopier.FIELD_PREFIX_TYPE;
 	public static final String FIELD_PREFIX_CLASS = BeanCopier.FIELD_PREFIX_CLASS;
