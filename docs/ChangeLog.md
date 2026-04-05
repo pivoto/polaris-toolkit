@@ -1,5 +1,14 @@
 ## 版本变更说明
 
+### 3.8.2
+- 新增MybatisSQL记录器功能
+- 扩展Types、Nets等工具方法
+- BeanPropertyInfo 增加缓存
+- 优化切面实现Aspect
+- 优化JDBC执行器JdbcExecutor
+- 优化方法句柄工具类Methods
+- 添加JDK代理工具类JdkProxies支持接口实例化
+
 ### 3.8.1
 - 优化MyBatis增强工具模块，优化增强逻辑与执行性能
 - 优化Reflects工具类，增加工具方法
