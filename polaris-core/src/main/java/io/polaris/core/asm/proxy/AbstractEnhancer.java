@@ -11,6 +11,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
 import io.polaris.core.asm.generator.AbstractClassGenerator;
 import io.polaris.core.asm.internal.*;
 import io.polaris.core.collection.PrimitiveArrays;
@@ -356,12 +358,11 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	 * 生成增强类并注册目标方法和拦截器
 	 *
 	 * @param classLoader 用于加载生成类的类加载器
-	 * @param data 类加载器数据
 	 * @return 生成的增强类
 	 */
 	@Override
-	protected Class<?> generate(ClassLoader classLoader, ClassLoaderData data) {
-		Class<?> c = super.generate(classLoader, data);
+	protected Class<?> generate(@Nonnull ClassLoader classLoader) {
+		Class<?> c = super.generate(classLoader);
 		registerTargetMethods(c);
 		registerStaticInterceptors(c);
 		return c;

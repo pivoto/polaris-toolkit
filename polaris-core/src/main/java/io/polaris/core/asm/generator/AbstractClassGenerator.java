@@ -9,10 +9,13 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
+import javax.annotation.Nonnull;
+
 import io.polaris.core.asm.internal.AsmReflects;
 import io.polaris.core.asm.internal.ClassNameReader;
 import io.polaris.core.env.Config;
 import io.polaris.core.err.BytecodeOperationException;
+import io.polaris.core.map.Maps;
 import io.polaris.core.tuple.Tuple2;
 import lombok.Getter;
 import org.objectweb.asm.ClassReader;
@@ -335,21 +338,11 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
 	 * <p>生成类名、检查重复、定义类到 ClassLoader，支持异常处理</p>
 	 *
 	 * @param classLoader 类加载器
-	 * @param data        ClassLoaderData 实例，用于管理已保留的类名
 	 * @return 生成的 Class 对象
 	 * @throws BytecodeOperationException 当字节码操作失败时抛出
 	 */
-	protected Class<?> generate(ClassLoader classLoader, ClassLoaderData data) {
+	protected Class<?> generate(@Nonnull ClassLoader classLoader) {
 		try {
-			if (classLoader == null) {
-				throw new IllegalArgumentException("ClassLoader is null ");
-			}
-			synchronized (classLoader) {
-				// 生成唯一的类名并注册到数据中
-				String name = generateClassName(data.getDupChecker());
-				data.reserveName(name);
-				this.setClassName(name);
-			}
 			Class<?> clazz;
 			if (attemptLoad) {
 				try {
@@ -389,49 +382,61 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
 	 * 类加载器数据管理类
 	 * <p>管理每个 ClassLoader 的已保留类名集合和已生成的类缓存</p>
 	 */
-	protected static class ClassLoaderData {
+	private static class ClassLoaderData {
 		/** 已保留的类名集合，防止重复 */
-		private final Set<String> reservedClassNames = new HashSet<>();
+		private final Set<String> reservedClassNames = ConcurrentHashMap.newKeySet();
 		/** 已生成的类缓存，使用弱引用避免内存泄漏 */
-		private final Map<Tuple2<AbstractClassGenerator, Object>, WeakReference<Class<?>>> generatedClasses = new ConcurrentHashMap<>();
-		/** 重复类名检查器 */
-		@Getter
-		private final Predicate<String> dupChecker = reservedClassNames::contains;
-
-		/**
-		 * 构造函数
-		 */
-		public ClassLoaderData() {
-		}
-
-		/**
-		 * 保留类名
-		 * <p>将类名添加到已保留集合中，防止后续重复使用</p>
-		 *
-		 * @param name 要保留的类名
-		 */
-		public void reserveName(String name) {
-			reservedClassNames.add(name);
-		}
+		private final Map<Tuple2<AbstractClassGenerator, Object>, WeakReference<Class<?>>> generatedClasses = Maps.newSoftMap(new ConcurrentHashMap<>());
 
 		/**
 		 * 获取或生成类
 		 * <p>如果启用缓存则从缓存中获取，否则直接生成新类</p>
 		 *
-		 * @param generator   类生成器
+		 * @param generator 类生成器
 		 * @param classLoader 类加载器
-		 * @param useCache    是否使用缓存
+		 * @param useCache 是否使用缓存
 		 * @return 生成的 Class 对象
 		 */
 		public Class<?> get(AbstractClassGenerator generator, ClassLoader classLoader, boolean useCache) {
-			if (!useCache) {
+			if (!useCache || generator.key == null) {
 				// 不使用缓存，直接生成新类
-				return generator.generate(classLoader, ClassLoaderData.this);
+				return generateClass(generator, classLoader);
 			} else {
-				// 使用缓存，计算不存在时生成新类并缓存
-				WeakReference<Class<?>> cachedValue = generatedClasses.computeIfAbsent(generator.key, k -> new WeakReference<>(generator.generate(classLoader, this)));
-				return cachedValue.get();
+				// 使用缓存，不存在时生成新类并缓存
+				WeakReference<Class<?>> ref = generatedClasses.get(generator.key);
+				if (ref != null) {
+					Class<?> clazz = ref.get();
+					if (clazz != null) {
+						return clazz;
+					}
+				}
+				synchronized (generatedClasses) {
+					ref = generatedClasses.get(generator.key);
+					if (ref != null) {
+						Class<?> clazz = ref.get();
+						if (clazz != null) {
+							return clazz;
+						}
+					}
+					Class<?> clazz = generateClass(generator, classLoader);
+					generatedClasses.put(generator.key, new WeakReference<>(clazz));
+					return clazz;
+				}
 			}
+		}
+
+		private Class<?> generateClass(AbstractClassGenerator generator, ClassLoader classLoader) {
+			if (classLoader == null) {
+				throw new IllegalArgumentException("ClassLoader is null ");
+			}
+			//noinspection SynchronizationOnLocalVariableOrMethodParameter
+			synchronized (classLoader) {
+				// 生成唯一的类名并注册到数据中
+				String name = generator.generateClassName(reservedClassNames::contains);
+				reservedClassNames.add(name);
+				generator.setClassName(name);
+			}
+			return generator.generate(classLoader);
 		}
 
 	}
