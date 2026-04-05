@@ -4,14 +4,21 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.ref.SoftReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import javax.annotation.Nullable;
 
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.string.Strings;
@@ -177,6 +184,16 @@ public class BeanPropertyInfo {
 	 * @return 属性信息映射表（LinkedHashMap，保持插入顺序）
 	 */
 	public static Map<String, BeanPropertyInfo> mapOf(Class<?> beanType) {
+		Map<String, BeanPropertyInfo> map = CacheHolder.get(beanType);
+		if (map != null) {
+			return map;
+		}
+		map = $mapOf(beanType);
+		CacheHolder.put(beanType, map);
+		return map;
+	}
+
+	private static Map<String, BeanPropertyInfo> $mapOf(Class<?> beanType) {
 		BeanInfo beanInfo = null;
 		try {
 			beanInfo = Introspector.getBeanInfo(beanType);
@@ -222,6 +239,38 @@ public class BeanPropertyInfo {
 			}
 		}
 		return rs;
+	}
+
+
+	private static class CacheHolder {
+		private static final Map<Class<?>, SoftReference<Map<String, BeanPropertyInfo>>> cache = new WeakHashMap<>();
+		private static final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+		private static final Lock writeLock = lock.writeLock();
+		private static final Lock readLock = lock.readLock();
+
+		@Nullable
+		public static Map<String, BeanPropertyInfo> get(Class<?> beanType) {
+			readLock.lock();
+			try {
+				SoftReference<Map<String, BeanPropertyInfo>> ref = cache.get(beanType);
+				if (ref != null) {
+					return ref.get();
+				}
+				return null;
+			} finally {
+				readLock.unlock();
+			}
+		}
+
+		public static void put(Class<?> beanType, Map<String, BeanPropertyInfo> map) {
+			writeLock.lock();
+			try {
+				cache.put(beanType, new SoftReference<>(map));
+			} finally {
+				writeLock.unlock();
+			}
+		}
+
 	}
 
 	/**
