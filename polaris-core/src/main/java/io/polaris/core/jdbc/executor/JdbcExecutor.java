@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import io.polaris.core.converter.Converters;
+import io.polaris.core.err.InvocationException;
 import io.polaris.core.jdbc.Jdbcs;
 import io.polaris.core.jdbc.base.JdbcOptions;
 import io.polaris.core.jdbc.base.ResultExtractor;
@@ -118,7 +119,7 @@ public class JdbcExecutor<T> implements InvocationHandler, InvocationHandlerHold
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		if (method.getDeclaringClass() == InvocationHandlerHolder.class) {
-			if (method.getName().equals("$handler")) {
+			if (method.getName().equals("$handler") && args.length == 0) {
 				return this.$handler();
 			}
 			return Reflects.invoke(this, method, args);
@@ -139,15 +140,10 @@ public class JdbcExecutor<T> implements InvocationHandler, InvocationHandlerHold
 
 		if (method.isDefault()) {
 			try {
-				MethodHandle methodHandle;
-				if (privateLookupInMethod == null) {
-					methodHandle = getMethodHandleJava8(method);
-				} else {
-					methodHandle = getMethodHandleJava9(method);
-				}
+				MethodHandle methodHandle = getCachedMethodHandle(method);
 				return methodHandle.bindTo(proxy).invokeWithArguments(args);
 			} catch (ReflectiveOperationException e) {
-				throw new RuntimeException(e);
+				throw new InvocationException(e);
 			}
 		}
 
