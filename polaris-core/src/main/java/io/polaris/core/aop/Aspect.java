@@ -34,6 +34,10 @@ public class Aspect implements Interceptor {
 		}
 	}
 
+	public Object target() {
+		return target;
+	}
+
 	public void addAdvice(Advice... advices) {
 		this.matchedAdvices.add(new MatchedAdvice(null, advices));
 		clearCache();
@@ -66,7 +70,7 @@ public class Aspect implements Interceptor {
 
 
 	@Override
-	public Object intercept(Object obj, Method method, Object[] args, Invocation invocation) throws Throwable {
+	public Object intercept(Object proxy, Method method, Object[] args, Invocation invocation) throws Throwable {
 		Advisor advisor = getAdvisor(method);
 		return advisor.advise(target, args, invocation);
 	}
