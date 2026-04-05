@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import io.polaris.core.aop.sample.ProxyTargetBean;
 import io.polaris.core.asm.BaseAsmTest;
 import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,7 @@ import org.junit.jupiter.api.Test;
 public class ProxiesTest extends BaseAsmTest {
 
 	@Test
-	void test01() {
+	void testProxy() {
 		BeforeAdvice beforeAdvice = (target, method, args) -> Consoles.log("before: ", target, method, args);
 		AfterAdvice afterAdvice = (target, method, args, retVal) -> Consoles.log("after: ", target, method, args);
 		FixedAdvice fixedAdvice = (target, method, args) -> {
@@ -38,9 +39,9 @@ public class ProxiesTest extends BaseAsmTest {
 				|| method.getName().equals("get");
 		};
 
-		ProxyTarget01 target = new ProxyTarget01();
+		ProxyTargetBean target = new ProxyTargetBean();
 		{
-			ProxyTarget01 proxy = Proxies.proxyFactory(target)
+			ProxyTargetBean proxy = Proxies.proxyFactory(target)
 				.interfaces(new Class[]{Supplier.class})
 				.addAdvice(predicate,
 					beforeAdvice, afterAdvice, fixedAdvice, aroundAdvice1, aroundAdvice2, throwingAdvice, finallyAdvice)

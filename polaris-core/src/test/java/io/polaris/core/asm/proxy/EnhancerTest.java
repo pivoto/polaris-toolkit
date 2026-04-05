@@ -7,6 +7,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import io.polaris.core.asm.BaseAsmTest;
+import io.polaris.core.asm.proxy.sample.Source01;
 import io.polaris.core.collection.ObjectArrays;
 import io.polaris.core.io.Consoles;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,7 @@ import org.junit.jupiter.api.Test;
 class EnhancerTest extends BaseAsmTest {
 
 	@Test
-	void test01() throws Exception {
+	void testEnhancer() throws Exception {
 		Enhancer enhancer = new Enhancer();
 		enhancer.withFinal(false);
 		enhancer.superclass(Source01.class);
@@ -30,14 +31,14 @@ class EnhancerTest extends BaseAsmTest {
 		});
 		Class<?> c = enhancer.createClass();
 		{
-			Field f = c.getDeclaredField("GENERATED$TARGET_METHODS");
+			Field f = c.getDeclaredField(AbstractEnhancer.GENERATED$TARGET_METHODS);
 			f.setAccessible(true);
 			Method[] m = (Method[]) f.get(null);
 			String msg = ObjectArrays.toString(f.get(null));
 			Consoles.log(msg);
 		}
 		{
-			Field f = c.getDeclaredField("GENERATED$STATIC_INTERCEPTOR");
+			Field f = c.getDeclaredField(AbstractEnhancer.GENERATED$STATIC_INTERCEPTOR);
 			f.setAccessible(true);
 			String msg = ObjectArrays.toString(f.get(null));
 			Consoles.log(msg);
@@ -65,7 +66,7 @@ class EnhancerTest extends BaseAsmTest {
 
 
 	@Test
-	void test02() throws Exception {
+	void testBulkEnhancer() throws Exception {
 		BulkEnhancer enhancer = new BulkEnhancer();
 		enhancer.superclass(Source01.class);
 		enhancer.interfaces(new Class[]{Consumer.class, Supplier.class});
@@ -81,13 +82,13 @@ class EnhancerTest extends BaseAsmTest {
 		});
 		Class<?> c = enhancer.createClass();
 		{
-			Field f = c.getDeclaredField("GENERATED$TARGET_METHODS");
+			Field f = c.getDeclaredField(AbstractEnhancer.GENERATED$TARGET_METHODS);
 			f.setAccessible(true);
 			String msg = ObjectArrays.toString(f.get(null));
 			Consoles.log(msg);
 		}
 		{
-			Field f = c.getDeclaredField("GENERATED$STATIC_INTERCEPTOR");
+			Field f = c.getDeclaredField(AbstractEnhancer.GENERATED$STATIC_INTERCEPTOR);
 			f.setAccessible(true);
 			String msg = ObjectArrays.toString(f.get(null));
 			Consoles.log(msg);

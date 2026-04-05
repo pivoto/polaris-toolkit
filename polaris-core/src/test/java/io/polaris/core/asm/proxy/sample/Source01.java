@@ -1,4 +1,4 @@
-package io.polaris.core.asm.proxy;
+package io.polaris.core.asm.proxy.sample;
 
 import java.util.function.Function;
 
