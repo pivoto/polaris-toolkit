@@ -9,6 +9,11 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
+import io.polaris.core.collection.sync.SynchronizedCollection;
+import io.polaris.core.collection.sync.SynchronizedList;
+import io.polaris.core.collection.sync.SynchronizedMap;
+import io.polaris.core.collection.sync.SynchronizedSet;
+
 /**
  * @author Qt
  */
@@ -524,6 +529,23 @@ public class Iterables {
 			return list.isEmpty() ? null : list.get(0);
 		}
 		return Iterators.getNext(iterable.iterator());
+	}
+
+
+	public static <E> Set<E> synchronizedSet(Set<E> set) {
+		return new SynchronizedSet<>(set);
+	}
+
+	public static <E> List<E> synchronizedList(List<E> list) {
+		return new SynchronizedList<>(list);
+	}
+
+	public static <E> Collection<E> synchronizedCollection(Collection<E> c) {
+		return new SynchronizedCollection<>(c);
+	}
+
+	public static <K, V> Map<K, V> synchronizedMap(Map<K, V> map) {
+		return new SynchronizedMap<>(map);
 	}
 
 }
