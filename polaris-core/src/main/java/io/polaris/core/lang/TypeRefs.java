@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import javax.lang.model.element.Modifier;
 
+import io.polaris.core.asm.internal.AsmConsts;
 import io.polaris.core.asm.internal.AsmTypes;
 import io.polaris.core.compiler.MemoryClassLoader;
 import io.polaris.core.compiler.MemoryCompiler;
@@ -243,7 +244,10 @@ public class TypeRefs {
 
 	static Type createType(TypeName typeName) {
 		String packageName = TypeRef.class.getPackage().getName();
-		String simpleName = TypeRef.class.getSimpleName() + "$$" + seq.incrementAndGet();
+		String simpleName = TypeRef.class.getSimpleName() + AsmConsts.CLASS_TAG_SEPARATOR
+			+ AsmConsts.CLASS_TAG_DEFAULT
+			+ AsmConsts.CLASS_NAME_SEPARATOR
+			+ seq.incrementAndGet();
 		TypeRef<?> ref = null;
 		try {
 			ref = createTypeRefByAsm(typeName, packageName, simpleName);

@@ -88,10 +88,12 @@ public interface AsmConsts extends org.objectweb.asm.Opcodes {
 	String SOURCE_FILE = "<generated>";
 	/** serialVersionUID 字段名称，用于 Java 序列化 */
 	String SUID_FIELD_NAME = "serialVersionUID";
-	/** 类标签分隔符，用于生成类名 */
+	/** 基础类名与类标签分隔符，用于生成类名 */
 	String CLASS_TAG_SEPARATOR = "$$";
 	/** 默认类标签，用于标识生成的类 */
 	String CLASS_TAG_DEFAULT = "Generated";
+	/** 生成类的命名分隔符，用于生成类名 */
+	String CLASS_NAME_SEPARATOR = "$";
 	/** 增强类的标记字段名称 */
 	String CLASS_ENHANCED_FIELD = "GENERATED$ENHANCED";
 
