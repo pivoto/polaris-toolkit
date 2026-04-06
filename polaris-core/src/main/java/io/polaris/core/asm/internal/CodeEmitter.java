@@ -9,6 +9,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 
 /**
  * 代码发射器，继承自 LocalVariablesSorter
@@ -117,16 +118,16 @@ public class CodeEmitter extends LocalVariablesSorter {
 	}
 
 	CodeEmitter(ClassEmitter ce, MethodVisitor mv, int access, Signature sig, Type[] exceptionTypes) {
-		super(access, sig.getDescriptor(), mv);
+		super(AsmConsts.ASM_API, access, sig.getDescriptor(), mv);
 		this.ce = ce;
 		state = new State(ce.getClassInfo(), access, sig, exceptionTypes);
 	}
 
-	public CodeEmitter(CodeEmitter wrap) {
-		super(wrap);
-		this.ce = wrap.ce;
-		this.state = wrap.state;
-	}
+//	public CodeEmitter(CodeEmitter wrap) {
+//		super(wrap);
+//		this.ce = wrap.ce;
+//		this.state = wrap.state;
+//	}
 
 	public boolean isStaticHook() {
 		return false;
@@ -444,7 +445,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 		mv.visitLdcInsn(value);
 	}
 
-	public void push(Type value){
+	public void push(Type value) {
 		mv.visitLdcInsn(value);
 	}
 
@@ -633,6 +634,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 	public void invoke_interface(Type owner, Signature sig) {
 		emit_invoke(AsmConsts.INVOKEINTERFACE, owner, sig, true);
 	}
+
 	public void super_invoke_interface(Type owner, Signature sig) {
 		emit_invoke(AsmConsts.INVOKESPECIAL, owner, sig, true);
 	}
@@ -678,6 +680,16 @@ public class CodeEmitter extends LocalVariablesSorter {
 		emit_type(AsmConsts.NEW, type);
 	}
 
+	public void new_instance_constructor_this() {
+		new_instance_constructor(ce.getClassType(), state.sig);
+	}
+
+	public void new_instance_constructor(Type type, Signature sig) {
+		emit_type(AsmConsts.NEW, type);
+		dup();
+		invoke_constructor(type, sig);
+	}
+
 	private void emit_type(int opcode, Type type) {
 		String desc;
 		if (AsmTypes.isArray(type)) {
@@ -714,7 +726,9 @@ public class CodeEmitter extends LocalVariablesSorter {
 	}
 
 	public Local make_local(Type type) {
-		return new Local(newLocal(type.getSize()), type);
+		int index = newLocal(type);
+		return new Local(index, type);
+//		return new Local(newLocal(type.getSize()), type);
 	}
 
 	public void checkcast_this() {
