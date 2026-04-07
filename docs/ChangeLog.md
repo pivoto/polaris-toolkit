@@ -8,6 +8,8 @@
 - 优化JDBC执行器JdbcExecutor
 - 优化方法句柄工具类Methods
 - 添加JDK代理工具类JdkProxies支持接口实例化
+- 新增同步集合实现
+- 优化ASM相关代码
 
 ### 3.8.1
 - 优化MyBatis增强工具模块，优化增强逻辑与执行性能
