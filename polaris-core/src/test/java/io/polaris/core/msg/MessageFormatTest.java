@@ -25,11 +25,12 @@ class MessageFormatTest {
 				.put("e", 1)
 				.put("abc", 123)
 				.put("type1", "number")
-//				.put("", 9999)
+				//.put("", 9999)
 				.get(),
 		};
 
 		String[] patterns = new String[]{
+			"{}",
 			"{a{x:-b}c}",
 			"{a{x:-b}c,number,00.00}",
 			"{{3}{x0:-{x1:-b}{x2:-c}},{type1},00.00}",
