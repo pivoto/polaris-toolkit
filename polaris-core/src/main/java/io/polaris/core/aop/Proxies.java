@@ -74,4 +74,9 @@ public class Proxies {
 	public static boolean isAsmDynamicProxy(Object object) {
 		return (object instanceof AopProxy && object.getClass().getName().contains(AsmConsts.CLASS_TAG_SEPARATOR));
 	}
+
+	public static Class<?> getTargetClass(Object candidate) {
+		return (isAsmDynamicProxy(candidate) ? candidate.getClass().getSuperclass() : candidate.getClass());
+	}
+
 }
