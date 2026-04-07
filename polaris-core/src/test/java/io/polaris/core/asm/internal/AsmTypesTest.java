@@ -18,6 +18,8 @@ class AsmTypesTest {
 		Consoles.log(msg1);
 		String msg = AsmTypes.toTypeSignature(JavaType.of("java.util.Map<String,String>"));
 		Consoles.log(msg);
+		Consoles.log(AsmTypes.parseConstructor("Throwable"));
+		Consoles.log(AsmTypes.parseSignature("char charAt(int)"));
 	}
 
 	@Test
