@@ -577,14 +577,20 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 		Map<String, Method> allMethods = AsmReflects.getAllAccessibleMethods(parent);
 		// 添加缺失的接口方法
 		Map<String, Method> undeclaredMethods = new HashMap<>();
-		if (interfaces != null && interfaces.length > 0) {
+		if (interfaces != null) {
 			// 遍历所有接口，收集未实现的方法
 			for (Class<?> anInterface : interfaces) {
 				for (Method method : anInterface.getMethods()) {
-					Method old = allMethods.putIfAbsent(method.getName() + Type.getMethodDescriptor(method), method);
+					String key = method.getName() + Type.getMethodDescriptor(method);
+					Method old = allMethods.putIfAbsent(key, method);
 					if (old == null) {
 						// 此接口方法未实现
-						undeclaredMethods.put(method.getName() + Type.getMethodDescriptor(method), method);
+						undeclaredMethods.putIfAbsent(key, method);
+					}else{
+						if (!AsmTypes.isPublic(old.getModifiers())){
+							// 扩大原方法的可见性，从而实现此接口方法
+							allMethods.put(key, method);
+						}
 					}
 				}
 			}
@@ -611,7 +617,9 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 
 		// 保存目标方法数组
 		this.targetMethods = allMethods.values().toArray(new Method[0]);
+		//noinspection unchecked
 		this.overrideFuncs = new Function[this.targetMethods.length];
+		//noinspection unchecked
 		this.defaultFuncs = new Function[this.targetMethods.length];
 
 		boolean hasOverride = false;
