@@ -3,6 +3,7 @@ package io.polaris.core.aop;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import io.polaris.core.asm.proxy.Invocation;
@@ -27,13 +28,17 @@ public class DefaultAdvisor implements Advisor {
 
 	public DefaultAdvisor(Method method, Iterable<Advice> advices) {
 		this.method = method;
+		LinkedHashSet<Advice> uniqueAdvices = new LinkedHashSet<>();
+		for (Advice advice : advices) {
+			uniqueAdvices.add(advice);
+		}
 		List<BeforeAdvice> beforeAdvices = new ArrayList<>();
 		List<FixedAdvice> fixedAdvices = new ArrayList<>();
 		List<AroundAdvice> aroundAdvices = new ArrayList<>();
 		List<AfterAdvice> afterAdvices = new ArrayList<>();
 		List<ThrowingAdvice> throwingAdvices = new ArrayList<>();
 		List<FinallyAdvice> finallyAdvices = new ArrayList<>();
-		for (Advice advice : advices) {
+		for (Advice advice : uniqueAdvices) {
 			if (advice instanceof BeforeAdvice) {
 				beforeAdvices.add((BeforeAdvice) advice);
 			} else if (advice instanceof FixedAdvice) {
@@ -114,6 +119,9 @@ public class DefaultAdvisor implements Advisor {
 	}
 
 	void after(Object target, Method method, Object[] args, Object retVal) throws Throwable {
+		if (afterAdvices == null || afterAdvices.length == 0) {
+			return;
+		}
 		for (int i = 0; i < afterAdvices.length; i++) {
 			AfterAdvice afterAdvice = afterAdvices[i];
 			afterAdvice.after(target, method, args, retVal);
@@ -121,6 +129,9 @@ public class DefaultAdvisor implements Advisor {
 	}
 
 	void throwing(Object target, Method method, Object[] args, Throwable e) throws Throwable {
+		if (throwingAdvices == null || throwingAdvices.length == 0) {
+			return;
+		}
 		for (int i = 0; i < throwingAdvices.length; i++) {
 			ThrowingAdvice throwingAdvice = throwingAdvices[i];
 			throwingAdvice.throwing(target, method, args, e);
@@ -128,6 +139,9 @@ public class DefaultAdvisor implements Advisor {
 	}
 
 	void after(Object target, Method method, Object[] args, Object retVal, Throwable e) throws Throwable {
+		if (finallyAdvices == null || finallyAdvices.length == 0) {
+			return;
+		}
 		for (int i = 0; i < finallyAdvices.length; i++) {
 			FinallyAdvice finallyAdvice = finallyAdvices[i];
 			finallyAdvice.after(target, method, args, retVal, e);

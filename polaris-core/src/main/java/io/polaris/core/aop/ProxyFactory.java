@@ -2,8 +2,11 @@ package io.polaris.core.aop;
 
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import io.polaris.core.asm.internal.Signature;
 
 /**
  * @author Qt
@@ -19,19 +22,21 @@ public interface ProxyFactory {
 
 	ProxyFactory addAdvice(Advice... advices);
 
-	ProxyFactory addAdvice(Predicate<Method> predicate, Advice... advices);
+	ProxyFactory addAdvice(Predicate<Signature> predicate, Advice... advices);
 
-	ProxyFactory override(Function<Method, Function<Object[], Object>> overrideGenerator);
+	ProxyFactory addAdvice(BiPredicate<Signature, Method> predicate, Advice... advices);
 
-	ProxyFactory override(Method method, Function<Object[], Object> overrideFunction);
+	ProxyFactory override(Function<Signature, Function<Object[], Object>> overrideGenerator);
 
-	ProxyFactory override(Map<Method, Function<Object[], Object>> overrideMapper);
+	ProxyFactory override(Signature method, Function<Object[], Object> overrideFunction);
 
-	ProxyFactory defaults(Function<Method, Function<Object[], Object>> defaultGenerator);
+	ProxyFactory override(Map<Signature, Function<Object[], Object>> overrideMapper);
 
-	ProxyFactory defaults(Method method, Function<Object[], Object> defaultFunction);
+	ProxyFactory defaults(Function<Signature, Function<Object[], Object>> defaultGenerator);
 
-	ProxyFactory defaults(Map<Method, Function<Object[], Object>> defaultMapper);
+	ProxyFactory defaults(Signature method, Function<Object[], Object> defaultFunction);
+
+	ProxyFactory defaults(Map<Signature, Function<Object[], Object>> defaultMapper);
 
 	<T> T get();
 

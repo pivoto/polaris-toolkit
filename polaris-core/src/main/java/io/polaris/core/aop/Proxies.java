@@ -1,12 +1,12 @@
 package io.polaris.core.aop;
 
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Map;
 import java.util.function.Function;
 
 import io.polaris.core.asm.internal.AsmConsts;
+import io.polaris.core.asm.internal.Signature;
 import io.polaris.core.asm.proxy.Enhancer;
 import io.polaris.core.asm.proxy.Interceptor;
 
@@ -32,16 +32,16 @@ public class Proxies {
 		return proxy(classloader, superclass, interfaces, interceptor, null, null);
 	}
 
-	public static <T> T proxy(ClassLoader classloader, Class<?> superclass, Class<?>[] interfaces, Interceptor interceptor, Function<Method, Function<Object[], Object>> override) {
+	public static <T> T proxy(ClassLoader classloader, Class<?> superclass, Class<?>[] interfaces, Interceptor interceptor, Function<Signature, Function<Object[], Object>> override) {
 		return proxy(classloader, superclass, interfaces, interceptor, override, null);
 	}
 
-	public static <T> T proxy(ClassLoader classloader, Class<?> superclass, Class<?>[] interfaces, Interceptor interceptor, Map<Method, Function<Object[], Object>> override) {
+	public static <T> T proxy(ClassLoader classloader, Class<?> superclass, Class<?>[] interfaces, Interceptor interceptor, Map<Signature, Function<Object[], Object>> override) {
 		return proxy(classloader, superclass, interfaces, interceptor, null, override);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T proxy(ClassLoader classloader, Class<?> superclass, Class<?>[] interfaces, Interceptor interceptor, Function<Method, Function<Object[], Object>> overrideGenerator, Map<Method, Function<Object[], Object>> overrideMapper) {
+	public static <T> T proxy(ClassLoader classloader, Class<?> superclass, Class<?>[] interfaces, Interceptor interceptor, Function<Signature, Function<Object[], Object>> overrideGenerator, Map<Signature, Function<Object[], Object>> overrideMapper) {
 		if (classloader == null) {
 			classloader = Thread.currentThread().getContextClassLoader();
 		}

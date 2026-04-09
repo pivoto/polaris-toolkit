@@ -221,15 +221,15 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	/** 重写方法的数组 */
 	protected Function<Object[], Object>[] overrideFuncs;
 	/** 重写方法生成器 */
-	protected Function<Method, Function<Object[], Object>> overrideGenerator;
+	protected Function<Signature, Function<Object[], Object>> overrideGenerator;
 	/** 重写方法映射表 */
-	protected Map<Method, Function<Object[], Object>> overrideMapper;
+	protected Map<Signature, Function<Object[], Object>> overrideMapper;
 	/** 默认方法的数组 */
 	protected Function<Object[], Object>[] defaultFuncs;
 	/** 默认方法生成器 */
-	protected Function<Method, Function<Object[], Object>> defaultGenerator;
+	protected Function<Signature, Function<Object[], Object>> defaultGenerator;
 	/** 默认方法映射表 */
-	protected Map<Method, Function<Object[], Object>> defaultMapper;
+	protected Map<Signature, Function<Object[], Object>> defaultMapper;
 
 	public AbstractEnhancer() {
 		super();
@@ -290,13 +290,13 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 		return this;
 	}
 
-	public AbstractEnhancer override(Function<Method, Function<Object[], Object>> overrideGenerator) {
+	public AbstractEnhancer override(Function<Signature, Function<Object[], Object>> overrideGenerator) {
 		checkState();
 		this.overrideGenerator = overrideGenerator;
 		return this;
 	}
 
-	public AbstractEnhancer override(Method method, Function<Object[], Object> overrideFunction) {
+	public AbstractEnhancer override(Signature method, Function<Object[], Object> overrideFunction) {
 		checkState();
 		if (method == null || overrideFunction == null) {
 			return this;
@@ -308,7 +308,7 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 		return this;
 	}
 
-	public AbstractEnhancer override(Map<Method, Function<Object[], Object>> overrideMapper) {
+	public AbstractEnhancer override(Map<Signature, Function<Object[], Object>> overrideMapper) {
 		if (overrideMapper == null || overrideMapper.isEmpty()) {
 			this.overrideMapper = null;
 			return this;
@@ -317,13 +317,13 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 		return this;
 	}
 
-	public AbstractEnhancer defaults(Function<Method, Function<Object[], Object>> defaultGenerator) {
+	public AbstractEnhancer defaults(Function<Signature, Function<Object[], Object>> defaultGenerator) {
 		checkState();
 		this.defaultGenerator = defaultGenerator;
 		return this;
 	}
 
-	public AbstractEnhancer defaults(Method method, Function<Object[], Object> defaultFunction) {
+	public AbstractEnhancer defaults(Signature method, Function<Object[], Object> defaultFunction) {
 		checkState();
 		if (method == null || defaultFunction == null) {
 			return this;
@@ -335,7 +335,7 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 		return this;
 	}
 
-	public AbstractEnhancer defaults(Map<Method, Function<Object[], Object>> defaultMapper) {
+	public AbstractEnhancer defaults(Map<Signature, Function<Object[], Object>> defaultMapper) {
 		if (defaultMapper == null || defaultMapper.isEmpty()) {
 			this.defaultMapper = null;
 			return this;
@@ -638,14 +638,17 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 			if (withFinal) {
 				modifiers |= AsmConsts.ACC_FINAL;
 			}
-			methods.add(AsmReflects.getMethodDescriptor(method, modifiers));
+			MethodDescriptor methodDescriptor = AsmReflects.getMethodDescriptor(method, modifiers);
+			methods.add(methodDescriptor);
+			Signature signature = methodDescriptor.getSignature();
+
 			{
 				Function<Object[], Object> overrideFunction = null;
 				if (this.overrideMapper != null) {
-					overrideFunction = this.overrideMapper.get(method);
+					overrideFunction = this.overrideMapper.get(signature);
 				}
 				if (overrideFunction == null && this.overrideGenerator != null) {
-					overrideFunction = this.overrideGenerator.apply(method);
+					overrideFunction = this.overrideGenerator.apply(signature);
 				}
 				if (overrideFunction != null) {
 					hasOverride = true;
@@ -655,10 +658,10 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 			{
 				Function<Object[], Object> defaultFunction = null;
 				if (this.defaultMapper != null) {
-					defaultFunction = this.defaultMapper.get(method);
+					defaultFunction = this.defaultMapper.get(signature);
 				}
 				if (defaultFunction == null && this.defaultGenerator != null) {
-					defaultFunction = this.defaultGenerator.apply(method);
+					defaultFunction = this.defaultGenerator.apply(signature);
 				}
 				if (defaultFunction != null) {
 					hasDefault = true;

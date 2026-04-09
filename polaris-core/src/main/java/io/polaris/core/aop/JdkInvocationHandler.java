@@ -4,13 +4,15 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.polaris.core.asm.internal.Signature;
 import io.polaris.core.asm.proxy.Invocation;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
-import org.objectweb.asm.Type;
+import io.polaris.core.tuple.Tuple2;
 
 /**
  * @author Qt
@@ -23,16 +25,14 @@ public class JdkInvocationHandler implements InvocationHandler {
 	private final Aspect aspect;
 	private Class<?>[] interfaces;
 	private final Map<Method, MethodHandle> targetMethods;
-	private final Map<String, MethodHandle> matchedMethods;
+	private final Map<Signature, List<Tuple2<Method, MethodHandle>>> matchedMethods;
 	private final Map<Method, MethodHandle> undeclaredMethods = new ConcurrentHashMap<>();
 
 
 	public JdkInvocationHandler(Object target, Aspect aspect, Class<?>[] interfaces) {
 		this.target = target;
 		this.aspect = aspect;
-		interfaces = appendInterfaces(interfaces);
-		this.interfaces = interfaces;
-
+		this.interfaces = appendInterfaces(interfaces);
 		this.targetMethods = aspect.getTargetMethods();
 		this.matchedMethods = aspect.getMatchedMethods();
 	}
@@ -52,15 +52,18 @@ public class JdkInvocationHandler implements InvocationHandler {
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		Invocation invocation = null;
+		Signature signature = Signature.of(method);
 		MethodHandle methodHandle = targetMethods.get(method);
 		if (methodHandle != null) {
 			// 存在实现方法
 			invocation = new DelegateInvocation(proxy, method, (mArgs) ->
 				methodHandle.bindTo(target).invokeWithArguments(mArgs));
 		} else {
-			MethodHandle matched = matchedMethods.get(method.getName() + Type.getMethodDescriptor(method));
-			if (matched != null) {
+			List<Tuple2<Method, MethodHandle>> list = matchedMethods.get(signature);
+			if (list != null && !list.isEmpty()) {
 				// 存在可借用的方法
+				Tuple2<Method, MethodHandle> tuple = list.get(0);
+				MethodHandle matched = tuple.getSecond();
 				invocation = new DelegateInvocation(proxy, method, (mArgs) ->
 					matched.bindTo(target).invokeWithArguments(mArgs));
 			} else if (method.isDefault()) {
@@ -85,6 +88,7 @@ public class JdkInvocationHandler implements InvocationHandler {
 				}
 			}
 		}
+		// 找不到直接匹配的处理器，则使用默认处理器，如果是继承关系，则使用JdkInvocation，否则使用空实现
 		if (invocation == null) {
 			if (method.getDeclaringClass().isAssignableFrom(target.getClass())) {
 				invocation = new JdkInvocation(proxy, method);

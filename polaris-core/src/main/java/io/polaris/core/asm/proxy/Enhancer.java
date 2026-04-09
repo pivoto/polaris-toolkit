@@ -91,37 +91,37 @@ public class Enhancer extends AbstractEnhancer {
 	}
 
 	@Override
-	public Enhancer override(Function<Method, Function<Object[], Object>> overrideGenerator) {
+	public Enhancer override(Function<Signature, Function<Object[], Object>> overrideGenerator) {
 		super.override(overrideGenerator);
 		return this;
 	}
 
 	@Override
-	public Enhancer override(Method method, Function<Object[], Object> overrideFunction) {
+	public Enhancer override(Signature method, Function<Object[], Object> overrideFunction) {
 		super.override(method, overrideFunction);
 		return this;
 	}
 
 	@Override
-	public Enhancer override(Map<Method, Function<Object[], Object>> overrideMapper) {
+	public Enhancer override(Map<Signature, Function<Object[], Object>> overrideMapper) {
 		super.override(overrideMapper);
 		return this;
 	}
 
 	@Override
-	public Enhancer defaults(Function<Method, Function<Object[], Object>> defaultGenerator) {
+	public Enhancer defaults(Function<Signature, Function<Object[], Object>> defaultGenerator) {
 		super.defaults(defaultGenerator);
 		return this;
 	}
 
 	@Override
-	public Enhancer defaults(Method method, Function<Object[], Object> defaultFunction) {
+	public Enhancer defaults(Signature method, Function<Object[], Object> defaultFunction) {
 		super.defaults(method, defaultFunction);
 		return this;
 	}
 
 	@Override
-	public Enhancer defaults(Map<Method, Function<Object[], Object>> defaultMapper) {
+	public Enhancer defaults(Map<Signature, Function<Object[], Object>> defaultMapper) {
 		super.defaults(defaultMapper);
 		return this;
 	}

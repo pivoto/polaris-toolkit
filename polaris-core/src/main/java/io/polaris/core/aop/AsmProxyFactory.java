@@ -4,9 +4,11 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import io.polaris.core.asm.internal.Signature;
 import io.polaris.core.asm.proxy.Enhancer;
 import io.polaris.core.assertion.Assertions;
 
@@ -22,13 +24,13 @@ public class AsmProxyFactory implements ProxyFactory {
 	private Class<?>[] interfaces;
 	private ClassLoader classloader;
 	/** 重写方法生成器 */
-	private Function<Method, Function<Object[], Object>> overrideGenerator;
+	private Function<Signature, Function<Object[], Object>> overrideGenerator;
 	/** 重写方法映射表 */
-	private Map<Method, Function<Object[], Object>> overrideMapper;
+	private Map<Signature, Function<Object[], Object>> overrideMapper;
 	/** 默认方法生成器 */
-	protected Function<Method, Function<Object[], Object>> defaultGenerator;
+	protected Function<Signature, Function<Object[], Object>> defaultGenerator;
 	/** 默认方法映射表 */
-	protected Map<Method, Function<Object[], Object>> defaultMapper;
+	protected Map<Signature, Function<Object[], Object>> defaultMapper;
 	/** 是否已生成代理类，如已生成过，则重写方法不支持在字节码层面注入，只能在切面中动态处理 */
 	private volatile boolean generated = false;
 
@@ -75,13 +77,19 @@ public class AsmProxyFactory implements ProxyFactory {
 	}
 
 	@Override
-	public AsmProxyFactory addAdvice(Predicate<Method> predicate, Advice... advices) {
+	public AsmProxyFactory addAdvice(Predicate<Signature> predicate, Advice... advices) {
 		aspect.addAdvice(predicate, advices);
 		return this;
 	}
 
 	@Override
-	public AsmProxyFactory override(Function<Method, Function<Object[], Object>> overrideGenerator) {
+	public AsmProxyFactory addAdvice(BiPredicate<Signature, Method> predicate, Advice... advices) {
+		aspect.addAdvice(predicate, advices);
+		return this;
+	}
+
+	@Override
+	public AsmProxyFactory override(Function<Signature, Function<Object[], Object>> overrideGenerator) {
 		if (generated) {
 			aspect.override(overrideGenerator);
 		} else {
@@ -91,7 +99,7 @@ public class AsmProxyFactory implements ProxyFactory {
 	}
 
 	@Override
-	public AsmProxyFactory override(Method method, Function<Object[], Object> overrideFunction) {
+	public AsmProxyFactory override(Signature method, Function<Object[], Object> overrideFunction) {
 		if (generated) {
 			aspect.override(method, overrideFunction);
 		} else {
@@ -104,7 +112,7 @@ public class AsmProxyFactory implements ProxyFactory {
 	}
 
 	@Override
-	public AsmProxyFactory override(Map<Method, Function<Object[], Object>> overrideMapper) {
+	public AsmProxyFactory override(Map<Signature, Function<Object[], Object>> overrideMapper) {
 		if (generated) {
 			aspect.override(overrideMapper);
 		} else {
@@ -117,7 +125,7 @@ public class AsmProxyFactory implements ProxyFactory {
 	}
 
 	@Override
-	public AsmProxyFactory defaults(Function<Method, Function<Object[], Object>> defaultGenerator) {
+	public AsmProxyFactory defaults(Function<Signature, Function<Object[], Object>> defaultGenerator) {
 		if (generated) {
 			aspect.defaults(defaultGenerator);
 		} else {
@@ -127,7 +135,7 @@ public class AsmProxyFactory implements ProxyFactory {
 	}
 
 	@Override
-	public AsmProxyFactory defaults(Method method, Function<Object[], Object> defaultFunction) {
+	public AsmProxyFactory defaults(Signature method, Function<Object[], Object> defaultFunction) {
 		if (generated) {
 			aspect.defaults(method, defaultFunction);
 		} else {
@@ -140,7 +148,7 @@ public class AsmProxyFactory implements ProxyFactory {
 	}
 
 	@Override
-	public AsmProxyFactory defaults(Map<Method, Function<Object[], Object>> defaultMapper) {
+	public AsmProxyFactory defaults(Map<Signature, Function<Object[], Object>> defaultMapper) {
 		if (generated) {
 			aspect.defaults(defaultMapper);
 		} else {

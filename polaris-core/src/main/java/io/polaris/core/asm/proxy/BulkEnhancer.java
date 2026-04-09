@@ -9,9 +9,16 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import io.polaris.core.asm.internal.*;
+import io.polaris.core.asm.internal.AsmConsts;
+import io.polaris.core.asm.internal.AsmTypes;
+import io.polaris.core.asm.internal.Block;
+import io.polaris.core.asm.internal.ClassEmitter;
+import io.polaris.core.asm.internal.CodeEmitter;
+import io.polaris.core.asm.internal.Emitters;
+import io.polaris.core.asm.internal.Local;
+import io.polaris.core.asm.internal.MethodDescriptor;
+import io.polaris.core.asm.internal.Signature;
 import io.polaris.core.err.BytecodeOperationException;
-import io.polaris.core.tuple.Tuple2;
 import lombok.RequiredArgsConstructor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
@@ -114,37 +121,37 @@ public class BulkEnhancer extends AbstractEnhancer {
 
 
 	@Override
-	public BulkEnhancer override(Function<Method, Function<Object[], Object>> overrideGenerator) {
+	public BulkEnhancer override(Function<Signature, Function<Object[], Object>> overrideGenerator) {
 		super.override(overrideGenerator);
 		return this;
 	}
 
 	@Override
-	public BulkEnhancer override(Method method, Function<Object[], Object> overrideFunction) {
+	public BulkEnhancer override(Signature method, Function<Object[], Object> overrideFunction) {
 		super.override(method, overrideFunction);
 		return this;
 	}
 
 	@Override
-	public BulkEnhancer override(Map<Method, Function<Object[], Object>> overrideMapper) {
+	public BulkEnhancer override(Map<Signature, Function<Object[], Object>> overrideMapper) {
 		super.override(overrideMapper);
 		return this;
 	}
 
 	@Override
-	public BulkEnhancer defaults(Function<Method, Function<Object[], Object>> defaultGenerator) {
+	public BulkEnhancer defaults(Function<Signature, Function<Object[], Object>> defaultGenerator) {
 		super.defaults(defaultGenerator);
 		return this;
 	}
 
 	@Override
-	public BulkEnhancer defaults(Method method, Function<Object[], Object> defaultFunction) {
+	public BulkEnhancer defaults(Signature method, Function<Object[], Object> defaultFunction) {
 		super.defaults(method, defaultFunction);
 		return this;
 	}
 
 	@Override
-	public BulkEnhancer defaults(Map<Method, Function<Object[], Object>> defaultMapper) {
+	public BulkEnhancer defaults(Map<Signature, Function<Object[], Object>> defaultMapper) {
 		super.defaults(defaultMapper);
 		return this;
 	}

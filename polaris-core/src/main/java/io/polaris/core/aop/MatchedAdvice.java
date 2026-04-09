@@ -1,8 +1,9 @@
 package io.polaris.core.aop;
 
 import java.lang.reflect.Method;
-import java.util.function.Predicate;
+import java.util.function.BiPredicate;
 
+import io.polaris.core.asm.internal.Signature;
 import lombok.Getter;
 
 /**
@@ -12,15 +13,15 @@ import lombok.Getter;
 @Getter
 class MatchedAdvice {
 
-	private final Predicate<Method> predicate;
+	private final BiPredicate<Signature,Method> predicate;
 	private final Advice[] advices;
 
-	public MatchedAdvice(Predicate<Method> predicate, Advice... advices) {
+	MatchedAdvice(BiPredicate<Signature,Method> predicate, Advice... advices) {
 		this.predicate = predicate;
 		this.advices = advices;
 	}
 
-	public boolean accept(Method method) {
-		return predicate == null || predicate.test(method);
+	public boolean accept(Signature signature, Method method) {
+		return (predicate == null || predicate.test(signature,method));
 	}
 }

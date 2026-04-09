@@ -3,26 +3,30 @@ package io.polaris.core.aop;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import javax.annotation.Nonnull;
 
+import io.polaris.core.asm.internal.Signature;
 import io.polaris.core.asm.proxy.Interceptor;
 import io.polaris.core.asm.proxy.Invocation;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
+import io.polaris.core.reflect.Reflects;
 import io.polaris.core.tuple.Tuple2;
-import io.polaris.core.tuple.Tuples;
-import org.objectweb.asm.Type;
 
 /**
  * @author Qt
@@ -31,19 +35,25 @@ import org.objectweb.asm.Type;
 public class Aspect implements Interceptor {
 	private static final Logger log = Loggers.of(Aspect.class);
 
+	/** 目标对象 */
 	private final Object target;
+	/** 织入拦截器缓存 */
 	private final Map<Method, Advisor> methodCache = new ConcurrentHashMap<>(32);
+	/** 所有可织入的通知 */
 	private final List<MatchedAdvice> matchedAdvices = new CopyOnWriteArrayList<>();
+	/** 目标类所有方法 */
 	private final Map<Method, MethodHandle> targetMethods;
-	private final Map<String, MethodHandle> matchedMethods;
+	/** 可按方法名与参数类型匹配的方法 */
+	private final Map<Signature, List<Tuple2<Method, MethodHandle>>> matchedMethods;
+
 	/** 重写方法生成器 */
-	private Function<Method, Function<Object[], Object>> overrideGenerator;
+	private Function<Signature, Function<Object[], Object>> overrideGenerator;
 	/** 重写方法映射表 */
-	private Map<Method, Function<Object[], Object>> overrideMapper;
+	private Map<Signature, Function<Object[], Object>> overrideMapper;
 	/** 默认方法生成器 */
-	protected Function<Method, Function<Object[], Object>> defaultGenerator;
+	protected Function<Signature, Function<Object[], Object>> defaultGenerator;
 	/** 默认方法映射表 */
-	protected Map<Method, Function<Object[], Object>> defaultMapper;
+	protected Map<Signature, Function<Object[], Object>> defaultMapper;
 
 	public Aspect(Object target, Advice... advices) {
 		this(target, Arrays.asList(advices));
@@ -56,10 +66,35 @@ public class Aspect implements Interceptor {
 		}
 		Map<Method, MethodHandle> allMethods = new LinkedHashMap<>();
 		getAllAccessibleMethods(target.getClass(), allMethods, MethodHandles.lookup());
-		Map<String, MethodHandle> matchedMethods = new HashMap<>();
+		Map<Signature, List<Tuple2<Method, MethodHandle>>> matchedMethods = new HashMap<>();
 		allMethods.forEach((method, handle) -> {
-			String key = method.getName() + Type.getMethodDescriptor(method);
-			matchedMethods.putIfAbsent(key, handle);
+			Signature signature = Signature.of(method);
+			List<Tuple2<Method, MethodHandle>> list = matchedMethods.computeIfAbsent(signature, k -> new ArrayList<>());
+			list.add(Tuple2.of(method, handle));
+		});
+		matchedMethods.forEach((signature, list) -> {
+			Map<Method, Integer> indexes = new HashMap<>();
+			for (int i = 0; i < list.size(); i++) {
+				Tuple2<Method, MethodHandle> tuple2 = list.get(i);
+				indexes.put(tuple2.getFirst(), list.indexOf(tuple2));
+			}
+			// 按访问权限排序，优先使用public方法，否则保持加入顺序
+			list.sort((o1, o2) -> {
+				Method m1 = o1.getFirst();
+				Method m2 = o2.getFirst();
+				boolean p1 = Modifier.isPublic(m1.getModifiers());
+				boolean p2 = Modifier.isPublic(m2.getModifiers());
+				if (p1) {
+					if (p2) {
+						return Integer.compare(indexes.get(m1), indexes.get(m2));
+					}
+					return -1;
+				} else if (p2) {
+					return 1;
+				} else {
+					return Integer.compare(indexes.get(m1), indexes.get(m2));
+				}
+			});
 		});
 		this.targetMethods = allMethods;
 		this.matchedMethods = matchedMethods;
@@ -74,17 +109,22 @@ public class Aspect implements Interceptor {
 		clearCache();
 	}
 
-	public void addAdvice(Predicate<Method> predicate, Advice... advices) {
+	public void addAdvice(Predicate<Signature> predicate, Advice... advices) {
+		this.matchedAdvices.add(new MatchedAdvice(predicate == null ? null : (s, n) -> predicate.test(s), advices));
+		clearCache();
+	}
+
+	public void addAdvice(BiPredicate<Signature, Method> predicate, Advice... advices) {
 		this.matchedAdvices.add(new MatchedAdvice(predicate, advices));
 		clearCache();
 	}
 
-	public void override(Function<Method, Function<Object[], Object>> overrideGenerator) {
+	public void override(Function<Signature, Function<Object[], Object>> overrideGenerator) {
 		this.overrideGenerator = overrideGenerator;
 		clearCache();
 	}
 
-	public void override(Method method, Function<Object[], Object> overrideFunction) {
+	public void override(Signature method, Function<Object[], Object> overrideFunction) {
 		if (this.overrideMapper == null) {
 			this.overrideMapper = new ConcurrentHashMap<>();
 		}
@@ -92,7 +132,7 @@ public class Aspect implements Interceptor {
 		clearCache();
 	}
 
-	public void override(Map<Method, Function<Object[], Object>> overrideMapper) {
+	public void override(Map<Signature, Function<Object[], Object>> overrideMapper) {
 		if (overrideMapper == null || overrideMapper.isEmpty()) {
 			this.overrideMapper = null;
 		}
@@ -100,12 +140,12 @@ public class Aspect implements Interceptor {
 		clearCache();
 	}
 
-	public void defaults(Function<Method, Function<Object[], Object>> defaultGenerator) {
+	public void defaults(Function<Signature, Function<Object[], Object>> defaultGenerator) {
 		this.defaultGenerator = defaultGenerator;
 		clearCache();
 	}
 
-	public void defaults(Method method, Function<Object[], Object> defaultFunction) {
+	public void defaults(Signature method, Function<Object[], Object> defaultFunction) {
 		if (this.defaultMapper == null) {
 			this.defaultMapper = new ConcurrentHashMap<>();
 		}
@@ -113,7 +153,7 @@ public class Aspect implements Interceptor {
 		clearCache();
 	}
 
-	public void defaults(Map<Method, Function<Object[], Object>> defaultMapper) {
+	public void defaults(Map<Signature, Function<Object[], Object>> defaultMapper) {
 		if (defaultMapper == null || defaultMapper.isEmpty()) {
 			this.defaultMapper = null;
 		}
@@ -127,28 +167,28 @@ public class Aspect implements Interceptor {
 
 	@Nonnull
 	private Advisor generateAdvisor(Method method) {
+		Signature signature = Signature.of(method);
+
 		Function<Object[], Object> override = null;
 		// 如存在重写实现，则使用
 		if (this.overrideMapper != null) {
-			override = this.overrideMapper.get(method);
+			override = this.overrideMapper.get(signature);
 		}
 		if (override == null && this.overrideGenerator != null) {
-			override = this.overrideGenerator.apply(method);
+			override = this.overrideGenerator.apply(signature);
 		}
 		// 不存在重写实现，且目标类不存在此方法，则尝试使用默认实现
 		if (override == null) {
 			if (this.defaultMapper != null || this.defaultGenerator != null) {
-				if (!this.targetMethods.containsKey(method)
-					&& !this.matchedMethods.containsKey(method.getName() + Type.getMethodDescriptor(method))) {
+				if (!this.matchedMethods.containsKey(signature)) {
 					// 方法不存在，尝试使用默认方法
 					Function<Object[], Object> defaultFunction = null;
 					if (this.defaultMapper != null) {
-						defaultFunction = this.defaultMapper.get(method);
+						defaultFunction = this.defaultMapper.get(signature);
 					}
 					if (defaultFunction == null && this.defaultGenerator != null) {
-						defaultFunction = this.defaultGenerator.apply(method);
+						defaultFunction = this.defaultGenerator.apply(signature);
 					}
-
 					if (defaultFunction != null) {
 						override = defaultFunction;
 					}
@@ -156,10 +196,10 @@ public class Aspect implements Interceptor {
 			}
 		}
 
-		// 获取匹配的拦截器，生成织入方法
-		List<Advice> advices = new ArrayList<>();
+		// 获取匹配的切面通知，生成拦截器
+		Set<Advice> advices = new LinkedHashSet<>();
 		for (MatchedAdvice matchedAdvice : matchedAdvices) {
-			if (matchedAdvice.accept(method)) {
+			if (matchedAdvice.accept(signature, method)) {
 				advices.addAll(Arrays.asList(matchedAdvice.getAdvices()));
 			}
 		}
@@ -191,7 +231,7 @@ public class Aspect implements Interceptor {
 		return targetMethods;
 	}
 
-	Map<String, MethodHandle> getMatchedMethods() {
+	Map<Signature, List<Tuple2<Method, MethodHandle>>> getMatchedMethods() {
 		return matchedMethods;
 	}
 
@@ -214,6 +254,21 @@ public class Aspect implements Interceptor {
 		Method[] declaredMethods = interfaceType.getDeclaredMethods();
 		for (int i = 0, n = declaredMethods.length; i < n; i++) {
 			Method method = declaredMethods[i];
+			int modifiers = method.getModifiers();
+			// 跳过私有方法
+			if (Modifier.isPrivate(modifiers)) {
+				continue;
+			}
+			// 忽略 Object 方法
+			if (Reflects.isFinalizeMethod(method) ||
+				Reflects.isNotifyMethod(method) || Reflects.isNotifyAllMethod(method) ||
+				Reflects.isWaitMethod(method)) {
+				continue;
+			}
+			// 忽略非覆写的 clone 方法
+			if (Reflects.isCloneMethod(method) && method.getDeclaringClass() == Object.class) {
+				continue;
+			}
 			try {
 				method.setAccessible(true);
 				MethodHandle handle = lookup.unreflect(method);

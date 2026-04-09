@@ -330,6 +330,7 @@ public class AsmReflects {
 	 */
 	public static Signature getSignature(Member member) {
 		if (member instanceof Method) {
+			Signature.of((Method) member);
 			return new Signature(member.getName(), Type.getMethodDescriptor((Method) member));
 		} else if (member instanceof Constructor) {
 			Type[] types = AsmTypes.getTypes(((Constructor<?>) member).getParameterTypes());
