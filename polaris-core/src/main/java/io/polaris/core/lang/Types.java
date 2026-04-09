@@ -9,15 +9,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalDouble;
-import java.util.OptionalInt;
-import java.util.OptionalLong;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -463,7 +455,7 @@ public class Types {
 
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
-	public static boolean isFunction(Class type) {
+	public static boolean isFunctional(Class type) {
 		if (type.isInterface()) {
 			/*String typeName = type.getName();
 			if (typeName.startsWith("java.util.function.")) {
@@ -487,12 +479,37 @@ public class Types {
 		return false;
 	}
 
-	/** 推测是否为Lambda表达式对象， */
-	public static boolean isLambda(@Nullable Object obj) {
-		if (obj == null) {
+	public static boolean isMergedFunctional(Class<?>... types) {
+		if (types.length == 0) {
 			return false;
 		}
-		Class<?> c = obj.getClass();
+		if (types.length == 1) {
+			return isFunctional(types[0]);
+		}
+		for (Class<?> type : types) {
+			if (!type.isInterface()) {
+				return false;
+			}
+		}
+		Set<String> set = new HashSet<>();
+		for (Class<?> type : types) {
+			if (!type.isInterface()) {
+				return false;
+			}
+			Method[] methods = type.getMethods();
+			for (Method method : methods) {
+				if (!method.isDefault() && !Modifier.isStatic(method.getModifiers())) {
+					String key = method.getName() + org.objectweb.asm.Type.getMethodDescriptor(method);
+					set.add(key);
+				}
+			}
+		}
+		return set.size() == 1;
+	}
+
+
+	/** 推测是否为Lambda表达式类， */
+	public static boolean isLambdaClass(Class<?> c) {
 		if (!c.getSimpleName().contains("$$Lambda$")) {
 			return false;
 		}
@@ -500,11 +517,21 @@ public class Types {
 			return false;
 		}
 		Class<?>[] interfaces = c.getInterfaces();
-		if (interfaces.length != 1) {
+		if (interfaces.length == 0) {
 			return false;
 		}
-		return isFunction(interfaces[0]);
+		return isMergedFunctional(interfaces);
 	}
+
+	/** 推测是否为Lambda表达式对象， */
+	public static boolean isLambda(@Nullable Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		Class<?> c = obj.getClass();
+		return isLambdaClass(c);
+	}
+
 
 	public static boolean isEquals(Class<?>[] definedTypes, Class<?>[] checkedTypes) {
 		if (definedTypes.length != checkedTypes.length) {
