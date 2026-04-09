@@ -193,14 +193,6 @@ public class Bytes {
 	}
 
 	/**
-	 * 返回数组中指定元素所在位置，未找到返回 -1
-	 *
-	 * @param array 数组
-	 * @param value 被检查的元素
-	 * @return 数组中指定元素所在位置，未找到返回 -1
-	 */
-
-	/**
 	 * 将原始类型数组包装为包装类型
 	 *
 	 * @param values 原始类型数组
