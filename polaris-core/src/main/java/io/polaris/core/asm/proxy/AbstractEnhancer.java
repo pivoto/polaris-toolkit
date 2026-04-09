@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 
@@ -21,6 +23,10 @@ import io.polaris.core.err.InvocationException;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
+
+import static org.objectweb.asm.Opcodes.ACC_FINAL;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.ACC_STATIC;
 
 /**
  * 抽象增强器基类，提供 ASM 字节码增强的基础功能
@@ -39,6 +45,10 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	protected static final String GENERATED$THREAD_INTERCEPTOR = "GENERATED$THREAD_INTERCEPTOR";
 	/** 目标方法数组字段名 */
 	protected static final String GENERATED$TARGET_METHODS = "GENERATED$TARGET_METHODS";
+	/** 重写方法的数组字段名 */
+	protected static final String GENERATED$OVERRIDE_FUNCS = "GENERATED$OVERRIDE_FUNCS";
+	/** 默认方法的数组字段名 */
+	protected static final String GENERATED$DEFAULT_FUNCS = "GENERATED$DEFAULT_FUNCS";
 	/** 父类调用器字段名 */
 	protected static final String GENERATED$SUPER_INVOKER = "GENERATED$SUPER_INVOKER";
 	/** 原始调用器字段名 */
@@ -60,6 +70,8 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	protected static final Type TYPE_METHOD = Type.getType(Method.class);
 	/** Method 数组的 ASM 类型 */
 	protected static final Type TYPE_METHOD_ARRAY = Type.getType(Method[].class);
+	/** Function 数组的 ASM 类型 */
+	protected static final Type TYPE_FUNCTION_ARRAY = Type.getType(Function[].class);
 	/** Invoker 接口的 ASM 类型 */
 	protected static final Type TYPE_INVOKER = Type.getType(Invoker.class);
 	/** Interceptor 数组的 ASM 类型 */
@@ -74,11 +86,15 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	protected static final Type TYPE_INTERCEPTOR_ARRAY_ARRAY = Type.getType(Interceptor[][].class);
 
 
-
 	/** Invoker 接口的 invoke 方法签名 */
-	protected static final Signature METHOD_INVOKER__INVOKE =
+	protected static final Signature METHOD_INVOKER_INVOKE =
 		new Signature("invoke", AsmConsts.TYPE_OBJECT, new Type[]{
-			Type.INT_TYPE, AsmConsts.TYPE_OBJECT, AsmConsts.TYPE_OBJECT_ARRAY
+			Type.INT_TYPE, AsmConsts.TYPE_OBJECT, AsmConsts.TYPE_OBJECT, AsmConsts.TYPE_OBJECT_ARRAY
+		});
+	/** Function 接口的 apply 方法签名 */
+	protected static final Signature METHOD_FUNCTION_APPLY =
+		new Signature("apply", AsmConsts.TYPE_OBJECT, new Type[]{
+			AsmConsts.TYPE_OBJECT
 		});
 
 	/** 获取所有声明方法的方法签名 */
@@ -97,17 +113,27 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	/** 调用父类方法的签名 */
 	protected static final Signature GENERATED$INVOKE_SUPER =
 		new Signature("GENERATED$INVOKE_SUPER", AsmConsts.TYPE_OBJECT, new Type[]{
-			Type.INT_TYPE, AsmConsts.TYPE_OBJECT, AsmConsts.TYPE_OBJECT_ARRAY
+			Type.INT_TYPE, AsmConsts.TYPE_OBJECT, AsmConsts.TYPE_OBJECT, AsmConsts.TYPE_OBJECT_ARRAY
 		});
 	/** 调用原始方法的签名 */
 	protected static final Signature GENERATED$INVOKE_RAW =
 		new Signature("GENERATED$INVOKE_RAW", AsmConsts.TYPE_OBJECT, new Type[]{
-			Type.INT_TYPE, AsmConsts.TYPE_OBJECT, AsmConsts.TYPE_OBJECT_ARRAY
+			Type.INT_TYPE, AsmConsts.TYPE_OBJECT, AsmConsts.TYPE_OBJECT, AsmConsts.TYPE_OBJECT_ARRAY
 		});
 	/** 设置目标方法数组的签名 */
 	protected static final Signature GENERATED$SET_TARGET_METHODS =
 		new Signature("GENERATED$SET_TARGET_METHODS", Type.VOID_TYPE, new Type[]{
 			TYPE_METHOD_ARRAY
+		});
+	/** 设置重写方法的数组的签名 */
+	protected static final Signature GENERATED$SET_OVERRIDE_FUNCS =
+		new Signature("GENERATED$SET_OVERRIDE_FUNCS", Type.VOID_TYPE, new Type[]{
+			TYPE_FUNCTION_ARRAY
+		});
+	/** 设置默认方法的数组的签名 */
+	protected static final Signature GENERATED$SET_DEFAULT_FUNCS =
+		new Signature("GENERATED$SET_DEFAULT_FUNCS", Type.VOID_TYPE, new Type[]{
+			TYPE_FUNCTION_ARRAY
 		});
 	/** 删除线程拦截器的签名 */
 	protected static final Signature GENERATED$DEL_THREAD_INTERCEPTOR =
@@ -192,6 +218,18 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	protected Long serialVersion;
 	/** 目标方法数组 */
 	protected Method[] targetMethods;
+	/** 重写方法的数组 */
+	protected Function<Object[], Object>[] overrideFuncs;
+	/** 重写方法生成器 */
+	protected Function<Method, Function<Object[], Object>> overrideGenerator;
+	/** 重写方法映射表 */
+	protected Map<Method, Function<Object[], Object>> overrideMapper;
+	/** 默认方法的数组 */
+	protected Function<Object[], Object>[] defaultFuncs;
+	/** 默认方法生成器 */
+	protected Function<Method, Function<Object[], Object>> defaultGenerator;
+	/** 默认方法映射表 */
+	protected Map<Method, Function<Object[], Object>> defaultMapper;
 
 	public AbstractEnhancer() {
 		super();
@@ -252,6 +290,60 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 		return this;
 	}
 
+	public AbstractEnhancer override(Function<Method, Function<Object[], Object>> overrideGenerator) {
+		checkState();
+		this.overrideGenerator = overrideGenerator;
+		return this;
+	}
+
+	public AbstractEnhancer override(Method method, Function<Object[], Object> overrideFunction) {
+		checkState();
+		if (method == null || overrideFunction == null) {
+			return this;
+		}
+		if (this.overrideMapper == null) {
+			this.overrideMapper = new ConcurrentHashMap<>();
+		}
+		this.overrideMapper.put(method, overrideFunction);
+		return this;
+	}
+
+	public AbstractEnhancer override(Map<Method, Function<Object[], Object>> overrideMapper) {
+		if (overrideMapper == null || overrideMapper.isEmpty()) {
+			this.overrideMapper = null;
+			return this;
+		}
+		this.overrideMapper = new ConcurrentHashMap<>(overrideMapper);
+		return this;
+	}
+
+	public AbstractEnhancer defaults(Function<Method, Function<Object[], Object>> defaultGenerator) {
+		checkState();
+		this.defaultGenerator = defaultGenerator;
+		return this;
+	}
+
+	public AbstractEnhancer defaults(Method method, Function<Object[], Object> defaultFunction) {
+		checkState();
+		if (method == null || defaultFunction == null) {
+			return this;
+		}
+		if (this.defaultMapper == null) {
+			this.defaultMapper = new ConcurrentHashMap<>();
+		}
+		this.defaultMapper.put(method, defaultFunction);
+		return this;
+	}
+
+	public AbstractEnhancer defaults(Map<Method, Function<Object[], Object>> defaultMapper) {
+		if (defaultMapper == null || defaultMapper.isEmpty()) {
+			this.defaultMapper = null;
+			return this;
+		}
+		this.defaultMapper = new ConcurrentHashMap<>(defaultMapper);
+		return this;
+	}
+
 
 	/**
 	 * 创建增强的代理对象实例
@@ -290,7 +382,7 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 			}
 			setKey(generateKey());
 		}
-		return super.generateClass();
+		return super.getOrGenerate();
 	}
 
 	/**
@@ -343,10 +435,50 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	 * @throws IllegalArgumentException 如果类型不是增强类
 	 * @throws BytecodeOperationException 如果反射操作失败
 	 */
-	protected void registerTargetMethods(Class<?> type) {
+	private void registerTargetMethods(Class<?> type) {
 		try {
 			Method setter = type.getDeclaredMethod(GENERATED$SET_TARGET_METHODS.getName(), Method[].class);
 			setter.invoke(null, new Object[]{this.targetMethods});
+		} catch (NoSuchMethodException e) {
+			throw new IllegalArgumentException(type + " is not an enhanced class");
+		} catch (ReflectiveOperationException e) {
+			throw new BytecodeOperationException(e);
+		}
+	}
+
+	/**
+	 * 注册重写方法数组到生成的增强类
+	 * <p>
+	 * 通过反射调用增强类的 GENERATED$SET_OVERRIDE_FUNCTIONS 方法设置目标方法
+	 *
+	 * @param type 生成的增强类
+	 * @throws IllegalArgumentException 如果类型不是增强类
+	 * @throws BytecodeOperationException 如果反射操作失败
+	 */
+	private void registerOverrideFunctions(Class<?> type) {
+		try {
+			Method setter = type.getDeclaredMethod(GENERATED$SET_OVERRIDE_FUNCS.getName(), Function[].class);
+			setter.invoke(null, new Object[]{this.overrideFuncs});
+		} catch (NoSuchMethodException e) {
+			throw new IllegalArgumentException(type + " is not an enhanced class");
+		} catch (ReflectiveOperationException e) {
+			throw new BytecodeOperationException(e);
+		}
+	}
+
+	/**
+	 * 注册默认方法数组到生成的增强类
+	 * <p>
+	 * 通过反射调用增强类的 GENERATED$SET_DEFAULT_FUNCTIONS 方法设置目标方法
+	 *
+	 * @param type 生成的增强类
+	 * @throws IllegalArgumentException 如果类型不是增强类
+	 * @throws BytecodeOperationException 如果反射操作失败
+	 */
+	private void registerDefaultFunctions(Class<?> type) {
+		try {
+			Method setter = type.getDeclaredMethod(GENERATED$SET_DEFAULT_FUNCS.getName(), Function[].class);
+			setter.invoke(null, new Object[]{this.defaultFuncs});
 		} catch (NoSuchMethodException e) {
 			throw new IllegalArgumentException(type + " is not an enhanced class");
 		} catch (ReflectiveOperationException e) {
@@ -364,6 +496,8 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	protected Class<?> generate(@Nonnull ClassLoader classLoader) {
 		Class<?> c = super.generate(classLoader);
 		registerTargetMethods(c);
+		registerOverrideFunctions(c);
+		registerDefaultFunctions(c);
 		registerStaticInterceptors(c);
 		return c;
 	}
@@ -477,6 +611,12 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 
 		// 保存目标方法数组
 		this.targetMethods = allMethods.values().toArray(new Method[0]);
+		this.overrideFuncs = new Function[this.targetMethods.length];
+		this.defaultFuncs = new Function[this.targetMethods.length];
+
+		boolean hasOverride = false;
+		boolean hasDefault = false;
+
 		// 方法签名列表
 		List<MethodInfo> methods = new ArrayList<>();
 		for (int i = 0; i < this.targetMethods.length; i++) {
@@ -491,6 +631,38 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 				modifiers |= AsmConsts.ACC_FINAL;
 			}
 			methods.add(AsmReflects.getMethodInfo(method, modifiers));
+			{
+				Function<Object[], Object> overrideFunction = null;
+				if (this.overrideMapper != null) {
+					overrideFunction = this.overrideMapper.get(method);
+				}
+				if (overrideFunction == null && this.overrideGenerator != null) {
+					overrideFunction = this.overrideGenerator.apply(method);
+				}
+				if (overrideFunction != null) {
+					hasOverride = true;
+					this.overrideFuncs[i] = overrideFunction;
+				}
+			}
+			{
+				Function<Object[], Object> defaultFunction = null;
+				if (this.defaultMapper != null) {
+					defaultFunction = this.defaultMapper.get(method);
+				}
+				if (defaultFunction == null && this.defaultGenerator != null) {
+					defaultFunction = this.defaultGenerator.apply(method);
+				}
+				if (defaultFunction != null) {
+					hasDefault = true;
+					this.defaultFuncs[i] = defaultFunction;
+				}
+			}
+		}
+		if (!hasOverride) {
+			this.overrideFuncs = null;
+		}
+		if (!hasDefault) {
+			this.defaultFuncs = null;
 		}
 		saveTargetMethods(this.targetMethods);
 
@@ -500,6 +672,8 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 			Type.getType(parent),
 			AsmTypes.getTypes(interfaces),
 			AsmConsts.SOURCE_FILE);
+		// 声明内部类引用，用于后续MethodHandle相关操作： import java.lang.invoke.MethodHandles.Lookup;
+		ce.visitInnerClass("java/lang/invoke/MethodHandles$Lookup", "java/lang/invoke/MethodHandles", "Lookup", ACC_PUBLIC | ACC_FINAL | ACC_STATIC);
 
 		ce.declare_field(AsmConsts.PRIVATE_FINAL_STATIC, GENERATED$ENHANCED, AsmConsts.TYPE_CLASS, null);
 		if (serialVersion != null) {
@@ -509,13 +683,16 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 		{
 			CodeEmitter e = ce.getStaticHook();
 			e.push(Type.getType(parent));
-			e.putstatic(ce.getClassType(),GENERATED$ENHANCED, AsmConsts.TYPE_CLASS);
+			e.putstatic(ce.getClassType(), GENERATED$ENHANCED, AsmConsts.TYPE_CLASS);
 		}
+
 
 		emitStandardFields(ce);
 		emitSpecialFields(ce);
 		emitStaticBlock(ce, constructors, methods);
 		emitStaticSetTargetMethods(ce);
+		emitStaticSetOverrideFunctions(ce);
+		emitStaticSetDefaultFunctions(ce);
 		emitStaticSetStaticInterceptor(ce);
 		emitStaticSetThreadInterceptor(ce);
 		emitStaticDelThreadInterceptor(ce);
@@ -547,6 +724,8 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	 */
 	protected void emitStandardFields(ClassEmitter ce) {
 		ce.declare_field(AsmConsts.PRIVATE_STATIC, GENERATED$TARGET_METHODS, TYPE_METHOD_ARRAY, null);
+		ce.declare_field(AsmConsts.PRIVATE_STATIC, GENERATED$OVERRIDE_FUNCS, TYPE_FUNCTION_ARRAY, null);
+		ce.declare_field(AsmConsts.PRIVATE_STATIC, GENERATED$DEFAULT_FUNCS, TYPE_FUNCTION_ARRAY, null);
 		ce.declare_field(AsmConsts.PRIVATE_FINAL_STATIC, GENERATED$THREAD_INTERCEPTOR, TYPE_THREAD_LOCAL, null);
 		ce.declare_field(AsmConsts.PRIVATE_FINAL_STATIC, GENERATED$SUPER_INVOKER, TYPE_INVOKER, null);
 		ce.declare_field(AsmConsts.PRIVATE_FINAL_STATIC, GENERATED$RAW_INVOKER, TYPE_INVOKER, null);
@@ -603,10 +782,10 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 		se.putfield(GENERATED$EMPTY_ARGS);
 
 		// GENERATED$RAW_INVOKER = $T::GENERATED$INVOKE_RAW;
-		se.invoke_lambda(TYPE_INVOKER, METHOD_INVOKER__INVOKE, thisType, GENERATED$INVOKE_RAW);
+		se.invoke_lambda(TYPE_INVOKER, METHOD_INVOKER_INVOKE, thisType, GENERATED$INVOKE_RAW);
 		se.putstatic(thisType, GENERATED$RAW_INVOKER, TYPE_INVOKER);
 		// GENERATED$SUPER_INVOKER = $T::GENERATED$INVOKE_SUPER;
-		se.invoke_lambda(TYPE_INVOKER, METHOD_INVOKER__INVOKE, thisType, GENERATED$INVOKE_SUPER);
+		se.invoke_lambda(TYPE_INVOKER, METHOD_INVOKER_INVOKE, thisType, GENERATED$INVOKE_SUPER);
 		se.putstatic(thisType, GENERATED$SUPER_INVOKER, TYPE_INVOKER);
 	}
 
@@ -623,12 +802,19 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	protected void emitStaticInvokeSuper(ClassEmitter ce, List<MethodInfo> methods, Map<String, Method> undeclaredMethods) {
 		Type thisType = ce.getClassType();
 		CodeEmitter e = ce.begin_method(AsmConsts.PRIVATE_FINAL_STATIC, GENERATED$INVOKE_SUPER, new Type[]{Type.getType(InvocationTargetException.class)});
-		e.load_arg(1);
+
+		int posIndex = 0;
+		int posProxy = 1;
+		int posTarget = 2;
+		int posArgs = 3;
+		/*
+		e.load_arg(posTarget); // assert proxy == target
 		e.checkcast_this();
 		Local target = e.make_local();
 		e.store_local(target);
+		 */
 
-		e.load_arg(0);
+		e.load_arg(posIndex);
 		final Label illegalArg = e.make_label();
 		Block block = e.begin_block();
 
@@ -637,9 +823,13 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 			public void processCase(int key, Label end) {
 				MethodInfo method = methods.get(key);
 				Type[] types = method.getSignature().getArgumentTypes();
+				/*
 				e.load_local(target);
+				*/
+				e.load_arg(posTarget); // assert proxy == target
+				e.checkcast_this();
 				for (int i = 0; i < types.length; i++) {
-					e.load_arg(2);
+					e.load_arg(posArgs);
 					e.aaload(i);
 					e.unbox(types[i]);
 				}
@@ -670,9 +860,15 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	 * @param undeclaredMethods 未声明的方法映射（接口扩展方法）
 	 */
 	protected void emitStaticInvokeRaw(ClassEmitter ce, List<MethodInfo> methods, Map<String, Method> undeclaredMethods) {
+		Type thisType = ce.getClassType();
 		CodeEmitter e = ce.begin_method(AsmConsts.PRIVATE_FINAL_STATIC, GENERATED$INVOKE_RAW, new Type[]{Type.getType(InvocationTargetException.class)});
 
-		e.load_arg(0);
+		int posIndex = 0;
+		int posProxy = 1;
+		int posTarget = 2;
+		int posArgs = 3;
+
+		e.load_arg(posIndex);
 		final Label illegalArg = e.make_label();
 		Block block = e.begin_block();
 
@@ -681,21 +877,79 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 			public void processCase(int key, Label end) {
 				MethodInfo method = methods.get(key);
 				Type[] types = method.getSignature().getArgumentTypes();
-				e.load_arg(1);
-				e.checkcast(method.getClassInfo().getType());
+				Label superLabel = e.make_label();
+
+				// 原始对象是否存在此方法
+				boolean undeclared = undeclaredMethods.containsKey(method.getSignature().getName() + method.getSignature().getDescriptor());
+				if (!undeclared) {
+
+					Label labelRaw = e.make_label();
+					// 优先调用重写的方法
+					{
+						e.getstatic(thisType, GENERATED$OVERRIDE_FUNCS, TYPE_FUNCTION_ARRAY);
+						e.ifnull(labelRaw);
+
+						Local function = e.make_local(TYPE_FUNCTION_ARRAY);
+						e.getstatic(thisType, GENERATED$OVERRIDE_FUNCS, TYPE_FUNCTION_ARRAY);
+						e.push(key);
+						e.aaload();
+						e.store_local(function);
+						e.load_local(function);
+						e.ifnull(labelRaw);
+
+						e.load_local(function);
+						e.load_arg(posArgs);
+						e.invoke_interface(Type.getType(Function.class), METHOD_FUNCTION_APPLY);
+						Local rs = e.make_local(AsmConsts.TYPE_OBJECT);
+						e.return_value();
+					}
+					// 调用原对象的方法
+					e.mark(labelRaw);
+					e.load_arg(posTarget);
+					e.instance_of(method.getClassInfo().getType());
+					e.if_jump(AsmConsts.IFEQ, superLabel);
+
+					e.load_arg(posTarget);
+					e.checkcast(method.getClassInfo().getType());
+					for (int i = 0; i < types.length; i++) {
+						e.load_arg(posArgs);
+						e.aaload(i);
+						e.unbox(types[i]);
+					}
+					/*
+					if (undeclared) {
+						// 扩展接口方法
+						e.invoke_interface(method.getClassInfo().getType(), method.getSignature());
+					} else {
+						e.invoke_virtual(method.getClassInfo().getType(), method.getSignature());
+					} */
+					e.invoke_virtual(method.getClassInfo().getType(), method.getSignature());
+					e.box(method.getSignature().getReturnType());
+					e.return_value();
+				}
+
+				// 原始对象不存在此方法，调用代理对象的对父类或接口的扩展方法
+				e.mark(superLabel);
+				e.load_arg(posProxy);
+				e.checkcast_this();
 				for (int i = 0; i < types.length; i++) {
-					e.load_arg(2);
+					e.load_arg(posArgs);
 					e.aaload(i);
 					e.unbox(types[i]);
 				}
-				if (undeclaredMethods.containsKey(method.getSignature().getName() + method.getSignature().getDescriptor())) {
-					// 扩展接口方法
-					e.invoke_interface(method.getClassInfo().getType(), method.getSignature());
-				} else {
-					e.invoke_virtual(method.getClassInfo().getType(), method.getSignature());
-				}
+				e.invoke_virtual(thisType, new Signature(GENERATED$SUPER_ + method.getSignature().getName(), method.getSignature().getDescriptor()));
 				e.box(method.getSignature().getReturnType());
 				e.return_value();
+
+				/*
+				e.mark(superLabel);
+				e.load_arg(posIndex);
+				e.load_arg(posProxy);
+				e.load_arg(posProxy);
+				e.load_arg(posArgs);
+				e.invoke_static_this(GENERATED$INVOKE_SUPER);
+				e.return_value();
+				*/
 			}
 
 			@Override
@@ -723,6 +977,40 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 			null);
 		e.load_arg(0);
 		e.putfield(GENERATED$TARGET_METHODS);
+		e.return_value();
+		e.end_method();
+	}
+
+	/**
+	 * 发射生成设置目标方法数组的静态方法
+	 * <p>
+	 * 生成 GENERATED$SET_OVERRIDE_FUNCTIONS 方法，用于在类初始化后设置目标方法数组
+	 *
+	 * @param ce 类发射器
+	 */
+	protected void emitStaticSetOverrideFunctions(ClassEmitter ce) {
+		CodeEmitter e = ce.begin_method(AsmConsts.ACC_PUBLIC | AsmConsts.ACC_STATIC,
+			GENERATED$SET_OVERRIDE_FUNCS,
+			null);
+		e.load_arg(0);
+		e.putfield(GENERATED$OVERRIDE_FUNCS);
+		e.return_value();
+		e.end_method();
+	}
+
+	/**
+	 * 发射生成设置目标方法数组的静态方法
+	 * <p>
+	 * 生成 GENERATED$SET_OVERRIDE_FUNCTIONS 方法，用于在类初始化后设置目标方法数组
+	 *
+	 * @param ce 类发射器
+	 */
+	protected void emitStaticSetDefaultFunctions(ClassEmitter ce) {
+		CodeEmitter e = ce.begin_method(AsmConsts.ACC_PUBLIC | AsmConsts.ACC_STATIC,
+			GENERATED$SET_DEFAULT_FUNCS,
+			null);
+		e.load_arg(0);
+		e.putfield(GENERATED$DEFAULT_FUNCS);
 		e.return_value();
 		e.end_method();
 	}
@@ -807,6 +1095,7 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	 * @param constructors 父类构造器列表
 	 */
 	protected void emitConstructors(ClassEmitter ce, List<Constructor<?>> constructors) {
+		Type thisType = ce.getClassType();
 		for (Constructor<?> constructor : constructors) {
 			MethodInfo methodInfo = AsmReflects.getMethodInfo(constructor);
 			CodeEmitter e = Emitters.begin_method(ce, methodInfo,
@@ -846,6 +1135,27 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 		Type thisType = ce.getClassType();
 		for (int i = 0; i < methods.size(); i++) {
 			MethodInfo method = methods.get(i);
+			/*
+			if (GENERATED$OVERRIDE_FUNCTIONS != null) {
+				Function<Object[], Object> function = GENERATED$OVERRIDE_FUNCTIONS[index];
+				if (function != null) {
+					Object[] args = {...$args};
+					Object rs = function.apply(args);
+					return (V) rs;
+				}
+			}
+			// 存在实现方法时
+			return super.xxx(arg0);
+			// 不存在实现方法时
+			if (GENERATED$DEFAULT_FUNCTIONS != null) {
+				Function<Object[], Object> function = GENERATED$DEFAULT_FUNCTIONS[index];
+				if (function != null) {
+					Object[] args = {...$args};
+					Object rs = function.apply(args);
+					return (V) rs;
+				}
+			}
+			*/
 			// 生成父类方法调用，添加final/private修饰符以禁止外部访问
 			{
 				// 继承调用添加final/private修饰
@@ -853,16 +1163,89 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 						| (method.getModifiers() & (~AsmConsts.ACC_PUBLIC) & (~AsmConsts.ACC_PROTECTED)),
 					new Signature(GENERATED$SUPER_ + method.getSignature().getName(), method.getSignature().getDescriptor()),
 					method.getExceptionTypes());
+
+				Label labelSuper = e.make_label();
+
+				{
+					e.getstatic(thisType, GENERATED$OVERRIDE_FUNCS, TYPE_FUNCTION_ARRAY);
+					e.ifnull(labelSuper);
+
+					Local function = e.make_local(TYPE_FUNCTION_ARRAY);
+					e.getstatic(thisType, GENERATED$OVERRIDE_FUNCS, TYPE_FUNCTION_ARRAY);
+					e.push(i);
+					e.aaload();
+					e.store_local(function);
+					e.load_local(function);
+					e.ifnull(labelSuper);
+
+					e.load_local(function);
+					Type[] argumentTypes = method.getSignature().getArgumentTypes();
+					if (argumentTypes.length == 0) {
+						e.getfield(GENERATED$EMPTY_ARGS);
+					} else {
+						e.create_arg_array();
+					}
+					e.invoke_interface(Type.getType(Function.class), METHOD_FUNCTION_APPLY);
+					Local rs = e.make_local(AsmConsts.TYPE_OBJECT);
+					{
+						Type returnType = method.getSignature().getReturnType();
+						if (returnType != Type.VOID_TYPE) {
+							e.unbox(returnType);
+						} else {
+							e.pop();
+						}
+					}
+					e.return_value();
+				}
+
+
+				e.mark(labelSuper);
 				e.load_this();
 				e.load_args();
 				Method undeclaredMethod = undeclaredMethods.get(method.getSignature().getName() + method.getSignature().getDescriptor());
 				if (undeclaredMethod != null) {
 					// 扩展接口的方法，父类并未实现
+					Label labelNull = e.make_label();
+
+					// 存在扩展的默认实现方法时，调用默认方法
+					e.getstatic(thisType, GENERATED$DEFAULT_FUNCS, TYPE_FUNCTION_ARRAY);
+					e.ifnull(labelNull);
+					Local function = e.make_local(TYPE_FUNCTION_ARRAY);
+					e.getstatic(thisType, GENERATED$DEFAULT_FUNCS, TYPE_FUNCTION_ARRAY);
+					e.push(i);
+					e.aaload();
+					e.store_local(function);
+					e.load_local(function);
+					e.ifnull(labelNull);
+
+					e.load_local(function);
+					Type[] argumentTypes = method.getSignature().getArgumentTypes();
+					if (argumentTypes.length == 0) {
+						e.getfield(GENERATED$EMPTY_ARGS);
+					} else {
+						e.create_arg_array();
+					}
+					e.invoke_interface(Type.getType(Function.class), METHOD_FUNCTION_APPLY);
+					Local rs = e.make_local(AsmConsts.TYPE_OBJECT);
+					{
+						Type returnType = method.getSignature().getReturnType();
+						if (returnType != Type.VOID_TYPE) {
+							e.unbox(returnType);
+						} else {
+							e.pop();
+						}
+					}
+					e.return_value();
+
+					// 调用接口默认方法，不存在则进行空实现
+					e.mark(labelNull);
 					if (undeclaredMethod.isDefault()) {
 						e.super_invoke(method.getSignature());
 					} else {
 						Type returnType = method.getSignature().getReturnType();
-						e.zero_or_null(returnType);
+						if (returnType != Type.VOID_TYPE) {
+							e.zero_or_null(returnType);
+						}
 					}
 				} else {
 					// 调用父类的普通方法

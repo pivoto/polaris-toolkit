@@ -20,11 +20,15 @@ class EnhancerTest extends BaseAsmTest {
 		enhancer.withFinal(false);
 		enhancer.superclass(Source01.class);
 		enhancer.interfaces(new Class[]{Consumer.class, Supplier.class});
+		enhancer.override(Consumer.class.getMethod("accept", Object.class), args -> {
+			System.out.println("override:" + args[0]);
+			return null;
+		});
 		enhancer.interceptor(new Interceptor() {
 			@Override
-			public Object intercept(Object obj, Method method, Object[] args, Invocation invocation) throws Throwable {
+			public Object intercept(Object proxy, Method method, Object[] args, Invocation invocation) throws Throwable {
 				System.out.println("before..." + method);
-				Object rs = invocation.invoke(obj, args);
+				Object rs = invocation.invoke(proxy, args);
 				System.out.println("after..." + method);
 				return rs;
 			}
@@ -58,8 +62,8 @@ class EnhancerTest extends BaseAsmTest {
 		Object[] args1 = new Object[]{o.intVal(123)};
 		Consoles.log("", args1);
 
-		((Consumer)o).accept(123);
-		Object[] args = new Object[]{((Supplier)o).get()};
+		((Consumer) o).accept(123);
+		Object[] args = new Object[]{((Supplier) o).get()};
 		Consoles.log("", args);
 
 	}
@@ -72,10 +76,10 @@ class EnhancerTest extends BaseAsmTest {
 		enhancer.interfaces(new Class[]{Consumer.class, Supplier.class});
 		enhancer.interceptors(new Interceptor() {
 			@Override
-			public Object intercept(Object obj, Method method, Object[] args, Invocation invocation) throws Throwable {
+			public Object intercept(Object proxy, Method method, Object[] args, Invocation invocation) throws Throwable {
 				System.out.println();
 				System.out.println("before..." + method);
-				Object rs = invocation.invoke(obj, args);
+				Object rs = invocation.invoke(proxy, args);
 				System.out.println("after..." + method);
 				return rs;
 			}
@@ -108,8 +112,8 @@ class EnhancerTest extends BaseAsmTest {
 		Object[] args1 = new Object[]{o.intVal(123)};
 		Consoles.log("", args1);
 
-		((Consumer)o).accept(123);
-		Object[] args = new Object[]{((Supplier)o).get()};
+		((Consumer) o).accept(123);
+		Object[] args = new Object[]{((Supplier) o).get()};
 		Consoles.log("", args);
 	}
 }

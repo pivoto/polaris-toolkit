@@ -1,12 +1,18 @@
 package io.polaris.core.aop;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Arrays;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import io.polaris.core.aop.sample.ProxyTargetBean;
 import io.polaris.core.asm.BaseAsmTest;
 import io.polaris.core.io.Consoles;
+import io.polaris.core.random.Randoms;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class ProxiesTest extends BaseAsmTest {
@@ -69,4 +75,24 @@ public class ProxiesTest extends BaseAsmTest {
 			Consoles.log("exec: \n\t{}", proxy.equals(target));
 		}
 	}
+
+	@Test
+	void testProxy2() throws NoSuchMethodException {
+		ProxyTargetBean target = new ProxyTargetBean();
+		Object proxy = Proxies.proxyFactory(target)
+			.interfaces(new Class[]{Supplier.class, Function.class, Consumer.class})
+			.override(Consumer.class.getDeclaredMethod("accept", Object.class), args -> {
+				Consoles.println("accept", args);
+				return null;
+			})
+			.override(Function.class.getDeclaredMethod("apply", Object.class), args -> {
+				Consoles.println("apply", args);
+				return Randoms.randomNumberString(6);
+			})
+			.get();
+		Consoles.println("", ((Supplier) proxy).get());
+		((Consumer) proxy).accept("test");
+		Consoles.println("", ((Function) proxy).apply("test"));
+	}
+
 }

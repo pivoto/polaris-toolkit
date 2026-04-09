@@ -2,6 +2,8 @@ package io.polaris.core.asm.proxy.sample;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.function.Function;
 
 import io.polaris.core.asm.proxy.DefaultInvocation;
 import io.polaris.core.asm.proxy.Interceptor;
@@ -15,6 +17,7 @@ import io.polaris.core.err.InvocationException;
 public class Source01EnhancerSample extends Source01 {
 	private static final Class GENERATED$ENHANCED;
 	private static Method[] GENERATED$TARGET_METHODS;
+	private static Function[] GENERATED$OVERRIDE_FUNCTIONS;
 	private static final ThreadLocal GENERATED$THREAD_INTERCEPTOR;
 	private static final Invoker GENERATED$SUPER_INVOKER;
 	private static final Invoker GENERATED$RAW_INVOKER;
@@ -32,6 +35,9 @@ public class Source01EnhancerSample extends Source01 {
 
 	public static void GENERATED$SET_TARGET_METHODS(Method[] methods) {
 		GENERATED$TARGET_METHODS = methods;
+	}
+	public static void GENERATED$SET_OVERRIDE_FUNCTIONS(Function[] functions) {
+		GENERATED$OVERRIDE_FUNCTIONS = functions;
 	}
 
 	public static void GENERATED$SET_STATIC_INTERCEPTOR(Interceptor[] interceptors) {
@@ -58,7 +64,7 @@ public class Source01EnhancerSample extends Source01 {
 		obj.GENERATED$INTERCEPTORS_MATRIX = (Interceptor[]) interceptors;
 	}
 
-	private static final Object GENERATED$INVOKE_RAW(int index, Object target, Object[] args) throws InvocationTargetException {
+	private static final Object GENERATED$INVOKE_RAW(int index, Object proxy, Object target, Object[] args) throws InvocationTargetException {
 		try {
 			switch (index) {
 				case 0:
@@ -72,7 +78,7 @@ public class Source01EnhancerSample extends Source01 {
 		throw new IllegalArgumentException("Cannot find matching method");
 	}
 
-	private static final Object GENERATED$INVOKE_SUPER(int index, Object target, Object[] args) throws InvocationTargetException {
+	private static final Object GENERATED$INVOKE_SUPER(int index, Object proxy, Object target, Object[] args) throws InvocationTargetException {
 		Source01EnhancerSample obj = (Source01EnhancerSample) target;
 		try {
 			switch (index) {
@@ -118,6 +124,14 @@ public class Source01EnhancerSample extends Source01 {
 	}
 
 	private final Source01 GENERATED$SUPER_apply(Source01 arg0) {
+		if (GENERATED$OVERRIDE_FUNCTIONS != null) {
+			Function<Object[], Object> function = GENERATED$OVERRIDE_FUNCTIONS[0];
+			if (function != null) {
+				Object[] args = {arg0};
+				Object rs = function.apply(args);
+				return (Source01) rs;
+			}
+		}
 		return super.apply(arg0);
 	}
 

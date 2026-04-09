@@ -10,7 +10,7 @@ import lombok.Getter;
  * @since May 14, 2024
  */
 @Getter
-public class MatchedAdvice {
+class MatchedAdvice {
 
 	private final Predicate<Method> predicate;
 	private final Advice[] advices;

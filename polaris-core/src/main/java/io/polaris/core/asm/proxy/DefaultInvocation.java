@@ -2,41 +2,27 @@ package io.polaris.core.asm.proxy;
 
 import java.lang.reflect.Method;
 
+import javax.annotation.Nonnull;
+
 import lombok.Getter;
 
 /**
  * 默认调用实现类，封装单个拦截器的调用上下文
- * 
+ *
  * @author Qt
  * @since May 11, 2024
  */
 public class DefaultInvocation implements Invocation {
 
-	/**
-	 * 方法在目标方法数组中的索引
-	 */
+	/** 方法在目标方法数组中的索引 */
 	private final int index;
-	
-	/**
-	 * 代理对象实例
-	 */
-	@Getter
+	/** 代理对象实例 */
 	private final Object proxy;
-	
-	/**
-	 * 被调用的方法对象
-	 */
-	@Getter
+	/** 被调用的方法对象 */
 	private final Method method;
-	
-	/**
-	 * 原始调用器，用于直接调用目标方法
-	 */
+	/** 原始调用器，用于直接调用目标方法 */
 	private final Invoker rawInvoker;
-	
-	/**
-	 * 父类调用器，用于调用父类方法
-	 */
+	/** 父类调用器，用于调用父类方法 */
 	private final Invoker superInvoker;
 
 	/**
@@ -56,21 +42,34 @@ public class DefaultInvocation implements Invocation {
 		this.superInvoker = superInvoker;
 	}
 
+	@Nonnull
+	@Override
+	public Object getProxy() {
+		return proxy;
+	}
+
+	@Nonnull
+	@Override
+	public Method getMethod() {
+		return method;
+	}
+
 	/**
 	 * 执行方法调用
 	 * <p>
 	 * 如果调用对象与代理对象不同，则使用原始调用器；否则使用父类调用器
 	 *
-	 * @param obj 要调用方法的对象实例
+	 * @param target 要调用方法的对象实例
 	 * @param args 方法调用参数数组
 	 * @return 方法执行结果
 	 * @throws Throwable 方法执行过程中抛出的异常
 	 */
-	public Object invoke(Object obj, Object[] args) throws Throwable {
-		if (proxy != obj) {
-			return rawInvoker.invoke(index, obj, args);
+	@Override
+	public Object invoke(Object target, Object[] args) throws Throwable {
+		if (proxy == target) {
+			return superInvoker.invoke(index, proxy, target, args);
 		} else {
-			return superInvoker.invoke(index, obj, args);
+			return rawInvoker.invoke(index, proxy, target, args);
 		}
 	}
 

@@ -1,7 +1,10 @@
 package io.polaris.core.aop;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Map;
+import java.util.function.Function;
 
 import io.polaris.core.asm.internal.AsmConsts;
 import io.polaris.core.asm.proxy.Enhancer;
@@ -21,24 +24,39 @@ public class Proxies {
 		return new JdkProxyFactory(target);
 	}
 
-	@SuppressWarnings("unchecked")
 	public static <T> T proxy(Class<?> superclass, Class<?>[] interfaces, Interceptor interceptor) {
-		return (T) proxy(Thread.currentThread().getContextClassLoader(), superclass, interfaces, interceptor);
+		return proxy(Thread.currentThread().getContextClassLoader(), superclass, interfaces, interceptor);
+	}
+
+	public static <T> T proxy(ClassLoader classloader, Class<?> superclass, Class<?>[] interfaces, Interceptor interceptor) {
+		return proxy(classloader, superclass, interfaces, interceptor, null, null);
+	}
+
+	public static <T> T proxy(ClassLoader classloader, Class<?> superclass, Class<?>[] interfaces, Interceptor interceptor, Function<Method, Function<Object[], Object>> override) {
+		return proxy(classloader, superclass, interfaces, interceptor, override, null);
+	}
+
+	public static <T> T proxy(ClassLoader classloader, Class<?> superclass, Class<?>[] interfaces, Interceptor interceptor, Map<Method, Function<Object[], Object>> override) {
+		return proxy(classloader, superclass, interfaces, interceptor, null, override);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T proxy(ClassLoader classloader, Class<?> superclass, Class<?>[] interfaces, Interceptor interceptor) {
+	public static <T> T proxy(ClassLoader classloader, Class<?> superclass, Class<?>[] interfaces, Interceptor interceptor, Function<Method, Function<Object[], Object>> overrideGenerator, Map<Method, Function<Object[], Object>> overrideMapper) {
+		if (classloader == null) {
+			classloader = Thread.currentThread().getContextClassLoader();
+		}
 		Enhancer enhancer = new Enhancer();
 		enhancer.setClassLoader(classloader);
 		return (T) enhancer.superclass(superclass)
 			.interfaces(appendInterfaces(interfaces))
 			.interceptor(interceptor)
+			.override(overrideGenerator)
+			.override(overrideMapper)
 			.create();
 	}
 
-	@SuppressWarnings("unchecked")
 	public static <T> T jdkProxy(Class<?>[] interfaces, InvocationHandler handler) {
-		return (T) jdkProxy(null, interfaces, handler);
+		return jdkProxy(null, interfaces, handler);
 	}
 
 
@@ -76,7 +94,20 @@ public class Proxies {
 	}
 
 	public static Class<?> getTargetClass(Object candidate) {
-		return (isAsmDynamicProxy(candidate) ? candidate.getClass().getSuperclass() : candidate.getClass());
+		if (candidate instanceof AopProxy) {
+			// asm
+			if (candidate.getClass().getName().contains(AsmConsts.CLASS_TAG_SEPARATOR)) {
+				return candidate.getClass().getSuperclass();
+			}
+			// jdk
+			if (Proxy.isProxyClass(candidate.getClass())) {
+				InvocationHandler invocationHandler = Proxy.getInvocationHandler(candidate);
+				if (invocationHandler instanceof JdkInvocationHandler) {
+					return ((JdkInvocationHandler) invocationHandler).getTarget().getClass();
+				}
+			}
+		}
+		return candidate.getClass();
 	}
 
 }

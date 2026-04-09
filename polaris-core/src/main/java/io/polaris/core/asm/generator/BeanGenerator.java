@@ -121,7 +121,7 @@ public class BeanGenerator extends AbstractClassGenerator {
 			// 设置缓存键值：包含父类和所有属性信息
 			setKey(new Object[]{superclass != null ? superclass : Object.class, props});
 		}
-		return super.generateClass();
+		return super.getOrGenerate();
 	}
 
 	/**

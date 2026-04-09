@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import io.polaris.core.asm.internal.AsmConsts;
@@ -17,6 +19,8 @@ import io.polaris.core.asm.internal.Local;
 import io.polaris.core.asm.internal.MethodInfo;
 import io.polaris.core.asm.internal.Signature;
 import io.polaris.core.err.BytecodeOperationException;
+import io.polaris.core.tuple.Tuple2;
+import lombok.RequiredArgsConstructor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
 
@@ -94,22 +98,63 @@ public class BulkEnhancer extends AbstractEnhancer {
 
 	@Override
 	public BulkEnhancer serialVersionUID(Long serialVersionUID) {
-		return (BulkEnhancer) super.serialVersionUID(serialVersionUID);
+		super.serialVersionUID(serialVersionUID);
+		return this;
 	}
 
 	@Override
 	public BulkEnhancer superclass(Class<?> superclass) {
-		return (BulkEnhancer) super.superclass(superclass);
+		super.superclass(superclass);
+		return this;
 	}
 
 	@Override
 	public BulkEnhancer withFinal(boolean withFinal) {
-		return (BulkEnhancer) super.withFinal(withFinal);
+		super.withFinal(withFinal);
+		return this;
 	}
 
 	@Override
 	public BulkEnhancer interfaces(Class<?>[] interfaces) {
-		return (BulkEnhancer) super.interfaces(interfaces);
+		super.interfaces(interfaces);
+		return this;
+	}
+
+
+	@Override
+	public BulkEnhancer override(Function<Method, Function<Object[], Object>> overrideGenerator) {
+		super.override(overrideGenerator);
+		return this;
+	}
+
+	@Override
+	public BulkEnhancer override(Method method, Function<Object[], Object> overrideFunction) {
+		super.override(method, overrideFunction);
+		return this;
+	}
+
+	@Override
+	public BulkEnhancer override(Map<Method, Function<Object[], Object>> overrideMapper) {
+		super.override(overrideMapper);
+		return this;
+	}
+
+	@Override
+	public BulkEnhancer defaults(Function<Method, Function<Object[], Object>> defaultGenerator) {
+		super.defaults(defaultGenerator);
+		return this;
+	}
+
+	@Override
+	public BulkEnhancer defaults(Method method, Function<Object[], Object> defaultFunction) {
+		super.defaults(method, defaultFunction);
+		return this;
+	}
+
+	@Override
+	public BulkEnhancer defaults(Map<Method, Function<Object[], Object>> defaultMapper) {
+		super.defaults(defaultMapper);
+		return this;
 	}
 
 	/**
@@ -157,9 +202,33 @@ public class BulkEnhancer extends AbstractEnhancer {
 	 */
 	@Override
 	protected Object generateKey() {
-		return new Object[]{superclass, withFinal, interfaces, interceptors, serialVersion};
+		return new EnhancerKey(superclass, withFinal, interfaces, interceptors, serialVersion);
 	}
 
+	@RequiredArgsConstructor
+	private static class EnhancerKey {
+		private final Class<?> superclass;
+		private final boolean withFinal;
+		private final Class<?>[] interfaces;
+		private final List<MatchedInterceptor> interceptors;
+		private final Long serialVersion;
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(superclass, withFinal, Arrays.hashCode(interfaces), interceptors, serialVersion);
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (!(o instanceof EnhancerKey)) return false;
+			EnhancerKey that = (EnhancerKey) o;
+			return withFinal == that.withFinal
+				&& Objects.equals(superclass, that.superclass)
+				&& Objects.deepEquals(interfaces, that.interfaces)
+				&& Objects.equals(interceptors, that.interceptors)
+				&& Objects.equals(serialVersion, that.serialVersion);
+		}
+	}
 
 	/**
 	 * 注册静态拦截器矩阵到生成的增强类

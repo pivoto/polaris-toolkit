@@ -2,7 +2,6 @@ package io.polaris.core.asm.generator;
 
 import java.lang.ref.WeakReference;
 import java.security.ProtectionDomain;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -17,7 +16,6 @@ import io.polaris.core.env.Config;
 import io.polaris.core.err.BytecodeOperationException;
 import io.polaris.core.map.Maps;
 import io.polaris.core.tuple.Tuple2;
-import lombok.Getter;
 import org.objectweb.asm.ClassReader;
 
 /**
@@ -35,7 +33,7 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
 	/** 是否默认启用缓存，从配置中读取 */
 	private static final boolean DEFAULT_USE_CACHE = Config.INSTANCE.bytecode().generator().cache();
 	/** 生成器是否已冻结（不可修改） */
-	private boolean frozen = false;
+	private volatile boolean frozen = false;
 	/** 生成策略 */
 	private GeneratorStrategy strategy = DefaultGeneratorStrategy.INSTANCE;
 	/** 命名策略 */
@@ -298,18 +296,13 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
 		return null;
 	}
 
-	/*protected Class<?> generate(Object key) {
-		setKey(key);
-		return generate();
-	} */
-
 	/**
 	 * 生成类
 	 * <p>使用缓存机制管理生成的类，生成后将当前生成器冻结</p>
 	 *
 	 * @return 生成的 Class 对象
 	 */
-	protected Class<?> generateClass() {
+	protected Class<?> getOrGenerate() {
 		ClassLoader loader = getClassLoader();
 		Map<ClassLoader, ClassLoaderData> cache = CACHE;
 		ClassLoaderData data = cache.get(loader);
@@ -327,7 +320,7 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
 			}
 		}
 		// 从 ClassLoaderData 获取或生成类
-		Class<?> clazz = data.get(this, loader, useCache());
+		Class<?> clazz = data.getOrGenerate(this, loader, useCache());
 		// 冻结生成器，防止后续修改
 		this.frozen = true;
 		return clazz;
@@ -397,10 +390,10 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
 		 * @param useCache 是否使用缓存
 		 * @return 生成的 Class 对象
 		 */
-		public Class<?> get(AbstractClassGenerator generator, ClassLoader classLoader, boolean useCache) {
+		public Class<?> getOrGenerate(AbstractClassGenerator generator, ClassLoader classLoader, boolean useCache) {
 			if (!useCache || generator.key == null) {
 				// 不使用缓存，直接生成新类
-				return generateClass(generator, classLoader);
+				return generate(generator, classLoader);
 			} else {
 				// 使用缓存，不存在时生成新类并缓存
 				WeakReference<Class<?>> ref = generatedClasses.get(generator.key);
@@ -418,14 +411,14 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
 							return clazz;
 						}
 					}
-					Class<?> clazz = generateClass(generator, classLoader);
+					Class<?> clazz = generate(generator, classLoader);
 					generatedClasses.put(generator.key, new WeakReference<>(clazz));
 					return clazz;
 				}
 			}
 		}
 
-		private Class<?> generateClass(AbstractClassGenerator generator, ClassLoader classLoader) {
+		private Class<?> generate(AbstractClassGenerator generator, ClassLoader classLoader) {
 			if (classLoader == null) {
 				throw new IllegalArgumentException("ClassLoader is null ");
 			}

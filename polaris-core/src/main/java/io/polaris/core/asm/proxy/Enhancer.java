@@ -2,13 +2,19 @@ package io.polaris.core.asm.proxy;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import io.polaris.core.asm.internal.*;
 import io.polaris.core.err.BytecodeOperationException;
+import io.polaris.core.lang.Objs;
 import io.polaris.core.tuple.Tuple2;
+import lombok.RequiredArgsConstructor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
 
@@ -62,22 +68,62 @@ public class Enhancer extends AbstractEnhancer {
 
 	@Override
 	public Enhancer serialVersionUID(Long serialVersionUID) {
-		return (Enhancer) super.serialVersionUID(serialVersionUID);
+		super.serialVersionUID(serialVersionUID);
+		return this;
 	}
 
 	@Override
 	public Enhancer superclass(Class<?> superclass) {
-		return (Enhancer) super.superclass(superclass);
+		super.superclass(superclass);
+		return this;
 	}
 
 	@Override
 	public Enhancer withFinal(boolean withFinal) {
-		return (Enhancer) super.withFinal(withFinal);
+		super.withFinal(withFinal);
+		return this;
 	}
 
 	@Override
 	public Enhancer interfaces(Class<?>[] interfaces) {
-		return (Enhancer) super.interfaces(interfaces);
+		super.interfaces(interfaces);
+		return this;
+	}
+
+	@Override
+	public Enhancer override(Function<Method, Function<Object[], Object>> overrideGenerator) {
+		super.override(overrideGenerator);
+		return this;
+	}
+
+	@Override
+	public Enhancer override(Method method, Function<Object[], Object> overrideFunction) {
+		super.override(method, overrideFunction);
+		return this;
+	}
+
+	@Override
+	public Enhancer override(Map<Method, Function<Object[], Object>> overrideMapper) {
+		super.override(overrideMapper);
+		return this;
+	}
+
+	@Override
+	public Enhancer defaults(Function<Method, Function<Object[], Object>> defaultGenerator) {
+		super.defaults(defaultGenerator);
+		return this;
+	}
+
+	@Override
+	public Enhancer defaults(Method method, Function<Object[], Object> defaultFunction) {
+		super.defaults(method, defaultFunction);
+		return this;
+	}
+
+	@Override
+	public Enhancer defaults(Map<Method, Function<Object[], Object>> defaultMapper) {
+		super.defaults(defaultMapper);
+		return this;
 	}
 
 	/**
@@ -125,7 +171,34 @@ public class Enhancer extends AbstractEnhancer {
 	 */
 	@Override
 	protected Object generateKey() {
-		return new Object[]{superclass, withFinal, interfaces, defaultInterceptor, interceptors, serialVersion};
+		return new EnhancerKey(superclass, withFinal, interfaces, defaultInterceptor, interceptors, serialVersion);
+	}
+
+	@RequiredArgsConstructor
+	private static class EnhancerKey {
+		private final Class<?> superclass;
+		private final boolean withFinal;
+		private final Class<?>[] interfaces;
+		private final Interceptor defaultInterceptor;
+		private final List<Tuple2<Predicate<Method>, Interceptor>> interceptors;
+		private final Long serialVersion;
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(superclass, withFinal, Arrays.hashCode(interfaces), defaultInterceptor, interceptors, serialVersion);
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (!(o instanceof EnhancerKey)) return false;
+			EnhancerKey that = (EnhancerKey) o;
+			return withFinal == that.withFinal
+				&& Objects.equals(superclass, that.superclass)
+				&& Objects.deepEquals(interfaces, that.interfaces)
+				&& Objects.equals(defaultInterceptor, that.defaultInterceptor)
+				&& Objects.equals(interceptors, that.interceptors)
+				&& Objects.equals(serialVersion, that.serialVersion);
+		}
 	}
 
 
@@ -179,7 +252,7 @@ public class Enhancer extends AbstractEnhancer {
 	 * @param targetMethods 目标方法数组
 	 */
 	@Override
-	protected void saveTargetMethods(Method[] targetMethods){
+	protected void saveTargetMethods(Method[] targetMethods) {
 		Interceptor[] matrix = new Interceptor[targetMethods.length];
 		for (int i = 0; i < targetMethods.length; i++) {
 			Method method = targetMethods[i];

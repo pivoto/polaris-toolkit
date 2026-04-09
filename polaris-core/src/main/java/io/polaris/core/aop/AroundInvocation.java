@@ -1,7 +1,8 @@
 package io.polaris.core.aop;
 
 import java.lang.reflect.Method;
-import java.util.List;
+
+import javax.annotation.Nonnull;
 
 import io.polaris.core.asm.proxy.Invocation;
 
@@ -9,7 +10,7 @@ import io.polaris.core.asm.proxy.Invocation;
  * @author Qt
  * @since May 14, 2024
  */
-public class AroundInvocation implements Invocation {
+class AroundInvocation implements Invocation {
 
 	private final Invocation invocation;
 	private final AroundAdvice[] advices;
@@ -26,28 +27,30 @@ public class AroundInvocation implements Invocation {
 		this.method = method;
 	}
 
+	@Nonnull
 	@Override
 	public Object getProxy() {
 		return invocation.getProxy();
 	}
 
+	@Nonnull
 	@Override
 	public Method getMethod() {
 		return invocation.getMethod();
 	}
 
 	@Override
-	public Object invoke(Object obj, Object[] args) throws Throwable {
+	public Object invoke(Object target, Object[] args) throws Throwable {
 		int size = advices.length;
 		if (index < size) {
 			AroundAdvice advice = advices[index];
 			if (index < size - 1) {
-				return advice.around(obj, method, args, new AroundInvocation(invocation, advices, index + 1, method));
+				return advice.around(target, method, args, new AroundInvocation(invocation, advices, index + 1, method));
 			} else {
-				return advice.around(obj, method, args, invocation);
+				return advice.around(target, method, args, invocation);
 			}
 		} else {
-			return invocation.invoke(obj, args);
+			return invocation.invoke(target, args);
 		}
 	}
 }

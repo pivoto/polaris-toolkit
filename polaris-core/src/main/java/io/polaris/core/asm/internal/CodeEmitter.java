@@ -963,6 +963,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 					break;
 				case Type.VOID:
 					aconst_null();
+					break;
 				default:
 					push(0);
 			}

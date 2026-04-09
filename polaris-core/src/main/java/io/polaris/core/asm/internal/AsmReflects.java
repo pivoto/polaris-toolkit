@@ -285,7 +285,7 @@ public class AsmReflects {
 			if (Modifier.isPrivate(modifiers)) {
 				continue;
 			}
-			// 忽略几下 Object 方法
+			// 忽略 Object 方法
 			if (Reflects.isFinalizeMethod(method) ||
 				Reflects.isNotifyMethod(method) || Reflects.isNotifyAllMethod(method) ||
 				Reflects.isWaitMethod(method)) {

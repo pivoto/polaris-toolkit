@@ -52,7 +52,7 @@ public class Source01BulkEnhancerSample extends Source01 {
 		obj.GENERATED$INTERCEPTORS_MATRIX = (Interceptor[][]) interceptors;
 	}
 
-	private static Object GENERATED$INVOKE_RAW(int index, Object obj, Object[] args) throws InvocationTargetException {
+	private static Object GENERATED$INVOKE_RAW(int index, Object proxy, Object obj, Object[] args) throws InvocationTargetException {
 		Source01 o = (Source01) obj;
 		try {
 			switch (index) {
@@ -68,7 +68,7 @@ public class Source01BulkEnhancerSample extends Source01 {
 		throw new IllegalArgumentException("Cannot find matching method");
 	}
 
-	private static Object GENERATED$INVOKE_SUPER(int index, Object obj, Object[] args) throws InvocationTargetException {
+	private static Object GENERATED$INVOKE_SUPER(int index, Object proxy, Object obj, Object[] args) throws InvocationTargetException {
 		Source01BulkEnhancerSample o = (Source01BulkEnhancerSample) obj;
 		try {
 			switch (index) {
