@@ -17,8 +17,12 @@ public class ProxyTargetBean {
 	public void test(int a, int b) {
 		log.info("test... a={},b={}", a, b);
 	}
+	public void raise(int a, int b) {
+		log.info("raise... a={},b={}", a, b);
+		throw new UnsupportedOperationException();
+	}
 
-	public Object get() {
+	Object get() {
 		log.info("get...");
 		return Randoms.randomString(10);
 	}

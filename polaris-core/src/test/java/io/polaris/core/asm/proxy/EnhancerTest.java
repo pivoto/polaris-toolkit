@@ -7,6 +7,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import io.polaris.core.asm.BaseAsmTest;
+import io.polaris.core.asm.internal.Signature;
 import io.polaris.core.asm.proxy.sample.Source01;
 import io.polaris.core.collection.ObjectArrays;
 import io.polaris.core.io.Consoles;
@@ -20,7 +21,7 @@ class EnhancerTest extends BaseAsmTest {
 		enhancer.withFinal(false);
 		enhancer.superclass(Source01.class);
 		enhancer.interfaces(new Class[]{Consumer.class, Supplier.class});
-		enhancer.override(Consumer.class.getMethod("accept", Object.class), args -> {
+		enhancer.override(Signature.of(Consumer.class.getMethod("accept", Object.class)), args -> {
 			System.out.println("override:" + args[0]);
 			return null;
 		});
