@@ -71,10 +71,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 	/**
 	 * 方法状态内部类，存储当前方法的详细信息
 	 */
-	private static class State
-		extends MethodInfo {
-		/** 所属类信息 */
-		ClassInfo classInfo;
+	private static class State extends AsmMethodDescriptor {
 		/** 访问标志 */
 		int access;
 		/** 方法签名 */
@@ -86,31 +83,14 @@ public class CodeEmitter extends LocalVariablesSorter {
 		/** 异常类型数组 */
 		Type[] exceptionTypes;
 
-		State(ClassInfo classInfo, int access, Signature sig, Type[] exceptionTypes) {
-			this.classInfo = classInfo;
+		State(ClassDescriptor classDescriptor, int access, Signature sig, Type[] exceptionTypes) {
+			super(classDescriptor, access, sig, exceptionTypes);
 			this.access = access;
 			this.sig = sig;
 			this.exceptionTypes = exceptionTypes;
 			localOffset = AsmTypes.isStatic(access) ? 0 : 1;
 			argumentTypes = sig.getArgumentTypes();
 		}
-
-		public ClassInfo getClassInfo() {
-			return classInfo;
-		}
-
-		public int getModifiers() {
-			return access;
-		}
-
-		public Signature getSignature() {
-			return sig;
-		}
-
-		public Type[] getExceptionTypes() {
-			return exceptionTypes;
-		}
-
 		public Attribute getAttribute() {
 			// TODO
 			return null;
@@ -120,7 +100,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 	CodeEmitter(ClassEmitter ce, MethodVisitor mv, int access, Signature sig, Type[] exceptionTypes) {
 		super(AsmConsts.ASM_API, access, sig.getDescriptor(), mv);
 		this.ce = ce;
-		state = new State(ce.getClassInfo(), access, sig, exceptionTypes);
+		state = new State(ce.getClassDescriptor(), access, sig, exceptionTypes);
 	}
 
 //	public CodeEmitter(CodeEmitter wrap) {
@@ -141,7 +121,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 		return state.sig.getReturnType();
 	}
 
-	public MethodInfo getMethodInfo() {
+	public MethodDescriptor getMethodDescriptor() {
 		return state;
 	}
 
@@ -1001,22 +981,22 @@ public class CodeEmitter extends LocalVariablesSorter {
 		}
 	}
 
-	public void invoke(MethodInfo method, Type virtualType) {
-		ClassInfo classInfo = method.getClassInfo();
-		Type type = classInfo.getType();
+	public void invoke(MethodDescriptor method, Type virtualType) {
+		ClassDescriptor classDescriptor = method.getClassDescriptor();
+		Type type = classDescriptor.getType();
 		Signature sig = method.getSignature();
 		if (sig.getName().equals(AsmConsts.CONSTRUCTOR_NAME)) {
 			invoke_constructor(type, sig);
 		} else if (AsmTypes.isStatic(method.getModifiers())) {
-			invoke_static(type, sig, AsmTypes.isInterface(classInfo.getModifiers()));
-		} else if (AsmTypes.isInterface(classInfo.getModifiers())) {
+			invoke_static(type, sig, AsmTypes.isInterface(classDescriptor.getModifiers()));
+		} else if (AsmTypes.isInterface(classDescriptor.getModifiers())) {
 			invoke_interface(type, sig);
 		} else {
 			invoke_virtual(virtualType, sig);
 		}
 	}
 
-	public void invoke(MethodInfo method) {
-		invoke(method, method.getClassInfo().getType());
+	public void invoke(MethodDescriptor method) {
+		invoke(method, method.getClassDescriptor().getType());
 	}
 }

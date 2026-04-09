@@ -618,7 +618,7 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 		boolean hasDefault = false;
 
 		// 方法签名列表
-		List<MethodInfo> methods = new ArrayList<>();
+		List<MethodDescriptor> methods = new ArrayList<>();
 		for (int i = 0; i < this.targetMethods.length; i++) {
 			Method method = this.targetMethods[i];
 			int mod = method.getModifiers();
@@ -630,7 +630,7 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 			if (withFinal) {
 				modifiers |= AsmConsts.ACC_FINAL;
 			}
-			methods.add(AsmReflects.getMethodInfo(method, modifiers));
+			methods.add(AsmReflects.getMethodDescriptor(method, modifiers));
 			{
 				Function<Object[], Object> overrideFunction = null;
 				if (this.overrideMapper != null) {
@@ -750,7 +750,7 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	 * @param constructors 构造器列表
 	 * @param methods 方法信息列表
 	 */
-	protected void emitStaticBlock(ClassEmitter ce, List<Constructor<?>> constructors, List<MethodInfo> methods) {
+	protected void emitStaticBlock(ClassEmitter ce, List<Constructor<?>> constructors, List<MethodDescriptor> methods) {
 		Type thisType = ce.getClassType();
 		CodeEmitter se = ce.getStaticHook();
 		// GENERATED$THREAD_INTERCEPTOR = new ThreadLocal<>();
@@ -764,7 +764,7 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 		se.push(methods.size());
 		se.newarray(AsmConsts.TYPE_STRING);
 		for (int i = 0; i < methods.size(); i++) {
-			MethodInfo method = methods.get(i);
+			MethodDescriptor method = methods.get(i);
 			Signature sig = method.getSignature();
 			se.dup();
 			se.push(i);
@@ -799,7 +799,7 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	 * @param methods 目标方法信息列表
 	 * @param undeclaredMethods 未声明的方法映射（接口扩展方法）
 	 */
-	protected void emitStaticInvokeSuper(ClassEmitter ce, List<MethodInfo> methods, Map<String, Method> undeclaredMethods) {
+	protected void emitStaticInvokeSuper(ClassEmitter ce, List<MethodDescriptor> methods, Map<String, Method> undeclaredMethods) {
 		Type thisType = ce.getClassType();
 		CodeEmitter e = ce.begin_method(AsmConsts.PRIVATE_FINAL_STATIC, GENERATED$INVOKE_SUPER, new Type[]{Type.getType(InvocationTargetException.class)});
 
@@ -821,7 +821,7 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 		e.process_switch(PrimitiveArrays.range(methods.size()), new ProcessSwitchCallback() {
 			@Override
 			public void processCase(int key, Label end) {
-				MethodInfo method = methods.get(key);
+				MethodDescriptor method = methods.get(key);
 				Type[] types = method.getSignature().getArgumentTypes();
 				/*
 				e.load_local(target);
@@ -859,7 +859,7 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	 * @param methods 目标方法信息列表
 	 * @param undeclaredMethods 未声明的方法映射（接口扩展方法）
 	 */
-	protected void emitStaticInvokeRaw(ClassEmitter ce, List<MethodInfo> methods, Map<String, Method> undeclaredMethods) {
+	protected void emitStaticInvokeRaw(ClassEmitter ce, List<MethodDescriptor> methods, Map<String, Method> undeclaredMethods) {
 		Type thisType = ce.getClassType();
 		CodeEmitter e = ce.begin_method(AsmConsts.PRIVATE_FINAL_STATIC, GENERATED$INVOKE_RAW, new Type[]{Type.getType(InvocationTargetException.class)});
 
@@ -875,7 +875,7 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 		e.process_switch(PrimitiveArrays.range(methods.size()), new ProcessSwitchCallback() {
 			@Override
 			public void processCase(int key, Label end) {
-				MethodInfo method = methods.get(key);
+				MethodDescriptor method = methods.get(key);
 				Type[] types = method.getSignature().getArgumentTypes();
 				Label superLabel = e.make_label();
 
@@ -906,11 +906,11 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 					// 调用原对象的方法
 					e.mark(labelRaw);
 					e.load_arg(posTarget);
-					e.instance_of(method.getClassInfo().getType());
+					e.instance_of(method.getClassDescriptor().getType());
 					e.if_jump(AsmConsts.IFEQ, superLabel);
 
 					e.load_arg(posTarget);
-					e.checkcast(method.getClassInfo().getType());
+					e.checkcast(method.getClassDescriptor().getType());
 					for (int i = 0; i < types.length; i++) {
 						e.load_arg(posArgs);
 						e.aaload(i);
@@ -919,11 +919,11 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 					/*
 					if (undeclared) {
 						// 扩展接口方法
-						e.invoke_interface(method.getClassInfo().getType(), method.getSignature());
+						e.invoke_interface(method.getClassDescriptor().getType(), method.getSignature());
 					} else {
-						e.invoke_virtual(method.getClassInfo().getType(), method.getSignature());
+						e.invoke_virtual(method.getClassDescriptor().getType(), method.getSignature());
 					} */
-					e.invoke_virtual(method.getClassInfo().getType(), method.getSignature());
+					e.invoke_virtual(method.getClassDescriptor().getType(), method.getSignature());
 					e.box(method.getSignature().getReturnType());
 					e.return_value();
 				}
@@ -1097,13 +1097,13 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	protected void emitConstructors(ClassEmitter ce, List<Constructor<?>> constructors) {
 		Type thisType = ce.getClassType();
 		for (Constructor<?> constructor : constructors) {
-			MethodInfo methodInfo = AsmReflects.getMethodInfo(constructor);
-			CodeEmitter e = Emitters.begin_method(ce, methodInfo,
+			MethodDescriptor methodDescriptor = AsmReflects.getMethodDescriptor(constructor);
+			CodeEmitter e = Emitters.begin_method(ce, methodDescriptor,
 				AsmConsts.ACC_PUBLIC);
 			e.load_this();
 			e.dup();
 			e.load_args();
-			Signature sig = methodInfo.getSignature();
+			Signature sig = methodDescriptor.getSignature();
 			e.super_invoke_constructor(sig);
 			e.invoke_static_this(GENERATED$BIND_INTERCEPTOR);
 			e.return_value();
@@ -1120,7 +1120,7 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	 * @param methods 目标方法信息列表
 	 * @param undeclaredMethods 未声明的方法映射（接口扩展方法）
 	 */
-	protected abstract void emitMethods(ClassEmitter ce, List<MethodInfo> methods, Map<String, Method> undeclaredMethods);
+	protected abstract void emitMethods(ClassEmitter ce, List<MethodDescriptor> methods, Map<String, Method> undeclaredMethods);
 
 	/**
 	 * 发射生成父类方法调用
@@ -1131,10 +1131,10 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	 * @param methods 目标方法信息列表
 	 * @param undeclaredMethods 未声明的方法映射（接口扩展方法）
 	 */
-	protected void emitSuperMethods(ClassEmitter ce, List<MethodInfo> methods, Map<String, Method> undeclaredMethods) {
+	protected void emitSuperMethods(ClassEmitter ce, List<MethodDescriptor> methods, Map<String, Method> undeclaredMethods) {
 		Type thisType = ce.getClassType();
 		for (int i = 0; i < methods.size(); i++) {
-			MethodInfo method = methods.get(i);
+			MethodDescriptor method = methods.get(i);
 			/*
 			if (GENERATED$OVERRIDE_FUNCTIONS != null) {
 				Function<Object[], Object> function = GENERATED$OVERRIDE_FUNCTIONS[index];
@@ -1265,7 +1265,7 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	 * @param methods 目标方法信息列表
 	 * @param undeclaredMethods 未声明的方法映射（接口扩展方法）
 	 */
-	protected void emitSpecialMethod(ClassEmitter ce, List<MethodInfo> methods, Map<String, Method> undeclaredMethods) {
+	protected void emitSpecialMethod(ClassEmitter ce, List<MethodDescriptor> methods, Map<String, Method> undeclaredMethods) {
 	}
 
 }

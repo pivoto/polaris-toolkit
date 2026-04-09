@@ -9,15 +9,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import io.polaris.core.asm.internal.AsmConsts;
-import io.polaris.core.asm.internal.AsmTypes;
-import io.polaris.core.asm.internal.Block;
-import io.polaris.core.asm.internal.ClassEmitter;
-import io.polaris.core.asm.internal.CodeEmitter;
-import io.polaris.core.asm.internal.Emitters;
-import io.polaris.core.asm.internal.Local;
-import io.polaris.core.asm.internal.MethodInfo;
-import io.polaris.core.asm.internal.Signature;
+import io.polaris.core.asm.internal.*;
 import io.polaris.core.err.BytecodeOperationException;
 import io.polaris.core.tuple.Tuple2;
 import lombok.RequiredArgsConstructor;
@@ -398,10 +390,10 @@ public class BulkEnhancer extends AbstractEnhancer {
 	 * @param undeclaredMethods 未声明的方法映射（接口扩展方法）
 	 */
 	@Override
-	protected void emitMethods(ClassEmitter ce, List<MethodInfo> methods, Map<String, Method> undeclaredMethods) {
+	protected void emitMethods(ClassEmitter ce, List<MethodDescriptor> methods, Map<String, Method> undeclaredMethods) {
 		Type thisType = ce.getClassType();
 		for (int i = 0; i < methods.size(); i++) {
-			MethodInfo method = methods.get(i);
+			MethodDescriptor method = methods.get(i);
 			// invoke with interceptor
 			/* try{
 				if(GENERATED$INTERCEPTORS_MATRIX == null){
@@ -504,12 +496,12 @@ public class BulkEnhancer extends AbstractEnhancer {
 	}
 
 	/* @Override
-	protected void emitSpecialMethod(ClassEmitter ce, List<MethodInfo> methods, Map<String, Method> undeclaredMethods) {
+	protected void emitSpecialMethod(ClassEmitter ce, List<MethodDescriptor> methods, Map<String, Method> undeclaredMethods) {
 		emitSetInterceptors(ce, methods);
 	}
 
 
-	private void emitSetInterceptors(ClassEmitter ce, List<MethodInfo> methods) {
+	private void emitSetInterceptors(ClassEmitter ce, List<MethodDescriptor> methods) {
 		Type thisType = ce.getClassType();
 		CodeEmitter e = ce.begin_method(AsmConsts.ACC_PUBLIC, GENERATED$SET_INTERCEPTOR, null);
 		 *//*public void GENERATED$SET_INTERCEPTORS(MatchedInterceptor[] groups) {

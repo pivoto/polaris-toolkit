@@ -372,10 +372,10 @@ public class Enhancer extends AbstractEnhancer {
 	 * @param undeclaredMethods 未声明的方法映射（接口扩展方法）
 	 */
 	@Override
-	protected void emitMethods(ClassEmitter ce, List<MethodInfo> methods, Map<String, Method> undeclaredMethods) {
+	protected void emitMethods(ClassEmitter ce, List<MethodDescriptor> methods, Map<String, Method> undeclaredMethods) {
 		Type thisType = ce.getClassType();
 		for (int i = 0; i < methods.size(); i++) {
-			MethodInfo method = methods.get(i);
+			MethodDescriptor method = methods.get(i);
 			// invoke with interceptor
 			/* try{
 				if(GENERATED$INTERCEPTORS_MATRIX == null){

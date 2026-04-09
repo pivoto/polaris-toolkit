@@ -875,9 +875,9 @@ public class Emitters {
 	 * @param e 代码发射器
 	 * @param method 方法信息对象
 	 */
-	public static void load_method(CodeEmitter e, MethodInfo method) {
+	public static void load_method(CodeEmitter e, MethodDescriptor method) {
 		// 加载方法所在的类
-		load_class(e, method.getClassInfo().getType());
+		load_class(e, method.getClassDescriptor().getType());
 		// 加载方法名
 		e.push(method.getSignature().getName());
 		// 加载参数类型数组
@@ -894,7 +894,7 @@ public class Emitters {
 		 * @param member 方法信息对象
 		 * @return 参数类型数组
 		 */
-		Type[] getParameterTypes(MethodInfo member);
+		Type[] getParameterTypes(MethodDescriptor member);
 	}
 
 	/**
@@ -955,7 +955,7 @@ public class Emitters {
 			// 缓存参数类型，避免重复计算
 			final Map cache = new HashMap();
 			final ParameterTyper cached = new ParameterTyper() {
-				public Type[] getParameterTypes(MethodInfo member) {
+				public Type[] getParameterTypes(MethodDescriptor member) {
 					Type[] types = (Type[])cache.get(member);
 					if (types == null) {
 						cache.put(member, types = member.getSignature().getArgumentTypes());
@@ -972,7 +972,7 @@ public class Emitters {
 				// 按方法名分组
 				final Map buckets = AsmCollections.bucket(members, new Transformer() {
 					public Object transform(Object value) {
-						return ((MethodInfo)value).getSignature().getName();
+						return ((MethodDescriptor)value).getSignature().getName();
 					}
 				});
 				String[] names = (String[])buckets.keySet().toArray(new String[buckets.size()]);
@@ -1028,7 +1028,7 @@ public class Emitters {
 		// 按参数数量分组
 		final Map buckets = AsmCollections.bucket(members, new Transformer() {
 			public Object transform(Object value) {
-				return typer.getParameterTypes((MethodInfo)value).length;
+				return typer.getParameterTypes((MethodDescriptor)value).length;
 			}
 		});
 		// 复制参数类型数组，获取其长度
@@ -1072,7 +1072,7 @@ public class Emitters {
 		final BitSet checked) throws Exception {
 		if (members.size() == 1) {
 			// 只有一个候选，直接匹配
-			MethodInfo member = (MethodInfo)members.get(0);
+			MethodDescriptor member = (MethodDescriptor)members.get(0);
 			Type[] types = typer.getParameterTypes(member);
 			// need to check classes that have not already been checked via switches
 			// 检查尚未通过 switch 验证的参数类型
@@ -1097,7 +1097,7 @@ public class Emitters {
 			// 多个候选，需要进一步区分
 			// choose the index that has the best chance of uniquely identifying member
 			// 选择区分度最高的参数位置
-			Type[] example = typer.getParameterTypes((MethodInfo)members.get(0));
+			Type[] example = typer.getParameterTypes((MethodDescriptor)members.get(0));
 			Map buckets = null;
 			int index = -1;
 			// 遍历所有参数位置，找到分组最多的位置
@@ -1105,7 +1105,7 @@ public class Emitters {
 				final int j = i;
 				Map test = AsmCollections.bucket(members, new Transformer() {
 					public Object transform(Object value) {
-						return AsmTypes.emulateClassGetName(typer.getParameterTypes((MethodInfo)value)[j]);
+						return AsmTypes.emulateClassGetName(typer.getParameterTypes((MethodDescriptor)value)[j]);
 					}
 				});
 				if (buckets == null || test.size() > buckets.size()) {
@@ -1324,7 +1324,7 @@ public class Emitters {
 	 * @param method 方法信息对象
 	 * @return 代码发射器
 	 */
-	public static CodeEmitter begin_method(ClassEmitter e, MethodInfo method) {
+	public static CodeEmitter begin_method(ClassEmitter e, MethodDescriptor method) {
 		return begin_method(e, method, method.getModifiers());
 	}
 
@@ -1339,7 +1339,7 @@ public class Emitters {
 	 * @param access 访问修饰符
 	 * @return 代码发射器
 	 */
-	public static CodeEmitter begin_method(ClassEmitter e, MethodInfo method, int access) {
+	public static CodeEmitter begin_method(ClassEmitter e, MethodDescriptor method, int access) {
 		// 使用指定的访问修饰符、方法签名和异常类型开始生成方法
 		return e.begin_method(access,
 			method.getSignature(),

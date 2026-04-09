@@ -14,7 +14,7 @@ import org.objectweb.asm.Type;
  * @since May 10, 2024
  */
 public class ClassEmitter extends ClassTransformer {
-	private ClassInfo classInfo;
+	private ClassDescriptor classDescriptor;
 	private Map fieldInfo;
 
 	private static int hookCounter;
@@ -45,31 +45,19 @@ public class ClassEmitter extends ClassTransformer {
 		return ++hookCounter;
 	}
 
-	public ClassInfo getClassInfo() {
-		return classInfo;
+	public ClassDescriptor getClassDescriptor() {
+		return classDescriptor;
 	}
 
 	public void begin_class(int version, final int access, String className, final Type superType, final Type[] interfaces, String source) {
 		final Type classType = Type.getType("L" + className.replace('.', '/') + ";");
-		classInfo = new ClassInfo() {
-			public Type getType() {
-				return classType;
-			}
-			public Type getSuperType() {
-				return (superType != null) ? superType : AsmConsts.TYPE_OBJECT;
-			}
-			public Type[] getInterfaces() {
-				return interfaces;
-			}
-			public int getModifiers() {
-				return access;
-			}
-		};
+		classDescriptor =  new AsmClassDescriptor(classType, (superType != null) ? superType : AsmConsts.TYPE_OBJECT, interfaces, access);
+
 		cv.visit(version,
 			access,
-			classInfo.getType().getInternalName(),
+			classDescriptor.getType().getInternalName(),
 			null,
-			classInfo.getSuperType().getInternalName(),
+			classDescriptor.getSuperType().getInternalName(),
 			AsmTypes.toInternalNames(interfaces));
 		if (source != null)
 			cv.visitSource(source, null);
@@ -96,15 +84,15 @@ public class ClassEmitter extends ClassTransformer {
 	}
 
 	public int getAccess() {
-		return classInfo.getModifiers();
+		return classDescriptor.getModifiers();
 	}
 
 	public Type getClassType() {
-		return classInfo.getType();
+		return classDescriptor.getType();
 	}
 
 	public Type getSuperType() {
-		return classInfo.getSuperType();
+		return classDescriptor.getSuperType();
 	}
 
 	public void end_class() {
@@ -124,8 +112,8 @@ public class ClassEmitter extends ClassTransformer {
 	}
 
 	public CodeEmitter begin_method(int access, Signature sig, Type[] exceptions) {
-		if (classInfo == null)
-			throw new IllegalStateException("classInfo is null! " + this);
+		if (classDescriptor == null)
+			throw new IllegalStateException("classDescriptor is null! " + this);
 		MethodVisitor v = cv.visitMethod(access,
 			sig.getName(),
 			sig.getDescriptor(),

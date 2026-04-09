@@ -27,9 +27,7 @@ public class ClassNameReader {
 	 * @return 类的全限定名（使用点分隔符）
 	 */
 	public static String getClassName(ClassReader r) {
-
-		return getClassInfo(r)[0];
-
+		return getClassNames(r)[0];
 	}
 
 	/**
@@ -40,7 +38,7 @@ public class ClassNameReader {
 	 * @param r ASM ClassReader
 	 * @return 类信息数组，[0]=类名，[1]=父类名，后续=接口名
 	 */
-	public static String[] getClassInfo(ClassReader r) {
+	public static String[] getClassNames(ClassReader r) {
 		final List<String> array = new ArrayList<>();
 		try {
 			// 使用 ClassVisitor 读取类信息，读取后立即抛出异常退出

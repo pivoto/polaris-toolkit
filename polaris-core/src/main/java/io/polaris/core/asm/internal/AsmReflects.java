@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Set;
 
 import io.polaris.core.reflect.Reflects;
-import org.objectweb.asm.Attribute;
 import org.objectweb.asm.Type;
 
 /**
@@ -47,7 +46,6 @@ public class AsmReflects {
 	/** 初始化过程中可能抛出的异常 */
 	private static final Throwable THROWABLE;
 
-	/** Object 类的所有可访问方法列表 */
 	/** Object 类的所有可访问方法列表 */
 	private static final List<Method> OBJECT_METHODS = new ArrayList<>();
 
@@ -126,17 +124,10 @@ public class AsmReflects {
 	}
 
 	/** 默认搜索的包名数组，用于辅助类查找 */
-	/** 默认搜索的包名数组，用于辅助类查找 */
 	private static final String[] DEFAULT_PACKAGES = {
 		"java.lang",
 	};
 
-	/**
-	 * 根据名称获取基本类型对应的 Class 对象
-	 *
-	 * @param name 基本类型名称（如 "int", "boolean" 等）
-	 * @return 对应的基本类型 Class 对象，如果不是基本类型则返回 null
-	 */
 	/**
 	 * 根据名称获取基本类型对应的 Class 对象
 	 *
@@ -167,12 +158,6 @@ public class AsmReflects {
 		return null;
 	}
 
-	/**
-	 * 根据名称获取基本类型的描述符
-	 *
-	 * @param name 基本类型名称（如 "int", "boolean" 等）
-	 * @return 对应的基本类型描述符（如 "I", "Z" 等），如果不是基本类型则返回 null
-	 */
 	/**
 	 * 根据名称获取基本类型的描述符
 	 *
@@ -649,67 +634,17 @@ public class AsmReflects {
 		return 0;
 	}
 
-	public static MethodInfo getMethodInfo(final Member member, final int modifiers) {
+	public static MethodDescriptor getMethodDescriptor(final Member member, final int modifiers) {
 		final Signature sig = getSignature(member);
-		return new MethodInfo() {
-			private ClassInfo ci;
-
-			@Override
-			public ClassInfo getClassInfo() {
-				if (ci == null)
-					ci = AsmReflects.getClassInfo(member.getDeclaringClass());
-				return ci;
-			}
-
-			@Override
-			public int getModifiers() {
-				return modifiers;
-			}
-
-			@Override
-			public Signature getSignature() {
-				return sig;
-			}
-
-			@Override
-			public Type[] getExceptionTypes() {
-				return AsmReflects.getExceptionTypes(member);
-			}
-
-			public Attribute getAttribute() {
-				return null;
-			}
-		};
+		return new AsmMethodDescriptor(AsmReflects.getClassDescriptor(member.getDeclaringClass()), modifiers, sig, AsmReflects.getExceptionTypes(member));
 	}
 
-	public static MethodInfo getMethodInfo(Member member) {
-		return getMethodInfo(member, member.getModifiers());
+	public static MethodDescriptor getMethodDescriptor(Member member) {
+		return getMethodDescriptor(member, member.getModifiers());
 	}
 
-	public static ClassInfo getClassInfo(final Class<?> clazz) {
-		final Type type = Type.getType(clazz);
-		final Type sc = (clazz.getSuperclass() == null) ? null : Type.getType(clazz.getSuperclass());
-		return new ClassInfo() {
-			@Override
-			public Type getType() {
-				return type;
-			}
-
-			@Override
-			public Type getSuperType() {
-				return sc;
-			}
-
-			@Override
-			public Type[] getInterfaces() {
-				return AsmTypes.getTypes(clazz.getInterfaces());
-			}
-
-			@Override
-			public int getModifiers() {
-				return clazz.getModifiers();
-			}
-		};
+	public static ClassDescriptor getClassDescriptor(final Class<?> clazz) {
+		return new AsmClassDescriptor(clazz);
 	}
 
 

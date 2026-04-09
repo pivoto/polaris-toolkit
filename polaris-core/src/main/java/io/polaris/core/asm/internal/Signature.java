@@ -23,12 +23,6 @@ public class Signature {
 	/**
 	 * 构造方法签名
 	 *
-	 * @param name 方法名
-	 * @param descriptor 方法描述符
-	 */
-	/**
-	 * 构造方法签名
-	 *
 	 * @param name 方法名称
 	 * @param descriptor 方法描述符（JVM 格式）
 	 */
@@ -44,22 +38,10 @@ public class Signature {
 	 * @param returnType 返回值类型
 	 * @param argumentTypes 参数类型数组
 	 */
-	/**
-	 * 构造方法签名
-	 *
-	 * @param name 方法名称
-	 * @param returnType 返回值类型
-	 * @param argumentTypes 参数类型数组
-	 */
 	public Signature(String name, Type returnType, Type[] argumentTypes) {
 		this(name, Type.getMethodDescriptor(returnType, argumentTypes));
 	}
 
-	/**
-	 * 获取返回值类型
-	 *
-	 * @return 返回值的 ASM Type
-	 */
 	/**
 	 * 获取返回值类型
 	 *
@@ -69,11 +51,6 @@ public class Signature {
 		return Type.getReturnType(descriptor);
 	}
 
-	/**
-	 * 获取参数类型数组
-	 *
-	 * @return 所有参数的 ASM Type 数组
-	 */
 	/**
 	 * 获取参数类型数组
 	 *

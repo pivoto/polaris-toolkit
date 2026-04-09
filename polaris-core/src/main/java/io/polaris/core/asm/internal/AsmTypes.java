@@ -789,7 +789,7 @@ public class AsmTypes {
 	 * @param method 方法信息对象
 	 * @return 如果是构造方法（方法名为 "<init>"）返回 true，否则返回 false
 	 */
-	public static boolean isConstructor(MethodInfo method) {
+	public static boolean isConstructor(MethodDescriptor method) {
 		return method.getSignature().getName().equals(AsmConsts.CONSTRUCTOR_NAME);
 	}
 
