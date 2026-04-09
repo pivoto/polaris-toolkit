@@ -41,4 +41,12 @@ public interface ClassDescriptor {
 	 */
 	int getModifiers();
 
+	/**
+	 * 获取访问标志
+	 *
+	 * @return ASM 访问标志位（如 ACC_PUBLIC、ACC_FINAL 等）
+	 */
+	default int getAccess() {
+		return getModifiers();
+	}
 }

@@ -64,65 +64,42 @@ public class CodeEmitter extends LocalVariablesSorter {
 	public static final int EQ = AsmConsts.IFEQ;
 
 	/** 代码发射器引用 */
-	private ClassEmitter ce;
-	/** 方法状态信息 */
-	private State state;
-
-	/**
-	 * 方法状态内部类，存储当前方法的详细信息
-	 */
-	private static class State extends AsmMethodDescriptor {
-		/** 访问标志 */
-		int access;
-		/** 方法签名 */
-		Signature sig;
-		/** 参数类型数组 */
-		Type[] argumentTypes;
-		/** 局部变量偏移量 */
-		int localOffset;
-		/** 异常类型数组 */
-		Type[] exceptionTypes;
-
-		State(ClassDescriptor classDescriptor, int access, Signature sig, Type[] exceptionTypes) {
-			super(classDescriptor, access, sig, exceptionTypes);
-			this.access = access;
-			this.sig = sig;
-			this.exceptionTypes = exceptionTypes;
-			localOffset = AsmTypes.isStatic(access) ? 0 : 1;
-			argumentTypes = sig.getArgumentTypes();
-		}
-		public Attribute getAttribute() {
-			// TODO
-			return null;
-		}
-	}
+	private final ClassEmitter ce;
+	/** 方法描述信息 */
+	private final MethodDescriptor methodDescriptor;
+	/** 方法访问标志 */
+	private final int access;
+	/** 方法签名 */
+	private final Signature signature;
+	/** 参数类型数组 */
+	private final Type[] argumentTypes;
+	/** 局部变量偏移量 */
+	private final int localOffset;
 
 	CodeEmitter(ClassEmitter ce, MethodVisitor mv, int access, Signature sig, Type[] exceptionTypes) {
 		super(AsmConsts.ASM_API, access, sig.getDescriptor(), mv);
 		this.ce = ce;
-		state = new State(ce.getClassDescriptor(), access, sig, exceptionTypes);
+		this.methodDescriptor = new AsmMethodDescriptor(ce.getClassDescriptor(), access, sig, exceptionTypes);
+		this.access = access;
+		this.signature = sig;
+		this.argumentTypes = sig.getArgumentTypes();
+		this.localOffset = AsmTypes.isStatic(access) ? 0 : 1;
 	}
-
-//	public CodeEmitter(CodeEmitter wrap) {
-//		super(wrap);
-//		this.ce = wrap.ce;
-//		this.state = wrap.state;
-//	}
 
 	public boolean isStaticHook() {
 		return false;
 	}
 
 	public Signature getSignature() {
-		return state.sig;
+		return this.signature;
 	}
 
 	public Type getReturnType() {
-		return state.sig.getReturnType();
+		return this.signature.getReturnType();
 	}
 
 	public MethodDescriptor getMethodDescriptor() {
-		return state;
+		return this.methodDescriptor;
 	}
 
 	public ClassEmitter getClassEmitter() {
@@ -446,7 +423,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 	}
 
 	public void load_this() {
-		if (AsmTypes.isStatic(state.access)) {
+		if (AsmTypes.isStatic(this.access)) {
 			throw new IllegalStateException("no 'this' pointer within static method");
 		}
 		mv.visitVarInsn(AsmConsts.ALOAD, 0);
@@ -456,7 +433,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 	 * Pushes all of the arguments of the current method onto the stack.
 	 */
 	public void load_args() {
-		load_args(0, state.argumentTypes.length);
+		load_args(0, this.argumentTypes.length);
 	}
 
 	/**
@@ -465,15 +442,15 @@ public class CodeEmitter extends LocalVariablesSorter {
 	 * @param index the zero-based index into the argument list
 	 */
 	public void load_arg(int index) {
-		load_local(state.argumentTypes[index],
-			state.localOffset + skipArgs(index));
+		load_local(this.argumentTypes[index],
+			this.localOffset + skipArgs(index));
 	}
 
 	// zero-based (see load_this)
 	public void load_args(int fromArg, int count) {
-		int pos = state.localOffset + skipArgs(fromArg);
+		int pos = this.localOffset + skipArgs(fromArg);
 		for (int i = 0; i < count; i++) {
-			Type t = state.argumentTypes[fromArg + i];
+			Type t = this.argumentTypes[fromArg + i];
 			load_local(t, pos);
 			pos += t.getSize();
 		}
@@ -482,7 +459,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 	private int skipArgs(int numArgs) {
 		int amount = 0;
 		for (int i = 0; i < numArgs; i++) {
-			amount += state.argumentTypes[i].getSize();
+			amount += this.argumentTypes[i].getSize();
 		}
 		return amount;
 	}
@@ -510,7 +487,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 	}
 
 	public void return_value() {
-		mv.visitInsn(state.sig.getReturnType().getOpcode(AsmConsts.IRETURN));
+		mv.visitInsn(this.signature.getReturnType().getOpcode(AsmConsts.IRETURN));
 	}
 
 	public void getfield(String name) {
@@ -566,7 +543,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 	}
 
 	public void super_invoke() {
-		super_invoke(state.sig);
+		super_invoke(this.signature);
 	}
 
 	public void super_invoke(Signature sig) {
@@ -661,7 +638,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 	}
 
 	public void new_instance_constructor_this() {
-		new_instance_constructor(ce.getClassType(), state.sig);
+		new_instance_constructor(ce.getClassType(), this.signature);
 	}
 
 	public void new_instance_constructor(Type type, Signature sig) {
@@ -708,7 +685,6 @@ public class CodeEmitter extends LocalVariablesSorter {
 	public Local make_local(Type type) {
 		int index = newLocal(type);
 		return new Local(index, type);
-//		return new Local(newLocal(type.getSize()), type);
 	}
 
 	public void checkcast_this() {
@@ -910,17 +886,17 @@ public class CodeEmitter extends LocalVariablesSorter {
 	 * (Object) equivalents.
 	 */
 	public void create_arg_array() {
-        /* generates:
-           Object[] args = new Object[]{ arg1, new Integer(arg2) };
-         */
-
-		push(state.argumentTypes.length);
+		/*
+		generates:
+		Object[] args = new Object[]{ arg1, new Integer(arg2) };
+		*/
+		push(this.argumentTypes.length);
 		newarray();
-		for (int i = 0; i < state.argumentTypes.length; i++) {
+		for (int i = 0; i < this.argumentTypes.length; i++) {
 			dup();
 			push(i);
 			load_arg(i);
-			box(state.argumentTypes[i]);
+			box(this.argumentTypes[i]);
 			aastore();
 		}
 	}
@@ -976,7 +952,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 	}
 
 	public void visitMaxs(int maxStack, int maxLocals) {
-		if (!AsmTypes.isAbstract(state.access)) {
+		if (!AsmTypes.isAbstract(this.access)) {
 			mv.visitMaxs(0, 0);
 		}
 	}

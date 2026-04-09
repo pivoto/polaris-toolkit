@@ -143,6 +143,7 @@ public class ClassEmitter extends ClassTransformer {
 			return staticInit;
 		} else if (sig.equals(staticHookSig)) {
 			return new CodeEmitter(this, v, access, sig, exceptions) {
+				@Override
 				public boolean isStaticHook() {
 					return true;
 				}

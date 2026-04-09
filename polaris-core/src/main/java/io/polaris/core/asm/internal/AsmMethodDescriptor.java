@@ -31,11 +31,6 @@ class AsmMethodDescriptor implements MethodDescriptor {
 	}
 
 	@Override
-	public int getModifiers() {
-		return access;
-	}
-
-	@Override
 	public Signature getSignature() {
 		return signature;
 	}
@@ -43,6 +38,11 @@ class AsmMethodDescriptor implements MethodDescriptor {
 	@Override
 	public Type[] getExceptionTypes() {
 		return exceptionTypes;
+	}
+
+	@Override
+	public int getModifiers() {
+		return access;
 	}
 
 	public boolean equals(Object o) {

@@ -20,13 +20,6 @@ public interface MethodDescriptor {
 	ClassDescriptor getClassDescriptor();
 
 	/**
-	 * 获取访问标志
-	 *
-	 * @return ASM 访问标志位（如 ACC_PUBLIC、ACC_FINAL 等）
-	 */
-	int getModifiers();
-
-	/**
 	 * 获取方法签名
 	 *
 	 * @return 方法的 Signature 对象，包含方法名和描述符
@@ -40,5 +33,21 @@ public interface MethodDescriptor {
 	 */
 	Type[] getExceptionTypes();
 
+
+	/**
+	 * 获取访问标志
+	 *
+	 * @return ASM 访问标志位（如 ACC_PUBLIC、ACC_FINAL 等）
+	 */
+	int getModifiers();
+
+	/**
+	 * 获取访问标志
+	 *
+	 * @return ASM 访问标志位（如 ACC_PUBLIC、ACC_FINAL 等）
+	 */
+	default int getAccess() {
+		return getModifiers();
+	}
 
 }
