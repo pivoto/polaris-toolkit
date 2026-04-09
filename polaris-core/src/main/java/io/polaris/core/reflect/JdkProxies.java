@@ -90,11 +90,21 @@ public class JdkProxies {
 		if (System.getSecurityManager() != null) {
 			final ClassLoader loader = proxyLoader;
 			proxy = AccessController.doPrivileged((PrivilegedAction<Object>) () ->
-				Proxy.newProxyInstance(loader, new Class<?>[]{intfc}, ih));
+				Proxy.newProxyInstance(loader, appendInterfaces(intfc, otherInterfaces), ih));
 		} else {
-			proxy = Proxy.newProxyInstance(proxyLoader, new Class<?>[]{intfc}, ih);
+			proxy = Proxy.newProxyInstance(proxyLoader, appendInterfaces(intfc, otherInterfaces), ih);
 		}
 		return intfc.cast(proxy);
+	}
+
+	private static Class<?>[] appendInterfaces(Class<?> intfc, Class<?>[] otherInterfaces) {
+		if (otherInterfaces == null || otherInterfaces.length == 0) {
+			return new Class[]{intfc};
+		}
+		Class<?>[] array = new Class[otherInterfaces.length + 1];
+		System.arraycopy(otherInterfaces, 0, array, 0, otherInterfaces.length);
+		array[otherInterfaces.length] = intfc;
+		return array;
 	}
 
 	private static Map<Method, MethodHandle> getMethodHandleMap(Class<?> intfc, Class<?>[] otherInterfaces) throws IllegalAccessException {
