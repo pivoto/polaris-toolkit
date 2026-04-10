@@ -16,12 +16,9 @@ public interface AsmConsts extends org.objectweb.asm.Opcodes {
 	int ASM_API = Opcodes.ASM9;
 
 	/** 空 Class 数组 */
-	Class[] EMPTY_CLASS_ARRAY = {};
+	Class<?>[] EMPTY_CLASS_ARRAY = {};
 	/** 空 Type 数组 */
 	Type[] TYPES_EMPTY = {};
-
-	/** 静态初始化方法签名 */
-	Signature SIG_STATIC = AsmTypes.parseSignature("void <clinit>()");
 
 
 	/** Object[] 的 Type，表示对象数组类型 */
@@ -79,6 +76,12 @@ public interface AsmConsts extends org.objectweb.asm.Opcodes {
 	Type TYPE_SIGNATURE = Type.getType(Signature.class);
 	/** Type 的 Type，表示 ASM 的 Type 类 */
 	Type TYPE_TYPE = Type.getType(Type.class);
+
+
+	/** 静态初始化方法签名 */
+	Signature SIG_STATIC = AsmTypes.parseSignature("void <clinit>()");
+	/** 空参数构造方法签名：<init>()V */
+	Signature CSTRUCT_NULL = AsmTypes.parseConstructor("");
 
 	/** 构造方法名称，JVM 内部标识符 */
 	String CONSTRUCTOR_NAME = "<init>";

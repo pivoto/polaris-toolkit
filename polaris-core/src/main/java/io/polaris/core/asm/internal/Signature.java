@@ -31,6 +31,17 @@ public class Signature {
 	private transient Class<?> returnClass;
 	private transient Class<?>[] argumentClasses;
 
+	public static Signature of(String name, Type returnType) {
+		return of(name, returnType, new Type[0]);
+	}
+
+	public static Signature of(String name, Type returnType, Type... argumentTypes) {
+		Signature signature = new Signature(name, Type.getMethodDescriptor(returnType, argumentTypes));
+		signature.returnType = returnType;
+		signature.argumentTypes = argumentTypes;
+		return signature;
+	}
+
 	public static Signature of(String name, Class<?> returnClass) {
 		return of(name, returnClass, new Type[0]);
 	}
@@ -44,12 +55,17 @@ public class Signature {
 		return signature;
 	}
 
+	public static Signature of(String name, Type returnType, Class<?>... argumentClasses) {
+		Type[] types = AsmTypes.getTypes(argumentClasses);
+		Signature signature = of(name, returnType, types);
+		signature.argumentClasses = argumentClasses;
+		return signature;
+	}
+
 	public static Signature of(String name, Class<?> returnClass, Class<?>... argumentClasses) {
 		Type type = Type.getType(returnClass);
 		Type[] types = AsmTypes.getTypes(argumentClasses);
-		Signature signature = new Signature(name, Type.getMethodDescriptor(type, types));
-		signature.returnType = type;
-		signature.argumentTypes = types;
+		Signature signature = of(name, type, types);
 		signature.returnClass = returnClass;
 		signature.argumentClasses = argumentClasses;
 		return signature;

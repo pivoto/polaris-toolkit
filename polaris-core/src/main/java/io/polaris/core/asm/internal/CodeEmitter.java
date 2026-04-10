@@ -166,14 +166,112 @@ public class CodeEmitter extends LocalVariablesSorter {
 		mv.visitJumpInsn(AsmConsts.IFNONNULL, label);
 	}
 
-	public void if_jump(int mode, Label label) {
-		mv.visitJumpInsn(mode, label);
+	public void if_jump(int opcode, Label label) {
+		mv.visitJumpInsn(opcode, label);
 	}
 
 	public void if_icmp(int mode, Label label) {
 		if_cmp(Type.INT_TYPE, mode, label);
 	}
 
+	public void if_icmp_eq(Label label) {
+		if_cmp(Type.INT_TYPE, EQ, label);
+	}
+
+	public void if_icmp_ne(Label label) {
+		if_cmp(Type.INT_TYPE, NE, label);
+	}
+
+	public void if_icmp_gt(Label label) {
+		if_cmp(Type.INT_TYPE, GT, label);
+	}
+
+	public void if_icmp_ge(Label label) {
+		if_cmp(Type.INT_TYPE, GE, label);
+	}
+
+	public void if_icmp_lt(Label label) {
+		if_cmp(Type.INT_TYPE, LT, label);
+	}
+
+	public void if_icmp_le(Type type, Label label) {
+		if_cmp(type, LE, label);
+	}
+
+	public void if_cmp_eq(Type type, Label label) {
+		if_cmp(type, EQ, label);
+	}
+
+	public void if_cmp_ne(Type type, Label label) {
+		if_cmp(type, NE, label);
+	}
+
+	public void if_cmp_gt(Type type, Label label) {
+		if_cmp(type, GT, label);
+	}
+
+	public void if_cmp_ge(Type type, Label label) {
+		if_cmp(type, GE, label);
+	}
+
+	public void if_cmp_lt(Type type, Label label) {
+		if_cmp(type, LT, label);
+	}
+
+	public void if_cmp_le(Type type, Label label) {
+		if_cmp(type, LE, label);
+	}
+
+	public void if_cmp(Type type, int mode, Label label) {
+		switch (type.getSort()) {
+			case Type.LONG:
+				mv.visitInsn(AsmConsts.LCMP);
+				break;
+			case Type.DOUBLE:
+				mv.visitInsn(AsmConsts.DCMPG);
+				break;
+			case Type.FLOAT:
+				mv.visitInsn(AsmConsts.FCMPG);
+				break;
+			case Type.ARRAY:
+			case Type.OBJECT:
+				switch (mode) {
+					case EQ:
+						mv.visitJumpInsn(AsmConsts.IF_ACMPEQ, label);
+						return;
+					case NE:
+						mv.visitJumpInsn(AsmConsts.IF_ACMPNE, label);
+						return;
+				}
+				throw new IllegalArgumentException("Bad comparison for type " + type);
+			default:
+				int intOp = -1;
+				switch (mode) {
+					case EQ:
+						intOp = AsmConsts.IF_ICMPEQ;
+						break;
+					case NE:
+						intOp = AsmConsts.IF_ICMPNE;
+						break;
+					case GE:
+						intOp = AsmConsts.IF_ICMPGE;
+						break;
+					case LT:
+						intOp = AsmConsts.IF_ICMPLT;
+						break;
+					case LE:
+						intOp = AsmConsts.IF_ICMPLE;
+						break;
+					case GT:
+						intOp = AsmConsts.IF_ICMPGT;
+						break;
+				}
+				mv.visitJumpInsn(intOp, label);
+				return;
+		}
+		if_jump(mode, label);
+	}
+	/*
 	public void if_cmp(Type type, int mode, Label label) {
 		int intOp = -1;
 		int jumpmode = mode;
@@ -215,12 +313,12 @@ public class CodeEmitter extends LocalVariablesSorter {
 						intOp = AsmConsts.IF_ICMPNE;
 						break;
 					case GE:
-						swap(); /* fall through */
+						swap(); // fall through
 					case LT:
 						intOp = AsmConsts.IF_ICMPLT;
 						break;
 					case LE:
-						swap(); /* fall through */
+						swap(); // fall through
 					case GT:
 						intOp = AsmConsts.IF_ICMPGT;
 						break;
@@ -230,6 +328,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 		}
 		if_jump(jumpmode, label);
 	}
+	*/
 
 	public void pop() {
 		mv.visitInsn(AsmConsts.POP);

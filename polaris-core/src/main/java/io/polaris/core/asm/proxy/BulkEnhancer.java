@@ -444,7 +444,7 @@ public class BulkEnhancer extends AbstractEnhancer {
 				e.load_local(interceptors);
 				e.arraylength();
 				e.push(1);
-				e.if_icmp(AsmConsts.IFLT, labelSuper);
+				e.if_icmp_lt(labelSuper);
 
 				e.mark(labelInterceptor);
 				Block handler = e.begin_block();

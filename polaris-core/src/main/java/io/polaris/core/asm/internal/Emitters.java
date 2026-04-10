@@ -214,7 +214,7 @@ public class Emitters {
 		e.load_local(loopvar);
 		e.load_local(array);
 		e.arraylength();
-		e.if_icmp(e.LT, loopbody);
+		e.if_icmp_lt(loopbody);
 	}
 
 	/**
@@ -275,7 +275,7 @@ public class Emitters {
 		e.load_local(loopvar);
 		e.load_local(array1);
 		e.arraylength();
-		e.if_icmp(e.LT, loopbody);
+		e.if_icmp_lt(loopbody);
 	}
 
 	/**
@@ -343,7 +343,7 @@ public class Emitters {
 		// 按字符串长度分组，相同长度的字符串放在同一个桶中
 		final Map buckets = AsmCollections.bucket(Arrays.asList(strings), new Transformer() {
 			public Object transform(Object value) {
-				return ((String)value).length();
+				return ((String) value).length();
 			}
 		});
 		// 复制字符串引用，调用 length() 方法获取长度
@@ -353,10 +353,11 @@ public class Emitters {
 		e.process_switch(getSwitchKeys(buckets), new ProcessSwitchCallback() {
 			public void processCase(int key, Label ignore_end) throws Exception {
 				// 获取相同长度的字符串列表
-				List bucket = (List)buckets.get(Integer.valueOf(key));
+				List bucket = (List) buckets.get(Integer.valueOf(key));
 				// 递归处理每个字符的比较
 				stringSwitchHelper(e, bucket, callback, def, end, 0);
 			}
+
 			public void processDefault() {
 				// 长度不匹配，跳转到默认分支
 				e.goTo(def);
@@ -392,11 +393,11 @@ public class Emitters {
 		final Label end,
 		final int index) throws Exception {
 		// 获取字符串长度（所有字符串长度相同）
-		final int len = ((String)strings.get(0)).length();
+		final int len = ((String) strings.get(0)).length();
 		// 按当前位置的字符值分组
 		final Map buckets = AsmCollections.bucket(strings, new Transformer() {
 			public Object transform(Object value) {
-				return (int) ((String)value).charAt(index);
+				return (int) ((String) value).charAt(index);
 			}
 		});
 		// 复制字符串引用，调用 charAt(index) 获取当前字符
@@ -406,7 +407,7 @@ public class Emitters {
 		// 根据字符值进行 switch 分发
 		e.process_switch(getSwitchKeys(buckets), new ProcessSwitchCallback() {
 			public void processCase(int key, Label ignore_end) throws Exception {
-				List bucket = (List)buckets.get(Integer.valueOf(key));
+				List bucket = (List) buckets.get(Integer.valueOf(key));
 				// 如果已到达字符串末尾，执行匹配的回调
 				if (index + 1 == len) {
 					e.pop();
@@ -416,6 +417,7 @@ public class Emitters {
 					stringSwitchHelper(e, bucket, callback, def, end, index + 1);
 				}
 			}
+
 			public void processDefault() {
 				// 字符不匹配，跳转到默认分支
 				e.goTo(def);
@@ -433,8 +435,8 @@ public class Emitters {
 		// 提取所有键值
 		int[] keys = new int[buckets.size()];
 		int index = 0;
-		for (Iterator it = buckets.keySet().iterator(); it.hasNext();) {
-			keys[index++] = ((Integer)it.next()).intValue();
+		for (Iterator it = buckets.keySet().iterator(); it.hasNext(); ) {
+			keys[index++] = ((Integer) it.next()).intValue();
 		}
 		// 排序以确保 switch 的正确性
 		Arrays.sort(keys);
@@ -477,17 +479,17 @@ public class Emitters {
 		e.process_switch(getSwitchKeys(buckets), new ProcessSwitchCallback() {
 			public void processCase(int key, Label ignore_end) throws Exception {
 				// 获取具有相同哈希码的字符串列表
-				List bucket = (List)buckets.get(Integer.valueOf(key));
+				List bucket = (List) buckets.get(Integer.valueOf(key));
 				Label next = null;
 				// 如果跳过 equals 且只有一个候选，直接匹配
 				if (skipEquals && bucket.size() == 1) {
 					if (skipEquals)
 						e.pop();
-					callback.processCase((String)bucket.get(0), end);
+					callback.processCase((String) bucket.get(0), end);
 				} else {
 					// 遍历所有候选字符串，使用 equals 进行比较
-					for (Iterator it = bucket.iterator(); it.hasNext();) {
-						String string = (String)it.next();
+					for (Iterator it = bucket.iterator(); it.hasNext(); ) {
+						String string = (String) it.next();
 						// 标记下一个比较的位置
 						if (next != null) {
 							e.mark(next);
@@ -513,6 +515,7 @@ public class Emitters {
 					}
 				}
 			}
+
 			public void processDefault() {
 				// 哈希码不匹配，弹出字符串引用
 				e.pop();
@@ -673,16 +676,16 @@ public class Emitters {
 			Class type = obj.getClass();
 			if (type.isArray()) {
 				// 数组类型递归处理
-				push_array(e, (Object[])obj);
+				push_array(e, (Object[]) obj);
 			} else if (obj instanceof String) {
 				// 字符串直接使用 ldc 指令
-				e.push((String)obj);
+				e.push((String) obj);
 			} else if (obj instanceof Type) {
 				// Type 对象加载其对应的 Class
-				load_class(e, (Type)obj);
+				load_class(e, (Type) obj);
 			} else if (obj instanceof Class) {
 				// Class 对象转换为 Type 后加载
-				load_class(e, Type.getType((Class)obj));
+				load_class(e, Type.getType((Class) obj));
 			} else if (obj instanceof BigInteger) {
 				// BigInteger 通过字符串构造函数创建
 				e.new_instance(AsmConsts.TYPE_BIG_INTEGER);
@@ -700,7 +703,6 @@ public class Emitters {
 			}
 		}
 	}
-
 
 
 	/**
@@ -956,7 +958,7 @@ public class Emitters {
 			final Map cache = new HashMap();
 			final ParameterTyper cached = new ParameterTyper() {
 				public Type[] getParameterTypes(MethodDescriptor member) {
-					Type[] types = (Type[])cache.get(member);
+					Type[] types = (Type[]) cache.get(member);
 					if (types == null) {
 						cache.put(member, types = member.getSignature().getArgumentTypes());
 					}
@@ -972,16 +974,17 @@ public class Emitters {
 				// 按方法名分组
 				final Map buckets = AsmCollections.bucket(members, new Transformer() {
 					public Object transform(Object value) {
-						return ((MethodDescriptor)value).getSignature().getName();
+						return ((MethodDescriptor) value).getSignature().getName();
 					}
 				});
-				String[] names = (String[])buckets.keySet().toArray(new String[buckets.size()]);
+				String[] names = (String[]) buckets.keySet().toArray(new String[buckets.size()]);
 				// 使用方法名进行字符串 switch
 				Emitters.string_switch(e, names, AsmConsts.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
 					public void processCase(Object key, Label dontUseEnd) throws Exception {
 						// 对相同名称的方法，按参数大小进一步区分
-						member_helper_size(e, (List)buckets.get(key), callback, cached, def, end);
+						member_helper_size(e, (List) buckets.get(key), callback, cached, def, end);
 					}
+
 					public void processDefault() throws Exception {
 						e.goTo(def);
 					}
@@ -1028,7 +1031,7 @@ public class Emitters {
 		// 按参数数量分组
 		final Map buckets = AsmCollections.bucket(members, new Transformer() {
 			public Object transform(Object value) {
-				return typer.getParameterTypes((MethodDescriptor)value).length;
+				return typer.getParameterTypes((MethodDescriptor) value).length;
 			}
 		});
 		// 复制参数类型数组，获取其长度
@@ -1037,10 +1040,11 @@ public class Emitters {
 		// 根据参数数量进行 switch 分发
 		e.process_switch(Emitters.getSwitchKeys(buckets), new ProcessSwitchCallback() {
 			public void processCase(int key, Label dontUseEnd) throws Exception {
-				List bucket = (List)buckets.get(Integer.valueOf(key));
+				List bucket = (List) buckets.get(Integer.valueOf(key));
 				// 对相同参数数量的成员，按类型进一步区分
 				member_helper_type(e, bucket, callback, typer, def, end, new BitSet());
 			}
+
 			public void processDefault() throws Exception {
 				e.goTo(def);
 			}
@@ -1072,7 +1076,7 @@ public class Emitters {
 		final BitSet checked) throws Exception {
 		if (members.size() == 1) {
 			// 只有一个候选，直接匹配
-			MethodDescriptor member = (MethodDescriptor)members.get(0);
+			MethodDescriptor member = (MethodDescriptor) members.get(0);
 			Type[] types = typer.getParameterTypes(member);
 			// need to check classes that have not already been checked via switches
 			// 检查尚未通过 switch 验证的参数类型
@@ -1097,7 +1101,7 @@ public class Emitters {
 			// 多个候选，需要进一步区分
 			// choose the index that has the best chance of uniquely identifying member
 			// 选择区分度最高的参数位置
-			Type[] example = typer.getParameterTypes((MethodDescriptor)members.get(0));
+			Type[] example = typer.getParameterTypes((MethodDescriptor) members.get(0));
 			Map buckets = null;
 			int index = -1;
 			// 遍历所有参数位置，找到分组最多的位置
@@ -1105,7 +1109,7 @@ public class Emitters {
 				final int j = i;
 				Map test = AsmCollections.bucket(members, new Transformer() {
 					public Object transform(Object value) {
-						return AsmTypes.emulateClassGetName(typer.getParameterTypes((MethodDescriptor)value)[j]);
+						return AsmTypes.emulateClassGetName(typer.getParameterTypes((MethodDescriptor) value)[j]);
 					}
 				});
 				if (buckets == null || test.size() > buckets.size()) {
@@ -1129,12 +1133,13 @@ public class Emitters {
 
 				// 按类型名进行字符串 switch
 				final Map fbuckets = buckets;
-				String[] names = (String[])buckets.keySet().toArray(new String[buckets.size()]);
+				String[] names = (String[]) buckets.keySet().toArray(new String[buckets.size()]);
 				Emitters.string_switch(e, names, AsmConsts.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
 					public void processCase(Object key, Label dontUseEnd) throws Exception {
 						// 递归处理同一类型的成员
-						member_helper_type(e, (List)fbuckets.get(key), callback, typer, def, end, checked);
+						member_helper_type(e, (List) fbuckets.get(key), callback, typer, def, end, checked);
 					}
+
 					public void processDefault() throws Exception {
 						e.goTo(def);
 					}
@@ -1236,7 +1241,7 @@ public class Emitters {
 		e = ce.begin_method(AsmConsts.ACC_PUBLIC,
 			new Signature("set" + property,
 				Type.VOID_TYPE,
-				new Type[]{ type }),
+				new Type[]{type}),
 			null);
 		// 加载 this 引用
 		e.load_this();

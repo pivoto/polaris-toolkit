@@ -16,7 +16,8 @@
 		<dependency.nacos.version>2.1.0</dependency.nacos.version>
 		<dependency.curator.version>4.2.0</dependency.curator.version>
 		<dependency.curator-test.version>2.12.0</dependency.curator-test.version>
-		<zxing.version>3.5.1</zxing.version>
+		<dependency.zxing.version>3.5.1</dependency.zxing.version>
+		<dependency.javaparser-core.version>3.28.0</dependency.javaparser-core.version>
 	</properties>
 
 	<dependencies>
@@ -78,6 +79,12 @@
 			<groupId>cglib</groupId>
 			<artifactId>cglib</artifactId>
 			<version>3.2.5</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>com.github.javaparser</groupId>
+			<artifactId>javaparser-core</artifactId>
+			<version>${dependency.javaparser-core.version}</version>
 			<optional>true</optional>
 		</dependency>
 		<!-- endregion -->
@@ -175,12 +182,12 @@
 		<dependency>
 			<groupId>com.google.zxing</groupId>
 			<artifactId>core</artifactId>
-			<version>${zxing.version}</version>
+			<version>${dependency.zxing.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.zxing</groupId>
 			<artifactId>javase</artifactId>
-			<version>${zxing.version}</version>
+			<version>${dependency.zxing.version}</version>
 		</dependency>
 		<!-- endregion -->
 

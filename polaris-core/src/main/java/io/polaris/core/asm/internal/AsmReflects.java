@@ -644,9 +644,16 @@ public class AsmReflects {
 		return getMethodDescriptor(member, member.getModifiers());
 	}
 
+	public static MethodDescriptor getMethodDescriptor(ClassDescriptor classDescriptor, int access, Signature signature, Type[] exceptionTypes) {
+		return new AsmMethodDescriptor(classDescriptor, access, signature, exceptionTypes);
+	}
+
 	public static ClassDescriptor getClassDescriptor(final Class<?> clazz) {
 		return new AsmClassDescriptor(clazz);
 	}
 
+	public static ClassDescriptor getClassDescriptor(Type type, Type superType, Type[] interfaces, int modifiers) {
+		return new AsmClassDescriptor(type, superType, interfaces, modifiers);
+	}
 
 }
