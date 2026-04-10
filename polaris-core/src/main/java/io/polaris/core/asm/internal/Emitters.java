@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.polaris.core.asm.consts.AsmCmpConsts;
+import io.polaris.core.asm.consts.AsmMathConsts;
 import io.polaris.core.err.BytecodeOperationException;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
@@ -504,11 +506,11 @@ public class Emitters {
 						e.invoke_virtual(AsmConsts.TYPE_OBJECT, EQUALS);
 						// 如果还有后续候选，不相等时跳转到下一个比较
 						if (it.hasNext()) {
-							e.if_jump(e.EQ, next = e.make_label());
+							e.if_jump(AsmCmpConsts.EQ, next = e.make_label());
 							e.pop();
 						} else {
 							// 最后一个候选，不相等时跳转到默认分支
-							e.if_jump(e.EQ, def);
+							e.if_jump(AsmCmpConsts.EQ, def);
 						}
 						// 执行匹配的回调
 						callback.processCase(string, end);
@@ -725,7 +727,7 @@ public class Emitters {
 			case Type.BOOLEAN:
 				// boolean: f ? 0 : 1
 				e.push(1);
-				e.math(e.XOR, Type.INT_TYPE);
+				e.math(AsmMathConsts.XOR, Type.INT_TYPE);
 				break;
 			case Type.FLOAT:
 				// float: Float.floatToIntBits(f)
@@ -754,9 +756,9 @@ public class Emitters {
 		e.dup2();
 		// 无符号右移 32 位
 		e.push(32);
-		e.math(e.USHR, Type.LONG_TYPE);
+		e.math(AsmMathConsts.USHR, Type.LONG_TYPE);
 		// 与原值进行异或
-		e.math(e.XOR, Type.LONG_TYPE);
+		e.math(AsmMathConsts.XOR, Type.LONG_TYPE);
 		// 转换为 int 类型
 		e.cast_numeric(Type.LONG_TYPE, Type.INT_TYPE);
 	}
@@ -826,7 +828,7 @@ public class Emitters {
 		e.invoke_virtual(AsmConsts.TYPE_STRING_BUFFER, LENGTH);
 		// 减去指定数量
 		e.push(amt);
-		e.math(e.SUB, Type.INT_TYPE);
+		e.math(AsmMathConsts.SUB, Type.INT_TYPE);
 		// 调用 setLength 设置新长度
 		e.invoke_virtual(AsmConsts.TYPE_STRING_BUFFER, SET_LENGTH);
 	}
@@ -1091,7 +1093,7 @@ public class Emitters {
 					e.push(AsmTypes.emulateClassGetName(types[i]));
 					e.invoke_virtual(AsmConsts.TYPE_OBJECT, EQUALS);
 					// 不相等则跳转到默认分支
-					e.if_jump(e.EQ, def);
+					e.if_jump(AsmCmpConsts.EQ, def);
 				}
 			}
 			// 所有类型都匹配，弹出参数数组并执行回调

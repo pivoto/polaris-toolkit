@@ -3,6 +3,7 @@ package io.polaris.core.asm.internal;
 import java.io.PrintStream;
 
 import io.polaris.core.asm.consts.AsmAccessConsts;
+import io.polaris.core.asm.consts.AsmCmpConsts;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.objectweb.asm.Label;
@@ -30,7 +31,7 @@ class ClassEmittersTest {
 
 			e.push(11L);
 			e.push(22L);
-			e.if_cmp(Type.LONG_TYPE, CodeEmitter.GE, label);
+			e.if_cmp(Type.LONG_TYPE, AsmCmpConsts.GE, label);
 			e.aconst_null();
 			e.pop();
 //			e.if_cmp(Type.INT_TYPE, CodeEmitter.GE, label);
@@ -38,7 +39,7 @@ class ClassEmittersTest {
 
 			e.push(1);
 			e.push(2);
-			e.if_cmp(Type.INT_TYPE, CodeEmitter.GE, label);
+			e.if_cmp(Type.INT_TYPE, AsmCmpConsts.GE, label);
 			e.aconst_null();
 			e.pop();
 

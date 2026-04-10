@@ -2,6 +2,8 @@ package io.polaris.core.asm.internal;
 
 import java.util.Arrays;
 
+import io.polaris.core.asm.consts.AsmCmpConsts;
+import io.polaris.core.asm.consts.AsmMathConsts;
 import io.polaris.core.err.BytecodeOperationException;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
@@ -43,24 +45,6 @@ public class CodeEmitter extends LocalVariablesSorter {
 	/** String 参数构造方法签名 */
 	private static final Signature CSTRUCT_STRING =
 		AsmTypes.parseConstructor("String");
-
-	public static final int ADD = AsmConsts.IADD;
-	public static final int MUL = AsmConsts.IMUL;
-	public static final int XOR = AsmConsts.IXOR;
-	public static final int USHR = AsmConsts.IUSHR;
-	public static final int SUB = AsmConsts.ISUB;
-	public static final int DIV = AsmConsts.IDIV;
-	public static final int NEG = AsmConsts.INEG;
-	public static final int REM = AsmConsts.IREM;
-	public static final int AND = AsmConsts.IAND;
-	public static final int OR = AsmConsts.IOR;
-
-	public static final int GT = AsmConsts.IFGT;
-	public static final int LT = AsmConsts.IFLT;
-	public static final int GE = AsmConsts.IFGE;
-	public static final int LE = AsmConsts.IFLE;
-	public static final int NE = AsmConsts.IFNE;
-	public static final int EQ = AsmConsts.IFEQ;
 
 	/** 代码发射器引用 */
 	private final ClassEmitter ce;
@@ -174,51 +158,51 @@ public class CodeEmitter extends LocalVariablesSorter {
 	}
 
 	public void if_icmp_eq(Label label) {
-		if_cmp(Type.INT_TYPE, EQ, label);
+		if_cmp(Type.INT_TYPE, AsmCmpConsts.EQ, label);
 	}
 
 	public void if_icmp_ne(Label label) {
-		if_cmp(Type.INT_TYPE, NE, label);
+		if_cmp(Type.INT_TYPE, AsmCmpConsts.NE, label);
 	}
 
 	public void if_icmp_gt(Label label) {
-		if_cmp(Type.INT_TYPE, GT, label);
+		if_cmp(Type.INT_TYPE, AsmCmpConsts.GT, label);
 	}
 
 	public void if_icmp_ge(Label label) {
-		if_cmp(Type.INT_TYPE, GE, label);
+		if_cmp(Type.INT_TYPE, AsmCmpConsts.GE, label);
 	}
 
 	public void if_icmp_lt(Label label) {
-		if_cmp(Type.INT_TYPE, LT, label);
+		if_cmp(Type.INT_TYPE, AsmCmpConsts.LT, label);
 	}
 
 	public void if_icmp_le(Type type, Label label) {
-		if_cmp(type, LE, label);
+		if_cmp(type, AsmCmpConsts.LE, label);
 	}
 
 	public void if_cmp_eq(Type type, Label label) {
-		if_cmp(type, EQ, label);
+		if_cmp(type, AsmCmpConsts.EQ, label);
 	}
 
 	public void if_cmp_ne(Type type, Label label) {
-		if_cmp(type, NE, label);
+		if_cmp(type, AsmCmpConsts.NE, label);
 	}
 
 	public void if_cmp_gt(Type type, Label label) {
-		if_cmp(type, GT, label);
+		if_cmp(type, AsmCmpConsts.GT, label);
 	}
 
 	public void if_cmp_ge(Type type, Label label) {
-		if_cmp(type, GE, label);
+		if_cmp(type, AsmCmpConsts.GE, label);
 	}
 
 	public void if_cmp_lt(Type type, Label label) {
-		if_cmp(type, LT, label);
+		if_cmp(type, AsmCmpConsts.LT, label);
 	}
 
 	public void if_cmp_le(Type type, Label label) {
-		if_cmp(type, LE, label);
+		if_cmp(type, AsmCmpConsts.LE, label);
 	}
 
 	public void if_cmp(Type type, int mode, Label label) {
@@ -235,10 +219,10 @@ public class CodeEmitter extends LocalVariablesSorter {
 			case Type.ARRAY:
 			case Type.OBJECT:
 				switch (mode) {
-					case EQ:
+					case AsmCmpConsts.EQ:
 						mv.visitJumpInsn(AsmConsts.IF_ACMPEQ, label);
 						return;
-					case NE:
+					case AsmCmpConsts.NE:
 						mv.visitJumpInsn(AsmConsts.IF_ACMPNE, label);
 						return;
 				}
@@ -246,22 +230,22 @@ public class CodeEmitter extends LocalVariablesSorter {
 			default:
 				int intOp = -1;
 				switch (mode) {
-					case EQ:
+					case AsmCmpConsts.EQ:
 						intOp = AsmConsts.IF_ICMPEQ;
 						break;
-					case NE:
+					case AsmCmpConsts.NE:
 						intOp = AsmConsts.IF_ICMPNE;
 						break;
-					case GE:
+					case AsmCmpConsts.GE:
 						intOp = AsmConsts.IF_ICMPGE;
 						break;
-					case LT:
+					case AsmCmpConsts.LT:
 						intOp = AsmConsts.IF_ICMPLT;
 						break;
-					case LE:
+					case AsmCmpConsts.LE:
 						intOp = AsmConsts.IF_ICMPLE;
 						break;
-					case GT:
+					case AsmCmpConsts.GT:
 						intOp = AsmConsts.IF_ICMPGT;
 						break;
 				}
@@ -893,7 +877,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 	 */
 	public void not() {
 		push(1);
-		math(XOR, Type.INT_TYPE);
+		math(AsmMathConsts.XOR, Type.INT_TYPE);
 	}
 
 	public void throw_exception(Type type, String msg) {
