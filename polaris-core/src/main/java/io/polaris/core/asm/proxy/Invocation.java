@@ -4,12 +4,15 @@ import java.lang.reflect.Method;
 
 import javax.annotation.Nonnull;
 
+import io.polaris.core.annotation.ByteCodeProcessing;
+
 /**
  * 调用上下文接口，封装方法调用的相关信息和执行逻辑
  *
  * @author Qt
  * @since May 11, 2024
  */
+@ByteCodeProcessing
 public interface Invocation {
 
 	/**

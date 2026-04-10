@@ -2,12 +2,15 @@ package io.polaris.core.asm.proxy;
 
 import java.lang.reflect.Method;
 
+import io.polaris.core.annotation.ByteCodeProcessing;
+
 /**
  * 拦截器接口，用于在方法调用前后执行额外的逻辑
  *
  * @author Qt
  * @since May 11, 2024
  */
+@ByteCodeProcessing
 public interface Interceptor {
 
 	/**
@@ -20,6 +23,7 @@ public interface Interceptor {
 	 * @return 方法执行结果
 	 * @throws Throwable 拦截器执行过程中可能抛出的任何异常
 	 */
+	@ByteCodeProcessing
 	Object intercept(Object proxy, Method method, Object[] args, Invocation invocation) throws Throwable;
 
 }

@@ -31,6 +31,10 @@ public class Signature {
 	private transient Class<?> returnClass;
 	private transient Class<?>[] argumentClasses;
 
+	public static Signature of(String name, Class<?> returnClass) {
+		return of(name, returnClass, new Type[0]);
+	}
+
 	public static Signature of(String name, Class<?> returnClass, Type... argumentTypes) {
 		Type type = Type.getType(returnClass);
 		Signature signature = new Signature(name, Type.getMethodDescriptor(type, argumentTypes));

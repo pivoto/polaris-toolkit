@@ -4,8 +4,11 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.polaris.core.asm.internal.Signature;
@@ -23,7 +26,7 @@ public class JdkInvocationHandler implements InvocationHandler {
 	private static final Logger log = Loggers.of(JdkInvocationHandler.class);
 	private final Object target;
 	private final Aspect aspect;
-	private Class<?>[] interfaces;
+	private final Class<?>[] interfaces;
 	private final Map<Method, MethodHandle> targetMethods;
 	private final Map<Signature, List<Tuple2<Method, MethodHandle>>> matchedMethods;
 	private final Map<Method, MethodHandle> undeclaredMethods = new ConcurrentHashMap<>();
@@ -32,14 +35,17 @@ public class JdkInvocationHandler implements InvocationHandler {
 	public JdkInvocationHandler(Object target, Aspect aspect, Class<?>[] interfaces) {
 		this.target = target;
 		this.aspect = aspect;
-		this.interfaces = appendInterfaces(interfaces);
+		Set<Class<?>> set = new LinkedHashSet<>();
+		if (interfaces != null && interfaces.length > 0) {
+			set.addAll(Arrays.asList(interfaces));
+		}
+		set.addAll(Arrays.asList(target.getClass().getInterfaces()));
+		set.add(AopProxy.class);
+		this.interfaces = set.toArray(new Class[0]);
 		this.targetMethods = aspect.getTargetMethods();
 		this.matchedMethods = aspect.getMatchedMethods();
 	}
 
-	void interfaces(Class<?>[] interfaces) {
-		this.interfaces = appendInterfaces(interfaces);
-	}
 
 	public Object getTarget() {
 		return target;
@@ -97,17 +103,6 @@ public class JdkInvocationHandler implements InvocationHandler {
 			}
 		}
 		return aspect.intercept(proxy, method, args, invocation);
-	}
-
-
-	private static Class<?>[] appendInterfaces(Class<?>[] interfaces) {
-		if (interfaces == null || interfaces.length == 0) {
-			return new Class[]{AopProxy.class};
-		}
-		Class<?>[] array = new Class[interfaces.length + 1];
-		System.arraycopy(interfaces, 0, array, 0, interfaces.length);
-		array[interfaces.length] = AopProxy.class;
-		return array;
 	}
 
 }

@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 
 import javax.annotation.Nonnull;
 
+import io.polaris.core.annotation.ByteCodeProcessing;
 import lombok.Getter;
 
 /**
@@ -12,6 +13,7 @@ import lombok.Getter;
  * @author Qt
  * @since May 11, 2024
  */
+@ByteCodeProcessing
 public class DefaultInvocation implements Invocation {
 
 	/** 方法在目标方法数组中的索引 */
@@ -34,6 +36,7 @@ public class DefaultInvocation implements Invocation {
 	 * @param rawInvoker 原始方法调用器
 	 * @param superInvoker 父类方法调用器
 	 */
+	@ByteCodeProcessing
 	public DefaultInvocation(int index, Object proxy, Method method, Invoker rawInvoker, Invoker superInvoker) {
 		this.index = index;
 		this.proxy = proxy;

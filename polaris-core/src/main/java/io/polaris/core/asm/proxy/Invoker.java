@@ -2,12 +2,15 @@ package io.polaris.core.asm.proxy;
 
 import java.lang.reflect.InvocationTargetException;
 
+import io.polaris.core.annotation.ByteCodeProcessing;
+
 /**
  * 调用器接口，用于通过索引调用目标方法
  *
  * @author Qt
  * @since May 11, 2024
  */
+@ByteCodeProcessing
 public interface Invoker {
 
 	/**
@@ -18,8 +21,9 @@ public interface Invoker {
 	 * @param target 目标对象实例
 	 * @param args 方法调用参数数组
 	 * @return 方法执行结果
-	 * @throws InvocationTargetException 方法调用过程中发生的异常
+	 * @throws Throwable 方法调用过程中发生的异常
 	 */
-	Object invoke(int index, Object proxy, Object target, Object[] args) throws InvocationTargetException;
+	@ByteCodeProcessing
+	Object invoke(int index, Object proxy, Object target, Object[] args) throws Throwable;
 
 }
