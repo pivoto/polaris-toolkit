@@ -345,20 +345,23 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 
 
 	/**
-	 * 创建增强的代理对象实例
-	 * <p>
-	 * 生成增强类并创建实例，在创建过程中绑定线程拦截器
+	 * 实例化类的对象开始前调用，绑定线程拦截器
 	 *
-	 * @return 创建的代理对象实例
+	 * @param type 类类型
 	 */
-	public Object create() {
-		Class<?> type = createClass();
-		try {
-			bindThreadInterceptors(type);
-			return AsmReflects.newInstance(type);
-		} finally {
-			unbindThreadInterceptors(type);
-		}
+	@Override
+	protected void onBeforeCreateInstance(Class<?> type) {
+		bindThreadInterceptors(type);
+	}
+
+	/**
+	 * 实例化类的对象完成后调用，解绑线程拦截器
+	 *
+	 * @param type 类类型
+	 */
+	@Override
+	protected void onAfterCreateInstance(Class<?> type) {
+		unbindThreadInterceptors(type);
 	}
 
 
@@ -368,7 +371,7 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	 * @throws IllegalArgumentException 如果父类是 final 类
 	 */
 	@Override
-	protected void onBeforeGenerate() {
+	protected void onBeforeCreateClass() {
 		Class<?> parent = (superclass == null) ? Object.class : superclass;
 		if (Modifier.isFinal(parent.getModifiers())) {
 			throw new IllegalArgumentException("Cannot subclass final class: " + parent.getName());
@@ -489,7 +492,7 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	 * @param c 生成的增强类
 	 */
 	@Override
-	protected void onAfterGenerate(@Nonnull Class<?> c) {
+	protected void onAfterCreateClass(@Nonnull Class<?> c) {
 		registerTargetMethods(c);
 		registerOverrideFunctions(c);
 		registerDefaultFunctions(c);

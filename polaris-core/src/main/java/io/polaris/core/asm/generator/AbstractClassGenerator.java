@@ -256,32 +256,13 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
 
 
 	/**
-	 * 获取类加载器
-	 * <p>按照以下顺序获取：
-	 * <br>1.设置的 classLoader
-	 * <br>2.getDefaultClassLoader()
-	 * <br>3.线程上下文 ClassLoader
-	 * <br>4.当前类的 ClassLoader
-	 * </p>
+	 * 获取保护域
+	 * <p>默认为 null，子类可以重写以提供特定的 ProtectionDomain</p>
 	 *
-	 * @return 非空的 ClassLoader 实例
-	 * @throws IllegalStateException 当无法确定任何 ClassLoader 时抛出
+	 * @return ProtectionDomain 实例，默认为 null
 	 */
-	public ClassLoader getClassLoader() {
-		ClassLoader t = classLoader;
-		if (t == null) {
-			t = getDefaultClassLoader();
-		}
-		if (t == null) {
-			t = Thread.currentThread().getContextClassLoader();
-		}
-		if (t == null) {
-			t = getClass().getClassLoader();
-		}
-		if (t == null) {
-			throw new IllegalStateException("Cannot determine classloader");
-		}
-		return t;
+	protected ProtectionDomain getProtectionDomain() {
+		return null;
 	}
 
 	/**
@@ -291,16 +272,6 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
 	 * @return 默认类加载器，可为 null
 	 */
 	protected abstract ClassLoader getDefaultClassLoader();
-
-	/**
-	 * 获取保护域
-	 * <p>默认为 null，子类可以重写以提供特定的 ProtectionDomain</p>
-	 *
-	 * @return ProtectionDomain 实例，默认为 null
-	 */
-	protected ProtectionDomain getProtectionDomain() {
-		return null;
-	}
 
 	/**
 	 * {@inheritDoc}
@@ -317,38 +288,46 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
 	 *
 	 * @param clazz 生成的 Class 对象
 	 */
-	protected void onAfterGenerate(Class<?> clazz) {
+	protected void onAfterCreateClass(Class<?> clazz) {
 	}
 
 	/**
 	 * 生成类开始前调用
 	 * <p>子类可以覆盖此方法以执行额外的操作</p>
 	 */
-	protected void onBeforeGenerate() {
+	protected void onBeforeCreateClass() {
 	}
 
-
-	protected void onBeforeNewInstance(Class<?> type) {
-
-	}
-
-	protected void onAfterNewInstance(Class<?> type) {
+	/**
+	 * 实例化类的对象开始前调用
+	 *
+	 * @param type 类类型
+	 */
+	protected void onBeforeCreateInstance(Class<?> type) {
 
 	}
 
 	/**
-	 * 创建 Bean 实例
-	 * <p>生成类并实例化对象</p>
+	 * 实例化类的对象完成后调用
 	 *
-	 * @return 新创建的 Bean 实例
+	 * @param type 类类型
+	 */
+	protected void onAfterCreateInstance(Class<?> type) {
+
+	}
+
+	/**
+	 * 生成类并实例化对象
+	 *
+	 * @return 新创建的类的实例
 	 */
 	public Object create() {
 		Class<?> type = createClass();
 		try {
-			onBeforeNewInstance(type);
+			onBeforeCreateInstance(type);
 			return AsmReflects.newInstance(type);
 		} finally {
-			onAfterNewInstance(type);
+			onAfterCreateInstance(type);
 		}
 	}
 
@@ -360,7 +339,7 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
 	 * @return 生成的 Class 对象
 	 */
 	public Class<?> createClass() {
-		onBeforeGenerate();
+		onBeforeCreateClass();
 		return generate();
 	}
 
@@ -395,6 +374,35 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
 	}
 
 	/**
+	 * 获取类加载器
+	 * <p>按照以下顺序获取：
+	 * <br>1.设置的 classLoader
+	 * <br>2.getDefaultClassLoader()
+	 * <br>3.线程上下文 ClassLoader
+	 * <br>4.当前类的 ClassLoader
+	 * </p>
+	 *
+	 * @return 非空的 ClassLoader 实例
+	 * @throws IllegalStateException 当无法确定任何 ClassLoader 时抛出
+	 */
+	private ClassLoader getClassLoader() {
+		ClassLoader t = classLoader;
+		if (t == null) {
+			t = getDefaultClassLoader();
+		}
+		if (t == null) {
+			t = Thread.currentThread().getContextClassLoader();
+		}
+		if (t == null) {
+			t = getClass().getClassLoader();
+		}
+		if (t == null) {
+			throw new IllegalStateException("Cannot determine classloader");
+		}
+		return t;
+	}
+
+	/**
 	 * 执行类生成
 	 * <p>生成类名、检查重复、定义类到 ClassLoader，支持异常处理</p>
 	 *
@@ -404,7 +412,7 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
 	 */
 	private Class<?> doGenerate(@Nonnull ClassLoader classLoader) {
 		Class<?> clazz = $doGenerate(classLoader);
-		onAfterGenerate(clazz);
+		onAfterCreateClass(clazz);
 		return clazz;
 	}
 

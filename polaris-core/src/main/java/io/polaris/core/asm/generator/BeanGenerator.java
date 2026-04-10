@@ -36,7 +36,7 @@ public class BeanGenerator extends AbstractClassGenerator {
 	 * 批量添加属性
 	 *
 	 * @param generator Bean 生成器实例
-	 * @param props     属性映射表：属性名 -> 属性类型
+	 * @param props 属性映射表：属性名 -> 属性类型
 	 */
 	public static void addProperties(BeanGenerator generator, Map<String, Class<?>> props) {
 		props.forEach(generator::addProperty);
@@ -47,7 +47,7 @@ public class BeanGenerator extends AbstractClassGenerator {
 	 * <p>使用 JavaBeans 规范读取属性的 getter/setter 方法</p>
 	 *
 	 * @param generator Bean 生成器实例
-	 * @param type      目标类型，从中提取属性信息
+	 * @param type 目标类型，从中提取属性信息
 	 */
 	public static void addProperties(BeanGenerator generator, Class<?> type) {
 		addProperties(generator, AsmReflects.getBeanProperties(type));
@@ -56,7 +56,7 @@ public class BeanGenerator extends AbstractClassGenerator {
 	/**
 	 * 从属性描述符数组中添加属性
 	 *
-	 * @param generator   Bean 生成器实例
+	 * @param generator Bean 生成器实例
 	 * @param descriptors 属性描述符数组
 	 */
 	public static void addProperties(BeanGenerator generator, PropertyDescriptor[] descriptors) {
@@ -70,8 +70,8 @@ public class BeanGenerator extends AbstractClassGenerator {
 	 *
 	 * @param name 属性名
 	 * @param type 属性类型
-	 * @throws IllegalArgumentException      当属性名已存在时抛出
-	 * @throws IllegalStateException         当生成器已冻结时抛出
+	 * @throws IllegalArgumentException 当属性名已存在时抛出
+	 * @throws IllegalStateException 当生成器已冻结时抛出
 	 */
 	public void addProperty(String name, Class<?> type) {
 		checkState();
@@ -96,20 +96,10 @@ public class BeanGenerator extends AbstractClassGenerator {
 	}
 
 	/**
-	 * 创建 Bean 实例
-	 * <p>生成类并实例化对象</p>
-	 *
-	 * @return 新创建的 Bean 实例
-	 */
-	public Object create() {
-		return AsmReflects.newInstance(createClass());
-	}
-
-	/**
 	 * 配置包名、基础类名和键值
 	 */
 	@Override
-	protected void onBeforeGenerate() {
+	protected void onBeforeCreateClass() {
 		if (isEditable()) {
 			if (superclass != null) {
 				// 使用父类的包名和类名作为基础
