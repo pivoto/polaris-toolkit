@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Set;
 
 import io.polaris.core.asm.consts.AsmCmpConsts;
-import io.polaris.core.asm.consts.AsmMathConsts;
 import io.polaris.core.err.BytecodeOperationException;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Type;
@@ -103,10 +102,6 @@ public class Emitters {
 	/** Class.getDeclaredMethod(String, Class[]) 方法签名 */
 	private static final Signature GET_DECLARED_METHOD =
 		AsmTypes.parseSignature("java.lang.reflect.Method getDeclaredMethod(String, Class[])");
-
-
-	/** 默认的数组分隔符：使用前缀 "{"、分隔符 ", "、后缀 "}" */
-	public static final ArrayDelimiters DEFAULT_DELIMITERS = new ArrayDelimiters("{", ", ", "}");
 
 	/** 私有构造函数，防止实例化 */
 	private Emitters() {
@@ -297,7 +292,7 @@ public class Emitters {
 	 * @param callback 每个匹配 case 触发的回调函数
 	 * @throws IllegalArgumentException 当 switchStyle 无效时抛出
 	 */
-	public static void string_switch(CodeEmitter e, String[] strings, int switchStyle, ObjectSwitchCallback callback) {
+	public static void string_switch(CodeEmitter e, String[] strings, int switchStyle, ObjectSwitchCallback<String> callback) {
 		try {
 			// 根据 switch 风格选择不同的实现策略
 			switch (switchStyle) {
@@ -313,9 +308,7 @@ public class Emitters {
 				default:
 					throw new IllegalArgumentException("unknown switch style " + switchStyle);
 			}
-		} catch (RuntimeException ex) {
-			throw ex;
-		} catch (Error ex) {
+		} catch (RuntimeException | Error ex) {
 			throw ex;
 		} catch (Exception ex) {
 			throw new BytecodeOperationException(ex);
@@ -338,28 +331,26 @@ public class Emitters {
 	 */
 	private static void string_switch_trie(final CodeEmitter e,
 		String[] strings,
-		final ObjectSwitchCallback callback) throws Exception {
+		final ObjectSwitchCallback<String> callback) throws Exception {
 		// 创建默认分支和结束标签
 		final Label def = e.make_label();
 		final Label end = e.make_label();
 		// 按字符串长度分组，相同长度的字符串放在同一个桶中
-		final Map buckets = AsmCollections.bucket(Arrays.asList(strings), new Transformer() {
-			public Object transform(Object value) {
-				return ((String) value).length();
-			}
-		});
+		final Map<Integer, List<String>> buckets = AsmCollections.bucket(Arrays.asList(strings), String::length);
 		// 复制字符串引用，调用 length() 方法获取长度
 		e.dup();
 		e.invoke_virtual(AsmConsts.TYPE_STRING, STRING_LENGTH);
 		// 根据长度进行 switch 分发
 		e.process_switch(getSwitchKeys(buckets), new ProcessSwitchCallback() {
+			@Override
 			public void processCase(int key, Label ignore_end) throws Exception {
 				// 获取相同长度的字符串列表
-				List bucket = (List) buckets.get(Integer.valueOf(key));
+				List<String> bucket = buckets.get(key);
 				// 递归处理每个字符的比较
 				stringSwitchHelper(e, bucket, callback, def, end, 0);
 			}
 
+			@Override
 			public void processDefault() {
 				// 长度不匹配，跳转到默认分支
 				e.goTo(def);
@@ -389,27 +380,24 @@ public class Emitters {
 	 * @throws Exception 处理异常
 	 */
 	private static void stringSwitchHelper(final CodeEmitter e,
-		List strings,
-		final ObjectSwitchCallback callback,
+		List<String> strings,
+		final ObjectSwitchCallback<String> callback,
 		final Label def,
 		final Label end,
 		final int index) throws Exception {
 		// 获取字符串长度（所有字符串长度相同）
-		final int len = ((String) strings.get(0)).length();
+		final int len = strings.get(0).length();
 		// 按当前位置的字符值分组
-		final Map buckets = AsmCollections.bucket(strings, new Transformer() {
-			public Object transform(Object value) {
-				return (int) ((String) value).charAt(index);
-			}
-		});
+		final Map<Integer, List<String>> buckets = AsmCollections.bucket(strings, value -> (int) value.charAt(index));
 		// 复制字符串引用，调用 charAt(index) 获取当前字符
 		e.dup();
 		e.push(index);
 		e.invoke_virtual(AsmConsts.TYPE_STRING, STRING_CHAR_AT);
 		// 根据字符值进行 switch 分发
 		e.process_switch(getSwitchKeys(buckets), new ProcessSwitchCallback() {
+			@Override
 			public void processCase(int key, Label ignore_end) throws Exception {
-				List bucket = (List) buckets.get(Integer.valueOf(key));
+				List<String> bucket = buckets.get(key);
 				// 如果已到达字符串末尾，执行匹配的回调
 				if (index + 1 == len) {
 					e.pop();
@@ -420,6 +408,7 @@ public class Emitters {
 				}
 			}
 
+			@Override
 			public void processDefault() {
 				// 字符不匹配，跳转到默认分支
 				e.goTo(def);
@@ -433,12 +422,12 @@ public class Emitters {
 	 * @param buckets 分组的 Map，键为 Integer 类型
 	 * @return 排序后的 int 数组
 	 */
-	static int[] getSwitchKeys(Map buckets) {
+	static int[] getSwitchKeys(Map<Integer, ?> buckets) {
 		// 提取所有键值
 		int[] keys = new int[buckets.size()];
 		int index = 0;
-		for (Iterator it = buckets.keySet().iterator(); it.hasNext(); ) {
-			keys[index++] = ((Integer) it.next()).intValue();
+		for (Iterator<Integer> it = buckets.keySet().iterator(); it.hasNext(); ) {
+			keys[index++] = it.next();
 		}
 		// 排序以确保 switch 的正确性
 		Arrays.sort(keys);
@@ -463,14 +452,10 @@ public class Emitters {
 	 */
 	private static void string_switch_hash(final CodeEmitter e,
 		final String[] strings,
-		final ObjectSwitchCallback callback,
+		final ObjectSwitchCallback<String> callback,
 		final boolean skipEquals) throws Exception {
 		// 按哈希码分组
-		final Map buckets = AsmCollections.bucket(Arrays.asList(strings), new Transformer() {
-			public Object transform(Object value) {
-				return value.hashCode();
-			}
-		});
+		final Map<Integer, List<String>> buckets = AsmCollections.bucket(Arrays.asList(strings), String::hashCode);
 		// 创建默认分支和结束标签
 		final Label def = e.make_label();
 		final Label end = e.make_label();
@@ -479,19 +464,19 @@ public class Emitters {
 		e.invoke_virtual(AsmConsts.TYPE_OBJECT, HASH_CODE);
 		// 根据哈希码进行 switch 分发
 		e.process_switch(getSwitchKeys(buckets), new ProcessSwitchCallback() {
+			@Override
 			public void processCase(int key, Label ignore_end) throws Exception {
 				// 获取具有相同哈希码的字符串列表
-				List bucket = (List) buckets.get(Integer.valueOf(key));
+				List<String> bucket = buckets.get(key);
 				Label next = null;
 				// 如果跳过 equals 且只有一个候选，直接匹配
 				if (skipEquals && bucket.size() == 1) {
-					if (skipEquals)
-						e.pop();
+					e.pop();
 					callback.processCase((String) bucket.get(0), end);
 				} else {
 					// 遍历所有候选字符串，使用 equals 进行比较
-					for (Iterator it = bucket.iterator(); it.hasNext(); ) {
-						String string = (String) it.next();
+					for (Iterator<String> it = bucket.iterator(); it.hasNext(); ) {
+						String string = it.next();
 						// 标记下一个比较的位置
 						if (next != null) {
 							e.mark(next);
@@ -518,6 +503,7 @@ public class Emitters {
 				}
 			}
 
+			@Override
 			public void processDefault() {
 				// 哈希码不匹配，弹出字符串引用
 				e.pop();
@@ -583,7 +569,7 @@ public class Emitters {
 		if (e.isStaticHook()) {
 			// 在静态钩子中，只能使用 Class.forName 动态加载
 			e.push(AsmTypes.emulateClassGetName(type));
-			e.invoke_static(AsmConsts.TYPE_CLASS, FOR_NAME);
+			e.invoke_static(AsmConsts.TYPE_CLASS, FOR_NAME, false);
 		} else {
 			ClassEmitter ce = e.getClassEmitter();
 			String typeName = AsmTypes.emulateClassGetName(type);
@@ -598,7 +584,7 @@ public class Emitters {
 				// 在静态初始化块中加载 Class 对象并赋值给字段
 				CodeEmitter hook = ce.getStaticHook();
 				hook.push(typeName);
-				hook.invoke_static(AsmConsts.TYPE_CLASS, FOR_NAME);
+				hook.invoke_static(AsmConsts.TYPE_CLASS, FOR_NAME, false);
 				hook.putstatic(ce.getClassType(), fieldName, AsmConsts.TYPE_CLASS);
 			}
 			// 从静态字段中读取 Class 对象
@@ -645,10 +631,11 @@ public class Emitters {
 	 * @param componentType 原始组件类型
 	 * @return 重新映射后的类型
 	 */
-	private static Class remapComponentType(Class componentType) {
+	private static Class<?> remapComponentType(Class<?> componentType) {
 		// Type 数组在字节码中实际是 Class 数组
-		if (componentType.equals(Type.class))
+		if (componentType.equals(Type.class)) {
 			return Class.class;
+		}
 		return componentType;
 	}
 
@@ -675,7 +662,7 @@ public class Emitters {
 			// null 值直接使用 aconst_null 指令
 			e.aconst_null();
 		} else {
-			Class type = obj.getClass();
+			Class<?> type = obj.getClass();
 			if (type.isArray()) {
 				// 数组类型递归处理
 				push_array(e, (Object[]) obj);
@@ -687,7 +674,7 @@ public class Emitters {
 				load_class(e, (Type) obj);
 			} else if (obj instanceof Class) {
 				// Class 对象转换为 Type 后加载
-				load_class(e, Type.getType((Class) obj));
+				load_class(e, Type.getType((Class<?>) obj));
 			} else if (obj instanceof BigInteger) {
 				// BigInteger 通过字符串构造函数创建
 				e.new_instance(AsmConsts.TYPE_BIG_INTEGER);
@@ -727,15 +714,15 @@ public class Emitters {
 			case Type.BOOLEAN:
 				// boolean: f ? 0 : 1
 				e.push(1);
-				e.math(AsmMathConsts.XOR, Type.INT_TYPE);
+				e.math_xor(Type.INT_TYPE);
 				break;
 			case Type.FLOAT:
 				// float: Float.floatToIntBits(f)
-				e.invoke_static(AsmConsts.TYPE_FLOAT, FLOAT_TO_INT_BITS);
+				e.invoke_static(AsmConsts.TYPE_FLOAT, FLOAT_TO_INT_BITS, false);
 				break;
 			case Type.DOUBLE:
 				// double: Double.doubleToLongBits(f)，然后按 long 处理
-				e.invoke_static(AsmConsts.TYPE_DOUBLE, DOUBLE_TO_LONG_BITS);
+				e.invoke_static(AsmConsts.TYPE_DOUBLE, DOUBLE_TO_LONG_BITS, false);
 				// 继续执行 long 的哈希逻辑
 			case Type.LONG:
 				hash_long(e);
@@ -756,9 +743,9 @@ public class Emitters {
 		e.dup2();
 		// 无符号右移 32 位
 		e.push(32);
-		e.math(AsmMathConsts.USHR, Type.LONG_TYPE);
+		e.math_ushr(Type.LONG_TYPE);
 		// 与原值进行异或
-		e.math(AsmMathConsts.XOR, Type.LONG_TYPE);
+		e.math_xor(Type.LONG_TYPE);
 		// 转换为 int 类型
 		e.cast_numeric(Type.LONG_TYPE, Type.INT_TYPE);
 	}
@@ -828,42 +815,9 @@ public class Emitters {
 		e.invoke_virtual(AsmConsts.TYPE_STRING_BUFFER, LENGTH);
 		// 减去指定数量
 		e.push(amt);
-		e.math(AsmMathConsts.SUB, Type.INT_TYPE);
+		e.math_sub(Type.INT_TYPE);
 		// 调用 setLength 设置新长度
 		e.invoke_virtual(AsmConsts.TYPE_STRING_BUFFER, SET_LENGTH);
-	}
-
-	/**
-	 * 数组分隔符配置类
-	 * <p>
-	 * 用于定义数组 toString 时的格式：
-	 * <ul>
-	 *   <li>before - 前缀，例如 "{"</li>
-	 *   <li>inside - 元素之间的分隔符，例如 ", "</li>
-	 *   <li>after - 后缀，例如 "}"</li>
-	 * </ul>
-	 * </p>
-	 */
-	public static class ArrayDelimiters {
-		/** 数组前缀 */
-		private String before;
-		/** 元素之间的分隔符 */
-		private String inside;
-		/** 数组后缀 */
-		private String after;
-
-		/**
-		 * 构造数组分隔符配置
-		 *
-		 * @param before 前缀
-		 * @param inside 元素分隔符
-		 * @param after 后缀
-		 */
-		public ArrayDelimiters(String before, String inside, String after) {
-			this.before = before;
-			this.inside = inside;
-			this.after = after;
-		}
 	}
 
 	/**
@@ -891,6 +845,7 @@ public class Emitters {
 	}
 
 	/** 参数类型获取接口 */
+	@FunctionalInterface
 	private interface ParameterTyper {
 		/**
 		 * 获取方法的参数类型数组
@@ -912,9 +867,7 @@ public class Emitters {
 	 * @param methods 方法信息列表
 	 * @param callback 每个匹配方法触发的回调函数
 	 */
-	public static void method_switch(CodeEmitter e,
-		List methods,
-		ObjectSwitchCallback callback) {
+	public static void method_switch(CodeEmitter e, List<MethodDescriptor> methods, ObjectSwitchCallback<MethodDescriptor> callback) {
 		// 使用名称进行分发
 		member_switch_helper(e, methods, callback, true);
 	}
@@ -929,9 +882,7 @@ public class Emitters {
 	 * @param constructors 构造方法信息列表
 	 * @param callback 每个匹配构造方法触发的回调函数
 	 */
-	public static void constructor_switch(CodeEmitter e,
-		List constructors,
-		ObjectSwitchCallback callback) {
+	public static void constructor_switch(CodeEmitter e, List<MethodDescriptor> constructors, ObjectSwitchCallback<MethodDescriptor> callback) {
 		// 不使用名称，直接按参数类型分发
 		member_switch_helper(e, constructors, callback, false);
 	}
@@ -952,20 +903,18 @@ public class Emitters {
 	 * @param useName 是否使用方法名进行第一层分发
 	 */
 	private static void member_switch_helper(final CodeEmitter e,
-		List members,
-		final ObjectSwitchCallback callback,
+		List<MethodDescriptor> members,
+		final ObjectSwitchCallback<MethodDescriptor> callback,
 		boolean useName) {
 		try {
 			// 缓存参数类型，避免重复计算
-			final Map cache = new HashMap();
-			final ParameterTyper cached = new ParameterTyper() {
-				public Type[] getParameterTypes(MethodDescriptor member) {
-					Type[] types = (Type[]) cache.get(member);
-					if (types == null) {
-						cache.put(member, types = member.getSignature().getArgumentTypes());
-					}
-					return types;
+			final Map<MethodDescriptor, Type[]> cache = new HashMap<>();
+			final ParameterTyper cached = member -> {
+				Type[] types = cache.get(member);
+				if (types == null) {
+					cache.put(member, types = member.getSignature().getArgumentTypes());
 				}
+				return types;
 			};
 			// 创建默认分支和结束标签
 			final Label def = e.make_label();
@@ -974,20 +923,18 @@ public class Emitters {
 				// 交换栈顶元素顺序，准备调用 getName()
 				e.swap();
 				// 按方法名分组
-				final Map buckets = AsmCollections.bucket(members, new Transformer() {
-					public Object transform(Object value) {
-						return ((MethodDescriptor) value).getSignature().getName();
-					}
-				});
-				String[] names = (String[]) buckets.keySet().toArray(new String[buckets.size()]);
+				final Map<String, List<MethodDescriptor>> buckets = AsmCollections.bucket(members, value -> value.getSignature().getName());
+				String[] names = buckets.keySet().toArray(new String[0]);
 				// 使用方法名进行字符串 switch
-				Emitters.string_switch(e, names, AsmConsts.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
-					public void processCase(Object key, Label dontUseEnd) throws Exception {
+				Emitters.string_switch(e, names, AsmConsts.SWITCH_STYLE_HASH, new ObjectSwitchCallback<String>() {
+					@Override
+					public void processCase(String key, Label dontUseEnd) throws Exception {
 						// 对相同名称的方法，按参数大小进一步区分
-						member_helper_size(e, (List) buckets.get(key), callback, cached, def, end);
+						member_helper_size(e, (List<MethodDescriptor>) buckets.get(key), callback, cached, def, end);
 					}
 
-					public void processDefault() throws Exception {
+					@Override
+					public void processDefault() {
 						e.goTo(def);
 					}
 				});
@@ -1001,9 +948,7 @@ public class Emitters {
 			callback.processDefault();
 			// 标记结束位置
 			e.mark(end);
-		} catch (RuntimeException ex) {
-			throw ex;
-		} catch (Error ex) {
+		} catch (RuntimeException | Error ex) {
 			throw ex;
 		} catch (Exception ex) {
 			throw new BytecodeOperationException(ex);
@@ -1025,29 +970,27 @@ public class Emitters {
 	 * @throws Exception 处理异常
 	 */
 	private static void member_helper_size(final CodeEmitter e,
-		List members,
-		final ObjectSwitchCallback callback,
+		List<MethodDescriptor> members,
+		final ObjectSwitchCallback<MethodDescriptor> callback,
 		final ParameterTyper typer,
 		final Label def,
 		final Label end) throws Exception {
 		// 按参数数量分组
-		final Map buckets = AsmCollections.bucket(members, new Transformer() {
-			public Object transform(Object value) {
-				return typer.getParameterTypes((MethodDescriptor) value).length;
-			}
-		});
+		final Map<Integer, List<MethodDescriptor>> buckets = AsmCollections.bucket(members, value -> typer.getParameterTypes(value).length);
 		// 复制参数类型数组，获取其长度
 		e.dup();
 		e.arraylength();
 		// 根据参数数量进行 switch 分发
 		e.process_switch(Emitters.getSwitchKeys(buckets), new ProcessSwitchCallback() {
+			@Override
 			public void processCase(int key, Label dontUseEnd) throws Exception {
-				List bucket = (List) buckets.get(Integer.valueOf(key));
+				List<MethodDescriptor> bucket = buckets.get(key);
 				// 对相同参数数量的成员，按类型进一步区分
 				member_helper_type(e, bucket, callback, typer, def, end, new BitSet());
 			}
 
-			public void processDefault() throws Exception {
+			@Override
+			public void processDefault() {
 				e.goTo(def);
 			}
 		});
@@ -1070,15 +1013,15 @@ public class Emitters {
 	 * @throws Exception 处理异常
 	 */
 	private static void member_helper_type(final CodeEmitter e,
-		List members,
-		final ObjectSwitchCallback callback,
+		List<MethodDescriptor> members,
+		final ObjectSwitchCallback<MethodDescriptor> callback,
 		final ParameterTyper typer,
 		final Label def,
 		final Label end,
 		final BitSet checked) throws Exception {
 		if (members.size() == 1) {
 			// 只有一个候选，直接匹配
-			MethodDescriptor member = (MethodDescriptor) members.get(0);
+			MethodDescriptor member = members.get(0);
 			Type[] types = typer.getParameterTypes(member);
 			// need to check classes that have not already been checked via switches
 			// 检查尚未通过 switch 验证的参数类型
@@ -1103,17 +1046,14 @@ public class Emitters {
 			// 多个候选，需要进一步区分
 			// choose the index that has the best chance of uniquely identifying member
 			// 选择区分度最高的参数位置
-			Type[] example = typer.getParameterTypes((MethodDescriptor) members.get(0));
-			Map buckets = null;
+			Type[] example = typer.getParameterTypes(members.get(0));
+			Map<String, List<MethodDescriptor>> buckets = null;
 			int index = -1;
 			// 遍历所有参数位置，找到分组最多的位置
 			for (int i = 0; i < example.length; i++) {
 				final int j = i;
-				Map test = AsmCollections.bucket(members, new Transformer() {
-					public Object transform(Object value) {
-						return AsmTypes.emulateClassGetName(typer.getParameterTypes((MethodDescriptor) value)[j]);
-					}
-				});
+				Map<String, List<MethodDescriptor>> test = AsmCollections.bucket(members,
+					value -> AsmTypes.emulateClassGetName(typer.getParameterTypes(value)[j]));
 				if (buckets == null || test.size() > buckets.size()) {
 					buckets = test;
 					index = i;
@@ -1134,15 +1074,17 @@ public class Emitters {
 				e.invoke_virtual(AsmConsts.TYPE_CLASS, GET_NAME);
 
 				// 按类型名进行字符串 switch
-				final Map fbuckets = buckets;
-				String[] names = (String[]) buckets.keySet().toArray(new String[buckets.size()]);
-				Emitters.string_switch(e, names, AsmConsts.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
-					public void processCase(Object key, Label dontUseEnd) throws Exception {
+				final Map<String, List<MethodDescriptor>> fbuckets = buckets;
+				String[] names = buckets.keySet().toArray(new String[0]);
+				Emitters.string_switch(e, names, AsmConsts.SWITCH_STYLE_HASH, new ObjectSwitchCallback<String>() {
+					@Override
+					public void processCase(String key, Label dontUseEnd) throws Exception {
 						// 递归处理同一类型的成员
-						member_helper_type(e, (List) fbuckets.get(key), callback, typer, def, end, checked);
+						member_helper_type(e, fbuckets.get(key), callback, typer, def, end, checked);
 					}
 
-					public void processDefault() throws Exception {
+					@Override
+					public void processDefault() {
 						e.goTo(def);
 					}
 				});
@@ -1154,11 +1096,11 @@ public class Emitters {
 	 * 包装捕获的异常为指定的异常类型
 	 * <p>
 	 * 生成的代码等价于：
-	 * <pre>{@code
-	 * } catch (Throwable t) {
+	 * <pre>
+	 * catch (Throwable t) {
 	 *     throw new WrapperException(t);
 	 * }
-	 * }</pre>
+	 * </pre>
 	 * </p>
 	 *
 	 * @param block 代码块
@@ -1261,7 +1203,7 @@ public class Emitters {
 	 * <p>
 	 * 生成的代码结构：
 	 * <pre>
-	 * } catch (RuntimeException e) {
+	 * catch (RuntimeException e) {
 	 *     throw e;  // 运行时异常直接抛出
 	 * } catch (Error e) {
 	 *     throw e;  // 错误直接抛出

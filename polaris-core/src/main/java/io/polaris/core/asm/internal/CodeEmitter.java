@@ -380,9 +380,106 @@ public class CodeEmitter extends LocalVariablesSorter {
 		mv.visitInsn(AsmConsts.MONITOREXIT);
 	}
 
+	/**
+	 * 执行数学或位运算指令
+	 *
+	 * @param op   操作码，如 ADD, SUB, MUL, DIV, REM, NEG, AND, OR, XOR, USHR 等
+	 * @param type 操作数的类型
+	 */
 	public void math(int op, Type type) {
 		mv.visitInsn(type.getOpcode(op));
 	}
+
+	/**
+	 * 加法运算
+	 *
+	 * @param type 操作数类型
+	 */
+	public void math_add(Type type) {
+		math(AsmMathConsts.ADD, type);
+	}
+
+	/**
+	 * 乘法运算
+	 *
+	 * @param type 操作数类型
+	 */
+	public void math_mul(Type type) {
+		math(AsmMathConsts.MUL, type);
+	}
+
+	/**
+	 * 异或运算
+	 *
+	 * @param type 操作数类型
+	 */
+	public void math_xor(Type type) {
+		math(AsmMathConsts.XOR, type);
+	}
+
+	/**
+	 * 无符号右移运算
+	 *
+	 * @param type 操作数类型
+	 */
+	public void math_ushr(Type type) {
+		math(AsmMathConsts.USHR, type);
+	}
+
+	/**
+	 * 减法运算
+	 *
+	 * @param type 操作数类型
+	 */
+	public void math_sub(Type type) {
+		math(AsmMathConsts.SUB, type);
+	}
+
+	/**
+	 * 除法运算
+	 *
+	 * @param type 操作数类型
+	 */
+	public void math_div(Type type) {
+		math(AsmMathConsts.DIV, type);
+	}
+
+	/**
+	 * 取反运算（负号）
+	 *
+	 * @param type 操作数类型
+	 */
+	public void math_neg(Type type) {
+		math(AsmMathConsts.NEG, type);
+	}
+
+	/**
+	 * 取余运算
+	 *
+	 * @param type 操作数类型
+	 */
+	public void math_rem(Type type) {
+		math(AsmMathConsts.REM, type);
+	}
+
+	/**
+	 * 按位与运算
+	 *
+	 * @param type 操作数类型
+	 */
+	public void math_and(Type type) {
+		math(AsmMathConsts.AND, type);
+	}
+
+	/**
+	 * 按位或运算
+	 *
+	 * @param type 操作数类型
+	 */
+	public void math_or(Type type) {
+		math(AsmMathConsts.OR, type);
+	}
+
 
 	public void array_load(Type type) {
 		mv.visitInsn(type.getOpcode(AsmConsts.IALOAD));
@@ -442,6 +539,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 		}
 	}
 
+	@SuppressWarnings("UnnecessaryBoxing")
 	public void push(int i) {
 		if (i < -1) {
 			mv.visitLdcInsn(Integer.valueOf(i));
@@ -456,6 +554,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 		}
 	}
 
+	@SuppressWarnings("UnnecessaryBoxing")
 	public void push(long value) {
 		if (value == 0L || value == 1L) {
 			mv.visitInsn(AsmTypes.LCONST(value));
@@ -464,6 +563,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 		}
 	}
 
+	@SuppressWarnings("UnnecessaryBoxing")
 	public void push(float value) {
 		if (value == 0f || value == 1f || value == 2f) {
 			mv.visitInsn(AsmTypes.FCONST(value));
@@ -472,6 +572,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 		}
 	}
 
+	@SuppressWarnings("UnnecessaryBoxing")
 	public void push(double value) {
 		if (value == 0d || value == 1d) {
 			mv.visitInsn(AsmTypes.DCONST(value));
@@ -696,7 +797,8 @@ public class CodeEmitter extends LocalVariablesSorter {
 	}
 
 	public void invoke_static_this(Signature sig) {
-		invoke_static(ce.getClassType(), sig);
+		Type owner = ce.getClassType();
+		invoke_static(owner, sig, false);
 	}
 
 	public void invoke_constructor(Type type, Signature sig) {
@@ -841,9 +943,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 			callback.processDefault();
 			mark(end);
 
-		} catch (RuntimeException e) {
-			throw e;
-		} catch (Error e) {
+		} catch (RuntimeException | Error e) {
 			throw e;
 		} catch (Exception e) {
 			throw new BytecodeOperationException(e);
@@ -1033,6 +1133,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 		}
 	}
 
+	@Override
 	public void visitMaxs(int maxStack, int maxLocals) {
 		if (!AsmTypes.isAbstract(this.access)) {
 			mv.visitMaxs(0, 0);

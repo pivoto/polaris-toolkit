@@ -29,19 +29,15 @@ public class AsmCollections {
 	 * @param t 转换器，用于生成键值
 	 * @return 分桶后的 Map，键为转换后的值，值为具有相同键的元素列表
 	 */
-	public static Map bucket(Collection c, Transformer t) {
-		Map buckets = new HashMap();
+	public static <K, V> Map<K, List<V>> bucket(Collection<V> c, Transformer<V, K> t) {
+		Map<K, List<V>> buckets = new HashMap<>();
 		// 遍历集合中的每个元素
-		for (Iterator it = c.iterator(); it.hasNext(); ) {
-			Object value = (Object) it.next();
+		for (Iterator<V> it = c.iterator(); it.hasNext(); ) {
+			V value = it.next();
 			// 使用转换器生成键值
-			Object key = t.transform(value);
-			// 获取该键对应的桶
-			List bucket = (List) buckets.get(key);
-			// 如果桶不存在，创建新桶
-			if (bucket == null) {
-				buckets.put(key, bucket = new LinkedList());
-			}
+			K key = t.transform(value);
+			// 获取该键对应的桶, 如果桶不存在，创建新桶
+			List<V> bucket = buckets.computeIfAbsent(key, k -> new LinkedList<>());
 			// 将元素添加到对应的桶中
 			bucket.add(value);
 		}

@@ -8,7 +8,7 @@ import org.objectweb.asm.Label;
  * @author Qt
  * @since May 10, 2024
  */
-public interface ObjectSwitchCallback {
+public interface ObjectSwitchCallback<K> {
 
 	/**
 	 * 处理匹配的 case 分支
@@ -17,7 +17,7 @@ public interface ObjectSwitchCallback {
 	 * @param end 结束标签，用于跳转
 	 * @throws Exception 处理过程中可能抛出的异常
 	 */
-	void processCase(Object key, Label end) throws Exception;
+	void processCase(K key, Label end) throws Exception;
 
 	/**
 	 * 处理 default 分支
