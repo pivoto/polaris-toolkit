@@ -11,18 +11,21 @@ import io.polaris.core.random.Randoms;
  * @author Qt
  * @since May 14, 2024
  */
-public class ProxyTargetBean {
+public class ProxyTargetBean implements Testable, Raiseable {
 	static Logger log = Loggers.of(ProxyTargetBean.class);
 
-	public void test(int a, int b) {
-		log.info("test... a={},b={}", a, b);
+	@Override
+	public void test(Object... args) {
+		log.info("test... {}", args);
 	}
-	public void raise(int a, int b) {
-		log.info("raise... a={},b={}", a, b);
+
+	@Override
+	public void raise(Object... args) throws UnsupportedOperationException, IllegalArgumentException, IllegalStateException {
+		log.info("raise... {}", args);
 		throw new UnsupportedOperationException();
 	}
 
-	Object get() {
+	Object get() throws Throwable {
 		log.info("get...");
 		return Randoms.randomString(10);
 	}

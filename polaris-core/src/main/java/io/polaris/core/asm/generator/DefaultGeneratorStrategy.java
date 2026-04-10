@@ -26,7 +26,7 @@ public class DefaultGeneratorStrategy implements GeneratorStrategy {
 		// 创建调试类写入器
 		DebuggingClassWriter cw = getClassVisitor();
 		// 使用 ClassGenerator 生成类结构
-		transform(cg).generateClass(cw);
+		transform(cg).generate(cw);
 		// 获取并返回字节码数组
 		return transform(cw.toByteArray());
 	}

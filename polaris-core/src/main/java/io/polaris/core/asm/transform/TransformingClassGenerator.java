@@ -17,8 +17,8 @@ public class TransformingClassGenerator implements ClassGenerator {
 	}
 
 	@Override
-	public void generateClass(ClassVisitor v) throws Exception {
+	public void generate(ClassVisitor v) throws Exception {
 		t.setTarget(v);
-		gen.generateClass(t);
+		gen.generate(t);
 	}
 }

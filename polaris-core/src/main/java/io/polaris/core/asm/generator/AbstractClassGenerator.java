@@ -17,6 +17,7 @@ import io.polaris.core.err.BytecodeOperationException;
 import io.polaris.core.map.Maps;
 import io.polaris.core.tuple.Tuple2;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
 
 /**
  * 类生成器抽象基类
@@ -256,7 +257,12 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
 
 	/**
 	 * 获取类加载器
-	 * <p>按照以下顺序获取：1.设置的 classLoader；2.getDefaultClassLoader()；3.线程上下文 ClassLoader；4.当前类的 ClassLoader</p>
+	 * <p>按照以下顺序获取：
+	 * <br>1.设置的 classLoader
+	 * <br>2.getDefaultClassLoader()
+	 * <br>3.线程上下文 ClassLoader
+	 * <br>4.当前类的 ClassLoader
+	 * </p>
 	 *
 	 * @return 非空的 ClassLoader 实例
 	 * @throws IllegalStateException 当无法确定任何 ClassLoader 时抛出
@@ -297,12 +303,74 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
+	 * @param v 类访问者，用于接收类结构信息
+	 * @throws Exception
+	 */
+	@Override
+	public abstract void generate(ClassVisitor v) throws Exception;
+
+	/**
+	 * 生成类成功时调用
+	 * <p>子类可以覆盖此方法以执行额外的操作</p>
+	 *
+	 * @param clazz 生成的 Class 对象
+	 */
+	protected void onAfterGenerate(Class<?> clazz) {
+	}
+
+	/**
+	 * 生成类开始前调用
+	 * <p>子类可以覆盖此方法以执行额外的操作</p>
+	 */
+	protected void onBeforeGenerate() {
+	}
+
+
+	protected void onBeforeNewInstance(Class<?> type) {
+
+	}
+
+	protected void onAfterNewInstance(Class<?> type) {
+
+	}
+
+	/**
+	 * 创建 Bean 实例
+	 * <p>生成类并实例化对象</p>
+	 *
+	 * @return 新创建的 Bean 实例
+	 */
+	public Object create() {
+		Class<?> type = createClass();
+		try {
+			onBeforeNewInstance(type);
+			return AsmReflects.newInstance(type);
+		} finally {
+			onAfterNewInstance(type);
+		}
+	}
+
+
+	/**
+	 * 先执行生成类前置处理（校验和设置配置参数等）
+	 * 然后根据字节码生成类 Class 对象
+	 *
+	 * @return 生成的 Class 对象
+	 */
+	public Class<?> createClass() {
+		onBeforeGenerate();
+		return generate();
+	}
+
+	/**
 	 * 生成类
 	 * <p>使用缓存机制管理生成的类，生成后将当前生成器冻结</p>
 	 *
 	 * @return 生成的 Class 对象
 	 */
-	protected Class<?> getOrGenerate() {
+	private Class<?> generate() {
 		ClassLoader loader = getClassLoader();
 		Map<ClassLoader, ClassLoaderData> cache = CACHE;
 		ClassLoaderData data = cache.get(loader);
@@ -320,7 +388,7 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
 			}
 		}
 		// 从 ClassLoaderData 获取或生成类
-		Class<?> clazz = data.getOrGenerate(this, loader, useCache());
+		Class<?> clazz = data.generate(this, loader, useCache());
 		// 冻结生成器，防止后续修改
 		this.frozen = true;
 		return clazz;
@@ -334,7 +402,13 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
 	 * @return 生成的 Class 对象
 	 * @throws BytecodeOperationException 当字节码操作失败时抛出
 	 */
-	protected Class<?> generate(@Nonnull ClassLoader classLoader) {
+	private Class<?> doGenerate(@Nonnull ClassLoader classLoader) {
+		Class<?> clazz = $doGenerate(classLoader);
+		onAfterGenerate(clazz);
+		return clazz;
+	}
+
+	private Class<?> $doGenerate(@Nonnull ClassLoader classLoader) {
 		try {
 			Class<?> clazz;
 			if (attemptLoad) {
@@ -390,10 +464,10 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
 		 * @param useCache 是否使用缓存
 		 * @return 生成的 Class 对象
 		 */
-		public Class<?> getOrGenerate(AbstractClassGenerator generator, ClassLoader classLoader, boolean useCache) {
+		public Class<?> generate(AbstractClassGenerator generator, ClassLoader classLoader, boolean useCache) {
 			if (!useCache || generator.key == null) {
 				// 不使用缓存，直接生成新类
-				return generate(generator, classLoader);
+				return $generate(generator, classLoader);
 			} else {
 				// 使用缓存，不存在时生成新类并缓存
 				WeakReference<Class<?>> ref = generatedClasses.get(generator.key);
@@ -411,14 +485,14 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
 							return clazz;
 						}
 					}
-					Class<?> clazz = generate(generator, classLoader);
+					Class<?> clazz = $generate(generator, classLoader);
 					generatedClasses.put(generator.key, new WeakReference<>(clazz));
 					return clazz;
 				}
 			}
 		}
 
-		private Class<?> generate(AbstractClassGenerator generator, ClassLoader classLoader) {
+		private Class<?> $generate(AbstractClassGenerator generator, ClassLoader classLoader) {
 			if (classLoader == null) {
 				throw new IllegalArgumentException("ClassLoader is null ");
 			}
@@ -429,7 +503,7 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
 				reservedClassNames.add(name);
 				generator.setClassName(name);
 			}
-			return generator.generate(classLoader);
+			return generator.doGenerate(classLoader);
 		}
 
 	}

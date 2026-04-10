@@ -106,12 +106,10 @@ public class BeanGenerator extends AbstractClassGenerator {
 	}
 
 	/**
-	 * 生成类
-	 * <p>配置包名、基础类名和键值，然后调用父类方法生成 Class 对象</p>
-	 *
-	 * @return 生成的 Class 对象
+	 * 配置包名、基础类名和键值
 	 */
-	public Class<?> createClass() {
+	@Override
+	protected void onBeforeGenerate() {
 		if (isEditable()) {
 			if (superclass != null) {
 				// 使用父类的包名和类名作为基础
@@ -121,7 +119,6 @@ public class BeanGenerator extends AbstractClassGenerator {
 			// 设置缓存键值：包含父类和所有属性信息
 			setKey(new Object[]{superclass != null ? superclass : Object.class, props});
 		}
-		return super.getOrGenerate();
 	}
 
 	/**
@@ -158,7 +155,7 @@ public class BeanGenerator extends AbstractClassGenerator {
 	 * @throws Exception 生成过程中可能出现的异常
 	 */
 	@Override
-	public void generateClass(ClassVisitor cv) throws Exception {
+	public void generate(ClassVisitor cv) throws Exception {
 		int size = props.size();
 		// 提取所有属性名和类型
 		String[] names = props.keySet().toArray(new String[size]);

@@ -1,7 +1,6 @@
 package io.polaris.core.asm.proxy;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
@@ -362,15 +361,14 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 		}
 	}
 
+
 	/**
-	 * 创建增强的类
-	 * <p>
 	 * 检查父类是否可继承，设置包名和类名等基本信息
 	 *
-	 * @return 生成的增强类
 	 * @throws IllegalArgumentException 如果父类是 final 类
 	 */
-	public Class<?> createClass() {
+	@Override
+	protected void onBeforeGenerate() {
 		Class<?> parent = (superclass == null) ? Object.class : superclass;
 		if (Modifier.isFinal(parent.getModifiers())) {
 			throw new IllegalArgumentException("Cannot subclass final class: " + parent.getName());
@@ -382,7 +380,6 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 			}
 			setKey(generateKey());
 		}
-		return super.getOrGenerate();
 	}
 
 	/**
@@ -487,19 +484,16 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	}
 
 	/**
-	 * 生成增强类并注册目标方法和拦截器
+	 * 在生成增强类中，注册目标方法和拦截器
 	 *
-	 * @param classLoader 用于加载生成类的类加载器
-	 * @return 生成的增强类
+	 * @param c 生成的增强类
 	 */
 	@Override
-	protected Class<?> generate(@Nonnull ClassLoader classLoader) {
-		Class<?> c = super.generate(classLoader);
+	protected void onAfterGenerate(@Nonnull Class<?> c) {
 		registerTargetMethods(c);
 		registerOverrideFunctions(c);
 		registerDefaultFunctions(c);
 		registerStaticInterceptors(c);
-		return c;
 	}
 
 	/**
@@ -551,7 +545,7 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	 * @throws Exception 生成过程中可能抛出的异常
 	 */
 	@Override
-	public void generateClass(ClassVisitor cv) throws Exception {
+	public void generate(ClassVisitor cv) throws Exception {
 		String className = getClassName();
 		Class<?> parent = (superclass == null) ? Object.class : superclass;
 		// 收集所有可访问的父类构造器
@@ -586,8 +580,8 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 					if (old == null) {
 						// 此接口方法未实现
 						undeclaredMethods.putIfAbsent(key, method);
-					}else{
-						if (!AsmTypes.isPublic(old.getModifiers())){
+					} else {
+						if (!AsmTypes.isPublic(old.getModifiers())) {
 							// 扩大原方法的可见性，从而实现此接口方法
 							allMethods.put(key, method);
 						}
@@ -812,7 +806,7 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	 */
 	protected void emitStaticInvokeSuper(ClassEmitter ce, List<MethodDescriptor> methods, Map<String, Method> undeclaredMethods) {
 		Type thisType = ce.getClassType();
-		CodeEmitter e = ce.begin_method(AsmConsts.PRIVATE_FINAL_STATIC, GENERATED$INVOKE_SUPER, new Type[]{Type.getType(InvocationTargetException.class)});
+		CodeEmitter e = ce.begin_method(AsmConsts.PRIVATE_FINAL_STATIC, GENERATED$INVOKE_SUPER, new Type[]{Type.getType(Throwable.class)});
 
 		int posIndex = 0;
 		int posProxy = 1;
@@ -826,8 +820,8 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 		 */
 
 		e.load_arg(posIndex);
-		final Label illegalArg = e.make_label();
-		Block block = e.begin_block();
+//		final Label illegalArg = e.make_label();
+//		Block block = e.begin_block();
 
 		e.process_switch(PrimitiveArrays.range(methods.size()), new ProcessSwitchCallback() {
 			@Override
@@ -851,13 +845,14 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 
 			@Override
 			public void processDefault() {
-				e.goTo(illegalArg);
+				e.throw_exception(Type.getType(IllegalArgumentException.class), "Cannot find matching method");
+//				e.goTo(illegalArg);
 			}
 		});
-		block.end();
-		Emitters.wrap_throwable(block, Type.getType(InvocationTargetException.class));
-		e.mark(illegalArg);
-		e.throw_exception(Type.getType(IllegalArgumentException.class), "Cannot find matching method");
+//		block.end();
+//		Emitters.wrap_throwable(block, Type.getType(InvocationTargetException.class));
+//		e.mark(illegalArg);
+//		e.throw_exception(Type.getType(IllegalArgumentException.class), "Cannot find matching method");
 		e.end_method();
 	}
 
@@ -872,7 +867,7 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 	 */
 	protected void emitStaticInvokeRaw(ClassEmitter ce, List<MethodDescriptor> methods, Map<String, Method> undeclaredMethods) {
 		Type thisType = ce.getClassType();
-		CodeEmitter e = ce.begin_method(AsmConsts.PRIVATE_FINAL_STATIC, GENERATED$INVOKE_RAW, new Type[]{Type.getType(InvocationTargetException.class)});
+		CodeEmitter e = ce.begin_method(AsmConsts.PRIVATE_FINAL_STATIC, GENERATED$INVOKE_RAW, new Type[]{Type.getType(Throwable.class)});
 
 		int posIndex = 0;
 		int posProxy = 1;
@@ -880,8 +875,8 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 		int posArgs = 3;
 
 		e.load_arg(posIndex);
-		final Label illegalArg = e.make_label();
-		Block block = e.begin_block();
+//		final Label illegalArg = e.make_label();
+//		Block block = e.begin_block();
 
 		e.process_switch(PrimitiveArrays.range(methods.size()), new ProcessSwitchCallback() {
 			@Override
@@ -965,13 +960,14 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 
 			@Override
 			public void processDefault() {
-				e.goTo(illegalArg);
+				e.throw_exception(Type.getType(IllegalArgumentException.class), "Cannot find matching method");
+//				e.goTo(illegalArg);
 			}
 		});
-		block.end();
-		Emitters.wrap_throwable(block, Type.getType(InvocationTargetException.class));
-		e.mark(illegalArg);
-		e.throw_exception(Type.getType(IllegalArgumentException.class), "Cannot find matching method");
+//		block.end();
+//		Emitters.wrap_throwable(block, Type.getType(InvocationTargetException.class));
+//		e.mark(illegalArg);
+//		e.throw_exception(Type.getType(IllegalArgumentException.class), "Cannot find matching method");
 		e.end_method();
 	}
 

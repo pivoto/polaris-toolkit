@@ -1253,7 +1253,7 @@ public class Emitters {
 	 * 包装未声明的受检异常
 	 * <p>
 	 * 生成的代码结构：
-	 * <pre>{@code
+	 * <pre>
 	 * } catch (RuntimeException e) {
 	 *     throw e;  // 运行时异常直接抛出
 	 * } catch (Error e) {
@@ -1263,7 +1263,7 @@ public class Emitters {
 	 * } catch (Throwable e) {
 	 *     throw new Wrapper(e);  // 其他异常包装后抛出
 	 * }
-	 * }</pre>
+	 * </pre>
 	 * </p>
 	 *
 	 * @param e 代码发射器
@@ -1273,13 +1273,21 @@ public class Emitters {
 	 */
 	public static void wrap_undeclared_throwable(CodeEmitter e, Block handler, Type[] exceptions, Type wrapper) {
 		// 将已声明的异常放入集合
-		Set set = (exceptions == null) ? Collections.EMPTY_SET : new HashSet(Arrays.asList(exceptions));
+		Set<Type> set = (exceptions == null) ? Collections.emptySet() : new HashSet<>(Arrays.asList(exceptions));
 
 		// 如果已声明 Throwable，无需包装
-		if (set.contains(AsmConsts.TYPE_THROWABLE))
+		if (set.contains(AsmConsts.TYPE_THROWABLE)) {
 			return;
+		}
+		// 捕获已声明的异常，直接抛出
+		if (exceptions != null && exceptions.length > 0) {
+			for (int i = 0; i < exceptions.length; i++) {
+				e.catch_exception(handler, exceptions[i]);
+			}
+			e.athrow();
+		}
 
-		boolean needThrow = exceptions != null;
+		boolean needThrow = false;
 		// 捕获 RuntimeException，直接抛出
 		if (!set.contains(AsmConsts.TYPE_RUNTIME_EXCEPTION)) {
 			e.catch_exception(handler, AsmConsts.TYPE_RUNTIME_EXCEPTION);
@@ -1289,12 +1297,6 @@ public class Emitters {
 		if (!set.contains(AsmConsts.TYPE_ERROR)) {
 			e.catch_exception(handler, AsmConsts.TYPE_ERROR);
 			needThrow = true;
-		}
-		// 捕获已声明的异常，直接抛出
-		if (exceptions != null) {
-			for (int i = 0; i < exceptions.length; i++) {
-				e.catch_exception(handler, exceptions[i]);
-			}
 		}
 		// 如果需要，抛出直接捕获的异常
 		if (needThrow) {

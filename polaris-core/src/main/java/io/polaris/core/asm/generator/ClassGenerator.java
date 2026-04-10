@@ -18,6 +18,6 @@ public interface ClassGenerator {
 	 * @param v 类访问者，用于接收类结构信息
 	 * @throws Exception 生成过程中可能出现的异常
 	 */
-	void generateClass(ClassVisitor v) throws Exception;
+	void generate(ClassVisitor v) throws Exception;
 
 }
