@@ -3,7 +3,6 @@ package io.polaris.core.asm.internal;
 import java.util.Arrays;
 
 import io.polaris.core.err.BytecodeOperationException;
-import org.objectweb.asm.Attribute;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;

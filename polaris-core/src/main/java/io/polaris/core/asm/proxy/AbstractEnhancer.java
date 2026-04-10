@@ -14,6 +14,7 @@ import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 
+import io.polaris.core.asm.internal.AsmConsts;
 import io.polaris.core.asm.generator.AbstractClassGenerator;
 import io.polaris.core.asm.internal.*;
 import io.polaris.core.collection.PrimitiveArrays;

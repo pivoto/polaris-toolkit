@@ -3,16 +3,15 @@ package io.polaris.core.asm.proxy;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import io.polaris.core.asm.internal.AsmConsts;
 import io.polaris.core.asm.internal.*;
 import io.polaris.core.err.BytecodeOperationException;
-import io.polaris.core.lang.Objs;
 import io.polaris.core.tuple.Tuple2;
 import lombok.RequiredArgsConstructor;
 import org.objectweb.asm.Label;
