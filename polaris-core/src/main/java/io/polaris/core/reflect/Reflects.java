@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -17,7 +18,6 @@ import javax.annotation.Nullable;
 
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.consts.CharConsts;
-import io.polaris.core.function.Consumer;
 import io.polaris.core.lang.Types;
 import io.polaris.core.map.Maps;
 import io.polaris.core.tuple.Tuple1;

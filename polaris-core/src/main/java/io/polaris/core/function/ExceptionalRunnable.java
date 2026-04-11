@@ -4,8 +4,8 @@ package io.polaris.core.function;
  * @author Qt
  */
 @FunctionalInterface
-public interface CallableWithArgs<T, V> {
+public interface ExceptionalRunnable {
 
-	V call(T... args) throws Exception;
+	void run() throws Exception;
 
 }

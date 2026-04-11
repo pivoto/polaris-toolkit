@@ -2,9 +2,9 @@ package io.polaris.core.jdbc.sql.statement.expression;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import io.polaris.core.consts.StdConsts;
-import io.polaris.core.function.Consumer;
 import io.polaris.core.jdbc.sql.statement.segment.TableField;
 import io.polaris.core.map.FluentMap;
 import io.polaris.core.map.Maps;

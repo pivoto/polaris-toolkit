@@ -6,8 +6,8 @@ import java.util.Objects;
  * @author Qt
  */
 @FunctionalInterface
-public interface FunctionWithArgs<T, R> {
+public interface ThrowableConsumerWithArgs3<A, B, C> {
 
-	R apply(T... args);
+	void accept(A a, B b, C c) throws Throwable;
 
 }
