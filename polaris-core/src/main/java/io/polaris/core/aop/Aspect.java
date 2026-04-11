@@ -223,7 +223,7 @@ public class Aspect implements Interceptor {
 	@Override
 	public Object intercept(Object proxy, Method method, Object[] args, Invocation invocation) throws Throwable {
 		Advisor advisor = getAdvisor(method);
-		return advisor.advise(target, args, invocation);
+		return advisor.advise(proxy, target, method, args, invocation);
 	}
 
 

@@ -63,30 +63,30 @@ public class DefaultAdvisor implements Advisor {
 
 
 	@Override
-	public Object advise(Object target, Object[] args, Invocation invocation) throws Throwable {
+	public Object advise(Object proxy, Object target, Method method, Object[] args, Invocation invocation) throws Throwable {
 		Object ret = null;
 		Throwable thr = null;
 		try {
-			before(target, method, args);
-			ValueRef<?> ref = fixedValue(target, method, args);
+			before(proxy, target, method, args);
+			ValueRef<?> ref = fixedValue(proxy, target, method, args);
 			if (ref != null) {
 				ret = ref.get();
 			} else {
-				ret = around(target, method, args, invocation);
+				ret = around(proxy, target, method, args, invocation);
 			}
-			after(target, method, args, ret);
+			after(proxy, target, method, args, ret);
 			return ret;
 		} catch (Throwable e) {
 			thr = e;
-			throwing(target, method, args, thr);
+			throwing(proxy, target, method, args, thr);
 			throw e;
 		} finally {
-			after(target, method, args, ret, thr);
+			after(proxy, target, method, args, ret, thr);
 		}
 	}
 
 
-	void before(Object target, Method method, Object[] args) throws Throwable {
+	void before(Object proxy, Object target, Method method, Object[] args) throws Throwable {
 		if (beforeAdvices == null || beforeAdvices.length == 0) {
 			return;
 		}
@@ -96,7 +96,7 @@ public class DefaultAdvisor implements Advisor {
 		}
 	}
 
-	ValueRef<?> fixedValue(Object target, Method method, Object[] args) {
+	ValueRef<?> fixedValue(Object proxy, Object target, Method method, Object[] args) {
 		if (fixedAdvices == null || fixedAdvices.length == 0) {
 			return null;
 		}
@@ -110,7 +110,7 @@ public class DefaultAdvisor implements Advisor {
 		return null;
 	}
 
-	Object around(Object target, Method method, Object[] args, Invocation invocation) throws Throwable {
+	Object around(Object proxy, Object target, Method method, Object[] args, Invocation invocation) throws Throwable {
 		if (aroundAdvices == null || aroundAdvices.length == 0) {
 			return invocation.invoke(target, args);
 		}
@@ -121,7 +121,7 @@ public class DefaultAdvisor implements Advisor {
 		return aroundInvocation.invoke(target, args);
 	}
 
-	void after(Object target, Method method, Object[] args, Object retVal) throws Throwable {
+	void after(Object proxy, Object target, Method method, Object[] args, Object retVal) throws Throwable {
 		if (afterAdvices == null || afterAdvices.length == 0) {
 			return;
 		}
@@ -131,7 +131,7 @@ public class DefaultAdvisor implements Advisor {
 		}
 	}
 
-	void throwing(Object target, Method method, Object[] args, Throwable e) throws Throwable {
+	void throwing(Object proxy, Object target, Method method, Object[] args, Throwable e) throws Throwable {
 		if (throwingAdvices == null || throwingAdvices.length == 0) {
 			return;
 		}
@@ -141,7 +141,7 @@ public class DefaultAdvisor implements Advisor {
 		}
 	}
 
-	void after(Object target, Method method, Object[] args, Object retVal, Throwable e) throws Throwable {
+	void after(Object proxy, Object target, Method method, Object[] args, Object retVal, Throwable e) throws Throwable {
 		if (finallyAdvices == null || finallyAdvices.length == 0) {
 			return;
 		}

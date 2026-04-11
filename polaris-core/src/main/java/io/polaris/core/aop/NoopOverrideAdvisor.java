@@ -19,9 +19,8 @@ class NoopOverrideAdvisor implements Advisor {
 		this.override = override;
 	}
 
-
 	@Override
-	public Object advise(Object target, Object[] args, Invocation invocation) throws Throwable {
+	public Object advise(Object proxy, Object target, Method method, Object[] args, Invocation invocation) throws Throwable {
 		return override.apply(args);
 	}
 }

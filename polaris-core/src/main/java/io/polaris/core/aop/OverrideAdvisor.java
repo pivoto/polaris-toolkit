@@ -26,8 +26,8 @@ class OverrideAdvisor implements Advisor {
 	}
 
 	@Override
-	public Object advise(Object target, Object[] args, Invocation invocation) throws Throwable {
+	public Object advise(Object proxy, Object target, Method method, Object[] args, Invocation invocation) throws Throwable {
 		invocation = Invocation.ofFunction(override);
-		return advisor.advise(target, args, invocation);
+		return advisor.advise(proxy, target, method, args, invocation);
 	}
 }

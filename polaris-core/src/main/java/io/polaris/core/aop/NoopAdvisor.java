@@ -1,5 +1,7 @@
 package io.polaris.core.aop;
 
+import java.lang.reflect.Method;
+
 import io.polaris.core.asm.proxy.Invocation;
 
 /**
@@ -10,7 +12,7 @@ class NoopAdvisor implements Advisor {
 	public static final NoopAdvisor INSTANCE = new NoopAdvisor();
 
 	@Override
-	public Object advise(Object target, Object[] args, Invocation invocation) throws Throwable {
+	public Object advise(Object proxy, Object target, Method method, Object[] args, Invocation invocation) throws Throwable {
 		return invocation.invoke(target, args);
 	}
 }
