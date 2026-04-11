@@ -6,8 +6,7 @@ import java.util.function.Function;
  * @author Qt
  * @since May 11, 2024
  */
-public class Source01 implements java.io.Serializable
-	, Function<Source01, Source01> {
+public class Source01 implements java.io.Serializable, Function<Source01, Source01> {
 
 	public Source01() {
 	}
