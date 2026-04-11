@@ -114,6 +114,9 @@ public class DefaultAdvisor implements Advisor {
 		if (aroundAdvices == null || aroundAdvices.length == 0) {
 			return invocation.invoke(target, args);
 		}
+		if (aroundAdvices.length == 1) {
+			return aroundAdvices[0].around(target, method, args, invocation);
+		}
 		AroundInvocation aroundInvocation = new AroundInvocation(invocation, aroundAdvices, 0, method);
 		return aroundInvocation.invoke(target, args);
 	}

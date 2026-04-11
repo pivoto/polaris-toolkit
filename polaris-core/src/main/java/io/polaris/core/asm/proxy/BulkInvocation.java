@@ -12,41 +12,19 @@ import lombok.Getter;
  */
 public class BulkInvocation implements Invocation {
 
-	/**
-	 * 方法在目标方法数组中的索引
-	 */
+	/** 方法在目标方法数组中的索引 */
 	private final int index;
-
-	/**
-	 * 代理对象实例
-	 */
-	@Getter
+	/** 代理对象实例 */
 	private final Object proxy;
-
-	/**
-	 * 被调用的方法对象
-	 */
-	@Getter
+	/** 被调用的方法对象 */
 	private final Method method;
-
-	/**
-	 * 原始调用器，用于直接调用目标方法
-	 */
+	/** 原始调用器，用于直接调用目标方法 */
 	private final Invoker rawInvoker;
-
-	/**
-	 * 父类调用器，用于调用父类方法
-	 */
+	/** 父类调用器，用于调用父类方法 */
 	private final Invoker superInvoker;
-
-	/**
-	 * 拦截器数组，按顺序执行所有匹配的拦截器
-	 */
+	/** 拦截器数组，按顺序执行所有匹配的拦截器 */
 	private final Interceptor[] interceptors;
-
-	/**
-	 * 当前拦截器执行游标，指向下一个要执行的拦截器
-	 */
+	/** 当前拦截器执行游标，指向下一个要执行的拦截器 */
 	private int cursor = 0;
 
 	/**
@@ -82,13 +60,21 @@ public class BulkInvocation implements Invocation {
 	public Object invoke(Object target, Object[] args) throws Throwable {
 		if (cursor < interceptors.length) {
 			// 继续下一个拦截器
-			return interceptors[cursor++].intercept(target, method, args, this);
+			return interceptors[cursor++].intercept(proxy, method, args, this);
 		}
 		if (proxy == target) {
 			return superInvoker.invoke(index, proxy, target, args);
 		} else {
 			return rawInvoker.invoke(index, proxy, target, args);
 		}
+	}
+
+	public Object getProxy() {
+		return proxy;
+	}
+
+	public Method getMethod() {
+		return method;
 	}
 
 }

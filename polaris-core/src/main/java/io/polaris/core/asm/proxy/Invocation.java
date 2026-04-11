@@ -1,10 +1,12 @@
 package io.polaris.core.asm.proxy;
 
 import java.lang.reflect.Method;
+import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 
 import io.polaris.core.annotation.ByteCodeProcessing;
+import io.polaris.core.function.ThrowableFunction;
 
 /**
  * 调用上下文接口，封装方法调用的相关信息和执行逻辑
@@ -13,23 +15,8 @@ import io.polaris.core.annotation.ByteCodeProcessing;
  * @since May 11, 2024
  */
 @ByteCodeProcessing
+@FunctionalInterface
 public interface Invocation {
-
-	/**
-	 * 获取代理对象
-	 *
-	 * @return 当前的代理对象实例
-	 */
-	@Nonnull
-	Object getProxy();
-
-	/**
-	 * 获取被调用的方法对象
-	 *
-	 * @return 当前调用的 Method 对象
-	 */
-	@Nonnull
-	Method getMethod();
 
 	/**
 	 * 执行方法调用
@@ -40,5 +27,22 @@ public interface Invocation {
 	 * @throws Throwable 方法执行过程中可能抛出的任何异常
 	 */
 	Object invoke(Object target, Object[] args) throws Throwable;
+
+
+	static Invocation noop() {
+		return (target, args) -> null;
+	}
+
+	static Invocation ofFunction(@Nonnull Function<Object[], Object> function) {
+		return (target, args) -> function.apply(args);
+	}
+
+	static Invocation ofMethod(@Nonnull Method method) {
+		return method::invoke;
+	}
+
+	static Invocation ofThrowableFunction(@Nonnull ThrowableFunction<Object[], Object> function) {
+		return (target, args) -> function.apply(args);
+	}
 
 }

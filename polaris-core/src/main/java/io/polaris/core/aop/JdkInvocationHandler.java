@@ -62,7 +62,7 @@ public class JdkInvocationHandler implements InvocationHandler {
 		MethodHandle methodHandle = targetMethods.get(method);
 		if (methodHandle != null) {
 			// 存在实现方法
-			invocation = new DelegateInvocation(proxy, method, (mArgs) ->
+			invocation = Invocation.ofThrowableFunction((mArgs) ->
 				methodHandle.bindTo(target).invokeWithArguments(mArgs));
 		} else {
 			List<Tuple2<Method, MethodHandle>> list = matchedMethods.get(signature);
@@ -70,7 +70,7 @@ public class JdkInvocationHandler implements InvocationHandler {
 				// 存在可借用的方法
 				Tuple2<Method, MethodHandle> tuple = list.get(0);
 				MethodHandle matched = tuple.getSecond();
-				invocation = new DelegateInvocation(proxy, method, (mArgs) ->
+				invocation = Invocation.ofThrowableFunction((mArgs) ->
 					matched.bindTo(target).invokeWithArguments(mArgs));
 			} else if (method.isDefault()) {
 				// 属于接口默认方法
@@ -86,10 +86,10 @@ public class JdkInvocationHandler implements InvocationHandler {
 				}
 				if (undeclaredMethod != null) {
 					MethodHandle finalUndeclaredMethod = undeclaredMethod;
-					invocation = new DelegateInvocation(proxy, method, (mArgs) ->
+					invocation = Invocation.ofThrowableFunction((mArgs) ->
 						finalUndeclaredMethod.bindTo(proxy).invokeWithArguments(mArgs));
 				} else {
-					invocation = new DelegateInvocation(proxy, method, (mArgs) ->
+					invocation = Invocation.ofThrowableFunction((mArgs) ->
 						MethodHandles.lookup().unreflect(method).bindTo(proxy).invokeWithArguments(mArgs));
 				}
 			}
@@ -97,9 +97,9 @@ public class JdkInvocationHandler implements InvocationHandler {
 		// 找不到直接匹配的处理器，则使用默认处理器，如果是继承关系，则使用JdkInvocation，否则使用空实现
 		if (invocation == null) {
 			if (method.getDeclaringClass().isAssignableFrom(target.getClass())) {
-				invocation = new JdkInvocation(proxy, method);
+				invocation = Invocation.ofMethod(method);
 			} else {
-				invocation = new DelegateInvocation(proxy, method, (mArgs) -> null);
+				invocation = Invocation.noop();
 			}
 		}
 		return aspect.intercept(proxy, method, args, invocation);

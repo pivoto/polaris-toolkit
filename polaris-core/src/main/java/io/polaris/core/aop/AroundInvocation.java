@@ -29,18 +29,6 @@ class AroundInvocation implements Invocation {
 		this.method = method;
 	}
 
-	@Nonnull
-	@Override
-	public Object getProxy() {
-		return invocation.getProxy();
-	}
-
-	@Nonnull
-	@Override
-	public Method getMethod() {
-		return invocation.getMethod();
-	}
-
 	@Override
 	public Object invoke(Object target, Object[] args) throws Throwable {
 		int size = advices.length;

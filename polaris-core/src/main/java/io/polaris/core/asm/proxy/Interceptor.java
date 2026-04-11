@@ -11,6 +11,7 @@ import io.polaris.core.annotation.ByteCodeProcessing;
  * @since May 11, 2024
  */
 @ByteCodeProcessing
+@FunctionalInterface
 public interface Interceptor {
 
 	/**
@@ -25,5 +26,12 @@ public interface Interceptor {
 	 */
 	@ByteCodeProcessing
 	Object intercept(Object proxy, Method method, Object[] args, Invocation invocation) throws Throwable;
+
+	default Interceptor andThen(Interceptor next) {
+		return (proxy, method, args, invocation) ->
+			intercept(proxy, method, args, (t, nextArgs) ->
+				next.intercept(proxy, method, nextArgs, invocation)
+			);
+	}
 
 }

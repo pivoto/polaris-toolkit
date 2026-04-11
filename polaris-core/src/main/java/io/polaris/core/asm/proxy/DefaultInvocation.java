@@ -45,18 +45,6 @@ public class DefaultInvocation implements Invocation {
 		this.superInvoker = superInvoker;
 	}
 
-	@Nonnull
-	@Override
-	public Object getProxy() {
-		return proxy;
-	}
-
-	@Nonnull
-	@Override
-	public Method getMethod() {
-		return method;
-	}
-
 	/**
 	 * 执行方法调用
 	 * <p>
@@ -74,6 +62,17 @@ public class DefaultInvocation implements Invocation {
 		} else {
 			return rawInvoker.invoke(index, proxy, target, args);
 		}
+	}
+
+
+	@Nonnull
+	public Object getProxy() {
+		return proxy;
+	}
+
+	@Nonnull
+	public Method getMethod() {
+		return method;
 	}
 
 }
