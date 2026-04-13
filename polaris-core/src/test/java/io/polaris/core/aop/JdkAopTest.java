@@ -10,7 +10,7 @@ import io.polaris.core.aop.sample.ProxyTargetBean;
 import io.polaris.core.aop.sample.Raiseable;
 import io.polaris.core.aop.sample.Testable;
 import io.polaris.core.asm.internal.Signature;
-import io.polaris.core.function.ThrowableExecution;
+import io.polaris.core.function.ThrowableRunnable;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.string.Strings;
@@ -47,10 +47,10 @@ public class JdkAopTest {
 		log.warn("Finally: {}, {}, {}, {}", Signature.of(method), args, retVal, Objects.toString(e, ""));
 	};
 
-	private void execute(ThrowableExecution executable) {
+	private void execute(ThrowableRunnable executable) {
 		log.info(Strings.repeat("-", 80));
 		try {
-			executable.execute();
+			executable.run();
 		} catch (Throwable e) {
 			log.error("发现异常：{}", e);
 		}

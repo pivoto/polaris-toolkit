@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 
 import io.polaris.core.function.Executable;
-import io.polaris.core.function.ThrowableExecution;
+import io.polaris.core.function.ThrowableRunnable;
 import io.polaris.core.function.ThrowableSupplier;
 import io.polaris.mybatis.auth.annotation.DataScope;
 import io.polaris.mybatis.auth.consts.DataScopeRelation;
@@ -401,43 +401,43 @@ public class DataAuthCtx {
 		}
 	}
 
-	public static void executeThrowably(@Nonnull ThrowableExecution task, @Nonnull DataAuthEnv env) throws Throwable {
+	public static void executeThrowably(@Nonnull ThrowableRunnable task, @Nonnull DataAuthEnv env) throws Throwable {
 		executeThrowably(task, env.relation, env.includedScopes, env.excludedScopes);
 	}
 
-	public static void executeThrowably(@Nonnull ThrowableExecution task, @Nonnull DataScope dataScope) throws Throwable {
+	public static void executeThrowably(@Nonnull ThrowableRunnable task, @Nonnull DataScope dataScope) throws Throwable {
 		executeThrowably(task, dataScope.relation(), dataScope.include(), dataScope.exclude());
 	}
 
-	public static void executeThrowably(@Nonnull ThrowableExecution task, @Nonnull String[] includedScopes) throws Throwable {
+	public static void executeThrowably(@Nonnull ThrowableRunnable task, @Nonnull String[] includedScopes) throws Throwable {
 		executeThrowably(task, DataScopeRelation.OR, Arrays.asList(includedScopes));
 	}
 
-	public static void executeThrowably(@Nonnull ThrowableExecution task, @Nonnull DataScopeRelation relation, @Nonnull String[] includedScopes) throws Throwable {
+	public static void executeThrowably(@Nonnull ThrowableRunnable task, @Nonnull DataScopeRelation relation, @Nonnull String[] includedScopes) throws Throwable {
 		executeThrowably(task, relation, Arrays.asList(includedScopes));
 	}
 
-	public static void executeThrowably(@Nonnull ThrowableExecution task, @Nonnull String[] includedScopes, @Nonnull String[] excludedScopes) throws Throwable {
+	public static void executeThrowably(@Nonnull ThrowableRunnable task, @Nonnull String[] includedScopes, @Nonnull String[] excludedScopes) throws Throwable {
 		executeThrowably(task, DataScopeRelation.OR, Arrays.asList(includedScopes), Arrays.asList(excludedScopes));
 	}
 
-	public static void executeThrowably(@Nonnull ThrowableExecution task, @Nonnull DataScopeRelation relation, @Nonnull String[] includedScopes, @Nonnull String[] excludedScopes) throws Throwable {
+	public static void executeThrowably(@Nonnull ThrowableRunnable task, @Nonnull DataScopeRelation relation, @Nonnull String[] includedScopes, @Nonnull String[] excludedScopes) throws Throwable {
 		executeThrowably(task, relation, Arrays.asList(includedScopes), Arrays.asList(excludedScopes));
 	}
 
-	public static void executeThrowably(@Nonnull ThrowableExecution task, Collection<String> includedScopes) throws Throwable {
+	public static void executeThrowably(@Nonnull ThrowableRunnable task, Collection<String> includedScopes) throws Throwable {
 		executeThrowably(task, DataScopeRelation.OR, includedScopes, Collections.emptySet());
 	}
 
-	public static void executeThrowably(@Nonnull ThrowableExecution task, @Nonnull DataScopeRelation relation, Collection<String> includedScopes) throws Throwable {
+	public static void executeThrowably(@Nonnull ThrowableRunnable task, @Nonnull DataScopeRelation relation, Collection<String> includedScopes) throws Throwable {
 		executeThrowably(task, relation, includedScopes, Collections.emptySet());
 	}
 
-	public static void executeThrowably(@Nonnull ThrowableExecution task, Collection<String> includedScopes, Collection<String> excludedScopes) throws Throwable {
+	public static void executeThrowably(@Nonnull ThrowableRunnable task, Collection<String> includedScopes, Collection<String> excludedScopes) throws Throwable {
 		executeThrowably(task, DataScopeRelation.OR, includedScopes, excludedScopes);
 	}
 
-	public static void executeThrowably(@Nonnull ThrowableExecution task, @Nonnull DataScopeRelation relation, Collection<String> includedScopes, Collection<String> excludedScopes) throws Throwable {
+	public static void executeThrowably(@Nonnull ThrowableRunnable task, @Nonnull DataScopeRelation relation, Collection<String> includedScopes, Collection<String> excludedScopes) throws Throwable {
 		DataScopeRelation oldRelation = RELATION.get();
 		Set<String> includedSet = INCLUDED_SCOPE.get();
 		Set<String> excludedSet = EXCLUDED_SCOPE.get();
@@ -447,7 +447,7 @@ public class DataAuthCtx {
 
 		addScope(relation, includedScopes, excludedScopes);
 		try {
-			task.execute();
+			task.run();
 		} finally {
 			clearAll();
 			if (oldRelation != null) {

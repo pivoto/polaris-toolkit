@@ -1,6 +1,6 @@
 package io.polaris.core.err;
 
-import io.polaris.core.function.Callable;
+import java.util.concurrent.Callable;
 
 /**
  * @author Qt

@@ -2,7 +2,6 @@ package io.polaris.core.reflect;
 
 import java.io.Serializable;
 
-import io.polaris.core.function.ExecutableWithArgs3;
 import io.polaris.core.function.ExecutableWithArgs4;
 
 /**

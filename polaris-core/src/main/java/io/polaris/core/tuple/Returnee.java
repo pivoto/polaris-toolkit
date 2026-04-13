@@ -2,7 +2,7 @@ package io.polaris.core.tuple;
 
 import java.io.Serializable;
 
-import io.polaris.core.function.ThrowableExecution;
+import io.polaris.core.function.ThrowableRunnable;
 import io.polaris.core.function.ThrowableSupplier;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -45,9 +45,9 @@ public class Returnee<R, T extends Throwable> extends Tuple2<R, T> implements Se
 	}
 
 
-	public static <T> Returnee<Void, Throwable> of(ThrowableExecution executable) {
+	public static <T> Returnee<Void, Throwable> of(ThrowableRunnable executable) {
 		try {
-			executable.execute();
+			executable.run();
 			return Returnee.of((Void) null, null);
 		} catch (Throwable e) {
 			return Returnee.of((Void) null, e);

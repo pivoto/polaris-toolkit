@@ -4,7 +4,7 @@ package io.polaris.core.function;
  * @author Qt
  */
 @FunctionalInterface
-public interface ThrowableExecution {
+public interface ThrowableExecutable {
 
 	void execute() throws Throwable;
 
