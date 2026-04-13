@@ -92,7 +92,7 @@ public class DefaultAdvisor implements Advisor {
 		}
 		for (int i = 0; i < beforeAdvices.length; i++) {
 			BeforeAdvice beforeAdvice = beforeAdvices[i];
-			beforeAdvice.before(target, method, args);
+			beforeAdvice.before(proxy, target, method, args);
 		}
 	}
 
@@ -102,7 +102,7 @@ public class DefaultAdvisor implements Advisor {
 		}
 		for (int i = 0; i < fixedAdvices.length; i++) {
 			FixedAdvice fixedAdvice = fixedAdvices[i];
-			ValueRef<?> ref = fixedAdvice.fixedValue(target, method, args);
+			ValueRef<?> ref = fixedAdvice.fixedValue(proxy, target, method, args);
 			if (ref != null) {
 				return ref;
 			}
@@ -115,9 +115,9 @@ public class DefaultAdvisor implements Advisor {
 			return invocation.invoke(target, args);
 		}
 		if (aroundAdvices.length == 1) {
-			return aroundAdvices[0].around(target, method, args, invocation);
+			return aroundAdvices[0].around(proxy, target, method, args, invocation);
 		}
-		AroundInvocation aroundInvocation = new AroundInvocation(invocation, aroundAdvices, 0, method);
+		AroundInvocation aroundInvocation = new AroundInvocation(invocation, aroundAdvices, 0, proxy, method);
 		return aroundInvocation.invoke(target, args);
 	}
 
@@ -127,7 +127,7 @@ public class DefaultAdvisor implements Advisor {
 		}
 		for (int i = 0; i < afterAdvices.length; i++) {
 			AfterAdvice afterAdvice = afterAdvices[i];
-			afterAdvice.after(target, method, args, retVal);
+			afterAdvice.after(proxy, target, method, args, retVal);
 		}
 	}
 
@@ -137,7 +137,7 @@ public class DefaultAdvisor implements Advisor {
 		}
 		for (int i = 0; i < throwingAdvices.length; i++) {
 			ThrowingAdvice throwingAdvice = throwingAdvices[i];
-			throwingAdvice.throwing(target, method, args, e);
+			throwingAdvice.throwing(proxy, target, method, args, e);
 		}
 	}
 
@@ -147,7 +147,7 @@ public class DefaultAdvisor implements Advisor {
 		}
 		for (int i = 0; i < finallyAdvices.length; i++) {
 			FinallyAdvice finallyAdvice = finallyAdvices[i];
-			finallyAdvice.after(target, method, args, retVal, e);
+			finallyAdvice.after(proxy, target, method, args, retVal, e);
 		}
 	}
 }

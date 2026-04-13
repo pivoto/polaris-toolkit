@@ -13,6 +13,7 @@ public interface FinallyAdvice extends Advice {
 	/**
 	 * 后置通知执行逻辑
 	 *
+	 * @param proxy 代理对象实例
 	 * @param target 目标对象实例
 	 * @param method 目标方法对象
 	 * @param args 方法调用参数数组
@@ -20,6 +21,6 @@ public interface FinallyAdvice extends Advice {
 	 * @param e 方法执行过程中抛出的异常
 	 * @throws Throwable 方法执行过程中抛出的异常
 	 */
-	void after(Object target, Method method, Object[] args, Object retVal, Throwable e) throws Throwable;
+	void after(Object proxy, Object target, Method method, Object[] args, Object retVal, Throwable e) throws Throwable;
 
 }

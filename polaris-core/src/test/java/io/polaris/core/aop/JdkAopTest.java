@@ -11,7 +11,6 @@ import io.polaris.core.aop.sample.Raiseable;
 import io.polaris.core.aop.sample.Testable;
 import io.polaris.core.asm.internal.Signature;
 import io.polaris.core.function.ThrowableExecution;
-import io.polaris.core.io.Consoles;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.string.Strings;
@@ -29,22 +28,22 @@ import org.junit.jupiter.api.TestMethodOrder;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class JdkAopTest {
 	static Logger log = Loggers.of(JdkAopTest.class);
-	BeforeAdvice beforeAdvice = (target, method, args) -> log.warn("Before: {}, {}", Signature.of(method), args);
-	AfterAdvice afterAdvice = (target, method, args, retVal) -> log.warn("After: {}, {}", target, Signature.of(method), args);
-	FixedAdvice fixedAdvice = (target, method, args) -> {
+	BeforeAdvice beforeAdvice = (proxy, target, method, args) -> log.warn("Before: {}, {}", Signature.of(method), args);
+	AfterAdvice afterAdvice = (proxy, target, method, args, retVal) -> log.warn("After: {}, {}", target, Signature.of(method), args);
+	FixedAdvice fixedAdvice = (proxy, target, method, args) -> {
 		log.warn("FixedValue: {}, {}", Signature.of(method), args);
 		return ValueRef.of("fixedValue");
 	};
-	AroundAdvice aroundAdvice = (target, method, args, invocation) -> {
+	AroundAdvice aroundAdvice = (proxy, target, method, args, invocation) -> {
 		log.warn("Around Before: {}, {}, {}", Signature.of(method), args, invocation);
 		Object rs = invocation.invoke(target, args);
 		log.warn("Around After: {}, {}, {}", Signature.of(method), args, invocation);
 		return rs;
 	};
-	ThrowingAdvice throwingAdvice = (target, method, args, e) -> {
+	ThrowingAdvice throwingAdvice = (proxy, target, method, args, e) -> {
 		log.warn("Throwing: {}, {}, {}", Signature.of(method), args, Objects.toString(e, ""));
 	};
-	FinallyAdvice finallyAdvice = (target, method, args, retVal, e) -> {
+	FinallyAdvice finallyAdvice = (proxy, target, method, args, retVal, e) -> {
 		log.warn("Finally: {}, {}, {}, {}", Signature.of(method), args, retVal, Objects.toString(e, ""));
 	};
 
@@ -167,7 +166,7 @@ public class JdkAopTest {
 			.addAdvice(beforeAdvice)
 			.addAdvice(withTest, fixedAdvice)
 			.addAdvice(withApply, aroundAdvice)
-			.addAroundAdvice((target, method, args, invocation) -> {
+			.addAroundAdvice((proxy0, target, method, args, invocation) -> {
 				log.warn("around2 before: {}, {}, {}, {}", target, method, args, invocation);
 				Object rs = invocation.invoke(target, args);
 				log.warn("around2 after: {}, {}, {}, {}", target, method, args, invocation);
