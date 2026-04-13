@@ -437,7 +437,7 @@ public class AptAnnotations {
 	 */
 	public static Set<AptAliasAttribute> findAliasAttributes(ProcessingEnvironment env, ExecutableElement element) {
 		// 创建已访问注解类型的集合，用于防止循环遍历
-		Set<Class<? extends Annotation>> visited = new HashSet<>();
+		Set<String> visited = new HashSet<>();
 		// 创建存储别名属性的有序集合
 		Set<AptAliasAttribute> attributes = new LinkedHashSet<>();
 		// 获取元素的所有注解镜像
@@ -447,7 +447,7 @@ public class AptAnnotations {
 		return attributes;
 	}
 
-	private static Set<AptAliasAttribute> scanHierarchyAnnotation(ProcessingEnvironment env, Set<AptAliasAttribute> attributes, List<? extends AnnotationMirror> annotationMirrors, Set<Class<? extends Annotation>> visited) {
+	private static Set<AptAliasAttribute> scanHierarchyAnnotation(ProcessingEnvironment env, Set<AptAliasAttribute> attributes, List<? extends AnnotationMirror> annotationMirrors, Set<String> visited) {
 		if (annotationMirrors != null && !annotationMirrors.isEmpty()) {
 			// 获取String和Class类型镜像，用于后续类型比较
 			TypeMirror stringType = env.getElementUtils().getTypeElement(String.class.getCanonicalName()).asType();
@@ -460,6 +460,14 @@ public class AptAnnotations {
 				TypeElement element = (TypeElement) e;
 				String simpleName = element.getSimpleName().toString();
 				String fullName = element.getQualifiedName().toString();
+
+				// 如果注解已被访问过，跳过以避免重复处理
+				if (visited.contains(fullName)) {
+					continue;
+				}
+				// 标记当前注解为已访问
+				visited.add(fullName);
+
 				// 尽可能找具备Alias语义的注解
 				if (fullName.equals(Alias.class.getCanonicalName()) || simpleName.equals("Alias") || simpleName.equals("AliasFor")) {
 					Map<? extends ExecutableElement, ? extends AnnotationValue> elementValues = annotationMirror.getElementValues();
