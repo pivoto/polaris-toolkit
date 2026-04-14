@@ -14,7 +14,6 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@EqualsAndHashCode(callSuper = true)
 public class Returnee<R, T extends Throwable> extends Tuple2<R, T> implements Serializable, Tuple {
 	private static final long serialVersionUID = 1L;
 
@@ -100,5 +99,13 @@ public class Returnee<R, T extends Throwable> extends Tuple2<R, T> implements Se
 		return "return " + getValue();
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		return super.equals(o);
+	}
 
+	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}
 }

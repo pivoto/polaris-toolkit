@@ -13,8 +13,6 @@ import java.util.Map;
  */
 @Getter
 @Setter
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class Pair<A, B> extends Tuple2<A, B> implements Map.Entry<A, B>, Serializable, Tuple {
 	private static final long serialVersionUID = 1L;
 
@@ -44,5 +42,20 @@ public class Pair<A, B> extends Tuple2<A, B> implements Map.Entry<A, B>, Seriali
 		B old = this.getSecond();
 		this.setSecond(value);
 		return old;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		return super.equals(o);
+	}
+
+	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}
+
+	@Override
+	public String toString() {
+		return super.toString();
 	}
 }

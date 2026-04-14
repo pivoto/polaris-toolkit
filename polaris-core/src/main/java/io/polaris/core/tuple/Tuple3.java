@@ -3,6 +3,7 @@ package io.polaris.core.tuple;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * @author Qt
@@ -11,8 +12,6 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
-@ToString
 public class Tuple3<T1, T2, T3> implements Serializable, Tuple {
 	private static final long serialVersionUID = 1L;
 	private T1 first;
@@ -21,5 +20,27 @@ public class Tuple3<T1, T2, T3> implements Serializable, Tuple {
 
 	public static <T1, T2, T3> Tuple3<T1, T2, T3> of(T1 first, T2 second, T3 third) {
 		return new Tuple3<>(first, second, third);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof Tuple3)) return false;
+		Tuple3<?, ?, ?> tuple3 = (Tuple3<?, ?, ?>) o;
+		return Objects.equals(first, tuple3.first) && Objects.equals(second, tuple3.second) && Objects.equals(third, tuple3.third);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(first, second, third);
+	}
+
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder("Tuple3{");
+		sb.append("first=").append(first);
+		sb.append(", second=").append(second);
+		sb.append(", third=").append(third);
+		sb.append('}');
+		return sb.toString();
 	}
 }

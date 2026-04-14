@@ -8,7 +8,6 @@ import java.util.Arrays;
 /**
  * @author Qt
  */
-@ToString
 public class TupleN implements Serializable, Tuple {
 
 	private static final long serialVersionUID = 1L;
@@ -49,5 +48,13 @@ public class TupleN implements Serializable, Tuple {
 	@Override
 	public int hashCode() {
 		return Arrays.hashCode(array);
+	}
+
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder("TupleN{");
+		sb.append("array=").append(Arrays.toString(array));
+		sb.append('}');
+		return sb.toString();
 	}
 }
