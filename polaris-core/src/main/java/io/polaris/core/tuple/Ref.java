@@ -1,5 +1,6 @@
 package io.polaris.core.tuple;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
@@ -9,6 +10,10 @@ import java.util.function.Supplier;
 public interface Ref<V> extends Tuple {
 
 	V get();
+
+	default V getRequired() throws NullPointerException {
+		return Objects.requireNonNull(get());
+	}
 
 	default V get(Supplier<V> loader) {
 		V v = get();
