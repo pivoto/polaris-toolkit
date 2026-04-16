@@ -15,16 +15,26 @@ import lombok.Getter;
 public class LazyRef<V> implements Ref<V>, Serializable, Copyable<LazyRef<V>> {
 	private static final long serialVersionUID = 1L;
 	private final Supplier<V> supplier;
+	private final boolean nullable;
 	@Getter
 	private volatile boolean initialized = false;
 	private V value;
 
-	public LazyRef(Supplier<V> supplier) {
+	public LazyRef(Supplier<V> supplier, boolean nullable) {
 		this.supplier = supplier;
+		this.nullable = nullable;
+	}
+
+	public LazyRef(Supplier<V> supplier) {
+		this(supplier, false);
 	}
 
 	public static <E> LazyRef<E> of(final Supplier<E> supplier) {
 		return new LazyRef<>(supplier);
+	}
+
+	public static <E> LazyRef<E> ofNullable(final Supplier<E> supplier) {
+		return new LazyRef<>(supplier, true);
 	}
 
 	@Override
@@ -38,7 +48,7 @@ public class LazyRef<V> implements Ref<V>, Serializable, Copyable<LazyRef<V>> {
 			synchronized (this) {
 				if (!initialized) {
 					value = supplier.get();
-					initialized = value != null;
+					initialized = nullable || value != null;
 				}
 			}
 		}
