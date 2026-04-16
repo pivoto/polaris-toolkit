@@ -1,5 +1,10 @@
 ## 版本变更说明
 
+### 3.8.4
+- LazyRef新增空值支持
+- Ref 添加 getRequired 方法以支持空值检查
+- 手动实现Tuple类的 equals、hashCode 和 toString 方法
+
 ### 3.8.3
 - 优化JdkProxies代理实例创建逻辑以支持多接口
 - 重构Types函数式接口判断逻辑
