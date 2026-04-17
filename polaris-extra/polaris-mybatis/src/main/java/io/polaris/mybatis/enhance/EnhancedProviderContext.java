@@ -100,7 +100,7 @@ public class EnhancedProviderContext {
 
 	public boolean isSupportLogicDeleted() {
 		Boolean defaultSupportLogicDeleted = supportLogicDeleted.get();
-		return Boolean.TRUE.equals(defaultSupportLogicDeleted);
+		return !Boolean.FALSE.equals(defaultSupportLogicDeleted);
 	}
 
 	public boolean isSupportLogicDeleted(Map<String, Object> bindings) {
@@ -122,7 +122,7 @@ public class EnhancedProviderContext {
 		} catch (Exception ignored) {
 		}
 		Boolean defaultSupportLogicDeleted = supportLogicDeleted.get();
-		return Boolean.TRUE.equals(defaultSupportLogicDeleted);
+		return !Boolean.FALSE.equals(defaultSupportLogicDeleted);
 	}
 
 

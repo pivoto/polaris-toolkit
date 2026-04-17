@@ -380,7 +380,7 @@ public class EnhancedAutoMapperHelper {
 				return declared.value();
 			}
 		}
-		return false;
+		return true;
 	}
 
 
