@@ -16,7 +16,6 @@ import org.apache.ibatis.mapping.BoundSql;
 public class MapperHelperContext {
 	private static final AtomicBoolean enableEnhanceBoundSql = new AtomicBoolean(false);
 	private static final ThreadLocal<Tuple2<Object, Map<String, Object>>> additionalParametersLocal = new ThreadLocal<>();
-	private static final ThreadLocal<Boolean> queryExistsByCountLocal = new ThreadLocal<>();
 
 	public static void enableEnhanceBoundSql(boolean enable) {
 		enableEnhanceBoundSql.set(enable);
@@ -68,19 +67,6 @@ public class MapperHelperContext {
 
 	public static void clearAdditionalParameters() {
 		additionalParametersLocal.remove();
-	}
-
-	public static boolean isQueryExistsByCount() {
-		Boolean bool = queryExistsByCountLocal.get();
-		return bool == null || bool;
-	}
-
-	public static void setQueryExistsByCount(boolean withoutCount) {
-		queryExistsByCountLocal.set(withoutCount);
-	}
-
-	public static void clearQueryExistsByCount() {
-		queryExistsByCountLocal.remove();
 	}
 
 }

@@ -68,7 +68,9 @@ public class EnhancedProviderSqlSource implements SqlSource {
 		String databaseId = Strings.trimToEmpty(configuration.getDatabaseId());
 		if (provider instanceof AutoMapper) {
 			Class<?> entityClass = ((AutoMapper) provider).entity();
-			EnhancedAutoMapperHelper.registerEntityClass(mapperType, mapperMethod, databaseId, entityClass);
+			if (entityClass != null && entityClass != Object.class && entityClass != void.class) {
+				EnhancedAutoMapperHelper.registerEntityClass(mapperType, mapperMethod, databaseId, entityClass);
+			}
 		}
 		BiFunction<Map<String, Object>, EnhancedProviderContext, String> sqlFunction = extractSqlFunction(provider, mapperType, mapperMethod, databaseId);
 		this.providerContext = EnhancedProviderContext.of(mapperType, mapperMethod, databaseId);

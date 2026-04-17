@@ -2,10 +2,8 @@ package io.polaris.mybatis.enhance;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -160,6 +158,10 @@ public class EnhancedParamNameResolver {
 			if (Strings.isNotBlank(withLogicDeleted) && !BindingKeys.WITH_LOGIC_DELETED.equals(withLogicDeleted)) {
 				bindingKeyDefinition.setWithLogicDeleted(new String[]{withLogicDeleted});
 			}
+			String existsByCount = mapperParam.existsByCount();
+			if (Strings.isNotBlank(existsByCount) && !BindingKeys.EXISTS_BY_COUNT.equals(existsByCount)) {
+				bindingKeyDefinition.setExistsByCount(new String[]{existsByCount});
+			}
 		}
 	}
 
@@ -214,6 +216,10 @@ public class EnhancedParamNameResolver {
 		}
 		if (annotation instanceof MapperParam.WithLogicDeleted) {
 			mergeBindingKeyDefinition(paramKeys, bindingKeyDefinition.getWithLogicDeleted(), bindingKeyDefinition::setWithLogicDeleted, BindingKeys.WITH_LOGIC_DELETED);
+			return;
+		}
+		if (annotation instanceof MapperParam.ExistsByCount) {
+			mergeBindingKeyDefinition(paramKeys, bindingKeyDefinition.getExistsByCount(), bindingKeyDefinition::setExistsByCount, BindingKeys.EXISTS_BY_COUNT);
 			return;
 		}
 	}

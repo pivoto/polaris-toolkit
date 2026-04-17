@@ -58,6 +58,9 @@ public @interface MapperParam {
 	/** 是否支持逻辑删除处理的标志 */
 	String withLogicDeleted() default BindingKeys.WITH_LOGIC_DELETED;
 
+	/** 是否使用Count语句查询存在性 */
+	String existsByCount() default BindingKeys.EXISTS_BY_COUNT;
+
 	/** 标识为实体对象参数 */
 	@Documented
 	@Retention(RetentionPolicy.RUNTIME)
@@ -136,4 +139,9 @@ public @interface MapperParam {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.PARAMETER)
 	@interface WithLogicDeleted {}
+	/** 是否使用Count语句查询存在性 */
+	@Documented
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.PARAMETER)
+	@interface ExistsByCount {}
 }

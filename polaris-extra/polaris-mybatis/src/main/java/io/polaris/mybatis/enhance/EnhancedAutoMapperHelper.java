@@ -27,6 +27,7 @@ import io.polaris.mybatis.annotation.ColumnTypeHandler;
 import io.polaris.mybatis.annotation.DynamicResultMapping;
 import io.polaris.mybatis.annotation.DynamicUseGeneratedKeys;
 import io.polaris.mybatis.annotation.MapperEntity;
+import io.polaris.mybatis.annotation.ExistsByCount;
 import io.polaris.mybatis.annotation.WithLogicDeleted;
 import io.polaris.mybatis.consts.MappingPropKeys;
 import io.polaris.mybatis.mapper.EntityMapper;
@@ -46,6 +47,7 @@ public class EnhancedAutoMapperHelper {
 	private static final Map<MapperKey, Ref<Class<?>>> ENTITY_CLASS_MAP = new ConcurrentHashMap<>();
 	private static final Map<Method, BindingKeyDefinition> METHOD_BINDING_KEY_MAP = new ConcurrentHashMap<>();
 	private static final Map<Tuple2<Method, Class<?>>, Boolean> LOGIC_DELETED_MAP = new ConcurrentHashMap<>();
+	private static final Map<Tuple2<Method, Class<?>>, Boolean> EXISTS_BY_COUNT_MAP = new ConcurrentHashMap<>();
 
 
 	// region EnhancedAutoMapperMeta
@@ -380,6 +382,59 @@ public class EnhancedAutoMapperHelper {
 		}
 		return false;
 	}
+
+
+	// endregion
+
+
+	// region existsByCount
+
+	public static boolean existsByCount(Map<String, Object> bindings, ProviderContext context, BindingKeyModel bindingKeyModel) {
+		try {
+			// fix for MapperMethod.ParamMap.get()
+			String key = bindingKeyModel.existsByCount();
+			if (bindings.containsKey(key)) {
+				Object sld = bindings.get(key);
+				if (sld != null) {
+					if (sld instanceof Boolean) {
+						return (Boolean) sld;
+					}
+				}
+			}
+		} catch (Exception ignored) {
+		}
+		return existsByCount(context.getMapperType(), context.getMapperMethod());
+	}
+
+	public static boolean existsByCount(Class<?> mapperType, Method mapperMethod) {
+		return EXISTS_BY_COUNT_MAP.computeIfAbsent(Tuple2.of(mapperMethod, mapperType),
+			k -> innerGetExistsByCount(mapperType, mapperMethod));
+	}
+
+	private static boolean innerGetExistsByCount(Class<?> mapperType, Method mapperMethod) {
+		// 从方法上获取
+		ExistsByCount declared = mapperMethod.getAnnotation(ExistsByCount.class);
+		Class<?> entityClass = null;
+		if (declared != null) {
+			return declared.value();
+		}
+		// 从Mapper接口类上获取
+		declared = mapperType.getAnnotation(ExistsByCount.class);
+		if (declared != null) {
+			return declared.value();
+		}
+		// 从方法所在接口类上获取
+		Class<?> declaringClass = mapperMethod.getDeclaringClass();
+		if (declaringClass != mapperType) {
+			declared = declaringClass.getAnnotation(ExistsByCount.class);
+			if (declared != null) {
+				return declared.value();
+			}
+		}
+		// 默认为true
+		return true;
+	}
+
 
 	// endregion
 

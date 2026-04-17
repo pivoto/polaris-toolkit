@@ -16,7 +16,6 @@ import io.polaris.core.jdbc.sql.statement.SelectStatement;
 import io.polaris.core.jdbc.sql.statement.SqlNodeBuilder;
 import io.polaris.core.jdbc.sql.statement.UpdateStatement;
 import io.polaris.mybatis.consts.MappingPropKeys;
-import io.polaris.mybatis.support.MapperHelperContext;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -261,65 +260,54 @@ public class EnhancedAutoMappers {
 	}
 
 	public static String existsBySql(Map<String, Object> map, EnhancedProviderContext ctx) {
-		// 是否不通过Count(*)查询，表示使用游标查询或通过分页插件处理，接收返回值为布尔列表
-		boolean queryByCount = MapperHelperContext.isQueryExistsByCount();
-		try {
-			BindingKeyModel bindingKeyModel = ctx.getBindingKeyDefinition().toBindingKeyModel(map);
-			String sqlKey = bindingKeyModel.sql();
-			Object obj = map.get(sqlKey);
-			if (obj == null) {
-				throw new IllegalArgumentException("缺少SQL参数键值：`" + sqlKey + "`");
-			}
-			if (!(obj instanceof SelectStatement)) {
-				throw new IllegalArgumentException("SQL参数键值：`" + sqlKey + "` 的对象类型不支持");
-			}
-			SelectStatement<?> st = (SelectStatement<?>) obj;
-			boolean withLogicDeleted = ctx.isWithLogicDeleted(map, bindingKeyModel);
-			if (withLogicDeleted) {
-				st.exceptLogicDeleted(true, true, true);
-			}
-			SqlNode sqlNode = st.toExistsSqlNode(queryByCount);
-			String sql = BindingValues.asSqlWithBindings(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, sqlNode);
-			if (log.isDebugEnabled()) {
-				log.debug("[SQL-TEXT]{}", sql);
-				log.debug("[SQL-ARGS]{}", map);
-			}
-			return sql;
-		} finally {
-			MapperHelperContext.clearQueryExistsByCount();
+		BindingKeyModel bindingKeyModel = ctx.getBindingKeyDefinition().toBindingKeyModel(map);
+		String sqlKey = bindingKeyModel.sql();
+		Object obj = map.get(sqlKey);
+		if (obj == null) {
+			throw new IllegalArgumentException("缺少SQL参数键值：`" + sqlKey + "`");
 		}
+		if (!(obj instanceof SelectStatement)) {
+			throw new IllegalArgumentException("SQL参数键值：`" + sqlKey + "` 的对象类型不支持");
+		}
+		SelectStatement<?> st = (SelectStatement<?>) obj;
+		boolean withLogicDeleted = ctx.isWithLogicDeleted(map, bindingKeyModel);
+		if (withLogicDeleted) {
+			st.exceptLogicDeleted(true, true, true);
+		}
+		// 是否通过Count(*)查询，否则表示使用游标查询或通过分页插件处理，接收返回值为布尔列表
+		boolean queryByCount = ctx.isExistsByCount(map, bindingKeyModel);
+		SqlNode sqlNode = st.toExistsSqlNode(queryByCount);
+		String sql = BindingValues.asSqlWithBindings(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, sqlNode);
+		if (log.isDebugEnabled()) {
+			log.debug("[SQL-TEXT]{}", sql);
+			log.debug("[SQL-ARGS]{}", map);
+		}
+		return sql;
 	}
 
 	public static String existsBySqlDirect(Map<String, Object> map, EnhancedProviderContext ctx) {
-		// 是否不通过Count(*)查询，表示使用游标查询或通过分页插件处理，接收返回值为布尔列表
-		boolean queryByCount = MapperHelperContext.isQueryExistsByCount();
-		try {
-			BindingKeyModel bindingKeyModel = ctx.getBindingKeyDefinition().toBindingKeyModel(map);
-			String sqlKey = bindingKeyModel.sql();
-			Object obj = map.get(sqlKey);
-			if (obj == null) {
-				throw new IllegalArgumentException("缺少SQL参数键值：`" + sqlKey + "`");
-			}
-			if (!(obj instanceof SelectStatement)) {
-				throw new IllegalArgumentException("SQL参数键值：`" + sqlKey + "` 的对象类型不支持");
-			}
-			SelectStatement<?> st = (SelectStatement<?>) obj;
-			SqlNode sqlNode = st.toExistsSqlNode(queryByCount);
-			String sql = BindingValues.asSqlWithBindings(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, sqlNode);
-			if (log.isDebugEnabled()) {
-				log.debug("[SQL-TEXT]{}", sql);
-				log.debug("[SQL-ARGS]{}", map);
-			}
-			return sql;
-		} finally {
-			MapperHelperContext.clearQueryExistsByCount();
+		BindingKeyModel bindingKeyModel = ctx.getBindingKeyDefinition().toBindingKeyModel(map);
+		String sqlKey = bindingKeyModel.sql();
+		Object obj = map.get(sqlKey);
+		if (obj == null) {
+			throw new IllegalArgumentException("缺少SQL参数键值：`" + sqlKey + "`");
 		}
+		if (!(obj instanceof SelectStatement)) {
+			throw new IllegalArgumentException("SQL参数键值：`" + sqlKey + "` 的对象类型不支持");
+		}
+		SelectStatement<?> st = (SelectStatement<?>) obj;
+		// 是否通过Count(*)查询，否则表示使用游标查询或通过分页插件处理，接收返回值为布尔列表
+		boolean queryByCount = ctx.isExistsByCount(map, bindingKeyModel);
+		SqlNode sqlNode = st.toExistsSqlNode(queryByCount);
+		String sql = BindingValues.asSqlWithBindings(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, sqlNode);
+		if (log.isDebugEnabled()) {
+			log.debug("[SQL-TEXT]{}", sql);
+			log.debug("[SQL-ARGS]{}", map);
+		}
+		return sql;
 	}
 
 	public static String existsBySqlExceptLogicDeleted(Map<String, Object> map, EnhancedProviderContext ctx) {
-		// 是否不通过Count(*)查询，表示使用游标查询或通过分页插件处理，接收返回值为布尔列表
-		boolean queryByCount = MapperHelperContext.isQueryExistsByCount();
-		try {
 			BindingKeyModel bindingKeyModel = ctx.getBindingKeyDefinition().toBindingKeyModel(map);
 			String sqlKey = bindingKeyModel.sql();
 			Object obj = map.get(sqlKey);
@@ -330,6 +318,8 @@ public class EnhancedAutoMappers {
 				throw new IllegalArgumentException("SQL参数键值：`" + sqlKey + "` 的对象类型不支持");
 			}
 			SelectStatement<?> st = (SelectStatement<?>) obj;
+			// 是否通过Count(*)查询，否则表示使用游标查询或通过分页插件处理，接收返回值为布尔列表
+			boolean queryByCount = ctx.isExistsByCount(map, bindingKeyModel);
 			st.exceptLogicDeleted(true, true, true);
 			SqlNode sqlNode = st.toExistsSqlNode(queryByCount);
 			String sql = BindingValues.asSqlWithBindings(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, sqlNode);
@@ -338,9 +328,6 @@ public class EnhancedAutoMappers {
 				log.debug("[SQL-ARGS]{}", map);
 			}
 			return sql;
-		} finally {
-			MapperHelperContext.clearQueryExistsByCount();
-		}
 	}
 
 	public static String mergeBySql(Map<String, Object> map, EnhancedProviderContext ctx) {
@@ -455,52 +442,40 @@ public class EnhancedAutoMappers {
 	}
 
 	public static String existsEntity(Map<String, Object> map, EnhancedProviderContext ctx) {
-		// 是否不通过Count(*)查询，表示使用游标查询或通过分页插件处理，接收返回值为布尔列表
-		boolean queryByCount = MapperHelperContext.isQueryExistsByCount();
-		try {
 			BindingKeyModel bindingKeyModel = ctx.getBindingKeyDefinition().toBindingKeyModel(map);
 			boolean withLogicDeleted = ctx.isWithLogicDeleted(map, bindingKeyModel);
+			// 是否通过Count(*)查询，否则表示使用游标查询或通过分页插件处理，接收返回值为布尔列表
+			boolean queryByCount = ctx.isExistsByCount(map, bindingKeyModel);
 			String sql = SqlStatements.buildExistsByAny(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, ctx.getEntityClassOrThrows(), queryByCount, withLogicDeleted, bindingKeyModel);
 			if (log.isDebugEnabled()) {
 				log.debug("[SQL-TEXT]{}", sql);
 				log.debug("[SQL-ARGS]{}", map);
 			}
 			return sql;
-		} finally {
-			MapperHelperContext.clearQueryExistsByCount();
-		}
 	}
 
 	public static String existsEntityDirect(Map<String, Object> map, EnhancedProviderContext ctx) {
-		// 是否不通过Count(*)查询，表示使用游标查询或通过分页插件处理，接收返回值为布尔列表
-		boolean queryByCount = MapperHelperContext.isQueryExistsByCount();
-		try {
 			BindingKeyModel bindingKeyModel = ctx.getBindingKeyDefinition().toBindingKeyModel(map);
+			// 是否通过Count(*)查询，否则表示使用游标查询或通过分页插件处理，接收返回值为布尔列表
+			boolean queryByCount = ctx.isExistsByCount(map, bindingKeyModel);
 			String sql = SqlStatements.buildExistsByAny(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, ctx.getEntityClassOrThrows(), queryByCount, false, bindingKeyModel);
 			if (log.isDebugEnabled()) {
 				log.debug("[SQL-TEXT]{}", sql);
 				log.debug("[SQL-ARGS]{}", map);
 			}
 			return sql;
-		} finally {
-			MapperHelperContext.clearQueryExistsByCount();
-		}
 	}
 
 	public static String existsEntityExceptLogicDeleted(Map<String, Object> map, EnhancedProviderContext ctx) {
-		// 是否不通过Count(*)查询，表示使用游标查询或通过分页插件处理，接收返回值为布尔列表
-		boolean queryByCount = MapperHelperContext.isQueryExistsByCount();
-		try {
 			BindingKeyModel bindingKeyModel = ctx.getBindingKeyDefinition().toBindingKeyModel(map);
+			// 是否通过Count(*)查询，否则表示使用游标查询或通过分页插件处理，接收返回值为布尔列表
+			boolean queryByCount = ctx.isExistsByCount(map, bindingKeyModel);
 			String sql = SqlStatements.buildExistsByAny(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, ctx.getEntityClassOrThrows(), queryByCount, true, bindingKeyModel);
 			if (log.isDebugEnabled()) {
 				log.debug("[SQL-TEXT]{}", sql);
 				log.debug("[SQL-ARGS]{}", map);
 			}
 			return sql;
-		} finally {
-			MapperHelperContext.clearQueryExistsByCount();
-		}
 	}
 
 	public static String existsEntityById(Map<String, Object> map, EnhancedProviderContext ctx) {

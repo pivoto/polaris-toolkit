@@ -9,6 +9,7 @@ import io.polaris.core.io.IO;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.mybatis.annotation.DynamicResultMapping;
+import io.polaris.mybatis.annotation.ExistsByCount;
 import io.polaris.mybatis.annotation.WithLogicDeleted;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
@@ -31,7 +32,7 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 	 * 根据实体ID查询单条记录
 	 *
 	 * @param entity           实体对象，包含主键信息
-	 * @param withLogicDeleted 是否包含逻辑删除数据
+	 * @param withLogicDeleted 是否处理逻辑删除规则
 	 * @return 查询到的实体对象，未找到返回null
 	 */
 	@DynamicResultMapping
@@ -57,7 +58,7 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 	 * @param includeAllEmpty    是否包含所有空值字段
 	 * @param includeEmptyFields 包含的空值字段集合
 	 * @param excludeFields      排除的字段集合
-	 * @param withLogicDeleted   是否包含逻辑删除数据
+	 * @param withLogicDeleted   是否处理逻辑删除规则
 	 * @return 查询到的实体对象，未找到返回null
 	 */
 	@DynamicResultMapping
@@ -133,7 +134,7 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 	 * @param includeAllEmpty    是否包含所有空值字段
 	 * @param includeEmptyFields 包含的空值字段集合
 	 * @param excludeFields      排除的字段集合
-	 * @param withLogicDeleted   是否包含逻辑删除数据
+	 * @param withLogicDeleted   是否处理逻辑删除规则
 	 * @return 查询到的实体对象，未找到返回null
 	 */
 	@DynamicResultMapping
@@ -209,7 +210,7 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 	 * @param includeAllEmpty    是否包含所有空值字段
 	 * @param includeEmptyFields 包含的空值字段集合
 	 * @param excludeFields      排除的字段集合
-	 * @param withLogicDeleted   是否包含逻辑删除数据
+	 * @param withLogicDeleted   是否处理逻辑删除规则
 	 * @return 查询到的实体对象，未找到返回null
 	 */
 	@DynamicResultMapping
@@ -285,7 +286,7 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 	 * @param includeAllEmpty    是否包含所有空值字段
 	 * @param includeEmptyFields 包含的空值字段集合
 	 * @param excludeFields      排除的字段集合
-	 * @param withLogicDeleted   是否包含逻辑删除数据
+	 * @param withLogicDeleted   是否处理逻辑删除规则
 	 * @return 查询到的Map结果，未找到返回null
 	 */
 	@DynamicResultMapping
@@ -361,7 +362,7 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 	 * @param includeAllEmpty    是否包含所有空值字段
 	 * @param includeEmptyFields 包含的空值字段集合
 	 * @param excludeFields      排除的字段集合
-	 * @param withLogicDeleted   是否包含逻辑删除数据
+	 * @param withLogicDeleted   是否处理逻辑删除规则
 	 * @return 查询到的Map结果，未找到返回null
 	 */
 	@DynamicResultMapping
@@ -437,7 +438,7 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 	 * @param includeAllEmpty    是否包含所有空值字段
 	 * @param includeEmptyFields 包含的空值字段集合
 	 * @param excludeFields      排除的字段集合
-	 * @param withLogicDeleted   是否包含逻辑删除数据
+	 * @param withLogicDeleted   是否处理逻辑删除规则
 	 * @return 查询到的Map结果，未找到返回null
 	 */
 	@DynamicResultMapping
@@ -510,7 +511,7 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 	 * 判断实体是否存在（根据ID判断）
 	 *
 	 * @param entity           实体对象，包含主键信息
-	 * @param withLogicDeleted 是否包含逻辑删除数据
+	 * @param withLogicDeleted 是否处理逻辑删除规则
 	 * @return 存在返回true，否则返回false
 	 */
 	@WithLogicDeleted(true)
@@ -535,9 +536,10 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 	 * @param includeAllEmpty    是否包含所有空值字段
 	 * @param includeEmptyFields 包含的空值字段集合
 	 * @param excludeFields      排除的字段集合
-	 * @param withLogicDeleted   是否包含逻辑删除数据
+	 * @param withLogicDeleted   是否处理逻辑删除规则
 	 * @return Cursor游标对象
 	 */
+	@ExistsByCount(false)
 	@WithLogicDeleted(true)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.existsEntity)
 	@Options(fetchSize = 1)
@@ -555,11 +557,10 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 	 * @param includeAllEmpty    是否包含所有空值字段
 	 * @param includeEmptyFields 包含的空值字段集合
 	 * @param excludeFields      排除的字段集合
-	 * @param withLogicDeleted   是否包含逻辑删除数据
+	 * @param withLogicDeleted   是否处理逻辑删除规则
 	 * @return 存在返回true，否则返回false
 	 */
 	default boolean exists(E entity, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields, Boolean withLogicDeleted) {
-		MapperHelperContext.setQueryExistsByCount(false);
 		Cursor<Boolean> cursor = null;
 		try {
 			cursor = existsInnerByAny(entity, includeAllEmpty, includeEmptyFields, excludeFields, withLogicDeleted);
@@ -570,7 +571,6 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 			}
 			return false;
 		} finally {
-			MapperHelperContext.clearQueryExistsByCount();
 			IO.close(cursor);
 		}
 	}
@@ -639,11 +639,10 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 	 * @param includeAllEmpty    是否包含所有空值字段
 	 * @param includeEmptyFields 包含的空值字段集合
 	 * @param excludeFields      排除的字段集合
-	 * @param withLogicDeleted   是否包含逻辑删除数据
+	 * @param withLogicDeleted   是否处理逻辑删除规则
 	 * @return 存在返回true，否则返回false
 	 */
 	default boolean existsByMap(Map<String, Object> entity, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields, Boolean withLogicDeleted) {
-		MapperHelperContext.setQueryExistsByCount(false);
 		Cursor<Boolean> cursor = null;
 		try {
 			cursor = existsInnerByAny(entity, includeAllEmpty, includeEmptyFields, excludeFields, withLogicDeleted);
@@ -654,7 +653,6 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 			}
 			return false;
 		} finally {
-			MapperHelperContext.clearQueryExistsByCount();
 			IO.close(cursor);
 		}
 	}
@@ -723,11 +721,10 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 	 * @param includeAllEmpty    是否包含所有空值字段
 	 * @param includeEmptyFields 包含的空值字段集合
 	 * @param excludeFields      排除的字段集合
-	 * @param withLogicDeleted   是否包含逻辑删除数据
+	 * @param withLogicDeleted   是否处理逻辑删除规则
 	 * @return 存在返回true，否则返回false
 	 */
 	default boolean existsByCriteria(Criteria criteria, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields, Boolean withLogicDeleted) {
-		MapperHelperContext.setQueryExistsByCount(false);
 		Cursor<Boolean> cursor = null;
 		try {
 			cursor = existsInnerByAny(criteria, includeAllEmpty, includeEmptyFields, excludeFields, withLogicDeleted);
@@ -738,7 +735,6 @@ public interface EntitySelectOneDefaultMapper<E> extends EntityMapper<E> {
 			}
 			return false;
 		} finally {
-			MapperHelperContext.clearQueryExistsByCount();
 			IO.close(cursor);
 		}
 	}

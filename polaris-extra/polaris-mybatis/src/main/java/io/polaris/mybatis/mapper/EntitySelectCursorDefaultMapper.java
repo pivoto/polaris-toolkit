@@ -33,7 +33,7 @@ public interface EntitySelectCursorDefaultMapper<E> extends EntityMapper<E> {
 	 * @param includeAllEmpty    是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @param excludeFields      需要排除的字段集合
-	 * @param withLogicDeleted   是否包含逻辑删除的数据
+	 * @param withLogicDeleted   是否处理逻辑删除规则
 	 * @return 查询结果游标
 	 */
 	@WithLogicDeleted(true)
@@ -128,7 +128,7 @@ public interface EntitySelectCursorDefaultMapper<E> extends EntityMapper<E> {
 	 * @param includeAllEmpty    是否包含空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @param excludeFields      需要排除的字段集合
-	 * @param withLogicDeleted   是否包含逻辑删除的数据
+	 * @param withLogicDeleted   是否处理逻辑删除规则
 	 * @return 查询结果游标
 	 */
 	@WithLogicDeleted(true)
@@ -222,7 +222,7 @@ public interface EntitySelectCursorDefaultMapper<E> extends EntityMapper<E> {
 	 * @param includeAllEmpty    是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @param excludeFields      需要排除的字段集合
-	 * @param withLogicDeleted   是否包含逻辑删除的数据
+	 * @param withLogicDeleted   是否处理逻辑删除规则
 	 * @return 查询结果游标
 	 */
 	@WithLogicDeleted(true)
@@ -316,7 +316,7 @@ public interface EntitySelectCursorDefaultMapper<E> extends EntityMapper<E> {
 	 * @param includeAllEmpty    是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @param excludeFields      需要排除的字段集合
-	 * @param withLogicDeleted   是否包含逻辑删除的数据
+	 * @param withLogicDeleted   是否处理逻辑删除规则
 	 * @return 查询结果Map游标
 	 */
 	@WithLogicDeleted(true)
@@ -410,7 +410,7 @@ public interface EntitySelectCursorDefaultMapper<E> extends EntityMapper<E> {
 	 * @param includeAllEmpty    是否包含空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @param excludeFields      需要排除的字段集合
-	 * @param withLogicDeleted   是否包含逻辑删除的数据
+	 * @param withLogicDeleted   是否处理逻辑删除规则
 	 * @return 查询结果Map游标
 	 */
 	@WithLogicDeleted(true)
@@ -504,7 +504,7 @@ public interface EntitySelectCursorDefaultMapper<E> extends EntityMapper<E> {
 	 * @param includeAllEmpty    是否包含空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @param excludeFields      需要排除的字段集合
-	 * @param withLogicDeleted   是否包含逻辑删除的数据
+	 * @param withLogicDeleted   是否处理逻辑删除规则
 	 * @return 查询结果Map游标
 	 */
 	@WithLogicDeleted(true)

@@ -22,8 +22,9 @@ public class EnhancedProviderContext {
 	private final Method mapperMethod;
 	private final String databaseId;
 	private final Ref<BindingKeyDefinition> bindingKeyDefinition;
-	private final Ref<Boolean> withLogicDeleted;
 	private final Ref<Class<?>> entityClass;
+	private final Ref<Boolean> withLogicDeleted;
+	private final Ref<Boolean> existsByCount;
 
 
 	private EnhancedProviderContext(boolean lazy, Class<?> mapperType, Method mapperMethod, String databaseId) {
@@ -32,12 +33,14 @@ public class EnhancedProviderContext {
 		this.databaseId = Strings.trimToEmpty(databaseId);
 		if (lazy) {
 			this.bindingKeyDefinition = LazyRef.of(() -> EnhancedAutoMapperHelper.getBindingKeyDefinition(this.mapperMethod));
-			this.withLogicDeleted = LazyRef.of(() -> EnhancedAutoMapperHelper.withLogicDeleted(this.mapperType, this.mapperMethod));
 			this.entityClass = LazyRef.of(() -> EnhancedAutoMapperHelper.getEntityClassOrNull(this.mapperType, this.mapperMethod, this.databaseId));
+			this.withLogicDeleted = LazyRef.of(() -> EnhancedAutoMapperHelper.withLogicDeleted(this.mapperType, this.mapperMethod));
+			this.existsByCount = LazyRef.of(() -> EnhancedAutoMapperHelper.existsByCount(this.mapperType, this.mapperMethod));
 		} else {
 			this.bindingKeyDefinition = Ref.of(EnhancedAutoMapperHelper.getBindingKeyDefinition(this.mapperMethod));
-			this.withLogicDeleted = Ref.of(EnhancedAutoMapperHelper.withLogicDeleted(this.mapperType, this.mapperMethod));
 			this.entityClass = Ref.of(EnhancedAutoMapperHelper.getEntityClassOrNull(this.mapperType, this.mapperMethod, this.databaseId));
+			this.withLogicDeleted = Ref.of(EnhancedAutoMapperHelper.withLogicDeleted(this.mapperType, this.mapperMethod));
+			this.existsByCount = Ref.of(EnhancedAutoMapperHelper.existsByCount(this.mapperType, this.mapperMethod));
 		}
 	}
 
@@ -120,5 +123,33 @@ public class EnhancedProviderContext {
 		}
 		Boolean defaultWithLogicDeleted = withLogicDeleted.get();
 		return Boolean.TRUE.equals(defaultWithLogicDeleted);
+	}
+
+
+	public boolean isExistsByCount() {
+		Boolean defaultExistsByCount = existsByCount.get();
+		return !Boolean.FALSE.equals(defaultExistsByCount);
+	}
+
+	public boolean isExistsByCount(Map<String, Object> bindings) {
+		return isExistsByCount(bindings, getBindingKeyDefinition().toBindingKeyModel(bindings));
+	}
+
+	public boolean isExistsByCount(Map<String, Object> bindings, BindingKeyModel bindingKeyModel) {
+		try {
+			// fix for MapperMethod.ParamMap.get()
+			String key = bindingKeyModel.existsByCount();
+			if (bindings.containsKey(key)) {
+				Object sld = bindings.get(key);
+				if (sld != null) {
+					if (sld instanceof Boolean) {
+						return (Boolean) sld;
+					}
+				}
+			}
+		} catch (Exception ignored) {
+		}
+		Boolean defaultExistsByCount = existsByCount.get();
+		return !Boolean.FALSE.equals(defaultExistsByCount);
 	}
 }

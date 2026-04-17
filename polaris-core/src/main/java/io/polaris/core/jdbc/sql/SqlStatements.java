@@ -1064,7 +1064,7 @@ public class SqlStatements {
 	 *
 	 * @param bindings 绑定参数映射，包含查询条件和配置信息
 	 * @param entityClass 实体类，用于确定查询的表和字段信息
-	 * @param withLogicDeleted 是否包含逻辑删除的数据
+	 * @param withLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
 	 * @return 构建好的COUNT查询语句字符串
 	 */
 	public static String buildCount(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean withLogicDeleted) {
@@ -1076,7 +1076,7 @@ public class SqlStatements {
 	 *
 	 * @param bindings 绑定参数映射，包含查询条件和配置信息
 	 * @param entityClass 实体类，用于确定查询的表和字段信息
-	 * @param withLogicDeleted 是否包含逻辑删除的数据
+	 * @param withLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
 	 * @param bindingKeyModel 绑定参数模型
 	 * @return 构建好的COUNT查询语句字符串
 	 */
@@ -1111,7 +1111,7 @@ public class SqlStatements {
 	 *
 	 * @param bindings 参数绑定映射，用于存放 SQL 中的参数值
 	 * @param entityClass 实体类，用于获取表结构元数据
-	 * @param withLogicDeleted 是否包含逻辑删除的数据，若为 true 则自动添加非逻辑删除条件
+	 * @param withLogicDeleted 是否处理逻辑删除规则，若为 true 则自动添加非逻辑删除条件
 	 * @param entityKey 实体对象在 bindings 中的键名，用于构建 WHERE 条件
 	 * @param whereKey 条件对象在 bindings 中的键名，用于构建额外的 WHERE 条件
 	 * @param columnPredicate 列过滤条件，用于控制哪些字段参与查询条件构建
@@ -1187,7 +1187,7 @@ public class SqlStatements {
 	 *
 	 * @param bindings 参数绑定映射表，用于存储SQL参数绑定信息
 	 * @param entityClass 实体类的Class对象，表示要查询的实体类型
-	 * @param withLogicDeleted 是否包含逻辑删除的数据，true表示包含已逻辑删除的数据，false表示不包含
+	 * @param withLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
 	 * @return 返回构建好的判断实体是否存在的SQL查询语句
 	 */
 	public static String buildExistsById(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean withLogicDeleted) {
@@ -1199,7 +1199,7 @@ public class SqlStatements {
 	 *
 	 * @param bindings 参数绑定映射表，用于存储SQL参数绑定信息
 	 * @param entityClass 实体类的Class对象，表示要查询的实体类型
-	 * @param withLogicDeleted 是否包含逻辑删除的数据，true表示包含已逻辑删除的数据，false表示不包含
+	 * @param withLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
 	 * @param bindingKeyModel 绑定键模型，用于指定实体键名和WHERE条件键名
 	 * @return 返回构建好的判断实体是否存在的SQL查询语句
 	 */
@@ -1324,7 +1324,7 @@ public class SqlStatements {
 	 * @param bindings 参数绑定映射，包含查询条件和实体信息
 	 * @param entityClass 实体类类型，用于获取表结构和字段信息
 	 * @param queryByCount 是否按数量查询，true时返回计数SQL，false时返回是否存在SQL
-	 * @param withLogicDeleted 是否包含逻辑删除数据，true时包含已逻辑删除的数据，false时排除
+	 * @param withLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
 	 * @return 构建好的存在性查询SQL语句
 	 */
 	public static String buildExistsByAny(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean queryByCount, boolean withLogicDeleted) {
@@ -1337,7 +1337,7 @@ public class SqlStatements {
 	 * @param bindings 参数绑定映射，包含查询条件和实体信息
 	 * @param entityClass 实体类类型，用于获取表结构和字段信息
 	 * @param queryByCount 是否按数量查询，true时返回计数SQL，false时返回是否存在SQL
-	 * @param withLogicDeleted 是否包含逻辑删除数据，true时包含已逻辑删除的数据，false时排除
+	 * @param withLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
 	 * @param bindingKeyModel 参数绑定映射模型
 	 * @return 构建好的存在性查询SQL语句
 	 */
@@ -1455,7 +1455,7 @@ public class SqlStatements {
 	 *
 	 * @param bindings 参数绑定映射，用于存储SQL中的参数值
 	 * @param entityClass 实体类的Class对象，用于获取表名和字段信息
-	 * @param withLogicDeleted 是否包含逻辑删除的数据，true表示包含已逻辑删除的数据，false表示不包含
+	 * @param withLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
 	 * @return 返回构建好的根据ID查询的SQL语句
 	 */
 	public static String buildSelectById(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean withLogicDeleted) {
@@ -1467,7 +1467,7 @@ public class SqlStatements {
 	 *
 	 * @param bindings 参数绑定映射，用于存储SQL中的参数值
 	 * @param entityClass 实体类的Class对象，用于获取表名和字段信息
-	 * @param withLogicDeleted 是否包含逻辑删除的数据，true表示包含已逻辑删除的数据，false表示不包含
+	 * @param withLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
 	 * @param bindingKeyModel 绑定键模型对象，用于指定实体键名、WHERE条件键名、排序条件键名
 	 * @return 返回构建好的根据ID查询的SQL语句
 	 */
@@ -1596,7 +1596,7 @@ public class SqlStatements {
 	 *
 	 * @param bindings 包含查询条件的绑定参数映射
 	 * @param entityClass 实体类类型
-	 * @param withLogicDeleted 是否包含逻辑删除的数据
+	 * @param withLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
 	 * @return 构建好的SELECT SQL语句
 	 */
 	public static String buildSelectByAny(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean withLogicDeleted) {
@@ -1608,7 +1608,7 @@ public class SqlStatements {
 	 *
 	 * @param bindings 包含查询条件的绑定参数映射
 	 * @param entityClass 实体类类型
-	 * @param withLogicDeleted 是否包含逻辑删除的数据
+	 * @param withLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
 	 * @param bindingKeyModel 绑定参数模型
 	 * @return 构建好的SELECT SQL语句
 	 */

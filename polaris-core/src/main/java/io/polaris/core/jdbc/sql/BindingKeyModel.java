@@ -51,6 +51,8 @@ public class BindingKeyModel {
 	private String whereExcludeColumns = BindingKeys.WHERE_EXCLUDE_COLUMNS;
 	/** 是否支持逻辑删除处理的标志 */
 	private String withLogicDeleted = BindingKeys.WITH_LOGIC_DELETED;
+	/** 是否使用Count语句查询存在性 */
+	private String existsByCount = BindingKeys.EXISTS_BY_COUNT;
 
 	private boolean frozen = false;
 
@@ -369,6 +371,15 @@ public class BindingKeyModel {
 		return this;
 	}
 
+	public BindingKeyModel existsByCount(String existsByCount) {
+		checkState();
+		if (Strings.isBlank(existsByCount)) {
+			return this;
+		}
+		this.existsByCount = existsByCount;
+		return this;
+	}
+
 	// endregion
 
 	// region getter
@@ -494,6 +505,10 @@ public class BindingKeyModel {
 
 	public String withLogicDeleted() {
 		return withLogicDeleted;
+	}
+
+	public String existsByCount() {
+		return existsByCount;
 	}
 
 	// endregion

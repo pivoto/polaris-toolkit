@@ -11,6 +11,7 @@ import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.OrderBy;
 import io.polaris.core.jdbc.sql.statement.SelectStatement;
 import io.polaris.mybatis.annotation.DynamicResultMapping;
+import io.polaris.mybatis.annotation.ExistsByCount;
 import io.polaris.mybatis.annotation.WithLogicDeleted;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
@@ -36,6 +37,7 @@ public interface SelectStatementDirectMapper<R> {
 	 * @param statement 查询语句对象
 	 * @return 返回游标，包含布尔值表示是否存在匹配记录
 	 */
+	@ExistsByCount(false)
 	@WithLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.existsBySqlDirect)
 	@Options(fetchSize = 1)
@@ -103,7 +105,6 @@ public interface SelectStatementDirectMapper<R> {
 	 * @return 是否存在匹配记录
 	 */
 	default boolean directExistsBySql(SelectStatement<?> statement) {
-		MapperHelperContext.setQueryExistsByCount(false);
 		Cursor<Boolean> cursor = null;
 		try {
 			cursor = directExistsInnerBySql(statement);
@@ -114,7 +115,6 @@ public interface SelectStatementDirectMapper<R> {
 			}
 			return false;
 		} finally {
-			MapperHelperContext.clearQueryExistsByCount();
 			IO.close(cursor);
 		}
 	}
