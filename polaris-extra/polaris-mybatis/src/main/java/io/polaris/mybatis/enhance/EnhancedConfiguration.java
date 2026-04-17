@@ -30,9 +30,11 @@ import org.apache.ibatis.scripting.LanguageDriverRegistry;
 import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
+import org.apache.ibatis.type.UnknownTypeHandler;
 
 /**
  * @author Qt
@@ -131,19 +133,34 @@ public class EnhancedConfiguration extends Configuration {
 			);
 			Map<JdbcType, TypeHandler<?>> jdbcTypeHandlerMapOrigin = (Map<JdbcType, TypeHandler<?>>) methodHandle.invokeExact(typeHandlerRegistryOrigin);
 			Map<JdbcType, TypeHandler<?>> jdbcTypeHandlerMap = (Map<JdbcType, TypeHandler<?>>) methodHandle.invokeExact(this.typeHandlerRegistry);
-			jdbcTypeHandlerMap.putAll(jdbcTypeHandlerMapOrigin);
+			jdbcTypeHandlerMapOrigin.forEach((jdbcType, typeHandler) -> {
+				typeHandler = updateTypeHandlerConfiguration(typeHandler);
+				jdbcTypeHandlerMap.put(jdbcType, typeHandler);
+			});
 		}
 		{
 			MethodHandle methodHandle = Methods.findPrivateGetter(TypeHandlerRegistry.class, "typeHandlerMap", (Class<Map<Type, Map<JdbcType, TypeHandler<?>>>>) ((Class) Map.class));
 			Map<Type, Map<JdbcType, TypeHandler<?>>> typeHandlerMapOrigin = (Map<Type, Map<JdbcType, TypeHandler<?>>>) methodHandle.invokeExact(typeHandlerRegistryOrigin);
 			Map<Type, Map<JdbcType, TypeHandler<?>>> typeHandlerMap = (Map<Type, Map<JdbcType, TypeHandler<?>>>) methodHandle.invokeExact(this.typeHandlerRegistry);
-			typeHandlerMap.putAll(typeHandlerMapOrigin);
+			typeHandlerMapOrigin.forEach((type, jdbcTypeHandlerMap) -> {
+				for (Map.Entry<JdbcType, TypeHandler<?>> entry : jdbcTypeHandlerMap.entrySet()) {
+					TypeHandler<?> typeHandler = entry.getValue();
+					TypeHandler<?> updated = updateTypeHandlerConfiguration(typeHandler);
+					if (typeHandler != updated) {
+						entry.setValue(updated);
+					}
+				}
+				typeHandlerMap.put(type, jdbcTypeHandlerMap);
+			});
 		}
 		{
 			MethodHandle methodHandle = Methods.findPrivateGetter(TypeHandlerRegistry.class, "allTypeHandlersMap", (Class<Map<Class<?>, TypeHandler<?>>>) ((Class) Map.class));
 			Map<Class<?>, TypeHandler<?>> allTypeHandlersMapOrigin = (Map<Class<?>, TypeHandler<?>>) methodHandle.invokeExact(typeHandlerRegistryOrigin);
 			Map<Class<?>, TypeHandler<?>> allTypeHandlersMap = (Map<Class<?>, TypeHandler<?>>) methodHandle.invokeExact(this.typeHandlerRegistry);
-			allTypeHandlersMap.putAll(allTypeHandlersMapOrigin);
+			allTypeHandlersMapOrigin.forEach((type, typeHandler) -> {
+				typeHandler = updateTypeHandlerConfiguration(typeHandler);
+				allTypeHandlersMap.put(type, typeHandler);
+			});
 		}
 		{
 			MethodHandle methodHandle = Methods.findPrivateGetter(TypeHandlerRegistry.class, "defaultEnumTypeHandler", (Class<Class<? extends TypeHandler>>) ((Class) Class.class));
@@ -152,6 +169,17 @@ public class EnhancedConfiguration extends Configuration {
 				this.setDefaultEnumTypeHandler(defaultEnumTypeHandlerOrigin);
 			}
 		}
+	}
+
+	private TypeHandler<?> updateTypeHandlerConfiguration(TypeHandler<?> typeHandler) {
+		if (typeHandler instanceof UnknownTypeHandler){
+			// 更新UnknownTypeHandler，否则其关联的Configuration还是旧的
+			typeHandler = this.typeHandlerRegistry.getUnknownTypeHandler();
+		}else if (typeHandler instanceof BaseTypeHandler){
+			// noinspection deprecation
+			((BaseTypeHandler<?>) typeHandler).setConfiguration(this);
+		}
+		return typeHandler;
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
