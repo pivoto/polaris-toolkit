@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 
 /**
- * 参数中的特定值的绑定键配置
+ * 参数中的特定类型值的绑定键名配置
  *
  * @author Qt
  * @since Mar 31, 2026
