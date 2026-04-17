@@ -7,7 +7,7 @@ import java.util.Set;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.OrderBy;
-import io.polaris.mybatis.annotation.DynamicResultMapping;
+import io.polaris.mybatis.annotation.AutoResultMapping;
 import io.polaris.mybatis.annotation.SupportLogicDeleted;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
@@ -36,7 +36,7 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * @param supportLogicDeleted 是否处理逻辑删除规则
 	 * @return 查询结果列表
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SupportLogicDeleted(true)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	List<E> selectEntityList(@Param(BindingKeys.WHERE) E entity,
@@ -135,7 +135,7 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * @param supportLogicDeleted 是否处理逻辑删除规则
 	 * @return 查询结果列表
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SupportLogicDeleted(true)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	List<E> selectEntityListByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity,
@@ -234,7 +234,7 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * @param supportLogicDeleted 是否处理逻辑删除规则
 	 * @return 查询结果列表
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SupportLogicDeleted(true)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	List<E> selectEntityListByCriteria(@Param(BindingKeys.WHERE) Criteria criteria,
@@ -333,7 +333,7 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * @param supportLogicDeleted 是否处理逻辑删除规则
 	 * @return 查询结果Map列表
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SupportLogicDeleted(true)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	List<Map<String, Object>> selectMapList(@Param(BindingKeys.WHERE) E entity,
@@ -432,7 +432,7 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * @param supportLogicDeleted 是否处理逻辑删除规则
 	 * @return 查询结果Map列表
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SupportLogicDeleted(true)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	List<Map<String, Object>> selectMapListByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity,
@@ -531,7 +531,7 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * @param supportLogicDeleted 是否处理逻辑删除规则
 	 * @return 查询结果Map列表
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SupportLogicDeleted(true)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	List<Map<String, Object>> selectMapListByCriteria(@Param(BindingKeys.WHERE) Criteria criteria,

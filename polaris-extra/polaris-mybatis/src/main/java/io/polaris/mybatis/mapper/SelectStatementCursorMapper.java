@@ -1,7 +1,7 @@
 package io.polaris.mybatis.mapper;
 
 import io.polaris.core.jdbc.sql.statement.SelectStatement;
-import io.polaris.mybatis.annotation.DynamicResultMapping;
+import io.polaris.mybatis.annotation.AutoResultMapping;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.cursor.Cursor;
@@ -14,7 +14,7 @@ import org.apache.ibatis.cursor.Cursor;
  *
  * <p>主要特性：
  * <ul>
- *   <li>支持动态结果映射（通过 {@link DynamicResultMapping} 注解）</li>
+ *   <li>支持动态结果映射（通过 {@link AutoResultMapping} 注解）</li>
  *   <li>集成 MyBatis 的 {@link SelectProvider} 和 {@link Options} 注解</li>
  *   <li>返回 {@link Cursor} 类型的结果，适用于大数据量的流式处理</li>
  * </ul>

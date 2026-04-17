@@ -7,7 +7,7 @@ import java.util.Set;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.OrderBy;
-import io.polaris.mybatis.annotation.DynamicResultMapping;
+import io.polaris.mybatis.annotation.AutoResultMapping;
 import io.polaris.mybatis.annotation.SupportLogicDeleted;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
@@ -33,7 +33,7 @@ public interface EntitySelectListDirectMapper<E> extends EntityMapper<E> {
 	 * @param excludeFields 需要排除的字段集合
 	 * @return 实体列表
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SupportLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	List<E> directSelectEntityList(@Param(BindingKeys.WHERE) E entity,
@@ -110,7 +110,7 @@ public interface EntitySelectListDirectMapper<E> extends EntityMapper<E> {
 	 * @param excludeFields 需要排除的字段集合
 	 * @return 实体列表
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SupportLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	List<E> directSelectEntityListByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity,
@@ -187,7 +187,7 @@ public interface EntitySelectListDirectMapper<E> extends EntityMapper<E> {
 	 * @param excludeFields 需要排除的字段集合
 	 * @return 实体列表
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SupportLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	List<E> directSelectEntityListByCriteria(@Param(BindingKeys.WHERE) Criteria criteria,
@@ -264,7 +264,7 @@ public interface EntitySelectListDirectMapper<E> extends EntityMapper<E> {
 	 * @param excludeFields 需要排除的字段集合
 	 * @return Map列表
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SupportLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	List<Map<String, Object>> directSelectMapList(@Param(BindingKeys.WHERE) E entity,
@@ -341,7 +341,7 @@ public interface EntitySelectListDirectMapper<E> extends EntityMapper<E> {
 	 * @param excludeFields 需要排除的字段集合
 	 * @return Map列表
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SupportLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	List<Map<String, Object>> directSelectMapListByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity,
@@ -418,7 +418,7 @@ public interface EntitySelectListDirectMapper<E> extends EntityMapper<E> {
 	 * @param excludeFields 需要排除的字段集合
 	 * @return Map列表
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SupportLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	List<Map<String, Object>> directSelectMapListByCriteria(@Param(BindingKeys.WHERE) Criteria criteria,

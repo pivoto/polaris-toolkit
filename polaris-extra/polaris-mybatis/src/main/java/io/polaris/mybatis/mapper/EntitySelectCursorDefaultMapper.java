@@ -6,7 +6,7 @@ import java.util.Set;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.OrderBy;
-import io.polaris.mybatis.annotation.DynamicResultMapping;
+import io.polaris.mybatis.annotation.AutoResultMapping;
 import io.polaris.mybatis.annotation.SupportLogicDeleted;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
@@ -37,7 +37,7 @@ public interface EntitySelectCursorDefaultMapper<E> extends EntityMapper<E> {
 	 * @return 查询结果游标
 	 */
 	@SupportLogicDeleted(true)
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	@Options(fetchSize = 1000)
 	Cursor<E> selectEntityCursor(@Param(BindingKeys.WHERE) E entity
@@ -132,7 +132,7 @@ public interface EntitySelectCursorDefaultMapper<E> extends EntityMapper<E> {
 	 * @return 查询结果游标
 	 */
 	@SupportLogicDeleted(true)
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	@Options(fetchSize = 1000)
 	Cursor<E> selectEntityCursorByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
@@ -226,7 +226,7 @@ public interface EntitySelectCursorDefaultMapper<E> extends EntityMapper<E> {
 	 * @return 查询结果游标
 	 */
 	@SupportLogicDeleted(true)
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	@Options(fetchSize = 1000)
 	Cursor<E> selectEntityCursorByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
@@ -320,7 +320,7 @@ public interface EntitySelectCursorDefaultMapper<E> extends EntityMapper<E> {
 	 * @return 查询结果Map游标
 	 */
 	@SupportLogicDeleted(true)
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	@Options(fetchSize = 1000)
 	Cursor<Map<String, Object>> selectMapCursor(@Param(BindingKeys.WHERE) E entity
@@ -414,7 +414,7 @@ public interface EntitySelectCursorDefaultMapper<E> extends EntityMapper<E> {
 	 * @return 查询结果Map游标
 	 */
 	@SupportLogicDeleted(true)
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	@Options(fetchSize = 1000)
 	Cursor<Map<String, Object>> selectMapCursorByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
@@ -508,7 +508,7 @@ public interface EntitySelectCursorDefaultMapper<E> extends EntityMapper<E> {
 	 * @return 查询结果Map游标
 	 */
 	@SupportLogicDeleted(true)
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	@Options(fetchSize = 1000)
 	Cursor<Map<String, Object>> selectMapCursorByCriteria(@Param(BindingKeys.WHERE) Criteria criteria

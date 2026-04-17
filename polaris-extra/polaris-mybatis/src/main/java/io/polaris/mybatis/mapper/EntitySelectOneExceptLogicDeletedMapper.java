@@ -8,11 +8,10 @@ import io.polaris.core.annotation.Internal;
 import io.polaris.core.io.IO;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
-import io.polaris.mybatis.annotation.DynamicResultMapping;
+import io.polaris.mybatis.annotation.AutoResultMapping;
 import io.polaris.mybatis.annotation.ExistsByCount;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
-import io.polaris.mybatis.support.MapperHelperContext;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.SelectProvider;
@@ -33,7 +32,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	 * @param entity 实体对象，包含ID信息
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityByIdExceptLogicDeleted)
 	E selectEntityByIdExceptLogicDeleted(@Param(BindingKeys.ENTITY) E entity);
 
@@ -46,7 +45,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeleted)
 	E selectEntityExceptLogicDeleted(@Param(BindingKeys.WHERE) E entity
 		, @Param(BindingKeys.WHERE_INCLUDE_ALL_EMPTY) boolean includeAllEmpty
@@ -106,7 +105,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeleted)
 	E selectEntityExceptLogicDeletedByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
 		, @Param(BindingKeys.WHERE_INCLUDE_ALL_EMPTY) boolean includeAllEmpty
@@ -166,7 +165,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeleted)
 	E selectEntityExceptLogicDeletedByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
 		, @Param(BindingKeys.WHERE_INCLUDE_ALL_EMPTY) boolean includeAllEmpty
@@ -226,7 +225,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeleted)
 	Map<String, Object> selectMapExceptLogicDeleted(@Param(BindingKeys.WHERE) E entity
 		, @Param(BindingKeys.WHERE_INCLUDE_ALL_EMPTY) boolean includeAllEmpty
@@ -286,7 +285,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeleted)
 	Map<String, Object> selectMapExceptLogicDeletedByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
 		, @Param(BindingKeys.WHERE_INCLUDE_ALL_EMPTY) boolean includeAllEmpty
@@ -346,7 +345,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeleted)
 	Map<String, Object> selectMapExceptLogicDeletedByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
 		, @Param(BindingKeys.WHERE_INCLUDE_ALL_EMPTY) boolean includeAllEmpty

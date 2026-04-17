@@ -8,7 +8,7 @@ import io.polaris.core.annotation.Internal;
 import io.polaris.core.io.IO;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
-import io.polaris.mybatis.annotation.DynamicResultMapping;
+import io.polaris.mybatis.annotation.AutoResultMapping;
 import io.polaris.mybatis.annotation.ExistsByCount;
 import io.polaris.mybatis.annotation.SupportLogicDeleted;
 import io.polaris.mybatis.consts.MapperProviderKeys;
@@ -34,7 +34,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	 * @param entity 实体对象，包含ID信息
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SupportLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityByIdDirect)
 	E directSelectEntityById(@Param(BindingKeys.ENTITY) E entity);
@@ -48,7 +48,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SupportLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	E directSelectEntity(@Param(BindingKeys.WHERE) E entity
@@ -109,7 +109,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SupportLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	E directSelectEntityByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
@@ -170,7 +170,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SupportLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	E directSelectEntityByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
@@ -231,7 +231,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SupportLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	Map<String, Object> directSelectMap(@Param(BindingKeys.WHERE) E entity
@@ -292,7 +292,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SupportLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	Map<String, Object> directSelectMapByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
@@ -353,7 +353,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SupportLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	Map<String, Object> directSelectMapByCriteria(@Param(BindingKeys.WHERE) Criteria criteria

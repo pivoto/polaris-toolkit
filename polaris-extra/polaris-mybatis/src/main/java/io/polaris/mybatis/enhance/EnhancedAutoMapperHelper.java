@@ -24,8 +24,8 @@ import io.polaris.core.tuple.Tuple2;
 import io.polaris.mybatis.annotation.AutoMapper;
 import io.polaris.mybatis.annotation.ColumnJdbcType;
 import io.polaris.mybatis.annotation.ColumnTypeHandler;
-import io.polaris.mybatis.annotation.DynamicResultMapping;
-import io.polaris.mybatis.annotation.DynamicUseGeneratedKeys;
+import io.polaris.mybatis.annotation.AutoResultMapping;
+import io.polaris.mybatis.annotation.AutoUseGeneratedKeys;
 import io.polaris.mybatis.annotation.MapperEntity;
 import io.polaris.mybatis.annotation.ExistsByCount;
 import io.polaris.mybatis.annotation.SupportLogicDeleted;
@@ -67,24 +67,24 @@ public class EnhancedAutoMapperHelper {
 	public static EnhancedAutoMapperMeta parseEnhancedAutoMapperMeta(Method method, Class<?> mapperClass, Class<?> declaredEntityClass) {
 		EnhancedAutoMapperMeta.Builder metaBuilder = EnhancedAutoMapperMeta.builder();
 
-		DynamicUseGeneratedKeys dynamicUseGeneratedKeys = method.getAnnotation(DynamicUseGeneratedKeys.class);
-		parseDynamicUseGeneratedKeys(metaBuilder, dynamicUseGeneratedKeys, method, mapperClass, declaredEntityClass);
+		AutoUseGeneratedKeys autoUseGeneratedKeys = method.getAnnotation(AutoUseGeneratedKeys.class);
+		parseAutoUseGeneratedKeys(metaBuilder, autoUseGeneratedKeys, method, mapperClass, declaredEntityClass);
 
-		DynamicResultMapping dynamicResultMapping = method.getAnnotation(DynamicResultMapping.class);
-		parseDynamicResultMapping(metaBuilder, dynamicResultMapping, method, mapperClass, declaredEntityClass);
+		AutoResultMapping autoResultMapping = method.getAnnotation(AutoResultMapping.class);
+		parseAutoResultMapping(metaBuilder, autoResultMapping, method, mapperClass, declaredEntityClass);
 
 		return metaBuilder.build();
 	}
 
 
-	public static void parseDynamicUseGeneratedKeys(EnhancedAutoMapperMeta.Builder metaBuilder, DynamicUseGeneratedKeys dynamicUseGeneratedKeys, Method method, Class<?> mapperClass, Class<?> declaredEntityClass) {
-		if (dynamicUseGeneratedKeys == null) {
+	public static void parseAutoUseGeneratedKeys(EnhancedAutoMapperMeta.Builder metaBuilder, AutoUseGeneratedKeys autoUseGeneratedKeys, Method method, Class<?> mapperClass, Class<?> declaredEntityClass) {
+		if (autoUseGeneratedKeys == null) {
 			return;
 		}
-		String autoColumnPrefix = dynamicUseGeneratedKeys.value();
+		String autoColumnPrefix = autoUseGeneratedKeys.value();
 		List<ColumnMeta> autoColumns = null;
 
-		Class<?> entityClass = dynamicUseGeneratedKeys.entity();
+		Class<?> entityClass = autoUseGeneratedKeys.entity();
 		if (entityClass == Object.class || entityClass == void.class) {
 			if (declaredEntityClass != null && declaredEntityClass != Object.class && declaredEntityClass != void.class) {
 				entityClass = declaredEntityClass;
@@ -109,12 +109,12 @@ public class EnhancedAutoMapperHelper {
 			.autoColumns(autoColumns);
 	}
 
-	public static void parseDynamicResultMapping(EnhancedAutoMapperMeta.Builder metaBuilder, DynamicResultMapping dynamicResultMapping, Method method, Class<?> mapperClass, Class<?> declaredEntityClass) {
-		if (dynamicResultMapping == null) {
+	public static void parseAutoResultMapping(EnhancedAutoMapperMeta.Builder metaBuilder, AutoResultMapping autoResultMapping, Method method, Class<?> mapperClass, Class<?> declaredEntityClass) {
+		if (autoResultMapping == null) {
 			return;
 		}
 		Class<?> resultJavaType = null;
-		resultJavaType = dynamicResultMapping.entity();
+		resultJavaType = autoResultMapping.entity();
 		if (resultJavaType == Object.class || resultJavaType == void.class) {
 			if (declaredEntityClass != null && declaredEntityClass != Object.class && declaredEntityClass != void.class) {
 				resultJavaType = declaredEntityClass;
@@ -123,8 +123,8 @@ public class EnhancedAutoMapperHelper {
 			}
 		}
 
-		boolean useColumnName = dynamicResultMapping.useColumnName();
-		String columnPrefix = dynamicResultMapping.columnPrefix();
+		boolean useColumnName = autoResultMapping.useColumnName();
+		String columnPrefix = autoResultMapping.columnPrefix();
 		TableMeta tableMeta = TableMetaKit.instance().get(resultJavaType);
 		List<EnhancedAutoMapperMeta.ResultMappingMeta> resultMappings = new ArrayList<>();
 

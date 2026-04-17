@@ -10,7 +10,7 @@ import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.OrderBy;
 import io.polaris.core.jdbc.sql.statement.SelectStatement;
-import io.polaris.mybatis.annotation.DynamicResultMapping;
+import io.polaris.mybatis.annotation.AutoResultMapping;
 import io.polaris.mybatis.annotation.ExistsByCount;
 import io.polaris.mybatis.annotation.SupportLogicDeleted;
 import io.polaris.mybatis.consts.MapperProviderKeys;
@@ -59,7 +59,7 @@ public interface SelectStatementDefaultMapper<R> {
 	 * @return 实体对象列表
 	 */
 	@SupportLogicDeleted(true)
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
 	List<R> selectEntityListBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 
@@ -70,7 +70,7 @@ public interface SelectStatementDefaultMapper<R> {
 	 * @return Map对象列表，键为列名，值为对应值
 	 */
 	@SupportLogicDeleted(true)
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
 	List<Map<String, Object>> selectMapListBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 
@@ -81,7 +81,7 @@ public interface SelectStatementDefaultMapper<R> {
 	 * @return 实体对象
 	 */
 	@SupportLogicDeleted(true)
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
 	R selectEntityBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 
@@ -92,7 +92,7 @@ public interface SelectStatementDefaultMapper<R> {
 	 * @return Map对象，键为列名，值为对应值
 	 */
 	@SupportLogicDeleted(true)
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
 	Map<String, Object> selectMapBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 

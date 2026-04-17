@@ -10,7 +10,7 @@ import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.OrderBy;
 import io.polaris.core.jdbc.sql.statement.SelectStatement;
-import io.polaris.mybatis.annotation.DynamicResultMapping;
+import io.polaris.mybatis.annotation.AutoResultMapping;
 import io.polaris.mybatis.annotation.ExistsByCount;
 import io.polaris.mybatis.annotation.SupportLogicDeleted;
 import io.polaris.mybatis.consts.MapperProviderKeys;
@@ -60,7 +60,7 @@ public interface SelectStatementDirectMapper<R> {
 	 * @return 实体列表
 	 */
 	@SupportLogicDeleted(false)
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySqlDirect)
 	List<R> directSelectEntityListBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 
@@ -71,7 +71,7 @@ public interface SelectStatementDirectMapper<R> {
 	 * @return 映射列表，键为字段名，值为字段值
 	 */
 	@SupportLogicDeleted(false)
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySqlDirect)
 	List<Map<String, Object>> directSelectMapListBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 
@@ -82,7 +82,7 @@ public interface SelectStatementDirectMapper<R> {
 	 * @return 单个实体对象
 	 */
 	@SupportLogicDeleted(false)
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySqlDirect)
 	R directSelectEntityBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 
@@ -93,7 +93,7 @@ public interface SelectStatementDirectMapper<R> {
 	 * @return 单个映射，键为字段名，值为字段值
 	 */
 	@SupportLogicDeleted(false)
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySqlDirect)
 	Map<String, Object> directSelectMapBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 

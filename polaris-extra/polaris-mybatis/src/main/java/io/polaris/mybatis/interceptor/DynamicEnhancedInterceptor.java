@@ -9,8 +9,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
 
 import io.polaris.core.reflect.Reflects;
-import io.polaris.mybatis.annotation.DynamicResultMapping;
-import io.polaris.mybatis.annotation.DynamicUseGeneratedKeys;
+import io.polaris.mybatis.annotation.AutoResultMapping;
+import io.polaris.mybatis.annotation.AutoUseGeneratedKeys;
 import io.polaris.mybatis.enhance.EnhancedAutoMapperHelper;
 import io.polaris.mybatis.enhance.EnhancedAutoMapperMeta;
 import io.polaris.mybatis.enhance.EnhancedInterceptor;
@@ -111,7 +111,7 @@ public class DynamicEnhancedInterceptor implements Interceptor, EnhancedIntercep
 				List<Method> methods = Reflects.getPublicMethods(mapperClass, m ->
 					!m.isDefault() && !Modifier.isStatic(m.getModifiers())
 						&& mapperMethodName.equals(m.getName())
-						&& (m.isAnnotationPresent(DynamicUseGeneratedKeys.class) || m.isAnnotationPresent(DynamicResultMapping.class)));
+						&& (m.isAnnotationPresent(AutoUseGeneratedKeys.class) || m.isAnnotationPresent(AutoResultMapping.class)));
 				if (methods.size() == 1) {
 					Method method = methods.get(0);
 					String databaseId = mappedStatement.getDatabaseId();

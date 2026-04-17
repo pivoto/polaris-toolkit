@@ -7,7 +7,7 @@ import java.util.Set;
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.OrderBy;
-import io.polaris.mybatis.annotation.DynamicResultMapping;
+import io.polaris.mybatis.annotation.AutoResultMapping;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
 import org.apache.ibatis.annotations.Param;
@@ -46,7 +46,7 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	 * @param excludeFields 指定排除的字段集合
 	 * @return 实体对象列表
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeleted)
 	List<E> selectEntityListExceptLogicDeleted(@Param(BindingKeys.WHERE) E entity
 		, @Param(BindingKeys.ORDER_BY) OrderBy orderBy
@@ -122,7 +122,7 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	 * @param excludeFields 指定排除的字段集合
 	 * @return 实体对象列表
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeleted)
 	List<E> selectEntityListExceptLogicDeletedByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
 		, @Param(BindingKeys.ORDER_BY) OrderBy orderBy
@@ -198,7 +198,7 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	 * @param excludeFields 指定排除的字段集合
 	 * @return 实体对象列表
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeleted)
 	List<E> selectEntityListExceptLogicDeletedByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
 		, @Param(BindingKeys.ORDER_BY) OrderBy orderBy
@@ -274,7 +274,7 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	 * @param excludeFields 指定排除的字段集合
 	 * @return Map对象列表
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeleted)
 	List<Map<String, Object>> selectMapListExceptLogicDeleted(@Param(BindingKeys.WHERE) E entity
 		, @Param(BindingKeys.ORDER_BY) OrderBy orderBy
@@ -350,7 +350,7 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	 * @param excludeFields 指定排除的字段集合
 	 * @return Map对象列表
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeleted)
 	List<Map<String, Object>> selectMapListExceptLogicDeletedByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
 		, @Param(BindingKeys.ORDER_BY) OrderBy orderBy
@@ -426,7 +426,7 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	 * @param excludeFields 指定排除的字段集合
 	 * @return Map对象列表
 	 */
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityExceptLogicDeleted)
 	List<Map<String, Object>> selectMapListExceptLogicDeletedByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
 		, @Param(BindingKeys.ORDER_BY) OrderBy orderBy

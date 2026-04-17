@@ -6,7 +6,7 @@ import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.OrderBy;
 import io.polaris.core.jdbc.sql.statement.SelectStatement;
-import io.polaris.mybatis.annotation.DynamicResultMapping;
+import io.polaris.mybatis.annotation.AutoResultMapping;
 import io.polaris.mybatis.annotation.SupportLogicDeleted;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
@@ -33,7 +33,7 @@ public interface SelectStatementCursorDirectMapper<R> {
 	 * @return 返回实体对象的游标结果
 	 */
 	@SupportLogicDeleted(false)
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySqlDirect)
 	@Options(fetchSize = 1000)
 	Cursor<R> directSelectEntityCursorBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
@@ -46,7 +46,7 @@ public interface SelectStatementCursorDirectMapper<R> {
 	 * @return 返回 Map 类型的游标结果，键为列名，值为对应的值
 	 */
 	@SupportLogicDeleted(false)
-	@DynamicResultMapping
+	@AutoResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySqlDirect)
 	@Options(fetchSize = 1000)
 	Cursor<Map<String, Object>> directSelectMapCursorBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);

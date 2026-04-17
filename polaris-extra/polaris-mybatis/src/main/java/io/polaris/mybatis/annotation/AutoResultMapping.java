@@ -10,7 +10,7 @@ import io.polaris.mybatis.enhance.EnhancedConfiguration;
 import io.polaris.mybatis.interceptor.DynamicEnhancedInterceptor;
 
 /**
- * 声明此注解后，表示将检测目标实体的生成列信息，动态修改MappedStatement中`useGeneratedKeys`等属性的能力。
+ * 声明此注解后，表示将自动生成列映射配置
  * <p>
  * 由于以插件形式实现，需启用插件{@link DynamicEnhancedInterceptor}，或启用增强配置{@link EnhancedConfiguration}
  *
@@ -20,7 +20,7 @@ import io.polaris.mybatis.interceptor.DynamicEnhancedInterceptor;
 @Documented
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface DynamicUseGeneratedKeys {
+public @interface AutoResultMapping {
 
 	/**
 	 * @return 指定检测的目标实体类型，默认由Mapper上下文推断
@@ -28,7 +28,12 @@ public @interface DynamicUseGeneratedKeys {
 	Class<?> entity() default void.class;
 
 	/**
-	 * @return 实体在执行参数对象中的Key值，为空表示整个参数对象
+	 * @return 是否使用数据库列名映射，而不是使用实体属性名
 	 */
-	String value() default "";
+	boolean useColumnName() default false;
+
+	/**
+	 * @return 列名前缀
+	 */
+	String columnPrefix() default "";
 }
