@@ -2,8 +2,10 @@ package io.polaris.mybatis.enhance.printer;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 import io.polaris.core.jdbc.sql.PreparedSql;
+import io.polaris.core.time.Dates;
 import io.polaris.mybatis.enhance.EnhancedConfiguration;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.ParameterMapping;
@@ -203,6 +206,10 @@ public class SqlRecorder {
 					}
 					if (value instanceof String || value instanceof Character) {
 						sb.append("'").append(value).append("'");
+					} else if (value instanceof Date) {
+						sb.append(Dates.formatDefault((Date) value));
+					} else if (value instanceof TemporalAccessor) {
+						sb.append(Dates.formatDefault((TemporalAccessor) value));
 					} else if (value != null) {
 						sb.append(value);
 					} else {

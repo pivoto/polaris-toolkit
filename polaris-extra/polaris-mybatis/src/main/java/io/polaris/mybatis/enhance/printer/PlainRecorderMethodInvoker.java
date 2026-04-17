@@ -2,7 +2,10 @@ package io.polaris.mybatis.enhance.printer;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Consumer;
 
 import io.polaris.core.lang.Types;
@@ -38,6 +41,10 @@ class PlainRecorderMethodInvoker implements RecorderMapperMethodInvoker {
 		} else if (Cursor.class.equals(returnType)) {
 			// 游标类型，则返回空游标
 			return EmptyCursor.INSTANCE;
+		} else if (List.class.isAssignableFrom(returnType)) {
+			return Collections.emptyList();
+		} else if (Collection.class.isAssignableFrom(returnType)) {
+			return Collections.emptyList();
 		}
 		return null;
 	}
@@ -66,19 +73,8 @@ class PlainRecorderMethodInvoker implements RecorderMapperMethodInvoker {
 
 		@Override
 		public Iterator<T> iterator() {
-			return new EmptyIterator<>();
+			return Collections.emptyIterator();
 		}
 	}
 
-	private static class EmptyIterator<T> implements Iterator<T> {
-		@Override
-		public boolean hasNext() {
-			return false;
-		}
-
-		@Override
-		public T next() {
-			return null;
-		}
-	}
 }
