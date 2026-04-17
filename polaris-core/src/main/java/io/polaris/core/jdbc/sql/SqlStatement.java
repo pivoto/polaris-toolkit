@@ -560,7 +560,7 @@ public class SqlStatement implements PreparedSqlBuilder {
 			StringBuilder sb = new StringBuilder();
 			for (final Object condition : conditions) {
 				if (sb.length() > 0) {
-					sb.append(")\nAND (");
+					sb.append(") AND (");
 				} else {
 					sb.append("(");
 				}
@@ -615,7 +615,7 @@ public class SqlStatement implements PreparedSqlBuilder {
 			StringBuilder sb = new StringBuilder();
 			for (final Object condition : conditions) {
 				if (sb.length() > 0) {
-					sb.append(")\nOR (");
+					sb.append(") OR (");
 				} else {
 					sb.append("(");
 				}
