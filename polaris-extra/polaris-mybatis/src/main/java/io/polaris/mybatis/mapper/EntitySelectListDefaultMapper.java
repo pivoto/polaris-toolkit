@@ -8,7 +8,7 @@ import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.OrderBy;
 import io.polaris.mybatis.annotation.DynamicResultMapping;
-import io.polaris.mybatis.annotation.WithLogicDeleted;
+import io.polaris.mybatis.annotation.SupportLogicDeleted;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
 import org.apache.ibatis.annotations.Param;
@@ -28,33 +28,33 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体对象查询列表
 	 *
-	 * @param entity             实体对象，用于构建WHERE条件
-	 * @param orderBy            排序条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity 实体对象，用于构建WHERE条件
+	 * @param orderBy 排序条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
-	 * @param withLogicDeleted   是否处理逻辑删除规则
+	 * @param excludeFields 需要排除的字段集合
+	 * @param supportLogicDeleted 是否处理逻辑删除规则
 	 * @return 查询结果列表
 	 */
 	@DynamicResultMapping
-	@WithLogicDeleted(true)
+	@SupportLogicDeleted(true)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	List<E> selectEntityList(@Param(BindingKeys.WHERE) E entity,
 		@Param(BindingKeys.ORDER_BY) OrderBy orderBy,
 		@Param(BindingKeys.WHERE_INCLUDE_ALL_EMPTY) boolean includeAllEmpty,
 		@Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields,
 		@Param(BindingKeys.WHERE_EXCLUDE_COLUMNS) Set<String> excludeFields,
-		@Param(BindingKeys.WITH_LOGIC_DELETED) Boolean withLogicDeleted);
+		@Param(BindingKeys.SUPPORT_LOGIC_DELETED) Boolean supportLogicDeleted);
 
 	/**
 	 * 根据实体对象查询列表（重载方法）
 	 * 提供多种参数组合的便捷调用方式
 	 *
-	 * @param entity             实体对象，用于构建WHERE条件
-	 * @param orderBy            排序条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity 实体对象，用于构建WHERE条件
+	 * @param orderBy 排序条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询结果列表
 	 */
 	default List<E> selectEntityList(E entity, OrderBy orderBy, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -65,10 +65,10 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * 根据实体对象查询列表（重载方法）
 	 * 默认不包含所有空值字段
 	 *
-	 * @param entity             实体对象，用于构建WHERE条件
-	 * @param orderBy            排序条件
+	 * @param entity 实体对象，用于构建WHERE条件
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询结果列表
 	 */
 	default List<E> selectEntityList(E entity, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -79,8 +79,8 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * 根据实体对象查询列表（重载方法）
 	 * 仅指定包含的空值字段，排除字段为空
 	 *
-	 * @param entity             实体对象，用于构建WHERE条件
-	 * @param orderBy            排序条件
+	 * @param entity 实体对象，用于构建WHERE条件
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 查询结果列表
 	 */
@@ -92,8 +92,8 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * 根据实体对象查询列表（重载方法）
 	 * 指定是否包含所有空值字段，其他参数为空
 	 *
-	 * @param entity          实体对象，用于构建WHERE条件
-	 * @param orderBy         排序条件
+	 * @param entity 实体对象，用于构建WHERE条件
+	 * @param orderBy 排序条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 查询结果列表
 	 */
@@ -105,7 +105,7 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * 根据实体对象查询列表（重载方法）
 	 * 仅指定排序条件，其他参数使用默认值
 	 *
-	 * @param entity  实体对象，用于构建WHERE条件
+	 * @param entity 实体对象，用于构建WHERE条件
 	 * @param orderBy 排序条件
 	 * @return 查询结果列表
 	 */
@@ -127,33 +127,33 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map参数查询实体列表
 	 *
-	 * @param entity             Map参数，用于构建WHERE条件
-	 * @param orderBy            排序条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity Map参数，用于构建WHERE条件
+	 * @param orderBy 排序条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
-	 * @param withLogicDeleted   是否处理逻辑删除规则
+	 * @param excludeFields 需要排除的字段集合
+	 * @param supportLogicDeleted 是否处理逻辑删除规则
 	 * @return 查询结果列表
 	 */
 	@DynamicResultMapping
-	@WithLogicDeleted(true)
+	@SupportLogicDeleted(true)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	List<E> selectEntityListByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity,
 		@Param(BindingKeys.ORDER_BY) OrderBy orderBy,
 		@Param(BindingKeys.WHERE_INCLUDE_ALL_EMPTY) boolean includeAllEmpty,
 		@Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields,
 		@Param(BindingKeys.WHERE_EXCLUDE_COLUMNS) Set<String> excludeFields,
-		@Param(BindingKeys.WITH_LOGIC_DELETED) Boolean withLogicDeleted);
+		@Param(BindingKeys.SUPPORT_LOGIC_DELETED) Boolean supportLogicDeleted);
 
 	/**
 	 * 根据Map参数查询实体列表（重载方法）
 	 * 提供多种参数组合的便捷调用方式
 	 *
-	 * @param entity             Map参数，用于构建WHERE条件
-	 * @param orderBy            排序条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity Map参数，用于构建WHERE条件
+	 * @param orderBy 排序条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询结果列表
 	 */
 	default List<E> selectEntityListByMap(Map<String, Object> entity, OrderBy orderBy, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -164,10 +164,10 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * 根据Map参数查询实体列表（重载方法）
 	 * 默认不包含所有空值字段
 	 *
-	 * @param entity             Map参数，用于构建WHERE条件
-	 * @param orderBy            排序条件
+	 * @param entity Map参数，用于构建WHERE条件
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询结果列表
 	 */
 	default List<E> selectEntityListByMap(Map<String, Object> entity, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -178,8 +178,8 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * 根据Map参数查询实体列表（重载方法）
 	 * 仅指定包含的空值字段，排除字段为空
 	 *
-	 * @param entity             Map参数，用于构建WHERE条件
-	 * @param orderBy            排序条件
+	 * @param entity Map参数，用于构建WHERE条件
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 查询结果列表
 	 */
@@ -191,8 +191,8 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * 根据Map参数查询实体列表（重载方法）
 	 * 指定是否包含所有空值字段，其他参数为空
 	 *
-	 * @param entity          Map参数，用于构建WHERE条件
-	 * @param orderBy         排序条件
+	 * @param entity Map参数，用于构建WHERE条件
+	 * @param orderBy 排序条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 查询结果列表
 	 */
@@ -204,7 +204,7 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * 根据Map参数查询实体列表（重载方法）
 	 * 仅指定排序条件，其他参数使用默认值
 	 *
-	 * @param entity  Map参数，用于构建WHERE条件
+	 * @param entity Map参数，用于构建WHERE条件
 	 * @param orderBy 排序条件
 	 * @return 查询结果列表
 	 */
@@ -226,33 +226,33 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Criteria条件查询实体列表
 	 *
-	 * @param criteria           查询条件对象
-	 * @param orderBy            排序条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param criteria 查询条件对象
+	 * @param orderBy 排序条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
-	 * @param withLogicDeleted   是否处理逻辑删除规则
+	 * @param excludeFields 需要排除的字段集合
+	 * @param supportLogicDeleted 是否处理逻辑删除规则
 	 * @return 查询结果列表
 	 */
 	@DynamicResultMapping
-	@WithLogicDeleted(true)
+	@SupportLogicDeleted(true)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	List<E> selectEntityListByCriteria(@Param(BindingKeys.WHERE) Criteria criteria,
 		@Param(BindingKeys.ORDER_BY) OrderBy orderBy,
 		@Param(BindingKeys.WHERE_INCLUDE_ALL_EMPTY) boolean includeAllEmpty,
 		@Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields,
 		@Param(BindingKeys.WHERE_EXCLUDE_COLUMNS) Set<String> excludeFields,
-		@Param(BindingKeys.WITH_LOGIC_DELETED) Boolean withLogicDeleted);
+		@Param(BindingKeys.SUPPORT_LOGIC_DELETED) Boolean supportLogicDeleted);
 
 	/**
 	 * 根据Criteria条件查询实体列表（重载方法）
 	 * 提供多种参数组合的便捷调用方式
 	 *
-	 * @param criteria           查询条件对象
-	 * @param orderBy            排序条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param criteria 查询条件对象
+	 * @param orderBy 排序条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询结果列表
 	 */
 	default List<E> selectEntityListByCriteria(Criteria criteria, OrderBy orderBy, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -263,10 +263,10 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * 根据Criteria条件查询实体列表（重载方法）
 	 * 默认不包含所有空值字段
 	 *
-	 * @param criteria           查询条件对象
-	 * @param orderBy            排序条件
+	 * @param criteria 查询条件对象
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询结果列表
 	 */
 	default List<E> selectEntityListByCriteria(Criteria criteria, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -277,8 +277,8 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * 根据Criteria条件查询实体列表（重载方法）
 	 * 仅指定包含的空值字段，排除字段为空
 	 *
-	 * @param criteria           查询条件对象
-	 * @param orderBy            排序条件
+	 * @param criteria 查询条件对象
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 查询结果列表
 	 */
@@ -290,8 +290,8 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * 根据Criteria条件查询实体列表（重载方法）
 	 * 指定是否包含所有空值字段，其他参数为空
 	 *
-	 * @param criteria        查询条件对象
-	 * @param orderBy         排序条件
+	 * @param criteria 查询条件对象
+	 * @param orderBy 排序条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 查询结果列表
 	 */
@@ -304,7 +304,7 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * 仅指定排序条件，其他参数使用默认值
 	 *
 	 * @param criteria 查询条件对象
-	 * @param orderBy  排序条件
+	 * @param orderBy 排序条件
 	 * @return 查询结果列表
 	 */
 	default List<E> selectEntityListByCriteria(Criteria criteria, OrderBy orderBy) {
@@ -325,33 +325,33 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体对象查询Map结果列表
 	 *
-	 * @param entity             实体对象，用于构建WHERE条件
-	 * @param orderBy            排序条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity 实体对象，用于构建WHERE条件
+	 * @param orderBy 排序条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
-	 * @param withLogicDeleted   是否处理逻辑删除规则
+	 * @param excludeFields 需要排除的字段集合
+	 * @param supportLogicDeleted 是否处理逻辑删除规则
 	 * @return 查询结果Map列表
 	 */
 	@DynamicResultMapping
-	@WithLogicDeleted(true)
+	@SupportLogicDeleted(true)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	List<Map<String, Object>> selectMapList(@Param(BindingKeys.WHERE) E entity,
 		@Param(BindingKeys.ORDER_BY) OrderBy orderBy,
 		@Param(BindingKeys.WHERE_INCLUDE_ALL_EMPTY) boolean includeAllEmpty,
 		@Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields,
 		@Param(BindingKeys.WHERE_EXCLUDE_COLUMNS) Set<String> excludeFields,
-		@Param(BindingKeys.WITH_LOGIC_DELETED) Boolean withLogicDeleted);
+		@Param(BindingKeys.SUPPORT_LOGIC_DELETED) Boolean supportLogicDeleted);
 
 	/**
 	 * 根据实体对象查询Map结果列表（重载方法）
 	 * 提供多种参数组合的便捷调用方式
 	 *
-	 * @param entity             实体对象，用于构建WHERE条件
-	 * @param orderBy            排序条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity 实体对象，用于构建WHERE条件
+	 * @param orderBy 排序条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询结果Map列表
 	 */
 	default List<Map<String, Object>> selectMapList(E entity, OrderBy orderBy, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -362,10 +362,10 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * 根据实体对象查询Map结果列表（重载方法）
 	 * 默认不包含所有段
 	 *
-	 * @param entity             实体对象，用于构建WHERE条件
-	 * @param orderBy            排序条件
+	 * @param entity 实体对象，用于构建WHERE条件
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询结果Map列表
 	 */
 	default List<Map<String, Object>> selectMapList(E entity, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -376,8 +376,8 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * 根据实体对象查询Map结果列表（重载方法）
 	 * 仅指定包含的空值字段，排除字段为空
 	 *
-	 * @param entity             实体对象，用于构建WHERE条件
-	 * @param orderBy            排序条件
+	 * @param entity 实体对象，用于构建WHERE条件
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 查询结果Map列表
 	 */
@@ -389,8 +389,8 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * 根据实体对象查询Map结果列表（重载方法）
 	 * 指定是否包含所有空值字段，其他参数为空
 	 *
-	 * @param entity          实体对象，用于构建WHERE条件
-	 * @param orderBy         排序条件
+	 * @param entity 实体对象，用于构建WHERE条件
+	 * @param orderBy 排序条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 查询结果Map列表
 	 */
@@ -402,7 +402,7 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * 根据实体对象查询Map结果列表（重载方法）
 	 * 仅指定排序条件，其他参数使用默认值
 	 *
-	 * @param entity  实体对象，用于构建WHERE条件
+	 * @param entity 实体对象，用于构建WHERE条件
 	 * @param orderBy 排序条件
 	 * @return 查询结果Map列表
 	 */
@@ -424,33 +424,33 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map参数查询Map结果列表
 	 *
-	 * @param entity             Map参数，用于构建WHERE条件
-	 * @param orderBy            排序条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity Map参数，用于构建WHERE条件
+	 * @param orderBy 排序条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
-	 * @param withLogicDeleted   是否处理逻辑删除规则
+	 * @param excludeFields 需要排除的字段集合
+	 * @param supportLogicDeleted 是否处理逻辑删除规则
 	 * @return 查询结果Map列表
 	 */
 	@DynamicResultMapping
-	@WithLogicDeleted(true)
+	@SupportLogicDeleted(true)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	List<Map<String, Object>> selectMapListByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity,
 		@Param(BindingKeys.ORDER_BY) OrderBy orderBy,
 		@Param(BindingKeys.WHERE_INCLUDE_ALL_EMPTY) boolean includeAllEmpty,
 		@Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields,
 		@Param(BindingKeys.WHERE_EXCLUDE_COLUMNS) Set<String> excludeFields,
-		@Param(BindingKeys.WITH_LOGIC_DELETED) Boolean withLogicDeleted);
+		@Param(BindingKeys.SUPPORT_LOGIC_DELETED) Boolean supportLogicDeleted);
 
 	/**
 	 * 根据Map参数查询Map结果列表（重载方法）
 	 * 提供多种参数组合的便捷调用方式
 	 *
-	 * @param entity             Map参数，用于构建WHERE条件
-	 * @param orderBy            排序条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity Map参数，用于构建WHERE条件
+	 * @param orderBy 排序条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询结果Map列表
 	 */
 	default List<Map<String, Object>> selectMapListByMap(Map<String, Object> entity, OrderBy orderBy, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -461,10 +461,10 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * 根据Map参数查询Map结果列表（重载方法）
 	 * 默认不包含所有空值字段
 	 *
-	 * @param entity             Map参数，用于构建WHERE条件
-	 * @param orderBy            排序条件
+	 * @param entity Map参数，用于构建WHERE条件
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询结果Map列表
 	 */
 	default List<Map<String, Object>> selectMapListByMap(Map<String, Object> entity, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -475,8 +475,8 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * 根据Map参数查询Map结果列表（重载方法）
 	 * 仅指定包含的空值字段，排除字段为空
 	 *
-	 * @param entity             Map参数，用于构建WHERE条件
-	 * @param orderBy            排序条件
+	 * @param entity Map参数，用于构建WHERE条件
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 查询结果Map列表
 	 */
@@ -488,8 +488,8 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * 根据Map参数查询Map结果列表（重载方法）
 	 * 指定是否包含所有空值字段，其他参数为空
 	 *
-	 * @param entity          Map参数，用于构建WHERE条件
-	 * @param orderBy         排序条件
+	 * @param entity Map参数，用于构建WHERE条件
+	 * @param orderBy 排序条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 查询结果Map列表
 	 */
@@ -512,7 +512,7 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * 根据Map参数查询Map结果列表（重载方法）
 	 * 仅指定排序条件，其他参数使用默认值
 	 *
-	 * @param entity  Map参数，用于构建WHERE条件
+	 * @param entity Map参数，用于构建WHERE条件
 	 * @param orderBy 排序条件
 	 * @return 查询结果Map列表
 	 */
@@ -523,33 +523,33 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Criteria条件查询Map结果列表
 	 *
-	 * @param criteria           查询条件对象
-	 * @param orderBy            排序条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param criteria 查询条件对象
+	 * @param orderBy 排序条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
-	 * @param withLogicDeleted   是否处理逻辑删除规则
+	 * @param excludeFields 需要排除的字段集合
+	 * @param supportLogicDeleted 是否处理逻辑删除规则
 	 * @return 查询结果Map列表
 	 */
 	@DynamicResultMapping
-	@WithLogicDeleted(true)
+	@SupportLogicDeleted(true)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntity)
 	List<Map<String, Object>> selectMapListByCriteria(@Param(BindingKeys.WHERE) Criteria criteria,
 		@Param(BindingKeys.ORDER_BY) OrderBy orderBy,
 		@Param(BindingKeys.WHERE_INCLUDE_ALL_EMPTY) boolean includeAllEmpty,
 		@Param(BindingKeys.WHERE_INCLUDE_EMPTY_COLUMNS) Set<String> includeEmptyFields,
 		@Param(BindingKeys.WHERE_EXCLUDE_COLUMNS) Set<String> excludeFields,
-		@Param(BindingKeys.WITH_LOGIC_DELETED) Boolean withLogicDeleted);
+		@Param(BindingKeys.SUPPORT_LOGIC_DELETED) Boolean supportLogicDeleted);
 
 	/**
 	 * 根据Criteria条件查询Map结果列表（重载方法）
 	 * 提供多种参数组合的便捷调用方式
 	 *
-	 * @param criteria           查询条件对象
-	 * @param orderBy            排序条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param criteria 查询条件对象
+	 * @param orderBy 排序条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询结果Map列表
 	 */
 	default List<Map<String, Object>> selectMapListByCriteria(Criteria criteria, OrderBy orderBy, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -560,10 +560,10 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * 根据Criteria条件查询Map结果列表（重载方法）
 	 * 默认不包含所有空值字段
 	 *
-	 * @param criteria           查询条件对象
-	 * @param orderBy            排序条件
+	 * @param criteria 查询条件对象
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询结果Map列表
 	 */
 	default List<Map<String, Object>> selectMapListByCriteria(Criteria criteria, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -574,8 +574,8 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * 根据Criteria条件查询Map结果列表（重载方法）
 	 * 仅指定包含的空值字段，排除字段为空
 	 *
-	 * @param criteria           查询条件对象
-	 * @param orderBy            排序条件
+	 * @param criteria 查询条件对象
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 查询结果Map列表
 	 */
@@ -587,8 +587,8 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * 根据Criteria条件查询Map结果列表（重载方法）
 	 * 指定是否包含所有空值字段，其他参数为空
 	 *
-	 * @param criteria        查询条件对象
-	 * @param orderBy         排序条件
+	 * @param criteria 查询条件对象
+	 * @param orderBy 排序条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 查询结果Map列表
 	 */
@@ -612,7 +612,7 @@ public interface EntitySelectListDefaultMapper<E> extends EntityMapper<E> {
 	 * 仅指定排序条件，其他参数使用默认值
 	 *
 	 * @param criteria 查询条件对象
-	 * @param orderBy  排序条件
+	 * @param orderBy 排序条件
 	 * @return 查询结果Map列表
 	 */
 	default List<Map<String, Object>> selectMapListByCriteria(Criteria criteria, OrderBy orderBy) {

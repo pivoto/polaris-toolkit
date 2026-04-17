@@ -20,10 +20,10 @@ public interface EntityUpdateByIdMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体ID更新实体数据。
 	 *
-	 * @param entity             实体对象
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity 实体对象
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 更新影响的行数
 	 */
 	@UpdateProvider(type = MapperProviders.class, method = MapperProviderKeys.updateEntityById)
@@ -35,9 +35,9 @@ public interface EntityUpdateByIdMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体ID更新实体数据，不包含所有空值字段。
 	 *
-	 * @param entity             实体对象
+	 * @param entity 实体对象
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 更新影响的行数
 	 */
 	default int updateEntityById(E entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -47,7 +47,7 @@ public interface EntityUpdateByIdMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体ID更新实体数据，不包含所有空值字段，不排除任何字段。
 	 *
-	 * @param entity             实体对象
+	 * @param entity 实体对象
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 更新影响的行数
 	 */
@@ -58,7 +58,7 @@ public interface EntityUpdateByIdMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体ID更新实体数据，可选择是否包含所有空值字段。
 	 *
-	 * @param entity          实体对象
+	 * @param entity 实体对象
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 更新影响的行数
 	 */

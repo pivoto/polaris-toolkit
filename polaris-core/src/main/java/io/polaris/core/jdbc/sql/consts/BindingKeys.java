@@ -33,7 +33,7 @@ public interface BindingKeys {
 	String WHERE_EXCLUDE_COLUMNS = "_w_xc";
 
 	/** 是否支持逻辑删除处理的标志 */
-	String WITH_LOGIC_DELETED = "_w_ld";
+	String SUPPORT_LOGIC_DELETED = "_sld";
 	/** 是否使用Count语句查询存在性 */
 	String EXISTS_BY_COUNT = "_ebc";
 

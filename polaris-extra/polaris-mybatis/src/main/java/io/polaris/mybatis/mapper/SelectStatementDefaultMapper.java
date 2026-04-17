@@ -12,10 +12,9 @@ import io.polaris.core.jdbc.sql.query.OrderBy;
 import io.polaris.core.jdbc.sql.statement.SelectStatement;
 import io.polaris.mybatis.annotation.DynamicResultMapping;
 import io.polaris.mybatis.annotation.ExistsByCount;
-import io.polaris.mybatis.annotation.WithLogicDeleted;
+import io.polaris.mybatis.annotation.SupportLogicDeleted;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
-import io.polaris.mybatis.support.MapperHelperContext;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.SelectProvider;
@@ -37,7 +36,7 @@ public interface SelectStatementDefaultMapper<R> {
 	 * @return 游标结果，包含布尔值表示是否存在匹配记录
 	 */
 	@ExistsByCount(false)
-	@WithLogicDeleted(true)
+	@SupportLogicDeleted(true)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.existsBySql)
 	@Options(fetchSize = 1)
 	@Internal("考虑到查询性能与分页实现的兼容性，声明此此方法，实际开发中不直接调用")
@@ -49,7 +48,7 @@ public interface SelectStatementDefaultMapper<R> {
 	 * @param statement SQL查询语句对象
 	 * @return 记录总数
 	 */
-	@WithLogicDeleted(true)
+	@SupportLogicDeleted(true)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.countBySql)
 	int countBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 
@@ -59,7 +58,7 @@ public interface SelectStatementDefaultMapper<R> {
 	 * @param statement SQL查询语句对象
 	 * @return 实体对象列表
 	 */
-	@WithLogicDeleted(true)
+	@SupportLogicDeleted(true)
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
 	List<R> selectEntityListBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
@@ -70,7 +69,7 @@ public interface SelectStatementDefaultMapper<R> {
 	 * @param statement SQL查询语句对象
 	 * @return Map对象列表，键为列名，值为对应值
 	 */
-	@WithLogicDeleted(true)
+	@SupportLogicDeleted(true)
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
 	List<Map<String, Object>> selectMapListBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
@@ -81,7 +80,7 @@ public interface SelectStatementDefaultMapper<R> {
 	 * @param statement SQL查询语句对象
 	 * @return 实体对象
 	 */
-	@WithLogicDeleted(true)
+	@SupportLogicDeleted(true)
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
 	R selectEntityBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
@@ -92,7 +91,7 @@ public interface SelectStatementDefaultMapper<R> {
 	 * @param statement SQL查询语句对象
 	 * @return Map对象，键为列名，值为对应值
 	 */
-	@WithLogicDeleted(true)
+	@SupportLogicDeleted(true)
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
 	Map<String, Object> selectMapBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
@@ -122,7 +121,7 @@ public interface SelectStatementDefaultMapper<R> {
 	 * 检查是否存在满足条件的记录（支持动态条件）
 	 *
 	 * @param statement SQL查询语句对象
-	 * @param criteria  查询条件对象
+	 * @param criteria 查询条件对象
 	 * @return 是否存在匹配记录
 	 */
 	default boolean existsBySql(SelectStatement<?> statement, Criteria criteria) {
@@ -136,8 +135,8 @@ public interface SelectStatementDefaultMapper<R> {
 	 * 统计满足条件的记录数量（支持动态条件和排序）
 	 *
 	 * @param statement SQL查询语句对象
-	 * @param criteria  查询条件对象
-	 * @param orderBy   排序条件对象
+	 * @param criteria 查询条件对象
+	 * @param orderBy 排序条件对象
 	 * @return 记录总数
 	 */
 	default int countBySql(SelectStatement<?> statement, Criteria criteria, OrderBy orderBy) {
@@ -154,8 +153,8 @@ public interface SelectStatementDefaultMapper<R> {
 	 * 查询实体列表（支持动态条件和排序）
 	 *
 	 * @param statement SQL查询语句对象
-	 * @param criteria  查询条件对象
-	 * @param orderBy   排序条件对象
+	 * @param criteria 查询条件对象
+	 * @param orderBy 排序条件对象
 	 * @return 实体对象列表
 	 */
 	default List<R> selectEntityListBySql(SelectStatement<?> statement, Criteria criteria, OrderBy orderBy) {
@@ -172,8 +171,8 @@ public interface SelectStatementDefaultMapper<R> {
 	 * 查询单个实体对象（支持动态条件和排序）
 	 *
 	 * @param statement SQL查询语句对象
-	 * @param criteria  查询条件对象
-	 * @param orderBy   排序条件对象
+	 * @param criteria 查询条件对象
+	 * @param orderBy 排序条件对象
 	 * @return 实体对象
 	 */
 	default R selectEntityBySql(SelectStatement<?> statement, Criteria criteria, OrderBy orderBy) {
@@ -190,8 +189,8 @@ public interface SelectStatementDefaultMapper<R> {
 	 * 查询Map列表（支持动态条件和排序）
 	 *
 	 * @param statement SQL查询语句对象
-	 * @param criteria  查询条件对象
-	 * @param orderBy   排序条件对象
+	 * @param criteria 查询条件对象
+	 * @param orderBy 排序条件对象
 	 * @return Map对象列表
 	 */
 	default List<Map<String, Object>> selectMapListBySql(SelectStatement<?> statement, Criteria criteria, OrderBy orderBy) {
@@ -208,8 +207,8 @@ public interface SelectStatementDefaultMapper<R> {
 	 * 查询单个Map对象（支持动态条件和排序）
 	 *
 	 * @param statement SQL查询语句对象
-	 * @param criteria  查询条件对象
-	 * @param orderBy   排序条件对象
+	 * @param criteria 查询条件对象
+	 * @param orderBy 排序条件对象
 	 * @return Map对象
 	 */
 	default Map<String, Object> selectMapBySql(SelectStatement<?> statement, Criteria criteria, OrderBy orderBy) {

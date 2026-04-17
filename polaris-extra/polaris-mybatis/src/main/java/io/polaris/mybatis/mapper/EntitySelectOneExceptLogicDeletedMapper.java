@@ -40,10 +40,10 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据实体条件查询单个实体，排除逻辑删除的数据。
 	 *
-	 * @param entity             实体对象，作为查询条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity 实体对象，作为查询条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
 	@DynamicResultMapping
@@ -56,9 +56,9 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据实体条件查询单个实体，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param entity             实体对象，作为查询条件
+	 * @param entity 实体对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
 	default E selectEntityExceptLogicDeleted(E entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -68,7 +68,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据实体条件查询单个实体，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param entity             实体对象，作为查询条件
+	 * @param entity 实体对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
@@ -79,7 +79,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据实体条件查询单个实体，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param entity          实体对象，作为查询条件
+	 * @param entity 实体对象，作为查询条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
@@ -100,10 +100,10 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据Map条件查询单个实体，排除逻辑删除的数据。
 	 *
-	 * @param entity             Map对象，作为查询条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity Map对象，作为查询条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
 	@DynamicResultMapping
@@ -116,9 +116,9 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据Map条件查询单个实体，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param entity             Map对象，作为查询条件
+	 * @param entity Map对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
 	default E selectEntityExceptLogicDeletedByMap(Map<String, Object> entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -128,7 +128,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据Map条件查询单个实体，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param entity             Map对象，作为查询条件
+	 * @param entity Map对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
@@ -139,7 +139,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据Map条件查询单个实体，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param entity          Map对象，作为查询条件
+	 * @param entity Map对象，作为查询条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
@@ -160,10 +160,10 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据Criteria条件查询单个实体，排除逻辑删除的数据。
 	 *
-	 * @param criteria           Criteria对象，作为查询条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param criteria Criteria对象，作为查询条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
 	@DynamicResultMapping
@@ -176,9 +176,9 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据Criteria条件查询单个实体，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param criteria           Criteria对象，作为查询条件
+	 * @param criteria Criteria对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
 	default E selectEntityExceptLogicDeletedByCriteria(Criteria criteria, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -188,7 +188,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据Criteria条件查询单个实体，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param criteria           Criteria对象，作为查询条件
+	 * @param criteria Criteria对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
@@ -199,7 +199,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据Criteria条件查询单个实体，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param criteria        Criteria对象，作为查询条件
+	 * @param criteria Criteria对象，作为查询条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
@@ -220,10 +220,10 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据实体条件查询Map结果，排除逻辑删除的数据。
 	 *
-	 * @param entity             实体对象，作为查询条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity 实体对象，作为查询条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
 	@DynamicResultMapping
@@ -236,9 +236,9 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据实体条件查询Map结果，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param entity             实体对象，作为查询条件
+	 * @param entity 实体对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
 	default Map<String, Object> selectMapExceptLogicDeleted(E entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -248,7 +248,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据实体条件查询Map结果，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param entity             实体对象，作为查询条件
+	 * @param entity 实体对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
@@ -259,7 +259,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据实体条件查询Map结果，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param entity          实体对象，作为查询条件
+	 * @param entity 实体对象，作为查询条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
@@ -280,10 +280,10 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据Map条件查询Map结果，排除逻辑删除的数据。
 	 *
-	 * @param entity             Map对象，作为查询条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity Map对象，作为查询条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
 	@DynamicResultMapping
@@ -296,9 +296,9 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据Map条件查询Map结果，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param entity             Map对象，作为查询条件
+	 * @param entity Map对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
 	default Map<String, Object> selectMapExceptLogicDeletedByMap(Map<String, Object> entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -308,7 +308,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据Map条件查询Map结果，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param entity             Map对象，作为查询条件
+	 * @param entity Map对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
@@ -319,7 +319,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据Map条件查询Map结果，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param entity          Map对象，作为查询条件
+	 * @param entity Map对象，作为查询条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
@@ -340,10 +340,10 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据Criteria条件查询Map结果，排除逻辑删除的数据。
 	 *
-	 * @param criteria           Criteria对象，作为查询条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param criteria Criteria对象，作为查询条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
 	@DynamicResultMapping
@@ -356,9 +356,9 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据Criteria条件查询Map结果，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param criteria           Criteria对象，作为查询条件
+	 * @param criteria Criteria对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
 	default Map<String, Object> selectMapExceptLogicDeletedByCriteria(Criteria criteria, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -368,7 +368,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据Criteria条件查询Map结果，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param criteria           Criteria对象，作为查询条件
+	 * @param criteria Criteria对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
@@ -379,7 +379,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据Criteria条件查询Map结果，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param criteria        Criteria对象，作为查询条件
+	 * @param criteria Criteria对象，作为查询条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
@@ -410,10 +410,10 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	 * 内部方法，用于根据任意条件判断是否存在，排除逻辑删除的数据。
 	 * 此方法仅供内部使用，实际开发中不应直接调用。
 	 *
-	 * @param entity             查询条件对象
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity 查询条件对象
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return Cursor对象，包含查询结果
 	 */
 	@ExistsByCount(false)
@@ -428,10 +428,10 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据实体条件判断是否存在，排除逻辑删除的数据。
 	 *
-	 * @param entity             实体对象，作为查询条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity 实体对象，作为查询条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 若存在返回true，否则返回false
 	 */
 	default boolean existsExceptLogicDeleted(E entity, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -452,9 +452,9 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据实体条件判断是否存在，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param entity             实体对象，作为查询条件
+	 * @param entity 实体对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 若存在返回true，否则返回false
 	 */
 	default boolean existsExceptLogicDeleted(E entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -464,7 +464,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据实体条件判断是否存在，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param entity             实体对象，作为查询条件
+	 * @param entity 实体对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 若存在返回true，否则返回false
 	 */
@@ -475,7 +475,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据实体条件判断是否存在，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param entity          实体对象，作为查询条件
+	 * @param entity 实体对象，作为查询条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 若存在返回true，否则返回false
 	 */
@@ -496,10 +496,10 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据Map条件判断是否存在，排除逻辑删除的数据。
 	 *
-	 * @param entity             Map对象，作为查询条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity Map对象，作为查询条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 若存在返回true，否则返回false
 	 */
 	default boolean existsExceptLogicDeletedByMap(Map<String, Object> entity, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -520,9 +520,9 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据Map条件判断是否存在，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param entity             Map对象，作为查询条件
+	 * @param entity Map对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 若存在返回true，否则返回false
 	 */
 	default boolean existsExceptLogicDeletedByMap(Map<String, Object> entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -532,7 +532,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据Map条件判断是否存在，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param entity             Map对象，作为查询条件
+	 * @param entity Map对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 若存在返回true，否则返回false
 	 */
@@ -543,7 +543,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据Map条件判断是否存在，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param entity          Map对象，作为查询条件
+	 * @param entity Map对象，作为查询条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 若存在返回true，否则返回false
 	 */
@@ -564,10 +564,10 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据Criteria条件判断是否存在，排除逻辑删除的数据。
 	 *
-	 * @param criteria           Criteria对象，作为查询条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param criteria Criteria对象，作为查询条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 若存在返回true，否则返回false
 	 */
 	default boolean existsExceptLogicDeletedByCriteria(Criteria criteria, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -588,9 +588,9 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据Criteria条件判断是否存在，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param criteria           Criteria对象，作为查询条件
+	 * @param criteria Criteria对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 若存在返回true，否则返回false
 	 */
 	default boolean existsExceptLogicDeletedByCriteria(Criteria criteria, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -600,7 +600,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据Criteria条件判断是否存在，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param criteria           Criteria对象，作为查询条件
+	 * @param criteria Criteria对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 若存在返回true，否则返回false
 	 */
@@ -611,7 +611,7 @@ public interface EntitySelectOneExceptLogicDeletedMapper<E> extends EntityMapper
 	/**
 	 * 根据Criteria条件判断是否存在，排除逻辑删除的数据（简化版）。
 	 *
-	 * @param criteria        Criteria对象，作为查询条件
+	 * @param criteria Criteria对象，作为查询条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 若存在返回true，否则返回false
 	 */

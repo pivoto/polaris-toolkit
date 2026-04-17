@@ -7,7 +7,7 @@ import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.OrderBy;
 import io.polaris.core.jdbc.sql.statement.SelectStatement;
 import io.polaris.mybatis.annotation.DynamicResultMapping;
-import io.polaris.mybatis.annotation.WithLogicDeleted;
+import io.polaris.mybatis.annotation.SupportLogicDeleted;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
 import org.apache.ibatis.annotations.Options;
@@ -32,7 +32,7 @@ public interface SelectStatementCursorDirectMapper<R> {
 	 * @param statement 包含查询条件的 SelectStatement 对象
 	 * @return 返回实体对象的游标结果
 	 */
-	@WithLogicDeleted(false)
+	@SupportLogicDeleted(false)
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySqlDirect)
 	@Options(fetchSize = 1000)
@@ -45,7 +45,7 @@ public interface SelectStatementCursorDirectMapper<R> {
 	 * @param statement 包含查询条件的 SelectStatement 对象
 	 * @return 返回 Map 类型的游标结果，键为列名，值为对应的值
 	 */
-	@WithLogicDeleted(false)
+	@SupportLogicDeleted(false)
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySqlDirect)
 	@Options(fetchSize = 1000)
@@ -56,8 +56,8 @@ public interface SelectStatementCursorDirectMapper<R> {
 	 * 该方法允许动态添加查询条件和排序规则。
 	 *
 	 * @param statement 包含基础查询条件的 SelectStatement 对象
-	 * @param criteria  查询条件对象，可为空
-	 * @param orderBy   排序规则对象，可为空
+	 * @param criteria 查询条件对象，可为空
+	 * @param orderBy 排序规则对象，可为空
 	 * @return 返回实体对象的游标结果
 	 */
 	default Cursor<R> directSelectEntityCursorBySql(SelectStatement<?> statement, Criteria criteria, OrderBy orderBy) {
@@ -75,8 +75,8 @@ public interface SelectStatementCursorDirectMapper<R> {
 	 * 该方法允许动态添加查询条件和排序规则。
 	 *
 	 * @param statement 包含基础查询条件的 SelectStatement 对象
-	 * @param criteria  查询条件对象，可为空
-	 * @param orderBy   排序规则对象，可为空
+	 * @param criteria 查询条件对象，可为空
+	 * @param orderBy 排序规则对象，可为空
 	 * @return 返回 Map 类型的游标结果，键为列名，值为对应的值
 	 */
 	default Cursor<Map<String, Object>> directSelectMapCursorBySql(SelectStatement<?> statement, Criteria criteria, OrderBy orderBy) {

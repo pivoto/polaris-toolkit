@@ -10,10 +10,9 @@ import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.mybatis.annotation.DynamicResultMapping;
 import io.polaris.mybatis.annotation.ExistsByCount;
-import io.polaris.mybatis.annotation.WithLogicDeleted;
+import io.polaris.mybatis.annotation.SupportLogicDeleted;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
-import io.polaris.mybatis.support.MapperHelperContext;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.SelectProvider;
@@ -36,21 +35,21 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
 	@DynamicResultMapping
-	@WithLogicDeleted(false)
+	@SupportLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityByIdDirect)
 	E directSelectEntityById(@Param(BindingKeys.ENTITY) E entity);
 
 	/**
 	 * 根据实体条件直接查询单个实体。
 	 *
-	 * @param entity             实体对象，作为查询条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity 实体对象，作为查询条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
 	@DynamicResultMapping
-	@WithLogicDeleted(false)
+	@SupportLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	E directSelectEntity(@Param(BindingKeys.WHERE) E entity
 		, @Param(BindingKeys.WHERE_INCLUDE_ALL_EMPTY) boolean includeAllEmpty
@@ -60,9 +59,9 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体条件直接查询单个实体，默认不包含所有空值字段。
 	 *
-	 * @param entity             实体对象，作为查询条件
+	 * @param entity 实体对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
 	default E directSelectEntity(E entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -72,7 +71,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体条件直接查询单个实体，默认不包含所有空值字段，且不排除任何字段。
 	 *
-	 * @param entity             实体对象，作为查询条件
+	 * @param entity 实体对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
@@ -83,7 +82,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体条件直接查询单个实体，可指定是否包含所有空值字段。
 	 *
-	 * @param entity          实体对象，作为查询条件
+	 * @param entity 实体对象，作为查询条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
@@ -104,14 +103,14 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map条件直接查询单个实体。
 	 *
-	 * @param entity             Map对象，作为查询条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity Map对象，作为查询条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
 	@DynamicResultMapping
-	@WithLogicDeleted(false)
+	@SupportLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	E directSelectEntityByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
 		, @Param(BindingKeys.WHERE_INCLUDE_ALL_EMPTY) boolean includeAllEmpty
@@ -121,9 +120,9 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map条件直接查询单个实体，默认不包含所有空值字段。
 	 *
-	 * @param entity             Map对象，作为查询条件
+	 * @param entity Map对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
 	default E directSelectEntityByMap(Map<String, Object> entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -133,7 +132,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map条件直接查询单个实体，默认不包含所有空值字段，且不排除任何字段。
 	 *
-	 * @param entity             Map对象，作为查询条件
+	 * @param entity Map对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
@@ -144,7 +143,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map条件直接查询单个实体，可指定是否包含所有空值字段。
 	 *
-	 * @param entity          Map对象，作为查询条件
+	 * @param entity Map对象，作为查询条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
@@ -165,14 +164,14 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Criteria条件直接查询单个实体。
 	 *
-	 * @param criteria           Criteria对象，作为查询条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param criteria Criteria对象，作为查询条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
 	@DynamicResultMapping
-	@WithLogicDeleted(false)
+	@SupportLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	E directSelectEntityByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
 		, @Param(BindingKeys.WHERE_INCLUDE_ALL_EMPTY) boolean includeAllEmpty
@@ -182,9 +181,9 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Criteria条件直接查询单个实体，默认不包含所有空值字段。
 	 *
-	 * @param criteria           Criteria对象，作为查询条件
+	 * @param criteria Criteria对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
 	default E directSelectEntityByCriteria(Criteria criteria, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -194,7 +193,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Criteria条件直接查询单个实体，默认不包含所有空值字段，且不排除任何字段。
 	 *
-	 * @param criteria           Criteria对象，作为查询条件
+	 * @param criteria Criteria对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
@@ -205,7 +204,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Criteria条件直接查询单个实体，可指定是否包含所有空值字段。
 	 *
-	 * @param criteria        Criteria对象，作为查询条件
+	 * @param criteria Criteria对象，作为查询条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 查询到的实体对象，若未找到则返回null
 	 */
@@ -226,14 +225,14 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体条件直接查询单个实体，返回Map结果。
 	 *
-	 * @param entity             实体对象，作为查询条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity 实体对象，作为查询条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
 	@DynamicResultMapping
-	@WithLogicDeleted(false)
+	@SupportLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	Map<String, Object> directSelectMap(@Param(BindingKeys.WHERE) E entity
 		, @Param(BindingKeys.WHERE_INCLUDE_ALL_EMPTY) boolean includeAllEmpty
@@ -243,9 +242,9 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体条件直接查询单个实体，返回Map结果，默认不包含所有空值字段。
 	 *
-	 * @param entity             实体对象，作为查询条件
+	 * @param entity 实体对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
 	default Map<String, Object> directSelectMap(E entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -255,7 +254,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体条件直接查询单个实体，返回Map结果，默认不包含所有空值字段，且不排除任何字段。
 	 *
-	 * @param entity             实体对象，作为查询条件
+	 * @param entity 实体对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
@@ -266,7 +265,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体条件直接查询单个实体，返回Map结果，可指定是否包含所有空值字段。
 	 *
-	 * @param entity          实体对象，作为查询条件
+	 * @param entity 实体对象，作为查询条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
@@ -287,14 +286,14 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map条件直接查询单个实体，返回Map结果。
 	 *
-	 * @param entity             Map对象，作为查询条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity Map对象，作为查询条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
 	@DynamicResultMapping
-	@WithLogicDeleted(false)
+	@SupportLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	Map<String, Object> directSelectMapByMap(@Param(BindingKeys.WHERE) Map<String, Object> entity
 		, @Param(BindingKeys.WHERE_INCLUDE_ALL_EMPTY) boolean includeAllEmpty
@@ -304,9 +303,9 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map条件直接查询单个实体，返回Map结果，默认不包含所有空值字段。
 	 *
-	 * @param entity             Map对象，作为查询条件
+	 * @param entity Map对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
 	default Map<String, Object> directSelectMapByMap(Map<String, Object> entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -316,7 +315,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map条件直接查询单个实体，返回Map结果，默认不包含所有空值字段，且不排除任何字段。
 	 *
-	 * @param entity             Map对象，作为查询条件
+	 * @param entity Map对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
@@ -327,7 +326,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map条件直接查询单个实体，返回Map结果，可指定是否包含所有空值字段。
 	 *
-	 * @param entity          Map对象，作为查询条件
+	 * @param entity Map对象，作为查询条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
@@ -348,14 +347,14 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Criteria条件直接查询单个实体，返回Map结果。
 	 *
-	 * @param criteria           Criteria对象，作为查询条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param criteria Criteria对象，作为查询条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
 	@DynamicResultMapping
-	@WithLogicDeleted(false)
+	@SupportLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	Map<String, Object> directSelectMapByCriteria(@Param(BindingKeys.WHERE) Criteria criteria
 		, @Param(BindingKeys.WHERE_INCLUDE_ALL_EMPTY) boolean includeAllEmpty
@@ -365,9 +364,9 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Criteria条件直接查询单个实体，返回Map结果，默认不包含所有空值字段。
 	 *
-	 * @param criteria           Criteria对象，作为查询条件
+	 * @param criteria Criteria对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
 	default Map<String, Object> directSelectMapByCriteria(Criteria criteria, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -377,7 +376,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Criteria条件直接查询单个实体，返回Map结果，默认不包含所有空值字段，且不排除任何字段。
 	 *
-	 * @param criteria           Criteria对象，作为查询条件
+	 * @param criteria Criteria对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
@@ -388,7 +387,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Criteria条件直接查询单个实体，返回Map结果，可指定是否包含所有空值字段。
 	 *
-	 * @param criteria        Criteria对象，作为查询条件
+	 * @param criteria Criteria对象，作为查询条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 查询到的Map结果，若未找到则返回null
 	 */
@@ -412,21 +411,21 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	 * @param entity 实体对象，包含ID信息
 	 * @return 若存在返回true，否则返回false
 	 */
-	@WithLogicDeleted(false)
+	@SupportLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.existsEntityByIdDirect)
 	boolean directExistsById(@Param(BindingKeys.ENTITY) E entity);
 
 	/**
 	 * 内部方法，根据任意条件判断实体是否存在，返回Cursor结果。
 	 *
-	 * @param entity             查询条件对象
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity 查询条件对象
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return Cursor结果，包含布尔值
 	 */
 	@ExistsByCount(false)
-	@WithLogicDeleted(false)
+	@SupportLogicDeleted(false)
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.existsEntityDirect)
 	@Options(fetchSize = 1)
 	@Internal("考虑到查询性能与分页实现的兼容性，声明此此方法，实际开发中不直接调用")
@@ -438,10 +437,10 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体条件判断实体是否存在。
 	 *
-	 * @param entity             实体对象，作为查询条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity 实体对象，作为查询条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 若存在返回true，否则返回false
 	 */
 	default boolean directExists(E entity, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -462,9 +461,9 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体条件判断实体是否存在，默认不包含所有空值字段。
 	 *
-	 * @param entity             实体对象，作为查询条件
+	 * @param entity 实体对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 若存在返回true，否则返回false
 	 */
 	default boolean directExists(E entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -474,7 +473,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体条件判断实体是否存在，默认不包含所有空值字段，且不排除任何字段。
 	 *
-	 * @param entity             实体对象，作为查询条件
+	 * @param entity 实体对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 若存在返回true，否则返回false
 	 */
@@ -485,7 +484,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体条件判断实体是否存在，可指定是否包含所有空值字段。
 	 *
-	 * @param entity          实体对象，作为查询条件
+	 * @param entity 实体对象，作为查询条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 若存在返回true，否则返回false
 	 */
@@ -506,10 +505,10 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map条件判断实体是否存在。
 	 *
-	 * @param entity             Map对象，作为查询条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity Map对象，作为查询条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 若存在返回true，否则返回false
 	 */
 	default boolean directExistsByMap(Map<String, Object> entity, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -530,9 +529,9 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map条件判断实体是否存在，默认不包含所有空值字段。
 	 *
-	 * @param entity             Map对象，作为查询条件
+	 * @param entity Map对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 若存在返回true，否则返回false
 	 */
 	default boolean directExistsByMap(Map<String, Object> entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -542,7 +541,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map条件判断实体是否存在，默认不包含所有空值字段，且不排除任何字段。
 	 *
-	 * @param entity             Map对象，作为查询条件
+	 * @param entity Map对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 若存在返回true，否则返回false
 	 */
@@ -553,7 +552,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map条件判断实体是否存在，可指定是否包含所有空值字段。
 	 *
-	 * @param entity          Map对象，作为查询条件
+	 * @param entity Map对象，作为查询条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 若存在返回true，否则返回false
 	 */
@@ -574,10 +573,10 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Criteria条件判断实体是否存在。
 	 *
-	 * @param criteria           Criteria对象，作为查询条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param criteria Criteria对象，作为查询条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 若存在返回true，否则返回false
 	 */
 	default boolean directExistsByCriteria(Criteria criteria, boolean includeAllEmpty, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -598,9 +597,9 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Criteria条件判断实体是否存在，默认不包含所有空值字段。
 	 *
-	 * @param criteria           Criteria对象，作为查询条件
+	 * @param criteria Criteria对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 若存在返回true，否则返回false
 	 */
 	default boolean directExistsByCriteria(Criteria criteria, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -610,7 +609,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Criteria条件判断实体是否存在，默认不包含所有空值字段，且不排除任何字段。
 	 *
-	 * @param criteria           Criteria对象，作为查询条件
+	 * @param criteria Criteria对象，作为查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 若存在返回true，否则返回false
 	 */
@@ -621,7 +620,7 @@ public interface EntitySelectOneDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Criteria条件判断实体是否存在，可指定是否包含所有空值字段。
 	 *
-	 * @param criteria        Criteria对象，作为查询条件
+	 * @param criteria Criteria对象，作为查询条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 若存在返回true，否则返回false
 	 */

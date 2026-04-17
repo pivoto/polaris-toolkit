@@ -34,9 +34,9 @@ public interface EntityMergeMapper<E> extends MergeStatementMapper, EntityMapper
 	/**
 	 * 通过SQL合并实体数据，可自定义合并行为
 	 *
-	 * @param entity               实体对象，包含要合并的数据
-	 * @param includeAllEmpty      是否包含所有空值字段
-	 * @param updateWhenMatched    匹配时是否更新
+	 * @param entity 实体对象，包含要合并的数据
+	 * @param includeAllEmpty 是否包含所有空值字段
+	 * @param updateWhenMatched 匹配时是否更新
 	 * @param insertWhenNotMatched 不匹配时是否插入
 	 * @return 受影响的行数
 	 */
@@ -53,8 +53,8 @@ public interface EntityMergeMapper<E> extends MergeStatementMapper, EntityMapper
 	/**
 	 * 通过SQL合并实体数据，可自定义匹配和插入行为
 	 *
-	 * @param entity               实体对象，包含要合并的数据
-	 * @param updateWhenMatched    匹配时是否更新
+	 * @param entity 实体对象，包含要合并的数据
+	 * @param updateWhenMatched 匹配时是否更新
 	 * @param insertWhenNotMatched 不匹配时是否插入
 	 * @return 受影响的行数
 	 */

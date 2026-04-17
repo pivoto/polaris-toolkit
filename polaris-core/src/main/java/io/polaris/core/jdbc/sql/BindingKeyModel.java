@@ -50,7 +50,7 @@ public class BindingKeyModel {
 	/** where条件中需要排除的列列集合或数组 */
 	private String whereExcludeColumns = BindingKeys.WHERE_EXCLUDE_COLUMNS;
 	/** 是否支持逻辑删除处理的标志 */
-	private String withLogicDeleted = BindingKeys.WITH_LOGIC_DELETED;
+	private String supportLogicDeleted = BindingKeys.SUPPORT_LOGIC_DELETED;
 	/** 是否使用Count语句查询存在性 */
 	private String existsByCount = BindingKeys.EXISTS_BY_COUNT;
 
@@ -362,12 +362,12 @@ public class BindingKeyModel {
 		return this;
 	}
 
-	public BindingKeyModel withLogicDeleted(String withLogicDeleted) {
+	public BindingKeyModel supportLogicDeleted(String supportLogicDeleted) {
 		checkState();
-		if (Strings.isBlank(withLogicDeleted)) {
+		if (Strings.isBlank(supportLogicDeleted)) {
 			return this;
 		}
-		this.withLogicDeleted = withLogicDeleted;
+		this.supportLogicDeleted = supportLogicDeleted;
 		return this;
 	}
 
@@ -503,8 +503,8 @@ public class BindingKeyModel {
 		return whereExcludeColumns;
 	}
 
-	public String withLogicDeleted() {
-		return withLogicDeleted;
+	public String supportLogicDeleted() {
+		return supportLogicDeleted;
 	}
 
 	public String existsByCount() {

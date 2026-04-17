@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 @Documented
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface WithLogicDeleted {
+public @interface SupportLogicDeleted {
 
 	/**
 	 * @return 是否尽可能使用逻辑删除，默认为true

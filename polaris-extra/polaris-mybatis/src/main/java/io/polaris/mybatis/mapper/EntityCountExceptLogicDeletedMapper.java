@@ -23,10 +23,10 @@ public interface EntityCountExceptLogicDeletedMapper<E> extends EntityMapper<E> 
 	/**
 	 * 统计非逻辑删除的实体记录数量
 	 *
-	 * @param entity             实体对象，用于构建查询条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity 实体对象，用于构建查询条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 符合条件的非逻辑删除记录数量
 	 */
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.countEntityExceptLogicDeleted)
@@ -38,9 +38,9 @@ public interface EntityCountExceptLogicDeletedMapper<E> extends EntityMapper<E> 
 	/**
 	 * 统计非逻辑删除的实体记录数量
 	 *
-	 * @param entity             实体对象，用于构建查询条件
+	 * @param entity 实体对象，用于构建查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 符合条件的非逻辑删除记录数量
 	 */
 	default int countEntityExceptLogicDeleted(E entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -50,7 +50,7 @@ public interface EntityCountExceptLogicDeletedMapper<E> extends EntityMapper<E> 
 	/**
 	 * 统计非逻辑删除的实体记录数量
 	 *
-	 * @param entity             实体对象，用于构建查询条件
+	 * @param entity 实体对象，用于构建查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 符合条件的非逻辑删除记录数量
 	 */
@@ -61,7 +61,7 @@ public interface EntityCountExceptLogicDeletedMapper<E> extends EntityMapper<E> 
 	/**
 	 * 统计非逻辑删除的实体记录数量
 	 *
-	 * @param entity          实体对象，用于构建查询条件
+	 * @param entity 实体对象，用于构建查询条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 符合条件的非逻辑删除记录数量
 	 */
@@ -83,10 +83,10 @@ public interface EntityCountExceptLogicDeletedMapper<E> extends EntityMapper<E> 
 	/**
 	 * 根据Map参数统计非逻辑删除的实体记录数量
 	 *
-	 * @param entity             包含查询条件的Map对象
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity 包含查询条件的Map对象
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 符合条件的非逻辑删除记录数量
 	 */
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.countEntityExceptLogicDeleted)
@@ -99,9 +99,9 @@ public interface EntityCountExceptLogicDeletedMapper<E> extends EntityMapper<E> 
 	/**
 	 * 根据Map参数统计非逻辑删除的实体记录数量
 	 *
-	 * @param entity             包含查询条件的Map对象
+	 * @param entity 包含查询条件的Map对象
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 符合条件的非逻辑删除记录数量
 	 */
 	default int countEntityExceptLogicDeletedByMap(Map<String, Object> entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -111,7 +111,7 @@ public interface EntityCountExceptLogicDeletedMapper<E> extends EntityMapper<E> 
 	/**
 	 * 根据Map参数统计非逻辑删除的实体记录数量
 	 *
-	 * @param entity             包含查询条件的Map对象
+	 * @param entity 包含查询条件的Map对象
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 符合条件的非逻辑删除记录数量
 	 */
@@ -122,7 +122,7 @@ public interface EntityCountExceptLogicDeletedMapper<E> extends EntityMapper<E> 
 	/**
 	 * 根据Map参数统计非逻辑删除的实体记录数量
 	 *
-	 * @param entity          包含查询条件的Map对象
+	 * @param entity 包含查询条件的Map对象
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 符合条件的非逻辑删除记录数量
 	 */
@@ -143,10 +143,10 @@ public interface EntityCountExceptLogicDeletedMapper<E> extends EntityMapper<E> 
 	/**
 	 * 根据条件对象统计非逻辑删除的实体记录数量
 	 *
-	 * @param criteria           条件对象，用于构建查询条件
-	 * @param includeAllEmpty    是否包含空值字段
+	 * @param criteria 条件对象，用于构建查询条件
+	 * @param includeAllEmpty 是否包含空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 符合条件的非逻辑删除记录数量
 	 */
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.countEntityExceptLogicDeleted)
@@ -159,9 +159,9 @@ public interface EntityCountExceptLogicDeletedMapper<E> extends EntityMapper<E> 
 	/**
 	 * 根据条件对象统计非逻辑删除的实体记录数量
 	 *
-	 * @param criteria           条件对象，用于构建查询条件
+	 * @param criteria 条件对象，用于构建查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 符合条件的非逻辑删除记录数量
 	 */
 	default int countEntityExceptLogicDeletedByCriteria(Criteria criteria, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -171,7 +171,7 @@ public interface EntityCountExceptLogicDeletedMapper<E> extends EntityMapper<E> 
 	/**
 	 * 根据条件对象统计非逻辑删除的实体记录数量
 	 *
-	 * @param criteria           条件对象，用于构建查询条件
+	 * @param criteria 条件对象，用于构建查询条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 符合条件的非逻辑删除记录数量
 	 */
@@ -182,7 +182,7 @@ public interface EntityCountExceptLogicDeletedMapper<E> extends EntityMapper<E> 
 	/**
 	 * 根据条件对象统计非逻辑删除的实体记录数量
 	 *
-	 * @param criteria        条件对象，用于构建查询条件
+	 * @param criteria 条件对象，用于构建查询条件
 	 * @param includeAllEmpty 是否包含空值字段
 	 * @return 符合条件的非逻辑删除记录数量
 	 */

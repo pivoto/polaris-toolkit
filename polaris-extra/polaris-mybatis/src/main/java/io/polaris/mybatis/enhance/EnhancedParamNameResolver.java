@@ -154,9 +154,9 @@ public class EnhancedParamNameResolver {
 			if (Strings.isNotBlank(whereExcludeColumns) && !BindingKeys.WHERE_EXCLUDE_COLUMNS.equals(whereExcludeColumns)) {
 				bindingKeyDefinition.setWhereExcludeColumns(new String[]{whereExcludeColumns});
 			}
-			String withLogicDeleted = mapperParam.withLogicDeleted();
-			if (Strings.isNotBlank(withLogicDeleted) && !BindingKeys.WITH_LOGIC_DELETED.equals(withLogicDeleted)) {
-				bindingKeyDefinition.setWithLogicDeleted(new String[]{withLogicDeleted});
+			String supportLogicDeleted = mapperParam.supportLogicDeleted();
+			if (Strings.isNotBlank(supportLogicDeleted) && !BindingKeys.SUPPORT_LOGIC_DELETED.equals(supportLogicDeleted)) {
+				bindingKeyDefinition.setSupportLogicDeleted(new String[]{supportLogicDeleted});
 			}
 			String existsByCount = mapperParam.existsByCount();
 			if (Strings.isNotBlank(existsByCount) && !BindingKeys.EXISTS_BY_COUNT.equals(existsByCount)) {
@@ -214,8 +214,8 @@ public class EnhancedParamNameResolver {
 			mergeBindingKeyDefinition(paramKeys, bindingKeyDefinition.getWhereExcludeColumns(), bindingKeyDefinition::setWhereExcludeColumns, BindingKeys.WHERE_EXCLUDE_COLUMNS);
 			return;
 		}
-		if (annotation instanceof MapperParam.WithLogicDeleted) {
-			mergeBindingKeyDefinition(paramKeys, bindingKeyDefinition.getWithLogicDeleted(), bindingKeyDefinition::setWithLogicDeleted, BindingKeys.WITH_LOGIC_DELETED);
+		if (annotation instanceof MapperParam.SupportLogicDeleted) {
+			mergeBindingKeyDefinition(paramKeys, bindingKeyDefinition.getSupportLogicDeleted(), bindingKeyDefinition::setSupportLogicDeleted, BindingKeys.SUPPORT_LOGIC_DELETED);
 			return;
 		}
 		if (annotation instanceof MapperParam.ExistsByCount) {

@@ -7,7 +7,7 @@ import io.polaris.core.jdbc.sql.consts.BindingKeys;
 import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.OrderBy;
 import io.polaris.mybatis.annotation.DynamicResultMapping;
-import io.polaris.mybatis.annotation.WithLogicDeleted;
+import io.polaris.mybatis.annotation.SupportLogicDeleted;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
 import org.apache.ibatis.annotations.Options;
@@ -29,14 +29,14 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体对象查询游标数据
 	 *
-	 * @param entity             实体对象，用于构建WHERE条件
-	 * @param orderBy            排序条件
-	 * @param includeAllEmpty       是否包含所有空值字段
+	 * @param entity 实体对象，用于构建WHERE条件
+	 * @param orderBy 排序条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 游标结果集
 	 */
-	@WithLogicDeleted(false)
+	@SupportLogicDeleted(false)
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	@Options(fetchSize = 1000)
@@ -49,10 +49,10 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体对象查询游标数据（重载方法）
 	 *
-	 * @param entity             实体对象
-	 * @param orderBy            排序条件
+	 * @param entity 实体对象
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 包含空值的字段集合
-	 * @param excludeFields      排除字段集合
+	 * @param excludeFields 排除字段集合
 	 * @return 游标结果集
 	 */
 	default Cursor<E> directSelectEntityCursor(E entity, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -62,8 +62,8 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体对象查询游标数据（重载方法）
 	 *
-	 * @param entity             实体对象
-	 * @param orderBy            排序条件
+	 * @param entity 实体对象
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 包含空值的字段集合
 	 * @return 游标结果集
 	 */
@@ -74,8 +74,8 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体对象查询游标数据（重载方法）
 	 *
-	 * @param entity       实体对象
-	 * @param orderBy      排序条件
+	 * @param entity 实体对象
+	 * @param orderBy 排序条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 游标结果集
 	 */
@@ -86,7 +86,7 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体对象查询游标数据（重载方法）
 	 *
-	 * @param entity  实体对象
+	 * @param entity 实体对象
 	 * @param orderBy 排序条件
 	 * @return 游标结果集
 	 */
@@ -107,14 +107,14 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map参数查询游标数据
 	 *
-	 * @param entity             Map参数，用于构建WHERE条件
-	 * @param orderBy            排序条件
-	 * @param includeAllEmpty       是否包含空值字段
+	 * @param entity Map参数，用于构建WHERE条件
+	 * @param orderBy 排序条件
+	 * @param includeAllEmpty 是否包含空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 游标结果集
 	 */
-	@WithLogicDeleted(false)
+	@SupportLogicDeleted(false)
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	@Options(fetchSize = 1000)
@@ -127,10 +127,10 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map参数查询游标数据（重载方法）
 	 *
-	 * @param entity             Map参数
-	 * @param orderBy            排序条件
+	 * @param entity Map参数
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 包含空值的字段集合
-	 * @param excludeFields      排除字段集合
+	 * @param excludeFields 排除字段集合
 	 * @return 游标结果集
 	 */
 	default Cursor<E> directSelectEntityCursorByMap(Map<String, Object> entity, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -140,8 +140,8 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map参数查询游标数据（重载方法）
 	 *
-	 * @param entity             Map参数
-	 * @param orderBy            排序条件
+	 * @param entity Map参数
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 包含空值的字段集合
 	 * @return 游标结果集
 	 */
@@ -152,8 +152,8 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map参数查询游标数据（重载方法）
 	 *
-	 * @param entity       Map参数
-	 * @param orderBy      排序条件
+	 * @param entity Map参数
+	 * @param orderBy 排序条件
 	 * @param includeAllEmpty 是否包含空值字段
 	 * @return 游标结果集
 	 */
@@ -164,7 +164,7 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map参数查询游标数据（重载方法）
 	 *
-	 * @param entity  Map参数
+	 * @param entity Map参数
 	 * @param orderBy 排序条件
 	 * @return 游标结果集
 	 */
@@ -185,14 +185,14 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Criteria条件查询游标数据
 	 *
-	 * @param criteria           查询条件对象
-	 * @param orderBy            排序条件
-	 * @param includeAllEmpty       是否包含空值字段
+	 * @param criteria 查询条件对象
+	 * @param orderBy 排序条件
+	 * @param includeAllEmpty 是否包含空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 游标结果集
 	 */
-	@WithLogicDeleted(false)
+	@SupportLogicDeleted(false)
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	@Options(fetchSize = 1000)
@@ -205,10 +205,10 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Criteria条件查询游标数据（重载方法）
 	 *
-	 * @param criteria           查询条件对象
-	 * @param orderBy            排序条件
+	 * @param criteria 查询条件对象
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 包含空值的字段集合
-	 * @param excludeFields      排除字段集合
+	 * @param excludeFields 排除字段集合
 	 * @return 游标结果集
 	 */
 	default Cursor<E> directSelectEntityCursorByCriteria(Criteria criteria, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -218,8 +218,8 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Criteria条件查询游标数据（重载方法）
 	 *
-	 * @param criteria           查询条件对象
-	 * @param orderBy            排序条件
+	 * @param criteria 查询条件对象
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 包含空值的字段集合
 	 * @return 游标结果集
 	 */
@@ -230,8 +230,8 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Criteria条件查询游标数据（重载方法）
 	 *
-	 * @param criteria     查询条件对象
-	 * @param orderBy      排序条件
+	 * @param criteria 查询条件对象
+	 * @param orderBy 排序条件
 	 * @param includeAllEmpty 是否包含空值字段
 	 * @return 游标结果集
 	 */
@@ -243,7 +243,7 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	 * 根据Criteria条件查询游标数据（重载方法）
 	 *
 	 * @param criteria 查询条件对象
-	 * @param orderBy  排序条件
+	 * @param orderBy 排序条件
 	 * @return 游标结果集
 	 */
 	default Cursor<E> directSelectEntityCursorByCriteria(Criteria criteria, OrderBy orderBy) {
@@ -263,14 +263,14 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体对象查询Map类型的游标数据
 	 *
-	 * @param entity             实体对象，用于构建WHERE条件
-	 * @param orderBy            排序条件
-	 * @param includeAllEmpty       是否包含空值字段
+	 * @param entity 实体对象，用于构建WHERE条件
+	 * @param orderBy 排序条件
+	 * @param includeAllEmpty 是否包含空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 游标结果集（Map类型）
 	 */
-	@WithLogicDeleted(false)
+	@SupportLogicDeleted(false)
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	@Options(fetchSize = 1000)
@@ -283,10 +283,10 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体对象查询Map类型的游标数据（重载方法）
 	 *
-	 * @param entity             实体对象
-	 * @param orderBy            排序条件
+	 * @param entity 实体对象
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 包含空值的字段集合
-	 * @param excludeFields      排除字段集合
+	 * @param excludeFields 排除字段集合
 	 * @return 游标结果集（Map类型）
 	 */
 	default Cursor<Map<String, Object>> directSelectMapCursor(E entity, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -296,8 +296,8 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体对象查询Map类型的游标数据（重载方法）
 	 *
-	 * @param entity             实体对象
-	 * @param orderBy            排序条件
+	 * @param entity 实体对象
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 包含空值的字段集合
 	 * @return 游标结果集（Map类型）
 	 */
@@ -308,8 +308,8 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体对象查询Map类型的游标数据（重载方法）
 	 *
-	 * @param entity       实体对象
-	 * @param orderBy      排序条件
+	 * @param entity 实体对象
+	 * @param orderBy 排序条件
 	 * @param includeAllEmpty 是否包含空值字段
 	 * @return 游标结果集（Map类型）
 	 */
@@ -320,7 +320,7 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体对象查询Map类型的游标数据（重载方法）
 	 *
-	 * @param entity  实体对象
+	 * @param entity 实体对象
 	 * @param orderBy 排序条件
 	 * @return 游标结果集（Map类型）
 	 */
@@ -341,14 +341,14 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map参数查询Map类型的游标数据
 	 *
-	 * @param entity             Map参数，用于构建WHERE条件
-	 * @param orderBy            排序条件
-	 * @param includeAllEmpty       是否包含空值字段
+	 * @param entity Map参数，用于构建WHERE条件
+	 * @param orderBy 排序条件
+	 * @param includeAllEmpty 是否包含空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 游标结果集（Map类型）
 	 */
-	@WithLogicDeleted(false)
+	@SupportLogicDeleted(false)
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	@Options(fetchSize = 1000)
@@ -361,10 +361,10 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map参数查询Map类型的游标数据（重载方法）
 	 *
-	 * @param entity             Map参数
-	 * @param orderBy            排序条件
+	 * @param entity Map参数
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 包含空值的字段集合
-	 * @param excludeFields      排除字段集合
+	 * @param excludeFields 排除字段集合
 	 * @return 游标结果集（Map类型）
 	 */
 	default Cursor<Map<String, Object>> directSelectMapCursorByMap(Map<String, Object> entity, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -374,8 +374,8 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map参数查询Map类型的游标数据（重载方法）
 	 *
-	 * @param entity             Map参数
-	 * @param orderBy            排序条件
+	 * @param entity Map参数
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 包含空值的字段集合
 	 * @return 游标结果集（Map类型）
 	 */
@@ -386,8 +386,8 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map参数查询Map类型的游标数据（重载方法）
 	 *
-	 * @param entity       Map参数
-	 * @param orderBy      排序条件
+	 * @param entity Map参数
+	 * @param orderBy 排序条件
 	 * @param includeAllEmpty 是否包含空值字段
 	 * @return 游标结果集（Map类型）
 	 */
@@ -408,7 +408,7 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map参数查询Map类型的游标数据（重载方法）
 	 *
-	 * @param entity  Map参数
+	 * @param entity Map参数
 	 * @param orderBy 排序条件
 	 * @return 游标结果集（Map类型）
 	 */
@@ -419,14 +419,14 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Criteria条件查询Map类型的游标数据
 	 *
-	 * @param criteria           查询条件对象
-	 * @param orderBy            排序条件
-	 * @param includeAllEmpty       是否包含空值字段
+	 * @param criteria 查询条件对象
+	 * @param orderBy 排序条件
+	 * @param includeAllEmpty 是否包含空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 游标结果集（Map类型）
 	 */
-	@WithLogicDeleted(false)
+	@SupportLogicDeleted(false)
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectEntityDirect)
 	@Options(fetchSize = 1000)
@@ -439,10 +439,10 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Criteria条件查询Map类型的游标数据（重载方法）
 	 *
-	 * @param criteria           查询条件对象
-	 * @param orderBy            排序条件
+	 * @param criteria 查询条件对象
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 包含空值的字段集合
-	 * @param excludeFields      排除字段集合
+	 * @param excludeFields 排除字段集合
 	 * @return 游标结果集（Map类型）
 	 */
 	default Cursor<Map<String, Object>> directSelectMapCursorByCriteria(Criteria criteria, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -452,8 +452,8 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Criteria条件查询Map类型的游标数据（重载方法）
 	 *
-	 * @param criteria           查询条件对象
-	 * @param orderBy            排序条件
+	 * @param criteria 查询条件对象
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 包含空值的字段集合
 	 * @return 游标结果集（Map类型）
 	 */
@@ -464,8 +464,8 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Criteria条件查询Map类型的游标数据（重载方法）
 	 *
-	 * @param criteria     查询条件对象
-	 * @param orderBy      排序条件
+	 * @param criteria 查询条件对象
+	 * @param orderBy 排序条件
 	 * @param includeAllEmpty 是否包含空值字段
 	 * @return 游标结果集（Map类型）
 	 */
@@ -487,7 +487,7 @@ public interface EntitySelectCursorDirectMapper<E> extends EntityMapper<E> {
 	 * 根据Criteria条件查询Map类型的游标数据（重载方法）
 	 *
 	 * @param criteria 查询条件对象
-	 * @param orderBy  排序条件
+	 * @param orderBy 排序条件
 	 * @return 游标结果集（Map类型）
 	 */
 	default Cursor<Map<String, Object>> directSelectMapCursorByCriteria(Criteria criteria, OrderBy orderBy) {

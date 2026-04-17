@@ -26,10 +26,10 @@ public interface EntityDeleteLogicByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体条件进行逻辑删除操作
 	 *
-	 * @param entity             实体对象，用于构建删除条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity 实体对象，用于构建删除条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 受影响的行数
 	 */
 	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.logicDeleteEntityByAny)
@@ -41,9 +41,9 @@ public interface EntityDeleteLogicByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体条件进行逻辑删除操作
 	 *
-	 * @param entity             实体对象，用于构建删除条件
+	 * @param entity 实体对象，用于构建删除条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 受影响的行数
 	 */
 	default int logicDeleteEntityByAny(E entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -53,7 +53,7 @@ public interface EntityDeleteLogicByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体条件进行逻辑删除操作
 	 *
-	 * @param entity             实体对象，用于构建删除条件
+	 * @param entity 实体对象，用于构建删除条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 受影响的行数
 	 */
@@ -64,7 +64,7 @@ public interface EntityDeleteLogicByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据实体条件进行逻辑删除操作
 	 *
-	 * @param entity          实体对象，用于构建删除条件
+	 * @param entity 实体对象，用于构建删除条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 受影响的行数
 	 */
@@ -86,10 +86,10 @@ public interface EntityDeleteLogicByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map参数进行逻辑删除操作
 	 *
-	 * @param entity             包含删除条件的Map对象
-	 * @param includeAllEmpty    是否包含空值字段
+	 * @param entity 包含删除条件的Map对象
+	 * @param includeAllEmpty 是否包含空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 受影响的行数
 	 */
 	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.logicDeleteEntityByAny)
@@ -101,9 +101,9 @@ public interface EntityDeleteLogicByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map参数进行逻辑删除操作
 	 *
-	 * @param entity             包含删除条件的Map对象
+	 * @param entity 包含删除条件的Map对象
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 受影响的行数
 	 */
 	default int logicDeleteEntityByMap(Map<String, Object> entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -113,7 +113,7 @@ public interface EntityDeleteLogicByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map参数进行逻辑删除操作
 	 *
-	 * @param entity             包含删除条件的Map对象
+	 * @param entity 包含删除条件的Map对象
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 受影响的行数
 	 */
@@ -124,7 +124,7 @@ public interface EntityDeleteLogicByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Map参数进行逻辑删除操作
 	 *
-	 * @param entity          包含删除条件的Map对象
+	 * @param entity 包含删除条件的Map对象
 	 * @param includeAllEmpty 是否包含空值字段
 	 * @return 受影响的行数
 	 */
@@ -145,10 +145,10 @@ public interface EntityDeleteLogicByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据条件对象进行逻辑删除操作
 	 *
-	 * @param criteria           条件对象，用于构建删除条件
-	 * @param includeAllEmpty    是否包含空值字段
+	 * @param criteria 条件对象，用于构建删除条件
+	 * @param includeAllEmpty 是否包含空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 受影响的行数
 	 */
 	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.logicDeleteEntityByAny)
@@ -161,9 +161,9 @@ public interface EntityDeleteLogicByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据条件对象进行逻辑删除操作
 	 *
-	 * @param criteria           条件对象，用于构建删除条件
+	 * @param criteria 条件对象，用于构建删除条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 受影响的行数
 	 */
 	default int logicDeleteEntityByCriteria(Criteria criteria, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -173,7 +173,7 @@ public interface EntityDeleteLogicByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据条件对象进行逻辑删除操作
 	 *
-	 * @param criteria           条件对象，用于构建删除条件
+	 * @param criteria 条件对象，用于构建删除条件
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 受影响的行数
 	 */
@@ -184,7 +184,7 @@ public interface EntityDeleteLogicByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据条件对象进行逻辑删除操作
 	 *
-	 * @param criteria        条件对象，用于构建删除条件
+	 * @param criteria 条件对象，用于构建删除条件
 	 * @param includeAllEmpty 是否包含空值字段
 	 * @return 受影响的行数
 	 */

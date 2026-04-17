@@ -33,9 +33,9 @@ public interface MergeStatementMapper {
 	 * 根据实体类和实体对象执行SQL MERGE操作。
 	 * 使用默认的列谓词策略。
 	 *
-	 * @param <T>         实体类型
+	 * @param <T> 实体类型
 	 * @param entityClass 实体类的Class对象
-	 * @param entity      实体对象实例
+	 * @param entity 实体对象实例
 	 * @return 受影响的行数
 	 */
 	default <T> int mergeBySql(Class<T> entityClass, T entity) {
@@ -47,11 +47,11 @@ public interface MergeStatementMapper {
 	/**
 	 * 根据实体类和实体对象执行SQL MERGE操作，支持自定义各种选项。
 	 *
-	 * @param <T>                  实体类型
-	 * @param entityClass          实体类的Class对象
-	 * @param entity               实体对象实例
-	 * @param includeAllEmpty      是否包含所有空值字段
-	 * @param updateWhenMatched    匹配时是否执行更新操作
+	 * @param <T> 实体类型
+	 * @param entityClass 实体类的Class对象
+	 * @param entity 实体对象实例
+	 * @param includeAllEmpty 是否包含所有空值字段
+	 * @param updateWhenMatched 匹配时是否执行更新操作
 	 * @param insertWhenNotMatched 不匹配时是否执行插入操作
 	 * @return 受影响的行数
 	 */
@@ -64,10 +64,10 @@ public interface MergeStatementMapper {
 	/**
 	 * 根据实体类和实体对象执行SQL MERGE操作，支持指定更新和插入行为。
 	 *
-	 * @param <T>                  实体类型
-	 * @param entityClass          实体类的Class对象
-	 * @param entity               实体对象实例
-	 * @param updateWhenMatched    匹配时是否执行更新操作
+	 * @param <T> 实体类型
+	 * @param entityClass 实体类的Class对象
+	 * @param entity 实体对象实例
+	 * @param updateWhenMatched 匹配时是否执行更新操作
 	 * @param insertWhenNotMatched 不匹配时是否执行插入操作
 	 * @return 受影响的行数
 	 */

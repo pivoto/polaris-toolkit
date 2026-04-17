@@ -145,8 +145,8 @@ public class EnhancedAutoMappers {
 			throw new IllegalArgumentException("SQL参数键值：`" + sqlKey + "` 的对象类型不支持");
 		}
 		SelectStatement<?> st = (SelectStatement<?>) obj;
-		boolean withLogicDeleted = ctx.isWithLogicDeleted(map, bindingKeyModel);
-		if (withLogicDeleted) {
+		boolean supportLogicDeleted = ctx.isSupportLogicDeleted(map, bindingKeyModel);
+		if (supportLogicDeleted) {
 			st.exceptLogicDeleted(true, true, true);
 		}
 		String sql = BindingValues.asSqlWithBindings(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, st);
@@ -207,8 +207,8 @@ public class EnhancedAutoMappers {
 			throw new IllegalArgumentException("SQL参数键值：`" + sqlKey + "` 的对象类型不支持");
 		}
 		SelectStatement<?> st = (SelectStatement<?>) obj;
-		boolean withLogicDeleted = ctx.isWithLogicDeleted(map, bindingKeyModel);
-		if (withLogicDeleted) {
+		boolean supportLogicDeleted = ctx.isSupportLogicDeleted(map, bindingKeyModel);
+		if (supportLogicDeleted) {
 			st.exceptLogicDeleted(true, true, true);
 		}
 		String sql = BindingValues.asSqlWithBindings(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, st::toCountSqlNode);
@@ -270,8 +270,8 @@ public class EnhancedAutoMappers {
 			throw new IllegalArgumentException("SQL参数键值：`" + sqlKey + "` 的对象类型不支持");
 		}
 		SelectStatement<?> st = (SelectStatement<?>) obj;
-		boolean withLogicDeleted = ctx.isWithLogicDeleted(map, bindingKeyModel);
-		if (withLogicDeleted) {
+		boolean supportLogicDeleted = ctx.isSupportLogicDeleted(map, bindingKeyModel);
+		if (supportLogicDeleted) {
 			st.exceptLogicDeleted(true, true, true);
 		}
 		// 是否通过Count(*)查询，否则表示使用游标查询或通过分页插件处理，接收返回值为布尔列表
@@ -361,8 +361,8 @@ public class EnhancedAutoMappers {
 
 	public static String deleteEntityById(Map<String, Object> map, EnhancedProviderContext ctx) {
 		BindingKeyModel bindingKeyModel = ctx.getBindingKeyDefinition().toBindingKeyModel(map);
-		boolean withLogicDeleted = ctx.isWithLogicDeleted(map, bindingKeyModel);
-		String sql = SqlStatements.buildDeleteById(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, ctx.getEntityClassOrThrows(), withLogicDeleted, bindingKeyModel);
+		boolean supportLogicDeleted = ctx.isSupportLogicDeleted(map, bindingKeyModel);
+		String sql = SqlStatements.buildDeleteById(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, ctx.getEntityClassOrThrows(), supportLogicDeleted, bindingKeyModel);
 		if (log.isDebugEnabled()) {
 			log.debug("[SQL-TEXT]{}", sql);
 			log.debug("[SQL-ARGS]{}", map);
@@ -392,8 +392,8 @@ public class EnhancedAutoMappers {
 
 	public static String deleteEntityByAny(Map<String, Object> map, EnhancedProviderContext ctx) {
 		BindingKeyModel bindingKeyModel = ctx.getBindingKeyDefinition().toBindingKeyModel(map);
-		boolean withLogicDeleted = ctx.isWithLogicDeleted(map, bindingKeyModel);
-		String sql = SqlStatements.buildDeleteByAny(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, ctx.getEntityClassOrThrows(), withLogicDeleted, bindingKeyModel);
+		boolean supportLogicDeleted = ctx.isSupportLogicDeleted(map, bindingKeyModel);
+		String sql = SqlStatements.buildDeleteByAny(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, ctx.getEntityClassOrThrows(), supportLogicDeleted, bindingKeyModel);
 		if (log.isDebugEnabled()) {
 			log.debug("[SQL-TEXT]{}", sql);
 			log.debug("[SQL-ARGS]{}", map);
@@ -443,10 +443,10 @@ public class EnhancedAutoMappers {
 
 	public static String existsEntity(Map<String, Object> map, EnhancedProviderContext ctx) {
 			BindingKeyModel bindingKeyModel = ctx.getBindingKeyDefinition().toBindingKeyModel(map);
-			boolean withLogicDeleted = ctx.isWithLogicDeleted(map, bindingKeyModel);
+			boolean supportLogicDeleted = ctx.isSupportLogicDeleted(map, bindingKeyModel);
 			// 是否通过Count(*)查询，否则表示使用游标查询或通过分页插件处理，接收返回值为布尔列表
 			boolean queryByCount = ctx.isExistsByCount(map, bindingKeyModel);
-			String sql = SqlStatements.buildExistsByAny(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, ctx.getEntityClassOrThrows(), queryByCount, withLogicDeleted, bindingKeyModel);
+			String sql = SqlStatements.buildExistsByAny(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, ctx.getEntityClassOrThrows(), queryByCount, supportLogicDeleted, bindingKeyModel);
 			if (log.isDebugEnabled()) {
 				log.debug("[SQL-TEXT]{}", sql);
 				log.debug("[SQL-ARGS]{}", map);
@@ -480,8 +480,8 @@ public class EnhancedAutoMappers {
 
 	public static String existsEntityById(Map<String, Object> map, EnhancedProviderContext ctx) {
 		BindingKeyModel bindingKeyModel = ctx.getBindingKeyDefinition().toBindingKeyModel(map);
-		boolean withLogicDeleted = ctx.isWithLogicDeleted(map, bindingKeyModel);
-		String sql = SqlStatements.buildExistsById(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, ctx.getEntityClassOrThrows(), withLogicDeleted, bindingKeyModel);
+		boolean supportLogicDeleted = ctx.isSupportLogicDeleted(map, bindingKeyModel);
+		String sql = SqlStatements.buildExistsById(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, ctx.getEntityClassOrThrows(), supportLogicDeleted, bindingKeyModel);
 		if (log.isDebugEnabled()) {
 			log.debug("[SQL-TEXT]{}", sql);
 			log.debug("[SQL-ARGS]{}", map);
@@ -511,8 +511,8 @@ public class EnhancedAutoMappers {
 
 	public static String selectEntity(Map<String, Object> map, EnhancedProviderContext ctx) {
 		BindingKeyModel bindingKeyModel = ctx.getBindingKeyDefinition().toBindingKeyModel(map);
-		boolean withLogicDeleted = ctx.isWithLogicDeleted(map, bindingKeyModel);
-		String sql = SqlStatements.buildSelectByAny(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, ctx.getEntityClassOrThrows(), withLogicDeleted, bindingKeyModel);
+		boolean supportLogicDeleted = ctx.isSupportLogicDeleted(map, bindingKeyModel);
+		String sql = SqlStatements.buildSelectByAny(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, ctx.getEntityClassOrThrows(), supportLogicDeleted, bindingKeyModel);
 		if (log.isDebugEnabled()) {
 			log.debug("[SQL-TEXT]{}", sql);
 			log.debug("[SQL-ARGS]{}", map);
@@ -542,8 +542,8 @@ public class EnhancedAutoMappers {
 
 	public static String selectEntityById(Map<String, Object> map, EnhancedProviderContext ctx) {
 		BindingKeyModel bindingKeyModel = ctx.getBindingKeyDefinition().toBindingKeyModel(map);
-		boolean withLogicDeleted = ctx.isWithLogicDeleted(map, bindingKeyModel);
-		String sql = SqlStatements.buildSelectById(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, ctx.getEntityClassOrThrows(), withLogicDeleted, bindingKeyModel);
+		boolean supportLogicDeleted = ctx.isSupportLogicDeleted(map, bindingKeyModel);
+		String sql = SqlStatements.buildSelectById(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, ctx.getEntityClassOrThrows(), supportLogicDeleted, bindingKeyModel);
 		if (log.isDebugEnabled()) {
 			log.debug("[SQL-TEXT]{}", sql);
 			log.debug("[SQL-ARGS]{}", map);
@@ -574,8 +574,8 @@ public class EnhancedAutoMappers {
 
 	public static String countEntity(Map<String, Object> map, EnhancedProviderContext ctx) {
 		BindingKeyModel bindingKeyModel = ctx.getBindingKeyDefinition().toBindingKeyModel(map);
-		boolean withLogicDeleted = ctx.isWithLogicDeleted(map, bindingKeyModel);
-		String sql = SqlStatements.buildCount(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, ctx.getEntityClassOrThrows(), withLogicDeleted, bindingKeyModel);
+		boolean supportLogicDeleted = ctx.isSupportLogicDeleted(map, bindingKeyModel);
+		String sql = SqlStatements.buildCount(MappingPropKeys.PARAMETER_MAPPING_KEYS_FILTER, map, ctx.getEntityClassOrThrows(), supportLogicDeleted, bindingKeyModel);
 		if (log.isDebugEnabled()) {
 			log.debug("[SQL-TEXT]{}", sql);
 			log.debug("[SQL-ARGS]{}", map);

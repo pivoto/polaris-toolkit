@@ -23,7 +23,7 @@ public class EnhancedProviderContext {
 	private final String databaseId;
 	private final Ref<BindingKeyDefinition> bindingKeyDefinition;
 	private final Ref<Class<?>> entityClass;
-	private final Ref<Boolean> withLogicDeleted;
+	private final Ref<Boolean> supportLogicDeleted;
 	private final Ref<Boolean> existsByCount;
 
 
@@ -34,12 +34,12 @@ public class EnhancedProviderContext {
 		if (lazy) {
 			this.bindingKeyDefinition = LazyRef.of(() -> EnhancedAutoMapperHelper.getBindingKeyDefinition(this.mapperMethod));
 			this.entityClass = LazyRef.of(() -> EnhancedAutoMapperHelper.getEntityClassOrNull(this.mapperType, this.mapperMethod, this.databaseId));
-			this.withLogicDeleted = LazyRef.of(() -> EnhancedAutoMapperHelper.withLogicDeleted(this.mapperType, this.mapperMethod));
+			this.supportLogicDeleted = LazyRef.of(() -> EnhancedAutoMapperHelper.supportLogicDeleted(this.mapperType, this.mapperMethod));
 			this.existsByCount = LazyRef.of(() -> EnhancedAutoMapperHelper.existsByCount(this.mapperType, this.mapperMethod));
 		} else {
 			this.bindingKeyDefinition = Ref.of(EnhancedAutoMapperHelper.getBindingKeyDefinition(this.mapperMethod));
 			this.entityClass = Ref.of(EnhancedAutoMapperHelper.getEntityClassOrNull(this.mapperType, this.mapperMethod, this.databaseId));
-			this.withLogicDeleted = Ref.of(EnhancedAutoMapperHelper.withLogicDeleted(this.mapperType, this.mapperMethod));
+			this.supportLogicDeleted = Ref.of(EnhancedAutoMapperHelper.supportLogicDeleted(this.mapperType, this.mapperMethod));
 			this.existsByCount = Ref.of(EnhancedAutoMapperHelper.existsByCount(this.mapperType, this.mapperMethod));
 		}
 	}
@@ -98,19 +98,19 @@ public class EnhancedProviderContext {
 	}
 
 
-	public boolean isWithLogicDeleted() {
-		Boolean defaultWithLogicDeleted = withLogicDeleted.get();
-		return Boolean.TRUE.equals(defaultWithLogicDeleted);
+	public boolean isSupportLogicDeleted() {
+		Boolean defaultSupportLogicDeleted = supportLogicDeleted.get();
+		return Boolean.TRUE.equals(defaultSupportLogicDeleted);
 	}
 
-	public boolean isWithLogicDeleted(Map<String, Object> bindings) {
-		return isWithLogicDeleted(bindings, getBindingKeyDefinition().toBindingKeyModel(bindings));
+	public boolean isSupportLogicDeleted(Map<String, Object> bindings) {
+		return isSupportLogicDeleted(bindings, getBindingKeyDefinition().toBindingKeyModel(bindings));
 	}
 
-	public boolean isWithLogicDeleted(Map<String, Object> bindings, BindingKeyModel bindingKeyModel) {
+	public boolean isSupportLogicDeleted(Map<String, Object> bindings, BindingKeyModel bindingKeyModel) {
 		try {
 			// fix for MapperMethod.ParamMap.get()
-			String key = bindingKeyModel.withLogicDeleted();
+			String key = bindingKeyModel.supportLogicDeleted();
 			if (bindings.containsKey(key)) {
 				Object sld = bindings.get(key);
 				if (sld != null) {
@@ -121,8 +121,8 @@ public class EnhancedProviderContext {
 			}
 		} catch (Exception ignored) {
 		}
-		Boolean defaultWithLogicDeleted = withLogicDeleted.get();
-		return Boolean.TRUE.equals(defaultWithLogicDeleted);
+		Boolean defaultSupportLogicDeleted = supportLogicDeleted.get();
+		return Boolean.TRUE.equals(defaultSupportLogicDeleted);
 	}
 
 

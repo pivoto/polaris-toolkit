@@ -7,7 +7,7 @@ import io.polaris.core.jdbc.sql.query.Criteria;
 import io.polaris.core.jdbc.sql.query.OrderBy;
 import io.polaris.core.jdbc.sql.statement.SelectStatement;
 import io.polaris.mybatis.annotation.DynamicResultMapping;
-import io.polaris.mybatis.annotation.WithLogicDeleted;
+import io.polaris.mybatis.annotation.SupportLogicDeleted;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
 import org.apache.ibatis.annotations.Options;
@@ -30,7 +30,7 @@ public interface SelectStatementCursorDefaultMapper<R> {
 	 * @param statement SQL查询语句对象
 	 * @return 实体对象的游标结果
 	 */
-	@WithLogicDeleted(true)
+	@SupportLogicDeleted(true)
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
 	@Options(fetchSize = 1000)
@@ -42,7 +42,7 @@ public interface SelectStatementCursorDefaultMapper<R> {
 	 * @param statement SQL查询语句对象
 	 * @return Map结构的游标结果，键为列名，值为对应的数据
 	 */
-	@WithLogicDeleted(true)
+	@SupportLogicDeleted(true)
 	@DynamicResultMapping
 	@SelectProvider(type = MapperProviders.class, method = MapperProviderKeys.selectBySql)
 	@Options(fetchSize = 1000)
@@ -52,8 +52,8 @@ public interface SelectStatementCursorDefaultMapper<R> {
 	 * 根据条件和排序规则查询实体对象的游标结果。
 	 *
 	 * @param statement SQL查询语句对象
-	 * @param criteria  查询条件对象
-	 * @param orderBy   排序规则对象
+	 * @param criteria 查询条件对象
+	 * @param orderBy 排序规则对象
 	 * @return 实体对象的游标结果
 	 */
 	default Cursor<R> selectEntityCursorBySql(SelectStatement<?> statement, Criteria criteria, OrderBy orderBy) {
@@ -70,8 +70,8 @@ public interface SelectStatementCursorDefaultMapper<R> {
 	 * 根据条件和排序规则查询Map结构的游标结果。
 	 *
 	 * @param statement SQL查询语句对象
-	 * @param criteria  查询条件对象
-	 * @param orderBy   排序规则对象
+	 * @param criteria 查询条件对象
+	 * @param orderBy 排序规则对象
 	 * @return Map结构的游标结果，键为列名，值为对应的数据
 	 */
 	default Cursor<Map<String, Object>> selectMapCursorBySql(SelectStatement<?> statement, Criteria criteria, OrderBy orderBy) {

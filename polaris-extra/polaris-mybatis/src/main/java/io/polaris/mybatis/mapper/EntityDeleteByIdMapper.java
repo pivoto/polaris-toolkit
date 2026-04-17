@@ -1,7 +1,7 @@
 package io.polaris.mybatis.mapper;
 
 import io.polaris.core.jdbc.sql.consts.BindingKeys;
-import io.polaris.mybatis.annotation.WithLogicDeleted;
+import io.polaris.mybatis.annotation.SupportLogicDeleted;
 import io.polaris.mybatis.consts.MapperProviderKeys;
 import io.polaris.mybatis.provider.MapperProviders;
 import org.apache.ibatis.annotations.DeleteProvider;
@@ -19,7 +19,7 @@ public interface EntityDeleteByIdMapper<E> extends EntityMapper<E> {
 	 * @param entity 实体对象，包含要删除记录的ID信息
 	 * @return 受影响的行数
 	 */
-	@WithLogicDeleted(true)
+	@SupportLogicDeleted(true)
 	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.deleteEntityById)
 	int deleteEntityById(@Param(BindingKeys.ENTITY) E entity);
 
@@ -29,7 +29,7 @@ public interface EntityDeleteByIdMapper<E> extends EntityMapper<E> {
 	 * @param entity 实体对象，包含要删除记录的ID信息
 	 * @return 受影响的行数
 	 */
-	@WithLogicDeleted(false)
+	@SupportLogicDeleted(false)
 	@DeleteProvider(type = MapperProviders.class, method = MapperProviderKeys.directDeleteEntityById)
 	int directDeleteEntityById(@Param(BindingKeys.ENTITY) E entity);
 

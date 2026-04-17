@@ -40,7 +40,7 @@ public class BindingKeyDefinition {
 	/** where条件中需要排除的列列集合或数组 */
 	private String[] whereExcludeColumns;
 	/** 是否支持逻辑删除处理的标志 */
-	private String[] withLogicDeleted;
+	private String[] supportLogicDeleted;
 	/** 是否使用Count语句查询存在性 */
 	private String[] existsByCount;
 
@@ -50,7 +50,7 @@ public class BindingKeyDefinition {
 			|| ObjectArrays.isNotEmpty(includeColumns) || ObjectArrays.isNotEmpty(excludeColumns)
 			|| ObjectArrays.isNotEmpty(sql) || ObjectArrays.isNotEmpty(whereIncludeEmptyColumns)
 			|| ObjectArrays.isNotEmpty(whereIncludeAllEmpty) || ObjectArrays.isNotEmpty(whereIncludeColumns)
-			|| ObjectArrays.isNotEmpty(whereExcludeColumns) || ObjectArrays.isNotEmpty(withLogicDeleted)
+			|| ObjectArrays.isNotEmpty(whereExcludeColumns) || ObjectArrays.isNotEmpty(supportLogicDeleted)
 			|| ObjectArrays.isNotEmpty(existsByCount);
 	}
 
@@ -81,7 +81,7 @@ public class BindingKeyDefinition {
 		resolveDefinition(parameterObject, whereIncludeAllEmpty, modelRef, BindingKeyModel::whereIncludeAllEmpty);
 		resolveDefinition(parameterObject, whereIncludeColumns, modelRef, BindingKeyModel::whereIncludeColumns);
 		resolveDefinition(parameterObject, whereExcludeColumns, modelRef, BindingKeyModel::whereExcludeColumns);
-		resolveDefinition(parameterObject, withLogicDeleted, modelRef, BindingKeyModel::withLogicDeleted);
+		resolveDefinition(parameterObject, supportLogicDeleted, modelRef, BindingKeyModel::supportLogicDeleted);
 		resolveDefinition(parameterObject, existsByCount, modelRef, BindingKeyModel::existsByCount);
 		return modelRef[0] == null ? BindingKeyModel.DEFAULT : modelRef[0].freeze();
 	}

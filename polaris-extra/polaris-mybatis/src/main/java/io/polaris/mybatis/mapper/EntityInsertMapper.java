@@ -24,10 +24,10 @@ public interface EntityInsertMapper<E> extends EntityMapper<E> {
 	/**
 	 * 插入实体对象到数据库
 	 *
-	 * @param entity             实体对象，包含要插入的数据
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity 实体对象，包含要插入的数据
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 受影响的行数
 	 */
 	@DynamicUseGeneratedKeys(value = BindingKeys.ENTITY)
@@ -41,9 +41,9 @@ public interface EntityInsertMapper<E> extends EntityMapper<E> {
 	/**
 	 * 插入实体对象到数据库
 	 *
-	 * @param entity             实体对象，包含要插入的数据
+	 * @param entity 实体对象，包含要插入的数据
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 受影响的行数
 	 */
 	default int insertEntity(E entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -53,7 +53,7 @@ public interface EntityInsertMapper<E> extends EntityMapper<E> {
 	/**
 	 * 插入实体对象到数据库
 	 *
-	 * @param entity             实体对象，包含要插入的数据
+	 * @param entity 实体对象，包含要插入的数据
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 受影响的行数
 	 */
@@ -64,7 +64,7 @@ public interface EntityInsertMapper<E> extends EntityMapper<E> {
 	/**
 	 * 插入实体对象到数据库
 	 *
-	 * @param entity          实体对象，包含要插入的数据
+	 * @param entity 实体对象，包含要插入的数据
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 受影响的行数
 	 */
@@ -86,10 +86,10 @@ public interface EntityInsertMapper<E> extends EntityMapper<E> {
 	/**
 	 * 通过Map参数插入数据到数据库
 	 *
-	 * @param entity             包含插入数据的Map对象
-	 * @param includeAllEmpty    是否包含空值字段
+	 * @param entity 包含插入数据的Map对象
+	 * @param includeAllEmpty 是否包含空值字段
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 受影响的行数
 	 */
 	@DynamicUseGeneratedKeys(value = BindingKeys.ENTITY)
@@ -103,9 +103,9 @@ public interface EntityInsertMapper<E> extends EntityMapper<E> {
 	/**
 	 * 通过Map参数插入数据到数据库
 	 *
-	 * @param entity             包含插入数据的Map对象
+	 * @param entity 包含插入数据的Map对象
 	 * @param includeEmptyFields 需要包含的空值字段集合
-	 * @param excludeFields      需要排除的字段集合
+	 * @param excludeFields 需要排除的字段集合
 	 * @return 受影响的行数
 	 */
 	default int insertEntityByMap(Map<String, Object> entity, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -115,7 +115,7 @@ public interface EntityInsertMapper<E> extends EntityMapper<E> {
 	/**
 	 * 通过Map参数插入数据到数据库
 	 *
-	 * @param entity             包含插入数据的Map对象
+	 * @param entity 包含插入数据的Map对象
 	 * @param includeEmptyFields 需要包含的空值字段集合
 	 * @return 受影响的行数
 	 */
@@ -126,7 +126,7 @@ public interface EntityInsertMapper<E> extends EntityMapper<E> {
 	/**
 	 * 通过Map参数插入数据到数据库
 	 *
-	 * @param entity          包含插入数据的Map对象
+	 * @param entity 包含插入数据的Map对象
 	 * @param includeAllEmpty 是否包含空值字段
 	 * @return 受影响的行数
 	 */

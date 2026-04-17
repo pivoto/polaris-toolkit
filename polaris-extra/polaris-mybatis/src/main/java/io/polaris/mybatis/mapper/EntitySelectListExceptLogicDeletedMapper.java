@@ -39,11 +39,11 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据实体对象查询列表，排除逻辑删除记录
 	 *
-	 * @param entity             实体对象作为查询条件
-	 * @param orderBy            排序条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity 实体对象作为查询条件
+	 * @param orderBy 排序条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 指定包含的空值字段集合
-	 * @param excludeFields      指定排除的字段集合
+	 * @param excludeFields 指定排除的字段集合
 	 * @return 实体对象列表
 	 */
 	@DynamicResultMapping
@@ -57,10 +57,10 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据实体对象查询列表（指定包含和排除字段）
 	 *
-	 * @param entity             实体对象作为查询条件
-	 * @param orderBy            排序条件
+	 * @param entity 实体对象作为查询条件
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 指定包含的空值字段集合
-	 * @param excludeFields      指定排除的字段集合
+	 * @param excludeFields 指定排除的字段集合
 	 * @return 实体对象列表
 	 */
 	default List<E> selectEntityListExceptLogicDeleted(E entity, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -70,8 +70,8 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据实体对象查询列表（指定包含字段）
 	 *
-	 * @param entity             实体对象作为查询条件
-	 * @param orderBy            排序条件
+	 * @param entity 实体对象作为查询条件
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 指定包含的空值字段集合
 	 * @return 实体对象列表
 	 */
@@ -82,8 +82,8 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据实体对象查询列表（指定是否包含所有空值）
 	 *
-	 * @param entity          实体对象作为查询条件
-	 * @param orderBy         排序条件
+	 * @param entity 实体对象作为查询条件
+	 * @param orderBy 排序条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 实体对象列表
 	 */
@@ -94,7 +94,7 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据实体对象查询列表（仅排序）
 	 *
-	 * @param entity  实体对象作为查询条件
+	 * @param entity 实体对象作为查询条件
 	 * @param orderBy 排序条件
 	 * @return 实体对象列表
 	 */
@@ -115,11 +115,11 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据Map参数查询实体列表，排除逻辑删除记录
 	 *
-	 * @param entity             Map参数作为查询条件
-	 * @param orderBy            排序条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity Map参数作为查询条件
+	 * @param orderBy 排序条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 指定包含的空值字段集合
-	 * @param excludeFields      指定排除的字段集合
+	 * @param excludeFields 指定排除的字段集合
 	 * @return 实体对象列表
 	 */
 	@DynamicResultMapping
@@ -133,10 +133,10 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据Map参数查询列表（指定包含和排除字段）
 	 *
-	 * @param entity             Map参数作为查询条件
-	 * @param orderBy            排序条件
+	 * @param entity Map参数作为查询条件
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 指定包含的空值字段集合
-	 * @param excludeFields      指定排除的字段集合
+	 * @param excludeFields 指定排除的字段集合
 	 * @return 实体对象列表
 	 */
 	default List<E> selectEntityListExceptLogicDeletedByMap(Map<String, Object> entity, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -146,8 +146,8 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据Map参数查询列表（指定包含字段）
 	 *
-	 * @param entity             Map参数作为查询条件
-	 * @param orderBy            排序条件
+	 * @param entity Map参数作为查询条件
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 指定包含的空值字段集合
 	 * @return 实体对象列表
 	 */
@@ -158,8 +158,8 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据Map参数查询列表（指定是否包含所有空值）
 	 *
-	 * @param entity          Map参数作为查询条件
-	 * @param orderBy         排序条件
+	 * @param entity Map参数作为查询条件
+	 * @param orderBy 排序条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 实体对象列表
 	 */
@@ -170,7 +170,7 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据Map参数查询列表（仅排序）
 	 *
-	 * @param entity  Map参数作为查询条件
+	 * @param entity Map参数作为查询条件
 	 * @param orderBy 排序条件
 	 * @return 实体对象列表
 	 */
@@ -191,11 +191,11 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据Criteria条件查询实体列表，排除逻辑删除记录
 	 *
-	 * @param criteria           Criteria条件对象
-	 * @param orderBy            排序条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param criteria Criteria条件对象
+	 * @param orderBy 排序条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 指定包含的空值字段集合
-	 * @param excludeFields      指定排除的字段集合
+	 * @param excludeFields 指定排除的字段集合
 	 * @return 实体对象列表
 	 */
 	@DynamicResultMapping
@@ -209,10 +209,10 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据Criteria条件查询列表（指定包含和排除字段）
 	 *
-	 * @param criteria           Criteria条件对象
-	 * @param orderBy            排序条件
+	 * @param criteria Criteria条件对象
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 指定包含的空值字段集合
-	 * @param excludeFields      指定排除的字段集合
+	 * @param excludeFields 指定排除的字段集合
 	 * @return 实体对象列表
 	 */
 	default List<E> selectEntityListExceptLogicDeletedByCriteria(Criteria criteria, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -222,8 +222,8 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据Criteria条件查询列表（指定包含字段）
 	 *
-	 * @param criteria           Criteria条件对象
-	 * @param orderBy            排序条件
+	 * @param criteria Criteria条件对象
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 指定包含的空值字段集合
 	 * @return 实体对象列表
 	 */
@@ -234,8 +234,8 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据Criteria条件查询列表（指定是否包含所有空值）
 	 *
-	 * @param criteria        Criteria条件对象
-	 * @param orderBy         排序条件
+	 * @param criteria Criteria条件对象
+	 * @param orderBy 排序条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return 实体对象列表
 	 */
@@ -247,7 +247,7 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	 * 根据Criteria条件查询列表（仅排序）
 	 *
 	 * @param criteria Criteria条件对象
-	 * @param orderBy  排序条件
+	 * @param orderBy 排序条件
 	 * @return 实体对象列表
 	 */
 	default List<E> selectEntityListExceptLogicDeletedByCriteria(Criteria criteria, OrderBy orderBy) {
@@ -267,11 +267,11 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据实体对象查询Map列表，排除逻辑删除记录
 	 *
-	 * @param entity             实体对象作为查询条件
-	 * @param orderBy            排序条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity 实体对象作为查询条件
+	 * @param orderBy 排序条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 指定包含的空值字段集合
-	 * @param excludeFields      指定排除的字段集合
+	 * @param excludeFields 指定排除的字段集合
 	 * @return Map对象列表
 	 */
 	@DynamicResultMapping
@@ -285,10 +285,10 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据实体对象查询Map列表（指定包含和排除字段）
 	 *
-	 * @param entity             实体对象作为查询条件
-	 * @param orderBy            排序条件
+	 * @param entity 实体对象作为查询条件
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 指定包含的空值字段集合
-	 * @param excludeFields      指定排除的字段集合
+	 * @param excludeFields 指定排除的字段集合
 	 * @return Map对象列表
 	 */
 	default List<Map<String, Object>> selectMapListExceptLogicDeleted(E entity, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -298,8 +298,8 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据实体对象查询Map列表（指定包含字段）
 	 *
-	 * @param entity             实体对象作为查询条件
-	 * @param orderBy            排序条件
+	 * @param entity 实体对象作为查询条件
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 指定包含的空值字段集合
 	 * @return Map对象列表
 	 */
@@ -310,8 +310,8 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据实体对象查询Map列表（指定是否包含所有空值）
 	 *
-	 * @param entity          实体对象作为查询条件
-	 * @param orderBy         排序条件
+	 * @param entity 实体对象作为查询条件
+	 * @param orderBy 排序条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return Map对象列表
 	 */
@@ -322,7 +322,7 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据实体对象查询Map列表（仅排序）
 	 *
-	 * @param entity  实体对象作为查询条件
+	 * @param entity 实体对象作为查询条件
 	 * @param orderBy 排序条件
 	 * @return Map对象列表
 	 */
@@ -343,11 +343,11 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据Map参数查询Map列表，排除逻辑删除记录
 	 *
-	 * @param entity             Map参数作为查询条件
-	 * @param orderBy            排序条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param entity Map参数作为查询条件
+	 * @param orderBy 排序条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 指定包含的空值字段集合
-	 * @param excludeFields      指定排除的字段集合
+	 * @param excludeFields 指定排除的字段集合
 	 * @return Map对象列表
 	 */
 	@DynamicResultMapping
@@ -361,10 +361,10 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据Map参数查询Map列表（指定包含和排除字段）
 	 *
-	 * @param entity             Map参数作为查询条件
-	 * @param orderBy            排序条件
+	 * @param entity Map参数作为查询条件
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 指定包含的空值字段集合
-	 * @param excludeFields      指定排除的字段集合
+	 * @param excludeFields 指定排除的字段集合
 	 * @return Map对象列表
 	 */
 	default List<Map<String, Object>> selectMapListExceptLogicDeletedByMap(Map<String, Object> entity, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -374,8 +374,8 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据Map参数查询Map列表（指定包含字段）
 	 *
-	 * @param entity             Map参数作为查询条件
-	 * @param orderBy            排序条件
+	 * @param entity Map参数作为查询条件
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 指定包含的空值字段集合
 	 * @return Map对象列表
 	 */
@@ -386,8 +386,8 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据Map参数查询Map列表（指定是否包含所有空值）
 	 *
-	 * @param entity          Map参数作为查询条件
-	 * @param orderBy         排序条件
+	 * @param entity Map参数作为查询条件
+	 * @param orderBy 排序条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return Map对象列表
 	 */
@@ -408,7 +408,7 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据Map参数查询Map列表（仅排序）
 	 *
-	 * @param entity  Map参数作为查询条件
+	 * @param entity Map参数作为查询条件
 	 * @param orderBy 排序条件
 	 * @return Map对象列表
 	 */
@@ -419,11 +419,11 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据Criteria条件查询Map列表，排除逻辑删除记录
 	 *
-	 * @param criteria           Criteria条件对象
-	 * @param orderBy            排序条件
-	 * @param includeAllEmpty    是否包含所有空值字段
+	 * @param criteria Criteria条件对象
+	 * @param orderBy 排序条件
+	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @param includeEmptyFields 指定包含的空值字段集合
-	 * @param excludeFields      指定排除的字段集合
+	 * @param excludeFields 指定排除的字段集合
 	 * @return Map对象列表
 	 */
 	@DynamicResultMapping
@@ -437,10 +437,10 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据Criteria条件查询Map列表（指定包含和排除字段）
 	 *
-	 * @param criteria           Criteria条件对象
-	 * @param orderBy            排序条件
+	 * @param criteria Criteria条件对象
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 指定包含的空值字段集合
-	 * @param excludeFields      指定排除的字段集合
+	 * @param excludeFields 指定排除的字段集合
 	 * @return Map对象列表
 	 */
 	default List<Map<String, Object>> selectMapListExceptLogicDeletedByCriteria(Criteria criteria, OrderBy orderBy, Set<String> includeEmptyFields, Set<String> excludeFields) {
@@ -450,8 +450,8 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据Criteria条件查询Map列表（指定包含字段）
 	 *
-	 * @param criteria           Criteria条件对象
-	 * @param orderBy            排序条件
+	 * @param criteria Criteria条件对象
+	 * @param orderBy 排序条件
 	 * @param includeEmptyFields 指定包含的空值字段集合
 	 * @return Map对象列表
 	 */
@@ -462,8 +462,8 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	/**
 	 * 根据Criteria条件查询Map列表（指定是否包含所有空值）
 	 *
-	 * @param criteria        Criteria条件对象
-	 * @param orderBy         排序条件
+	 * @param criteria Criteria条件对象
+	 * @param orderBy 排序条件
 	 * @param includeAllEmpty 是否包含所有空值字段
 	 * @return Map对象列表
 	 */
@@ -485,7 +485,7 @@ public interface EntitySelectListExceptLogicDeletedMapper<E> extends EntityMappe
 	 * 根据Criteria条件查询Map列表（仅排序）
 	 *
 	 * @param criteria Criteria条件对象
-	 * @param orderBy  排序条件
+	 * @param orderBy 排序条件
 	 * @return Map对象列表
 	 */
 	default List<Map<String, Object>> selectMapListExceptLogicDeletedByCriteria(Criteria criteria, OrderBy orderBy) {

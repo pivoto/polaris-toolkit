@@ -28,7 +28,7 @@ import io.polaris.mybatis.annotation.DynamicResultMapping;
 import io.polaris.mybatis.annotation.DynamicUseGeneratedKeys;
 import io.polaris.mybatis.annotation.MapperEntity;
 import io.polaris.mybatis.annotation.ExistsByCount;
-import io.polaris.mybatis.annotation.WithLogicDeleted;
+import io.polaris.mybatis.annotation.SupportLogicDeleted;
 import io.polaris.mybatis.consts.MappingPropKeys;
 import io.polaris.mybatis.mapper.EntityMapper;
 import lombok.EqualsAndHashCode;
@@ -46,7 +46,7 @@ import org.apache.ibatis.type.TypeHandler;
 public class EnhancedAutoMapperHelper {
 	private static final Map<MapperKey, Ref<Class<?>>> ENTITY_CLASS_MAP = new ConcurrentHashMap<>();
 	private static final Map<Method, BindingKeyDefinition> METHOD_BINDING_KEY_MAP = new ConcurrentHashMap<>();
-	private static final Map<Tuple2<Method, Class<?>>, Boolean> LOGIC_DELETED_MAP = new ConcurrentHashMap<>();
+	private static final Map<Tuple2<Method, Class<?>>, Boolean> SUPPORT_LOGIC_DELETED_MAP = new ConcurrentHashMap<>();
 	private static final Map<Tuple2<Method, Class<?>>, Boolean> EXISTS_BY_COUNT_MAP = new ConcurrentHashMap<>();
 
 
@@ -338,10 +338,10 @@ public class EnhancedAutoMapperHelper {
 	// region logic deleted
 
 
-	public static boolean withLogicDeleted(Map<String, Object> bindings, ProviderContext context, BindingKeyModel bindingKeyModel) {
+	public static boolean supportLogicDeleted(Map<String, Object> bindings, ProviderContext context, BindingKeyModel bindingKeyModel) {
 		try {
 			// fix for MapperMethod.ParamMap.get()
-			String key = bindingKeyModel.withLogicDeleted();
+			String key = bindingKeyModel.supportLogicDeleted();
 			if (bindings.containsKey(key)) {
 				Object sld = bindings.get(key);
 				if (sld != null) {
@@ -352,30 +352,30 @@ public class EnhancedAutoMapperHelper {
 			}
 		} catch (Exception ignored) {
 		}
-		return withLogicDeleted(context.getMapperType(), context.getMapperMethod());
+		return supportLogicDeleted(context.getMapperType(), context.getMapperMethod());
 	}
 
-	public static boolean withLogicDeleted(Class<?> mapperType, Method mapperMethod) {
-		return LOGIC_DELETED_MAP.computeIfAbsent(Tuple2.of(mapperMethod, mapperType),
-			k -> innerGetWithLogicDeleted(mapperType, mapperMethod));
+	public static boolean supportLogicDeleted(Class<?> mapperType, Method mapperMethod) {
+		return SUPPORT_LOGIC_DELETED_MAP.computeIfAbsent(Tuple2.of(mapperMethod, mapperType),
+			k -> innerGetSupportLogicDeleted(mapperType, mapperMethod));
 	}
 
-	private static boolean innerGetWithLogicDeleted(Class<?> mapperType, Method mapperMethod) {
+	private static boolean innerGetSupportLogicDeleted(Class<?> mapperType, Method mapperMethod) {
 		// 从方法上获取
-		WithLogicDeleted declared = mapperMethod.getAnnotation(WithLogicDeleted.class);
+		SupportLogicDeleted declared = mapperMethod.getAnnotation(SupportLogicDeleted.class);
 		Class<?> entityClass = null;
 		if (declared != null) {
 			return declared.value();
 		}
 		// 从Mapper接口类上获取
-		declared = mapperType.getAnnotation(WithLogicDeleted.class);
+		declared = mapperType.getAnnotation(SupportLogicDeleted.class);
 		if (declared != null) {
 			return declared.value();
 		}
 		// 从方法所在接口类上获取
 		Class<?> declaringClass = mapperMethod.getDeclaringClass();
 		if (declaringClass != mapperType) {
-			declared = declaringClass.getAnnotation(WithLogicDeleted.class);
+			declared = declaringClass.getAnnotation(SupportLogicDeleted.class);
 			if (declared != null) {
 				return declared.value();
 			}

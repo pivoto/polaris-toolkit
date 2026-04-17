@@ -56,7 +56,7 @@ public @interface MapperParam {
 	String whereExcludeColumns() default BindingKeys.WHERE_EXCLUDE_COLUMNS;
 
 	/** 是否支持逻辑删除处理的标志 */
-	String withLogicDeleted() default BindingKeys.WITH_LOGIC_DELETED;
+	String supportLogicDeleted() default BindingKeys.SUPPORT_LOGIC_DELETED;
 
 	/** 是否使用Count语句查询存在性 */
 	String existsByCount() default BindingKeys.EXISTS_BY_COUNT;
@@ -138,7 +138,8 @@ public @interface MapperParam {
 	@Documented
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.PARAMETER)
-	@interface WithLogicDeleted {}
+	@interface SupportLogicDeleted {}
+
 	/** 是否使用Count语句查询存在性 */
 	@Documented
 	@Retention(RetentionPolicy.RUNTIME)

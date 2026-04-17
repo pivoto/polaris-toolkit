@@ -22,14 +22,14 @@ public interface EntityUpdateByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据任意实体条件更新实体。
 	 *
-	 * @param entity                     要更新的实体对象
-	 * @param updateIncludeAllEmpty      是否包含所有空值字段进行更新
-	 * @param updateIncludeEmptyFields   包含空值的字段集合
-	 * @param updateExcludeFields        排除更新的字段集合
-	 * @param where                      作为更新条件的实体对象
-	 * @param whereIncludeAllEmpty       是否包含所有空值字段作为条件
+	 * @param entity 要更新的实体对象
+	 * @param updateIncludeAllEmpty 是否包含所有空值字段进行更新
+	 * @param updateIncludeEmptyFields 包含空值的字段集合
+	 * @param updateExcludeFields 排除更新的字段集合
+	 * @param where 作为更新条件的实体对象
+	 * @param whereIncludeAllEmpty 是否包含所有空值字段作为条件
 	 * @param whereIncludeAllEmptyFields 包含空值的条件字段集合
-	 * @param whereExcludeFields         排除作为条件的字段集合
+	 * @param whereExcludeFields 排除作为条件的字段集合
 	 * @return 更新记录数
 	 */
 	@UpdateProvider(type = MapperProviders.class, method = MapperProviderKeys.updateEntityByAny)
@@ -45,12 +45,12 @@ public interface EntityUpdateByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据指定字段更新实体，默认不包含空值字段。
 	 *
-	 * @param entity                     要更新的实体对象
-	 * @param updateIncludeEmptyFields   包含空值的更新字段集合
-	 * @param updateExcludeFields        排除更新的字段集合
-	 * @param where                      作为更新条件的实体对象
+	 * @param entity 要更新的实体对象
+	 * @param updateIncludeEmptyFields 包含空值的更新字段集合
+	 * @param updateExcludeFields 排除更新的字段集合
+	 * @param where 作为更新条件的实体对象
 	 * @param whereIncludeAllEmptyFields 包含空值的条件字段集合
-	 * @param whereExcludeFields         排除作为条件的字段集合
+	 * @param whereExcludeFields 排除作为条件的字段集合
 	 * @return 更新记录数
 	 */
 	default int updateEntityByAny(
@@ -62,9 +62,9 @@ public interface EntityUpdateByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据指定字段更新实体，默认不包含空值字段且无排除字段。
 	 *
-	 * @param entity                     要更新的实体对象
-	 * @param updateIncludeEmptyFields   包含空值的更新字段集合
-	 * @param where                      作为更新条件的实体对象
+	 * @param entity 要更新的实体对象
+	 * @param updateIncludeEmptyFields 包含空值的更新字段集合
+	 * @param where 作为更新条件的实体对象
 	 * @param whereIncludeAllEmptyFields 包含空值的条件字段集合
 	 * @return 更新记录数
 	 */
@@ -77,10 +77,10 @@ public interface EntityUpdateByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 更新实体，可选择是否包含空值字段。
 	 *
-	 * @param entity                要更新的实体对象
+	 * @param entity 要更新的实体对象
 	 * @param updateIncludeAllEmpty 是否包含所有空值字段进行更新
-	 * @param where                 作为更新条件的实体对象
-	 * @param whereIncludeAllEmpty  是否包含所有空值字段作为条件
+	 * @param where 作为更新条件的实体对象
+	 * @param whereIncludeAllEmpty 是否包含所有空值字段作为条件
 	 * @return 更新记录数
 	 */
 	default int updateEntityByAny(E entity, boolean updateIncludeAllEmpty, E where, boolean whereIncludeAllEmpty) {
@@ -91,7 +91,7 @@ public interface EntityUpdateByAnyMapper<E> extends EntityMapper<E> {
 	 * 更新实体，默认不包含空值字段。
 	 *
 	 * @param entity 要更新的实体对象
-	 * @param where  作为更新条件的实体对象
+	 * @param where 作为更新条件的实体对象
 	 * @return 更新记录数
 	 */
 	default int updateEntityByAny(E entity, E where) {
@@ -101,14 +101,14 @@ public interface EntityUpdateByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据任意Map条件更新实体。
 	 *
-	 * @param entity                     要更新的实体对象
-	 * @param updateIncludeAllEmpty      是否包含所有空值字段进行更新
-	 * @param updateIncludeEmptyFields   包含空值的字段集合
-	 * @param updateExcludeFields        排除更新的字段集合
-	 * @param where                      作为更新条件的Map对象
-	 * @param whereIncludeAllEmpty       是否包含所有空值字段作为条件
+	 * @param entity 要更新的实体对象
+	 * @param updateIncludeAllEmpty 是否包含所有空值字段进行更新
+	 * @param updateIncludeEmptyFields 包含空值的字段集合
+	 * @param updateExcludeFields 排除更新的字段集合
+	 * @param where 作为更新条件的Map对象
+	 * @param whereIncludeAllEmpty 是否包含所有空值字段作为条件
 	 * @param whereIncludeAllEmptyFields 包含空值的条件字段集合
-	 * @param whereExcludeFields         排除作为条件的字段集合
+	 * @param whereExcludeFields 排除作为条件的字段集合
 	 * @return 更新记录数
 	 */
 	@UpdateProvider(type = MapperProviders.class, method = MapperProviderKeys.updateEntityByAny)
@@ -124,12 +124,12 @@ public interface EntityUpdateByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据指定字段更新实体，默认不包含空值字段。
 	 *
-	 * @param entity                     要更新的实体对象
-	 * @param updateIncludeEmptyFields   包含空值的更新字段集合
-	 * @param updateExcludeFields        排除更新的字段集合
-	 * @param where                      作为更新条件的Criteria对象
+	 * @param entity 要更新的实体对象
+	 * @param updateIncludeEmptyFields 包含空值的更新字段集合
+	 * @param updateExcludeFields 排除更新的字段集合
+	 * @param where 作为更新条件的Criteria对象
 	 * @param whereIncludeAllEmptyFields 包含空值的条件字段集合
-	 * @param whereExcludeFields         排除作为条件的字段集合
+	 * @param whereExcludeFields 排除作为条件的字段集合
 	 * @return 更新记录数
 	 */
 	default int updateEntityByAnyOfMap(
@@ -141,9 +141,9 @@ public interface EntityUpdateByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据指定字段更新实体，默认不包含空值字段且无排除字段。
 	 *
-	 * @param entity                     要更新的实体对象
-	 * @param updateIncludeEmptyFields   包含空值的更新字段集合
-	 * @param where                      作为更新条件的Criteria对象
+	 * @param entity 要更新的实体对象
+	 * @param updateIncludeEmptyFields 包含空值的更新字段集合
+	 * @param where 作为更新条件的Criteria对象
 	 * @param whereIncludeAllEmptyFields 包含空值的条件字段集合
 	 * @return 更新记录数
 	 */
@@ -156,10 +156,10 @@ public interface EntityUpdateByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 更新实体，可选择是否包含空值字段。
 	 *
-	 * @param entity                要更新的实体对象
+	 * @param entity 要更新的实体对象
 	 * @param updateIncludeAllEmpty 是否包含所有空值字段进行更新
-	 * @param where                 作为更新条件的Map对象
-	 * @param whereIncludeAllEmpty  是否包含所有空值字段作为条件
+	 * @param where 作为更新条件的Map对象
+	 * @param whereIncludeAllEmpty 是否包含所有空值字段作为条件
 	 * @return 更新记录数
 	 */
 	default int updateEntityByAnyOfMap(E entity, boolean updateIncludeAllEmpty, Map<String, Object> where, boolean whereIncludeAllEmpty) {
@@ -170,7 +170,7 @@ public interface EntityUpdateByAnyMapper<E> extends EntityMapper<E> {
 	 * 更新实体，默认不包含空值字段。
 	 *
 	 * @param entity 要更新的实体对象
-	 * @param where  作为更新条件的Map对象
+	 * @param where 作为更新条件的Map对象
 	 * @return 更新记录数
 	 */
 	default int updateEntityByAnyOfMap(E entity, Map<String, Object> where) {
@@ -180,14 +180,14 @@ public interface EntityUpdateByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据Criteria条件更新实体。
 	 *
-	 * @param entity                     要更新的实体对象
-	 * @param updateIncludeAllEmpty      是否包含所有空值字段进行更新
-	 * @param updateIncludeEmptyFields   包含空值的字段集合
-	 * @param updateExcludeFields        排除更新的字段集合
-	 * @param where                      作为更新条件的Criteria对象
-	 * @param whereIncludeAllEmpty       是否包含所有空值字段作为条件
+	 * @param entity 要更新的实体对象
+	 * @param updateIncludeAllEmpty 是否包含所有空值字段进行更新
+	 * @param updateIncludeEmptyFields 包含空值的字段集合
+	 * @param updateExcludeFields 排除更新的字段集合
+	 * @param where 作为更新条件的Criteria对象
+	 * @param whereIncludeAllEmpty 是否包含所有空值字段作为条件
 	 * @param whereIncludeAllEmptyFields 包含空值的条件字段集合
-	 * @param whereExcludeFields         排除作为条件的字段集合
+	 * @param whereExcludeFields 排除作为条件的字段集合
 	 * @return 更新记录数
 	 */
 	@UpdateProvider(type = MapperProviders.class, method = MapperProviderKeys.updateEntityByAny)
@@ -203,12 +203,12 @@ public interface EntityUpdateByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据指定字段更新实体，默认不包含空值字段。
 	 *
-	 * @param entity                     要更新的实体对象
-	 * @param updateIncludeEmptyFields   包含空值的更新字段集合
-	 * @param updateExcludeFields        排除更新的字段集合
-	 * @param where                      作为更新条件的Criteria对象
+	 * @param entity 要更新的实体对象
+	 * @param updateIncludeEmptyFields 包含空值的更新字段集合
+	 * @param updateExcludeFields 排除更新的字段集合
+	 * @param where 作为更新条件的Criteria对象
 	 * @param whereIncludeAllEmptyFields 包含空值的条件字段集合
-	 * @param whereExcludeFields         排除作为条件的字段集合
+	 * @param whereExcludeFields 排除作为条件的字段集合
 	 * @return 更新记录数
 	 */
 	default int updateEntityByCriteria(
@@ -220,9 +220,9 @@ public interface EntityUpdateByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 根据指定字段更新实体，默认不包含空值字段且无排除字段。
 	 *
-	 * @param entity                     要更新的实体对象
-	 * @param updateIncludeEmptyFields   包含空值的更新字段集合
-	 * @param where                      作为更新条件的Criteria对象
+	 * @param entity 要更新的实体对象
+	 * @param updateIncludeEmptyFields 包含空值的更新字段集合
+	 * @param where 作为更新条件的Criteria对象
 	 * @param whereIncludeAllEmptyFields 包含空值的条件字段集合
 	 * @return 更新记录数
 	 */
@@ -235,10 +235,10 @@ public interface EntityUpdateByAnyMapper<E> extends EntityMapper<E> {
 	/**
 	 * 更新实体，可选择是否包含空值字段。
 	 *
-	 * @param entity                要更新的实体对象
+	 * @param entity 要更新的实体对象
 	 * @param updateIncludeAllEmpty 是否包含所有空值字段进行更新
-	 * @param where                 作为更新条件的Criteria对象
-	 * @param whereIncludeAllEmpty  是否包含所有空值字段作为条件
+	 * @param where 作为更新条件的Criteria对象
+	 * @param whereIncludeAllEmpty 是否包含所有空值字段作为条件
 	 * @return 更新记录数
 	 */
 	default int updateEntityByCriteria(E entity, boolean updateIncludeAllEmpty, Criteria where, boolean whereIncludeAllEmpty) {
@@ -249,7 +249,7 @@ public interface EntityUpdateByAnyMapper<E> extends EntityMapper<E> {
 	 * 更新实体，默认不包含空值字段。
 	 *
 	 * @param entity 要更新的实体对象
-	 * @param where  作为更新条件的Criteria对象
+	 * @param where 作为更新条件的Criteria对象
 	 * @return 更新记录数
 	 */
 	default int updateEntityByCriteria(E entity, Criteria where) {

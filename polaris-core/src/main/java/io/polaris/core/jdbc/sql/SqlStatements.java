@@ -191,12 +191,12 @@ public class SqlStatements {
 	 *
 	 * @param bindings 参数绑定映射，用于存储SQL中的参数占位符和实际值的对应关系
 	 * @param entityClass 实体类的Class对象，用于获取表名和字段信息
-	 * @param withLogicDeleted 是否使用逻辑删除，true表示使用逻辑删除，false表示物理删除
+	 * @param supportLogicDeleted 是否使用逻辑删除，true表示使用逻辑删除，false表示物理删除
 	 * @return 返回构建好的删除SQL语句字符串
 	 */
 	public static String buildDeleteById(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass,
-		boolean withLogicDeleted) {
-		return buildDeleteById(varPropFilter, bindings, entityClass, withLogicDeleted, BindingKeyModel.DEFAULT);
+		boolean supportLogicDeleted) {
+		return buildDeleteById(varPropFilter, bindings, entityClass, supportLogicDeleted, BindingKeyModel.DEFAULT);
 	}
 
 	/**
@@ -204,17 +204,17 @@ public class SqlStatements {
 	 *
 	 * @param bindings 参数绑定映射，用于存储SQL中的参数占位符和实际值的对应关系
 	 * @param entityClass 实体类的Class对象，用于获取表名和字段信息
-	 * @param withLogicDeleted 是否使用逻辑删除，true表示使用逻辑删除，false表示物理删除
+	 * @param supportLogicDeleted 是否使用逻辑删除，true表示使用逻辑删除，false表示物理删除
 	 * @return 返回构建好的删除SQL语句字符串
 	 */
 	public static String buildDeleteById(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass,
-		boolean withLogicDeleted, BindingKeyModel bindingKeyModel) {
+		boolean supportLogicDeleted, BindingKeyModel bindingKeyModel) {
 		if (bindingKeyModel == null) {
 			bindingKeyModel = BindingKeyModel.DEFAULT;
 		}
 		String entityKey = bindingKeyModel.entity();
 		String whereKey = bindingKeyModel.where();
-		return buildDeleteById(varPropFilter, bindings, entityClass, withLogicDeleted, entityKey, whereKey);
+		return buildDeleteById(varPropFilter, bindings, entityClass, supportLogicDeleted, entityKey, whereKey);
 	}
 
 	/**
@@ -222,14 +222,14 @@ public class SqlStatements {
 	 *
 	 * @param bindings 参数绑定映射，用于存放SQL中需要的参数值
 	 * @param entityClass 实体类类型，表示要操作的表对应的实体类
-	 * @param withLogicDeleted 是否启用逻辑删除，true表示使用逻辑删除，false表示直接物理删除
+	 * @param supportLogicDeleted 是否启用逻辑删除，true表示使用逻辑删除，false表示直接物理删除
 	 * @param entityKey 实体对象在bindings中的键名
 	 * @param whereKey 查询条件在bindings中的键名（备用）
 	 * @return 返回构建好的SQL字符串
 	 */
 	public static String buildDeleteById(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass,
-		boolean withLogicDeleted, String entityKey, String whereKey) {
-		if (!withLogicDeleted) {
+		boolean supportLogicDeleted, String entityKey, String whereKey) {
+		if (!supportLogicDeleted) {
 			return buildDirectDeleteById(varPropFilter, bindings, entityClass, entityKey, whereKey);
 		}
 
@@ -480,11 +480,11 @@ public class SqlStatements {
 	 *
 	 * @param bindings 参数绑定映射，包含构建SQL所需的各种参数
 	 * @param entityClass 实体类，用于获取表结构信息
-	 * @param withLogicDeleted 是否使用逻辑删除，true表示使用逻辑删除，false表示物理删除
+	 * @param supportLogicDeleted 是否使用逻辑删除，true表示使用逻辑删除，false表示物理删除
 	 * @return 构建好的删除SQL语句
 	 */
-	public static String buildDeleteByAny(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean withLogicDeleted) {
-		return buildDeleteByAny(varPropFilter, bindings, entityClass, withLogicDeleted, BindingKeyModel.DEFAULT);
+	public static String buildDeleteByAny(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean supportLogicDeleted) {
+		return buildDeleteByAny(varPropFilter, bindings, entityClass, supportLogicDeleted, BindingKeyModel.DEFAULT);
 	}
 
 	/**
@@ -492,11 +492,11 @@ public class SqlStatements {
 	 *
 	 * @param bindings 参数绑定映射，包含构建SQL所需的各种参数
 	 * @param entityClass 实体类，用于获取表结构信息
-	 * @param withLogicDeleted 是否使用逻辑删除，true表示使用逻辑删除，false表示物理删除
+	 * @param supportLogicDeleted 是否使用逻辑删除，true表示使用逻辑删除，false表示物理删除
 	 * @param bindingKeyModel 绑定键模型
 	 * @return 构建好的删除SQL语句
 	 */
-	public static String buildDeleteByAny(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean withLogicDeleted, BindingKeyModel bindingKeyModel) {
+	public static String buildDeleteByAny(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean supportLogicDeleted, BindingKeyModel bindingKeyModel) {
 		if (bindingKeyModel == null) {
 			bindingKeyModel = BindingKeyModel.DEFAULT;
 		}
@@ -504,26 +504,26 @@ public class SqlStatements {
 		String whereKey = bindingKeyModel.where();
 		// 兼容 where keys
 		ColumnPredicate columnPredicate = bindingKeyModel.toFusionColumnPredicate(bindings);
-		return buildDeleteByAny(varPropFilter, bindings, entityClass, withLogicDeleted, entityKey, whereKey, columnPredicate);
+		return buildDeleteByAny(varPropFilter, bindings, entityClass, supportLogicDeleted, entityKey, whereKey, columnPredicate);
 	}
 
 	/**
 	 * 构建根据任意条件进行（逻辑）删除的 SQL 语句。
 	 * <p>
-	 * 如果 {@code withLogicDeleted} 为 false 或实体类没有逻辑删除字段，则执行物理删除；
+	 * 如果 {@code supportLogicDeleted} 为 false 或实体类没有逻辑删除字段，则执行物理删除；
 	 * 否则构建更新语句将逻辑删除字段标记为已删除，并可能更新版本号和更新时间字段。
 	 *
 	 * @param bindings 参数绑定映射表，用于存放 SQL 中的参数占位符与实际值的对应关系
 	 * @param entityClass 实体类类型，表示要操作的数据表对应的 Java 类
-	 * @param withLogicDeleted 是否启用逻辑删除模式
+	 * @param supportLogicDeleted 是否启用逻辑删除模式
 	 * @param entityKey 实体对象在 bindings 中的键名
 	 * @param whereKey 查询条件对象在 bindings 中的键名
 	 * @param whereColumnPredicate 查询条件列的谓词判断逻辑，决定哪些字段参与 where 条件构造
 	 * @return 返回构建好的 SQL 字符串
 	 */
-	public static String buildDeleteByAny(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean withLogicDeleted,
+	public static String buildDeleteByAny(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean supportLogicDeleted,
 		String entityKey, String whereKey, ColumnPredicate whereColumnPredicate) {
-		if (!withLogicDeleted) {
+		if (!supportLogicDeleted) {
 			return buildDirectDeleteByAny(varPropFilter, bindings, entityClass, entityKey, whereKey, whereColumnPredicate);
 		}
 
@@ -1064,11 +1064,11 @@ public class SqlStatements {
 	 *
 	 * @param bindings 绑定参数映射，包含查询条件和配置信息
 	 * @param entityClass 实体类，用于确定查询的表和字段信息
-	 * @param withLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
+	 * @param supportLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
 	 * @return 构建好的COUNT查询语句字符串
 	 */
-	public static String buildCount(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean withLogicDeleted) {
-		return buildCount(varPropFilter, bindings, entityClass, withLogicDeleted, BindingKeyModel.DEFAULT);
+	public static String buildCount(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean supportLogicDeleted) {
+		return buildCount(varPropFilter, bindings, entityClass, supportLogicDeleted, BindingKeyModel.DEFAULT);
 	}
 
 	/**
@@ -1076,11 +1076,11 @@ public class SqlStatements {
 	 *
 	 * @param bindings 绑定参数映射，包含查询条件和配置信息
 	 * @param entityClass 实体类，用于确定查询的表和字段信息
-	 * @param withLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
+	 * @param supportLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
 	 * @param bindingKeyModel 绑定参数模型
 	 * @return 构建好的COUNT查询语句字符串
 	 */
-	public static String buildCount(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean withLogicDeleted, BindingKeyModel bindingKeyModel) {
+	public static String buildCount(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean supportLogicDeleted, BindingKeyModel bindingKeyModel) {
 		if (bindingKeyModel == null) {
 			bindingKeyModel = BindingKeyModel.DEFAULT;
 		}
@@ -1088,7 +1088,7 @@ public class SqlStatements {
 		String whereKey = bindingKeyModel.where();
 		// 兼容 where keys
 		ColumnPredicate columnPredicate = bindingKeyModel.toFusionColumnPredicate(bindings);
-		return buildCount(varPropFilter, bindings, entityClass, withLogicDeleted, entityKey, whereKey, columnPredicate);
+		return buildCount(varPropFilter, bindings, entityClass, supportLogicDeleted, entityKey, whereKey, columnPredicate);
 	}
 
 	/**
@@ -1111,14 +1111,14 @@ public class SqlStatements {
 	 *
 	 * @param bindings 参数绑定映射，用于存放 SQL 中的参数值
 	 * @param entityClass 实体类，用于获取表结构元数据
-	 * @param withLogicDeleted 是否处理逻辑删除规则，若为 true 则自动添加非逻辑删除条件
+	 * @param supportLogicDeleted 是否处理逻辑删除规则，若为 true 则自动添加非逻辑删除条件
 	 * @param entityKey 实体对象在 bindings 中的键名，用于构建 WHERE 条件
 	 * @param whereKey 条件对象在 bindings 中的键名，用于构建额外的 WHERE 条件
 	 * @param columnPredicate 列过滤条件，用于控制哪些字段参与查询条件构建
 	 * @return 生成的 COUNT 查询 SQL 语句字符串
 	 */
 	public static String buildCount(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass,
-		boolean withLogicDeleted, String entityKey, String whereKey, ColumnPredicate columnPredicate) {
+		boolean supportLogicDeleted, String entityKey, String whereKey, ColumnPredicate columnPredicate) {
 
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
 		SqlStatement sql = SqlStatement.of();
@@ -1147,7 +1147,7 @@ public class SqlStatements {
 			}
 		}
 
-		if (withLogicDeleted) {
+		if (supportLogicDeleted) {
 			// 强制添加非逻辑删除条件
 			tableMeta.getColumns().values().stream()
 				.filter(c -> c.isLogicDeleted())
@@ -1187,11 +1187,11 @@ public class SqlStatements {
 	 *
 	 * @param bindings 参数绑定映射表，用于存储SQL参数绑定信息
 	 * @param entityClass 实体类的Class对象，表示要查询的实体类型
-	 * @param withLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
+	 * @param supportLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
 	 * @return 返回构建好的判断实体是否存在的SQL查询语句
 	 */
-	public static String buildExistsById(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean withLogicDeleted) {
-		return buildExistsById(varPropFilter, bindings, entityClass, withLogicDeleted, BindingKeyModel.DEFAULT);
+	public static String buildExistsById(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean supportLogicDeleted) {
+		return buildExistsById(varPropFilter, bindings, entityClass, supportLogicDeleted, BindingKeyModel.DEFAULT);
 	}
 
 	/**
@@ -1199,17 +1199,17 @@ public class SqlStatements {
 	 *
 	 * @param bindings 参数绑定映射表，用于存储SQL参数绑定信息
 	 * @param entityClass 实体类的Class对象，表示要查询的实体类型
-	 * @param withLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
+	 * @param supportLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
 	 * @param bindingKeyModel 绑定键模型，用于指定实体键名和WHERE条件键名
 	 * @return 返回构建好的判断实体是否存在的SQL查询语句
 	 */
-	public static String buildExistsById(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean withLogicDeleted, BindingKeyModel bindingKeyModel) {
+	public static String buildExistsById(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean supportLogicDeleted, BindingKeyModel bindingKeyModel) {
 		if (bindingKeyModel == null) {
 			bindingKeyModel = BindingKeyModel.DEFAULT;
 		}
 		String entityKey = bindingKeyModel.entity();
 		String whereKey = bindingKeyModel.where();
-		return buildExistsById(varPropFilter, bindings, entityClass, withLogicDeleted, entityKey, whereKey);
+		return buildExistsById(varPropFilter, bindings, entityClass, supportLogicDeleted, entityKey, whereKey);
 	}
 
 	/**
@@ -1231,13 +1231,13 @@ public class SqlStatements {
 	 *
 	 * @param bindings 参数绑定映射，用于存放SQL中的参数值
 	 * @param entityClass 实体类类型，用于获取表结构信息
-	 * @param withLogicDeleted 是否考虑逻辑删除字段，若为true则强制加入未删除条件
+	 * @param supportLogicDeleted 是否考虑逻辑删除字段，若为true则强制加入未删除条件
 	 * @param entityKey 实体对象在bindings中的键名
 	 * @param whereKey 查询条件在bindings中的键名（备用）
 	 * @return 返回构建好的查询SQL字符串，格式如：SELECT COUNT(*) EXISTED FROM table WHERE ...
 	 */
 	public static String buildExistsById(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass,
-		boolean withLogicDeleted, String entityKey, String whereKey) {
+		boolean supportLogicDeleted, String entityKey, String whereKey) {
 
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
 		SqlStatement sql = SqlStatement.of();
@@ -1289,7 +1289,7 @@ public class SqlStatements {
 					}
 					bindings.put(keyName, val);
 				}
-			} else if (withLogicDeleted && meta.isLogicDeleted()) {
+			} else if (supportLogicDeleted && meta.isLogicDeleted()) {
 				// 强制添加非逻辑删除条件
 				String keyName = whereKeyGen.generate();
 				if (Strings.isNotBlank(propString)) {
@@ -1324,11 +1324,11 @@ public class SqlStatements {
 	 * @param bindings 参数绑定映射，包含查询条件和实体信息
 	 * @param entityClass 实体类类型，用于获取表结构和字段信息
 	 * @param queryByCount 是否按数量查询，true时返回计数SQL，false时返回是否存在SQL
-	 * @param withLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
+	 * @param supportLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
 	 * @return 构建好的存在性查询SQL语句
 	 */
-	public static String buildExistsByAny(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean queryByCount, boolean withLogicDeleted) {
-		return buildExistsByAny(varPropFilter, bindings, entityClass, queryByCount, withLogicDeleted, BindingKeyModel.DEFAULT);
+	public static String buildExistsByAny(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean queryByCount, boolean supportLogicDeleted) {
+		return buildExistsByAny(varPropFilter, bindings, entityClass, queryByCount, supportLogicDeleted, BindingKeyModel.DEFAULT);
 	}
 
 	/**
@@ -1337,11 +1337,11 @@ public class SqlStatements {
 	 * @param bindings 参数绑定映射，包含查询条件和实体信息
 	 * @param entityClass 实体类类型，用于获取表结构和字段信息
 	 * @param queryByCount 是否按数量查询，true时返回计数SQL，false时返回是否存在SQL
-	 * @param withLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
+	 * @param supportLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
 	 * @param bindingKeyModel 参数绑定映射模型
 	 * @return 构建好的存在性查询SQL语句
 	 */
-	public static String buildExistsByAny(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean queryByCount, boolean withLogicDeleted, BindingKeyModel bindingKeyModel) {
+	public static String buildExistsByAny(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean queryByCount, boolean supportLogicDeleted, BindingKeyModel bindingKeyModel) {
 		if (bindingKeyModel == null) {
 			bindingKeyModel = BindingKeyModel.DEFAULT;
 		}
@@ -1349,7 +1349,7 @@ public class SqlStatements {
 		String whereKey = bindingKeyModel.where();
 		// 兼容 where keys
 		ColumnPredicate columnPredicate = bindingKeyModel.toFusionColumnPredicate(bindings);
-		return buildExistsByAny(varPropFilter, bindings, entityClass, queryByCount, withLogicDeleted, entityKey, whereKey, columnPredicate);
+		return buildExistsByAny(varPropFilter, bindings, entityClass, queryByCount, supportLogicDeleted, entityKey, whereKey, columnPredicate);
 	}
 
 	/**
@@ -1375,14 +1375,14 @@ public class SqlStatements {
 	 * @param bindings 参数绑定映射表，用于存放SQL中的参数值
 	 * @param entityClass 实体类类型，用于获取表结构元数据
 	 * @param queryByCount 是否使用 COUNT(*) 方式进行查询
-	 * @param withLogicDeleted 是否强制添加非逻辑删除条件
+	 * @param supportLogicDeleted 是否强制添加非逻辑删除条件
 	 * @param entityKey 实体对象在bindings中的键名
 	 * @param whereKey 查询条件对象在bindings中的键名（可以是实体或Criteria）
 	 * @param columnPredicate 列过滤谓词，决定哪些列参与构建查询条件
 	 * @return 构造完成的SQL字符串
 	 */
 	public static String buildExistsByAny(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass,
-		boolean queryByCount, boolean withLogicDeleted, String entityKey, String whereKey, ColumnPredicate columnPredicate) {
+		boolean queryByCount, boolean supportLogicDeleted, String entityKey, String whereKey, ColumnPredicate columnPredicate) {
 
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
 		SqlStatement sql = SqlStatement.of();
@@ -1415,7 +1415,7 @@ public class SqlStatements {
 			}
 		}
 
-		if (withLogicDeleted) {
+		if (supportLogicDeleted) {
 			// 强制添加非逻辑删除条件
 			tableMeta.getColumns().values().stream()
 				.filter(c -> c.isLogicDeleted())
@@ -1455,11 +1455,11 @@ public class SqlStatements {
 	 *
 	 * @param bindings 参数绑定映射，用于存储SQL中的参数值
 	 * @param entityClass 实体类的Class对象，用于获取表名和字段信息
-	 * @param withLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
+	 * @param supportLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
 	 * @return 返回构建好的根据ID查询的SQL语句
 	 */
-	public static String buildSelectById(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean withLogicDeleted) {
-		return buildSelectById(varPropFilter, bindings, entityClass, withLogicDeleted, BindingKeyModel.DEFAULT);
+	public static String buildSelectById(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean supportLogicDeleted) {
+		return buildSelectById(varPropFilter, bindings, entityClass, supportLogicDeleted, BindingKeyModel.DEFAULT);
 	}
 
 	/**
@@ -1467,18 +1467,18 @@ public class SqlStatements {
 	 *
 	 * @param bindings 参数绑定映射，用于存储SQL中的参数值
 	 * @param entityClass 实体类的Class对象，用于获取表名和字段信息
-	 * @param withLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
+	 * @param supportLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
 	 * @param bindingKeyModel 绑定键模型对象，用于指定实体键名、WHERE条件键名、排序条件键名
 	 * @return 返回构建好的根据ID查询的SQL语句
 	 */
-	public static String buildSelectById(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean withLogicDeleted, BindingKeyModel bindingKeyModel) {
+	public static String buildSelectById(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean supportLogicDeleted, BindingKeyModel bindingKeyModel) {
 		if (bindingKeyModel == null) {
 			bindingKeyModel = BindingKeyModel.DEFAULT;
 		}
 		String entityKey = bindingKeyModel.entity();
 		String whereKey = bindingKeyModel.where();
 		String orderByKey = bindingKeyModel.orderBy();
-		return buildSelectById(varPropFilter, bindings, entityClass, withLogicDeleted, entityKey, whereKey, orderByKey);
+		return buildSelectById(varPropFilter, bindings, entityClass, supportLogicDeleted, entityKey, whereKey, orderByKey);
 	}
 
 	/**
@@ -1501,14 +1501,14 @@ public class SqlStatements {
 	 *
 	 * @param bindings 参数绑定映射，用于存放SQL中的参数值
 	 * @param entityClass 实体类类型，表示要操作的数据表对应的实体类
-	 * @param withLogicDeleted 是否包含逻辑删除字段的过滤条件
+	 * @param supportLogicDeleted 是否包含逻辑删除字段的过滤条件
 	 * @param entityKey 实体对象在bindings中的键名
 	 * @param whereKey 查询条件在bindings中的键名（备用）
 	 * @param orderByKey 排序字段在bindings中的键名（当前未使用）
 	 * @return 返回构建好的SELECT SQL语句字符串
 	 */
 	public static String buildSelectById(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass,
-		boolean withLogicDeleted, String entityKey, String whereKey, String orderByKey) {
+		boolean supportLogicDeleted, String entityKey, String whereKey, String orderByKey) {
 
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
 		SqlStatement sql = SqlStatement.of();
@@ -1561,7 +1561,7 @@ public class SqlStatements {
 					}
 					bindings.put(keyName, val);
 				}
-			} else if (withLogicDeleted && meta.isLogicDeleted()) {
+			} else if (supportLogicDeleted && meta.isLogicDeleted()) {
 				// 强制添加非逻辑删除条件
 				String keyName = whereKeyGen.generate();
 				val = Converters.convertQuietly(meta.getFieldType(), false);
@@ -1596,11 +1596,11 @@ public class SqlStatements {
 	 *
 	 * @param bindings 包含查询条件的绑定参数映射
 	 * @param entityClass 实体类类型
-	 * @param withLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
+	 * @param supportLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
 	 * @return 构建好的SELECT SQL语句
 	 */
-	public static String buildSelectByAny(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean withLogicDeleted) {
-		return buildSelectByAny(varPropFilter, bindings, entityClass, withLogicDeleted, BindingKeyModel.DEFAULT);
+	public static String buildSelectByAny(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean supportLogicDeleted) {
+		return buildSelectByAny(varPropFilter, bindings, entityClass, supportLogicDeleted, BindingKeyModel.DEFAULT);
 	}
 
 	/**
@@ -1608,11 +1608,11 @@ public class SqlStatements {
 	 *
 	 * @param bindings 包含查询条件的绑定参数映射
 	 * @param entityClass 实体类类型
-	 * @param withLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
+	 * @param supportLogicDeleted 是否处理逻辑删除规则，true表示处理，false表示不处理
 	 * @param bindingKeyModel 绑定参数模型
 	 * @return 构建好的SELECT SQL语句
 	 */
-	public static String buildSelectByAny(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean withLogicDeleted, BindingKeyModel bindingKeyModel) {
+	public static String buildSelectByAny(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass, boolean supportLogicDeleted, BindingKeyModel bindingKeyModel) {
 		if (bindingKeyModel == null) {
 			bindingKeyModel = BindingKeyModel.DEFAULT;
 		}
@@ -1621,7 +1621,7 @@ public class SqlStatements {
 		String orderByKey = bindingKeyModel.orderBy();
 		// 兼容 where keys
 		ColumnPredicate columnPredicate = bindingKeyModel.toFusionColumnPredicate(bindings);
-		return buildSelectByAny(varPropFilter, bindings, entityClass, withLogicDeleted, entityKey, whereKey, orderByKey, columnPredicate);
+		return buildSelectByAny(varPropFilter, bindings, entityClass, supportLogicDeleted, entityKey, whereKey, orderByKey, columnPredicate);
 	}
 
 	/**
@@ -1645,7 +1645,7 @@ public class SqlStatements {
 	 *
 	 * @param bindings 参数绑定映射，用于存放 SQL 中的参数占位符与实际值的对应关系
 	 * @param entityClass 实体类类型，用于获取表结构元数据
-	 * @param withLogicDeleted 是否强制加入逻辑删除字段的查询条件（默认为未删除状态）
+	 * @param supportLogicDeleted 是否强制加入逻辑删除字段的查询条件（默认为未删除状态）
 	 * @param entityKey 实体对象在 bindings 中的键名，若存在则用作 WHERE 条件的一部分
 	 * @param whereKey 条件对象（如 Criteria）在 bindings 中的键名，用于构建 WHERE 子句
 	 * @param orderByKey 排序信息在 bindings 中的键名，可以是字符串或 OrderBy 对象
@@ -1653,7 +1653,7 @@ public class SqlStatements {
 	 * @return 生成的 SELECT SQL 字符串
 	 */
 	public static String buildSelectByAny(Predicate<String> varPropFilter, Map<String, Object> bindings, Class<?> entityClass,
-		boolean withLogicDeleted, String entityKey, String whereKey, String orderByKey, ColumnPredicate columnPredicate) {
+		boolean supportLogicDeleted, String entityKey, String whereKey, String orderByKey, ColumnPredicate columnPredicate) {
 
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
 		SqlStatement sql = SqlStatement.of();
@@ -1697,7 +1697,7 @@ public class SqlStatements {
 			}
 		}
 
-		if (withLogicDeleted) {
+		if (supportLogicDeleted) {
 			// 强制添加非逻辑删除条件
 			tableMeta.getColumns().values().stream()
 				.filter(c -> c.isLogicDeleted())
