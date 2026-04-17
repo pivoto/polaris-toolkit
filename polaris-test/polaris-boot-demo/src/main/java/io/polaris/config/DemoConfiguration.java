@@ -28,7 +28,8 @@ import com.github.pagehelper.PageInterceptor;
  */
 @Configuration
 @EnableConfigurationProperties(MybatisProperties.class)
-@AutoConfigureBefore(org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration.class) // 确保在MybatisAutoConfiguration之前执行，以应用EnhancedConfiguration
+// 如果是自动配置类，则必须加此配置，以确保在MybatisAutoConfiguration之前执行，以应用EnhancedConfiguration
+@AutoConfigureBefore(org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration.class)
 public class DemoConfiguration {
 
 	public DemoConfiguration(MybatisProperties properties) throws Throwable {
@@ -53,8 +54,8 @@ public class DemoConfiguration {
 			TypeHandlers.registerAll(configuration);
 			// 按 org.apache.ibatis.plugin.InterceptorChain 代理规则，插件执行顺序与添加顺序相反
 			configuration.addInterceptor(new DynamicEnhancedInterceptor());
-			configuration.addInterceptor(new MybatisSqlLogInterceptor());
-			configuration.addInterceptor(new MybatisLogInterceptor());
+			configuration.addInterceptor(new MybatisSqlLogInterceptor()); // SQL日志二选一
+			configuration.addInterceptor(new MybatisLogInterceptor());// SQL日志二选一
 			configuration.addInterceptor(new PageInterceptor());
 			configuration.addInterceptor(new DataAuthInterceptor());
 			configuration.addInterceptor(new BoundSqlEnhanceInterceptor());

@@ -38,6 +38,7 @@ public class DemoCustomMapperTest {
 			DemoOrgEntity param = new DemoOrgEntity();
 			param.setId(11L);
 			param.setVersion(11L);
+			param.setOrgType(DemoOrgEntity.OrgType.ORG);
 			param.setName("org11");
 			param.setCrtDt(Dates.nowDate());
 			param.setUptDt(Dates.nowDate());

@@ -1,0 +1,132 @@
+package io.polaris.mybatis.enhance.mapper;
+
+import io.polaris.core.random.Randoms;
+import io.polaris.mybatis.enhance.example.ExampleEntity;
+import io.polaris.mybatis.enhance.example.ExampleEntitySql;
+import io.polaris.mybatis.enhance.printer.SqlRecorders;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+
+class EnhanceAutoMapperTest {
+	interface TestMapper extends EnhanceAutoMapper<ExampleEntity> {
+	}
+
+	private final TestMapper mapper = SqlRecorders.get(TestMapper.class);
+
+	@Test
+	@Order(3)
+	void testBySql() {
+		ExampleEntity entity = Randoms.randomEntity(ExampleEntity.class);
+
+		mapper.insertBySql(ExampleEntitySql.insert().withEntity(entity));
+		System.out.println(SqlRecorders.pollALlSqlText());
+
+		mapper.updateBySql(ExampleEntitySql.update().withEntity(entity));
+		System.out.println(SqlRecorders.pollALlSqlText());
+
+		mapper.deleteBySql(ExampleEntitySql.delete()
+			.where().byEntity(entity)
+			.end()
+		);
+		System.out.println(SqlRecorders.pollALlSqlText());
+
+		mapper.existsBySql(ExampleEntitySql.select().selectAll()
+			.where().byEntity(entity)
+			.end()
+		);
+		System.out.println(SqlRecorders.pollALlSqlText());
+
+		mapper.countBySql(ExampleEntitySql.select().selectAll()
+			.where().byEntity(entity)
+			.end()
+		);
+		System.out.println(SqlRecorders.pollALlSqlText());
+
+		mapper.selectEntityListBySql(ExampleEntitySql.select().selectAll()
+			.where().byEntity(entity)
+			.end()
+		);
+		System.out.println(SqlRecorders.pollALlSqlText());
+
+		mapper.selectEntityBySql(ExampleEntitySql.select().selectAll()
+			.where().byEntity(entity)
+			.end()
+		);
+		System.out.println(SqlRecorders.pollALlSqlText());
+
+		mapper.mergeBySql(entity);
+		System.out.println(SqlRecorders.pollALlSqlText());
+
+
+	}
+
+	@Test
+	@Order(4)
+	void testInsert() {
+		ExampleEntity entity = Randoms.randomEntity(ExampleEntity.class);
+
+		mapper.insertEntity(entity);
+		System.out.println(SqlRecorders.pollALlSqlText());
+	}
+
+	@Test
+	@Order(5)
+	void testDelete() {
+		ExampleEntity entity = Randoms.randomEntity(ExampleEntity.class);
+		mapper.deleteEntityById(entity, true);
+		System.out.println(SqlRecorders.pollALlSqlText());
+		mapper.deleteEntityById(entity, false);
+		System.out.println(SqlRecorders.pollALlSqlText());
+
+		mapper.directDeleteEntityById(entity);
+		System.out.println(SqlRecorders.pollALlSqlText());
+		mapper.logicDeleteEntityById(entity);
+		System.out.println(SqlRecorders.pollALlSqlText());
+	}
+
+	@Test
+	@Order(6)
+	void testDeleteByAny() {
+		ExampleEntity entity = Randoms.randomEntity(ExampleEntity.class);
+		mapper.deleteEntityByAny(entity, true);
+		System.out.println(SqlRecorders.pollALlSqlText());
+		mapper.deleteEntityByAny(entity, false);
+		System.out.println(SqlRecorders.pollALlSqlText());
+
+		mapper.directDeleteEntityByAny(entity);
+		System.out.println(SqlRecorders.pollALlSqlText());
+		mapper.logicDeleteEntityByAny(entity);
+		System.out.println(SqlRecorders.pollALlSqlText());
+	}
+
+	@Test
+	@Order(7)
+	void testUpdate() {
+		ExampleEntity entity = Randoms.randomEntity(ExampleEntity.class);
+		mapper.updateEntityById(entity, true);
+		System.out.println(SqlRecorders.pollALlSqlText());
+	}
+
+	@Test
+	@Order(8)
+	void testUpdateByAny() {
+		ExampleEntity entity = Randoms.randomEntity(ExampleEntity.class);
+		mapper.updateEntityByAny(entity, entity);
+		System.out.println(SqlRecorders.pollALlSqlText());
+	}
+
+	@Test
+	@Order(9)
+	void testSelectOne() {
+		ExampleEntity entity = Randoms.randomEntity(ExampleEntity.class);
+		mapper.selectEntityById(entity);
+		System.out.println(SqlRecorders.pollALlSqlText());
+		mapper.selectEntity(entity);
+		System.out.println(SqlRecorders.pollALlSqlText());
+		mapper.existsById(entity);
+		System.out.println(SqlRecorders.pollALlSqlText());
+		mapper.exists(entity);
+		System.out.println(SqlRecorders.pollALlSqlText());
+	}
+
+}

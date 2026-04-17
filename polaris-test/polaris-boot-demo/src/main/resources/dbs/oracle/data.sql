@@ -6,12 +6,12 @@ insert into demo_user(id, name)
 values
 	(seq_demo_user.nextval,'user');
 
-insert into demo_org(id, name,intro)
+insert into demo_org(id, name, org_type, intro)
 values
-	(seq_demo_org.nextval, 'org1', '{}');
-insert into demo_org(id, name)
+	(seq_demo_org.nextval, 'org1', 'org', '{}');
+insert into demo_org(id, name, org_type)
 values
-	(seq_demo_org.nextval, 'org2');
+	(seq_demo_org.nextval, 'org2', 'org');
 
 insert into demo_user_org(id, user_id, org_id)
 values

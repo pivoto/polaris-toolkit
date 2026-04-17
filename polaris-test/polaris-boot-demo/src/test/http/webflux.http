@@ -1,0 +1,17 @@
+GET http://localhost:6666/webflux/test
+Content-Type: application/json
+
+{}
+
+###
+GET http://localhost:6666/webflux/test/customers
+Content-Type: application/json
+
+{}
+
+
+###
+DELETE http://localhost:6666/webflux/test
+Content-Type: application/json
+
+{}
