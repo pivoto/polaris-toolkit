@@ -7,6 +7,7 @@ import java.util.Properties;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.tuple.Tuple2;
 import io.polaris.mybatis.auth.DataAuthKit;
+import io.polaris.mybatis.auth.DataAuthSql;
 import io.polaris.mybatis.auth.TableColumnFilter;
 import io.polaris.mybatis.auth.TableWhereGenerator;
 import io.polaris.mybatis.support.InterceptorHelper;
@@ -59,8 +60,9 @@ public class DataAuthInterceptor implements Interceptor {
 					// 解析sql
 					String sql = boundSql.getSql();
 					// 查询权限拦截
-					String resolvedSql = DataAuthKit.instance().resolveSelect(sql,tuple.getFirst(), tuple.getSecond());
-					if (!sql.equals(resolvedSql)) {
+					DataAuthSql dataAuthSql = DataAuthKit.instance().resolveSelect(sql, tuple.getFirst(), tuple.getSecond());
+					if (dataAuthSql.isChanged()) {
+						String resolvedSql = dataAuthSql.getResolvedSql();
 						// 拦截后的SQL更新至BoundSql
 						Field field = Reflects.getField(BoundSql.class, "sql");
 						Reflects.setAccessible(field);

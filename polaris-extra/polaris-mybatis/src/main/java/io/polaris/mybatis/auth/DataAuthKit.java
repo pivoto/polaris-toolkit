@@ -3,7 +3,6 @@ package io.polaris.mybatis.auth;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -288,32 +287,37 @@ public class DataAuthKit {
 		return Tuples.of(whereGenerator, columnFilter);
 	}
 
-	public String resolveSelect(@Nonnull String sql) throws JSQLParserException {
+	public DataAuthSql resolveSelect(@Nonnull String sql) throws JSQLParserException {
 		Tuple2<TableWhereGenerator, TableColumnFilter> tuple = getCurrentResolver();
 		TableWhereGenerator whereGenerator = tuple.getFirst();
 		TableColumnFilter columnFilter = tuple.getSecond();
 		return resolveSelect(sql, whereGenerator, columnFilter);
 	}
 
-	public String resolveSelect(@Nonnull String sql, @Nullable TableWhereGenerator conditionAppender) throws JSQLParserException {
+	public DataAuthSql resolveSelect(@Nonnull String sql, @Nullable TableWhereGenerator conditionAppender) throws JSQLParserException {
 		return resolveSelect(sql, conditionAppender, null);
 	}
 
-	public String resolveSelect(@Nonnull String sql, @Nullable TableColumnFilter columnFilter) throws JSQLParserException {
+	public DataAuthSql resolveSelect(@Nonnull String sql, @Nullable TableColumnFilter columnFilter) throws JSQLParserException {
 		return resolveSelect(sql, null, columnFilter);
 	}
 
-	public String resolveSelect(@Nonnull String sql, @Nullable TableWhereGenerator whereGenerator, @Nullable TableColumnFilter columnFilter) throws JSQLParserException {
+	public DataAuthSql resolveSelect(@Nonnull String sql, @Nullable TableWhereGenerator whereGenerator, @Nullable TableColumnFilter columnFilter) throws JSQLParserException {
+		DataAuthSql dataAuthSql = new DataAuthSql();
+		dataAuthSql.setRawSql(sql);
 		if (whereGenerator == null && columnFilter == null) {
-			return sql;
+			return dataAuthSql;
 		}
 		Statement stmt = CCJSqlParserUtil.parse(sql);
 		if (!(stmt instanceof Select)) {
-			return sql;
+			return dataAuthSql;
 		}
 		SelectBody selectBody = ((Select) stmt).getSelectBody();
-		resolve(selectBody, whereGenerator, columnFilter);
-		return stmt.toString();
+		resolve(selectBody, whereGenerator, columnFilter, dataAuthSql);
+		if (dataAuthSql.isChanged()) {
+			dataAuthSql.setResolvedSql(stmt.toString());
+		}
+		return dataAuthSql;
 	}
 
 	public boolean resolveSelect(@Nonnull Statement stmt, TableWhereGenerator whereGenerator, TableColumnFilter columnFilter) throws JSQLParserException {
@@ -324,38 +328,39 @@ public class DataAuthKit {
 			return false;
 		}
 		SelectBody selectBody = ((Select) stmt).getSelectBody();
-		resolve(selectBody, whereGenerator, columnFilter);
+		DataAuthSql dataAuthSql = new DataAuthSql();
+		resolve(selectBody, whereGenerator, columnFilter, dataAuthSql);
 		List<WithItem> withItemsList = ((Select) stmt).getWithItemsList();
 		if (withItemsList != null && !withItemsList.isEmpty()) {
 			for (WithItem withItem : withItemsList) {
-				resolve(withItem, whereGenerator, columnFilter);
+				resolve(withItem, whereGenerator, columnFilter, dataAuthSql);
 			}
 		}
-		return true;
+		return dataAuthSql.isChanged();
 	}
 
-	private void resolve(SelectBody selectBody, TableWhereGenerator whereGenerator, TableColumnFilter columnFilter) throws JSQLParserException {
+	private void resolve(SelectBody selectBody, TableWhereGenerator whereGenerator, TableColumnFilter columnFilter, DataAuthSql dataAuthSql) throws JSQLParserException {
 		if (selectBody instanceof PlainSelect) {
 			PlainSelect plainSelect = (PlainSelect) selectBody;
-			resolve(plainSelect, whereGenerator, columnFilter);
+			resolve(plainSelect, whereGenerator, columnFilter, dataAuthSql);
 		} else if (selectBody instanceof WithItem) {
 			WithItem withItem = (WithItem) selectBody;
 			if (withItem.getSubSelect() != null) {
-				resolve(withItem.getSubSelect().getSelectBody(), whereGenerator, columnFilter);
+				resolve(withItem.getSubSelect().getSelectBody(), whereGenerator, columnFilter, dataAuthSql);
 			}
 		} else if (selectBody instanceof SetOperationList) {
 			SetOperationList operationList = (SetOperationList) selectBody;
 			if (operationList.getSelects() != null && !operationList.getSelects().isEmpty()) {
 				List<SelectBody> plainSelects = operationList.getSelects();
 				for (SelectBody plainSelect : plainSelects) {
-					resolve(plainSelect, whereGenerator, columnFilter);
+					resolve(plainSelect, whereGenerator, columnFilter, dataAuthSql);
 				}
 			}
 		}
 	}
 
 	private void resolve(PlainSelect plainSelect, TableWhereGenerator whereGenerator,
-		TableColumnFilter columnFilter) throws JSQLParserException {
+		TableColumnFilter columnFilter, DataAuthSql dataAuthSql) throws JSQLParserException {
 		Map<String, Table> tables = new LinkedHashMap<>();
 		{
 			FromItem fromItem = plainSelect.getFromItem();
@@ -375,6 +380,7 @@ public class DataAuthKit {
 				Expression where = plainSelect.getWhere();
 				if (where == null) {
 					plainSelect.setWhere(condition);
+					dataAuthSql.setChanged(true);
 				} else {
 					if (!(where instanceof Parenthesis)) {
 						where = new Parenthesis(where);
@@ -384,6 +390,7 @@ public class DataAuthKit {
 					}
 					AndExpression andExpression = new AndExpression(where, condition);
 					plainSelect.setWhere(andExpression);
+					dataAuthSql.setChanged(true);
 				}
 			}
 		}
@@ -404,6 +411,7 @@ public class DataAuthKit {
 								boolean filtered = columnFilter.apply(table, ((Column) expression).getColumnName());
 								if (!filtered) {
 									iter.remove();
+									dataAuthSql.setChanged(true);
 								}
 							}
 						}

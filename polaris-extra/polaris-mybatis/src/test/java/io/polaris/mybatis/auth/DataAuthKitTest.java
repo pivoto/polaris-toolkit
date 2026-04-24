@@ -35,8 +35,8 @@ class DataAuthKitTest {
 
 	@Test
 	void test02() throws ReflectiveOperationException {
-		BoundSql boundSql = new BoundSql(new Configuration(),"select * from dual", new ArrayList<>(), new HashMap<>());
-		Reflects.setFieldValue(boundSql, "sql","select 1");
+		BoundSql boundSql = new BoundSql(new Configuration(), "select * from dual", new ArrayList<>(), new HashMap<>());
+		Reflects.setFieldValue(boundSql, "sql", "select 1");
 		System.out.println(boundSql.getSql());
 	}
 
@@ -50,7 +50,7 @@ class DataAuthKitTest {
 			StringBuilder sb = new StringBuilder();
 			for (Table table : tables) {
 				String name = table.getName();
-				if("table2".equalsIgnoreCase(name)){
+				if ("table2".equalsIgnoreCase(name)) {
 					sb.append(Strings.coalesce(table.getAlias().getName(), name))
 						.append(".").append("org in (1,2,3)");
 				}
@@ -69,7 +69,8 @@ class DataAuthKitTest {
 			}
 			return true;
 		};
-		String s = DataAuthKit.instance().resolveSelect(sql, conditionSupplier, columnFilter);
+		DataAuthSql dataAuthSql = DataAuthKit.instance().resolveSelect(sql, conditionSupplier, columnFilter);
+		String s = dataAuthSql.getResolvedSql();
 		System.out.println(s);
 	}
 }
