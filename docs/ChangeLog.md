@@ -1,5 +1,22 @@
 ## 版本变更说明
 
+### 3.8.6
+- 新增增强的实体自动映射接口
+- 重构数据权限SQL解析返回类型
+
+### 3.8.5
+- 新增ExistsByCount注解与参数处理逻辑，移除原线程变量定义方式；优化SQL模拟执行器逻辑；优化注释说明
+- 重命名动态映射注解以统一命名规范
+- 优化增强配置中的类型处理器注册逻辑，添加对 UnknownTypeHandler与BaseTypeHandler 的特殊处理以更新配置引用
+- SqlStatement生成SQL中不使用换行符
+- 扩展AutoMapperType枚举，新增查询语句构建类型
+- 更新AutoMapper等注解或接口的文档说明
+- 修改EnhancedAutoMapperHelper逻辑删除开关默认值为true
+- EnhancedAutoMappers添加SQL查询方法并优化逻辑删除处理
+- 优化SQL模拟记录器中的空集合处理和日期格式化
+- 新增自动映射器基类接口实现，内置基本的CRUD方法
+
+
 ### 3.8.4
 - LazyRef新增空值支持
 - Ref 添加 getRequired 方法以支持空值检查
