@@ -34,6 +34,9 @@ import io.polaris.mybatis.mapper.EntityMapper;
  *   {@link ExistsByCount} 是否通过Count(*)查询存在性，否则表示使用游标查询或通过分页插件处理，接收返回值为布尔列表
  *   </li>
  * </ul>
+ * <p>
+ * 参考示例：{@linkplain  io.polaris.mybatis.enhance.example.ExampleAutoMapper ExampleAutoMapper}
+ * <p>
  *
  * @author Qt
  * @see MapperEntity
