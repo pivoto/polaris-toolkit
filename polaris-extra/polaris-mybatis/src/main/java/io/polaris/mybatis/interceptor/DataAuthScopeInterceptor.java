@@ -31,10 +31,6 @@ import org.apache.ibatis.session.RowBounds;
 })
 public class DataAuthScopeInterceptor implements Interceptor {
 
-	public static void enableEnhanceBoundSql(boolean enable) {
-		MapperHelperContext.enableEnhanceBoundSql(enable);
-	}
-
 	@Override
 	public Object intercept(Invocation invocation) throws Throwable {
 		MappedStatement mappedStatement = (MappedStatement) invocation.getArgs()[0];
