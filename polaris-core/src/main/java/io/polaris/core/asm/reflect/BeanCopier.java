@@ -20,6 +20,9 @@ import io.polaris.core.asm.internal.Asms;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.TypeRef;
 import io.polaris.core.lang.Types;
+import io.polaris.core.lang.bean.property.BeanProperties;
+import io.polaris.core.lang.bean.property.BeanPropertiesClassification;
+import io.polaris.core.lang.bean.property.BeanPropertyInfo;
 import io.polaris.core.lang.copier.CopyOptions;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
@@ -563,7 +566,7 @@ public abstract class BeanCopier<S> {
 	 * @return Bean 复制器实例
 	 */
 	public static <T> BeanCopier<T> create(@Nonnull Class<T> type) {
-		BeanPropertyInfo.Classification classification = BeanPropertyInfo.classify(type);
+		BeanPropertiesClassification classification = BeanProperties.classify(type);
 		String accessClassName = AccessClassLoader.buildAccessClassName(type, BeanCopier.class);
 
 		AccessClassLoader loader = AccessClassLoader.get(type);
@@ -602,7 +605,7 @@ public abstract class BeanCopier<S> {
 	 */
 	private static <T> byte[] buildAccessClass(AccessClassLoader loader
 		, String accessClassName, Class<T> type
-		, BeanPropertyInfo.Classification classification) {
+		, BeanPropertiesClassification classification) {
 		// 将类名转换为JVM内部格式（点号替换为斜杠）
 		String accessClassNameInternal = accessClassName.replace('.', '/');
 
@@ -697,7 +700,7 @@ public abstract class BeanCopier<S> {
 	 * @param <T> Bean类型参数
 	 */
 	@SuppressWarnings("all")
-	private static <T> void insertInitTypeFields(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertyInfo.Classification classification) {
+	private static <T> void insertInitTypeFields(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertiesClassification classification) {
 		SerializableConsumer<BeanCopier> initTypeFields = BeanCopier::initTypeFields;
 		SerializableBiFunction<BeanCopier, String, java.lang.reflect.Type> getPropertyGenericType = BeanCopier::getPropertyGenericType;
 		SerializableBiFunction<BeanCopier, String, Class> getPropertyType = BeanCopier::getPropertyType;
@@ -725,7 +728,7 @@ public abstract class BeanCopier<S> {
 	 * @param getPropertyGenericTypeMethodName 获取泛型类型的方法名
 	 * @param getPropertyTypeMethodName 获取原始类型的方法名
 	 */
-	static void insertInitTypeFields(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, BeanPropertyInfo.Classification classification, String initTypeFieldsMethodName, String getPropertyGenericTypeMethodName, String getPropertyTypeMethodName) {
+	static void insertInitTypeFields(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, BeanPropertiesClassification classification, String initTypeFieldsMethodName, String getPropertyGenericTypeMethodName, String getPropertyTypeMethodName) {
 		// 为每个属性创建Type和Class缓存字段
 		classification.properties.forEach((name, info) -> {
 			// protected Type type_fieldName;
@@ -784,7 +787,7 @@ public abstract class BeanCopier<S> {
 	 * @param <T> Bean类型参数
 	 */
 	@SuppressWarnings("all")
-	private static <T> void insertBeanToMap(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertyInfo.Classification classification) {
+	private static <T> void insertBeanToMap(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertiesClassification classification) {
 		SerializableTriConsumer<BeanCopier, String, Throwable> resolveCopyError = BeanCopier::resolveCopyError;
 		SerializableTriConsumer<BeanCopier, Object, Map<String, Object>> copyBeanToMap = BeanCopier::copyBeanToMap;
 		String copyBeanToMapName = copyBeanToMap.serialized().getImplMethodName();
@@ -902,7 +905,7 @@ public abstract class BeanCopier<S> {
 	 * @param <T> Bean类型参数
 	 */
 	@SuppressWarnings("all")
-	private static <T> void insertBeanToMapByConverter(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertyInfo.Classification classification) {
+	private static <T> void insertBeanToMapByConverter(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertiesClassification classification) {
 		SerializableTriConsumer<BeanCopier, String, Throwable> resolveCopyError = BeanCopier::resolveCopyError;
 		SerializableConsumerWithArgs6<BeanCopier, Object, Map, BiFunction<java.lang.reflect.Type, Object, Object>, JavaType, JavaType> copyBeanToMap = BeanCopier::copyBeanToMapByConverter;
 		SerializableFunctionWithArgs4<BeanCopier, java.lang.reflect.Type, Object, BiFunction<java.lang.reflect.Type, Object, Object>, Object> convert = BeanCopier::convert;
@@ -1012,7 +1015,7 @@ public abstract class BeanCopier<S> {
 
 
 	@SuppressWarnings("all")
-	private static <T> void insertMapToBean(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertyInfo.Classification classification) {
+	private static <T> void insertMapToBean(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertiesClassification classification) {
 		SerializableTriConsumer<BeanCopier, String, Throwable> resolveCopyError = BeanCopier::resolveCopyError;
 		SerializableTriConsumer<BeanCopier, Map<String, Object>, Object> copyMapToBean = BeanCopier::copyMapToBean;
 		String copyMapToBeanName = copyMapToBean.serialized().getImplMethodName();
@@ -1137,7 +1140,7 @@ public abstract class BeanCopier<S> {
 
 
 	@SuppressWarnings("all")
-	private static <T> void insertMapToBeanByConverter(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertyInfo.Classification classification) {
+	private static <T> void insertMapToBeanByConverter(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertiesClassification classification) {
 		SerializableConsumerWithArgs4<BeanCopier, Map<String, Object>, Object, BiFunction<java.lang.reflect.Type, Object, Object>> copyMapToBean = BeanCopier::copyMapToBean;
 		SerializableFunctionWithArgs4<BeanCopier, java.lang.reflect.Type, Object, BiFunction<java.lang.reflect.Type, Object, Object>, Object> convert = BeanCopier::convert;
 		SerializableTriConsumer<BeanCopier, String, Throwable> resolveCopyError = BeanCopier::resolveCopyError;
@@ -1338,7 +1341,7 @@ public abstract class BeanCopier<S> {
 	 * @param <T> Bean类型参数
 	 */
 	@SuppressWarnings("all")
-	private static <T> void insertBeanToBeanBySameType(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertyInfo.Classification classification) {
+	private static <T> void insertBeanToBeanBySameType(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertiesClassification classification) {
 		SerializableTriConsumer<BeanCopier, Object, Object> copyBeanToBeanBySameType = BeanCopier::copyBeanToBeanBySameType;
 		SerializableTriConsumer<BeanCopier, String, Throwable> resolveCopyError = BeanCopier::resolveCopyError;
 
@@ -1500,7 +1503,7 @@ public abstract class BeanCopier<S> {
 	 * @param <T> Bean类型参数
 	 */
 	@SuppressWarnings("all")
-	private static <T> void insertBeanToMapByOptions(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertyInfo.Classification classification) {
+	private static <T> void insertBeanToMapByOptions(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertiesClassification classification) {
 		String subMethodPrefix = "copyBeanToMapWithKeyByOptions$";
 		List<String> subMethods = new ArrayList<>();
 		// 为每个有getter的属性生成独立的子方法
@@ -1677,7 +1680,7 @@ public abstract class BeanCopier<S> {
 	 */
 	@SuppressWarnings("all")
 	private static <T> void insertMapToBeanWithCustomKeys(ClassWriter cw, String accessClassNameInternal,
-		Class<T> type, BeanPropertyInfo.Classification classification) {
+		Class<T> type, BeanPropertiesClassification classification) {
 		SerializableConsumerWithArgs6<BeanCopier, Map<String, Object>, Object, CopyOptions, Set<String>, Map<String, String>> copyMapToBeanWithCustomKeys = BeanCopier::copyMapToBeanWithCustomKeys;
 		MethodVisitor methodVisitor = cw.visitMethod(ACC_PROTECTED,
 			copyMapToBeanWithCustomKeys.serialized().getImplMethodName(),
@@ -1745,7 +1748,7 @@ public abstract class BeanCopier<S> {
 	 */
 	@SuppressWarnings("all")
 	private static <T> void insertMapToBeanWithSourceKeys(ClassWriter cw, String accessClassNameInternal,
-		Class<T> type, BeanPropertyInfo.Classification classification,
+		Class<T> type, BeanPropertiesClassification classification,
 		SerializableConsumerWithArgs5<BeanCopier, Map<String, Object>, Object, CopyOptions, Set<String>> copyMethod,
 		Function<String, String> keyMapper) {
 		MethodVisitor methodVisitor = cw.visitMethod(ACC_PUBLIC, copyMethod.serialized().getImplMethodName(),
@@ -1807,7 +1810,7 @@ public abstract class BeanCopier<S> {
 	 * @param <T> Bean类型参数
 	 */
 	@SuppressWarnings("all")
-	private static <T> void insertMapToBeanWithSourceKeyAll(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertyInfo.Classification classification) {
+	private static <T> void insertMapToBeanWithSourceKeyAll(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertiesClassification classification) {
 		classification.properties.forEach((key, info) -> {
 			if (info.hasSetter()) {
 				insertMapToBeanWithSourceKey(cw, superClassNameInternal, accessClassNameInternal, type, info);

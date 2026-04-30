@@ -10,6 +10,9 @@ import java.util.function.Function;
 
 import io.polaris.core.asm.internal.Asms;
 import io.polaris.core.lang.Types;
+import io.polaris.core.lang.bean.property.BeanProperties;
+import io.polaris.core.lang.bean.property.BeanPropertiesClassification;
+import io.polaris.core.lang.bean.property.BeanPropertyInfo;
 import io.polaris.core.lang.copier.CopyOptions;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
@@ -227,7 +230,7 @@ public abstract class BeanOptionsCopier<S, T> {
 
 
 	static <S, T> BeanOptionsCopier<S, T> create(BeanCopier<S> beanCopier, Class<T> targetType) {
-		BeanPropertyInfo.Classification classification = BeanPropertyInfo.classify(targetType);
+		BeanPropertiesClassification classification = BeanProperties.classify(targetType);
 		String accessClassName = beanCopier.getClass().getName()
 			+ CLASS_NAME_PREFIX
 			+ (targetType.getName().replace("_", "__").replace('.', '_'));
@@ -250,7 +253,7 @@ public abstract class BeanOptionsCopier<S, T> {
 
 	private static <S, T> byte[] buildOptionsCopierClass(AccessClassLoader loader
 		, BeanCopier<S> beanCopier, String accessClassName, Class<T> type
-		, BeanPropertyInfo.Classification classification) {
+		, BeanPropertiesClassification classification) {
 		Map<String, BeanPropertyInfo> targetProperties = classification.properties;
 		Map<String, BeanPropertyInfo> sourceProperties = beanCopier.properties;
 		Map<String, BeanPropertyInfo> sourceUpperProperties = Maps.newUpperCaseLinkedHashMap();
@@ -299,7 +302,7 @@ public abstract class BeanOptionsCopier<S, T> {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private static <T> void insertInitTypeFields(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertyInfo.Classification classification) {
+	private static <T> void insertInitTypeFields(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertiesClassification classification) {
 		SerializableConsumer<BeanOptionsCopier> init = BeanOptionsCopier::initTypeFields;
 		SerializableBiFunction<BeanOptionsCopier, String, java.lang.reflect.Type> getPropertyGenericType = BeanOptionsCopier::getPropertyGenericType;
 		SerializableBiFunction<BeanOptionsCopier, String, Class> getPropertyType = BeanOptionsCopier::getPropertyType;

@@ -11,6 +11,9 @@ import java.util.Set;
 import java.util.function.BiFunction;
 
 import io.polaris.core.asm.internal.Asms;
+import io.polaris.core.lang.bean.property.BeanProperties;
+import io.polaris.core.lang.bean.property.BeanPropertiesClassification;
+import io.polaris.core.lang.bean.property.BeanPropertyInfo;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.reflect.SerializableConsumerWithArgs4;
@@ -537,7 +540,7 @@ public abstract class BeanAccess<T> {
 	 */
 	@SuppressWarnings({"unchecked"})
 	public static <T> BeanAccess<T> create(Class<T> type) {
-		BeanPropertyInfo.Classification classification = BeanPropertyInfo.classify(type);
+		BeanPropertiesClassification classification = BeanProperties.classify(type);
 		String accessClassName = AccessClassLoader.buildAccessClassName(type, BeanAccess.class);
 		Class accessClass;
 		AccessClassLoader loader = AccessClassLoader.get(type);
@@ -592,7 +595,7 @@ public abstract class BeanAccess<T> {
 	 */
 	private static <T> Class buildAccessClass(AccessClassLoader loader
 		, String accessClassName, Class<T> type
-		, BeanPropertyInfo.Classification classification) {
+		, BeanPropertiesClassification classification) {
 		String accessClassNameInternal = accessClassName.replace('.', '/');
 		String classNameInternal = type.getName().replace('.', '/');
 

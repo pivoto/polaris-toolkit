@@ -9,6 +9,9 @@ import java.util.function.BiFunction;
 import io.polaris.core.asm.internal.Asms;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.Types;
+import io.polaris.core.lang.bean.property.BeanProperties;
+import io.polaris.core.lang.bean.property.BeanPropertiesClassification;
+import io.polaris.core.lang.bean.property.BeanPropertyInfo;
 import io.polaris.core.lang.copier.CopyOptions;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
@@ -170,7 +173,7 @@ public abstract class BeanDirectCopier<S, T> {
 	 */
 	@SuppressWarnings({"unchecked"})
 	static <S, T> BeanDirectCopier<S, T> create(BeanCopier<S> beanCopier, Class<T> targetType) {
-		BeanPropertyInfo.Classification classification = BeanPropertyInfo.classify(targetType);
+		BeanPropertiesClassification classification = BeanProperties.classify(targetType);
 		String accessClassName = beanCopier.getClass().getName()
 			+ CLASS_NAME_PREFIX
 			+ (targetType.getName().replace("_", "__").replace('.', '_'));
@@ -206,7 +209,7 @@ public abstract class BeanDirectCopier<S, T> {
 	 */
 	private static <S, T> byte[] buildFastCopierClass(AccessClassLoader loader
 		, BeanCopier<S> beanCopier, String accessClassName, Class<T> type
-		, BeanPropertyInfo.Classification classification) {
+		, BeanPropertiesClassification classification) {
 		String accessClassNameInternal = accessClassName.replace('.', '/');
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
 		String superClassNameInternal = org.objectweb.asm.Type.getInternalName(BeanDirectCopier.class);
@@ -235,7 +238,7 @@ public abstract class BeanDirectCopier<S, T> {
 	 * @param <T> 目标类型
 	 */
 	@SuppressWarnings("rawtypes")
-	private static <T> void insertInitTypeFields(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertyInfo.Classification classification) {
+	private static <T> void insertInitTypeFields(ClassWriter cw, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertiesClassification classification) {
 		SerializableConsumer<BeanDirectCopier> init = BeanDirectCopier::initTypeFields;
 		SerializableBiFunction<BeanDirectCopier, String, java.lang.reflect.Type> getPropertyGenericType = BeanDirectCopier::getPropertyGenericType;
 		SerializableBiFunction<BeanDirectCopier, String, Class> getPropertyType = BeanDirectCopier::getPropertyType;
@@ -261,7 +264,7 @@ public abstract class BeanDirectCopier<S, T> {
 	 * @param <T> 目标 Bean 类型
 	 */
 	@SuppressWarnings("all")
-	private static <S, T> void insertMethodCopy(ClassWriter cw, BeanCopier<S> beanCopier, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertyInfo.Classification classification) {
+	private static <S, T> void insertMethodCopy(ClassWriter cw, BeanCopier<S> beanCopier, String superClassNameInternal, String accessClassNameInternal, Class<T> type, BeanPropertiesClassification classification) {
 
 		SerializableTriConsumer<BeanDirectCopier, String, Throwable> logCopyError = BeanDirectCopier::resolveCopyError;
 		SerializableTriConsumer<BeanDirectCopier, Object, Object> copy = BeanDirectCopier::copy;

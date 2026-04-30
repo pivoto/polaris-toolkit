@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
 import io.polaris.core.asm.reflect.BeanAccess;
 import io.polaris.core.asm.reflect.BeanCopier;
 import io.polaris.core.asm.reflect.BeanLambdaAccess;
-import io.polaris.core.asm.reflect.BeanPropertyInfo;
+import io.polaris.core.lang.bean.property.BeanPropertyInfo;
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.converter.Converters;
 import io.polaris.core.lang.Types;
