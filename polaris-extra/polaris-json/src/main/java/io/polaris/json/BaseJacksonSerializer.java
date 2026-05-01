@@ -16,6 +16,7 @@ public abstract class BaseJacksonSerializer<T> extends JsonSerializer<T> {
 	protected final JavaType javaType;
 	protected final Class<T> rawClass;
 
+	@SuppressWarnings("unchecked")
 	public BaseJacksonSerializer(Annotated annotated) {
 		if (annotated == null) {
 			this.javaType = null;
@@ -37,14 +38,19 @@ public abstract class BaseJacksonSerializer<T> extends JsonSerializer<T> {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Class<T> handledType() {
+		if (javaType != null) {
+			return (Class<T>) javaType.getRawClass();
+		}
 		return rawClass;
 	}
 
 	@SuppressWarnings("unchecked")
 	protected T createBean(Supplier<T> supplier) {
 		try {
+			Class<?> rawClass = handledType();
 			if (rawClass != null) {
 				return (T) rawClass.newInstance();
 			}
@@ -57,6 +63,7 @@ public abstract class BaseJacksonSerializer<T> extends JsonSerializer<T> {
 	@SuppressWarnings("unchecked")
 	protected T createBean() {
 		try {
+			Class<?> rawClass = handledType();
 			if (rawClass != null) {
 				return (T) rawClass.newInstance();
 			}

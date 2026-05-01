@@ -44,12 +44,16 @@ public abstract class BaseJacksonDeserializer<T> extends JsonDeserializer<T> {
 
 	@Override
 	public Class<?> handledType() {
+		if (javaType != null) {
+			return javaType.getRawClass();
+		}
 		return rawClass;
 	}
 
 	@SuppressWarnings("unchecked")
 	protected T createBean(Supplier<T> supplier) {
 		try {
+			Class<?> rawClass = handledType();
 			if (rawClass != null) {
 				return (T) rawClass.newInstance();
 			}
@@ -62,6 +66,7 @@ public abstract class BaseJacksonDeserializer<T> extends JsonDeserializer<T> {
 	@SuppressWarnings("unchecked")
 	protected T createBean() {
 		try {
+			Class<?> rawClass = handledType();
 			if (rawClass != null) {
 				return (T) rawClass.newInstance();
 			}
