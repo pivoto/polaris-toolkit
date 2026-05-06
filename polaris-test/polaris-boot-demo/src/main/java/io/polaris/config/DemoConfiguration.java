@@ -34,9 +34,9 @@ public class DemoConfiguration {
 
 	public DemoConfiguration(MybatisProperties properties) throws Throwable {
 		org.apache.ibatis.session.Configuration configuration = properties.getConfiguration();
-		EnhancedConfiguration enhancedConfiguration = new EnhancedConfiguration(configuration);
-		OriginalLogFactory.useOriginalLogging();
-		enhancedConfiguration.setLogImpl(DebuggableLog.class);
+		EnhancedConfiguration enhancedConfiguration = new EnhancedConfiguration();
+		enhancedConfiguration.copyConfiguration(configuration);
+		enhancedConfiguration.setUseDebuggableLog(true);
 		properties.setConfiguration(enhancedConfiguration);
 	}
 

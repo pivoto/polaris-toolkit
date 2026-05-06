@@ -8,17 +8,18 @@ import java.util.Set;
 import java.util.function.Function;
 
 import io.polaris.core.reflect.Methods;
-import io.polaris.mybatis.interceptor.BoundSqlEnhanceInterceptor;
-import io.polaris.mybatis.interceptor.DynamicEnhancedInterceptor;
+import io.polaris.mybatis.enhance.log.DebuggableLog;
+import io.polaris.mybatis.enhance.log.OriginalLogFactory;
 import io.polaris.mybatis.type.TypeHandlers;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.binding.MapperRegistry;
 import org.apache.ibatis.builder.CacheRefResolver;
 import org.apache.ibatis.builder.ResultMapResolver;
 import org.apache.ibatis.builder.annotation.MethodResolver;
 import org.apache.ibatis.builder.xml.XMLStatementBuilder;
 import org.apache.ibatis.cache.Cache;
 import org.apache.ibatis.executor.keygen.KeyGenerator;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.ParameterMap;
@@ -45,6 +46,8 @@ public class EnhancedConfiguration extends Configuration {
 
 	/** 覆盖原 Configuration 的 MapperRegistry，重写相关的addMapper等方法，增加扩展功能 */
 	protected final EnhancedMapperRegistry mapperRegistry = new EnhancedMapperRegistry(this);
+	/** 是否强制使用DebuggableLog，用于实现在SQL拦截器中获取绑定语句与参数 */
+	protected boolean useDebuggableLog = true;
 
 	public EnhancedConfiguration(Environment environment) {
 		super(environment);
@@ -56,12 +59,6 @@ public class EnhancedConfiguration extends Configuration {
 		init();
 	}
 
-	public EnhancedConfiguration(Configuration origin) throws Throwable {
-		super(origin.getEnvironment());
-		init();
-		copyConfiguration(origin);
-	}
-
 	private void init() {
 		TypeHandlers.registerAll(this);
 		this.typeHandlerRegistry.setDefaultEnumTypeHandler(EnhancedEnumTypeHandler.class);
@@ -70,7 +67,9 @@ public class EnhancedConfiguration extends Configuration {
 
 	// region copy Configuration
 
-	private void copyConfiguration(Configuration origin) throws Throwable {
+	public EnhancedConfiguration copyConfiguration(Configuration origin) throws Throwable {
+		// environment
+		this.environment = origin.getEnvironment();
 		this.safeRowBoundsEnabled = origin.isSafeRowBoundsEnabled();
 		this.safeResultHandlerEnabled = origin.isSafeResultHandlerEnabled();
 		this.mapUnderscoreToCamelCase = origin.isMapUnderscoreToCamelCase();
@@ -84,7 +83,8 @@ public class EnhancedConfiguration extends Configuration {
 		this.returnInstanceForEmptyRow = origin.isReturnInstanceForEmptyRow();
 		this.shrinkWhitespacesInSql = origin.isShrinkWhitespacesInSql();
 		this.logPrefix = origin.getLogPrefix();
-		this.logImpl = origin.getLogImpl();
+		// 重写 setLogImpl
+		this.setLogImpl(origin.getLogImpl());
 		this.vfsImpl = origin.getVfsImpl();
 		this.defaultSqlProviderType = origin.getDefaultSqlProviderType();
 		this.localCacheScope = origin.getLocalCacheScope();
@@ -124,6 +124,7 @@ public class EnhancedConfiguration extends Configuration {
 		copyIncompleteResultMaps(origin);
 		copyIncompleteMethods(origin);
 		copyCacheRefMap(origin);
+		return this;
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
@@ -172,10 +173,10 @@ public class EnhancedConfiguration extends Configuration {
 	}
 
 	private TypeHandler<?> updateTypeHandlerConfiguration(TypeHandler<?> typeHandler) {
-		if (typeHandler instanceof UnknownTypeHandler){
+		if (typeHandler instanceof UnknownTypeHandler) {
 			// 更新UnknownTypeHandler，否则其关联的Configuration还是旧的
 			typeHandler = this.typeHandlerRegistry.getUnknownTypeHandler();
-		}else if (typeHandler instanceof BaseTypeHandler){
+		} else if (typeHandler instanceof BaseTypeHandler) {
 			// noinspection deprecation
 			((BaseTypeHandler<?>) typeHandler).setConfiguration(this);
 		}
@@ -316,6 +317,40 @@ public class EnhancedConfiguration extends Configuration {
 
 	// endregion copy Configuration
 
+
+	public boolean isUseDebuggableLog() {
+		return useDebuggableLog;
+	}
+
+	public void setUseDebuggableLog(boolean useDebuggableLog) {
+		this.useDebuggableLog = useDebuggableLog;
+		if (useDebuggableLog) {
+			Class<? extends Log> logImplClass = this.logImpl;
+			if (logImplClass != null && !DebuggableLog.class.isAssignableFrom(logImplClass)) {
+				this.logImpl = DebuggableLog.class;
+				LogFactory.useCustomLogging(DebuggableLog.class);
+				OriginalLogFactory.useOriginalLogging(logImplClass);
+			}
+		} else {
+			Class<? extends Log> logImplClass = OriginalLogFactory.getLogImplClass();
+			if (logImplClass != null) {
+				super.setLogImpl(logImplClass);
+			}
+		}
+	}
+
+	@Override
+	public void setLogImpl(Class<? extends Log> logImpl) {
+		if (logImpl != null) {
+			if (this.useDebuggableLog) {
+				this.logImpl = DebuggableLog.class;
+				LogFactory.useCustomLogging(DebuggableLog.class);
+				OriginalLogFactory.useOriginalLogging(logImpl);
+			} else {
+				super.setLogImpl(logImpl);
+			}
+		}
+	}
 
 	@Override
 	public void addInterceptor(Interceptor interceptor) {

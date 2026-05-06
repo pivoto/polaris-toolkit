@@ -14,13 +14,7 @@ public class DebuggableLog implements Log {
 	private final Log log;
 
 	public DebuggableLog(String clazz) {
-		// Do Nothing
-		Class<? extends Log> logImplClass = OriginalLogFactory.getLogImplClass();
-		if (logImplClass != null && logImplClass != DebuggableLog.class) {
-			this.log = OriginalLogFactory.getLog(clazz);
-		} else {
-			this.log = null;
-		}
+		this.log = OriginalLogFactory.getLog(clazz);
 	}
 
 	@Override

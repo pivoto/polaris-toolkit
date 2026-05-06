@@ -28,6 +28,9 @@ public class OriginalLogFactory {
 	}
 
 	public static Log getLog(String logger) {
+		if (logImplClass == null || DebuggableLog.class.isAssignableFrom(logImplClass)) {
+			return null;
+		}
 		try {
 			return logConstructor.newInstance(logger);
 		} catch (Throwable t) {
@@ -35,6 +38,7 @@ public class OriginalLogFactory {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static void useOriginalLogging() {
 		try {
 			Field field = LogFactory.class.getDeclaredField("logConstructor");
@@ -46,7 +50,7 @@ public class OriginalLogFactory {
 	}
 
 	public static void useOriginalLogging(Class<? extends Log> implClass) {
-		if (implClass == null || implClass.equals(DebuggableLog.class)){
+		if (implClass == null || DebuggableLog.class.isAssignableFrom(implClass)) {
 			useOriginalLogging();
 			return;
 		}
