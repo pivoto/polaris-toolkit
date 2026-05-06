@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import io.polaris.core.concurrent.Threads;
 import io.polaris.core.map.Maps;
 
 
@@ -15,28 +16,48 @@ import io.polaris.core.map.Maps;
  * @author Qt
  * @since Feb 05, 2024
  */
-@SuppressWarnings("unused")
+@SuppressWarnings("unchecked")
 public class JdbcExecutors {
 	private static final ThreadLocal<Connection> currentConnection = new ThreadLocal<>();
 	private static final Map<Class<?>, Object> executorCache = Maps.newSoftMap(new ConcurrentHashMap<>());
+	private static final Map<Class<?>, StatefulJdbcExecutor<?>> statefulJdbcExecutorCache = Maps.newSoftMap(new ConcurrentHashMap<>());
 
-	@SuppressWarnings({"unchecked", "StatementWithEmptyBody", "ConstantValue"})
-	public static <T> T createExecutor(Class<T> interfaceClass) {
+	@SuppressWarnings({"ConstantValue"})
+	public static <T> T getExecutor(Class<T> interfaceClass) {
 		T rs = null;
 		// 防止因对象回收后导致SoftMap结果丢失，尝试多次获取
-		while ((rs = (T) executorCache.computeIfAbsent(interfaceClass, JdbcExecutors::doCreateExecutor)) == null) {
+		while ((rs = (T) executorCache.computeIfAbsent(interfaceClass, JdbcExecutors::newExecutor)) == null) {
+			Threads.sleep(0);
 		}
 		return rs;
 	}
 
-	@SuppressWarnings("unchecked")
-	private static <T> T doCreateExecutor(Class<T> interfaceClass) {
+	public static <T> T newExecutor(Class<T> interfaceClass) {
 		JdbcExecutor<T> handler = new JdbcExecutor<>(interfaceClass);
 		return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class[]{interfaceClass, InvocationHandlerHolder.class}, handler);
 	}
 
-	@SuppressWarnings("unchecked")
-	public static <T> T createExecutor(Class<T> interfaceClass, Connection connection, boolean batch) {
+	@SuppressWarnings("ConstantValue")
+	public static <T> T getExecutor(Class<T> interfaceClass, Connection connection, boolean batch) {
+		// 如果没有连接或批处理参数，则使用无状态执行器
+		if (connection == null && !batch) {
+			return getExecutor(interfaceClass);
+		}
+
+		StatefulJdbcExecutor<T> statefulJdbcExecutor = null;
+		// 防止因对象回收后导致SoftMap结果丢失，尝试多次获取
+		while ((statefulJdbcExecutor = (StatefulJdbcExecutor<T>) statefulJdbcExecutorCache.computeIfAbsent(interfaceClass, (k) -> new StatefulJdbcExecutor<>(interfaceClass, null, false))) == null) {
+			Threads.sleep(0);
+		}
+		StatefulJdbcExecutor<T> handler = new StatefulJdbcExecutor<>(statefulJdbcExecutor, connection, batch);
+		return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class[]{interfaceClass, InvocationHandlerHolder.class, JdbcBatchExecutor.class}, handler);
+	}
+
+	public static <T> T newExecutor(Class<T> interfaceClass, Connection connection, boolean batch) {
+		// 如果没有连接或批处理参数，则使用无状态执行器
+		if (connection == null && !batch) {
+			return newExecutor(interfaceClass);
+		}
 		StatefulJdbcExecutor<T> handler = new StatefulJdbcExecutor<>(interfaceClass, connection, batch);
 		return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class[]{interfaceClass, InvocationHandlerHolder.class, JdbcBatchExecutor.class}, handler);
 	}
@@ -45,7 +66,7 @@ public class JdbcExecutors {
 	public static <T> void doBatch(Class<T> interfaceClass, Connection connection, Consumer<T> consumer) {
 		T executor = null;
 		try {
-			executor = createExecutor(interfaceClass, connection, true);
+			executor = getExecutor(interfaceClass, connection, true);
 			consumer.accept(executor);
 		} finally {
 			if (executor instanceof JdbcBatchExecutor) {
@@ -60,7 +81,7 @@ public class JdbcExecutors {
 	public static <T> void doWithConnection(Class<T> interfaceClass, Connection connection, Consumer<T> consumer) {
 		setCurrentConnection(connection);
 		try {
-			T executor = createExecutor(interfaceClass);
+			T executor = getExecutor(interfaceClass);
 			consumer.accept(executor);
 		} finally {
 			clearCurrentConnection();

@@ -197,6 +197,7 @@ public class JdbcExecutorMetadata<T> {
 			}
 			// map
 			else if (Map.class.isAssignableFrom(rawClass)) {
+				//noinspection rawtypes
 				resultRowMapper = ResultRowMappers.ofMap((Class) rawClass);
 			}
 			// bean

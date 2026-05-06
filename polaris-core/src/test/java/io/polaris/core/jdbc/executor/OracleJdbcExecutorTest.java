@@ -18,7 +18,7 @@ import org.junit.jupiter.api.TestInfo;
  */
 public class OracleJdbcExecutorTest extends BaseOracleJdbcTest {
 	private static final Logger log = Loggers.of();
-	DemoTestExecutor demoTestExecutor = Jdbcs.createExecutor(DemoTestExecutor.class);
+	DemoTestExecutor demoTestExecutor = Jdbcs.getExecutor(DemoTestExecutor.class);
 
 	@BeforeAll
 	static void beforeAll(TestInfo testInfo) {
@@ -32,26 +32,7 @@ public class OracleJdbcExecutorTest extends BaseOracleJdbcTest {
 	}
 
 	@Test
-	void test01(TestInfo testInfo) {
-		doWithConnection(conn -> {
-			log.info("[insert] result: {}", toString(
-				demoTestExecutor.insertDemoTest02(DemoTest02Entity.builder().name("test").build())
-			));
-
-			log.info("[select] result: {}", toString(
-				demoTestExecutor.getDemoTest02List(DemoTest02Entity.builder().name("test%").build())
-			));
-			log.info("[delete] result: {}", toString(
-				demoTestExecutor.deleteDemoTest02(DemoTest02Entity.builder().name("test").build())
-			));
-			log.info("[select] result: {}", toString(
-				demoTestExecutor.getDemoTest02List(DemoTest02Entity.builder().name("test%").build())
-			));
-		});
-	}
-
-	@Test
-	void test02(TestInfo testInfo) throws SQLException {
+	void test01(TestInfo testInfo) throws SQLException {
 		doWithConnection(conn -> {
 
 			log.info("[insert] result: {}", toString(
@@ -71,6 +52,25 @@ public class OracleJdbcExecutorTest extends BaseOracleJdbcTest {
 				demoTestExecutor.getDemoTest01List(DemoTest01Entity.builder().name("test%").build())
 			));
 
+		});
+	}
+
+	@Test
+	void test02(TestInfo testInfo) {
+		doWithConnection(conn -> {
+			log.info("[insert] result: {}", toString(
+				demoTestExecutor.insertDemoTest02(DemoTest02Entity.builder().name("test").build())
+			));
+
+			log.info("[select] result: {}", toString(
+				demoTestExecutor.getDemoTest02List(DemoTest02Entity.builder().name("test%").build())
+			));
+			log.info("[delete] result: {}", toString(
+				demoTestExecutor.deleteDemoTest02(DemoTest02Entity.builder().name("test").build())
+			));
+			log.info("[select] result: {}", toString(
+				demoTestExecutor.getDemoTest02List(DemoTest02Entity.builder().name("test%").build())
+			));
 		});
 	}
 

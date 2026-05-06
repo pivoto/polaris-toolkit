@@ -389,12 +389,20 @@ public class Jdbcs {
 	}
 
 
-	public static <T> T createExecutor(Class<T> interfaceClass) {
-		return JdbcExecutors.createExecutor(interfaceClass);
+	public static <T> T getExecutor(Class<T> interfaceClass) {
+		return JdbcExecutors.getExecutor(interfaceClass);
 	}
 
-	public static <T> T createExecutor(Class<T> interfaceClass, Connection connection, boolean batch) {
-		return JdbcExecutors.createExecutor(interfaceClass, connection, batch);
+	public static <T> T newExecutor(Class<T> interfaceClass) {
+		return JdbcExecutors.newExecutor(interfaceClass);
+	}
+
+	public static <T> T getExecutor(Class<T> interfaceClass, Connection connection, boolean batch) {
+		return JdbcExecutors.getExecutor(interfaceClass, connection, batch);
+	}
+
+	public static <T> T newExecutor(Class<T> interfaceClass, Connection connection, boolean batch) {
+		return JdbcExecutors.newExecutor(interfaceClass, connection, batch);
 	}
 
 	/**

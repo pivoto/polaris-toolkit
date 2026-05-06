@@ -34,7 +34,7 @@ public class JdbcExecutorsTest {
 
 	@Test
 	void test02() throws SQLException {
-		TestInterface testInterface = Jdbcs.createExecutor(TestInterface.class);
+		TestInterface testInterface = Jdbcs.getExecutor(TestInterface.class);
 		try (Connection conn = Jdbcs.getConnection("jdbc:oracle:thin:@localhost:1521/cmisdb", "cmis_config", "cmis_config");) {
 			JdbcExecutors.setCurrentConnection(conn);
 			conn.setAutoCommit(false);
