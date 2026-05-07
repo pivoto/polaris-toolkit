@@ -26,7 +26,6 @@ import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.string.Strings;
 import io.polaris.core.tuple.Tuple;
-import io.polaris.core.tuple.Tuple3;
 import io.polaris.core.tuple.Tuples;
 
 /**
@@ -38,7 +37,7 @@ public class Dbv {
 	public static <T> List<T> read(ResultSet rs, List<T> list, final Class<? extends T> clazz)
 		throws InstantiationException, IllegalAccessException {
 		try {
-			DbvColumnFieldsMeta meta = DbvResultSetFetcher.getColumnFieldsMetadata(rs, clazz);
+			DbvColumnFieldsMeta meta = DbvColumnFieldsMeta.of(rs, clazz);
 			while (rs.next()) {
 				final T object = clazz.newInstance();
 				DbvResultSetFetcher.fetch(meta, rs, object);
@@ -186,6 +185,7 @@ public class Dbv {
 						if (first) {
 							sb.append(" WHERE");
 						}
+						first = false;
 						sb.append(" T.OWNER = ?");
 						params.add(schema);
 					}

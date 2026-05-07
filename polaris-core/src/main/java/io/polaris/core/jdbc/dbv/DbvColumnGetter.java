@@ -6,14 +6,15 @@ import java.sql.SQLException;
 /**
  * @author Qt
  */
-public interface DbvColumnGetter<T> {
+public interface DbvColumnGetter {
 
 	/**
 	 * get col value from rs
+	 *
 	 * @param rs
 	 * @param columnName
 	 * @return
 	 * @throws SQLException
 	 */
-	T getColumnValue(final ResultSet rs, final String columnName) throws SQLException;
+	Object getColumnValue(final ResultSet rs, final String columnName) throws SQLException;
 }
