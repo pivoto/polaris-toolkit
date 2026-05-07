@@ -11,6 +11,6 @@ import lombok.Data;
 @Data
 public class DbvColumnFieldMeta {
 	private Field field;
-	private DbvColumnGetter getter;
+	private DbvColumnGetter<?> getter;
 	private String column;
 }
