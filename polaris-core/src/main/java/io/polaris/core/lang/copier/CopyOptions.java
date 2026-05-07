@@ -70,7 +70,7 @@ public class CopyOptions implements Cloneable {
 	private boolean enableCamelToUnderlineCase = false;
 	/** 是否忽略空值，当源对象的值为null时，true: 忽略而不注入此值，false: 注入null */
 	private boolean ignoreNull = true;
-	/** 是否覆盖目标值，如果不覆盖，会先读取目标对象的值，非null则写，否则忽略。如果覆盖，则不判断直接写 */
+	/** 是否覆盖目标值，如果不覆盖，会先读取目标对象的值，为null则写，否则忽略。如果覆盖，则不判断直接写 */
 	private boolean override = true;
 	/** 属性名转换编辑器，用于自定义属性转换规则，例如驼峰转下划线等 */
 	private Function<String, String> keyMapping;
