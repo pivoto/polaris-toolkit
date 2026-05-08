@@ -5,6 +5,8 @@ import java.lang.reflect.Proxy;
 import java.util.Map;
 import java.util.function.Function;
 
+import javax.annotation.Nonnull;
+
 import io.polaris.core.asm.internal.AsmConsts;
 import io.polaris.core.asm.internal.Signature;
 import io.polaris.core.asm.proxy.Enhancer;
@@ -93,21 +95,35 @@ public class Proxies {
 		return (object instanceof AopProxy && object.getClass().getName().contains(AsmConsts.CLASS_TAG_SEPARATOR));
 	}
 
+	@Nonnull
 	public static Class<?> getTargetClass(Object candidate) {
 		if (candidate instanceof AopProxy) {
 			// asm
 			if (candidate.getClass().getName().contains(AsmConsts.CLASS_TAG_SEPARATOR)) {
-				return candidate.getClass().getSuperclass();
+				return getTargetClass(candidate.getClass().getSuperclass());
 			}
 			// jdk
 			if (Proxy.isProxyClass(candidate.getClass())) {
 				InvocationHandler invocationHandler = Proxy.getInvocationHandler(candidate);
 				if (invocationHandler instanceof JdkInvocationHandler) {
-					return ((JdkInvocationHandler) invocationHandler).getTarget().getClass();
+					return getTargetClass(((JdkInvocationHandler) invocationHandler).getTarget().getClass());
 				}
 			}
 		}
 		return candidate.getClass();
+	}
+
+	@Nonnull
+	public static Class<?> getTargetClass(@Nonnull Class<?> clazz) {
+		while (AopProxy.class.isAssignableFrom(clazz) && clazz.getName().contains(AsmConsts.CLASS_TAG_SEPARATOR)) {
+			Class<?> superclass = clazz.getSuperclass();
+			if (superclass != null) {
+				clazz = superclass;
+			} else {
+				break;
+			}
+		}
+		return clazz;
 	}
 
 }
