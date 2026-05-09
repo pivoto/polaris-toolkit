@@ -23,8 +23,10 @@ import lombok.Getter;
  * @since Mar 13, 2026
  */
 public class StatefulSpiLoader<S> implements Iterable<S> {
+	private static class Holder{
+		private final static Map<Class<?>, State<?>> store = new ConcurrentHashMap<>();
+	}
 	private static final Logger log = Loggers.of(StatefulSpiLoader.class);
-	private final static Map<Class<?>, StatefulSpiLoader.State<?>> store = new ConcurrentHashMap<>();
 	private final SpiLoader<S> spiLoader;
 
 	private StatefulSpiLoader(SpiLoader<S> spiLoader) {
@@ -42,14 +44,14 @@ public class StatefulSpiLoader<S> implements Iterable<S> {
 	@SuppressWarnings("unchecked")
 	public static <S> StatefulSpiLoader<S> of(Class<S> service, ClassLoader classLoader) {
 		StatefulSpiLoader<S> loader = null;
-		StatefulSpiLoader.State<S> ref = (StatefulSpiLoader.State<S>) store.get(service);
+		StatefulSpiLoader.State<S> ref = (StatefulSpiLoader.State<S>) Holder.store.get(service);
 		if (ref == null) {
-			synchronized (store) {
-				ref = (StatefulSpiLoader.State<S>) store.get(service);
+			synchronized (Holder.store) {
+				ref = (StatefulSpiLoader.State<S>) Holder.store.get(service);
 				if (ref == null) {
 					loader = new StatefulSpiLoader<>(service, classLoader);
 					ref = new StatefulSpiLoader.State<>(classLoader, loader);
-					store.put(service, ref);
+					Holder.store.put(service, ref);
 				}
 			}
 		}
@@ -72,7 +74,7 @@ public class StatefulSpiLoader<S> implements Iterable<S> {
 	}
 
 	public static <S> void clear(Class<S> service) {
-		store.computeIfPresent(service, (k, v) -> {
+		Holder.store.computeIfPresent(service, (k, v) -> {
 			v.map.clear();
 			return null;
 		});
