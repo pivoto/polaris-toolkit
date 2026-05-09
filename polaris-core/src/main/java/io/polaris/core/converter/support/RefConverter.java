@@ -29,7 +29,7 @@ public class RefConverter<T extends Ref> extends AbstractSimpleConverter<T> {
 		if (this.targetType.getRawClass() == ValueRef.class) {
 			factory = targetValue -> (T) new ValueRef<>(targetValue);
 		} else if (this.targetType.getRawClass() == LazyRef.class) {
-			factory = targetValue -> (T) new LazyRef<>(() -> targetValue);
+			factory = targetValue -> (T) LazyRef.of(() -> targetValue);
 		} else if (this.targetType.getRawClass() == Ref.class) {
 			factory = targetValue -> (T) new ValueRef<>(targetValue);
 		} else {
