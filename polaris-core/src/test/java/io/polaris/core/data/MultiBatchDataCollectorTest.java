@@ -7,7 +7,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import io.polaris.core.concurrent.PooledThreadFactory;
+import io.polaris.core.concurrent.ThreadFactoryBuilder;
 import io.polaris.core.random.Randoms;
 import io.polaris.core.time.Dates;
 import lombok.RequiredArgsConstructor;
@@ -60,7 +60,7 @@ class MultiBatchDataCollectorTest {
 	@Test
 	void test02() throws InterruptedException {
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2,
-			new PooledThreadFactory("Test"));
+			new ThreadFactoryBuilder("Test").build());
 		@RequiredArgsConstructor
 		class Task implements Runnable {
 			private final String name;

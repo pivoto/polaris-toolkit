@@ -59,12 +59,12 @@ public class WrappingExecutors extends Executors {
 	}
 
 	public static ThreadPoolExecutor create(int core, BlockingQueue<Runnable> blockingQueue, final String threadNamePrefix, final boolean isDaemon) {
-		return create(getDefaultWrappingTaskFactory(), core, core, blockingQueue, new PooledThreadFactory().withPrefix(threadNamePrefix).withDaemon(isDaemon)
+		return create(getDefaultWrappingTaskFactory(), core, core, blockingQueue, new ThreadFactoryBuilder().withPrefix(threadNamePrefix).withDaemon(isDaemon).build()
 		);
 	}
 
 	public static ThreadPoolExecutor create(int core, int max, BlockingQueue<Runnable> blockingQueue, final String threadNamePrefix, final boolean isDaemon) {
-		return create(getDefaultWrappingTaskFactory(), core, max, blockingQueue, new PooledThreadFactory().withPrefix(threadNamePrefix).withDaemon(isDaemon)
+		return create(getDefaultWrappingTaskFactory(), core, max, blockingQueue, new ThreadFactoryBuilder().withPrefix(threadNamePrefix).withDaemon(isDaemon).build()
 		);
 	}
 

@@ -11,8 +11,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
 import io.polaris.core.assertion.Arguments;
-import io.polaris.core.concurrent.PooledThreadFactory;
 import io.polaris.core.concurrent.Schedules;
+import io.polaris.core.concurrent.ThreadFactoryBuilder;
 
 /**
  * @author Qt
@@ -81,7 +81,7 @@ public class BatchDataCollector<E> {
 				return false;
 			}
 			final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1,
-				new PooledThreadFactory(BatchDataCollector.class.getSimpleName()));
+				new ThreadFactoryBuilder(BatchDataCollector.class.getSimpleName()).build());
 			this.scheduler = scheduler;
 			scheduler.scheduleAtFixedRate(this::tryFlush, maxStoreNanos, maxStoreNanos, TimeUnit.NANOSECONDS);
 			if (withShutdownHook) {

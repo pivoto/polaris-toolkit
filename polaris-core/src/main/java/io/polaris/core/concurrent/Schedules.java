@@ -26,7 +26,7 @@ public class Schedules {
 	}
 
 	public static ScheduledExecutorService create(int core, final String threadNamePrefix, final boolean isDaemon) {
-		return create((WrappingTaskFactory) null, core, new PooledThreadFactory().withPrefix(threadNamePrefix).withDaemon(isDaemon));
+		return create((WrappingTaskFactory) null, core, new ThreadFactoryBuilder().withPrefix(threadNamePrefix).withDaemon(isDaemon).build());
 	}
 
 	public static ScheduledExecutorService create(int core, ThreadFactory threadFactory) {
@@ -51,7 +51,7 @@ public class Schedules {
 	}
 
 	public static ScheduledExecutorService create(WrappingTaskFactory wrappingTaskFactory, int core, final String threadNamePrefix, final boolean isDaemon) {
-		return create(wrappingTaskFactory, core, new PooledThreadFactory().withPrefix(threadNamePrefix).withDaemon(isDaemon));
+		return create(wrappingTaskFactory, core, new ThreadFactoryBuilder().withPrefix(threadNamePrefix).withDaemon(isDaemon).build());
 	}
 
 	public static ScheduledExecutorService create(WrappingTaskFactory wrappingTaskFactory, int core, ThreadFactory threadFactory) {

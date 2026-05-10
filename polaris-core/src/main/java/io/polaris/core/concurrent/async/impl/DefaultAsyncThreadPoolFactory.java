@@ -5,9 +5,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import io.polaris.core.concurrent.GroupThreadFactory;
-import io.polaris.core.concurrent.PooledThreadFactory;
 import io.polaris.core.concurrent.RejectedPolicies;
+import io.polaris.core.concurrent.ThreadFactoryBuilder;
 import io.polaris.core.concurrent.WrappingExecutors;
 import io.polaris.core.concurrent.WrappingScheduledThreadPoolExecutor;
 import io.polaris.core.concurrent.WrappingTaskFactory;
@@ -35,7 +34,7 @@ public class DefaultAsyncThreadPoolFactory implements AsyncThreadPoolFactory {
 		}
 		WrappingTaskFactory wrappingTaskFactory = WrappingExecutors.getDefaultWrappingTaskFactory();
 		WrappingThreadPoolExecutor executor = new WrappingThreadPoolExecutor(corePoolSize, maxPoolSize, 30, TimeUnit.SECONDS,
-			new LinkedBlockingQueue<>(), GroupThreadFactory.newInstance("AsyncRunner"), RejectedPolicies.CALLER_RUNS.policy());
+			new LinkedBlockingQueue<>(), new ThreadFactoryBuilder("AsyncRunner").build(), RejectedPolicies.CALLER_RUNS.policy());
 		executor.allowCoreThreadTimeOut(true);
 		executor.setWrappedTaskFactory(wrappingTaskFactory);
 		return executor;
@@ -56,7 +55,7 @@ public class DefaultAsyncThreadPoolFactory implements AsyncThreadPoolFactory {
 			poolSize = Runtime.getRuntime().availableProcessors();
 		}
 		WrappingTaskFactory wrappingTaskFactory = WrappingExecutors.getDefaultWrappingTaskFactory();
-		WrappingScheduledThreadPoolExecutor scheduler = new WrappingScheduledThreadPoolExecutor(poolSize, new PooledThreadFactory().withPrefix("ScheduledAsyncRunner").withDaemon(true));
+		WrappingScheduledThreadPoolExecutor scheduler = new WrappingScheduledThreadPoolExecutor(poolSize, new ThreadFactoryBuilder("ScheduledAsyncRunner").withDaemon(true).build());
 		//scheduler.allowCoreThreadTimeOut(true);// cannot set
 		scheduler.setWrappedTaskFactory(wrappingTaskFactory);
 		return scheduler;

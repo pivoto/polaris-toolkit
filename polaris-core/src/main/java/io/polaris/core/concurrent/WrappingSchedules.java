@@ -34,7 +34,7 @@ public class WrappingSchedules extends Schedules {
 	}
 
 	public static ScheduledExecutorService create(int core, final String threadNamePrefix, final boolean isDaemon) {
-		return create(getDefaultWrappingTaskFactory(), core, new PooledThreadFactory().withPrefix(threadNamePrefix).withDaemon(isDaemon));
+		return create(getDefaultWrappingTaskFactory(), core, new ThreadFactoryBuilder().withPrefix(threadNamePrefix).withDaemon(isDaemon).build());
 	}
 
 	public static ScheduledExecutorService create(int core, ThreadFactory threadFactory) {

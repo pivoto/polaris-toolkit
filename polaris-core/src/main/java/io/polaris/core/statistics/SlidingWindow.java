@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
-import io.polaris.core.concurrent.PooledThreadFactory;
+import io.polaris.core.concurrent.ThreadFactoryBuilder;
 
 /**
  * 滑动窗口统计工具
@@ -51,7 +51,7 @@ public class SlidingWindow<S extends EventStatistics<S>> {
 				return false;
 			}
 			ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1,
-				new PooledThreadFactory("SlidingWindow"));
+				new ThreadFactoryBuilder("SlidingWindow").build());
 			this.scheduler = scheduler;
 			scheduler.scheduleAtFixedRate(() -> {
 				long currentTime = System.currentTimeMillis();

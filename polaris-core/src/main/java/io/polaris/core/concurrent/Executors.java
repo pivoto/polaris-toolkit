@@ -1,6 +1,14 @@
 package io.polaris.core.concurrent;
 
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
@@ -92,12 +100,12 @@ public class Executors {
 	}
 
 	public static ThreadPoolExecutor create(int core, BlockingQueue<Runnable> blockingQueue, String threadNamePrefix, boolean isDaemon) {
-		return create((WrappingTaskFactory) null, core, core, blockingQueue, new PooledThreadFactory().withPrefix(threadNamePrefix).withDaemon(isDaemon)
+		return create((WrappingTaskFactory) null, core, core, blockingQueue, new ThreadFactoryBuilder().withPrefix(threadNamePrefix).withDaemon(isDaemon).build()
 		);
 	}
 
 	public static ThreadPoolExecutor create(int core, int max, BlockingQueue<Runnable> blockingQueue, String threadNamePrefix, boolean isDaemon) {
-		return create((WrappingTaskFactory) null, core, max, blockingQueue, new PooledThreadFactory().withPrefix(threadNamePrefix).withDaemon(isDaemon)
+		return create((WrappingTaskFactory) null, core, max, blockingQueue, new ThreadFactoryBuilder().withPrefix(threadNamePrefix).withDaemon(isDaemon).build()
 		);
 	}
 
@@ -141,12 +149,12 @@ public class Executors {
 	}
 
 	public static ThreadPoolExecutor create(WrappingTaskFactory wrappingTaskFactory, int core, BlockingQueue<Runnable> blockingQueue, String threadNamePrefix, boolean isDaemon) {
-		return create(wrappingTaskFactory, core, core, blockingQueue, new PooledThreadFactory().withPrefix(threadNamePrefix).withDaemon(isDaemon)
+		return create(wrappingTaskFactory, core, core, blockingQueue, new ThreadFactoryBuilder().withPrefix(threadNamePrefix).withDaemon(isDaemon).build()
 		);
 	}
 
 	public static ThreadPoolExecutor create(WrappingTaskFactory wrappingTaskFactory, int core, int max, BlockingQueue<Runnable> blockingQueue, String threadNamePrefix, boolean isDaemon) {
-		return create(wrappingTaskFactory, core, max, blockingQueue, new PooledThreadFactory().withPrefix(threadNamePrefix).withDaemon(isDaemon)
+		return create(wrappingTaskFactory, core, max, blockingQueue, new ThreadFactoryBuilder().withPrefix(threadNamePrefix).withDaemon(isDaemon).build()
 		);
 	}
 

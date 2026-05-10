@@ -11,8 +11,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import io.polaris.core.assertion.Arguments;
-import io.polaris.core.concurrent.PooledThreadFactory;
 import io.polaris.core.concurrent.Schedules;
+import io.polaris.core.concurrent.ThreadFactoryBuilder;
 
 /**
  * @author Qt
@@ -70,7 +70,7 @@ public class MultiBatchDataCollector<K, E> {
 			int poolSize = collectors.isEmpty() ? Runtime.getRuntime().availableProcessors()
 				: Integer.max(collectors.size(), 4);
 			ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(poolSize,
-				new PooledThreadFactory(MultiBatchDataCollector.class.getSimpleName()));
+				new ThreadFactoryBuilder(MultiBatchDataCollector.class.getSimpleName()).build());
 			this.scheduler = scheduler;
 			scheduler.scheduleAtFixedRate(() -> {
 				for (Map.Entry<K, BatchDataCollector<E>> entry : collectors.entrySet()) {
