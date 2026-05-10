@@ -1,5 +1,11 @@
 ## 版本变更说明
 
+### 3.8.11
+- 重构LazyRef实现并添加InitializedValue支持
+- 优化StatefulSpiLoader防止静态变量使用前未初始化
+- 替换线程工厂实现为新的构建器模式
+- 优化线程优先级队列的线程池处理逻辑
+
 ### 3.8.10
 - 优化DbvColumnFieldsMeta创建逻辑
 - 修复Oracle数据库虚拟列信息获取问题
