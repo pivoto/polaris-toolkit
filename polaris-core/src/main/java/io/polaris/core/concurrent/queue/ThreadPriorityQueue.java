@@ -30,37 +30,57 @@ public class ThreadPriorityQueue<E> implements BlockingQueue<E> {
 		this.executor = executor;
 	}
 
-	private boolean hasEnoughThreads() {
-		return executor != null && executor.getPoolSize() < executor.getMaximumPoolSize();
-	}
-
 	@Override
 	public boolean add(E e) {
-		if (hasEnoughThreads()) {
-			return false;
+		if (executor != null) {
+			int poolSize = executor.getPoolSize();
+			// 存在空闲线程，可以直接入队由空闲线程处理
+			if (executor.getActiveCount() < poolSize) {
+				return raw.add(e);
+			}
+			// 线程池未达最大容量，优先扩容创建新线程而非入队
+			if (poolSize < executor.getMaximumPoolSize()) {
+				return false;
+			}
 		}
 		return raw.add(e);
 	}
 
 	@Override
 	public boolean offer(E e) {
-		if (hasEnoughThreads()) {
-			return false;
+		if (executor != null) {
+			int poolSize = executor.getPoolSize();
+			// 存在空闲线程，可以直接入队由空闲线程处理
+			if (executor.getActiveCount() < poolSize) {
+				return raw.offer(e);
+			}
+			// 线程池未达最大容量，优先扩容创建新线程而非入队
+			if (poolSize < executor.getMaximumPoolSize()) {
+				return false;
+			}
 		}
 		return raw.offer(e);
 	}
 
 	@Override
-	public void put(E e) throws InterruptedException {
-		raw.put(e);
+	public boolean offer(E e, long timeout, TimeUnit unit) throws InterruptedException {
+		if (executor != null) {
+			int poolSize = executor.getPoolSize();
+			// 存在空闲线程，可以直接入队由空闲线程处理
+			if (executor.getActiveCount() < poolSize) {
+				return raw.offer(e, timeout, unit);
+			}
+			// 线程池未达最大容量，优先扩容创建新线程而非入队
+			if (poolSize < executor.getMaximumPoolSize()) {
+				return false;
+			}
+		}
+		return raw.offer(e, timeout, unit);
 	}
 
 	@Override
-	public boolean offer(E e, long timeout, TimeUnit unit) throws InterruptedException {
-		if (hasEnoughThreads()) {
-			return false;
-		}
-		return raw.offer(e, timeout, unit);
+	public void put(E e) throws InterruptedException {
+		raw.put(e);
 	}
 
 	@Override
