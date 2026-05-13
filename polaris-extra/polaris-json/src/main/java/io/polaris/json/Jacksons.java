@@ -8,6 +8,8 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.function.Consumer;
 
+import javax.annotation.Nonnull;
+
 import io.polaris.core.lang.TypeRef;
 import io.polaris.core.spi.SpiLoaders;
 import lombok.extern.slf4j.Slf4j;
@@ -53,6 +55,11 @@ public class Jacksons {
 
 	public static ObjectMapper buildObjectMapper() {
 		ObjectMapper mapper = new ObjectMapper();
+		return configure(mapper);
+	}
+
+	@Nonnull
+	public static ObjectMapper configure(ObjectMapper mapper) {
 		mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 		mapper.disable(SerializationFeature.FAIL_ON_SELF_REFERENCES);
 		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
