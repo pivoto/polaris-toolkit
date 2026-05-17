@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import io.polaris.core.collection.ObjectArrays;
+import io.polaris.core.concurrent.ThreadLocalSpec;
+import io.polaris.core.concurrent.Threads;
 import io.polaris.core.env.Config;
 import io.polaris.core.env.GlobalStdEnvObservable;
 import lombok.Getter;
@@ -22,7 +24,7 @@ public class SqlParamPredicate {
 	}
 
 	private static volatile SqlParamPredicate instance;
-	private static final ThreadLocal<SqlParamPredicate> LOCAL = new ThreadLocal<>();
+	private static final ThreadLocalSpec<SqlParamPredicate> LOCAL = Threads.newThreadLocal();
 
 	/** 全局控制是否空字符串参数在SQL语句中作为NULL值处理，而不是直接使用，可遵循具体数据库的处理方式 */
 	@Setter

@@ -94,6 +94,11 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-common</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
 			<version>${dependency.jackson.version}</version>

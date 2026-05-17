@@ -1,5 +1,7 @@
 package io.polaris.validation.validator;
 
+import io.polaris.core.concurrent.ThreadLocalSpec;
+import io.polaris.core.concurrent.Threads;
 import io.polaris.core.string.Strings;
 import io.polaris.validation.*;
 
@@ -12,7 +14,7 @@ import java.util.function.Supplier;
  * @author Qt
  */
 public class RuntimeValidator implements ConstraintValidator<RuntimeValidated, Object> {
-	private static final ThreadLocal<RuntimeValidation> LOCAL = new ThreadLocal<>();
+	private static final ThreadLocalSpec<RuntimeValidation> LOCAL = Threads.newThreadLocal();
 	private Class<? extends Payload>[] payload;
 
 

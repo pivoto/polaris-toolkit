@@ -8,12 +8,15 @@ import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.polaris.core.concurrent.ThreadLocalSpec;
+import io.polaris.core.concurrent.Threads;
+
 /**
  * @author Qt
  * @since Jan 19, 2024
  */
 public class DateFormats implements DateConsts {
-	private static ThreadLocal<Map<String, DateFormat>> LOCAL = ThreadLocal.withInitial(ConcurrentHashMap::new);
+	private static final ThreadLocalSpec<Map<String, DateFormat>> LOCAL = Threads.newThreadLocal(ConcurrentHashMap::new);
 
 	public static DateFormat get(String pattern) {
 		return LOCAL.get().computeIfAbsent(pattern, p -> new SimpleDateFormat(pattern));

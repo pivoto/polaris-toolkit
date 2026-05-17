@@ -19,18 +19,12 @@ import io.polaris.core.lang.primitive.Booleans;
 import io.polaris.core.lang.primitive.Chars;
 import io.polaris.core.map.Maps;
 import io.polaris.core.regex.Patterns;
-import io.polaris.core.tuple.Ref;
-import io.polaris.core.tuple.ValueRef;
 import io.polaris.core.ulid.UlidCreator;
 
 /**
  * @author Qt
  */
 public class Strings {
-
-	private static final ThreadLocal<Map<String, Ref<String>>> resolvedKeysLocal = new ThreadLocal<>();
-	private static final Pattern patternPlaceholder = Patterns.getPattern("\\$\\{([\\w\\.\\-]+)(?:(:-?)([^${}]*))?\\}");
-	/// /private static final String patternPlaceholderSeparator = "\\Q:\\E";
 	private static final Pattern patternDigits = Patterns.getPattern("(?<!\\\\)\\{(\\d+)\\}");
 	private static final Pattern patternEmpty = Patterns.getPattern("(?<!\\\\)\\{\\}");
 
@@ -319,88 +313,19 @@ public class Strings {
 	 * @return
 	 */
 	public static String resolvePlaceholders(String origin, Function<String, String> getter) {
-		return resolvePlaceholders(origin, patternPlaceholder, getter);
+		return Placeholders.resolve(origin, getter);
 	}
 
 	public static String resolvePlaceholders(String origin, Function<String, String> getter, boolean defaultAsEmpty) {
-		return resolvePlaceholders(origin, patternPlaceholder, getter, defaultAsEmpty);
+		return Placeholders.resolve(origin, getter, defaultAsEmpty);
 	}
 
 	public static String resolvePlaceholders(String origin, Pattern placeholderPattern, Function<String, String> getter) {
-		return resolvePlaceholders(origin, placeholderPattern, getter, true);
+		return Placeholders.resolve(origin, placeholderPattern, getter);
 	}
 
 	public static String resolvePlaceholders(String origin, Pattern placeholderPattern, Function<String, String> getter, boolean defaultAsEmpty) {
-		if (origin == null) {
-			return origin;
-		}
-		boolean hasInit = false;
-		Map<String, Ref<String>> resovedKeys = resolvedKeysLocal.get();
-		if (resovedKeys == null) {
-			hasInit = true;
-			resolvedKeysLocal.set(resovedKeys = new HashMap<>());
-		}
-		try {
-			Matcher matcher = placeholderPattern.matcher(origin);
-			StringBuffer sb = new StringBuffer();
-			while (matcher.find()) {
-				String group = matcher.group();
-				if (resovedKeys.containsKey(group)) {
-					matcher.appendReplacement(sb, resovedKeys.get(group).get());
-					continue;
-				}
-				String k = matcher.group(1);
-				int groupCount = matcher.groupCount();
-				String separator = groupCount >= 3 ? matcher.group(2) : ":";
-				String defVal = groupCount >= 3 ? matcher.group(3) : groupCount == 2 ? matcher.group(2) : null;
-				String v = null;
-				if (resovedKeys.containsKey(k)) {
-					v = resovedKeys.get(k).get();
-				} else {
-					// 防止递归死循环
-					resovedKeys.put(k, ValueRef.of(null));
-					v = getter.apply(k);
-					resovedKeys.put(k, new ValueRef<>(v));
-				}
-				// `:`替换null, `:-`替换空字符串
-				if (defVal != null) {
-					if (v == null || v.isEmpty() && separator != null && separator.length() > 1) {
-						v = defVal;
-					}
-				}
-
-				String replacement;
-				if (v == null) {
-					replacement = defaultAsEmpty ? "" : group;
-				} else {
-					replacement = v;
-				}
-				replacement = replacement.replace("\\", "\\\\").replace("$", "\\$");
-				resovedKeys.put(group, new ValueRef<>(replacement));
-				matcher.appendReplacement(sb, replacement);
-			}
-			matcher.appendTail(sb);
-			String rs = sb.toString();
-
-			boolean hasNextMatcher = false;
-			Matcher nextMatcher = placeholderPattern.matcher(rs);
-			while (nextMatcher.find()) {
-				String group = nextMatcher.group();
-				if (!resovedKeys.containsKey(group)) {
-					hasNextMatcher = true;
-					break;
-				}
-			}
-			if (hasNextMatcher) {
-				rs = resolvePlaceholders(rs, placeholderPattern, getter, defaultAsEmpty);
-			}
-			return rs;
-		} finally {
-			if (hasInit) {
-				resolvedKeysLocal.get().clear();
-				resolvedKeysLocal.remove();
-			}
-		}
+		return Placeholders.resolve(origin, placeholderPattern, getter, defaultAsEmpty);
 	}
 
 	public static String filter(CharSequence str, Predicate<Character> filter) {
@@ -1426,7 +1351,7 @@ public class Strings {
 	}
 
 	public static Map<String, String> asMap(String... args) {
-		return Maps.asMap((Supplier<Map<String, String>>)HashMap::new, args);
+		return Maps.asMap((Supplier<Map<String, String>>) HashMap::new, args);
 	}
 
 

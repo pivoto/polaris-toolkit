@@ -1,15 +1,65 @@
 package io.polaris.core.concurrent;
 
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import io.polaris.core.concurrent.thread.DefaultThreadProvider;
+import io.polaris.core.concurrent.thread.ThreadProvider;
+import io.polaris.core.spi.SpiLoaders;
+import io.polaris.core.spi.StatefulSpiLoader;
 
 /**
  * @author Qt
  * @since Jan 26, 2025
  */
 public class Threads {
+	private static class Holder {
+		private static final ThreadProvider threadProvider = load();
+
+		private static ThreadProvider load() {
+			StatefulSpiLoader<ThreadProvider> loader = SpiLoaders.loadStateful(ThreadProvider.class);
+			ThreadProvider provider = loader.service();
+			if (provider == null) {
+				provider = new DefaultThreadProvider();
+			}
+			return provider;
+		}
+
+	}
+
+
+	@Nonnull
+	public static ThreadProvider threadProvider() {
+		return Holder.threadProvider;
+	}
+
+	public static Thread newThread(Runnable target, String name) {
+		return Holder.threadProvider.newThread(target, name);
+	}
+
+	public static Thread newThread(ThreadGroup threadGroup, Runnable target, String name) {
+		return Holder.threadProvider.newThread(threadGroup, target, name);
+	}
+
+	public static <T> ThreadLocalSpec<T> newThreadLocal() {
+		return Holder.threadProvider.newThreadLocal();
+	}
+
+	public static <T> ThreadLocalSpec<T> newThreadLocal(Supplier<? extends T> supplier) {
+		return Holder.threadProvider.newThreadLocal(supplier);
+	}
+
+	public static <T> ThreadLocalSpec<T> newThreadLocal(String name) {
+		return Holder.threadProvider.newThreadLocal(name);
+	}
+
+	public static <T> ThreadLocalSpec<T> newThreadLocal(String name, Supplier<? extends T> supplier) {
+		return Holder.threadProvider.newThreadLocal(name, supplier);
+	}
+
 
 	@Nullable
 	public static Class<?> getCallerClass() {

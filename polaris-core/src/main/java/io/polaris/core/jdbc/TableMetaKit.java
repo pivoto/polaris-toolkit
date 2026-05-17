@@ -13,6 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import io.polaris.core.asm.reflect.ClassAccess;
+import io.polaris.core.concurrent.ThreadLocalSpec;
+import io.polaris.core.concurrent.Threads;
 import io.polaris.core.jdbc.annotation.Column;
 import io.polaris.core.jdbc.annotation.Expression;
 import io.polaris.core.jdbc.annotation.Id;
@@ -32,7 +34,7 @@ public class TableMetaKit {
 	private static final TableMetaKit instance = new TableMetaKit();
 	private final Map<Class<?>, TableMeta> cache = new ConcurrentHashMap<>();
 	private final Map<Class<?>, TableMeta> mutableCache = new ConcurrentHashMap<>();
-	private final ThreadLocal<Map<Class<?>, TableMetaMutation>> mutationsLocal = new ThreadLocal<>();
+	private final ThreadLocalSpec<Map<Class<?>, TableMetaMutation>> mutationsLocal = Threads.newThreadLocal();
 
 	public static TableMetaKit instance() {
 		return instance;

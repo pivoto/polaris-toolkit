@@ -17,6 +17,8 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.polaris.core.concurrent.ThreadLocalSpec;
+import io.polaris.core.concurrent.Threads;
 import io.polaris.core.lang.bean.BeanMap;
 import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.reflect.Methods;
@@ -56,7 +58,7 @@ import org.apache.ibatis.session.ResultHandler;
 @Slf4j
 public class MybatisSqlLogInterceptor implements Interceptor {
 
-	private final ThreadLocal<Tuple3<StatementHandler, Method, Long>> local = new ThreadLocal<>();
+	private final ThreadLocalSpec<Tuple3<StatementHandler, Method, Long>> local = Threads.newThreadLocal();
 	//	private static Field columnValuesField;
 	private static MethodHandle columnValuesField;
 

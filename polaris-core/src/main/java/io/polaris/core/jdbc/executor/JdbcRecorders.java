@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.concurrent.BlockingDeque;
 import java.util.stream.Collectors;
 
+import io.polaris.core.concurrent.ThreadLocalSpec;
+import io.polaris.core.concurrent.Threads;
 import io.polaris.core.jdbc.base.JdbcOptions;
 import io.polaris.core.jdbc.base.ResultExtractor;
 import io.polaris.core.jdbc.base.ResultSetVisitor;
@@ -30,7 +32,7 @@ import io.polaris.core.time.Dates;
 @SuppressWarnings("unchecked")
 public class JdbcRecorders {
 
-	private static final ThreadLocal<BlockingDeque<SqlNode>> recorder = new ThreadLocal<>();
+	private static final ThreadLocalSpec<BlockingDeque<SqlNode>> recorder = Threads.newThreadLocal();
 
 	public static <T> T of(Class<T> interfaceClass) {
 		RecordJdbcExecutor<T> handler = new RecordJdbcExecutor<>(interfaceClass);

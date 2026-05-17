@@ -11,6 +11,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
+import io.polaris.core.concurrent.ThreadLocalSpec;
+import io.polaris.core.concurrent.Threads;
+
 /**
  * @author Qt
  */
@@ -18,8 +21,8 @@ public class JdbcTypes {
 
 	private static final Map<Integer, String> typeNames = new HashMap<>();
 	private static final Map<String, Integer> typeValues = new HashMap<>();
-	private static final Map<Integer, Class> javaTypes = new HashMap<>();
-	private static final ThreadLocal<Deque<Map<Integer, Class>>> local = new ThreadLocal<>();
+	private static final Map<Integer, Class<?>> javaTypes = new HashMap<>();
+	private static final ThreadLocalSpec<Deque<Map<Integer, Class<?>>>> local = Threads.newThreadLocal();
 
 	static {
 		try {
@@ -75,7 +78,7 @@ public class JdbcTypes {
 	}
 
 	public static void removeCustomMappings() {
-		Deque<Map<Integer, Class>> queue = local.get();
+		Deque<Map<Integer, Class<?>>> queue = local.get();
 		if (queue == null) {
 			return;
 		}
@@ -85,18 +88,18 @@ public class JdbcTypes {
 		}
 	}
 
-	public static Map<Integer, Class> createCustomMappings() {
-		Deque<Map<Integer, Class>> queue = local.get();
+	public static Map<Integer, Class<?>> createCustomMappings() {
+		Deque<Map<Integer, Class<?>>> queue = local.get();
 		if (queue == null) {
 			local.set(queue = new LinkedList<>());
 		}
-		Map<Integer, Class> map;
+		Map<Integer, Class<?>> map;
 		queue.offerFirst(map = new HashMap<>());
 		return map;
 	}
 
 	public static boolean addCustomMapping(String jdbcType, String javaType) {
-		Class c;
+		Class<?> c;
 		try {
 			c = Class.forName(javaType);
 		} catch (ClassNotFoundException e) {
@@ -119,8 +122,8 @@ public class JdbcTypes {
 		return addCustomMapping(type, c);
 	}
 
-	public static boolean addCustomMapping(int jdbcType, Class javaType) {
-		Deque<Map<Integer, Class>> queue = local.get();
+	public static boolean addCustomMapping(int jdbcType, Class<?> javaType) {
+		Deque<Map<Integer, Class<?>>> queue = local.get();
 		if (queue == null || queue.isEmpty()) {
 			return false;
 		}
@@ -128,12 +131,12 @@ public class JdbcTypes {
 		return true;
 	}
 
-	public static Class getCustomJavaType(int type) {
-		Deque<Map<Integer, Class>> queue = local.get();
+	public static Class<?> getCustomJavaType(int type) {
+		Deque<Map<Integer, Class<?>>> queue = local.get();
 		if (queue != null) {
-			for (Iterator<Map<Integer, Class>> iter = queue.iterator(); iter.hasNext(); ) {
-				Map<Integer, Class> next = iter.next();
-				Class c = next.get(type);
+			for (Iterator<Map<Integer, Class<?>>> iter = queue.iterator(); iter.hasNext(); ) {
+				Map<Integer, Class<?>> next = iter.next();
+				Class<?> c = next.get(type);
 				if (c != null) {
 					return c;
 				}
@@ -142,12 +145,12 @@ public class JdbcTypes {
 		return null;
 	}
 
-	public static Class getJavaType(int type) {
+	public static Class<?> getJavaType(int type) {
 		return javaTypes.get(type);
 	}
 
-	public static Class getJavaType(int type, int columnSize, int decimalDigits) {
-		Class c = javaTypes.get(type);
+	public static Class<?> getJavaType(int type, int columnSize, int decimalDigits) {
+		Class<?> c = javaTypes.get(type);
 		if (Number.class.isAssignableFrom(c)) {
 			if (decimalDigits == 0) {
 				if (columnSize == 1) {

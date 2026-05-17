@@ -13,6 +13,8 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
+import io.polaris.core.concurrent.ThreadLocalSpec;
+import io.polaris.core.concurrent.Threads;
 import io.polaris.core.jdbc.sql.PreparedSql;
 import io.polaris.core.time.Dates;
 import io.polaris.mybatis.enhance.EnhancedConfiguration;
@@ -45,7 +47,7 @@ public class SqlRecorder {
 
 	private final Configuration configuration;
 	private final Map<Method, RecorderMapperMethodInvoker> methodCache;
-	private final ThreadLocal<BlockingDeque<BoundSql>> recorder = new ThreadLocal<>();
+	private final ThreadLocalSpec<BlockingDeque<BoundSql>> recorder = Threads.newThreadLocal();
 
 	private SqlRecorder() {
 		this(new EnhancedConfiguration());

@@ -1,5 +1,7 @@
 package io.polaris.builder.velocity;
 
+import io.polaris.core.concurrent.ThreadLocalSpec;
+import io.polaris.core.concurrent.Threads;
 import io.polaris.core.io.IO;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
@@ -22,7 +24,7 @@ import java.util.Properties;
 public class VelocityTemplate {
 	private static final Logger log = LoggerFactory.getLogger("code.template");
 
-	private static final ThreadLocal<VelocityEngine> local = ThreadLocal.withInitial(() -> {
+	private static final ThreadLocalSpec<VelocityEngine> local = Threads.newThreadLocal(() -> {
 		VelocityEngine ve = new VelocityEngine();
 		Properties properties = new Properties();
 		properties.setProperty(RuntimeConstants.INPUT_ENCODING, RuntimeConstants.ENCODING_DEFAULT);

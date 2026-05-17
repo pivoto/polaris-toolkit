@@ -4,6 +4,8 @@ import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.Statement;
 
+import io.polaris.core.concurrent.ThreadLocalSpec;
+import io.polaris.core.concurrent.Threads;
 import io.polaris.core.tuple.Tuple3;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.executor.statement.StatementHandler;
@@ -28,7 +30,7 @@ import org.apache.ibatis.session.ResultHandler;
 	@Signature(type = StatementHandler.class, method = "batch", args = {Statement.class})})
 public class MybatisLogInterceptor implements Interceptor {
 
-	private final ThreadLocal<Tuple3<StatementHandler, Method, Long>> local = new ThreadLocal<>();
+	private final ThreadLocalSpec<Tuple3<StatementHandler, Method, Long>> local = Threads.newThreadLocal();
 
 	@Override
 	public Object intercept(Invocation invocation) throws Throwable {

@@ -12,4 +12,11 @@ class ThreadsTest {
 		Consoles.println("{}", Threads.getCallerClass());
 		Consoles.println("{}", Threads.getCallerClass(ThreadsTest.class));
 	}
+
+
+	@Test
+	void test02() {
+		Thread t = Threads.newThread(() -> {}, "test");
+		Consoles.println("thread", t.getClass());
+	}
 }

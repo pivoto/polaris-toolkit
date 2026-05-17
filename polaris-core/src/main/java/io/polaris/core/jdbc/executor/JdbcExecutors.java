@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import io.polaris.core.concurrent.ThreadLocalSpec;
 import io.polaris.core.concurrent.Threads;
 import io.polaris.core.map.Maps;
 
@@ -18,7 +19,7 @@ import io.polaris.core.map.Maps;
  */
 @SuppressWarnings("unchecked")
 public class JdbcExecutors {
-	private static final ThreadLocal<Connection> currentConnection = new ThreadLocal<>();
+	private static final ThreadLocalSpec<Connection> currentConnection = Threads.newThreadLocal();
 	private static final Map<Class<?>, Object> executorCache = Maps.newSoftMap(new ConcurrentHashMap<>());
 	private static final Map<Class<?>, StatefulJdbcExecutor<?>> statefulJdbcExecutorCache = Maps.newSoftMap(new ConcurrentHashMap<>());
 

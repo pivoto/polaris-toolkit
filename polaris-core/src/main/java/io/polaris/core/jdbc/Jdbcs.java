@@ -23,6 +23,8 @@ import javax.sql.DataSource;
 
 import io.polaris.core.collection.ObjectArrays;
 import io.polaris.core.collection.PrimitiveArrays;
+import io.polaris.core.concurrent.ThreadLocalSpec;
+import io.polaris.core.concurrent.Threads;
 import io.polaris.core.function.ThrowableConsumer;
 import io.polaris.core.function.ThrowableFunction;
 import io.polaris.core.function.ThrowableRunnable;
@@ -47,7 +49,7 @@ import io.polaris.core.tuple.Returnee;
 public class Jdbcs {
 	private static final Logger log = Loggers.of(Jdbcs.class);
 	private static final JdbcOptions DEFAULT_OPTIONS = JdbcOptions.ofDefault();
-	private static final ThreadLocal<JdbcBatch> currentBatch = new ThreadLocal<>();
+	private static final ThreadLocalSpec<JdbcBatch> currentBatch = Threads.newThreadLocal();
 
 	public static DataSource getDataSource(String jndiName) throws SQLException {
 		try {

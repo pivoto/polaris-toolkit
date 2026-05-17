@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.polaris.core.annotation.Internal;
+import io.polaris.core.concurrent.ThreadLocalSpec;
+import io.polaris.core.concurrent.Threads;
 import io.polaris.core.tuple.Tuple2;
 import org.apache.ibatis.mapping.BoundSql;
 
@@ -15,7 +17,7 @@ import org.apache.ibatis.mapping.BoundSql;
 @Internal
 public class MapperHelperContext {
 	private static final AtomicBoolean enableEnhanceBoundSql = new AtomicBoolean(false);
-	private static final ThreadLocal<Tuple2<Object, Map<String, Object>>> additionalParametersLocal = new ThreadLocal<>();
+	private static final ThreadLocalSpec<Tuple2<Object, Map<String, Object>>> additionalParametersLocal = Threads.newThreadLocal();
 
 	public static void enableEnhanceBoundSql(boolean enable) {
 		enableEnhanceBoundSql.set(enable);

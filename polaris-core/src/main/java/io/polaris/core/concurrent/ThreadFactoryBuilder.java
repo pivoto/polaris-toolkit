@@ -7,6 +7,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nonnull;
 
+import io.polaris.core.concurrent.thread.ThreadProvider;
+
 /**
  * @author Qt
  * @since May 10, 2026
@@ -121,9 +123,9 @@ public class ThreadFactoryBuilder {
 	protected Thread newThread(ThreadGroup threadGroup, Runnable target, String name) {
 		Thread t;
 		if (threadGroup != null) {
-			t = new Thread(threadGroup, target, name);
+			t = Threads.newThread(threadGroup, target, name);
 		} else {
-			t = new Thread(target, name);
+			t = Threads.newThread(target, name);
 		}
 		return t;
 	}
