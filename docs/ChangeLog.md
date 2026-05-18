@@ -1,5 +1,12 @@
 ## 版本变更说明
 
+### 3.8.13
+- 自定义InternalThreadLocal
+- 优化DBV信息获取
+
+### 3.8.12
+- 替换ThreadLocal为ThreadLocalSpec接口实现
+
 ### 3.8.11
 - 重构LazyRef实现并添加InitializedValue支持
 - 优化StatefulSpiLoader防止静态变量使用前未初始化
