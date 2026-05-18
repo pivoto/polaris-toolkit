@@ -11,6 +11,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import io.polaris.core.concurrent.ThreadLocalSpec;
 import io.polaris.core.concurrent.Threads;
 
@@ -145,26 +148,37 @@ public class JdbcTypes {
 		return null;
 	}
 
+	@Nonnull
 	public static Class<?> getJavaType(int type) {
-		return javaTypes.get(type);
-	}
-
-	public static Class<?> getJavaType(int type, int columnSize, int decimalDigits) {
 		Class<?> c = javaTypes.get(type);
-		if (Number.class.isAssignableFrom(c)) {
-			if (decimalDigits == 0) {
-				if (columnSize == 1) {
-					c = Boolean.class;
-				} else if (columnSize <= 10) {
-					c = Integer.class;
-				} else {
-					c = Long.class;
-				}
-			}
+		if (c == null) {
+			c = Object.class;
 		}
 		return c;
 	}
 
+	@Nonnull
+	public static Class<?> getJavaType(int type, int columnSize, int decimalDigits) {
+		Class<?> c = javaTypes.get(type);
+		if (c != null) {
+			if (Number.class.isAssignableFrom(c)) {
+				if (decimalDigits == 0) {
+					if (columnSize == 1) {
+						c = Boolean.class;
+					} else if (columnSize <= 10) {
+						c = Integer.class;
+					} else {
+						c = Long.class;
+					}
+				}
+			}
+		} else {
+			c = Object.class;
+		}
+		return c;
+	}
+
+	@Nullable
 	public static Integer getTypeValue(String jdbcTypeName) {
 		return typeValues.get(jdbcTypeName);
 	}
@@ -173,6 +187,7 @@ public class JdbcTypes {
 		return typeValues.getOrDefault(jdbcTypeName, defaultVal);
 	}
 
+	@Nullable
 	public static String getTypeName(int jdbcType) {
 		return typeNames.get(jdbcType);
 	}

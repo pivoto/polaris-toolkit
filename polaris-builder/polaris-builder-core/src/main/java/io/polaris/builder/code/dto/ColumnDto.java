@@ -123,15 +123,12 @@ public class ColumnDto implements Serializable {
 		if (configColumn != null && Strings.isNotBlank(configColumn.getJavaType())) {
 			this.javaType = configColumn.getJavaType();
 		} else {
-			Class c = JdbcTypes.getCustomJavaType(this.type);
+			Class<?> c = JdbcTypes.getCustomJavaType(this.type);
 			if (c != null) {
 				this.javaType = Types.getSafeCanonicalName(c);
 			} else {
 				if (Strings.isEmpty(this.javaType)) {
 					c = JdbcTypes.getJavaType(this.type, this.columnSize, this.decimalDigits);
-					if (c == null) {
-						throw new IllegalArgumentException("不支持的JdbcType：" + this.jdbcType);
-					}
 					this.javaType = Types.getSafeCanonicalName(c);
 				}
 			}
@@ -166,10 +163,8 @@ public class ColumnDto implements Serializable {
 		}
 
 		if (Strings.isEmpty(this.javaType)) {
-			Class c = JdbcTypes.getJavaType(this.type, this.columnSize, this.decimalDigits);
-			if (c != null) {
-				this.javaType = Types.getSafeCanonicalName(c);
-			}
+			Class<?> c = JdbcTypes.getJavaType(this.type, this.columnSize, this.decimalDigits);
+			this.javaType = Types.getSafeCanonicalName(c);
 		}
 	}
 
