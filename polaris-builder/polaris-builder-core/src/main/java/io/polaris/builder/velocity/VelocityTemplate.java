@@ -17,6 +17,8 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.util.Properties;
 
+import javax.annotation.Nonnull;
+
 /**
  * @author Qt
  * @since Jun 04, 2019
@@ -24,7 +26,12 @@ import java.util.Properties;
 public class VelocityTemplate {
 	private static final Logger log = LoggerFactory.getLogger("code.template");
 
-	private static final ThreadLocalSpec<VelocityEngine> local = Threads.newThreadLocal(() -> {
+	private static final ThreadLocalSpec<VelocityEngine> local = Threads.newThreadLocal(VelocityTemplate::newVelocityEngine);
+
+	private static final ToolManager toolManager = new ToolManager();
+
+	@Nonnull
+	public static VelocityEngine newVelocityEngine() {
 		VelocityEngine ve = new VelocityEngine();
 		Properties properties = new Properties();
 		properties.setProperty(RuntimeConstants.INPUT_ENCODING, RuntimeConstants.ENCODING_DEFAULT);
@@ -40,9 +47,7 @@ public class VelocityTemplate {
 		ve.setProperties(properties);
 		ve.init();
 		return ve;
-	});
-	private static VelocityEngine singleton = local.get();
-	private static ToolManager toolManager = new ToolManager();
+	}
 
 	public static BufferedReader getTemplateReader(String template) throws IOException {
 		return new BufferedReader(new InputStreamReader(IO.getInputStream(template), Charset.defaultCharset()));
@@ -67,7 +72,7 @@ public class VelocityTemplate {
 
 	public static void write(Context context, Writer writer, Reader reader) throws VelocityException {
 		try {
-			singleton.evaluate(context, writer, "", reader);
+			local.get().evaluate(context, writer, "", reader);
 		} catch (VelocityException e) {
 			throw e;
 		} catch (Exception e) {
