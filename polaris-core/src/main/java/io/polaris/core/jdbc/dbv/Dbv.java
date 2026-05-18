@@ -96,6 +96,12 @@ public class Dbv {
 			read(rs, tables, Table.class);
 
 			for (final Table table : tables) {
+				if (Strings.isNotEmpty(catalog)){
+					table.setTableCatalog(catalog);
+				}
+				if (Strings.isNotEmpty(schema)){
+					table.setTableSchema(schema);
+				}
 
 				List<PrimaryKey> primaryKeys = readPrimaryKeys(metaData, table);
 				table.setPrimaryKeyList(primaryKeys);
@@ -129,6 +135,12 @@ public class Dbv {
 			read(rs, tables, Table.class);
 
 			for (final Table table : tables) {
+				if (Strings.isNotEmpty(catalog)){
+					table.setTableCatalog(catalog);
+				}
+				if (Strings.isNotEmpty(schema)){
+					table.setTableSchema(schema);
+				}
 
 				List<PrimaryKey> primaryKeys = readPrimaryKeys(metaData, table);
 				table.setPrimaryKeyList(primaryKeys);
@@ -154,6 +166,14 @@ public class Dbv {
 		try {
 			List<Column> list = read(metaData.getColumns(catalog, schema, tableName, columnName),
 				new ArrayList<>(50), Column.class);
+			for (Column column : list) {
+				if (Strings.isNotEmpty(catalog)){
+					column.setCatalog(catalog);
+				}
+				if (Strings.isNotEmpty(schema)){
+					column.setSchema(schema);
+				}
+			}
 
 			fixTableColumns(metaData, catalog, schema, tableName, columnName, list);
 
@@ -221,6 +241,12 @@ public class Dbv {
 							columnMap.put(Tuples.of(column.getSchema(), column.getTableName(), column.getColumnName()), column);
 						}
 						for (Column fixedColumn : fixedList) {
+							if (Strings.isNotEmpty(catalog)){
+								fixedColumn.setCatalog(catalog);
+							}
+							if (Strings.isNotEmpty(schema)){
+								fixedColumn.setSchema(schema);
+							}
 							Column column = columnMap.get(Tuples.of(fixedColumn.getSchema(), fixedColumn.getTableName(), fixedColumn.getColumnName()));
 							if (column == null) {
 								continue;
@@ -253,6 +279,12 @@ public class Dbv {
 				if (index.getIndexName() == null || index.getIndexName().isEmpty()) {
 					iter.remove();
 				}
+				if (Strings.isNotEmpty(catalog)){
+					index.setTableCatalog(catalog);
+				}
+				if (Strings.isNotEmpty(schema)){
+					index.setTableSchema(schema);
+				}
 			}
 			return indexes;
 		} catch (Exception e) {
@@ -267,6 +299,14 @@ public class Dbv {
 			ResultSet rs = metaData.getPrimaryKeys(table.getTableCatalog(), table.getTableSchema(),
 				table.getTableName());
 			read(rs, primaryKeys, PrimaryKey.class);
+			for (PrimaryKey primaryKey : primaryKeys) {
+				if (Strings.isNotEmpty(table.getTableCatalog())){
+					primaryKey.setTableCatalog(table.getTableCatalog());
+				}
+				if (Strings.isNotEmpty(table.getTableSchema())){
+					primaryKey.setTableSchema(table.getTableSchema());
+				}
+			}
 			return primaryKeys;
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
