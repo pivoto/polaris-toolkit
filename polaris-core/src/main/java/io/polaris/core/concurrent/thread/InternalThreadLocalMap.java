@@ -32,21 +32,33 @@ public class InternalThreadLocalMap {
 		return slowGet();
 	}
 
-	public static InternalThreadLocalMap getAndRemove() {
-		try {
-			return getIfSet();
-		} finally {
-			remove();
+	private static InternalThreadLocalMap fastGet(InternalThreadSpec thread) {
+		InternalThreadLocalMap threadLocalMap = thread.threadLocalMap();
+		if (threadLocalMap == null) {
+			thread.setThreadLocalMap(threadLocalMap = new InternalThreadLocalMap());
 		}
+		return threadLocalMap;
+	}
+
+	private static InternalThreadLocalMap slowGet() {
+		ThreadLocal<InternalThreadLocalMap> slowThreadLocalMap = InternalThreadLocalMap.slowThreadLocalMap;
+		InternalThreadLocalMap ret = slowThreadLocalMap.get();
+		if (ret == null) {
+			ret = new InternalThreadLocalMap();
+			slowThreadLocalMap.set(ret);
+		}
+		return ret;
 	}
 
 	public static void set(InternalThreadLocalMap internalThreadLocalMap) {
 		Thread thread = Thread.currentThread();
 		if (thread instanceof InternalThreadSpec) {
 			((InternalThreadSpec) thread).setThreadLocalMap(internalThreadLocalMap);
+		} else {
+			slowThreadLocalMap.set(internalThreadLocalMap);
 		}
-		slowThreadLocalMap.set(internalThreadLocalMap);
 	}
+
 	public static void remove() {
 		Thread thread = Thread.currentThread();
 		if (thread instanceof InternalThreadSpec) {
@@ -55,8 +67,9 @@ public class InternalThreadLocalMap {
 			slowThreadLocalMap.remove();
 		}
 	}
+
 	public static void destroy() {
-		slowThreadLocalMap = null;
+		slowThreadLocalMap.remove();
 	}
 
 	public static int nextVariableIndex() {
@@ -74,6 +87,30 @@ public class InternalThreadLocalMap {
 
 	private InternalThreadLocalMap() {
 		indexedVariables = newIndexedVariableTable();
+	}
+
+	private static Object[] newIndexedVariableTable() {
+		int variableIndex = NEXT_INDEX.get();
+		int newCapacity = variableIndex < 32 ? 32 : newCapacity(variableIndex);
+		Object[] array = new Object[newCapacity];
+		Arrays.fill(array, UNSET);
+		return array;
+	}
+
+	private static int newCapacity(int index) {
+		int newCapacity;
+		if (index < ARRAY_LIST_CAPACITY_EXPAND_THRESHOLD) {
+			newCapacity = index;
+			newCapacity |= newCapacity >>> 1;
+			newCapacity |= newCapacity >>> 2;
+			newCapacity |= newCapacity >>> 4;
+			newCapacity |= newCapacity >>> 8;
+			newCapacity |= newCapacity >>> 16;
+			newCapacity++;
+		} else {
+			newCapacity = ARRAY_LIST_CAPACITY_MAX_SIZE;
+		}
+		return newCapacity;
 	}
 
 	public Object indexedVariable(int index) {
@@ -95,6 +132,7 @@ public class InternalThreadLocalMap {
 			return true;
 		}
 	}
+
 	public Object removeIndexedVariable(int index) {
 		Object[] lookup = indexedVariables;
 		if (index < lookup.length) {
@@ -105,6 +143,7 @@ public class InternalThreadLocalMap {
 			return UNSET;
 		}
 	}
+
 	public int size() {
 		int count = 0;
 		for (Object o : indexedVariables) {
@@ -113,47 +152,6 @@ public class InternalThreadLocalMap {
 			}
 		}
 		return count - 1;
-	}
-	private static Object[] newIndexedVariableTable() {
-		int variableIndex = NEXT_INDEX.get();
-		int newCapacity = variableIndex < 32 ? 32 : newCapacity(variableIndex);
-		Object[] array = new Object[newCapacity];
-		Arrays.fill(array, UNSET);
-		return array;
-	}
-
-	private static int newCapacity(int index) {
-		int newCapacity;
-		if (index < ARRAY_LIST_CAPACITY_EXPAND_THRESHOLD) {
-			newCapacity = index;
-			newCapacity |= newCapacity >>>  1;
-			newCapacity |= newCapacity >>>  2;
-			newCapacity |= newCapacity >>>  4;
-			newCapacity |= newCapacity >>>  8;
-			newCapacity |= newCapacity >>> 16;
-			newCapacity ++;
-		} else {
-			newCapacity = ARRAY_LIST_CAPACITY_MAX_SIZE;
-		}
-		return newCapacity;
-	}
-
-	private static InternalThreadLocalMap fastGet(InternalThreadSpec thread) {
-		InternalThreadLocalMap threadLocalMap = thread.threadLocalMap();
-		if (threadLocalMap == null) {
-			thread.setThreadLocalMap(threadLocalMap = new InternalThreadLocalMap());
-		}
-		return threadLocalMap;
-	}
-
-	private static InternalThreadLocalMap slowGet() {
-		ThreadLocal<InternalThreadLocalMap> slowThreadLocalMap = InternalThreadLocalMap.slowThreadLocalMap;
-		InternalThreadLocalMap ret = slowThreadLocalMap.get();
-		if (ret == null) {
-			ret = new InternalThreadLocalMap();
-			slowThreadLocalMap.set(ret);
-		}
-		return ret;
 	}
 
 	private void expandIndexedVariableTableAndSet(int index, Object value) {

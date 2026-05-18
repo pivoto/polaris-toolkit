@@ -13,8 +13,8 @@ import io.polaris.core.concurrent.ThreadLocalSpec;
  */
 public class InternalThreadLocal<V> implements ThreadLocalSpec<V> {
 	private static final int VARIABLES_TO_REMOVE_INDEX = InternalThreadLocalMap.nextVariableIndex();
-	private final int index;
-	private final String name;
+	protected final int index;
+	protected final String name;
 
 	public InternalThreadLocal(String name) {
 		this.index = InternalThreadLocalMap.nextVariableIndex();
