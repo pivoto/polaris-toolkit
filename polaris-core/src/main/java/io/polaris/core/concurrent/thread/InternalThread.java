@@ -11,11 +11,11 @@ public class InternalThread extends Thread implements InternalThreadSpec {
 	}
 
 	public InternalThread(Runnable target) {
-		super(target);
+		super(InternalRunnable.of(target));
 	}
 
 	public InternalThread(ThreadGroup group, Runnable target) {
-		super(group, target);
+		super(group, InternalRunnable.of(target));
 	}
 
 	public InternalThread(String name) {
@@ -27,15 +27,15 @@ public class InternalThread extends Thread implements InternalThreadSpec {
 	}
 
 	public InternalThread(Runnable target, String name) {
-		super(target, name);
+		super(InternalRunnable.of(target), name);
 	}
 
 	public InternalThread(ThreadGroup group, Runnable target, String name) {
-		super(group, target, name);
+		super(group, InternalRunnable.of(target), name);
 	}
 
 	public InternalThread(ThreadGroup group, Runnable target, String name, long stackSize) {
-		super(group, target, name, stackSize);
+		super(group, InternalRunnable.of(target), name, stackSize);
 	}
 
 	@Override
