@@ -222,6 +222,9 @@ public class Dbv {
 						}
 						for (Column fixedColumn : fixedList) {
 							Column column = columnMap.get(Tuples.of(fixedColumn.getSchema(), fixedColumn.getTableName(), fixedColumn.getColumnName()));
+							if (column == null) {
+								continue;
+							}
 							if (Strings.isBlank(column.getColumnDef())) {
 								column.setColumnDef(fixedColumn.getColumnDef());
 							}
