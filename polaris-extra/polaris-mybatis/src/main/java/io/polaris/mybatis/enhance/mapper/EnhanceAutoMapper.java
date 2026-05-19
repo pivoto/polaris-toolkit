@@ -27,6 +27,7 @@ import io.polaris.mybatis.consts.AutoMapperType;
 import io.polaris.mybatis.mapper.EntityMapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.cursor.Cursor;
 
 /**
@@ -1835,6 +1836,130 @@ public interface EnhanceAutoMapper<E> extends EntityMapper<E> {
 	@AutoMapper(type = AutoMapperType.selectBySql)
 	@Options(fetchSize = 1000)
 	Cursor<Map<String, Object>> selectMapCursorBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
+
+
+	/**
+	 * 检查是否存在满足条件的记录（内部方法，不建议直接调用）
+	 *
+	 * @param statement SQL查询语句对象
+	 * @return 游标结果，包含布尔值表示是否存在匹配记录
+	 */
+	@AutoMapper(type = AutoMapperType.select1BySqlDirect)
+	@Options(fetchSize = 1)
+	@Internal("考虑到查询性能与分页实现的兼容性，声明此此方法，实际开发中不直接调用")
+	// 此注解仅用于去除IDE警告，无实际意义
+	@SelectProvider
+	Cursor<Boolean> _directCursorExistsBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
+
+	/**
+	 * 检查是否存在满足条件的记录
+	 *
+	 * @param statement SQL查询语句对象
+	 * @return 是否存在匹配记录
+	 */
+	default boolean directExistsBySql(SelectStatement<?> statement) {
+		Cursor<Boolean> cursor = null;
+		try {
+			cursor = _directCursorExistsBySql(statement);
+			if (cursor == null) {
+				return false;
+			}
+			Iterator<Boolean> iter = cursor.iterator();
+			if (iter.hasNext()) {
+				Boolean next = iter.next();
+				return Boolean.TRUE.equals(next);
+			}
+			return false;
+		} finally {
+			IO.close(cursor);
+		}
+	}
+
+	/**
+	 * 统计满足条件的记录数量
+	 *
+	 * @param statement SQL查询语句对象
+	 * @return 记录总数
+	 */
+	@AutoMapper(type = AutoMapperType.countBySqlDirect)
+	// 此注解仅用于去除IDE警告，无实际意义
+	@SelectProvider
+	int directCountBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
+
+	/**
+	 * 查询实体列表
+	 *
+	 * @param statement SQL查询语句对象
+	 * @return 实体对象列表
+	 */
+	@AutoResultMapping
+	@AutoMapper(type = AutoMapperType.selectBySqlDirect)
+	// 此注解仅用于去除IDE警告，无实际意义
+	@SelectProvider
+	List<E> directSelectEntityListBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
+
+	/**
+	 * 查询单个实体对象
+	 *
+	 * @param statement SQL查询语句对象
+	 * @return 实体对象
+	 */
+	@AutoResultMapping
+	@AutoMapper(type = AutoMapperType.selectBySqlDirect)
+	// 此注解仅用于去除IDE警告，无实际意义
+	@SelectProvider
+	E directSelectEntityBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
+
+	/**
+	 * 查询Map列表
+	 *
+	 * @param statement SQL查询语句对象
+	 * @return Map对象列表，键为列名，值为对应值
+	 */
+	@AutoResultMapping
+	@AutoMapper(type = AutoMapperType.selectBySqlDirect)
+	// 此注解仅用于去除IDE警告，无实际意义
+	@SelectProvider
+	List<Map<String, Object>> directSelectMapListBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
+
+	/**
+	 * 查询单个Map对象
+	 *
+	 * @param statement SQL查询语句对象
+	 * @return Map对象，键为列名，值为对应值
+	 */
+	@AutoResultMapping
+	@AutoMapper(type = AutoMapperType.selectBySqlDirect)
+	// 此注解仅用于去除IDE警告，无实际意义
+	@SelectProvider
+	Map<String, Object> directSelectMapBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
+
+	/**
+	 * 根据SQL语句查询实体对象的游标结果。
+	 *
+	 * @param statement SQL查询语句对象
+	 * @return 实体对象的游标结果
+	 */
+	@AutoResultMapping
+	@AutoMapper(type = AutoMapperType.selectBySqlDirect)
+	@Options(fetchSize = 1000)
+	// 此注解仅用于去除IDE警告，无实际意义
+	@SelectProvider
+	Cursor<E> directSelectEntityCursorBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
+
+
+	/**
+	 * 根据SQL语句查询Map结构的游标结果。
+	 *
+	 * @param statement SQL查询语句对象
+	 * @return Map结构的游标结果，键为列名，值为对应的数据
+	 */
+	@AutoResultMapping
+	@AutoMapper(type = AutoMapperType.selectBySqlDirect)
+	@Options(fetchSize = 1000)
+	// 此注解仅用于去除IDE警告，无实际意义
+	@SelectProvider
+	Cursor<Map<String, Object>> directSelectMapCursorBySql(@Param(BindingKeys.SQL) SelectStatement<?> statement);
 
 
 	// endregion sql
