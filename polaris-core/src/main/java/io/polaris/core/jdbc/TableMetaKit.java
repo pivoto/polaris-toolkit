@@ -32,9 +32,9 @@ import io.polaris.core.log.Loggers;
 public class TableMetaKit {
 	private static final Logger log = Loggers.of(TableMetaKit.class);
 	private static final TableMetaKit instance = new TableMetaKit();
+	private static final ThreadLocalSpec<Map<Class<?>, TableMetaMutation>> mutationsLocal = Threads.newThreadLocal();
 	private final Map<Class<?>, TableMeta> cache = new ConcurrentHashMap<>();
 	private final Map<Class<?>, TableMeta> mutableCache = new ConcurrentHashMap<>();
-	private final ThreadLocalSpec<Map<Class<?>, TableMetaMutation>> mutationsLocal = Threads.newThreadLocal();
 
 	public static TableMetaKit instance() {
 		return instance;

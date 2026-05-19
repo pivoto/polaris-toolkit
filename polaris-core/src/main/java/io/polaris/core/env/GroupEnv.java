@@ -29,8 +29,8 @@ public class GroupEnv implements Env {
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
 
-	private final ThreadLocalSpec<Deque<String>> resolvedKeys = Threads.newThreadLocal();
-	private final ThreadLocalSpec<Boolean> retrieved = Threads.newThreadLocal();
+	private static final ThreadLocalSpec<Deque<String>> resolvedKeys = Threads.newThreadLocal();
+	private static final ThreadLocalSpec<Boolean> retrieved = Threads.newThreadLocal();
 	private final String name;
 	private final CopyOnWriteArrayList<Env> envList;
 	private final Env runtime;

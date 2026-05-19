@@ -45,9 +45,9 @@ public class SqlRecorder {
 		return Holder.instances.computeIfAbsent(configuration, SqlRecorder::new);
 	}
 
+	private static final ThreadLocalSpec<BlockingDeque<BoundSql>> recorder = Threads.newThreadLocal();
 	private final Configuration configuration;
 	private final Map<Method, RecorderMapperMethodInvoker> methodCache;
-	private final ThreadLocalSpec<BlockingDeque<BoundSql>> recorder = Threads.newThreadLocal();
 
 	private SqlRecorder() {
 		this(new EnhancedConfiguration());

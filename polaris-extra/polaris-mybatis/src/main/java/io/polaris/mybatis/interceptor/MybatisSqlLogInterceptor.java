@@ -58,7 +58,7 @@ import org.apache.ibatis.session.ResultHandler;
 @Slf4j
 public class MybatisSqlLogInterceptor implements Interceptor {
 
-	private final ThreadLocalSpec<Tuple3<StatementHandler, Method, Long>> local = Threads.newThreadLocal();
+	private static final ThreadLocalSpec<Tuple3<StatementHandler, Method, Long>> local = Threads.newThreadLocal();
 	//	private static Field columnValuesField;
 	private static MethodHandle columnValuesField;
 

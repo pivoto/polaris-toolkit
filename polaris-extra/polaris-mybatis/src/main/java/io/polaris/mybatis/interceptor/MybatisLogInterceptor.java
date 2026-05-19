@@ -30,7 +30,7 @@ import org.apache.ibatis.session.ResultHandler;
 	@Signature(type = StatementHandler.class, method = "batch", args = {Statement.class})})
 public class MybatisLogInterceptor implements Interceptor {
 
-	private final ThreadLocalSpec<Tuple3<StatementHandler, Method, Long>> local = Threads.newThreadLocal();
+	private static final ThreadLocalSpec<Tuple3<StatementHandler, Method, Long>> local = Threads.newThreadLocal();
 
 	@Override
 	public Object intercept(Invocation invocation) throws Throwable {
