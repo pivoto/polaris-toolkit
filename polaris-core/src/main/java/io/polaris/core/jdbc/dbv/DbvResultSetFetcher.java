@@ -33,7 +33,7 @@ public class DbvResultSetFetcher {
 
 	public static List<Map<String, Object>> fetchList(final ResultSet rs)
 		throws SQLException {
-		final List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		final List<Map<String, Object>> list = new ArrayList<>();
 		while (rs.next()) {
 			list.add(fetch(rs));
 		}
@@ -60,17 +60,11 @@ public class DbvResultSetFetcher {
 	public static Object fetch(DbvColumnFieldsMeta columnFields, ResultSet rs, Object obj) {
 		Set<DbvColumnFieldMeta> fields = columnFields.getFields();
 		for (DbvColumnFieldMeta meta : fields) {
-			Field field = meta.getField();
 			DbvColumnGetter handler = meta.getGetter();
-			boolean accessible = field.isAccessible();
 			try {
-				field.setAccessible(true);
-				field.set(obj, handler.getColumnValue(rs, meta.getColumn()));
-
+				meta.set(obj, handler.getColumnValue(rs, meta.getColumn()));
 			} catch (SQLException | IllegalAccessException e) {
-				log.debug(e.getMessage(), e);
-			} finally {
-				field.setAccessible(accessible);
+				log.warn(e.getMessage(), e);
 			}
 		}
 		return obj;

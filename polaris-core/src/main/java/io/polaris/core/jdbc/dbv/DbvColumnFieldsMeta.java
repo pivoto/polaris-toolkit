@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nonnull;
 
+import io.polaris.core.asm.reflect.BeanAccess;
 import io.polaris.core.converter.Converters;
 import io.polaris.core.jdbc.dbv.annotation.DbvColumn;
 import io.polaris.core.map.Maps;
@@ -59,6 +60,7 @@ public class DbvColumnFieldsMeta {
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	private static Set<DbvColumnFieldMeta> buildFields(Class<?> clazz) {
+		BeanAccess<?> beanAccess = BeanAccess.get(clazz);
 		Set<DbvColumnFieldMeta> fields = new LinkedHashSet<>();
 		for (Class<?> superClass = clazz; superClass != null && superClass != Object.class; superClass = superClass.getSuperclass()) {
 			Field[] declaredFields = superClass.getDeclaredFields();
@@ -85,6 +87,7 @@ public class DbvColumnFieldsMeta {
 				DbvColumnFieldMeta meta = new DbvColumnFieldMeta();
 				meta.setColumn(columnName);
 				meta.setField(field);
+				meta.setBeanAccess(beanAccess);
 				fields.add(meta);
 
 				if (getter != null) {
