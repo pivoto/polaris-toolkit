@@ -14,12 +14,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.polaris.core.asm.reflect.BeanAccess;
-import io.polaris.core.asm.reflect.BeanCopier;
 import io.polaris.core.asm.reflect.BeanLambdaAccess;
-import io.polaris.core.lang.bean.property.BeanPropertyInfo;
 import io.polaris.core.collection.Iterables;
 import io.polaris.core.converter.Converters;
 import io.polaris.core.lang.Types;
+import io.polaris.core.lang.bean.property.BeanPropertyInfo;
 import io.polaris.core.lang.bean.property.ListPropertyBuilder;
 import io.polaris.core.lang.bean.property.PropertyBuilder;
 import io.polaris.core.lang.bean.property.StdPropertyBuilder;
@@ -37,7 +36,7 @@ import io.polaris.core.string.StringCases;
 public class Beans {
 	private static final Logger log = Loggers.of(Beans.class);
 
-	public static boolean isBeanClass(@Nonnull Class clazz) {
+	public static boolean isBeanClass(@Nonnull Class<?> clazz) {
 		for (Method method : clazz.getMethods()) {
 			// 检测包含标准的setter方法即视为标准的JavaBean
 			if (Reflects.isSetterMethod(method)) {
@@ -71,16 +70,13 @@ public class Beans {
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	public static <T> T copyBean(@Nonnull Object source, @Nonnull T target) {
-		BeanCopier copier = BeanCopier.get(source.getClass());
-		copier.copyBeanToBean(source, target);
-		return target;
+		return Copiers.fastCopy(source, target);
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	public static <T> T copyBean(@Nonnull Object source, @Nonnull Class<T> clazz) {
 		T target = Reflects.newInstanceIfPossible(clazz);
-		BeanCopier copier = BeanCopier.get(source.getClass());
-		copier.copyBeanToBean(source, target);
+		Copiers.fastCopy(source, clazz, target);
 		return target;
 	}
 
@@ -95,7 +91,7 @@ public class Beans {
 	}
 
 	public static void copyBean(@Nonnull Object source, @Nonnull Object target, @Nullable CopyOptions options) {
-		Copiers.fastCopy(source, target, (options != null ? options : CopyOptions.create()));
+		Copiers.fastCopy(source, target, (options != null ? options : CopyOptions.DEFAULT));
 	}
 
 	public static Map<String, Object> newMapFromBean(@Nonnull Object bean, boolean isUnderlineCase, boolean ignoreNull) {

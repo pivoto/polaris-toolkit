@@ -23,7 +23,7 @@ public class BeanConverter<T> extends AbstractConverter<T> {
 	private final CopyOptions copyOptions;
 
 	public BeanConverter(Type beanType) {
-		this(beanType, CopyOptions.create().ignoreError(true));
+		this(beanType, CopyOptions.DEFAULT);
 	}
 
 	public BeanConverter(Type beanType, CopyOptions copyOptions) {

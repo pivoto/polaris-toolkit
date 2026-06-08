@@ -25,6 +25,36 @@ import io.polaris.core.reflect.Reflects;
 public class Copiers {
 	private static final Logger log = Loggers.of(Copiers.class);
 
+	public static <E> E fastCopyDirectly(@Nonnull Object source, @Nonnull E target) {
+		return fastCopyDirectly(source.getClass(), source, target.getClass(), target);
+	}
+
+	public static <E> E fastCopyDirectly(@Nonnull Object source, @Nonnull Type targetType, @Nonnull E target) {
+		return fastCopyDirectly(source.getClass(), source, targetType, target);
+	}
+
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	public static <E> E fastCopyDirectly(@Nonnull Type sourceType, @Nonnull Object source, @Nonnull Type targetType, @Nonnull E target) {
+		if (source instanceof Collection || target instanceof Collection
+			|| source.getClass().isArray() || target.getClass().isArray()) {
+			return deepCopyIndexed(source, targetType, target, CopyOptions.DEFAULT, false);
+		}
+		if (source instanceof Map) {
+			if (target instanceof Map) {
+				((Map) target).putAll((Map) source);
+			} else {
+				BeanCopier.get(JavaType.of(targetType).getRawClass()).copyMapToBean((Map) source, target);
+			}
+		} else {
+			if (target instanceof Map) {
+				BeanCopier.get(JavaType.of(sourceType).getRawClass()).copyBeanToMap(source, ((Map) target));
+			} else {
+				BeanCopier.get(JavaType.of(sourceType).getRawClass()).copyBeanToBean(source, JavaType.of(targetType).getRawClass(), target);
+			}
+		}
+		return target;
+	}
+
 	public static <E> E fastCopy(@Nonnull Object source, @Nonnull E target) {
 		return fastCopy(source.getClass(), source, target.getClass(), target);
 	}
@@ -43,13 +73,13 @@ public class Copiers {
 			if (target instanceof Map) {
 				((Map) target).putAll((Map) source);
 			} else {
-				BeanCopier.get(JavaType.of(targetType).getRawClass()).copyMapToBean((Map) source, target);
+				BeanCopier.get(JavaType.of(targetType).getRawClass()).copyMapToBean((Map) source, target, CopyOptions.DEFAULT);
 			}
 		} else {
 			if (target instanceof Map) {
-				BeanCopier.get(JavaType.of(sourceType).getRawClass()).copyBeanToMap(source, ((Map) target));
+				BeanCopier.get(JavaType.of(sourceType).getRawClass()).copyBeanToMap(source, ((Map) target), CopyOptions.DEFAULT);
 			} else {
-				BeanCopier.get(JavaType.of(sourceType).getRawClass()).copyBeanToBean(source, JavaType.of(targetType).getRawClass(), target);
+				BeanCopier.get(JavaType.of(sourceType).getRawClass()).copyBeanToBean(source, JavaType.of(targetType).getRawClass(), target, CopyOptions.DEFAULT);
 			}
 		}
 		return target;
