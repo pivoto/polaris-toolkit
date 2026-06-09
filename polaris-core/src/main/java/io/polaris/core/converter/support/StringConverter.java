@@ -5,13 +5,18 @@ import io.polaris.core.converter.ConversionException;
 import io.polaris.core.io.IO;
 import io.polaris.core.lang.JavaType;
 import io.polaris.core.lang.Types;
+import io.polaris.core.time.Dates;
 
 import java.io.InputStream;
 import java.io.Reader;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.sql.Blob;
 import java.sql.Clob;
+import java.time.temporal.TemporalAccessor;
+import java.util.Date;
 import java.util.TimeZone;
 
 /**
@@ -20,6 +25,7 @@ import java.util.TimeZone;
 public class StringConverter extends AbstractSimpleConverter<String> {
 
 	private final JavaType<String> targetType = JavaType.of(String.class);
+
 	@Override
 	public JavaType<String> getTargetType() {
 		return targetType;
@@ -27,18 +33,47 @@ public class StringConverter extends AbstractSimpleConverter<String> {
 
 	@Override
 	protected String doConvert(Object value, JavaType<String> targetType) {
+		if (value == null) {
+			return null;
+		}
+		if (Types.isPrimitiveOrWrapper(value.getClass())) {
+			return value.toString();
+		}
+		if (value instanceof CharSequence) {
+			return value.toString();
+		}
+		if (value instanceof Character) {
+			return String.valueOf((char) value);
+		}
+		if (value instanceof Enum) {
+			return ((Enum<?>) value).name();
+		}
+		if (value instanceof Class) {
+			return Types.getSafeCanonicalName(((Class<?>) value));
+		}
+		if (value instanceof Type) {
+			return ((Type) value).getTypeName();
+		}
+		if (value instanceof BigDecimal) {
+			return ((BigDecimal) value).toPlainString();
+		}
+		if (value instanceof Number) {
+			return ((Number) value).toString();
+		}
+		if (value instanceof Date) {
+			return Dates.formatDefault((Date) value);
+		}
+		if (value instanceof TemporalAccessor) {
+			return Dates.formatDefault((TemporalAccessor) value);
+		}
 		if (value instanceof TimeZone) {
 			return ((TimeZone) value).getID();
-		} else if (value instanceof Clob) {
+		}
+		if (value instanceof Clob) {
 			return clobToStr((Clob) value);
-		} else if (value instanceof Blob) {
+		}
+		if (value instanceof Blob) {
 			return blobToStr((Blob) value);
-		} else if (value instanceof Enum) {
-			return ((Enum<?>) value).name();
-		} else if (value instanceof Class) {
-			return Types.getSafeCanonicalName(((Class<?>) value));
-		} else if (value instanceof Type) {
-			return ((Type) value).getTypeName();
 		}
 		return asComplexString(value);
 	}
