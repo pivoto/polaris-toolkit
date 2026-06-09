@@ -35,15 +35,23 @@ import io.polaris.core.string.StringCases;
  */
 public class Beans {
 	private static final Logger log = Loggers.of(Beans.class);
+	private static final Map<Class<?>, Boolean> BEAN_CLASS_CACHE = Maps.newWeakKeyMap(new ConcurrentHashMap<>());
 
 	public static boolean isBeanClass(@Nonnull Class<?> clazz) {
+		Boolean b = BEAN_CLASS_CACHE.get(clazz);
+		if (b != null) {
+			return b.booleanValue();
+		}
+		boolean isBean = false;
 		for (Method method : clazz.getMethods()) {
 			// 检测包含标准的setter方法即视为标准的JavaBean
 			if (Reflects.isSetterMethod(method)) {
-				return true;
+				isBean = true;
+				break;
 			}
 		}
-		return false;
+		BEAN_CLASS_CACHE.put(clazz, isBean);
+		return isBean;
 	}
 
 	public static <T> BeanMapBuilder<T> newBeanMapBuilder(@Nonnull T bean) {

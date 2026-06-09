@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 public class BeansTest {
 
@@ -42,8 +43,28 @@ public class BeansTest {
 		Bean01 o = new Bean01();
 		Map<String, Object> map = Beans.newBeanMap(o);
 		long time = Times.millsTime(1000, () -> {
-			BeanMap beanMap = Beans.newBeanMap(o);
+			BeanMap<Bean01> beanMap = Beans.newBeanMap(o);
 		});
 		Consoles.println("time: " + time);
+	}
+
+	@Test
+	void test02() throws Exception {
+		CountDownLatch latch = new CountDownLatch(10);
+		for (int i = 0; i < 10; i++) {
+			new Thread(() -> {
+				try {
+					for (int j = 0; j < 100; j++) {
+						long start = System.nanoTime();
+						boolean isBean = Beans.isBeanClass(Bean01.class);
+						long time = System.nanoTime() - start;
+						Consoles.log("{}: {}. time: {} ns", j, isBean, time);
+					}
+				} finally {
+					latch.countDown();
+				}
+			}).start();
+		}
+		latch.await();
 	}
 }
