@@ -1,6 +1,7 @@
 package io.polaris.core.converter;
 
 import java.lang.ref.Reference;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
@@ -10,6 +11,7 @@ import io.polaris.core.collection.Iterables;
 import io.polaris.core.jdbc.sql.VarRef;
 import io.polaris.core.json.JsonSerializer;
 import io.polaris.core.lang.JavaType;
+import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.spi.SpiLoaders;
 import io.polaris.core.tuple.Ref;
 import io.polaris.core.tuple.Tuple1;
@@ -64,13 +66,19 @@ public abstract class AbstractSimpleConverter<T> extends AbstractConverter<T> {
 		if (value instanceof Character) {
 			return String.valueOf((char) value);
 		}
-		// 扩展json实现，
-		Optional<JsonSerializer> optional = SpiLoaders.loadStateful(JsonSerializer.class).optionalService();
-		if (optional.isPresent()) {
-			return optional.get().serialize(value);
+		Class<?> valueClass = value.getClass();
+		boolean maybeJsonObj = value instanceof Map
+			|| value instanceof Iterable
+			|| valueClass.isArray()
+			|| Beans.isBeanClass(valueClass);
+		if (maybeJsonObj) {
+			// 扩展json实现，
+			Optional<JsonSerializer> optional = SpiLoaders.loadStateful(JsonSerializer.class).optionalService();
+			if (optional.isPresent()) {
+				return optional.get().serialize(value);
+			}
 		}
-
-		if (value.getClass().isArray()) {
+		if (valueClass.isArray()) {
 			return Iterables.toArrayString(value);
 		}
 		return value.toString();
