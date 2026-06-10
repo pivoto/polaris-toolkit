@@ -13,8 +13,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import io.polaris.core.log.Logger;
-import io.polaris.core.log.Loggers;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -23,10 +21,11 @@ import lombok.Getter;
  * @since Mar 13, 2026
  */
 public class StatefulSpiLoader<S> implements Iterable<S> {
+	/// Spi相关类不使用日志组件，防止日志组件中存在SPI实现的循环依赖
+	///
 	private static class Holder{
 		private final static Map<Class<?>, State<?>> store = new ConcurrentHashMap<>();
 	}
-	private static final Logger log = Loggers.of(StatefulSpiLoader.class);
 	private final SpiLoader<S> spiLoader;
 
 	private StatefulSpiLoader(SpiLoader<S> spiLoader) {
@@ -109,7 +108,7 @@ public class StatefulSpiLoader<S> implements Iterable<S> {
 				try {
 					return s.getSingleton();
 				} catch (Throwable e) {
-					log.error(e.getMessage(), e);
+					e.printStackTrace(System.err);
 					return null;
 				}
 			});
@@ -127,7 +126,7 @@ public class StatefulSpiLoader<S> implements Iterable<S> {
 				try {
 					return s.getSingleton();
 				} catch (Throwable e) {
-					log.error(e.getMessage(), e);
+					e.printStackTrace(System.err);
 					return null;
 				}
 			}).orElse(null);
@@ -139,7 +138,7 @@ public class StatefulSpiLoader<S> implements Iterable<S> {
 			try {
 				list.add(service.getSingleton());
 			} catch (Throwable e) {
-				log.error(e.getMessage(), e);
+				e.printStackTrace(System.err);
 			}
 		}
 		return list;
@@ -151,7 +150,7 @@ public class StatefulSpiLoader<S> implements Iterable<S> {
 			try {
 				map.put(k, v.getSingleton());
 			} catch (Throwable e) {
-				log.error(e.getMessage(), e);
+				e.printStackTrace(System.err);
 			}
 		});
 		return map;

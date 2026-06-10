@@ -19,8 +19,6 @@ import io.polaris.core.classpath.reader.ClassMetadata;
 import io.polaris.core.classpath.reader.MetadataReader;
 import io.polaris.core.classpath.reader.MetadataReaderFactory;
 import io.polaris.core.classpath.reader.impl.DefaultMetadataReaderFactory;
-import io.polaris.core.log.Logger;
-import io.polaris.core.log.Loggers;
 import io.polaris.core.spi.condition.SpiConditionResult;
 import io.polaris.core.spi.condition.SpiConditions;
 
@@ -29,7 +27,8 @@ import io.polaris.core.spi.condition.SpiConditions;
  * @since Mar 13, 2026
  */
 public class SpiLoader<S> implements Iterable<Service<S>> {
-	private static final Logger log = Loggers.of(SpiLoader.class);
+	/// Spi相关类不使用日志组件，防止日志组件中存在SPI实现的循环依赖
+
 	private final Class<S> type;
 	private final ClassLoader loader;
 	private final AtomicBoolean loaded = new AtomicBoolean(false);
@@ -202,22 +201,18 @@ public class SpiLoader<S> implements Iterable<Service<S>> {
 			try {
 				Class<?> clazz = Class.forName(className, true, loader);
 				if (!type.isAssignableFrom(clazz)) {
-					log.warn("加载服务类失败，类型不匹配：{}", className);
+					System.err.println("加载服务类失败，类型不匹配：" + className);
 					continue;
 				}
 				SpiConditionResult conditionResult = SpiConditions.matches(clazz);
-				if (!conditionResult.isMatched()){
-					log.warn("加载服务类失败，条件不满足：{}，原因：{}", className, conditionResult.getMessage());
+				if (!conditionResult.isMatched()) {
+					System.err.println("加载服务类失败，条件不满足：" + className + "，原因：" + conditionResult.getMessage());
 					continue;
 				}
 				//noinspection unchecked
 				classes.add((Class<S>) clazz);
 			} catch (Throwable e) {
-				if (log.isDebugEnabled()) {
-					log.debug(e, "加载服务类失败：" + className);
-				} else {
-					log.warn("加载服务类失败：{}, 原因：{}", className, e.getMessage());
-				}
+				System.err.println("加载服务类失败：" + className + "，原因：" + e.getMessage());
 			}
 		}
 		return classes;
@@ -238,7 +233,7 @@ public class SpiLoader<S> implements Iterable<Service<S>> {
 						MetadataReader metadataReader = factory.getMetadataReader(inputStream);
 						ClassMetadata classMetadata = metadataReader.getClassMetadata();
 						String className = classMetadata.getClassName();
-						if (classNames.contains(className)){
+						if (classNames.contains(className)) {
 							// 忽略已加载的类
 							continue;
 						}
@@ -247,11 +242,7 @@ public class SpiLoader<S> implements Iterable<Service<S>> {
 							classNames.add(className);
 						}
 					} catch (Throwable e) {
-						if (log.isDebugEnabled()) {
-							log.debug(e, "加载服务类失败，资源读取错误：{}", resourceName);
-						} else {
-							log.warn("加载服务类失败，资源读取错误：{}", resourceName);
-						}
+						System.err.println("加载服务类失败，资源读取错误：" + resourceName + "，原因：" + e.getMessage());
 					}
 				}
 			} catch (Throwable ignored) {
@@ -285,11 +276,7 @@ public class SpiLoader<S> implements Iterable<Service<S>> {
 				}
 			}
 		} catch (Throwable e) {
-			if (log.isDebugEnabled()) {
-				log.debug(e, "加载服务类失败，资源读取错误：{}", url);
-			} else {
-				log.warn("加载服务类失败，资源读取错误：{}", url);
-			}
+			System.err.println("加载服务类失败，资源读取错误：" + url + "，原因：" + e.getMessage());
 		}
 	}
 
