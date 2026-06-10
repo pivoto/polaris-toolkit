@@ -52,7 +52,7 @@ public class TemporalAccessorConverter<T extends TemporalAccessor> extends Abstr
 			return (T) localDateTime;
 		}
 		if (Instant.class.equals(raw)) {
-			return (T) Dates.toDate(localDateTime).toInstant();
+			return (T) Dates.toInstant(localDateTime);
 		}
 		if (LocalDate.class.equals(raw)) {
 			return (T) Dates.toLocalDate(localDateTime);

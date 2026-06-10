@@ -386,7 +386,14 @@ public class Dates implements DateConsts {
 	 * @return Instant对象
 	 */
 	public static Instant toInstant(Date date) {
-		return date.toInstant();
+		if (date.getClass() == java.util.Date.class) {
+			try {
+				return date.toInstant();
+			} catch (Exception e) {
+				// 防止 java.sql.* 下的实现抛异常
+			}
+		}
+		return Instant.ofEpochMilli(date.getTime());
 	}
 
 	/**
@@ -436,7 +443,7 @@ public class Dates implements DateConsts {
 	 * @return LocalDateTime对象
 	 */
 	public static LocalDateTime toLocalDateTime(Date date) {
-		return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+		return LocalDateTime.ofInstant(toInstant(date), ZoneId.systemDefault());
 	}
 
 	/**
