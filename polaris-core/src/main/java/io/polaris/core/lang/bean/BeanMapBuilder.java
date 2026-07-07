@@ -32,7 +32,7 @@ public class BeanMapBuilder<T> {
 			throw new IllegalArgumentException("bean is null");
 		}
 		Class<?> beanType = this.beanType;
-		if (beanType == null) {
+		if (beanType == null || !beanType.isAssignableFrom(bean.getClass())) {
 			beanType = bean.getClass();
 		}
 		if (Map.class.isAssignableFrom(beanType)) {

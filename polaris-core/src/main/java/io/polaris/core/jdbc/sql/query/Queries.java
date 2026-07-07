@@ -175,7 +175,10 @@ public class Queries {
 			entityClass = entity.getClass();
 		}
 		TableMeta tableMeta = TableMetaKit.instance().get(entityClass);
-		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity : Beans.newBeanMap(entity, entityClass);
+		Map<String, Object> entityMap = (entity instanceof Map) ? (Map<String, Object>) entity :
+			entityClass.isAssignableFrom(entity.getClass())
+			? Beans.newBeanMap(entity, entityClass)
+			: Beans.newBeanMap(entity);
 		for (Map.Entry<String, ColumnMeta> entry : tableMeta.getColumns().entrySet()) {
 			String name = entry.getKey();
 			ColumnMeta meta = entry.getValue();
