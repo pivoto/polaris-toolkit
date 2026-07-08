@@ -1,5 +1,7 @@
 package io.polaris.core.tuple;
 
+import io.polaris.core.lang.Copyable;
+import io.polaris.core.lang.Objs;
 import lombok.*;
 
 import java.io.Serializable;
@@ -12,7 +14,7 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Tuple2<T1, T2> implements Serializable, Tuple {
+public class Tuple2<T1, T2> implements Serializable, Tuple, Copyable<Tuple2<T1, T2>> {
 	private static final long serialVersionUID = 1L;
 	private T1 first;
 	private T2 second;
@@ -41,5 +43,10 @@ public class Tuple2<T1, T2> implements Serializable, Tuple {
 		sb.append(", second=").append(second);
 		sb.append('}');
 		return sb.toString();
+	}
+
+	@Override
+	public Tuple2<T1, T2> copy() {
+		return new Tuple2<>(Objs.cloneIfPossible(first), Objs.cloneIfPossible(second));
 	}
 }

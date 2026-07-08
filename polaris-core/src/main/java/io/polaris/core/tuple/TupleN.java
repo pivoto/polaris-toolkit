@@ -1,5 +1,7 @@
 package io.polaris.core.tuple;
 
+import io.polaris.core.lang.Copyable;
+import io.polaris.core.lang.Objs;
 import lombok.ToString;
 
 import java.io.Serializable;
@@ -8,7 +10,7 @@ import java.util.Arrays;
 /**
  * @author Qt
  */
-public class TupleN implements Serializable, Tuple {
+public class TupleN implements Serializable, Tuple, Copyable<TupleN> {
 
 	private static final long serialVersionUID = 1L;
 	private final Object[] array;
@@ -56,5 +58,14 @@ public class TupleN implements Serializable, Tuple {
 		sb.append("array=").append(Arrays.toString(array));
 		sb.append('}');
 		return sb.toString();
+	}
+
+	@Override
+	public TupleN copy() {
+		Object[] array = new Object[this.array.length];
+		for (int i = 0; i < this.array.length; i++) {
+			array[i] = Objs.cloneIfPossible(this.array[i]);
+		}
+		return new TupleN(array);
 	}
 }

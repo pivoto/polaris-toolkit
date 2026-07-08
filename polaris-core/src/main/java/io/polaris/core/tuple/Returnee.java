@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import io.polaris.core.function.ThrowableRunnable;
 import io.polaris.core.function.ThrowableSupplier;
+import io.polaris.core.lang.Objs;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -107,5 +108,10 @@ public class Returnee<R, T extends Throwable> extends Tuple2<R, T> implements Se
 	@Override
 	public int hashCode() {
 		return super.hashCode();
+	}
+
+	@Override
+	public Returnee<R, T> copy() {
+		return new Returnee<>(Objs.cloneIfPossible(getValue()), Objs.cloneIfPossible(getThrowable()));
 	}
 }

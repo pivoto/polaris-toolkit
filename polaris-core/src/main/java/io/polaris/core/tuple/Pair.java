@@ -1,5 +1,7 @@
 package io.polaris.core.tuple;
 
+import io.polaris.core.lang.Copyable;
+import io.polaris.core.lang.Objs;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -57,5 +59,10 @@ public class Pair<A, B> extends Tuple2<A, B> implements Map.Entry<A, B>, Seriali
 	@Override
 	public String toString() {
 		return super.toString();
+	}
+
+	@Override
+	public Pair<A, B> copy() {
+		return new Pair<>(Objs.cloneIfPossible(getFirst()), Objs.cloneIfPossible(getSecond()));
 	}
 }

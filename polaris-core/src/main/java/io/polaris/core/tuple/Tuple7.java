@@ -1,9 +1,14 @@
 package io.polaris.core.tuple;
 
-import lombok.*;
-
 import java.io.Serializable;
 import java.util.Objects;
+
+import io.polaris.core.lang.Copyable;
+import io.polaris.core.lang.Objs;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * @author Qt
@@ -12,7 +17,7 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Tuple7<T1, T2, T3, T4, T5, T6, T7> implements Serializable, Tuple {
+public class Tuple7<T1, T2, T3, T4, T5, T6, T7> implements Serializable, Tuple, Copyable<Tuple7<T1, T2, T3, T4, T5, T6, T7>> {
 	private static final long serialVersionUID = 1L;
 	private T1 first;
 	private T2 second;
@@ -50,5 +55,10 @@ public class Tuple7<T1, T2, T3, T4, T5, T6, T7> implements Serializable, Tuple {
 		sb.append(", seventh=").append(seventh);
 		sb.append('}');
 		return sb.toString();
+	}
+
+	@Override
+	public Tuple7<T1, T2, T3, T4, T5, T6, T7> copy() {
+		return new Tuple7<>(Objs.cloneIfPossible(first), Objs.cloneIfPossible(second), Objs.cloneIfPossible(third), Objs.cloneIfPossible(fourth), Objs.cloneIfPossible(fifth), Objs.cloneIfPossible(sixth), Objs.cloneIfPossible(seventh));
 	}
 }
