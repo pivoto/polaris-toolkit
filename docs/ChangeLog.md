@@ -1,5 +1,9 @@
 ## 版本变更说明
 
+### 3.8.18
+- Tuple系列实现Copyable接口
+- LazyRef、VarRef的copy方法尽可能使用深度复制
+
 ### 3.8.17
 - 优化BeanMap实体映射逻辑，增加类型检查
 
