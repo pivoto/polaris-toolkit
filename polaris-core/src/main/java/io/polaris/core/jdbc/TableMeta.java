@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.polaris.core.jdbc.sql.VarRef;
+import io.polaris.core.jdbc.sql.VarRefs;
 import io.polaris.core.lang.Copyable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -69,7 +70,7 @@ public final class TableMeta implements Cloneable, Copyable<TableMeta> {
 	public <V> VarRef<V> wrapColumn(String fieldName, V value) {
 		ColumnMeta meta = columns.get(fieldName);
 		if (meta != null) {
-			return meta.wrap(value);
+			return VarRefs.wrap(meta, value);
 		}
 		return VarRef.of(value);
 	}
@@ -77,7 +78,7 @@ public final class TableMeta implements Cloneable, Copyable<TableMeta> {
 	public <V> VarRef<V> wrapExpression(String fieldName, V value) {
 		ExpressionMeta meta = expressions.get(fieldName);
 		if (meta != null) {
-			return meta.wrap(value);
+			return VarRefs.wrap(meta, value);
 		}
 		return VarRef.of(value);
 	}

@@ -22,6 +22,7 @@ import io.polaris.core.jdbc.TableMeta;
 import io.polaris.core.jdbc.sql.BindingValues;
 import io.polaris.core.jdbc.sql.SqlTextParsers;
 import io.polaris.core.jdbc.sql.VarRef;
+import io.polaris.core.jdbc.sql.VarRefs;
 import io.polaris.core.jdbc.sql.node.ContainerNode;
 import io.polaris.core.jdbc.sql.node.SqlNode;
 import io.polaris.core.jdbc.sql.node.SqlNodes;
@@ -190,7 +191,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 				}
 				ColumnMeta meta = entry.getValue();
 				Object val = entityMap.get(name);
-				addWhereSqlByColumnValue(meta.getFieldName(), meta.getFieldType(), meta.wrap(val), columnPredicate);
+				addWhereSqlByColumnValue(meta.getFieldName(), meta.getFieldType(), VarRefs.wrap(meta, val), columnPredicate);
 			}
 			for (Map.Entry<String, ExpressionMeta> entry : tableMeta.getExpressions().entrySet()) {
 				String name = entry.getKey();
@@ -200,7 +201,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 				}
 				ExpressionMeta meta = entry.getValue();
 				Object val = entityMap.get(name);
-				addWhereSqlByColumnValue(meta.getFieldName(), meta.getFieldType(), meta.wrap(val), columnPredicate);
+				addWhereSqlByColumnValue(meta.getFieldName(), meta.getFieldType(), VarRefs.wrap(meta, val), columnPredicate);
 			}
 		}
 		return getThis();
@@ -410,7 +411,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 						if (Maps.isNotEmpty(props)) {
 							this.column(name).eq(VarRef.of(val, props));
 						} else if (Maps.isNotEmpty(meta.getProps())) {
-							this.column(name).eq(meta.wrap(val));
+							this.column(name).eq(VarRefs.wrap(meta, val));
 						} else {
 							this.column(name).eq(val);
 						}
@@ -446,7 +447,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 						if (Maps.isNotEmpty(props)) {
 							this.column(name).eq(VarRef.of(val, props));
 						} else if (Maps.isNotEmpty(meta.getProps())) {
-							this.column(name).eq(meta.wrap(val));
+							this.column(name).eq(VarRefs.wrap(meta, val));
 						} else {
 							this.column(name).eq(val);
 						}

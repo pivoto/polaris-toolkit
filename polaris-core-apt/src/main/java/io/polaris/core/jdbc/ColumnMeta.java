@@ -9,7 +9,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.polaris.core.annotation.AnnotationProcessing;
-import io.polaris.core.jdbc.sql.VarRef;
 import io.polaris.core.lang.Copyable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -188,31 +187,6 @@ public final class ColumnMeta implements Cloneable, Copyable<ColumnMeta> {
 			sb.deleteCharAt(sb.length() - 1);
 		}
 		return sb.toString();
-	}
-
-	@SuppressWarnings("unchecked")
-	public <V> VarRef<V> wrap(V value) {
-		if (value instanceof VarRef) {
-			Map<String, String> props = ((VarRef<?>) value).getProps();
-			if (!props.isEmpty()) {
-				return (VarRef<V>) value;
-			}
-		}
-		return VarRef.of(value, props);
-	}
-
-	@SuppressWarnings("unchecked")
-	public <V> VarRef<V> wrap(V value, Map<String, String> varProps) {
-		if (value instanceof VarRef) {
-			Map<String, String> props = ((VarRef<?>) value).getProps();
-			if (!props.isEmpty()) {
-				return (VarRef<V>) value;
-			}
-		}
-		if (!varProps.isEmpty()) {
-			return VarRef.of(value, varProps);
-		}
-		return VarRef.of(value, props);
 	}
 
 	@Override

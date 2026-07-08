@@ -10,6 +10,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.polaris.core.lang.Copyable;
+import io.polaris.core.lang.Objs;
 
 /**
  * @author Qt
@@ -130,6 +131,6 @@ public class VarRef<T> implements Copyable<VarRef<T>> {
 
 	@Override
 	public VarRef<T> copy() {
-		return new VarRef<>(value, props);
+		return new VarRef<>(Objs.cloneIfPossible(value), Objs.cloneIfPossible(props));
 	}
 }
