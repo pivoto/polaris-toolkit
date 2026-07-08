@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 import io.polaris.core.lang.Copyable;
+import io.polaris.core.lang.Objs;
 import lombok.Getter;
 
 /**
@@ -60,7 +61,7 @@ public class LazyRef<V> implements Ref<V>, Serializable, Copyable<LazyRef<V>> {
 
 	@Override
 	public LazyRef<V> copy() {
-		return new LazyRef<>(supplier, initialized, value);
+		return new LazyRef<>(supplier, initialized, Objs.cloneIfPossible(value));
 	}
 
 	@Override
