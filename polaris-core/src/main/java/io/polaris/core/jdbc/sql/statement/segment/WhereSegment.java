@@ -224,8 +224,8 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 			if (result != SqlParamPredicate.Result.NONEMPTY) {
 				// 需要包含空值字段
 				if (include || columnPredicate.isIncludedEmptyColumn(fieldName)
-					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.includeEmpty())) {
-					if (result == SqlParamPredicate.Result.EMPTY && !SqlParamPredicate.emptyAsNull()) {
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.whereIncludeEmpty())) {
+					if (result == SqlParamPredicate.Result.EMPTY && !SqlParamPredicate.whereEmptyAsNull()) {
 						if (props != null) {
 							this.column(fieldName).eq(BindingValues.convert(fieldType, val, props));
 						} else {
@@ -274,7 +274,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 				String str = ((StringValue) val).getValue();
 				if (str == null) {
 					this.column(fieldName).isNull();
-				} else if (str.isEmpty() && SqlParamPredicate.emptyAsNull()) {
+				} else if (str.isEmpty() && SqlParamPredicate.whereEmptyAsNull()) {
 					this.column(fieldName).isNull();
 				} else {
 					if (like) {
@@ -312,7 +312,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 				Object start = range.getStart();
 				SqlParamPredicate.Result result = SqlParamPredicate.check(start);
 				if (result == SqlParamPredicate.Result.NONEMPTY
-					|| (result == SqlParamPredicate.Result.EMPTY && !SqlParamPredicate.emptyAsNull())) {
+					|| (result == SqlParamPredicate.Result.EMPTY && !SqlParamPredicate.whereEmptyAsNull())) {
 					start = Converters.convertQuietly(fieldType, start);
 					if (start != null) {
 						if (props != null) {
@@ -327,7 +327,7 @@ public class WhereSegment<O extends Segment<O>, S extends WhereSegment<O, S>> ex
 				Object end = range.getEnd();
 				SqlParamPredicate.Result result = SqlParamPredicate.check(end);
 				if (result == SqlParamPredicate.Result.NONEMPTY
-					|| (result == SqlParamPredicate.Result.EMPTY && !SqlParamPredicate.emptyAsNull())) {
+					|| (result == SqlParamPredicate.Result.EMPTY && !SqlParamPredicate.whereEmptyAsNull())) {
 					end = Converters.convertQuietly(fieldType, end);
 					if (end != null) {
 						if (props != null) {

@@ -26,14 +26,22 @@ public class SqlParamPredicate {
 	private static volatile SqlParamPredicate instance;
 	private static final ThreadLocalSpec<SqlParamPredicate> LOCAL = Threads.newThreadLocal();
 
-	/** 全局控制是否空字符串参数在SQL语句中作为NULL值处理，而不是直接使用，可遵循具体数据库的处理方式 */
+	/** 全局控制查询条件列值处理时是否空字符串参数在SQL语句中作为NULL值处理，而不是直接使用，可遵循具体数据库的处理方式 */
 	@Setter
 	@Getter
-	private volatile boolean emptyAsNull;
-	/** 全局控制是否空字符串作为有效参数，而不是尽可能忽略 */
+	private volatile boolean whereEmptyAsNull;
+	/** 全局控制查询条件列值处理时是否空字符串作为有效参数，而不是尽可能忽略 */
 	@Setter
 	@Getter
-	private volatile boolean includeEmpty;
+	private volatile boolean whereIncludeEmpty;
+	/** 全局控制新增或更新列值处理时是否空字符串参数在SQL语句中作为NULL值处理，而不是直接使用，可遵循具体数据库的处理方式 */
+	@Setter
+	@Getter
+	private volatile boolean entityEmptyAsNull;
+	/** 全局控制新增或更新列值处理时是否空字符串作为有效参数，而不是尽可能忽略 */
+	@Setter
+	@Getter
+	private volatile boolean entityIncludeEmpty;
 
 	private SqlParamPredicate(boolean listen) {
 		updateEnv();
@@ -47,8 +55,10 @@ public class SqlParamPredicate {
 	}
 
 	public void updateEnv() {
-		this.emptyAsNull = Config.INSTANCE.jdbc().sql().param().emptyAsNull();
-		this.includeEmpty = Config.INSTANCE.jdbc().sql().param().includeEmpty();
+		this.whereEmptyAsNull = Config.INSTANCE.jdbc().sql().param().whereEmptyAsNull();
+		this.whereIncludeEmpty = Config.INSTANCE.jdbc().sql().param().whereIncludeEmpty();
+		this.entityEmptyAsNull = Config.INSTANCE.jdbc().sql().param().entityEmptyAsNull();
+		this.entityIncludeEmpty = Config.INSTANCE.jdbc().sql().param().entityIncludeEmpty();
 	}
 
 	public static SqlParamPredicate instance() {
@@ -62,20 +72,36 @@ public class SqlParamPredicate {
 		return instance;
 	}
 
-	public static boolean emptyAsNull() {
+	public static boolean whereEmptyAsNull() {
 		SqlParamPredicate predicate = LOCAL.get();
 		if (predicate != null) {
-			return predicate.emptyAsNull;
+			return predicate.whereEmptyAsNull;
 		}
-		return instance().emptyAsNull;
+		return instance().whereEmptyAsNull;
 	}
 
-	public static boolean includeEmpty() {
+	public static boolean whereIncludeEmpty() {
 		SqlParamPredicate predicate = LOCAL.get();
 		if (predicate != null) {
-			return predicate.includeEmpty;
+			return predicate.whereIncludeEmpty;
 		}
-		return instance().includeEmpty;
+		return instance().whereIncludeEmpty;
+	}
+
+	public static boolean entityEmptyAsNull() {
+		SqlParamPredicate predicate = LOCAL.get();
+		if (predicate != null) {
+			return predicate.entityEmptyAsNull;
+		}
+		return instance().entityEmptyAsNull;
+	}
+
+	public static boolean entityIncludeEmpty() {
+		SqlParamPredicate predicate = LOCAL.get();
+		if (predicate != null) {
+			return predicate.entityIncludeEmpty;
+		}
+		return instance().entityIncludeEmpty;
 	}
 
 	public static Result check(Object obj) {

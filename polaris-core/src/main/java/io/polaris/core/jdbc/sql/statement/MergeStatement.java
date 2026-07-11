@@ -342,7 +342,7 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 					}
 					// 需要包含空值字段
 					if (include || columnPredicate.isIncludedEmptyColumn(name)
-						|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.includeEmpty())) {
+						|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.entityIncludeEmpty())) {
 						if (Maps.isNotEmpty(props)) {
 							this.update(name, VarRef.of(val, props));
 						}else{
@@ -397,7 +397,7 @@ public class MergeStatement<S extends MergeStatement<S>> extends BaseStatement<S
 					}
 					// 需要包含空值字段
 					if (include || columnPredicate.isIncludedEmptyColumn(name)
-						|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.includeEmpty())) {
+						|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.entityIncludeEmpty())) {
 						if (Maps.isNotEmpty(props)) {
 							this.insert(name, VarRef.of(val, props));
 						}else{

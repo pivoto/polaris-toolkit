@@ -7,7 +7,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.polaris.core.consts.StdKeys;
-import io.polaris.core.lang.Null;
 import io.polaris.core.log.Level;
 import io.polaris.core.string.Strings;
 import lombok.Data;
@@ -272,38 +271,72 @@ public enum Config {
 			}
 
 			public static class Param {
-				/** 动态SQL语句中是否将空字符串转换为NULL值处理，而不是直接使用，可遵循具体数据库的处理方式 */
-				private Boolean emptyAsNull;
-				/** 动态SQL语句中是否允许空字符串作为有效参数，而不是忽略 */
-				private Boolean includeEmpty;
+				/** 动态SQL语句中的查询条件列值处理时是否将空字符串转换为NULL值处理，而不是直接使用，可遵循具体数据库的处理方式 */
+				private Boolean whereEmptyAsNull;
+				/** 动态SQL语句中的查询条件列值是否允许空字符串作为有效参数，而不是忽略 */
+				private Boolean whereIncludeEmpty;
+				/** 动态SQL语句中的新增或更新列值处理时是否将空字符串转换为NULL值处理，而不是直接使用，可遵循具体数据库的处理方式 */
+				private Boolean entityEmptyAsNull;
+				/** 动态SQL语句中的新增或更新列值是否允许空字符串作为有效参数，而不是忽略 */
+				private Boolean entityIncludeEmpty;
 
-				/** 动态SQL语句中是否将空字符串转换为NULL值处理，而不是直接使用，可遵循具体数据库的处理方式，默认为true */
-				public boolean emptyAsNull() {
-					if (emptyAsNull != null) {
-						return emptyAsNull;
+				/** 动态SQL语句中的查询条件列值处理时是否将空字符串转换为NULL值处理，而不是直接使用，可遵循具体数据库的处理方式，默认为true */
+				public boolean whereEmptyAsNull() {
+					if (whereEmptyAsNull != null) {
+						return whereEmptyAsNull;
 					}
-					return GlobalStdEnv.getBoolean(StdKeys.JDBC_SQL_PARAM_EMPTY_AS_NULL, true);
+					return GlobalStdEnv.getBoolean(StdKeys.JDBC_SQL_PARAM_WHERE_EMPTY_AS_NULL, true);
 				}
 
-				/** 动态SQL语句中是否将空字符串转换为NULL值处理，而不是直接使用，可遵循具体数据库的处理方式 */
+				/** 动态SQL语句中的查询条件列值处理时是否将空字符串转换为NULL值处理，而不是直接使用，可遵循具体数据库的处理方式 */
 				@Nonnull
-				public Param emptyAsNull(@Nullable Boolean emptyAsNull) {
-					this.emptyAsNull = emptyAsNull;
+				public Param whereEmptyAsNull(@Nullable Boolean emptyAsNull) {
+					this.whereEmptyAsNull = emptyAsNull;
 					return this;
 				}
 
-				/** 动态SQL语句中是否允许空字符串作为有效参数，而不是忽略，默认为false */
-				public boolean includeEmpty() {
-					if (includeEmpty != null) {
-						return includeEmpty;
+				/** 动态SQL语句中的查询条件列值是否允许空字符串作为有效参数，而不是忽略，默认为false */
+				public boolean whereIncludeEmpty() {
+					if (whereIncludeEmpty != null) {
+						return whereIncludeEmpty;
 					}
-					return GlobalStdEnv.getBoolean(StdKeys.JDBC_SQL_PARAM_INCLUDE_EMPTY, false);
+					return GlobalStdEnv.getBoolean(StdKeys.JDBC_SQL_PARAM_WHERE_INCLUDE_EMPTY, false);
 				}
 
-				/** 动态SQL语句中是否允许空字符串作为有效参数，而不是忽略 */
+				/** 动态SQL语句中的查询条件列值是否允许空字符串作为有效参数，而不是忽略 */
 				@Nonnull
-				public Param includeEmpty(@Nullable Boolean includeEmpty) {
-					this.includeEmpty = includeEmpty;
+				public Param whereIncludeEmpty(@Nullable Boolean includeEmpty) {
+					this.whereIncludeEmpty = includeEmpty;
+					return this;
+				}
+
+				/** 动态SQL语句中的新增或更新列值处理时是否将空字符串转换为NULL值处理，而不是直接使用，可遵循具体数据库的处理方式，默认为true */
+				public boolean entityEmptyAsNull() {
+					if (entityEmptyAsNull != null) {
+						return entityEmptyAsNull;
+					}
+					return GlobalStdEnv.getBoolean(StdKeys.JDBC_SQL_PARAM_ENTITY_EMPTY_AS_NULL, true);
+				}
+
+				/** 动态SQL语句中的新增或更新列值处理时是否将空字符串转换为NULL值处理，而不是直接使用，可遵循具体数据库的处理方式 */
+				@Nonnull
+				public Param entityEmptyAsNull(@Nullable Boolean emptyAsNull) {
+					this.entityEmptyAsNull = emptyAsNull;
+					return this;
+				}
+
+				/** 动态SQL语句中的新增或更新列值是否允许空字符串作为有效参数，而不是忽略，默认为false */
+				public boolean entityIncludeEmpty() {
+					if (entityIncludeEmpty != null) {
+						return entityIncludeEmpty;
+					}
+					return GlobalStdEnv.getBoolean(StdKeys.JDBC_SQL_PARAM_ENTITY_INCLUDE_EMPTY, false);
+				}
+
+				/** 动态SQL语句中的新增或更新列值是否允许空字符串作为有效参数，而不是忽略 */
+				@Nonnull
+				public Param entityIncludeEmpty(@Nullable Boolean includeEmpty) {
+					this.entityIncludeEmpty = includeEmpty;
 					return this;
 				}
 			}

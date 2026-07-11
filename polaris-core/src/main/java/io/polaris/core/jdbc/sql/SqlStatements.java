@@ -167,9 +167,9 @@ public class SqlStatements {
 				}
 				// 其他情况，判断是否需要包含空值字段
 				if (include || columnPredicate.isIncludedEmptyColumn(name)
-					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.includeEmpty())) {
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.entityIncludeEmpty())) {
 					// NULL值，或空字符串需要转换为NULL值
-					if (result == SqlParamPredicate.Result.NULL || SqlParamPredicate.emptyAsNull()) {
+					if (result == SqlParamPredicate.Result.NULL || SqlParamPredicate.entityEmptyAsNull()) {
 						sql.columnAndValue(columnName, "NULL");
 						continue;
 					}
@@ -278,7 +278,7 @@ public class SqlStatements {
 				SqlParamPredicate.Result result = SqlParamPredicate.check(val);
 				// NULL值，或空字符串需要转换为NULL值
 				if (result == SqlParamPredicate.Result.NULL
-					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.emptyAsNull())) {
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.whereEmptyAsNull())) {
 					sql.where(columnName + " IS NULL");
 				} else {
 					String keyName = whereKeyGen.generate();
@@ -422,7 +422,7 @@ public class SqlStatements {
 				SqlParamPredicate.Result result = SqlParamPredicate.check(val);
 				// NULL值，或空字符串需要转换为NULL值
 				if (result == SqlParamPredicate.Result.NULL
-					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.emptyAsNull())) {
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.whereEmptyAsNull())) {
 					sql.where(columnName + " IS NULL");
 				} else {
 					String key = whereKeyGen.generate();
@@ -827,7 +827,7 @@ public class SqlStatements {
 				SqlParamPredicate.Result result = SqlParamPredicate.check(val);
 				// NULL值，或空字符串需要转换为NULL值
 				if (result == SqlParamPredicate.Result.NULL
-					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.emptyAsNull())) {
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.whereEmptyAsNull())) {
 					sql.where(columnName + " IS NULL");
 				} else {
 					String keyName = whereKeyGen.generate();
@@ -876,10 +876,10 @@ public class SqlStatements {
 
 				// 需要包含空值字段
 				if (include || columnPredicate.isIncludedEmptyColumn(name)
-					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.includeEmpty())) {
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.entityIncludeEmpty())) {
 
 					// NULL值，或空字符串需要转换为NULL值
-					if (result == SqlParamPredicate.Result.NULL || SqlParamPredicate.emptyAsNull()) {
+					if (result == SqlParamPredicate.Result.NULL || SqlParamPredicate.entityEmptyAsNull()) {
 						// 默认值SQL存在则使用
 						String updateDefaultSql = meta.getUpdateDefaultSql();
 						if (Strings.isNotBlank(updateDefaultSql)) {
@@ -1028,10 +1028,10 @@ public class SqlStatements {
 
 				// 需要包含空值字段
 				if (include || columnPredicate.isIncludedEmptyColumn(name)
-					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.includeEmpty())) {
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.entityIncludeEmpty())) {
 
 					// NULL值，或空字符串需要转换为NULL值
-					if (result == SqlParamPredicate.Result.NULL || SqlParamPredicate.emptyAsNull()) {
+					if (result == SqlParamPredicate.Result.NULL || SqlParamPredicate.entityEmptyAsNull()) {
 						// 默认值SQL存在则使用
 						String updateDefaultSql = meta.getUpdateDefaultSql();
 						if (Strings.isNotBlank(updateDefaultSql)) {
@@ -1309,7 +1309,7 @@ public class SqlStatements {
 			if (primaryKey) {
 				SqlParamPredicate.Result result = SqlParamPredicate.check(val);
 				if (result == SqlParamPredicate.Result.NULL
-					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.emptyAsNull())) {
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.whereEmptyAsNull())) {
 					sql.where(columnName + " IS NULL");
 				} else {
 					String keyName = whereKeyGen.generate();
@@ -1586,7 +1586,7 @@ public class SqlStatements {
 				val = Converters.convertQuietly(meta.getFieldType(), val);
 				SqlParamPredicate.Result result = SqlParamPredicate.check(val);
 				if (result == SqlParamPredicate.Result.NULL
-					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.emptyAsNull())) {
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.whereEmptyAsNull())) {
 					sql.where(columnName + " IS NULL");
 				} else {
 					String keyName = whereKeyGen.generate();
@@ -1875,9 +1875,9 @@ public class SqlStatements {
 			} else {
 				// 需要包含空值字段
 				if (include || columnPredicate.isIncludedEmptyColumn(name)
-					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.includeEmpty())) {
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.whereIncludeEmpty())) {
 					// NULL值，或空字符串需要转换为NULL值
-					if (result == SqlParamPredicate.Result.NULL || SqlParamPredicate.emptyAsNull()) {
+					if (result == SqlParamPredicate.Result.NULL || SqlParamPredicate.whereEmptyAsNull()) {
 						sql.where(columnName + " IS NULL");
 						columnVisitor.accept(name);
 					} else {
@@ -1920,9 +1920,9 @@ public class SqlStatements {
 			} else {
 				// 需要包含空值字段
 				if (include || columnPredicate.isIncludedEmptyColumn(name)
-					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.includeEmpty())) {
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.whereIncludeEmpty())) {
 					// NULL值，或空字符串需要转换为NULL值
-					if (result == SqlParamPredicate.Result.NULL || SqlParamPredicate.emptyAsNull()) {
+					if (result == SqlParamPredicate.Result.NULL || SqlParamPredicate.whereEmptyAsNull()) {
 						sql.where(columnName + " IS NULL");
 					} else {
 						String key = whereKeyGen.generate();
@@ -1986,9 +1986,9 @@ public class SqlStatements {
 			} else {
 				// 需要包含空值字段
 				if (include || columnPredicate.isIncludedEmptyColumn(name)
-					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.includeEmpty())) {
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.whereIncludeEmpty())) {
 					// NULL值，或空字符串需要转换为NULL值
-					if (result == SqlParamPredicate.Result.NULL || SqlParamPredicate.emptyAsNull()) {
+					if (result == SqlParamPredicate.Result.NULL || SqlParamPredicate.whereEmptyAsNull()) {
 						sql.where(columnName + " IS NULL");
 					} else {
 						String key = whereKeyGen.generate();
@@ -2029,9 +2029,9 @@ public class SqlStatements {
 			} else {
 				// 需要包含空值字段
 				if (include || columnPredicate.isIncludedEmptyColumn(name)
-					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.includeEmpty())) {
+					|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.whereIncludeEmpty())) {
 					// NULL值，或空字符串需要转换为NULL值
-					if (result == SqlParamPredicate.Result.NULL || SqlParamPredicate.emptyAsNull()) {
+					if (result == SqlParamPredicate.Result.NULL || SqlParamPredicate.whereEmptyAsNull()) {
 						sql.where(columnName + " IS NULL");
 					} else {
 						String key = whereKeyGen.generate();
@@ -2090,7 +2090,7 @@ public class SqlStatements {
 				String str = ((StringValue) val).getValue();
 				if (str == null) {
 					sql.where(columnName + " IS NULL ");
-				} else if (str.isEmpty() && SqlParamPredicate.emptyAsNull()) {
+				} else if (str.isEmpty() && SqlParamPredicate.whereEmptyAsNull()) {
 					sql.where(columnName + " IS NULL ");
 				} else {
 					if (like) {
@@ -2123,7 +2123,7 @@ public class SqlStatements {
 				Object start = range.getStart();
 				SqlParamPredicate.Result result = SqlParamPredicate.check(start);
 				if (result == SqlParamPredicate.Result.NONEMPTY
-					|| (result == SqlParamPredicate.Result.EMPTY && !SqlParamPredicate.emptyAsNull())) {
+					|| (result == SqlParamPredicate.Result.EMPTY && !SqlParamPredicate.whereEmptyAsNull())) {
 					start = Converters.convertQuietly(fieldType, start);
 					if (start != null) {
 						sql.where(columnName + " >= #{" + key + "0" + varSuffix + "} ");
@@ -2135,7 +2135,7 @@ public class SqlStatements {
 				Object end = range.getEnd();
 				SqlParamPredicate.Result result = SqlParamPredicate.check(end);
 				if (result == SqlParamPredicate.Result.NONEMPTY
-					|| (result == SqlParamPredicate.Result.EMPTY && !SqlParamPredicate.emptyAsNull())) {
+					|| (result == SqlParamPredicate.Result.EMPTY && !SqlParamPredicate.whereEmptyAsNull())) {
 					end = Converters.convertQuietly(fieldType, end);
 					if (end != null) {
 						sql.where(columnName + " <= #{" + key + "1" + varSuffix + "} ");
@@ -2191,7 +2191,7 @@ public class SqlStatements {
 			val = Converters.convertQuietly(fieldType, val);
 			if (val == null) {
 				sql.where(columnName + " IS NULL ");
-			} else if (val instanceof String && ((String) val).isEmpty() && SqlParamPredicate.emptyAsNull()) {
+			} else if (val instanceof String && ((String) val).isEmpty() && SqlParamPredicate.whereEmptyAsNull()) {
 				// 如果为空字符串，则按配置规则转换成NULL
 				sql.where(columnName + " IS NULL ");
 			} else {

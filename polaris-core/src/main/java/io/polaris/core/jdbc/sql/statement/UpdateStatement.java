@@ -241,7 +241,7 @@ public class UpdateStatement<S extends UpdateStatement<S>> extends BaseStatement
 
 					// 其他情况，判断是否需要包含空值字段
 					if (include || columnPredicate.isIncludedEmptyColumn(name)
-						|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.includeEmpty())) {
+						|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.entityIncludeEmpty())) {
 						if (Maps.isNotEmpty(props)) {
 							this.column(name).value(val, props);
 						} else {

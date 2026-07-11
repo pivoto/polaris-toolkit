@@ -16,8 +16,8 @@ class GlobalStdEnvTest {
 		GlobalStdEnv.set(StdKeys.LOGGER_LEVEL + ".aaa", "info");
 		GlobalStdEnv.set(StdKeys.LOGGER_LEVEL + ".bbb", "error");
 		GlobalStdEnv.set(StdKeys.JDBC_SQL_SPACE_AS_LF, "false");
-		GlobalStdEnv.set(StdKeys.JDBC_SQL_PARAM_EMPTY_AS_NULL, "false");
-		GlobalStdEnv.set(StdKeys.JDBC_SQL_PARAM_INCLUDE_EMPTY, "true");
+		GlobalStdEnv.set(StdKeys.JDBC_SQL_PARAM_WHERE_EMPTY_AS_NULL, "false");
+		GlobalStdEnv.set(StdKeys.JDBC_SQL_PARAM_WHERE_INCLUDE_EMPTY, "true");
 		GlobalStdEnv.set(StdKeys.BYTECODE_GENERATOR_CACHE, "false");
 		GlobalStdEnv.set(StdKeys.BYTECODE_GENERATOR_TMPDIR, "/tmp/bytecode");
 		GlobalStdEnv.set(StdKeys.ASYNC_POOL_CORE, "8");

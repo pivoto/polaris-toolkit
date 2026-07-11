@@ -206,7 +206,7 @@ public class Queries {
 		SqlParamPredicate.Result result = SqlParamPredicate.check(val);
 		// 判断是否需要处理参数：包装值、非空、空串且包含
 		if (include || result == SqlParamPredicate.Result.NONEMPTY
-			|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.includeEmpty())) {
+			|| (result == SqlParamPredicate.Result.EMPTY && SqlParamPredicate.whereIncludeEmpty())) {
 
 			if (val instanceof Iterable || val instanceof Iterator) {
 				// 集合类参数，只支持非空的条件
@@ -230,7 +230,7 @@ public class Queries {
 					boolean like = ((StringValue) val).isLike();
 					char escape = ((StringValue) val).getEscape();
 					String str = ((StringValue) val).getValue();
-					if (str == null || (str.isEmpty() && SqlParamPredicate.emptyAsNull())) {
+					if (str == null || (str.isEmpty() && SqlParamPredicate.whereEmptyAsNull())) {
 						// NULL值
 						criteria.addSubset(Criteria.newCriteria().field(name)
 							.criterion(Criterion.newCriterion().operator(Operator.NULL).value(val)));
@@ -263,7 +263,7 @@ public class Queries {
 
 			// 非空，或空串且不转为NULL
 			if (result == SqlParamPredicate.Result.NONEMPTY
-				|| (result == SqlParamPredicate.Result.EMPTY && !SqlParamPredicate.emptyAsNull())) {
+				|| (result == SqlParamPredicate.Result.EMPTY && !SqlParamPredicate.whereEmptyAsNull())) {
 				criteria.addSubset(Criteria.newCriteria().field(name)
 					.criterion(Criterion.newCriterion().operator(Operator.EQ).value(val)));
 			} else {

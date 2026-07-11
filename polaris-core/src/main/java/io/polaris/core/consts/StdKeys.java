@@ -28,9 +28,13 @@ public interface StdKeys {
 
 	/** 动态SQL语句中是否使用空格替换换行符 */
 	String JDBC_SQL_SPACE_AS_LF = POLARIS_DOT + "jdbc.sql.space-as-lf";
-	/** 动态SQL语句中是否将空字符串转换为NULL值处理，而不是直接使用，可遵循具体数据库的处理方式 */
-	String JDBC_SQL_PARAM_EMPTY_AS_NULL = POLARIS_DOT + "jdbc.sql.param.empty-as-null";
-	/** 动态SQL语句中是否允许空字符串作为有效参数，而不是忽略 */
-	String JDBC_SQL_PARAM_INCLUDE_EMPTY = POLARIS_DOT + "jdbc.sql.param.include-empty";
+	/** 动态SQL语句中的查询条件列值处理时是否将空字符串转换为NULL值处理，而不是直接使用，可遵循具体数据库的处理方式 */
+	String JDBC_SQL_PARAM_WHERE_EMPTY_AS_NULL = POLARIS_DOT + "jdbc.sql.param.where-empty-as-null";
+	/** 动态SQL语句中的查询条件列值是否允许空字符串作为有效参数，而不是忽略 */
+	String JDBC_SQL_PARAM_WHERE_INCLUDE_EMPTY = POLARIS_DOT + "jdbc.sql.param.where-include-empty";
+	/** 动态SQL语句中的新增或更新列值处理时是否将空字符串转换为NULL值处理，而不是直接使用，可遵循具体数据库的处理方式 */
+	String JDBC_SQL_PARAM_ENTITY_EMPTY_AS_NULL = POLARIS_DOT + "jdbc.sql.param.entity-empty-as-null";
+	/** 动态SQL语句中的新增或更新列值是否允许空字符串作为有效参数，而不是忽略 */
+	String JDBC_SQL_PARAM_ENTITY_INCLUDE_EMPTY = POLARIS_DOT + "jdbc.sql.param.entity-include-empty";
 
 }
