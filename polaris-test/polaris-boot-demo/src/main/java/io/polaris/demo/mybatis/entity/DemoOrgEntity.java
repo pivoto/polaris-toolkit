@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 import io.polaris.core.jdbc.annotation.Column;
 import io.polaris.core.jdbc.annotation.Id;
 import io.polaris.demo.annotation.DemoOrgTable;
+import io.polaris.mybatis.annotation.ColumnJdbcType;
 import io.polaris.mybatis.annotation.ColumnTypeHandler;
 import io.polaris.mybatis.consts.DbEnum;
 import io.polaris.mybatis.type.DynamicTimestampTypeHandler;
@@ -14,6 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.ibatis.type.JdbcType;
 
 /**
  * @author Qt
@@ -38,6 +40,7 @@ public class DemoOrgEntity {
 	private Boolean deleted;
 	@Column(createTime = true)
 	@ColumnTypeHandler(DynamicTimestampTypeHandler.class)
+	@ColumnJdbcType(JdbcType.TIMESTAMP)
 	private Date crtDt;
 	@Column(createTime = true, updateTime = true)
 	@ColumnTypeHandler(DynamicTimestampTypeHandler.class)

@@ -285,6 +285,8 @@ public class AptAnnotationAttributes implements Cloneable {
 			Object val = value.getValue();
 			if (val instanceof String) {
 				return (String) val;
+			} else if (val != null){
+				return val.toString();
 			}
 		}
 		return null;
@@ -296,6 +298,8 @@ public class AptAnnotationAttributes implements Cloneable {
 			Object val = value.getValue();
 			if (val instanceof Boolean) {
 				return (Boolean) val;
+			} else if (val != null) {
+				return Boolean.parseBoolean(val.toString());
 			}
 		}
 		return null;
@@ -307,6 +311,13 @@ public class AptAnnotationAttributes implements Cloneable {
 			Object val = value.getValue();
 			if (val instanceof Integer) {
 				return (Integer) val;
+			} else if (val instanceof Number) {
+				return ((Number) val).intValue();
+			} else if (val != null) {
+				try {
+					return Integer.parseInt(val.toString());
+				} catch (Exception ignored) {
+				}
 			}
 		}
 		return null;
@@ -318,6 +329,13 @@ public class AptAnnotationAttributes implements Cloneable {
 			Object val = value.getValue();
 			if (val instanceof Long) {
 				return (Long) val;
+			} else if (val instanceof Number) {
+				return ((Number) val).longValue();
+			} else if (val != null) {
+				try {
+					return Long.parseLong(val.toString());
+				} catch (Exception ignored) {
+				}
 			}
 		}
 		return null;
@@ -329,6 +347,13 @@ public class AptAnnotationAttributes implements Cloneable {
 			Object val = value.getValue();
 			if (val instanceof Byte) {
 				return (Byte) val;
+			} else if (val instanceof Number) {
+				return ((Number) val).byteValue();
+			} else if (val != null) {
+				try {
+					return Byte.parseByte(val.toString());
+				} catch (Exception ignored) {
+				}
 			}
 		}
 		return null;
@@ -340,6 +365,14 @@ public class AptAnnotationAttributes implements Cloneable {
 			Object val = value.getValue();
 			if (val instanceof Character) {
 				return (Character) val;
+			} else if (val != null) {
+				try {
+					String str = val.toString();
+					if (str.length() > 0) {
+						return str.charAt(0);
+					}
+				} catch (Exception ignored) {
+				}
 			}
 		}
 		return null;
@@ -351,6 +384,13 @@ public class AptAnnotationAttributes implements Cloneable {
 			Object val = value.getValue();
 			if (val instanceof Double) {
 				return (Double) val;
+			} else if (val instanceof Number) {
+				return ((Number) val).doubleValue();
+			} else if (val != null) {
+				try {
+					return Double.parseDouble(val.toString());
+				} catch (Exception ignored) {
+				}
 			}
 		}
 		return null;
@@ -362,6 +402,13 @@ public class AptAnnotationAttributes implements Cloneable {
 			Object val = value.getValue();
 			if (val instanceof Float) {
 				return (Float) val;
+			} else if (val instanceof Number) {
+				return ((Number) val).floatValue();
+			} else if (val != null) {
+				try {
+					return Float.parseFloat(val.toString());
+				} catch (Exception ignored) {
+				}
 			}
 		}
 		return null;
@@ -373,6 +420,13 @@ public class AptAnnotationAttributes implements Cloneable {
 			Object val = value.getValue();
 			if (val instanceof Short) {
 				return (Short) val;
+			} else if (val instanceof Number) {
+				return ((Number) val).shortValue();
+			} else if (val != null) {
+				try {
+					return Short.parseShort(val.toString());
+				} catch (Exception ignored) {
+				}
 			}
 		}
 		return null;
