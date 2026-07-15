@@ -3,17 +3,17 @@
 				 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 				 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>cn.fossc.polaris.toolkit</groupId>
+	<groupId>cn.pivoto.polaris.toolkit</groupId>
 	<artifactId>polaris-toolkit</artifactId>
 	<version>3.8.20</version>
 	<packaging>pom</packaging>
 
 	<name>polaris-toolkit</name>
-	<url>https://www.fossc.cn</url>
-	<description>fossc</description>
+	<url>https://www.pivoto.cn</url>
+	<description>pivoto</description>
 	<organization>
-		<name>fossc</name>
-		<url>https://www.fossc.cn</url>
+		<name>pivoto</name>
+		<url>https://www.pivoto.cn</url>
 	</organization>
 	<modules>
 		<module>polaris-logging</module>
@@ -27,7 +27,7 @@
 
 	<properties>
 		<project.polaris-toolkit.revision>3.8.20</project.polaris-toolkit.revision>
-		<deploymentName>cn.fossc.polaris.toolkit:polaris-toolkit:${project.version}</deploymentName>
+		<deploymentName>cn.pivoto.polaris.toolkit:polaris-toolkit:${project.version}</deploymentName>
 		<start-class></start-class>
 		<java.version>1.8</java.version>
 		<file.encoding>UTF-8</file.encoding>
@@ -191,79 +191,79 @@
 		<dependencies>
 			<!-- region Modules -->
 			<dependency>
-				<groupId>cn.fossc.polaris.toolkit</groupId>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-all</artifactId>
 				<type>pom</type>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<!-- logging -->
 			<dependency>
-				<groupId>cn.fossc.polaris.toolkit</groupId>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-logging</artifactId>
 				<type>pom</type>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.fossc.polaris.toolkit</groupId>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-logging-test</artifactId>
 				<type>pom</type>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<!-- core -->
 			<dependency>
-				<groupId>cn.fossc.polaris.toolkit</groupId>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-core-apt</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.fossc.polaris.toolkit</groupId>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-core</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<!-- builder -->
 			<dependency>
-				<groupId>cn.fossc.polaris.toolkit</groupId>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-builder-core</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.fossc.polaris.toolkit</groupId>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-builder-resource</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<!-- extra -->
 			<dependency>
-				<groupId>cn.fossc.polaris.toolkit</groupId>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-agent-sdk</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.fossc.polaris.toolkit</groupId>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-extension</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.fossc.polaris.toolkit</groupId>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-crypto</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.fossc.polaris.toolkit</groupId>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-json</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.fossc.polaris.toolkit</groupId>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-mybatis</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.fossc.polaris.toolkit</groupId>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-validator</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>cn.fossc.polaris.toolkit</groupId>
+				<groupId>cn.pivoto.polaris.toolkit</groupId>
 				<artifactId>polaris-web</artifactId>
 				<version>${project.polaris-toolkit.revision}</version>
 			</dependency>
@@ -1024,7 +1024,7 @@
 					</executions>
 				</plugin>
 				<plugin>
-					<groupId>cn.fossc.polaris.plugins</groupId>
+					<groupId>cn.pivoto.polaris.plugins</groupId>
 					<artifactId>properties-maven-plugin</artifactId>
 					<version>${dependency.polaris-plugins.version}</version>
 					<executions>
@@ -1210,7 +1210,7 @@
 					</configuration>
 					<dependencies>
 						<dependency>
-							<groupId>cn.fossc.polaris.plugins</groupId>
+							<groupId>cn.pivoto.polaris.plugins</groupId>
 							<artifactId>polaris-build-tools</artifactId>
 							<version>${dependency.polaris-plugins.version}</version>
 						</dependency>
@@ -1341,7 +1341,7 @@
 				<artifactId>native2ascii-maven-plugin</artifactId>
 			</plugin>-->
 			<plugin>
-				<groupId>cn.fossc.polaris.plugins</groupId>
+				<groupId>cn.pivoto.polaris.plugins</groupId>
 				<artifactId>properties-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
@@ -1498,7 +1498,7 @@
 		<developer>
 			<name>Qt</name>
 			<email>kylinmania@163.com</email>
-			<url>https://www.fossc.cn/</url>
+			<url>https://www.pivoto.cn/</url>
 			<roles>
 				<role>software engineer</role>
 			</roles>
@@ -1515,7 +1515,7 @@
 
 	<ciManagement>
 		<system>continuum</system>
-		<url>http://www.fossc.cn</url>
+		<url>http://www.pivoto.cn</url>
 		<notifiers>
 			<notifier>
 				<type>mail</type>
@@ -1532,7 +1532,7 @@
 
 	<issueManagement>
 		<system>issue</system>
-		<url>http://www.fossc.cn</url>
+		<url>http://www.pivoto.cn</url>
 	</issueManagement>
 
 	<distributionManagement>
@@ -1569,7 +1569,7 @@
 			</activation>
 			<dependencies>
 				<dependency>
-					<groupId>cn.fossc.jdk</groupId>
+					<groupId>cn.pivoto.jdk</groupId>
 					<artifactId>tools</artifactId>
 					<version>1.8</version>
 					<scope>provided</scope>
