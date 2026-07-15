@@ -49,7 +49,7 @@
 - 只依赖核心库
 ```xml
 <dependency>
-  <groupId>cn.fossc.polaris.toolkit</groupId>
+  <groupId>cn.pivoto.polaris.toolkit</groupId>
   <artifactId>polaris-core</artifactId>
   <version>${polaris-version}</version>
 </dependency>
@@ -57,7 +57,7 @@
 - 依赖通用库
 ```xml
 <dependency>
-  <groupId>cn.fossc.polaris.toolkit</groupId>
+  <groupId>cn.pivoto.polaris.toolkit</groupId>
   <artifactId>polaris-all</artifactId>
   <type>pom</type>
   <version>${polaris-version}</version>

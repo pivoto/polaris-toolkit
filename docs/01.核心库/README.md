@@ -4,7 +4,7 @@
 
 ```xml
 <dependency>
-  <groupId>cn.fossc.polaris.toolkit</groupId>
+  <groupId>cn.pivoto.polaris.toolkit</groupId>
   <artifactId>polaris-core</artifactId>
   <version>${polaris-version}</version>
 </dependency>
