@@ -4,6 +4,7 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Date;
 
@@ -34,34 +35,45 @@ public class DynamicDateTypeHandler extends AbstractTypeHandler<Object> {
 			ps.setNull(i, Types.TIMESTAMP);
 			return;
 		}
-		if (parameter instanceof Date) {
-			ps.setDate(i, new java.sql.Date(((Date) parameter).getTime()));
+		if (parameter instanceof java.sql.Date) {
+			ps.setTimestamp(i, new java.sql.Timestamp(((Date) parameter).getTime()));
 		} else if (parameter instanceof Date) {
-			ps.setDate(i, new java.sql.Date(((Date) parameter).getTime()));
+			ps.setTimestamp(i, new java.sql.Timestamp(((Date) parameter).getTime()));
 		} else if (parameter instanceof Number) {
-			ps.setDate(i, new java.sql.Date(((Number) parameter).longValue()));
+			ps.setTimestamp(i, new java.sql.Timestamp(((Number) parameter).longValue()));
 		} else {
 			Date date = Converters.convert(Date.class, parameter);
-			ps.setDate(i, new java.sql.Date(date.getTime()));
+			ps.setTimestamp(i, new java.sql.Timestamp(date.getTime()));
 		}
 	}
 
 	@Override
 	public Date getNullableResult(ResultSet rs, String columnName)
 		throws SQLException {
-		java.sql.Date date = rs.getDate(columnName);
-		return date;
+		java.sql.Timestamp sqlTimestamp = rs.getTimestamp(columnName);
+		if (sqlTimestamp != null) {
+			return new Date(sqlTimestamp.getTime());
+		}
+		return null;
 	}
 
 	@Override
 	public Date getNullableResult(ResultSet rs, int columnIndex)
 		throws SQLException {
-		return rs.getDate(columnIndex);
+		Timestamp sqlTimestamp = rs.getTimestamp(columnIndex);
+		if (sqlTimestamp != null) {
+			return new Date(sqlTimestamp.getTime());
+		}
+		return null;
 	}
 
 	@Override
 	public Date getNullableResult(CallableStatement cs, int columnIndex)
 		throws SQLException {
-		return cs.getDate(columnIndex);
+		Timestamp sqlTimestamp = cs.getTimestamp(columnIndex);
+		if (sqlTimestamp != null) {
+			return new Date(sqlTimestamp.getTime());
+		}
+		return null;
 	}
 }
