@@ -1,4 +1,4 @@
-package io.polaris.core.xml;
+package io.polaris.xml;
 
 import io.polaris.core.io.IO;
 

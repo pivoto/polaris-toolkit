@@ -191,6 +191,15 @@
 		</dependency>
 		<!-- endregion -->
 
+		<!-- region xml -->
+		<dependency>
+			<groupId>jakarta.xml.bind</groupId>
+			<artifactId>jakarta.xml.bind-api</artifactId>
+			<version>2.3.3</version>
+			<scope>compile</scope>
+		</dependency>
+		<!-- endregion -->
+
 		<!-- region test -->
 		<!-- endregion -->
 	</dependencies>
