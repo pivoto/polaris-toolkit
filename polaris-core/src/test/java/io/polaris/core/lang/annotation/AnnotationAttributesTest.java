@@ -2,6 +2,7 @@ package io.polaris.core.lang.annotation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,7 +29,7 @@ class AnnotationAttributesTest {
 	@Test
 	void testGetAnnotationMembers() {
 		Method[] result = AnnotationAttributes.getAnnotationMembers(Anno.class);
-		Consoles.log(result);
+		Consoles.log(Arrays.toString(result));
 	}
 
 	@Test
