@@ -17,8 +17,6 @@ import java.util.function.Supplier;
 
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
-import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
@@ -34,7 +32,6 @@ import io.polaris.core.javapoet.*;
  * @see CodeBlock 代码块生成语句的占位符说明
  */
 @SupportedAnnotationTypes(value = {"io.polaris.core.annotation.Access"})
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class AccessProcessor extends BaseProcessor {
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {

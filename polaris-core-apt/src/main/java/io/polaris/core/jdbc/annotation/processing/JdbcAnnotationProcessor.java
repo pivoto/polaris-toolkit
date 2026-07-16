@@ -12,8 +12,6 @@ import java.util.function.Supplier;
 
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
-import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
@@ -36,7 +34,6 @@ import io.polaris.core.jdbc.annotation.Table;
  * @since Aug 20, 2023
  */
 @SuppressWarnings("all")
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedAnnotationTypes("io.polaris.core.jdbc.annotation.Table")
 public class JdbcAnnotationProcessor extends BaseProcessor {
 

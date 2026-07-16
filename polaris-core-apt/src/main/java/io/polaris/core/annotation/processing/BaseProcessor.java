@@ -8,6 +8,7 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.SourceVersion;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.FileObject;
@@ -54,6 +55,16 @@ public abstract class BaseProcessor extends AbstractProcessor {
 			}
 		} catch (Throwable ignore) {
 		}
+	}
+
+	/**
+	 * 运行时自动取当前 JDK 支持的最高源版本，避免在 JDK 9+ 下编译时输出
+	 * "Supported source version 'RELEASE_8' less than -source" 警告。
+	 * JDK 8 返回 RELEASE_8，JDK 17 返回 RELEASE_17，依此类推。
+	 */
+	@Override
+	public SourceVersion getSupportedSourceVersion() {
+		return SourceVersion.latestSupported();
 	}
 
 
