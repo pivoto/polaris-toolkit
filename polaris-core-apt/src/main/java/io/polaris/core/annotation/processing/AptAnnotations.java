@@ -260,6 +260,9 @@ public class AptAnnotations {
 
 	public static boolean isInstance(ProcessingEnvironment env, TypeMirror mirror, Object obj) {
 		TypeElement objType = env.getElementUtils().getTypeElement(obj.getClass().getCanonicalName());
+		if (objType == null) {
+			return false;
+		}
 		return env.getTypeUtils().isAssignable(objType.asType(), mirror);
 	}
 
