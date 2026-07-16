@@ -29,7 +29,6 @@
 		<project.polaris-toolkit.revision>3.8.20</project.polaris-toolkit.revision>
 		<deploymentName>cn.pivoto.polaris.toolkit:polaris-toolkit:${project.version}</deploymentName>
 		<start-class></start-class>
-		<java.version>1.8</java.version>
 		<file.encoding>UTF-8</file.encoding>
 		<resource.delimiter>@</resource.delimiter>
 		<!--<resource.delimiter>#{*}</resource.delimiter>-->
@@ -56,8 +55,12 @@
 		<package.dependencyDirectory>lib</package.dependencyDirectory>
 		<includeScope>runtime</includeScope>
 		<maven.clean.failOnError>false</maven.clean.failOnError>
-		<maven.compiler.source>${java.version}</maven.compiler.source>
-		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<!-- 通过toolchains指定使用的目标jdk -->
+		<maven.toolchains.jdk.version>8</maven.toolchains.jdk.version>
+		<!-- jdk9以上可使用release -->
+		<!--<maven.compiler.release>8</maven.compiler.release>-->
+		<maven.compiler.source>8</maven.compiler.source>
+		<maven.compiler.target>8</maven.compiler.target>
 		<maven.compiler.failOnError>true</maven.compiler.failOnError>
 		<maven.compiler.fork>false</maven.compiler.fork>
 		<maven.compiler.verbose>false</maven.compiler.verbose>
@@ -712,6 +715,8 @@
 					<!--<version>3.8.1</version>-->
 					<version>3.11.0</version>
 					<configuration>
+						<!-- jdk9以上可使用release -->
+						<!--<release>${maven.compiler.release}</release>-->
 						<source>${maven.compiler.source}</source>
 						<target>${maven.compiler.target}</target>
 						<encoding>${project.build.sourceEncoding}</encoding>
@@ -1277,6 +1282,25 @@
 				</executions>
 			</plugin>-->
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-toolchains-plugin</artifactId>
+				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>toolchain</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<toolchains>
+						<jdk>
+							<version>${maven.toolchains.jdk.version}</version>
+						</jdk>
+					</toolchains>
+				</configuration>
+			</plugin>
+			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>versions-maven-plugin</artifactId>
 			</plugin>
@@ -1565,7 +1589,7 @@
 		<profile>
 			<id>jdk8</id>
 			<activation>
-				<jdk>(1.4,8]</jdk>
+				<jdk>(1.8,8]</jdk>
 			</activation>
 			<dependencies>
 				<dependency>
@@ -1578,6 +1602,17 @@
 					<optional>true</optional>-->
 				</dependency>
 			</dependencies>
+		</profile>
+
+		<profile>
+			<id>jdk9</id>
+			<activation>
+				<jdk>[9,)</jdk>
+			</activation>
+			<build>
+				<plugins>
+				</plugins>
+			</build>
 		</profile>
 
 		<!-- region delombok -->

@@ -58,12 +58,12 @@
 		<!-- endregion shade jar-->
 
 		<!-- region provided -->
-		<dependency>
+		<!--<dependency>
 			<groupId>cn.pivoto.jdk</groupId>
 			<artifactId>tools</artifactId>
 			<version>1.8</version>
 			<scope>provided</scope>
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
 			<artifactId>groovy-all</artifactId>
