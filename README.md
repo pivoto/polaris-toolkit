@@ -143,7 +143,7 @@
 head: <type> <subject>
 -- type: 提交类型
    【功能新增】fea/feature: 增加特性（开发新功能、新需求）
-   【功能扩展】fea/feature: 扩展或增强已有功能特性
+   【功能变更】fea/feature: 变更或扩展增强已有功能特性
    【功能优化】opt/optimize: 强调对已有功能特性的优化改进（设计、实现、规范等）
    【缺陷修复】fix/bugfix: 问题修改（修复缺陷）
    【代码重构】refactor: 对代码整体或局部进行重构优化
@@ -182,7 +182,7 @@ footer: 脚注（可选）
   # head: <type> <subject>
   # -- type: 提交类型
   #     【功能新增】fea/feature: 增加特性（开发新功能、新需求）
-  #     【功能扩展】fea/feature: 扩展或增强已有功能特性
+  #     【功能变更】fea/feature: 变更或扩展增强已有功能特性
   #     【功能优化】opt/optimize: 强调对已有功能特性的优化改进（设计、实现、规范等）
   #     【缺陷修复】fix/bugfix: 问题修改（修复缺陷）
   #     【代码重构】refactor: 对代码整体或局部进行重构优化
