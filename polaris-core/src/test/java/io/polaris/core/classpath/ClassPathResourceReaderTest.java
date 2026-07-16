@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Enumeration;
 
 import io.polaris.core.io.Consoles;
@@ -44,20 +45,20 @@ class ClassPathResourceReaderTest {
 	@Test
 	void test_getResourceNames() throws IOException {
 		Consoles.println(resolver.getResourceNames("*.properties"));
-		Consoles.println((resolver.getResources("*.properties")));
+		Consoles.println(Arrays.toString(resolver.getResources("*.properties")));
 		Consoles.println(resolver.getResourceNames("**/*.properties"));
-		Consoles.println((resolver.getResources("**/*.properties")));
+		Consoles.println(Arrays.toString(resolver.getResources("**/*.properties")));
 	}
 
 	@Test
 	void test_getResourceNames2() throws IOException {
 		Consoles.println(resolver.getResourceNames("io/**/*.properties"));
-		Consoles.println((resolver.getResources("io/**/*.properties")));
+		Consoles.println(Arrays.toString(resolver.getResources("io/**/*.properties")));
 	}
 
 	@Test
 	void test_getResourceNames3() throws IOException {
 		Consoles.println(resolver.getResourceNames("com/**/*.properties"));
-		Consoles.println((resolver.getResources("com/**/*.properties")));
+		Consoles.println(Arrays.toString(resolver.getResources("com/**/*.properties")));
 	}
 }

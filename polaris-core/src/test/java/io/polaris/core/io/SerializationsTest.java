@@ -52,6 +52,7 @@ public class SerializationsTest {
 	public static class S01 implements Serializable {
 		private static final long serialVersionUID = 1L;
 		static S01 instance = S01.builder().name("Singleton").build();
+		@Builder.Default
 		private String name = Randoms.randomNumberString(5);
 
 		private Object readResolve() throws ObjectStreamException {
