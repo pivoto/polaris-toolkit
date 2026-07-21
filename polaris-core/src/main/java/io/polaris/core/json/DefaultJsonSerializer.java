@@ -21,6 +21,23 @@ import io.polaris.core.time.Dates;
  */
 @SpiDefault
 public class DefaultJsonSerializer implements JsonSerializer {
+
+	/**
+	 * Nashorn 的 JSObject 类。JDK15+ 已移除内置 Nashorn 引擎，JDK17 下该常量为 null，
+	 * toJavaObject 中相关分支会被自动跳过。
+	 */
+	private static final Class<?> NASHORN_JS_OBJECT_CLASS;
+
+	static {
+		Class<?> jsObjectClass = null;
+		try {
+			jsObjectClass = Class.forName("jdk.nashorn.api.scripting.JSObject");
+		} catch (Throwable ignored) {
+			// JDK15+ 已移除 Nashorn，忽略
+		}
+		NASHORN_JS_OBJECT_CLASS = jsObjectClass;
+	}
+
 	@Override
 	public String serialize(Object value) {
 		return _serialize(value).toString();
@@ -187,26 +204,32 @@ public class DefaultJsonSerializer implements JsonSerializer {
 	public <T> T deserialize(String json, Type type) {
 		try {
 			Evaluator engine = ScriptEvaluators.getEvaluator("javascript");
+			if (engine == null) {
+				// JDK15+ 已移除内置 Nashorn，JDK17 下无 javascript 引擎，需引入外部 JS 引擎或使用 polaris-json 模块
+				throw new UnsupportedOperationException("无可用的JavaScript脚本引擎，请使用自定义扩展的的JSON序列化器");
+			}
 			String content = "JSON.parse(input)";
 			Object rs = engine.eval(content, json);
 			Object javaObject = toJavaObject(rs);
 			return Converters.convert(type, javaObject);
+		} catch (RuntimeException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private Object toJavaObject(Object rs) throws ReflectiveOperationException{
+	private Object toJavaObject(Object rs) throws ReflectiveOperationException {
 		if (rs == null) {
 			return null;
 		}
-		Class<?> jsObjectClass = Class.forName("jdk.nashorn.api.scripting.JSObject");
-		boolean isJsObject = jsObjectClass.isInstance(rs);
+		// Nashorn 引擎在 JDK15+ 已移除，JDK17 下 NASHORN_JS_OBJECT_CLASS 为 null，isJsObject 恒为 false，自动跳过 JSObject 分支
+		boolean isJsObject = NASHORN_JS_OBJECT_CLASS != null && NASHORN_JS_OBJECT_CLASS.isInstance(rs);
 		if (isJsObject) {
-			Boolean isArray = (Boolean) jsObjectClass.getMethod("isArray").invoke(rs);
-			if(isArray){
-				Collection<Object> values = (Collection<Object>) jsObjectClass.getMethod("values").invoke(rs);
+			Boolean isArray = (Boolean) NASHORN_JS_OBJECT_CLASS.getMethod("isArray").invoke(rs);
+			if (isArray) {
+				Collection<Object> values = (Collection<Object>) NASHORN_JS_OBJECT_CLASS.getMethod("values").invoke(rs);
 				List<Object> list = new ArrayList<>(values.size());
 				for (Object value : values) {
 					list.add(toJavaObject(value));
@@ -224,10 +247,10 @@ public class DefaultJsonSerializer implements JsonSerializer {
 			return map;
 		}
 		if (isJsObject) {
-			Set<String> keys = (Set<String>) jsObjectClass.getMethod("keySet").invoke(rs);;
+			Set<String> keys = (Set<String>) NASHORN_JS_OBJECT_CLASS.getMethod("keySet").invoke(rs);
 			Map<Object, Object> map = new HashMap<>(keys.size());
 			for (String key : keys) {
-				Object val = jsObjectClass.getMethod("getMember", String.class).invoke(rs);
+				Object val = NASHORN_JS_OBJECT_CLASS.getMethod("getMember", String.class).invoke(rs, key);
 				map.put(key, toJavaObject(val));
 			}
 			return map;
