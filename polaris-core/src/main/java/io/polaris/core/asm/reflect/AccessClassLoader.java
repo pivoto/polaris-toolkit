@@ -1,6 +1,7 @@
 package io.polaris.core.asm.reflect;
 
 import java.io.File;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 import java.util.Collections;
@@ -34,6 +35,10 @@ public class AccessClassLoader extends ClassLoader {
 	private static final ClassLoader selfContextParentClassLoader = getParentClassLoader(AccessClassLoader.class);
 	private static volatile AccessClassLoader selfContextAccessClassLoader = new AccessClassLoader(selfContextParentClassLoader);
 	private static volatile Method defineClassMethod;
+	/** MethodHandles.Lookup.defineClass 方法反射对象（JDK9+，用反射获取以兼容 JDK8 编译）；JDK8 下为 null */
+	private static volatile Method lookupDefineClassMethod;
+	/** 目标类型的 MethodHandles.Lookup（JDK9+），用于通过 Lookup.defineClass 定义类，避免反射 ClassLoader.defineClass 在 JDK17 强封装下失效 */
+	private volatile MethodHandles.Lookup targetLookup;
 
 	private final Set<String> localClassNames = Collections.newSetFromMap(new ConcurrentHashMap<>());
 	private static final Map<String, Class<?>> baseClasses = new ConcurrentHashMap<>();
@@ -41,6 +46,13 @@ public class AccessClassLoader extends ClassLoader {
 	private static final boolean classBytesCacheEnabled;
 
 	static {
+		try {
+			// Lookup.defineClass(byte[]) 仅 JDK9+ 才有，用反射获取以兼容 JDK8 编译
+			lookupDefineClassMethod = MethodHandles.Lookup.class.getMethod("defineClass", byte[].class);
+		} catch (NoSuchMethodException e) {
+			// JDK8 无此方法，保持 null，defineClass 回退反射/protected 方式
+			lookupDefineClassMethod = null;
+		}
 		registerBaseClass(
 			ClassAccess.class
 			, ClassLambdaAccess.class
@@ -156,6 +168,15 @@ public class AccessClassLoader extends ClassLoader {
 	 * @throws ClassFormatError 当字节码格式错误时抛出
 	 */
 	Class<?> defineClass(String name, byte[] bytes) throws ClassFormatError {
+		// JDK9+ 优先使用 MethodHandles.Lookup.defineClass（无需 --add-opens），在目标类型所在加载器/模块定义类，可访问受保护和包级成员
+		MethodHandles.Lookup lookup = targetLookup;
+		if (lookup != null && lookupDefineClassMethod != null) {
+			try {
+				return (Class<?>) lookupDefineClassMethod.invoke(lookup, bytes);
+			} catch (Exception ignored) {
+				// 失败则回退到反射或本地 defineClass
+			}
+		}
 		try {
 			// 尝试在相同加载器中加载访问类，使受保护和默认访问权限的成员可访问
 			return (Class<?>) getDefineClassMethod().invoke(getParent(),
@@ -271,6 +292,7 @@ public class AccessClassLoader extends ClassLoader {
 	 */
 	public static AccessClassLoader get(Class type) {
 		ClassLoader parent = getParentClassLoader(type);
+		AccessClassLoader rs;
 		// 1. fast-path:
 		if (selfContextParentClassLoader.equals(parent)) {
 			if (selfContextAccessClassLoader == null) {
@@ -280,14 +302,41 @@ public class AccessClassLoader extends ClassLoader {
 					}
 				}
 			}
-			return selfContextAccessClassLoader;
+			rs = selfContextAccessClassLoader;
+		} else {
+			// 2. normal search:
+			// 防止因对象回收后导致SoftMap结果丢失，尝试多次获取
+			while ((rs = accessClassLoaders.computeIfAbsent(parent, k -> new AccessClassLoader(parent))) == null) {
+			}
 		}
-		// 2. normal search:
-		AccessClassLoader rs = null;
-		// 防止因对象回收后导致SoftMap结果丢失，尝试多次获取
-		while ((rs = accessClassLoaders.computeIfAbsent(parent, k -> new AccessClassLoader(parent))) == null) {
-		}
+		ensureLookup(rs, type);
 		return rs;
+	}
+
+	/**
+	 * 确保访问类加载器持有目标类型的 MethodHandles.Lookup
+	 * <p>JDK9+ 通过 privateLookupIn 获取能访问目标类型私有成员并在其加载器定义类的 Lookup，
+	 * 避免反射 ClassLoader.defineClass 在 JDK17 强封装下失效（需 --add-opens）</p>
+	 *
+	 * @param loader 访问类加载器
+	 * @param type 目标类型
+	 */
+	private static void ensureLookup(AccessClassLoader loader, Class<?> type) {
+		if (loader.targetLookup != null) {
+			return;
+		}
+		synchronized (loader) {
+			if (loader.targetLookup != null) {
+				return;
+			}
+			try {
+				// privateLookupIn(Class, Lookup) 仅 JDK9+ 才有，用反射调用以兼容 JDK8 编译
+				Method privateLookupIn = MethodHandles.class.getMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
+				loader.targetLookup = (MethodHandles.Lookup) privateLookupIn.invoke(null, type, MethodHandles.lookup());
+			} catch (Exception ignored) {
+				// 无法获取私有 lookup（模块限制或 JDK8），保持 null，defineClass 回退反射/protected 方式
+			}
+		}
 	}
 
 
