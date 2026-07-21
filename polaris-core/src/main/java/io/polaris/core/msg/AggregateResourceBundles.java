@@ -4,8 +4,6 @@ import io.polaris.core.collection.Iterables;
 
 import java.io.IOException;
 import java.net.URL;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.*;
 
 /**
@@ -103,13 +101,13 @@ public class AggregateResourceBundles {
 	static Properties loadProperties(ClassLoader loader, String... resourceNames) throws IOException {
 		Properties aggregatedProperties = new Properties();
 		for (String resourceName : resourceNames) {
-			Enumeration<URL> urls = run(() -> {
-				try {
-					return loader.getResources(resourceName);
-				} catch (IOException e) {
-					return Collections.emptyEnumeration();
-				}
-			});
+			// SecurityManager 自 JDK 17 起已废弃（JEP 411），直接加载资源
+			Enumeration<URL> urls;
+			try {
+				urls = loader.getResources(resourceName);
+			} catch (IOException e) {
+				urls = Collections.emptyEnumeration();
+			}
 			while (urls.hasMoreElements()) {
 				URL url = urls.nextElement();
 				Properties properties = new Properties();
@@ -118,11 +116,6 @@ public class AggregateResourceBundles {
 			}
 		}
 		return aggregatedProperties;
-	}
-
-
-	static <T> T run(PrivilegedAction<T> action) {
-		return System.getSecurityManager() != null ? AccessController.doPrivileged(action) : action.run();
 	}
 
 }
