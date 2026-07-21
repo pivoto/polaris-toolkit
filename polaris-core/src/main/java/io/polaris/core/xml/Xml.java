@@ -27,6 +27,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+
 import java.beans.XMLEncoder;
 import java.io.*;
 import java.util.*;
@@ -182,7 +183,7 @@ public class Xml {
 	 * 使用Sax方式读取指定的XML<br>
 	 * 如果用户传入的contentHandler为{@link DefaultHandler}，则其接口都会被处理
 	 *
-	 * @param file           XML源文件,使用后自动关闭
+	 * @param file XML源文件,使用后自动关闭
 	 * @param contentHandler XML流处理器，用于按照Element处理xml
 	 */
 	public static void readBySax(File file, ContentHandler contentHandler) throws IOException {
@@ -199,7 +200,7 @@ public class Xml {
 	 * 使用Sax方式读取指定的XML<br>
 	 * 如果用户传入的contentHandler为{@link DefaultHandler}，则其接口都会被处理
 	 *
-	 * @param reader         XML源Reader,使用后自动关闭
+	 * @param reader XML源Reader,使用后自动关闭
 	 * @param contentHandler XML流处理器，用于按照Element处理xml
 	 */
 	public static void readBySax(Reader reader, ContentHandler contentHandler) throws IOException {
@@ -214,7 +215,7 @@ public class Xml {
 	 * 使用Sax方式读取指定的XML<br>
 	 * 如果用户传入的contentHandler为{@link DefaultHandler}，则其接口都会被处理
 	 *
-	 * @param source         XML源流,使用后自动关闭
+	 * @param source XML源流,使用后自动关闭
 	 * @param contentHandler XML流处理器，用于按照Element处理xml
 	 */
 	public static void readBySax(InputStream source, ContentHandler contentHandler) throws IOException {
@@ -229,7 +230,7 @@ public class Xml {
 	 * 使用Sax方式读取指定的XML<br>
 	 * 如果用户传入的contentHandler为{@link DefaultHandler}，则其接口都会被处理
 	 *
-	 * @param source         XML源，可以是文件、流、路径等
+	 * @param source XML源，可以是文件、流、路径等
 	 * @param contentHandler XML流处理器，用于按照Element处理xml
 	 */
 	public static void readBySax(InputSource source, ContentHandler contentHandler) throws IOException {
@@ -302,7 +303,7 @@ public class Xml {
 	 * 将XML文档转换为String<br>
 	 * 字符编码使用XML文档中的编码，获取不到则使用UTF-8
 	 *
-	 * @param doc      XML文档
+	 * @param doc XML文档
 	 * @param isPretty 是否格式化输出
 	 * @return XML字符串
 	 */
@@ -314,7 +315,7 @@ public class Xml {
 	 * 将XML文档转换为String<br>
 	 * 字符编码使用XML文档中的编码，获取不到则使用UTF-8
 	 *
-	 * @param doc      XML文档
+	 * @param doc XML文档
 	 * @param isPretty 是否格式化输出
 	 * @return XML字符串
 	 */
@@ -326,8 +327,8 @@ public class Xml {
 	 * 将XML文档转换为String<br>
 	 * 字符编码使用XML文档中的编码，获取不到则使用UTF-8
 	 *
-	 * @param doc      XML文档
-	 * @param charset  编码
+	 * @param doc XML文档
+	 * @param charset 编码
 	 * @param isPretty 是否格式化输出
 	 * @return XML字符串
 	 */
@@ -339,8 +340,8 @@ public class Xml {
 	 * 将XML文档转换为String<br>
 	 * 字符编码使用XML文档中的编码，获取不到则使用UTF-8
 	 *
-	 * @param doc      XML文档
-	 * @param charset  编码
+	 * @param doc XML文档
+	 * @param charset 编码
 	 * @param isPretty 是否格式化输出
 	 * @return XML字符串
 	 */
@@ -352,9 +353,9 @@ public class Xml {
 	 * 将XML文档转换为String<br>
 	 * 字符编码使用XML文档中的编码，获取不到则使用UTF-8
 	 *
-	 * @param doc                XML文档
-	 * @param charset            编码
-	 * @param isPretty           是否格式化输出
+	 * @param doc XML文档
+	 * @param charset 编码
+	 * @param isPretty 是否格式化输出
 	 * @param omitXmlDeclaration 是否忽略 xml Declaration
 	 * @return XML字符串
 	 */
@@ -388,7 +389,7 @@ public class Xml {
 	 * 将XML文档写入到文件<br>
 	 * 使用Document中的编码
 	 *
-	 * @param doc          XML文档
+	 * @param doc XML文档
 	 * @param absolutePath 文件绝对路径，不存在会自动创建
 	 */
 	public static void toFile(Document doc, String absolutePath) throws IOException {
@@ -398,8 +399,8 @@ public class Xml {
 	/**
 	 * 将XML文档写入到文件<br>
 	 *
-	 * @param doc         XML文档
-	 * @param path        文件路径
+	 * @param doc XML文档
+	 * @param path 文件路径
 	 * @param charsetName 自定义XML文件的编码，如果为{@code null} 读取XML文档中的编码，否则默认UTF-8
 	 */
 	public static void toFile(Document doc, String path, String charsetName) throws IOException {
@@ -424,10 +425,10 @@ public class Xml {
 	/**
 	 * 将XML文档写出
 	 *
-	 * @param node    {@link Node} XML文档节点或文档本身
-	 * @param writer  写出的Writer，Writer决定了输出XML的编码
+	 * @param node {@link Node} XML文档节点或文档本身
+	 * @param writer 写出的Writer，Writer决定了输出XML的编码
 	 * @param charset 编码
-	 * @param indent  格式化输出中缩进量，小于1表示不格式化输出
+	 * @param indent 格式化输出中缩进量，小于1表示不格式化输出
 	 */
 	public static void write(Node node, Writer writer, String charset, int indent) throws IOException {
 		transform(new DOMSource(node), new StreamResult(writer), charset, indent);
@@ -436,10 +437,10 @@ public class Xml {
 	/**
 	 * 将XML文档写出
 	 *
-	 * @param node               {@link Node} XML文档节点或文档本身
-	 * @param writer             写出的Writer，Writer决定了输出XML的编码
-	 * @param charset            编码
-	 * @param indent             格式化输出中缩进量，小于1表示不格式化输出
+	 * @param node {@link Node} XML文档节点或文档本身
+	 * @param writer 写出的Writer，Writer决定了输出XML的编码
+	 * @param charset 编码
+	 * @param indent 格式化输出中缩进量，小于1表示不格式化输出
 	 * @param omitXmlDeclaration 是否输出 xml Declaration
 	 */
 	public static void write(Node node, Writer writer, String charset, int indent, boolean omitXmlDeclaration) throws IOException {
@@ -449,10 +450,10 @@ public class Xml {
 	/**
 	 * 将XML文档写出
 	 *
-	 * @param node    {@link Node} XML文档节点或文档本身
-	 * @param out     写出的Writer，Writer决定了输出XML的编码
+	 * @param node {@link Node} XML文档节点或文档本身
+	 * @param out 写出的Writer，Writer决定了输出XML的编码
 	 * @param charset 编码
-	 * @param indent  格式化输出中缩进量，小于1表示不格式化输出
+	 * @param indent 格式化输出中缩进量，小于1表示不格式化输出
 	 */
 	public static void write(Node node, OutputStream out, String charset, int indent) throws IOException {
 		transform(new DOMSource(node), new StreamResult(out), charset, indent);
@@ -461,10 +462,10 @@ public class Xml {
 	/**
 	 * 将XML文档写出
 	 *
-	 * @param node               {@link Node} XML文档节点或文档本身
-	 * @param out                写出的Writer，Writer决定了输出XML的编码
-	 * @param charset            编码
-	 * @param indent             格式化输出中缩进量，小于1表示不格式化输出
+	 * @param node {@link Node} XML文档节点或文档本身
+	 * @param out 写出的Writer，Writer决定了输出XML的编码
+	 * @param charset 编码
+	 * @param indent 格式化输出中缩进量，小于1表示不格式化输出
 	 * @param omitXmlDeclaration 是否输出 xml Declaration
 	 */
 	public static void write(Node node, OutputStream out, String charset, int indent, boolean omitXmlDeclaration) throws IOException {
@@ -475,10 +476,10 @@ public class Xml {
 	 * 将XML文档写出<br>
 	 * 格式化输出逻辑参考：https://stackoverflow.com/questions/139076/how-to-pretty-print-xml-from-java
 	 *
-	 * @param source  源
-	 * @param result  目标
+	 * @param source 源
+	 * @param result 目标
 	 * @param charset 编码
-	 * @param indent  格式化输出中缩进量，小于1表示不格式化输出
+	 * @param indent 格式化输出中缩进量，小于1表示不格式化输出
 	 */
 	public static void transform(Source source, Result result, String charset, int indent) throws IOException {
 		transform(source, result, charset, indent, false);
@@ -488,10 +489,10 @@ public class Xml {
 	 * 将XML文档写出<br>
 	 * 格式化输出逻辑参考：https://stackoverflow.com/questions/139076/how-to-pretty-print-xml-from-java
 	 *
-	 * @param source             源
-	 * @param result             目标
-	 * @param charset            编码
-	 * @param indent             格式化输出中缩进量，小于1表示不格式化输出
+	 * @param source 源
+	 * @param result 目标
+	 * @param charset 编码
+	 * @param indent 格式化输出中缩进量，小于1表示不格式化输出
 	 * @param omitXmlDeclaration 是否输出 xml Declaration
 	 */
 	public static void transform(Source source, Result result, String charset, int indent, boolean omitXmlDeclaration) throws IOException {
@@ -555,10 +556,17 @@ public class Xml {
 	 * @return {@link DocumentBuilderFactory}
 	 */
 	public static DocumentBuilderFactory createDocumentBuilderFactory() {
-		final DocumentBuilderFactory factory;
+		DocumentBuilderFactory factory = null;
 		if (Strings.isNotEmpty(defaultDocumentBuilderFactory)) {
-			factory = DocumentBuilderFactory.newInstance(defaultDocumentBuilderFactory, null);
-		} else {
+			DocumentBuilderFactory tmp = null;
+			try {
+				// 默认实现类位于 JDK 内部非导出包 com.sun.org.apache.xerces.internal.jaxp，
+				// JDK9+ 模块封装下直接按类名加载可能失败（InaccessibleObjectException / ClassNotFoundException），失败时回退到 JDK 默认查找
+				factory = DocumentBuilderFactory.newInstance(defaultDocumentBuilderFactory, null);
+			} catch (Throwable ignored) {
+			}
+		}
+		if (factory == null) {
 			factory = DocumentBuilderFactory.newInstance();
 		}
 		// 默认打开NamespaceAware，getElementsByTagNameNS可以使用命名空间
@@ -582,7 +590,7 @@ public class Xml {
 	 * 创建的XML默认是utf8编码，修改编码的过程是在toStr和toFile方法里，即XML在转为文本的时候才定义编码
 	 *
 	 * @param rootElementName 根节点名称
-	 * @param namespace       命名空间，无则传null
+	 * @param namespace 命名空间，无则传null
 	 * @return XML文档
 	 */
 	public static Document createXml(String rootElementName, String namespace) throws IOException {
@@ -689,8 +697,8 @@ public class Xml {
 	/**
 	 * 根据节点名获得第一个子节点
 	 *
-	 * @param element      节点
-	 * @param tagName      节点名
+	 * @param element 节点
+	 * @param tagName 节点名
 	 * @param defaultValue 默认值
 	 * @return 节点中的值
 	 */
@@ -714,7 +722,7 @@ public class Xml {
 	 * 非Element节点将被忽略
 	 *
 	 * @param parentEle 父节点，如果指定将返回此节点的所有直接子节点，null返回所有就节点
-	 * @param nodeList  NodeList
+	 * @param nodeList NodeList
 	 * @return Element列表
 	 */
 	public static List<Element> transElements(Element parentEle, NodeList nodeList) {
@@ -767,7 +775,7 @@ public class Xml {
 	 * Xpath相关文章：https://www.ibm.com/developerworks/cn/xml/x-javaxpathapi.html
 	 *
 	 * @param expression XPath表达式
-	 * @param source     资源，可以是Docunent、Node节点等
+	 * @param source 资源，可以是Docunent、Node节点等
 	 * @return 匹配返回类型的值
 	 */
 	public static Element getElementByXPath(String expression, Object source) throws IOException {
@@ -779,7 +787,7 @@ public class Xml {
 	 * Xpath相关文章：https://www.ibm.com/developerworks/cn/xml/x-javaxpathapi.html
 	 *
 	 * @param expression XPath表达式
-	 * @param source     资源，可以是Docunent、Node节点等
+	 * @param source 资源，可以是Docunent、Node节点等
 	 * @return NodeList
 	 */
 	public static NodeList getNodeListByXPath(String expression, Object source) throws IOException {
@@ -791,7 +799,7 @@ public class Xml {
 	 * Xpath相关文章：https://www.ibm.com/developerworks/cn/xml/x-javaxpathapi.html
 	 *
 	 * @param expression XPath表达式
-	 * @param source     资源，可以是Docunent、Node节点等
+	 * @param source 资源，可以是Docunent、Node节点等
 	 * @return 匹配返回类型的值
 	 */
 	public static Node getNodeByXPath(String expression, Object source) throws IOException {
@@ -803,8 +811,8 @@ public class Xml {
 	 * Xpath相关文章：https://www.ibm.com/developerworks/cn/xml/x-javaxpathapi.html
 	 *
 	 * @param expression XPath表达式
-	 * @param source     资源，可以是Docunent、Node节点等
-	 * @param returnType 返回类型，{@link javax.xml.xpath.XPathConstants}
+	 * @param source 资源，可以是Docunent、Node节点等
+	 * @param returnType 返回类型，{@link XPathConstants}
 	 * @return 匹配返回类型的值
 	 */
 	public static Object getByXPath(String expression, Object source, QName returnType) throws IOException {
@@ -822,9 +830,9 @@ public class Xml {
 	 * https://www.ibm.com/developerworks/cn/xml/x-nmspccontext/
 	 *
 	 * @param expression XPath表达式
-	 * @param source     资源，可以是Docunent、Node节点等
-	 * @param returnType 返回类型，{@link javax.xml.xpath.XPathConstants}
-	 * @param nsContext  {@link NamespaceContext}
+	 * @param source 资源，可以是Docunent、Node节点等
+	 * @param returnType 返回类型，{@link XPathConstants}
+	 * @param nsContext {@link NamespaceContext}
 	 * @return 匹配返回类型的值
 	 */
 	public static Object getByXPath(String expression, Object source, QName returnType, NamespaceContext nsContext) throws IOException {
@@ -883,7 +891,7 @@ public class Xml {
 	/**
 	 * XML转Java Bean
 	 *
-	 * @param <T>  bean类型
+	 * @param <T> bean类型
 	 * @param node XML节点
 	 * @param bean bean类
 	 * @return bean
@@ -929,7 +937,7 @@ public class Xml {
 	/**
 	 * XML节点转换为Map
 	 *
-	 * @param node   XML节点
+	 * @param node XML节点
 	 * @param result 结果Map类型
 	 * @return XML数据转换后的Map
 	 */
@@ -992,7 +1000,7 @@ public class Xml {
 	/**
 	 * 将Map转换为XML格式的字符串
 	 *
-	 * @param data               Map类型数据
+	 * @param data Map类型数据
 	 * @param omitXmlDeclaration 是否输出 xml Declaration
 	 * @return XML格式的字符串
 	 */
@@ -1003,7 +1011,7 @@ public class Xml {
 	/**
 	 * 将Map转换为XML格式的字符串
 	 *
-	 * @param data     Map类型数据
+	 * @param data Map类型数据
 	 * @param rootName 根节点名
 	 * @return XML格式的字符串
 	 */
@@ -1014,8 +1022,8 @@ public class Xml {
 	/**
 	 * 将Map转换为XML格式的字符串
 	 *
-	 * @param data      Map类型数据
-	 * @param rootName  根节点名
+	 * @param data Map类型数据
+	 * @param rootName 根节点名
 	 * @param namespace 命名空间，可以为null
 	 * @return XML格式的字符串
 	 */
@@ -1026,9 +1034,9 @@ public class Xml {
 	/**
 	 * 将Map转换为XML格式的字符串
 	 *
-	 * @param data               Map类型数据
-	 * @param rootName           根节点名
-	 * @param namespace          命名空间，可以为null
+	 * @param data Map类型数据
+	 * @param rootName 根节点名
+	 * @param namespace 命名空间，可以为null
 	 * @param omitXmlDeclaration 是否输出 xml Declaration
 	 * @return XML格式的字符串
 	 */
@@ -1039,10 +1047,10 @@ public class Xml {
 	/**
 	 * 将Map转换为XML格式的字符串
 	 *
-	 * @param data               Map类型数据
-	 * @param rootName           根节点名
-	 * @param namespace          命名空间，可以为null
-	 * @param isPretty           是否格式化输出
+	 * @param data Map类型数据
+	 * @param rootName 根节点名
+	 * @param namespace 命名空间，可以为null
+	 * @param isPretty 是否格式化输出
 	 * @param omitXmlDeclaration 是否输出 xml Declaration
 	 * @return XML格式的字符串
 	 */
@@ -1053,11 +1061,11 @@ public class Xml {
 	/**
 	 * 将Map转换为XML格式的字符串
 	 *
-	 * @param data               Map类型数据
-	 * @param rootName           根节点名
-	 * @param namespace          命名空间，可以为null
-	 * @param charset            编码
-	 * @param isPretty           是否格式化输出
+	 * @param data Map类型数据
+	 * @param rootName 根节点名
+	 * @param namespace 命名空间，可以为null
+	 * @param charset 编码
+	 * @param isPretty 是否格式化输出
 	 * @param omitXmlDeclaration 是否输出 xml Declaration
 	 * @return XML格式的字符串
 	 */
@@ -1068,7 +1076,7 @@ public class Xml {
 	/**
 	 * 将Map转换为XML
 	 *
-	 * @param data     Map类型数据
+	 * @param data Map类型数据
 	 * @param rootName 根节点名
 	 * @return XML
 	 */
@@ -1079,8 +1087,8 @@ public class Xml {
 	/**
 	 * 将Map转换为XML
 	 *
-	 * @param data      Map类型数据
-	 * @param rootName  根节点名
+	 * @param data Map类型数据
+	 * @param rootName 根节点名
 	 * @param namespace 命名空间，可以为null
 	 * @return XML
 	 */
@@ -1105,7 +1113,7 @@ public class Xml {
 	/**
 	 * 将Bean转换为XML
 	 *
-	 * @param bean      Bean对象
+	 * @param bean Bean对象
 	 * @param namespace 命名空间，可以为null
 	 * @return XML
 	 */
@@ -1116,8 +1124,8 @@ public class Xml {
 	/**
 	 * 将Bean转换为XML
 	 *
-	 * @param bean       Bean对象
-	 * @param namespace  命名空间，可以为null
+	 * @param bean Bean对象
+	 * @param namespace 命名空间，可以为null
 	 * @param ignoreNull 忽略值为{@code null}的属性
 	 * @return XML
 	 */
@@ -1142,7 +1150,7 @@ public class Xml {
 	/**
 	 * 在已有节点上创建子节点
 	 *
-	 * @param node    节点
+	 * @param node 节点
 	 * @param tagName 标签名
 	 * @return 子节点
 	 */
@@ -1153,8 +1161,8 @@ public class Xml {
 	/**
 	 * 在已有节点上创建子节点
 	 *
-	 * @param node      节点
-	 * @param tagName   标签名
+	 * @param node 节点
+	 * @param tagName 标签名
 	 * @param namespace 命名空间，无传null
 	 * @return 子节点
 	 */
@@ -1190,7 +1198,7 @@ public class Xml {
 	/**
 	 * 追加数据子节点，可以是Map、集合、文本
 	 *
-	 * @param doc  {@link Document}
+	 * @param doc {@link Document}
 	 * @param node 节点
 	 * @param data 数据
 	 */
@@ -1213,7 +1221,7 @@ public class Xml {
 	/**
 	 * 追加Map数据子节点
 	 *
-	 * @param doc  {@link Document}
+	 * @param doc {@link Document}
 	 * @param node 当前节点
 	 * @param data Map类型数据
 	 */
@@ -1232,7 +1240,7 @@ public class Xml {
 	/**
 	 * 追加集合节点
 	 *
-	 * @param doc  {@link Document}
+	 * @param doc {@link Document}
 	 * @param node 节点
 	 * @param data 数据
 	 */
@@ -1257,7 +1265,7 @@ public class Xml {
 	/**
 	 * 追加文本节点
 	 *
-	 * @param doc  {@link Document}
+	 * @param doc {@link Document}
 	 * @param node 节点
 	 * @param text 文本内容
 	 * @return 增加的子节点，即Text节点
@@ -1315,7 +1323,7 @@ public class Xml {
 		 * This constructor parses the document and stores all namespaces it can
 		 * find. If toplevelOnly is true, only namespaces in the root are used.
 		 *
-		 * @param node         source Node
+		 * @param node source Node
 		 * @param toplevelOnly restriction of the search to enhance performance
 		 */
 		public UniversalNamespaceCache(Node node, boolean toplevelOnly) {
@@ -1325,7 +1333,7 @@ public class Xml {
 		/**
 		 * A single node is read, the namespace attributes are extracted and stored.
 		 *
-		 * @param node            to examine
+		 * @param node to examine
 		 * @param attributesOnly, if true no recursion happens
 		 */
 		private void examineNode(Node node, boolean attributesOnly) {
