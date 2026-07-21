@@ -536,6 +536,16 @@ public abstract class AbstractEnhancer extends AbstractClassGenerator {
 		}
 	}
 
+	@Override
+	protected Class<?> getTargetClass() {
+		if (superclass != null) {
+			return superclass;
+		} else if (interfaces != null && interfaces.length > 0) {
+			return interfaces[0];
+		}
+		return null;
+	}
+
 	/**
 	 * 生成增强类的字节码
 	 * <p>

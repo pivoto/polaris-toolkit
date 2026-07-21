@@ -137,6 +137,11 @@ public class BeanGenerator extends AbstractClassGenerator {
 		return AsmReflects.getProtectionDomain(superclass);
 	}
 
+	@Override
+	protected Class<?> getTargetClass() {
+		return superclass;
+	}
+
 	/**
 	 * 生成类字节码
 	 * <p>使用 ASM 框架动态创建包含指定属性的 JavaBean 类</p>

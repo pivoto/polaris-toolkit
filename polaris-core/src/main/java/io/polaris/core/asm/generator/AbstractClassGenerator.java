@@ -266,6 +266,17 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
 	}
 
 	/**
+	 * 获取目标类型（父类或接口）
+	 * <p>用于 JDK9+ 通过 {@code MethodHandles.privateLookupIn} 将生成的类定义到目标类型的加载器，
+	 * 无需 --add-opens 且生成的类与目标同运行时包，可访问 protected/package 成员。默认为 null，子类可重写。</p>
+	 *
+	 * @return 目标类型，默认为 null
+	 */
+	protected Class<?> getTargetClass() {
+		return null;
+	}
+
+	/**
 	 * 获取默认的类加载器
 	 * <p>子类实现此方法以提供特定的类加载器</p>
 	 *
@@ -433,14 +444,11 @@ public abstract class AbstractClassGenerator implements ClassGenerator {
 			// 从字节码中读取类名进行验证
 			String className = ClassNameReader.getClassName(new ClassReader(b));
 			ProtectionDomain protectionDomain = getProtectionDomain();
+			// 目标类型用于 JDK9+ privateLookupIn，将生成的类定义到目标加载器，无需 --add-opens
+			Class<?> targetClass = getTargetClass();
 			synchronized (classLoader) { // just in case
-				if (protectionDomain == null) {
-					// 无保护域时直接定义类
-					clazz = AsmReflects.defineClass(className, b, classLoader);
-				} else {
-					// 有保护域时使用保护域定义类
-					clazz = AsmReflects.defineClass(className, b, classLoader, protectionDomain);
-				}
+				// 统一使用带 targetClass 的 defineClass：protectionDomain 为 null 时走 privateLookupIn 或反射默认保护域
+				clazz = AsmReflects.defineClass(className, b, classLoader, protectionDomain, targetClass);
 			}
 			return clazz;
 		} catch (RuntimeException | Error e) {
