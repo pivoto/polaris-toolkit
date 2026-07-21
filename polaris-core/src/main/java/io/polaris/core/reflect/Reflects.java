@@ -1211,6 +1211,14 @@ public class Reflects {
 	 * <li>字符串，通过 new String("")实例化</li>
 	 * <li>自定义java类</li>
 	 * </ul>
+	 * <p>
+	 * JDK17+ 注意：访问 java.lang.reflect.Field 的私有 modifiers 字段需通过反射，
+	 * 在强封装下会抛 InaccessibleObjectException。本方法在无法访问时返回 false（不去除 final），
+	 * 此时对非内联的 final 字段可直接调用 {@link Field#setAccessible(boolean)} + {@link Field#set(Object, Object)} 写入。
+	 * 如需恢复去除 final 的能力，可加 JVM 参数 --add-opens java.base/java.lang.reflect=ALL-UNNAMED。
+	 * </p>
+	 *
+	 * @return 成功去除 final 修饰符返回 true；字段非 final 或在 JDK17+ 强封装下无法访问 modifiers 返回 false
 	 */
 	public static boolean removeFinalModifier(Field field) throws ReflectiveOperationException {
 		if (Modifier.isFinal(field.getModifiers())) {
@@ -1218,9 +1226,16 @@ public class Reflects {
 			//去除final修饰符的影响，将字段设为可修改的
 			final Field modifiersField = Field.class.getDeclaredField("modifiers");
 			//Field 的 modifiers 是私有的
-			modifiersField.setAccessible(true);
-			modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-			return true;
+			try {
+				modifiersField.setAccessible(true);
+				modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+				return true;
+			} catch (RuntimeException e) {
+				// JDK9+ 强封装下访问 java.lang.reflect.Field 的私有 modifiers 字段会抛
+				// InaccessibleObjectException（除非 --add-opens java.base/java.lang.reflect=ALL-UNNAMED），
+				// 此时无法去除 final 修饰符，返回 false。
+				return false;
+			}
 		}
 		return false;
 	}
