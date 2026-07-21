@@ -4,6 +4,7 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.polaris.core.lang.JavaAccessControllers;
 import io.polaris.core.reflect.Reflects;
 import org.objectweb.asm.Type;
 
@@ -35,7 +37,11 @@ public class AsmReflects {
 
 	/** 默认的类加载器，使用当前类的类加载器 */
 	private static final ClassLoader defaultLoader = AsmReflects.class.getClassLoader();
-	/** 定义类的方法反射对象（标准方式） */
+	/** MethodHandles.privateLookupIn 方法反射对象（JDK9+，用反射获取以兼容 JDK8 编译）；JDK8 下为 null */
+	private static final Method PRIVATE_LOOKUP_IN_METHOD;
+	/** MethodHandles.Lookup.defineClass 方法反射对象（JDK9+，用反射获取以兼容 JDK8 编译）；JDK8 下为 null */
+	private static final Method LOOKUP_DEFINE_CLASS;
+	/** 定义类的方法反射对象（标准方式，JDK8 主路径 / JDK9+ 回退） */
 	private static final Method DEFINE_CLASS;
 	/** 定义类的方法反射对象（使用 Unsafe） */
 	private static final Method DEFINE_CLASS_UNSAFE;
@@ -50,33 +56,61 @@ public class AsmReflects {
 	private static final List<Method> OBJECT_METHODS = new ArrayList<>();
 
 	static {
-		ProtectionDomain protectionDomain;
-		Method defineClass, defineClassUnsafe;
-		Object unsafe;
+		ProtectionDomain protectionDomain = null;
+		Method privateLookupIn = null;
+		Method lookupDefineClass = null;
+		Method defineClass = null;
+		Method defineClassUnsafe = null;
+		Object unsafe = null;
 		Throwable throwable = null;
 		try {
 			// 获取当前类的保护域
 			protectionDomain = getProtectionDomain(AsmReflects.class);
-			try {
-				// 通过特权操作获取 ClassLoader 的 defineClass 方法
-				defineClass = AccessController.doPrivileged((PrivilegedExceptionAction<Method>) () -> {
-					Class<?> loader = Class.forName("java.lang.ClassLoader"); // JVM crash w/o this
-					Method defineClass1 = loader.getDeclaredMethod("defineClass",
-						String.class,
-						byte[].class,
-						Integer.TYPE,
-						Integer.TYPE,
-						ProtectionDomain.class);
-					// 设置方法可访问
-					defineClass1.setAccessible(true);
-					return defineClass1;
-				});
-				defineClassUnsafe = null;
-				unsafe = null;
-			} catch (Throwable t) {
-				// 在 Jigsaw 模块系统中 defineClass 不可用，回退到 Unsafe 方式
+		} catch (Throwable t) {
+			throwable = t;
+		}
+		// JDK9+ 路径：MethodHandles.privateLookupIn + Lookup.defineClass
+		// 通过 privateLookupIn(target) 获取目标加载器的 Lookup，defineClass 将类定义到目标加载器，
+		// 无需 --add-opens，且生成的类与目标同加载器/运行时包，可访问 protected/package 成员。
+		// 两个方法均为 JDK9+ API，用反射获取以兼容 JDK8 编译。
+		try {
+			privateLookupIn = MethodHandles.class.getMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
+			lookupDefineClass = MethodHandles.Lookup.class.getMethod("defineClass", byte[].class);
+		} catch (Throwable t) {
+			privateLookupIn = null;
+			lookupDefineClass = null;
+			if (throwable == null) {
 				throwable = t;
-				defineClass = null;
+			} else {
+				throwable.addSuppressed(t);
+			}
+		}
+		// 反射 ClassLoader.defineClass：JDK8 主路径；JDK9+ 强封装下 setAccessible 会失败（需 --add-opens java.base/java.lang=ALL-UNNAMED）
+		try {
+			// 通过特权操作获取 ClassLoader 的 defineClass 方法
+			defineClass = JavaAccessControllers.run((PrivilegedExceptionAction<Method>) () -> {
+				Class<?> loader = Class.forName("java.lang.ClassLoader"); // JVM crash w/o this
+				Method defineClass1 = loader.getDeclaredMethod("defineClass",
+					String.class,
+					byte[].class,
+					Integer.TYPE,
+					Integer.TYPE,
+					ProtectionDomain.class);
+				// 设置方法可访问
+				defineClass1.setAccessible(true);
+				return defineClass1;
+			});
+		} catch (Throwable t) {
+			defineClass = null;
+			if (throwable == null) {
+				throwable = t;
+			} else {
+				throwable.addSuppressed(t);
+			}
+		}
+		// defineClass 不可用（如 Jigsaw 模块系统中），回退到 Unsafe 方式：通过 sun.misc.Unsafe 定义类（JDK9+ 强封装下需 --add-opens java.base/sun.misc=ALL-UNNAMED）
+		if (defineClass == null) {
+			try {
 				// 通过特权操作获取 Unsafe 实例
 				unsafe = AccessController.doPrivileged((PrivilegedExceptionAction<?>) () -> {
 					Class<?> u = Class.forName("sun.misc.Unsafe");
@@ -93,30 +127,35 @@ public class AsmReflects {
 					Integer.TYPE,
 					ClassLoader.class,
 					ProtectionDomain.class);
-			}
-			// 收集 Object 类的所有非 final、非静态方法（除了 finalize）
-			AccessController.doPrivileged((PrivilegedExceptionAction<?>) () -> {
-				Method[] methods = Object.class.getDeclaredMethods();
-				for (Method method : methods) {
-					if ("finalize".equals(method.getName())
-						|| (method.getModifiers() & (Modifier.FINAL | Modifier.STATIC)) > 0) {
-						continue;
-					}
-					OBJECT_METHODS.add(method);
+			} catch (Throwable t) {
+				unsafe = null;
+				defineClassUnsafe = null;
+				if (throwable == null) {
+					throwable = t;
+				} else {
+					throwable.addSuppressed(t);
 				}
-				return null;
-			});
+			}
+		}
+		// 收集 Object 类的所有非 final、非静态方法（除了 finalize）
+		try {
+			Method[] methods = Object.class.getDeclaredMethods();
+			for (Method method : methods) {
+				if ("finalize".equals(method.getName())
+					|| (method.getModifiers() & (Modifier.FINAL | Modifier.STATIC)) > 0) {
+					continue;
+				}
+				OBJECT_METHODS.add(method);
+			}
 		} catch (Throwable t) {
 			if (throwable == null) {
 				throwable = t;
 			}
-			protectionDomain = null;
-			defineClass = null;
-			defineClassUnsafe = null;
-			unsafe = null;
 		}
 		// 初始化静态常量
 		PROTECTION_DOMAIN = protectionDomain;
+		PRIVATE_LOOKUP_IN_METHOD = privateLookupIn;
+		LOOKUP_DEFINE_CLASS = lookupDefineClass;
 		DEFINE_CLASS = defineClass;
 		DEFINE_CLASS_UNSAFE = defineClassUnsafe;
 		UNSAFE = unsafe;
@@ -213,18 +252,48 @@ public class AsmReflects {
 	 * @throws Exception 定义类过程中可能抛出的异常
 	 */
 	public static Class<?> defineClass(String className, byte[] b, ClassLoader loader, ProtectionDomain protectionDomain) throws Exception {
-		Class<?> c;
-		if (DEFINE_CLASS != null) {
-			// 使用标准方式定义类
-			Object[] args = new Object[]{className, b, 0, b.length, protectionDomain};
-			c = (Class<?>) DEFINE_CLASS.invoke(loader, args);
-		} else if (DEFINE_CLASS_UNSAFE != null) {
-			// 使用 Unsafe 方式定义类
-			Object[] args = new Object[]{className, b, 0, b.length, loader, protectionDomain};
-			c = (Class<?>) DEFINE_CLASS_UNSAFE.invoke(UNSAFE, args);
-		} else {
-			// 两种方式都不可用，抛出异常
-			throw new RuntimeException(THROWABLE);
+		return defineClass(className, b, loader, protectionDomain, null);
+	}
+
+	/**
+	 * 定义类，可指定保护域与目标类型
+	 * <p>JDK9+ 优先通过 {@code MethodHandles.privateLookupIn(targetClass, lookup).defineClass(b)} 定义类，
+	 * 将类定义到目标类型的加载器/模块，无需 --add-opens，且生成的类与目标同运行时包，可访问 protected/package 成员。
+	 * 无目标类型时回退到反射 {@code ClassLoader.defineClass}（loader 为目标加载器）或 Unsafe。</p>
+	 *
+	 * @param className 类名
+	 * @param classBytes 字节码数组
+	 * @param loader 类加载器（回退路径使用，应为目标类型加载器）
+	 * @param protectionDomain 保护域
+	 * @param targetClass 目标类型（父类或接口），用于 JDK9+ privateLookupIn；为 null 时走回退路径
+	 * @return 定义的 Class 对象
+	 * @throws Exception 定义类过程中可能抛出的异常
+	 */
+	public static Class<?> defineClass(String className, byte[] classBytes, ClassLoader loader, ProtectionDomain protectionDomain, Class<?> targetClass) throws Exception {
+		Class<?> c = null;
+		// JDK9+ 优先：privateLookupIn(target) 获取目标加载器的 Lookup，defineClass 定义到目标加载器，无需 --add-opens
+		if (targetClass != null && PRIVATE_LOOKUP_IN_METHOD != null && LOOKUP_DEFINE_CLASS != null) {
+			try {
+				MethodHandles.Lookup targetLookup = (MethodHandles.Lookup) PRIVATE_LOOKUP_IN_METHOD.invoke(null, targetClass, MethodHandles.lookup());
+				c = (Class<?>) LOOKUP_DEFINE_CLASS.invoke(targetLookup, classBytes);
+				Class.forName(className, true, c.getClassLoader());
+			} catch (Throwable t) {
+				// privateLookupIn 失败（如目标在未开放模块）时回退到反射/Unsafe
+			}
+		}
+		if (c == null) {
+			if (DEFINE_CLASS != null) {
+				// 反射 ClassLoader.defineClass（JDK8 主路径；JDK9+ 需 --add-opens java.base/java.lang=ALL-UNNAMED）
+				Object[] args = new Object[]{className, classBytes, 0, classBytes.length, protectionDomain};
+				c = (Class<?>) DEFINE_CLASS.invoke(loader, args);
+			} else if (DEFINE_CLASS_UNSAFE != null) {
+				// 使用 Unsafe 方式定义类
+				Object[] args = new Object[]{className, classBytes, 0, classBytes.length, loader, protectionDomain};
+				c = (Class<?>) DEFINE_CLASS_UNSAFE.invoke(UNSAFE, args);
+			} else {
+				// 各种方式都不可用，抛出异常
+				throw new RuntimeException(THROWABLE);
+			}
 		}
 		// 强制运行静态初始化器
 		Class.forName(className, true, loader);
