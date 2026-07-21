@@ -5,6 +5,7 @@ import java.io.File;
 import io.polaris.core.asm.internal.AsmConsts;
 import io.polaris.core.env.Config;
 import io.polaris.core.io.IO;
+import io.polaris.core.lang.JavaAccessControllers;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.string.Strings;
@@ -76,23 +77,20 @@ public class DebuggingClassWriter extends ClassVisitor {
 	}
 
 	public byte[] toByteArray() {
-		return (byte[]) java.security.AccessController.doPrivileged(
-			new java.security.PrivilegedAction() {
-				public Object run() {
-					byte[] b = ((ClassWriter) DebuggingClassWriter.super.cv).toByteArray();
-					if (classBytesCacheEnabled) {
-						try {
-							File file = new File(classBytesCacheDir + File.separatorChar + className.replace('.', File.separatorChar) + ".class");
-							if (log.isDebugEnabled()) {
-								log.debug("缓存动态生成类的字节码：{}", file.getAbsolutePath());
-							}
-							IO.writeBytes(file, b);
-						} catch (Throwable ignored) {
-						}
+		return (byte[]) JavaAccessControllers.get(() -> {
+			byte[] b = ((ClassWriter) DebuggingClassWriter.super.cv).toByteArray();
+			if (classBytesCacheEnabled) {
+				try {
+					File file = new File(classBytesCacheDir + File.separatorChar + className.replace('.', File.separatorChar) + ".class");
+					if (log.isDebugEnabled()) {
+						log.debug("缓存动态生成类的字节码：{}", file.getAbsolutePath());
 					}
-					return b;
+					IO.writeBytes(file, b);
+				} catch (Throwable ignored) {
 				}
-			});
+			}
+			return b;
+		});
 
 	}
 }

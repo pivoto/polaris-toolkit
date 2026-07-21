@@ -10,9 +10,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.security.PrivilegedExceptionAction;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -88,7 +85,7 @@ public class AsmReflects {
 		// 反射 ClassLoader.defineClass：JDK8 主路径；JDK9+ 强封装下 setAccessible 会失败（需 --add-opens java.base/java.lang=ALL-UNNAMED）
 		try {
 			// 通过特权操作获取 ClassLoader 的 defineClass 方法
-			defineClass = JavaAccessControllers.run((PrivilegedExceptionAction<Method>) () -> {
+			defineClass = JavaAccessControllers.call(() -> {
 				Class<?> loader = Class.forName("java.lang.ClassLoader"); // JVM crash w/o this
 				Method defineClass1 = loader.getDeclaredMethod("defineClass",
 					String.class,
@@ -112,7 +109,7 @@ public class AsmReflects {
 		if (defineClass == null) {
 			try {
 				// 通过特权操作获取 Unsafe 实例
-				unsafe = AccessController.doPrivileged((PrivilegedExceptionAction<?>) () -> {
+				unsafe = JavaAccessControllers.call(() -> {
 					Class<?> u = Class.forName("sun.misc.Unsafe");
 					Field theUnsafe = u.getDeclaredField("theUnsafe");
 					theUnsafe.setAccessible(true);
@@ -370,7 +367,7 @@ public class AsmReflects {
 			return null;
 		}
 		// 通过特权操作获取保护域
-		return AccessController.doPrivileged((PrivilegedAction<ProtectionDomain>) source::getProtectionDomain);
+		return JavaAccessControllers.get(source::getProtectionDomain);
 	}
 
 	/**

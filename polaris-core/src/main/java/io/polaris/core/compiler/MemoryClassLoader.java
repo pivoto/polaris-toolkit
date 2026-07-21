@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,6 +26,7 @@ import io.polaris.core.consts.StdConsts;
 import io.polaris.core.consts.SystemProperty;
 import io.polaris.core.env.Config;
 import io.polaris.core.io.IO;
+import io.polaris.core.lang.JavaAccessControllers;
 import io.polaris.core.log.Logger;
 import io.polaris.core.log.Loggers;
 import io.polaris.core.string.Strings;
@@ -49,9 +48,7 @@ public class MemoryClassLoader extends URLClassLoader {
 		public static MemoryClassLoader get(ClassLoader classLoader) {
 			classLoader = classLoader == null ? Thread.currentThread().getContextClassLoader() : classLoader;
 			return CACHE.computeIfAbsent(classLoader, loader ->
-				AccessController.doPrivileged(
-					(PrivilegedAction<MemoryClassLoader>) () -> new MemoryClassLoader(loader)
-				)
+				JavaAccessControllers.get(() -> new MemoryClassLoader(loader))
 			);
 		}
 	}
