@@ -6,13 +6,12 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
 import io.polaris.core.err.InvocationException;
+import io.polaris.core.lang.JavaAccessControllers;
 
 /**
  * @author Qt
@@ -86,14 +85,8 @@ public class JdkProxies {
 			}
 			throw new IllegalStateException("Unexpected method: " + method);
 		};
-		final Object proxy;
-		if (System.getSecurityManager() != null) {
-			final ClassLoader loader = proxyLoader;
-			proxy = AccessController.doPrivileged((PrivilegedAction<Object>) () ->
-				Proxy.newProxyInstance(loader, appendInterfaces(intfc, otherInterfaces), ih));
-		} else {
-			proxy = Proxy.newProxyInstance(proxyLoader, appendInterfaces(intfc, otherInterfaces), ih);
-		}
+		// SecurityManager 自 JDK 17 起已废弃（JEP 411），不再依赖安全管理器，直接创建代理
+		final Object proxy = Proxy.newProxyInstance(proxyLoader, appendInterfaces(intfc, otherInterfaces), ih);
 		return intfc.cast(proxy);
 	}
 
