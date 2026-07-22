@@ -96,7 +96,6 @@
 		<dependency.bytebuddy.version>1.12.23</dependency.bytebuddy.version>
 		<dependency.asm.version>9.4</dependency.asm.version>
 		<dependency.javassist.version>3.29.2-GA</dependency.javassist.version>
-		<dependency.reflectasm.version>1.11.9</dependency.reflectasm.version>
 		<dependency.javapoet.version>1.13.0</dependency.javapoet.version>
 		<dependency.mybatis-spring.version>2.1.4</dependency.mybatis-spring.version>
 		<!--<dependency.json-path.version>2.9.0</dependency.json-path.version>-->
@@ -394,11 +393,6 @@
 			<!-- endregion TestFramework -->
 
 			<!-- region bytecode -->
-			<dependency>
-				<groupId>com.esotericsoftware</groupId>
-				<artifactId>reflectasm</artifactId>
-				<version>${dependency.reflectasm.version}</version>
-			</dependency>
 			<dependency>
 				<groupId>org.javassist</groupId>
 				<artifactId>javassist</artifactId>

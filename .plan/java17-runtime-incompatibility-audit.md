@@ -1,10 +1,10 @@
 # polaris-toolkit 在 JDK 17 运行时的不兼容写法排查报告
 
 > 创建日期：2026-07-22
-> 最后更新：2026-07-22（§1.1 JAXB 已修复）
+> 最后更新：2026-07-22（§1.1 JAXB 修复、§3.1a reflectasm 删除）
 > 排查场景：**JDK 8 编译（产物 Java 8 字节码）+ 在 JDK 17（及更高版本）运行**
 > 关联文档：`.plan/java17-jdk-support-plan.md`（编译层计划，聚焦 `polaris-core-apt`）
-> 状态：排查完成，待评审（§1.1 已修复）
+> 状态：排查完成，待评审（§1.1、§3.1a 已处理）
 
 ---
 
@@ -20,8 +20,9 @@
 - 项目已有一份编译层计划 `.plan/java17-jdk-support-plan.md`，且其中**改动 1（`BaseProcessor.getSupportedSourceVersion()` 返回 `SourceVersion.latestSupported()`）已落地**（`polaris-core-apt/.../BaseProcessor.java:65-68`，全仓已无 `@SupportedSourceVersion` 注解残留）。
 - `polaris-core` 的 ASM 增强路径（`AsmReflects` / `AccessClassLoader`）已做较完整的 **JDK 9+ 适配**，主路径不依赖 `--add-opens`。
 - **§1.1 JAXB 运行时实现缺失 -- 已修复（2026-07-22）**：`polaris-extension/pom.xml` 已补 `org.glassfish.jaxb:jaxb-runtime:2.3.3`（`optional=true`），与既有 `jakarta.xml.bind-api:2.3.3` 配对，API 包名同为 `javax.xml.bind.*`，与 `Jaxb.java` import 一致，JDK 17 下 JAXB 功能可用。
+- **§3.1a reflectasm 死依赖 -- 已删除（2026-07-22）**：排查确认全仓无任何代码引用 `com.esotericsoftware.reflectasm`（`polaris-core/asm/reflect` 下的 Access 系列为项目自有实现），已从三处 pom 删除该依赖声明。
 - **仍需处理 1 处**：`JavaScriptEvaluator` 依赖已被移除的 Nashorn（JDK 15+ 移除）。
-- 另有 `cglib` / `reflectasm` 旧版本与项目统一 ASM 9.4 的潜在 API 错配。
+- 另有 `cglib 3.2.5` 旧版本与项目统一 ASM 9.4 的潜在 API 错配（§3.1）。
 - 其余反射 JDK 内部 API 的写法（`Field.modifiers`、`com.sun` 内部 DocumentBuilder、`ClassLoader.defineClass`）均已带降级处理，维持现状即可。
 
 ---
@@ -119,15 +120,26 @@
 
 ## 三、依赖版本与 JDK 17 运行时的潜在冲突
 
-### 3.1 `cglib 3.2.5` / `reflectasm 1.11.9` 与 ASM 9.4 的 API 错配 ⚠️ 中
+### 3.1 `cglib 3.2.5` 与 ASM 9.4 的 API 错配 ⚠️ 中
 
 - **位置**：
   - `polaris-extra/polaris-extension/pom.xml:79-83` -- `cglib:cglib:3.2.5`（2017 年）。
-  - `pom.xml:99`、`polaris-extension/pom.xml:68-71` -- `com.esotericsoftware:reflectasm:1.11.9`（2015 年）。
   - 项目统一 ASM 版本：`org.ow2.asm:asm:9.4`（`pom.xml:97`）。
-- **原因**：cglib 3.2.5 / reflectasm 1.11.9 基于 **ASM 6.x API** 编写，而项目解析到 ASM 9.4。ASM 9.x 移除/改签了部分旧 API，旧代码可能触发 `NoSuchMethodError`。
-- **影响**：二者均为 `optional=true`，仅在使用对应功能（cglib 代理 / reflectasm 反射）时触发。
-- **建议**：升级 cglib -> `3.3.0`；reflectasm 评估升级到较新维护版或替换为 polaris-core 自有的 ASM 增强（`AccessClassLoader` 系列已覆盖大部分反射场景）。
+- **原因**：cglib 3.2.5 基于 **ASM 6.x API** 编写，而项目解析到 ASM 9.4。ASM 9.x 移除/改签了部分旧 API，使用 cglib 代理功能时可能触发 `NoSuchMethodError`。
+- **影响**：`optional=true`，仅在使用 cglib 代理功能时触发。
+- **建议**：升级 cglib -> `3.3.0`；或剔除（若功能已被 `polaris-core` 自有 ASM 增强替代）。
+- **备注**：与原报告不同，reflectasm 已从本项拆出（见 §3.1a，已删除）。
+
+### 3.1a reflectasm 死依赖 ✅ 已删除（2026-07-22）
+
+- **原问题**：原 `pom.xml`、`polaris-extra/pom.xml`、`polaris-extension/pom.xml` 三处声明 `com.esotericsoftware:reflectasm:1.11.9`（`optional=true`），基于 ASM 6.x，与项目统一 ASM 9.4 存在潜在 API 错配。
+- **排查结论**：全仓（含测试）**无任何 `com.esotericsoftware` / `reflectasm` 的 import 或引用**。`polaris-core/asm/reflect` 下的 `MethodAccess` / `FieldAccess` / `ConstructorAccess` / `PublicConstructorAccess` / `AccessClassLoader` 均为**项目自有实现**（包名 `io.polaris.core.asm.reflect`，import `org.objectweb.asm.*` 即项目统一 ASM 9.4），仅在 javadoc `@see` / `package-info.java` 中标注"参考 reflectasm 项目"。即 reflectasm 是一个**完全未被使用的死依赖**。
+- **修复**：删除三处 pom 中的 reflectasm 声明：
+  - 根 `pom.xml`：删除 `<dependency.reflectasm.version>` 版本属性 + dependencyManagement 中的依赖块。
+  - `polaris-extra/pom.xml`：删除 `<dependency.reflectasm.version>` 版本属性 + dependencyManagement 中的依赖块。
+  - `polaris-extra/polaris-extension/pom.xml`：删除实际依赖块（原 `optional=true`）。
+- **验证**：删除后全仓 grep `reflectasm` / `esotericsoftware` 仅余代码 javadoc 中的"参考 reflectasm 项目"来源链接（属设计来源标注，不构成依赖，保留）。
+- **状态**：已删除，关闭此项。
 
 ### 3.2 字节码/代理库版本核对（多数 OK）
 
@@ -137,7 +149,7 @@
 | javassist | 3.29.2-GA | `pom.xml:98` | ✅ OK。3.28+ 支持 JDK 17 |
 | byte-buddy / byte-buddy-agent | 1.12.23 | `pom.xml:96` | ✅ OK。1.12.x 支持 JDK 17 |
 | cglib | 3.2.5 | `polaris-extension/pom.xml:79` | ⚠️ 见 3.1 |
-| reflectasm | 1.11.9 | `pom.xml:99` | ⚠️ 见 3.1 |
+| reflectasm | ~~1.11.9~~ | 原 `pom.xml:99` | ✅ 已删除（死依赖，2026-07-22，见 §3.1a） |
 
 ### 3.3 其他库版本核对
 
@@ -192,12 +204,12 @@
 ## 五、建议优先级
 
 1. **§1.2 Nashorn 移除**：JDK 17 下 JS 求值功能不可用的真问题，需文档化或补 optional 的独立 JS 引擎依赖（Nashorn standalone / GraalVM JS）。
-2. **§3.1**：评估 `cglib` / `reflectasm` 升级或剔除（若功能已被 `polaris-core` 自有 ASM 增强替代）。
+2. **§3.1 cglib**：评估升级（-> `3.3.0`）或剔除（若功能已被 `polaris-core` 自有 ASM 增强替代）。
 3. **§2.1-2.5** 已做适配，维持现状即可；如需恢复完整能力（去除 final、Unsafe 类定义等），在启动参数加对应 `--add-opens`。
 4. **§3.4** 按需在 JDK 17 跑测试时处理（`cobertura` -> JaCoCo、`derby` 升级等）。
 5. **§4 编译层**：按 `.plan/java17-jdk-support-plan.md` 继续推进改动 3（`<release>8`）。
 
-> §1.1 JAXB 已于 2026-07-22 修复（补 `jaxb-runtime:2.3.3` optional 依赖），从待办中移除。
+> §1.1 JAXB 已于 2026-07-22 修复（补 `jaxb-runtime:2.3.3` optional 依赖）；§3.1a reflectasm 死依赖已于 2026-07-22 删除。二者均从待办中移除。
 
 ---
 
@@ -207,7 +219,8 @@
 |---|---|---|---|---|---|
 | 1 | `Jaxb.java:27,50` + `polaris-extension/pom.xml:195` | JAXB 仅 API 无实现 | 功能不可用 | 高 | ✅ 已修复（补 `jaxb-runtime:2.3.3`） |
 | 2 | `JavaScriptEvaluator.java:13`、`AbstractStandardEvaluator.java:36` | 依赖已移除的 Nashorn | JS 求值不可用 | 高 | 待处理 |
-| 3 | `cglib 3.2.5`、`reflectasm 1.11.9` | 与 ASM 9.4 API 错配 | 可能 NoSuchMethodError | 中 | 待评估 |
+| 3 | `cglib 3.2.5` | 与 ASM 9.4 API 错配 | 可能 NoSuchMethodError | 中 | 待评估 |
+| 3a | ~~`reflectasm 1.11.9`~~ | （死依赖，无代码引用） | 无（未使用） | 中 | ✅ 已删除（2026-07-22） |
 | 4 | `AsmReflects.java:269` 等 | 动态类定义反射回退 | 边界降级 | 低 | 已适配 |
 | 5 | `Reflects.java:1223` | 反射 `Field.modifiers` | 去除 final 失效 | 低 | 已降级 |
 | 6 | `Xml.java:85` | 默认 DocumentBuilder 指向内部类 | 首次失败后回退 | 低 | 已回退 |
