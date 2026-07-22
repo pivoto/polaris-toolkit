@@ -73,8 +73,8 @@
 		<dependency>
 			<groupId>cglib</groupId>
 			<artifactId>cglib</artifactId>
-			<version>3.2.5</version>
-			<optional>true</optional>
+			<version>3.3.0</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.github.javaparser</groupId>
