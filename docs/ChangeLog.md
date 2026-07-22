@@ -1,5 +1,15 @@
 ## 版本变更说明
 
+### 3.9.0
+- 优化编译配置与注解处理等工具类以支持Java9~17
+- 优化XML工具类代码格式和JDK兼容性
+- 解决高版本JDK环境下Nashorn引擎缺失问题
+- 移除 SecurityManager 相关代码并简化代理创建逻辑
+- 添加 JDK9+ MethodHandles 支持以改进类定义功能
+- 支持 JDK9+ 的 MethodHandles.Lookup.defineClass
+- ASM增强生成器添加目标类支持以优化JDK9+的类定义机制
+- 使用统一的JavaAccessControllers替换原始的AccessController调用
+
 ### 3.8.20
 - 优化注解处理器中合并注解取值以支持常用类型转换
 - Mybatis动态日期类型处理器持久化操作内部使用Timestamp，以保证时分秒不丢失
