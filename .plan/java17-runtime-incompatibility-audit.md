@@ -1,9 +1,10 @@
 # polaris-toolkit 在 JDK 17 运行时的不兼容写法排查报告
 
 > 创建日期：2026-07-22
+> 最后更新：2026-07-22（§1.1 JAXB 已修复）
 > 排查场景：**JDK 8 编译（产物 Java 8 字节码）+ 在 JDK 17（及更高版本）运行**
 > 关联文档：`.plan/java17-jdk-support-plan.md`（编译层计划，聚焦 `polaris-core-apt`）
-> 状态：排查完成，待评审
+> 状态：排查完成，待评审（§1.1 已修复）
 
 ---
 
@@ -18,9 +19,8 @@
 
 - 项目已有一份编译层计划 `.plan/java17-jdk-support-plan.md`，且其中**改动 1（`BaseProcessor.getSupportedSourceVersion()` 返回 `SourceVersion.latestSupported()`）已落地**（`polaris-core-apt/.../BaseProcessor.java:65-68`，全仓已无 `@SupportedSourceVersion` 注解残留）。
 - `polaris-core` 的 ASM 增强路径（`AsmReflects` / `AccessClassLoader`）已做较完整的 **JDK 9+ 适配**，主路径不依赖 `--add-opens`。
-- **真正会在 JDK 17 运行时直接导致功能不可用的写法有 2 处**：
-  - `Jaxb` 仅声明 JAXB API、缺运行时实现（JDK 11+ 已移除 JAXB）。
-  - `JavaScriptEvaluator` 依赖已被移除的 Nashorn（JDK 15+ 移除）。
+- **§1.1 JAXB 运行时实现缺失 -- 已修复（2026-07-22）**：`polaris-extension/pom.xml` 已补 `org.glassfish.jaxb:jaxb-runtime:2.3.3`（`optional=true`），与既有 `jakarta.xml.bind-api:2.3.3` 配对，API 包名同为 `javax.xml.bind.*`，与 `Jaxb.java` import 一致，JDK 17 下 JAXB 功能可用。
+- **仍需处理 1 处**：`JavaScriptEvaluator` 依赖已被移除的 Nashorn（JDK 15+ 移除）。
 - 另有 `cglib` / `reflectasm` 旧版本与项目统一 ASM 9.4 的潜在 API 错配。
 - 其余反射 JDK 内部 API 的写法（`Field.modifiers`、`com.sun` 内部 DocumentBuilder、`ClassLoader.defineClass`）均已带降级处理，维持现状即可。
 
@@ -28,34 +28,36 @@
 
 ## 一、会导致 JDK 17 运行时功能不可用的写法（建议处理）
 
-### 1.1 JAXB 仅声明 API，缺运行时实现 ⚠️ 高
+### 1.1 JAXB 仅声明 API，缺运行时实现 ✅ 已修复（2026-07-22）
 
 - **位置**：
-  - `polaris-extra/polaris-extension/src/main/java/io/polaris/xml/Jaxb.java:27,50` —— 直接 `JAXBContext.newInstance(...)`，且异常处 `throw new RuntimeException(e)`，无降级。
-  - `polaris-extra/polaris-extension/pom.xml:195-200` —— 仅引入 `jakarta.xml.bind:jakarta.xml.bind-api:2.3.3`，**仅 API，不含实现**。
-- **原因**：JAXB（`javax.xml.bind.*`）自 **JDK 11 起从 JDK 中移除**（JEP 320）。JDK 8 自带 JAXB 实现；JDK 17 下 `JAXBContext.newInstance(...)` 会抛：
+  - `polaris-extra/polaris-extension/src/main/java/io/polaris/xml/Jaxb.java:27,50` -- 直接 `JAXBContext.newInstance(...)`，异常处 `throw new RuntimeException(e)`，无降级。
+  - `polaris-extra/polaris-extension/pom.xml:195-206`。
+- **原问题**：JAXB（`javax.xml.bind.*`）自 **JDK 11 起从 JDK 中移除**（JEP 320）。原配置仅引入 `jakarta.xml.bind:jakarta.xml.bind-api:2.3.3`（仅 API，不含实现），JDK 17 下 `JAXBContext.newInstance(...)` 会抛：
   ```
   JAXBException: Implementation of JAXB-API has not been found on module path or classpath
   ```
-- **影响**：消费方在 JDK 17 下使用 `Jaxb` 工具类会失败，除非自行引入运行时实现。
-- **建议**：
-  - 方案 A（推荐）：在 `polaris-extension` 补一个 `optional=true` 的运行时实现依赖，例如：
-    ```xml
-    <dependency>
-        <groupId>org.glassfish.jaxb</groupId>
-        <artifactId>jaxb-runtime</artifactId>
-        <version>2.3.x</version>
-        <optional>true</optional>
-    </dependency>
-    ```
-  - 方案 B：在 `Jaxb` 的类注释 / 模块文档中明确"JDK 11+ 需消费方自行引入 JAXB 实现"。
+- **修复**：在 `polaris-extension/pom.xml` 补运行时实现依赖：
+  ```xml
+  <dependency>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
+      <version>2.3.3</version>
+      <optional>true</optional>
+  </dependency>
+  ```
+- **验证要点**：
+  - `jaxb-runtime:2.3.3` 与既有 `jakarta.xml.bind-api:2.3.3` 为官方配对版本，API 包名同为 `javax.xml.bind.*`，与 `Jaxb.java` 的 `import javax.xml.bind.*` 完全一致。
+  - `optional=true`：不强制传递给下游消费方；需要 JAXB 功能时由实现类 SPI（`META-INF/services/javax.xml.bind.JAXBContextFactory`）自动加载。
+  - JDK 17 下 `JAXBContext.newInstance(...)` 可正常找到实现，不再抛异常。
+- **状态**：已修复，关闭此项。
 
 ### 1.2 JavaScript 脚本引擎依赖已移除的 Nashorn ⚠️ 高（功能降级）
 
 - **位置**：
-  - `polaris-core/src/main/java/io/polaris/core/script/JavaScriptEvaluator.java:13` —— 引擎名常量 `"javascript"`。
-  - `polaris-core/src/main/java/io/polaris/core/script/AbstractStandardEvaluator.java:36` —— `manager.getEngineByName("javascript")`。
-  - `polaris-core/src/main/java/io/polaris/core/json/DefaultJsonSerializer.java:206` —— 也依赖 `ScriptEvaluators.getEvaluator("javascript")`。
+  - `polaris-core/src/main/java/io/polaris/core/script/JavaScriptEvaluator.java:13` -- 引擎名常量 `"javascript"`。
+  - `polaris-core/src/main/java/io/polaris/core/script/AbstractStandardEvaluator.java:36` -- `manager.getEngineByName("javascript")`。
+  - `polaris-core/src/main/java/io/polaris/core/json/DefaultJsonSerializer.java:206` -- 也依赖 `ScriptEvaluators.getEvaluator("javascript")`。
 - **原因**：Nashorn（JS 引擎）自 **JDK 15 起被移除**（JEP 372）。JDK 17 下 `getEngineByName("javascript")` 返回 `null`。
 - **现状降级行为**：
   - 构造期 `AbstractStandardEvaluator.java:48` 打印 `log.error("脚本引擎不支持:{}", engineName)`。
@@ -81,21 +83,21 @@
   - 回退路径 1：反射 `ClassLoader.defineClass`（JDK 17 强封装下 `setAccessible` 失败，需 `--add-opens java.base/java.lang=ALL-UNNAMED`）。
   - 回退路径 2：`sun.misc.Unsafe#defineClass`（需 `--add-opens java.base/sun.misc=ALL-UNNAMED`）。
   - `AccessClassLoader` 最终还有 protected `defineClass`（本地加载器，JDK 17 可用）兜底。
-- **边界风险**：当目标类型位于**未 open 的命名模块**（如 JDK 内部 `java.*` 类、模块化用户代码）时，`privateLookupIn` 失败 → 回退到本地定义 → 生成的访问类访问目标 package-private 成员会被模块系统拒绝。对**普通应用类（classpath、非模块化）无影响**。
+- **边界风险**：当目标类型位于**未 open 的命名模块**（如 JDK 内部 `java.*` 类、模块化用户代码）时，`privateLookupIn` 失败 -> 回退到本地定义 -> 生成的访问类访问目标 package-private 成员会被模块系统拒绝。对**普通应用类（classpath、非模块化）无影响**。
 - **结论**：维持现状。如需对 JDK 内部类生成访问器，加 `--add-opens`。
 
 ### 2.2 `Reflects.removeFinalModifier` 反射 `Field.modifiers` ✅ 已降级
 
 - **位置**：`polaris-core/src/main/java/io/polaris/core/reflect/Reflects.java:1223-1233`。
-- **写法**：`Field.class.getDeclaredField("modifiers")` → `setAccessible(true)` → `setInt(field, ...)`。
+- **写法**：`Field.class.getDeclaredField("modifiers")` -> `setAccessible(true)` -> `setInt(field, ...)`。
 - **原因**：JDK 16+ 强封装下，对 `java.lang.reflect.Field` 的私有 `modifiers` 字段反射会抛 `InaccessibleObjectException`。
 - **现状**：已 `catch (RuntimeException e)` 返回 `false`，并在 `Reflects.java:1214-1219` 注释说明需 `--add-opens java.base/java.lang.reflect=ALL-UNNAMED` 才能恢复去除 final 的能力。功能受限但不崩溃。
 
 ### 2.3 `Xml` 默认 DocumentBuilderFactory 指向 JDK 内部类 ✅ 已回退
 
 - **位置**：
-  - `polaris-core/src/main/java/io/polaris/core/xml/Xml.java:85` —— 默认值 `"com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"`（JDK 内部非导出包）。
-  - `Xml.java:558-575`（`createDocumentBuilderFactory`）—— 已 `catch (Throwable ignored)` 回退到 `DocumentBuilderFactory.newInstance()`。
+  - `polaris-core/src/main/java/io/polaris/core/xml/Xml.java:85` -- 默认值 `"com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"`（JDK 内部非导出包）。
+  - `Xml.java:558-575`（`createDocumentBuilderFactory`）-- 已 `catch (Throwable ignored)` 回退到 `DocumentBuilderFactory.newInstance()`。
 - **结论**：JDK 17 下首次按类名查找失败一次后自动用 JDK 默认实现，可用。
 
 ### 2.4 `MemoryClassLoader` 对 `URLClassLoader` 的类型判定（行为差异，非致命）
@@ -120,12 +122,12 @@
 ### 3.1 `cglib 3.2.5` / `reflectasm 1.11.9` 与 ASM 9.4 的 API 错配 ⚠️ 中
 
 - **位置**：
-  - `polaris-extra/polaris-extension/pom.xml:79-83` —— `cglib:cglib:3.2.5`（2017 年）。
-  - `pom.xml:99`、`polaris-extension/pom.xml:68-71` —— `com.esotericsoftware:reflectasm:1.11.9`（2015 年）。
+  - `polaris-extra/polaris-extension/pom.xml:79-83` -- `cglib:cglib:3.2.5`（2017 年）。
+  - `pom.xml:99`、`polaris-extension/pom.xml:68-71` -- `com.esotericsoftware:reflectasm:1.11.9`（2015 年）。
   - 项目统一 ASM 版本：`org.ow2.asm:asm:9.4`（`pom.xml:97`）。
 - **原因**：cglib 3.2.5 / reflectasm 1.11.9 基于 **ASM 6.x API** 编写，而项目解析到 ASM 9.4。ASM 9.x 移除/改签了部分旧 API，旧代码可能触发 `NoSuchMethodError`。
 - **影响**：二者均为 `optional=true`，仅在使用对应功能（cglib 代理 / reflectasm 反射）时触发。
-- **建议**：升级 cglib → `3.3.0`；reflectasm 评估升级到较新维护版或替换为 polaris-core 自有的 ASM 增强（`AccessClassLoader` 系列已覆盖大部分反射场景）。
+- **建议**：升级 cglib -> `3.3.0`；reflectasm 评估升级到较新维护版或替换为 polaris-core 自有的 ASM 增强（`AccessClassLoader` 系列已覆盖大部分反射场景）。
 
 ### 3.2 字节码/代理库版本核对（多数 OK）
 
@@ -174,7 +176,7 @@
 
 - **改动 1（APT `SourceVersion`）**：✅ **已落地**。`BaseProcessor.java:65-68` override `getSupportedSourceVersion()` 返回 `SourceVersion.latestSupported()`；全仓已无 `@SupportedSourceVersion` 注解残留。
 - **改动 2（清理 `cn.pivoto.jdk:tools` 死依赖）**：`polaris-core-apt/pom.xml` 已无该依赖（仅 `jsr305`）；根 pom `jdk8` profile 中的 `tools:1.8` 仅在 `<jdk>(1.8,8]</jdk>` 激活，JDK 17 不引入。
-- **改动 3（`<source>/<target>` → `<release>8`）**：待实施。当前仍是 source/target 8（JDK 8 编译下唯一正确选择；若改 JDK 17 编译应切 `<release>8`）。
+- **改动 3（`<source>/<target>` -> `<release>8`）**：待实施。当前仍是 source/target 8（JDK 8 编译下唯一正确选择；若改 JDK 17 编译应切 `<release>8`）。
 
 ### 其他构建层事实
 
@@ -189,11 +191,13 @@
 
 ## 五、建议优先级
 
-1. **先处理 §1.1、§1.2**：JAXB 运行时实现缺失、Nashorn 移除 —— 这是 JDK 17 下 `Jaxb` / JS 求值功能直接不可用的真问题，需文档化或补 optional 依赖。
+1. **§1.2 Nashorn 移除**：JDK 17 下 JS 求值功能不可用的真问题，需文档化或补 optional 的独立 JS 引擎依赖（Nashorn standalone / GraalVM JS）。
 2. **§3.1**：评估 `cglib` / `reflectasm` 升级或剔除（若功能已被 `polaris-core` 自有 ASM 增强替代）。
 3. **§2.1-2.5** 已做适配，维持现状即可；如需恢复完整能力（去除 final、Unsafe 类定义等），在启动参数加对应 `--add-opens`。
-4. **§3.4** 按需在 JDK 17 跑测试时处理（`cobertura` → JaCoCo、`derby` 升级等）。
+4. **§3.4** 按需在 JDK 17 跑测试时处理（`cobertura` -> JaCoCo、`derby` 升级等）。
 5. **§4 编译层**：按 `.plan/java17-jdk-support-plan.md` 继续推进改动 3（`<release>8`）。
+
+> §1.1 JAXB 已于 2026-07-22 修复（补 `jaxb-runtime:2.3.3` optional 依赖），从待办中移除。
 
 ---
 
@@ -201,7 +205,7 @@
 
 | # | 位置 | 写法 | JDK 17 影响 | 严重度 | 状态 |
 |---|---|---|---|---|---|
-| 1 | `Jaxb.java:27,50` + `polaris-extension/pom.xml:195` | JAXB 仅 API 无实现 | 功能不可用 | 高 | 待处理 |
+| 1 | `Jaxb.java:27,50` + `polaris-extension/pom.xml:195` | JAXB 仅 API 无实现 | 功能不可用 | 高 | ✅ 已修复（补 `jaxb-runtime:2.3.3`） |
 | 2 | `JavaScriptEvaluator.java:13`、`AbstractStandardEvaluator.java:36` | 依赖已移除的 Nashorn | JS 求值不可用 | 高 | 待处理 |
 | 3 | `cglib 3.2.5`、`reflectasm 1.11.9` | 与 ASM 9.4 API 错配 | 可能 NoSuchMethodError | 中 | 待评估 |
 | 4 | `AsmReflects.java:269` 等 | 动态类定义反射回退 | 边界降级 | 低 | 已适配 |
