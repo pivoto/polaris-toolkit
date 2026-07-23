@@ -1,10 +1,10 @@
 ---
-name: git-commit
+name: commit
 description: 按本项目提交规范生成中文提交信息并提交当前变更。当用户要求"提交"、"commit"、"生成概要并提交"、"按规范提交"时使用。会分析 git 变更内容，按 【<type>】<subject> 格式生成提交信息，暂存并提交。
 tools: Bash, Read, Grep, Glob
 ---
 
-# git-commit 按规范生成概要并提交
+# commit 按规范生成概要并提交
 
 分析当前 git 变更内容，按本项目提交规范生成中文提交信息，暂存相关文件并提交。
 
@@ -26,7 +26,7 @@ tools: Bash, Read, Grep, Glob
 
 - **head**：`【<type>】<subject>`，subject 为一句话概要（不加句号）。
 - **body**（可选）：变更原因 / 解决方案 / 影响范围，分点或短段落。
-- **footer**：固定追加 `Co-Authored-By: Claude <noreply@anthropic.com>`。
+- **footer**：固定追加 `Co-Authored-By: Claude Bot`。
 
 ### type 对照表
 
