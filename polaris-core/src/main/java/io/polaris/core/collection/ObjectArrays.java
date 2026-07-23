@@ -1567,7 +1567,7 @@ public class ObjectArrays extends PrimitiveArrays {
 	public static boolean isAllEmpty(Object... args) {
 		if (args != null) {
 			for (Object obj : args) {
-				if (Objs.isEmpty(obj)) {
+				if (!Objs.isEmpty(obj)) {
 					return false;
 				}
 			}
