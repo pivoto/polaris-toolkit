@@ -14,6 +14,7 @@ import io.polaris.core.collection.Iterables;
 import io.polaris.core.collection.ObjectArrays;
 import io.polaris.core.collection.comparator.Comparators;
 import io.polaris.core.io.Serializations;
+import io.polaris.core.lang.bean.Beans;
 import io.polaris.core.reflect.Reflects;
 import io.polaris.core.string.Strings;
 
@@ -125,7 +126,7 @@ public class Objs {
 	 * 返回参数列表中第一个非空的值。如果所有参数均为null或参数列表为空，则返回null。
 	 *
 	 * @param args 可变数量的参数，按顺序检查每个参数是否为null
-	 * @param <T>  参数及返回值的泛型类型
+	 * @param <T> 参数及返回值的泛型类型
 	 * @return 第一个非null的参数值，或null（若所有参数均为null或无参数）
 	 */
 	@SafeVarargs
@@ -176,8 +177,8 @@ public class Objs {
 	 * Objs.defaultIfNull(Boolean.TRUE, *) = Boolean.TRUE
 	 * </pre>
 	 *
-	 * @param <T>          对象类型
-	 * @param object       被检查对象，可能为{@code null}
+	 * @param <T> 对象类型
+	 * @param object 被检查对象，可能为{@code null}
 	 * @param defaultValue 被检查对象为{@code null}返回的默认值，可以为{@code null}
 	 * @return 被检查对象为{@code null}返回默认值，否则返回原值
 	 */
@@ -188,9 +189,9 @@ public class Objs {
 	/**
 	 * 如果被检查对象为 {@code null}， 返回默认值（由 defaultValueSupplier 提供）；否则直接返回
 	 *
-	 * @param source               被检查对象
+	 * @param source 被检查对象
 	 * @param defaultValueSupplier 默认值提供者
-	 * @param <T>                  对象类型
+	 * @param <T> 对象类型
 	 * @return 被检查对象为{@code null}返回默认值，否则返回自定义handle处理后的返回值
 	 * @throws NullPointerException {@code defaultValueSupplier == null} 时，抛出
 	 */
@@ -204,9 +205,9 @@ public class Objs {
 	/**
 	 * 如果被检查对象为 {@code null}， 返回默认值（由 defaultValueSupplier 提供）；否则直接返回
 	 *
-	 * @param source               被检查对象
+	 * @param source 被检查对象
 	 * @param defaultValueSupplier 默认值提供者
-	 * @param <T>                  对象类型
+	 * @param <T> 对象类型
 	 * @return 被检查对象为{@code null}返回默认值，否则返回自定义handle处理后的返回值
 	 * @throws NullPointerException {@code defaultValueSupplier == null} 时，抛出
 	 */
@@ -220,10 +221,10 @@ public class Objs {
 	/**
 	 * 如果给定对象为{@code null} 返回默认值, 如果不为null 返回自定义handle处理后的返回值
 	 *
-	 * @param <T>          被检查对象为{@code null}返回默认值，否则返回自定义handle处理后的返回值
-	 * @param <R>          被检查的对象类型
-	 * @param source       Object 类型对象
-	 * @param handle       非空时自定义的处理方法
+	 * @param <T> 被检查对象为{@code null}返回默认值，否则返回自定义handle处理后的返回值
+	 * @param <R> 被检查的对象类型
+	 * @param source Object 类型对象
+	 * @param handle 非空时自定义的处理方法
 	 * @param defaultValue 默认为空的返回值
 	 * @return 处理后的返回值
 	 */
@@ -238,10 +239,10 @@ public class Objs {
 	/**
 	 * 如果给定对象为{@code null}或者""返回默认值, 否则返回自定义handle处理后的返回值
 	 *
-	 * @param str          String 类型
-	 * @param handle       自定义的处理方法
+	 * @param str String 类型
+	 * @param handle 自定义的处理方法
 	 * @param defaultValue 默认为空的返回值
-	 * @param <T>          被检查对象为{@code null}或者 ""返回默认值，否则返回自定义handle处理后的返回值
+	 * @param <T> 被检查对象为{@code null}或者 ""返回默认值，否则返回自定义handle处理后的返回值
 	 * @return 处理后的返回值
 	 */
 	public static <T> T defaultIfEmpty(String str, Function<CharSequence, ? extends T> handle, final T defaultValue) {
@@ -262,8 +263,8 @@ public class Objs {
 	 * Objs.defaultIfEmpty("abc", *)        = "abc"
 	 * </pre>
 	 *
-	 * @param <T>          对象类型（必须实现CharSequence接口）
-	 * @param str          被检查对象，可能为{@code null}
+	 * @param <T> 对象类型（必须实现CharSequence接口）
+	 * @param str 被检查对象，可能为{@code null}
 	 * @param defaultValue 被检查对象为{@code null}或者 ""返回的默认值，可以为{@code null}或者 ""
 	 * @return 被检查对象为{@code null}或者 ""返回默认值，否则返回原值
 	 */
@@ -274,9 +275,9 @@ public class Objs {
 	/**
 	 * 如果被检查对象为 {@code null} 或 "" 时，返回默认值（由 defaultValueSupplier 提供）；否则直接返回
 	 *
-	 * @param str                  被检查对象
+	 * @param str 被检查对象
 	 * @param defaultValueSupplier 默认值提供者
-	 * @param <T>                  对象类型（必须实现CharSequence接口）
+	 * @param <T> 对象类型（必须实现CharSequence接口）
 	 * @return 被检查对象为{@code null}返回默认值，否则返回自定义handle处理后的返回值
 	 * @throws NullPointerException {@code defaultValueSupplier == null} 时，抛出
 	 */
@@ -290,9 +291,9 @@ public class Objs {
 	/**
 	 * 如果被检查对象为 {@code null} 或 "" 时，返回默认值（由 defaultValueSupplier 提供）；否则直接返回
 	 *
-	 * @param str                  被检查对象
+	 * @param str 被检查对象
 	 * @param defaultValueSupplier 默认值提供者
-	 * @param <T>                  对象类型（必须实现CharSequence接口）
+	 * @param <T> 对象类型（必须实现CharSequence接口）
 	 * @return 被检查对象为{@code null}返回默认值，否则返回自定义handle处理后的返回值
 	 * @throws NullPointerException {@code defaultValueSupplier == null} 时，抛出
 	 */
@@ -314,8 +315,8 @@ public class Objs {
 	 * Objs.defaultIfBlank("abc", *)        = "abc"
 	 * </pre>
 	 *
-	 * @param <T>          对象类型（必须实现CharSequence接口）
-	 * @param str          被检查对象，可能为{@code null}
+	 * @param <T> 对象类型（必须实现CharSequence接口）
+	 * @param str 被检查对象，可能为{@code null}
 	 * @param defaultValue 被检查对象为{@code null}或者 ""或者空白符返回的默认值，可以为{@code null}或者 ""或者空白符
 	 * @return 被检查对象为{@code null}或者 ""或者空白符返回默认值，否则返回原值
 	 */
@@ -326,9 +327,9 @@ public class Objs {
 	/**
 	 * 如果被检查对象为 {@code null} 或 "" 或 空白字符串时，返回默认值（由 defaultValueSupplier 提供）；否则直接返回
 	 *
-	 * @param str                  被检查对象
+	 * @param str 被检查对象
 	 * @param defaultValueSupplier 默认值提供者
-	 * @param <T>                  对象类型（必须实现CharSequence接口）
+	 * @param <T> 对象类型（必须实现CharSequence接口）
 	 * @return 被检查对象为{@code null}返回默认值，否则返回自定义handle处理后的返回值
 	 * @throws NullPointerException {@code defaultValueSupplier == null} 时，抛出
 	 */
@@ -342,9 +343,9 @@ public class Objs {
 	/**
 	 * 如果被检查对象为 {@code null} 或 "" 或 空白字符串时，返回默认值（由 defaultValueSupplier 提供）；否则直接返回
 	 *
-	 * @param str                  被检查对象
+	 * @param str 被检查对象
 	 * @param defaultValueSupplier 默认值提供者
-	 * @param <T>                  对象类型（必须实现CharSequence接口）
+	 * @param <T> 对象类型（必须实现CharSequence接口）
 	 * @return 被检查对象为{@code null}返回默认值，否则返回自定义handle处理后的返回值
 	 * @throws NullPointerException {@code defaultValueSupplier == null} 时，抛出
 	 */
@@ -380,8 +381,8 @@ public class Objs {
 	 * 注意！！！ 此方法不会检查反序列化安全，可能存在反序列化漏洞风险！！！
 	 * </p>
 	 *
-	 * @param <T>           对象类型
-	 * @param bytes         反序列化的字节码
+	 * @param <T> 对象类型
+	 * @param bytes 反序列化的字节码
 	 * @param acceptClasses 白名单的类
 	 * @return 反序列化后的对象
 	 */
@@ -586,7 +587,7 @@ public class Objs {
 	 * <li>Array</li>
 	 * </ul>
 	 *
-	 * @param obj     对象
+	 * @param obj 对象
 	 * @param element 元素
 	 * @return 是否包含
 	 */
@@ -649,6 +650,55 @@ public class Objs {
 	/** @see Objects#nonNull(Object) */
 	public static boolean isNotNull(Object obj) {
 		return obj != null;
+	}
+
+	/**
+	 * 判断指定对象是否为空，支持：
+	 *
+	 * <pre>
+	 * 1. CharSequence
+	 * 2. Map
+	 * 3. Iterable
+	 * 4. Iterator
+	 * 5. Array
+	 * 6. Bean（普通 Java 对象）：所有属性均为空时返回 true
+	 * </pre>
+	 *
+	 * <p>对于普通 Java 对象（Bean），通过 {@link Beans#getIndexedFieldAndPropertyAccessors}
+	 * 获取其全部属性访问器并逐一取值判空，全部为空才视为空。仅判断当前一层属性：属性值若为
+	 * 内层对象，只要不为 {@code null} 即视为非空，不再递归判断其内部属性。</p>
+	 *
+	 * <p>对 {@code java.}/{@code javax.}/{@code jdk.} 包下的类型以及枚举返回 false，
+	 * 以避免对基础库类产生意外判空。</p>
+	 *
+	 * @param obj 被判断的对象
+	 * @return 是否为空，如果类型不支持，返回false
+	 */
+	public static boolean isEmptyBean(Object obj) {
+		if (null == obj) {
+			return true;
+		}
+		if (obj instanceof CharSequence) {
+			return Strings.isEmpty((CharSequence) obj);
+		} else if (obj instanceof Map) {
+			return ((Map<?, ?>) obj).isEmpty();
+		} else if (obj instanceof Iterable) {
+			return !((Iterable<?>) obj).iterator().hasNext();
+		} else if (obj instanceof Iterator) {
+			return !((Iterator<?>) obj).hasNext();
+		} else if (ObjectArrays.isArray(obj)) {
+			return ObjectArrays.isEmpty(obj);
+		}
+		Class<?> clazz = obj.getClass();
+		// 跳过枚举、基本类型、基本包装类型等
+		if (clazz.isEnum() || clazz.isPrimitive() || Types.isPrimitiveWrapper(clazz)) {
+			return false;
+		}
+		final String className = clazz.getName();
+		if (className.startsWith("java.") || className.startsWith("javax.") || className.startsWith("jdk.")) {
+			return false;
+		}
+		return Beans.isEmptyBean(obj);
 	}
 
 	/**
@@ -785,8 +835,8 @@ public class Objs {
 	 * {@code null}安全的对象比较，{@code null}对象排在末尾
 	 *
 	 * @param <T> 被比较对象类型
-	 * @param c1  对象1，可以为{@code null}
-	 * @param c2  对象2，可以为{@code null}
+	 * @param c1 对象1，可以为{@code null}
+	 * @param c2 对象2，可以为{@code null}
 	 * @return 比较结果，如果c1 &lt; c2，返回数小于0，c1==c2返回0，c1 &gt; c2 大于0
 	 * @see java.util.Comparator#compare(Object, Object)
 	 */
@@ -797,9 +847,9 @@ public class Objs {
 	/**
 	 * {@code null}安全的对象比较
 	 *
-	 * @param <T>         被比较对象类型
-	 * @param c1          对象1，可以为{@code null}
-	 * @param c2          对象2，可以为{@code null}
+	 * @param <T> 被比较对象类型
+	 * @param c1 对象1，可以为{@code null}
+	 * @param c2 对象2，可以为{@code null}
 	 * @param nullGreater 当被比较对象为null时是否排在前面
 	 * @return 比较结果，如果c1 &lt; c2，返回数小于0，c1==c2返回0，c1 &gt; c2 大于0
 	 * @see java.util.Comparator#compare(Object, Object)
@@ -821,7 +871,7 @@ public class Objs {
 	/**
 	 * 获得给定类的第一个泛型参数
 	 *
-	 * @param obj   被检查的对象
+	 * @param obj 被检查的对象
 	 * @param index 泛型类型的索引号，即第几个泛型类型
 	 * @return {@link Class}
 	 */

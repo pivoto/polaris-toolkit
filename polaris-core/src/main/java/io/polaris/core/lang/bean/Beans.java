@@ -54,6 +54,28 @@ public class Beans {
 		return isBean;
 	}
 
+	public static boolean isEmptyBean(Object bean){
+		final Class<?> clazz = bean.getClass();
+		Map<String, PropertyAccessor> accessors = Beans.getIndexedFieldAndPropertyAccessors(clazz);
+		if (accessors.isEmpty()) {
+			return true;
+		}
+		for (PropertyAccessor accessor : accessors.values()) {
+			try {
+				if (accessor.hasGetter()) {
+					Object val = accessor.get(bean);
+					if (val != null) {
+						return false;
+					}
+				}
+			} catch (Exception e) {
+				// 属性取值失败时跳过该属性（视为空）
+				continue;
+			}
+		}
+		return true;
+	}
+
 	public static <T> BeanMapBuilder<T> newBeanMapBuilder(@Nonnull T bean) {
 		return BeanMapBuilder.of(bean);
 	}
